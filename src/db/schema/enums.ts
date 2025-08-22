@@ -8,5 +8,5 @@ export const reviewStatusEnum = pgEnum("review_status", ["pending","approved","r
 export const planEnum = pgEnum("plan", ["free","pro","pro_plus"]);
 export const reviewerPermStatusEnum = pgEnum("reviewer_perm_status", ["pending","granted","revoked"]);
 export const inviteStatusEnum = pgEnum("invite_status", ["sent","accepted","expired","revoked"]);
-
+export const playerStatusEnum = pgEnum("player_status", ["draft","pending_review","approved","rejected"]);
 
