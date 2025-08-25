@@ -19,9 +19,10 @@ export default async function AuthGate() {
   }
 
   // Player profile vinculado (si existe)
+// ⬇️ Traemos también visibility y status para decidir si el perfil es “público & aprobado”
   const { data: profile } = await supabase
     .from("player_profiles")
-    .select("slug, avatar_url")
+    .select("slug, avatar_url, visibility, status")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -33,13 +34,16 @@ export default async function AuthGate() {
   // Si tenés un handle (@slug) lo mostramos, si no el email
   const handle = profile?.slug ? `@${profile.slug}` : null;
 
+  const hasPublicProfile =
+    !!profile && profile.visibility === "public" && profile.status === "approved";
+
   return (
     <UserMenu
       displayName={displayName}
       email={user.email ?? ""}
       handle={handle}
       avatarUrl={profile?.avatar_url ?? null}
-      hasPlayerProfile={!!profile}
+      hasPlayerProfile={hasPublicProfile} 
       playerSlug={profile?.slug ?? null}
       onSignOut={signOutAction}
     />

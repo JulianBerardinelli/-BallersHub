@@ -12,7 +12,7 @@ export default function UserMenuHero({
   email,
   handle,
   avatarUrl,
-  hasPlayerProfile,
+  hasPlayerProfile,   // ahora significa: “público & aprobado”
   playerSlug,
   onSignOut,
 }: {
@@ -22,7 +22,7 @@ export default function UserMenuHero({
   avatarUrl?: string | null;
   hasPlayerProfile: boolean;
   playerSlug?: string | null;
-  onSignOut: () => Promise<void>; // server action
+  onSignOut: () => Promise<void>;
 }) {
   const [pending, startTransition] = useTransition();
 
@@ -55,7 +55,8 @@ export default function UserMenuHero({
             Ver perfil público
           </DropdownItem>
         ) : (
-          <DropdownItem key="apply" as={Link} href="/onboarding/player/apply" color="primary">
+          // 🔹 Primero ver planes; desde ahí ir al apply
+          <DropdownItem key="apply" as={Link} href="/onboarding/player/plan" color="primary">
             Solicitar cuenta de jugador
           </DropdownItem>
         )}
@@ -78,7 +79,6 @@ export default function UserMenuHero({
         <DropdownItem key="settings" as={Link} href="/dashboard/settings">
           Configuración
         </DropdownItem>
-
         <DropdownItem
           key="logout"
           color="danger"

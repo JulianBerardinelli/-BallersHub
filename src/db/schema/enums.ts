@@ -10,3 +10,6 @@ export const reviewerPermStatusEnum = pgEnum("reviewer_perm_status", ["pending",
 export const inviteStatusEnum = pgEnum("invite_status", ["sent","accepted","expired","revoked"]);
 export const playerStatusEnum = pgEnum("player_status", ["draft","pending_review","approved","rejected"]);
 
+
+export type Visibility = (typeof visibilityEnum.enumValues)[number];
+export type PlayerStatus = (typeof playerStatusEnum.enumValues)[number];

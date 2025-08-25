@@ -31,8 +31,14 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
 
   // 1) Jugador público
   const player = await db.query.playerProfiles.findFirst({
-    where: (p, { and, eq }) => and(eq(p.slug, slug), eq(p.visibility, "public" as any), eq(p.status, "approved" as any)),
+    where: (p, { and, eq }) =>
+      and(
+        eq(p.slug, slug),
+        eq(p.visibility, "public"),
+        eq(p.status, "approved"),
+      ),
   });
+
   if (!player) return notFound();
 
   // 2) Plan y límites
