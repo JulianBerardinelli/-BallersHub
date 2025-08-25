@@ -1,9 +1,11 @@
+// src/components/layout/searchbar/mobile/ResultsListMobile.tsx
 "use client";
 
 import { Avatar } from "@heroui/react";
 import VerifiedBadge from "@/components/icons/VerifiedBadge";
 import { formatMarketValueEUR } from "@/lib/format";
 import type { PlayerHit } from "../usePlayerSearch";
+import TeamCrest from "@/components/team/TeamCrest";
 
 function planToAvatarColor(plan?: PlayerHit["plan"]) {
   if (plan === "pro") return "primary";
@@ -85,8 +87,10 @@ export default function ResultsListMobile({
                   />
                 )}
               </div>
-              <p className="text-xs opacity-70 truncate">
-                {primaryPos} • {r.club ?? "—"}
+              <p className="text-xs opacity-70 truncate flex items-center gap-2">
+                {/* crest + club + posición */}
+                <TeamCrest src={r.clubCrestUrl} size={14} />
+                <span className="truncate">{primaryPos} • {r.club ?? "—"}</span>
               </p>
             </div>
 

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import SearchBar from "./searchbar/SearchBar";
 
 type NavItem = { href: string; label: string };
 

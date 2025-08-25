@@ -1,28 +1,37 @@
 // src/components/team/TeamCrest.tsx
 "use client";
 
-import Image from "next/image";
-import { teamLogoUrl } from "@/lib/storage";
 
 export default function TeamCrest({
-  path,
-  name,
-  size = 20,
+  src,
+  name = "Club",
+  size = 18,
   className = "",
+  title,
 }: {
-  path?: string | null;
-  name: string;
-  size?: number;
+  src?: string | null;
+  name?: string;
+  size?: number;         // px
   className?: string;
+  title?: string;
 }) {
-  const url = teamLogoUrl(path);
+  const url = src && src.trim() ? src : "/images/team-default.svg";
+  const px = `${size}px`;
   return (
-    <Image
-      src={url}
-      alt={`${name} crest`}
-      width={size}
-      height={size}
-      className={`rounded-[3px] shrink-0 ${className}`}
-    />
+    <span
+      className={`inline-flex items-center justify-center shrink-0 ${className}`}
+      style={{ width: px, height: px }}
+    >
+      <img
+        src={url}
+        alt={name}
+        title={title ?? name}
+        loading="lazy"
+        decoding="async"
+        className="block w-full h-full"
+        style={{ objectFit: "contain" }} // 👈 clave: no recorta
+      />
+    </span>
   );
 }
+

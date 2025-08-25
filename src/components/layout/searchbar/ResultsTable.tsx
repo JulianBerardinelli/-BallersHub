@@ -8,14 +8,14 @@ import {
 import type { PlayerHit } from "./usePlayerSearch";
 import { formatMarketValueEUR } from "@/lib/format";
 import VerifiedBadge from "@/components/icons/VerifiedBadge";
-import TeamCrest from "@/components/team/TeamCrest"; 
+import TeamCrest from "@/components/team/TeamCrest";
 
 /** % por columna (suma 100%) para evitar overflow */
 const COLS = {
-  player: "w-[44%] max-w-0",   // nombre + posición (truncable)
-  club:   "w-[29%] max-w-0",   // crest + club (truncable)
-  value:  "w-[13%]",           // valor alineado a la derecha
-  reviews:"w-[14%]",           // reseñas/gate
+  player: "w-[44%] max-w-0",
+  club:   "w-[29%] max-w-0",
+  value:  "w-[13%]",
+  reviews:"w-[14%]",
 };
 
 function planAvatarProps(plan: PlayerHit["plan"]) {
@@ -42,10 +42,7 @@ export default function ResultsTable({
     <Table
       removeWrapper
       aria-label="Search results"
-      classNames={{
-        /** tabla ocupa el ancho disponible del modal sin forzar min-width grande */
-        table: "table-fixed w-full",
-      }}
+      classNames={{ table: "table-fixed w-full" }}
     >
       <TableHeader>
         <TableColumn className={COLS.player}>Player</TableColumn>
@@ -58,7 +55,6 @@ export default function ResultsTable({
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
               <TableRow key={`s-${i}`}>
-                {/* Player (skeleton) */}
                 <TableCell className={COLS.player}>
                   <div className="flex items-center gap-3 min-w-0">
                     <Skeleton className="h-12 w-12 rounded-full" />
@@ -68,23 +64,17 @@ export default function ResultsTable({
                     </div>
                   </div>
                 </TableCell>
-
-                {/* Club (skeleton) */}
                 <TableCell className={COLS.club}>
                   <div className="flex items-center gap-2 min-w-0">
                     <Skeleton className="h-5 w-5 rounded-[3px]" />
                     <Skeleton className="h-4 w-44 rounded-md" />
                   </div>
                 </TableCell>
-
-                {/* Value (skeleton) */}
                 <TableCell className={COLS.value}>
                   <div className="flex justify-end">
                     <Skeleton className="h-4 w-16 rounded-md" />
                   </div>
                 </TableCell>
-
-                {/* Reviews (skeleton) */}
                 <TableCell className={COLS.reviews}>
                   <div className="flex justify-end gap-3">
                     <Skeleton className="h-4 w-20 rounded-md" />
@@ -134,7 +124,7 @@ export default function ResultsTable({
                   {/* Club: crest + name */}
                   <TableCell className={COLS.club}>
                     <div className="flex items-center gap-2 min-w-0">
-                      {/* <TeamCrest path={r.clubLogoPath} name={r.club ?? "Club"} size={18} /> */}
+                      <TeamCrest src={r.clubCrestUrl} size={28} />
                       <span className="truncate block">{r.club ?? "—"}</span>
                     </div>
                   </TableCell>
@@ -146,7 +136,7 @@ export default function ResultsTable({
                     </div>
                   </TableCell>
 
-                  {/* Reviews (gated) */}
+                  {/* Reviews */}
                   <TableCell className={COLS.reviews}>
                     <div className="text-right">
                       {r.plan === "free" ? (
