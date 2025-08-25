@@ -1,7 +1,8 @@
 // player_profiles
-import { pgTable, uuid, text, timestamp, integer, date } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer, date, numeric } from "drizzle-orm/pg-core";
 import { playerStatusEnum, visibilityEnum } from "./enums";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+
 
 export const playerProfiles = pgTable("player_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -19,6 +20,7 @@ export const playerProfiles = pgTable("player_profiles", {
   avatarUrl: text("avatar_url").notNull().default("/images/player-default.jpg"),
   visibility: visibilityEnum("visibility").notNull().default("public"),
   status: playerStatusEnum("status").notNull().default("draft"),
+  marketValueEur: numeric("market_value_eur", { precision: 12, scale: 2 }).$type<number | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { playerProfiles, subscriptions, playerMedia, careerItems } from "@/db/schema";
 import { and, eq, desc } from "drizzle-orm";
+import { formatMarketValueEUR } from "@/lib/format";
 
 export const revalidate = 3600;
 type Params = Promise<{ slug: string }>;
@@ -10,7 +11,7 @@ type Params = Promise<{ slug: string }>;
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const player = await db.query.playerProfiles.findFirst({
-  where: (p, { and, eq }) => and(eq(p.slug, slug), eq(p.visibility, "public" as any), eq(p.status, "approved" as any)),
+    where: (p, { and, eq }) => and(eq(p.slug, slug), eq(p.visibility, "public" as any), eq(p.status, "approved" as any)),
     columns: { fullName: true, bio: true, positions: true, avatarUrl: true, },
   });
   if (!player) return { title: "Jugador no encontrado" };
@@ -30,7 +31,7 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
 
   // 1) Jugador público
   const player = await db.query.playerProfiles.findFirst({
-  where: (p, { and, eq }) => and(eq(p.slug, slug), eq(p.visibility, "public" as any), eq(p.status, "approved" as any)),
+    where: (p, { and, eq }) => and(eq(p.slug, slug), eq(p.visibility, "public" as any), eq(p.status, "approved" as any)),
   });
   if (!player) return notFound();
 
@@ -59,17 +60,21 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
     <main className="mx-auto max-w-5xl px-4 py-8 space-y-8">
       {/* Header básico */}
       <section>
-      <img
-        src={player.avatarUrl || "/images/player-default.jpg"}
-        alt={`Foto de ${player.fullName}`}
-        className="size-24 rounded-xl object-cover ring-1 ring-neutral-200"
-      />
+        <img
+          src={player.avatarUrl || "/images/player-default.jpg"}
+          alt={`Foto de ${player.fullName}`}
+          className="size-24 rounded-xl object-cover ring-1 ring-neutral-200"
+        />
         <h1 className="text-3xl font-bold">{player.fullName}</h1>
         {player.positions?.length ? (
           <p className="text-sm text-neutral-600">{player.positions.join(" · ")}</p>
         ) : null}
         {player.currentClub ? <p className="text-sm">Club actual: {player.currentClub}</p> : null}
         {player.bio ? <p className="mt-3">{player.bio}</p> : null}
+        {player.marketValueEur != null && (
+          <p className="text-sm">Valor de mercado: {formatMarketValueEUR(player.marketValueEur)}</p>
+        )}
+
       </section>
 
       {/* Trayectoria */}
@@ -103,7 +108,7 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
           <p className="mt-2 text-xs text-neutral-500">Plan: {plan}</p>
         </section>
       )}
-      
+
     </main>
   );
 }

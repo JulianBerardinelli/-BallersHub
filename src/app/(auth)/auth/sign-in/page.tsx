@@ -2,7 +2,7 @@
 
 import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -21,12 +21,21 @@ export default function SignInPage() {
 
   async function signInOAuth(provider: "google") {
     setError(null);
+    const origin = window.location.origin;                   // ← http://localhost:3000 en dev
+    const redirectTo = `${origin}/auth/callback?redirect=/dashboard`;
+  
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo },
     });
     if (error) setError(error.message);
   }
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) router.replace("/dashboard");
+    });
+  }, [router]);
+  
 
   return (
     <div className="space-y-4">

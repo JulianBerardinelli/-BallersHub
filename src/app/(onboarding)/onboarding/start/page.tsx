@@ -1,6 +1,9 @@
+// src/app/onboarding/start/page.tsx
 import Link from "next/link";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+export const dynamic = "force-dynamic";
 
 export default async function StartPage() {
   const supabase = await createSupabaseServerRSC();
@@ -16,9 +19,7 @@ export default async function StartPage() {
         <Link href="/onboarding/player/plan" className="rounded-md border px-4 py-3 hover:bg-neutral-900">
           Soy Jugador/a
         </Link>
-        <Link href="/onboarding/other" className="rounded-md border px-4 py-3 hover:bg-neutral-900">
-          Soy DT / Scout / Dirigente (próximamente)
-        </Link>
+        <div className="rounded-md border px-4 py-3 opacity-60">Soy DT / Scout / Dirigente (próximamente)</div>
       </div>
 
       <div className="pt-4">

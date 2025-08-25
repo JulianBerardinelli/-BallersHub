@@ -1,6 +1,9 @@
-// app/(auth)/auth/callback/route.ts
+// src/app/(auth)/auth/callback/route.ts
 import { NextResponse } from "next/server";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseServerRoute } from "@/lib/supabase/server";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
@@ -8,14 +11,15 @@ export async function GET(req: Request) {
   let next = url.searchParams.get("redirect") || "/dashboard";
 
   if (code) {
-    const supabase = await createSupabaseServer();
-    await supabase.auth.exchangeCodeForSession(code);
+    const supabase = await createSupabaseServerRoute();
+    const { error: exErr } = await supabase.auth.exchangeCodeForSession(code);
+    if (exErr) {
+      return NextResponse.redirect(new URL(`/auth/sign-in?error=${encodeURIComponent(exErr.message)}`, url.origin));
+    }
 
-    // ensure user_profiles exists and decide next step
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      await supabase.from("user_profiles")
-        .upsert({ user_id: user.id })            // default role = 'member'
+      await supabase.from("user_profiles").upsert({ user_id: user.id }); // role=member
 
       const [{ data: pp }, { data: rp }, { data: up }] = await Promise.all([
         supabase.from("player_profiles").select("id").eq("user_id", user.id).maybeSingle(),
@@ -23,13 +27,10 @@ export async function GET(req: Request) {
         supabase.from("user_profiles").select("role").eq("user_id", user.id).maybeSingle(),
       ]);
 
-      const role = up?.role ?? "member";
+      const role = (up as any)?.role ?? "member";
       const hasAnyProfile = !!pp || !!rp;
-
-      if (!hasAnyProfile && role === "member") {
-        next = "/onboarding/start";
-      }
+      if (!hasAnyProfile && role === "member") next = "/onboarding/start";
     }
   }
-  return NextResponse.redirect(new URL(next, req.url));
+  return NextResponse.redirect(new URL(next, url.origin));
 }

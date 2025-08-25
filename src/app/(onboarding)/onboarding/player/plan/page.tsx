@@ -1,9 +1,10 @@
+// src/app/onboarding/plan/page.tsx
 import Link from "next/link";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function PlayerPlanPage() {
-  const supabase = await createSupabaseServer();
+  const supabase = await createSupabaseServerRSC();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/onboarding/player/plan");
 

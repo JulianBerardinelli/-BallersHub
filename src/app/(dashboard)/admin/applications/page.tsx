@@ -1,3 +1,4 @@
+// src/app/(dashboard)/admin/applications/page.tsx
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
@@ -6,7 +7,6 @@ export default async function AdminApplicationsPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/admin/applications");
 
-  // ¿es admin?
   const { data: up } = await supabase.from("user_profiles").select("role").eq("user_id", user.id).maybeSingle();
   if (up?.role !== "admin") redirect("/dashboard");
 
@@ -32,7 +32,6 @@ export default async function AdminApplicationsPage() {
                 <button className="rounded-md border px-3 py-1.5">Aprobar</button>
               </form>
             </div>
-
             <div className="mt-3 text-sm text-neutral-300">
               {a.transfermarkt_url && <p>TM: <a className="underline" href={a.transfermarkt_url} target="_blank">link</a></p>}
               {a.id_doc_url && <KycLink path={a.id_doc_url} label="Documento" />}
@@ -45,10 +44,8 @@ export default async function AdminApplicationsPage() {
   );
 }
 
-// Componente server para firmar URL de KYC
 async function KycLink({ path, label }: { path: string; label: string }) {
   const supabase = await createSupabaseServerRSC();
-  // signed URL 5 min
   const { data, error } = await supabase.storage.from("kyc").createSignedUrl(path, 60*5);
   if (error || !data?.signedUrl) return <p className="text-red-500">No se pudo firmar {label}</p>;
   return <p>{label}: <a className="underline" href={data.signedUrl} target="_blank">ver</a></p>;
