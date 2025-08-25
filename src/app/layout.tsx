@@ -9,7 +9,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: { default: "BallersHub", template: "%s • BallersHub" },
+  title: { default: "'BallersHub", template: "%s • 'BallersHub" },
   description: "Perfiles profesionales de futbolistas.",
   openGraph: { siteName: "BallersHub", type: "website" },
   twitter: { card: "summary_large_image" },

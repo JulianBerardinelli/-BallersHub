@@ -10,7 +10,7 @@ export default async function Home() {
     <main className="mx-auto max-w-6xl p-8 space-y-8">
       {/* Header con Auth */}
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">'BallersHub</h1>
+        <h1 className="text-2xl font-bold">&apos;BallersHub</h1>
         <AuthGate/>
       </header>
 
