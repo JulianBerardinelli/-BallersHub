@@ -2,10 +2,11 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
-import TeamAdminCard from "./team_admin_card";
+import TeamsTableUI from "./TeamsTableUI";
+import type { TeamRow } from "./types";
 
 export default async function AdminTeamsPage() {
-  noStore(); // 👈 evita cache en el listado
+  noStore();
 
   const supabase = await createSupabaseServerRSC();
   const { data: { user } } = await supabase.auth.getUser();
@@ -18,23 +19,42 @@ export default async function AdminTeamsPage() {
     .maybeSingle();
   if (up?.role !== "admin") redirect("/dashboard");
 
+  // ⚠️ Traemos TODOS los equipos (pendientes / aprobados / rechazados)
   const { data: teams, error } = await supabase
     .from("teams")
-    .select("id, name, slug, country, status, crest_url, requested_by_user_id, requested_in_application_id, created_at, tags, alt_names, category, transfermarkt_url")
-    .eq("status", "pending")
-    .order("created_at", { ascending: true });
+    .select(`
+      id, name, slug, country, country_code, category, transfermarkt_url,
+      status, crest_url, created_at, updated_at, requested_in_application_id
+    `)
+    .order("created_at", { ascending: false });
+
+  const items: TeamRow[] = (teams ?? []).map(t => ({
+    id: t.id,
+    name: t.name,
+    slug: t.slug ?? null,
+    country: t.country ?? null,
+    country_code: t.country_code ?? null,
+    category: t.category ?? null,
+    transfermarkt_url: t.transfermarkt_url ?? null,
+    status: t.status as TeamRow["status"],
+    crest_url: t.crest_url ?? null,
+    created_at: t.created_at,
+    updated_at: t.updated_at ?? null,
+    requested_in_application_id: t.requested_in_application_id ?? null,
+  }));
 
   return (
-    <main className="mx-auto max-w-5xl p-8 space-y-6">
-      <h1 className="text-2xl font-semibold">Equipos pendientes</h1>
+    <main className="mx-auto max-w-6xl p-8 space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold">Equipos</h1>
+        <p className="text-sm text-neutral-500">
+          Gestioná solicitudes pendientes y editá equipos aprobados.
+        </p>
+      </div>
+
       {error && <p className="text-red-500">{error.message}</p>}
 
-      <div className="grid gap-4">
-        {(teams ?? []).map((t) => (
-          <TeamAdminCard key={t.id} team={t} />
-        ))}
-        {(!teams || teams.length === 0) && <p className="text-neutral-500">No hay equipos pendientes.</p>}
-      </div>
+      <TeamsTableUI items={items} />
     </main>
   );
 }

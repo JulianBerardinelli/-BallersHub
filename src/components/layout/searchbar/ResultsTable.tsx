@@ -8,7 +8,7 @@ import {
 import type { PlayerHit } from "./usePlayerSearch";
 import { formatMarketValueEUR } from "@/lib/format";
 import VerifiedBadge from "@/components/icons/VerifiedBadge";
-import TeamCrest from "@/components/team/TeamCrest";
+import TeamCrest from "@/components/teams/TeamCrest";
 
 /** % por columna (suma 100%) para evitar overflow */
 const COLS = {

@@ -122,6 +122,7 @@ export default function PlayerApplyPage() {
         p_country: teamCountry || null,
         p_category: teamCategory || null,
         p_tm_url: teamTmUrl || null,
+        p_country_code: teamChoice.countryCode ?? null, 
       });
       if (rpcErr) {
         console.error("request_team_from_application:", rpcErr.message);

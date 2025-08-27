@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { Card, CardHeader, CardBody, Input, Button, Chip } from "@heroui/react";
-import TeamCrest from "@/components/team/TeamCrest";
+import TeamCrest from "@/components/teams/TeamCrest";
 
 type TeamPending = {
   id: string;

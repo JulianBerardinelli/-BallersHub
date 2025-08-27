@@ -40,7 +40,7 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
           : "bg-transparent",
       ].join(" ")}
     >
-      <div className="mx-auto flex h-24 max-w-6xl items-center gap-4 px-4">
+      <div className="mx-auto flex h-24 max-w-7xl items-center gap-4 px-4">
         {/* Logo / marca */}
         <Link href="/(site)" className="font-semibold tracking-tight text-white">
             <h1 className="text-2xl font-bold">'BallersHub</h1>

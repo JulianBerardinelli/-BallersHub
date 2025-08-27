@@ -5,7 +5,7 @@ import { Avatar } from "@heroui/react";
 import VerifiedBadge from "@/components/icons/VerifiedBadge";
 import { formatMarketValueEUR } from "@/lib/format";
 import type { PlayerHit } from "../usePlayerSearch";
-import TeamCrest from "@/components/team/TeamCrest";
+import TeamCrest from "@/components/teams/TeamCrest";
 
 function planToAvatarColor(plan?: PlayerHit["plan"]) {
   if (plan === "pro") return "primary";

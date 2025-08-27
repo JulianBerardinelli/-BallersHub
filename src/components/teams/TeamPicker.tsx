@@ -1,20 +1,34 @@
+// src/components/teams/TeamPicker.tsx
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { Input, Button, Chip, Spinner } from "@heroui/react";
+import CountryFlag from "@/components/common/CountryFlag";
 
 export type TeamLite = {
   id: string;
   name: string;
   slug: string;
   country: string | null;
+  country_code: string | null;      // ⬅️ NUEVO: viene de search_teams
   crest_url: string | null;
 };
 
 export type TeamPickerValue =
-  | { mode: "approved"; teamId: string; teamName: string; country?: string | null }
-  | { mode: "new"; name: string; country?: string | null }
+  | {
+      mode: "approved";
+      teamId: string;
+      teamName: string;
+      country?: string | null;
+      countryCode?: string | null;  // ⬅️ NUEVO
+    }
+  | {
+      mode: "new";
+      name: string;
+      country?: string | null;
+      countryCode?: string | null;  // ⬅️ NUEVO
+    }
   | { mode: "free" };
 
 export default function TeamPicker({
@@ -65,6 +79,7 @@ export default function TeamPicker({
       setResults([]);
       return;
     }
+    // data ahora incluye country_code
     setResults((data ?? []) as TeamLite[]);
   }, []);
 
@@ -75,16 +90,37 @@ export default function TeamPicker({
   }, [q, doSearch]);
 
   const onPickApproved = (t: TeamLite) => {
-    const v: TeamPickerValue = { mode: "approved", teamId: t.id, teamName: t.name, country: t.country ?? undefined };
+    const v: TeamPickerValue = {
+      mode: "approved",
+      teamId: t.id,
+      teamName: t.name,
+      country: t.country ?? undefined,
+      countryCode: t.country_code ?? undefined,   // ⬅️ guardamos el ISO-2
+    };
     setPicked(v);
     onChange(v);
   };
 
+  // heurística simple: si el usuario escribió 2 letras, lo tomamos como ISO-2
+  function parseCountryInputs(input: string): { name?: string; code?: string } {
+    const raw = (input || "").trim();
+    if (!raw) return {};
+    if (/^[a-z]{2}$/i.test(raw)) return { code: raw.toUpperCase() };
+    return { name: raw };
+  }
+
   const onPickNew = async () => {
     const name = q.trim();
-    const ctry = country.trim() || undefined;
     if (!name) return;
-    const v: TeamPickerValue = { mode: "new", name, country: ctry };
+
+    const { name: countryName, code: countryCode } = parseCountryInputs(country);
+
+    const v: TeamPickerValue = {
+      mode: "new",
+      name,
+      country: countryName,
+      countryCode,     // ⬅️ si puso AR/FI, lo pasamos
+    };
     setPicked(v);
     onChange(v);
 
@@ -93,10 +129,12 @@ export default function TeamPicker({
       const { error } = await supabase.rpc("request_team_from_application", {
         p_application_id: applicationId,
         p_name: name,
-        p_country: ctry ?? null,
+        p_country: countryName ?? null,
+        p_category: null,
+        p_tm_url: null,
+        p_country_code: countryCode ?? null,  // ⬅️ NUEVO param
       });
       if (error) console.error("request_team_from_application error:", error.message);
-      // No necesitamos el id del team ahora; el admin lo verá en /admin/teams
     }
   };
 
@@ -107,7 +145,9 @@ export default function TeamPicker({
   };
 
   const hasMatches = results.length > 0;
-  const showNewOption = q.trim().length > 1 && (!hasMatches || !results.some(r => r.name.toLowerCase() === q.trim().toLowerCase()));
+  const showNewOption =
+    q.trim().length > 1 &&
+    (!hasMatches || !results.some(r => r.name.toLowerCase() === q.trim().toLowerCase()));
 
   return (
     <div className="grid gap-3">
@@ -123,11 +163,11 @@ export default function TeamPicker({
         </div>
         <div className="w-44">
           <Input
-            label="País (opcional)"
-            description="Ej: Argentina / AR"
+            label="País (nombre o ISO-2)"
+            description="Ej: Argentina o AR"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            placeholder="Argentina"
+            placeholder="Argentina / AR"
           />
         </div>
       </div>
@@ -143,18 +183,19 @@ export default function TeamPicker({
             {results.map((t) => (
               <li key={t.id} className="flex items-center justify-between rounded-md bg-neutral-900 p-2">
                 <div className="flex items-center gap-3">
-                  {/* crest opcional */}
+                  {/* crest con object-contain para no recortar */}
                   <img
                     src={t.crest_url || "/images/team-default.svg"}
                     alt=""
                     width={24}
                     height={24}
-                    className="h-6 w-6 rounded-sm object-cover"
+                    className="h-6 w-6 rounded-[3px] object-contain bg-neutral-800"
                   />
                   <div>
                     <p className="text-sm font-medium">{t.name}</p>
                     <p className="text-xs text-neutral-500">
-                      {t.country ?? "—"} · @{t.slug}
+                    <CountryFlag code={t.country_code ?? undefined} title={t.country ?? t.country_code ?? undefined} size={12} />
+                      {t.country_code ? ` (${t.country_code})` : ""} · @{t.slug}
                     </p>
                   </div>
                 </div>
@@ -167,7 +208,9 @@ export default function TeamPicker({
         )}
 
         {!loading && !hasMatches && q.trim() && (
-          <p className="mt-2 text-sm text-neutral-500">No encontramos equipos con “{q.trim()}”.</p>
+          <p className="mt-2 text-sm text-neutral-500">
+            No encontramos equipos con “{q.trim()}”.
+          </p>
         )}
 
         {showNewOption && (
@@ -190,12 +233,16 @@ export default function TeamPicker({
 
       {picked?.mode === "approved" && (
         <Chip color="success" variant="flat">
-          Seleccionado: {picked.teamName} {picked.country ? `· ${picked.country}` : ""}
+          Seleccionado: {picked.teamName}
+          {picked.country ? ` · ${picked.country}` : ""}
+          {picked.countryCode ? ` (${picked.countryCode})` : ""}
         </Chip>
       )}
       {picked?.mode === "new" && (
         <Chip color="warning" variant="flat">
-          Equipo propuesto: {picked.name} {picked.country ? `· ${picked.country}` : ""}
+          Equipo propuesto: {picked.name}
+          {picked.country ? ` · ${picked.country}` : ""}
+          {picked.countryCode ? ` (${picked.countryCode})` : ""}
         </Chip>
       )}
       {picked?.mode === "free" && (
