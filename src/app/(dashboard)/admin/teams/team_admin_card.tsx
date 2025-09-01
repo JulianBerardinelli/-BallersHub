@@ -108,7 +108,7 @@ export default function TeamAdminCard({ team }: { team: TeamPending }) {
   }
 
   return (
-    <Card className="border border-neutral-800">
+    <Card shadow="sm" radius="lg" className="ring-0 border-0">
       <CardHeader className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <TeamCrest src={crestUrl} size={40} />
@@ -118,7 +118,9 @@ export default function TeamAdminCard({ team }: { team: TeamPending }) {
               Creado: <DateClient iso={team.created_at} />
             </p>
           </div>
+          
         </div>
+
         <Chip color="warning" variant="flat">pending</Chip>
       </CardHeader>
 
@@ -126,38 +128,43 @@ export default function TeamAdminCard({ team }: { team: TeamPending }) {
         {err && <p className="text-sm text-red-500">{err}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Input label="Nombre" value={name} onChange={(e) => setName(e.target.value)} />
-          <Input
-            label="Slug (opcional)"
-            value={slug}
-            onChange={(e) => setSlug(e.target.value)}
-            description="Si lo dejás vacío, se genera automáticamente al aprobar."
-          />
-          <Input label="País" value={country} onChange={(e) => setCountry(e.target.value)} />
-          <Input label="Categoría" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Primera / Sub-20 / Amateur…" />
-          <Input label="Tags (coma)" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="ej: xeneize, juvenil" />
-          <Input label="Otros nombres (coma)" value={altNames} onChange={(e) => setAltNames(e.target.value)} placeholder="alias/históricos" />
-          <Input label="Transfermarkt del equipo (opcional)" value={tmUrl} onChange={(e) => setTmUrl(e.target.value)} placeholder="https://www.transfermarkt..." />
-        </div>
-
-        <div className="flex items-center gap-3">
-          <input
-            aria-label="Subir escudo"
-            type="file"
-            accept="image/png,image/svg+xml"
-            onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCrest(f); }}
-          />
-          <Button variant="flat" onPress={saveMeta}>Guardar meta</Button>
-          <Button color="primary" onPress={approve} isDisabled={busy}>
-            {busy ? "Aprobando..." : "Aprobar equipo"}
-          </Button>
-        </div>
-
-        {team.requested_in_application_id && (
-          <p className="text-xs text-neutral-500">
+          <Input size="sm" label="Nombre" value={name} onChange={(e) => setName(e.target.value)} />
+          <Input size="sm" label="Slug (opcional)" value={slug} onChange={(e) => setSlug(e.target.value)}
+            description="Si lo dejás vacío, se genera automáticamente al aprobar." />
+          <Input size="sm" label="País" value={country} onChange={(e) => setCountry(e.target.value)} />
+          <Input size="sm" label="Categoría" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Primera / Sub-20 / Amateur…" />
+          <Input size="sm" label="Tags (coma)" value={tags} onChange={(e) => setTags(e.target.value)} />
+          <Input size="sm" label="Otros nombres (coma)" value={altNames} onChange={(e) => setAltNames(e.target.value)} />
+          <Input size="sm" label="Transfermarkt (opcional)" value={tmUrl} onChange={(e) => setTmUrl(e.target.value)} />
+          {team.requested_in_application_id && (
+          <p className="text-xs ml-2 text-neutral-500">
             Solicitado en aplicación: {team.requested_in_application_id}
           </p>
         )}
+        </div>
+
+
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
+          <div className="flex items-center gap-3">
+            <input
+              aria-label="Subir escudo"
+              type="file"
+              accept="image/png,image/svg+xml"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCrest(f); }}
+              className="text-sm"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end md:ml-auto">
+            <Button size="sm" variant="flat" onPress={saveMeta}>Guardar meta</Button>
+            <Button size="sm" color="primary" onPress={approve} isDisabled={busy}>
+              {busy ? "Aprobando..." : "Aprobar equipo"}
+            </Button>
+          </div>
+        </div>
+
+
       </CardBody>
     </Card>
   );

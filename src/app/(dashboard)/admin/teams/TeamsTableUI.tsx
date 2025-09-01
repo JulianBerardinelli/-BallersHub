@@ -5,15 +5,23 @@ import * as React from "react";
 import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
   Chip, Tooltip, Button, Modal, ModalContent, ModalBody,
+  ModalHeader,
 } from "@heroui/react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import TeamCrest from "@/components/teams/TeamCrest";
-import TeamAdminCard from "./team_admin_card"; // se usa en modal "Process"
+
+import TeamAdminCard from "./team_admin_card";
+import TeamEditCard, { TeamEditableInput } from "./team_edit_card";
+
+
 import { teamColumns } from "./columns";
 import type { TeamRow } from "./types";
 import type { SortDescriptor, Key } from "@react-types/shared";
 import CountryFlag from "@/components/common/CountryFlag";
 import ClientDate from "@/components/common/ClientDate";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useAdminModalPreset } from "../ui/modalPresets";
+
 
 type SortDir = "ascending" | "descending";
 
@@ -24,6 +32,8 @@ const statusColorMap: Record<TeamRow["status"], "success" | "warning" | "danger"
 };
 
 export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[] }) {
+  const isMobile = useIsMobile();
+  const modalPreset = useAdminModalPreset();
   const [items, setItems] = React.useState<TeamRow[]>(initialItems);
 
   // Estado de orden (tipo oficial de React Aria)
@@ -137,7 +147,7 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
                     startContent={<Eye className="size-4" />}
                     onPress={() => setModal({ kind: "details", id: t.id })}
                   >
-                    
+
                   </Button>
                 </Tooltip>
                 <Tooltip content="Edit team">
@@ -148,7 +158,7 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
                     startContent={<Pencil className="size-4" />}
                     onPress={() => setModal({ kind: "edit", id: t.id })}
                   >
-                    
+
                   </Button>
                 </Tooltip>
                 <Tooltip color="danger" content="Delete team (disabled)">
@@ -160,7 +170,7 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
                     startContent={<Trash2 className="size-4" />}
                     isDisabled
                   >
-                    
+
                   </Button>
                 </Tooltip>
               </>
@@ -175,78 +185,171 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
 
   return (
     <>
-      <Table
-        aria-label="Equipos"
-        sortDescriptor={sort}
-        onSortChange={onSortChange}
-        removeWrapper
-        classNames={{ table: "table-fixed w-full" }}
-      >
-        <TableHeader columns={teamColumns}>
-          {(column) => (
-            <TableColumn
-              key={column.uid}
-              allowsSorting={!!column.sortable}
-              align={column.align ?? "start"}
-              className={column.className}
-            >
-              {column.name}
-            </TableColumn>
-          )}
-        </TableHeader>
+      {/* Tabla DESKTOP */}
+      <div className="hidden md:block">
+        <Table
+          aria-label="Equipos"
+          sortDescriptor={sort}
+          onSortChange={onSortChange}
+          removeWrapper
+          classNames={{ table: "table-fixed w-full" }}
+        >
+          <TableHeader columns={teamColumns}>
+            {(column) => (
+              <TableColumn
+                key={column.uid}
+                allowsSorting={!!column.sortable}
+                align={column.align ?? "start"}
+                className={column.className}
+              >
+                {column.name}
+              </TableColumn>
+            )}
+          </TableHeader>
 
-        <TableBody emptyContent="No hay equipos." items={sorted}>
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+          <TableBody emptyContent="No hay equipos." items={sorted}>
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* MOBILE */}
+      <div className="md:hidden grid gap-3">
+        {sorted.map((t) => (
+          <div key={t.id} className="rounded-lg border border-neutral-800 p-4">
+            <div className="flex items-center gap-3">
+              <TeamCrest src={t.crest_url || null} size={36} />
+              <div className="min-w-0">
+                <div className="truncate font-medium">{t.name}</div>
+                <div className="text-xs text-neutral-500 truncate">
+                  {t.country ?? "—"}{t.category ? ` · ${t.category}` : ""}
+                </div>
+              </div>
+              <div className="ml-auto">
+                <Chip size="sm" variant="flat" color={statusColorMap[t.status]} className="capitalize">
+                  {t.status}
+                </Chip>
+              </div>
+            </div>
+
+            <div className="mt-3 flex justify-end gap-2">
+              {t.status === "pending" ? (
+                <Button
+                  size="sm"
+                  color="primary"
+                  variant="flat"
+                  startContent={<Eye className="size-4" />}
+                  onPress={() => setModal({ kind: "review", id: t.id })}
+                >
+                  Process
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    isIconOnly size="sm" variant="flat"
+                    startContent={<Eye className="size-4" />}
+                    aria-label="Ver detalles"
+                    onPress={() => setModal({ kind: "details", id: t.id })}
+                  />
+                  <Button
+                    isIconOnly size="sm" variant="flat"
+                    startContent={<Pencil className="size-4" />}
+                    aria-label="Editar equipo"
+                    onPress={() => setModal({ kind: "edit", id: t.id })}
+                  />
+                  <Button
+                    isIconOnly size="sm" color="danger" variant="light"
+                    startContent={<Trash2 className="size-4" />}
+                    aria-label="Eliminar equipo"
+                    isDisabled
+                  />
+                </>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Modal: Process (pendiente) → tarjeta de aprobación/meta */}
       <Modal
         isOpen={modal.kind === "review" && !!openItem}
-        onClose={() => setModal({ kind: null, id: null })}
-        size="3xl"
-        backdrop="blur"
-        scrollBehavior="inside"
+        // usar onOpenChange para cerrar con swipe en mobile y con la X
+        onOpenChange={(open) => {
+          if (!open) setModal({ kind: null, id: null });
+        }}
+        {...modalPreset}
       >
         <ModalContent>
-          {() => (
-            <ModalBody className="p-0">
-              {openItem ? (
-                <div className="p-4">
-                  <TeamAdminCard
-                    team={{
-                      id: openItem.id,
-                      name: openItem.name,
-                      slug: openItem.slug,
-                      country: openItem.country,
-                      crest_url: openItem.crest_url,
-                      requested_by_user_id: null,
-                      requested_in_application_id: openItem.requested_in_application_id,
-                      tags: null,
-                      alt_names: null,
-                      created_at: openItem.created_at,
-                      status: "pending",
-                      category: openItem.category,
-                      transfermarkt_url: openItem.transfermarkt_url,
-                    } as any}
-                  />
-                </div>
-              ) : null}
-            </ModalBody>
-          )}
+          {(onClose) => {
+
+            if (!openItem) return null;
+            const item = openItem;
+
+            return (
+              <>
+                {/* Header propio del modal: deja espacio para la X con pr-12 */}
+                <ModalHeader className={modalPreset.classNames?.header}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <TeamCrest
+                      src={openItem?.crest_url || null}
+                      size={32}
+                    />
+                    <div className="min-w-0">
+                      <div className="truncate font-semibold">{openItem?.name}</div>
+                      <div className="text-xs text-foreground-500">
+                        Creado: {openItem ? new Date(openItem.created_at).toLocaleString("es-AR", { hour12: false }) : "—"}
+                      </div>
+                    </div>
+                    <div className="ml-auto">
+                      <Chip size="sm" variant="flat" className="capitalize">
+                        {openItem?.status}
+                      </Chip>
+                    </div>
+                  </div>
+                </ModalHeader>
+
+                <ModalBody className={modalPreset.classNames?.body}>
+                  {/* Tu card de administración; mejor sin borde doble adentro del modal */}
+                  <div className="rounded-xl bg-content2/60 ring-1 ring-white/10">
+                    <TeamAdminCard
+                      team={{
+                        id: openItem.id,
+                        name: openItem.name,
+                        slug: openItem.slug,
+                        country: openItem.country,
+                        crest_url: openItem.crest_url,
+                        requested_by_user_id: null,
+                        requested_in_application_id: openItem.requested_in_application_id,
+                        tags: null,
+                        alt_names: null,
+                        created_at: openItem.created_at,
+                        status: item.status,
+                        category: openItem.category,
+                        transfermarkt_url: openItem.transfermarkt_url,
+                      } as any}
+                    />
+                  </div>
+                </ModalBody>
+              </>
+            )
+          }
+          }
         </ModalContent>
       </Modal>
+
 
       {/* Modal: Details */}
       <Modal
         isOpen={modal.kind === "details" && !!openItem}
         onClose={() => setModal({ kind: null, id: null })}
-        size="md"
+        size={isMobile ? "full" : "md"}
         backdrop="blur"
+        scrollBehavior="inside"
+        classNames={{ wrapper: "mx-2", base: "max-h-[90vh] sm:max-h-[85vh]" }}
       >
         <ModalContent>
           {() => (
@@ -291,21 +394,37 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
       {/* Modal: Edit (stub) */}
       <Modal
         isOpen={modal.kind === "edit" && !!openItem}
-        onClose={() => setModal({ kind: null, id: null })}
-        size="md"
-        backdrop="blur"
+        onOpenChange={(open) => !open && setModal({ kind: null, id: null })}
+        {...modalPreset}
       >
         <ModalContent>
-          {() => (
-            <ModalBody className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Edit team (coming soon)</h3>
-              <p className="text-sm text-neutral-500">
-                Pronto habilitaremos edición completa para equipos aprobados.
-              </p>
-            </ModalBody>
-          )}
+          {(onClose) => {
+            if (!openItem) return null;
+            const item = openItem as TeamEditableInput;
+
+            return (
+              <>
+                <ModalHeader className={modalPreset.classNames?.header}>
+                  <div className="font-medium truncate pr-2">Editar equipo</div>
+                </ModalHeader>
+
+                <ModalBody className={modalPreset.classNames?.body}>
+                  <TeamEditCard
+                    team={item}
+                    onSaved={(updated) => {
+                      setItems((prev) => prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)));
+                      setModal({ kind: null, id: null });
+                    }}
+                    onCancel={() => setModal({ kind: null, id: null })}
+                  />
+                </ModalBody>
+              </>
+            );
+          }}
         </ModalContent>
       </Modal>
     </>
   );
 }
+
+

@@ -20,3 +20,8 @@
 /* Siempre dark + color-scheme coherente */
 :root { color-scheme: dark; }
 html, body { min-height: 100%; }
+
+/* Utilidad para ocultar la barra de scroll en contenedores horizontales */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+

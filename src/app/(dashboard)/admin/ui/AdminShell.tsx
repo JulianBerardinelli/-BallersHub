@@ -47,15 +47,14 @@ export default function AdminShell({
                 selectedKey={tab}
                 onSelectionChange={(k) => setTab(k as any)}
                 aria-label="Admin sections"
+                variant="light"
                 fullWidth
                 color="default"
                 radius="sm"
                 classNames={{
-                  tabList: "flex-col items-stretch gap-2",
+                  tabList: "gap-2 sm:flex-col flex-row overflow-x-auto no-scrollbar",
                   cursor: "w-full",
                 }}
-                variant="light"
-                // vertical: simulado con layout de una columna
               >
                 <Tab key="applications" title="Players" />
                 <Tab key="teams" title="Teams" />

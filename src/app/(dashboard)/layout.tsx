@@ -6,7 +6,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <>
 
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto max-w-7xl">
         <SiteHeader/>
           
         {children}
