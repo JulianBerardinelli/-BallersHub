@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// ---------- Tipos que llegan del front ----------
+/* ---------------- Tipos que llegan del front ---------------- */
 type Step1 = {
   fullName: string;
   nationalities: { code: string; name: string }[];
@@ -30,12 +30,24 @@ type TeamNew = {
   tmUrl?: string | null;
 };
 type TeamFree = { mode: "free" };
-type CareerRow = any;
+
+type CareerItemInput = {
+  id: string;
+  club: string;
+  division?: string | null;
+  start_year?: number | null;
+  end_year?: number | null;
+  team_id?: string | null;
+  team_meta?: { slug?: string | null; country_code?: string | null; crest_url?: string | null } | null;
+  proposed?: { country?: { code: string; name: string } | null; tmUrl?: string | null } | null;
+  confirmed?: boolean;
+  source?: "current" | "manual";
+};
 
 type Step2 = {
   freeAgent: boolean;
   team: TeamApproved | TeamNew | TeamFree | null;
-  career: CareerRow[];
+  career: CareerItemInput[];
   transfermarkt?: string | null;
   besoccer?: string | null;
   social?: string | null;
@@ -86,8 +98,8 @@ export async function POST(req: Request) {
   if (existing?.id) return J(409, { error: "already_pending", id: existing.id });
 
   // 4) Mapear a columnas
-  const nationalityNames = (step1.nationalities ?? []).map(n => n.name);
-  const nationalityCodes = (step1.nationalities ?? []).map(n => n.code);
+  const nationalityNames = (step1.nationalities ?? []).map((n) => n.name);
+  const nationalityCodes = (step1.nationalities ?? []).map((n) => n.code);
   const positions = [step1.position.role, ...step1.position.subs];
 
   const isFree = !!step2?.freeAgent || step2?.team?.mode === "free";
@@ -151,18 +163,55 @@ export async function POST(req: Request) {
   if (ins.error) return Bad(ins.error.message);
   const appId = ins.data.id as string;
 
-  // 6) RPC opcional (no rompe si falla)
+  // 5.1) Guardar propuestas de trayectoria en career_item_proposals
+  try {
+    const career = (step2?.career ?? []) as Array<CareerItemInput>;
+    const rows = career.map((c) => {
+      const cc = c?.proposed?.country?.code || c?.team_meta?.country_code || null;
+      const cn = c?.proposed?.country?.name || null;
+
+      return {
+        application_id: appId,
+        club: c.club,
+        division: c.division ?? null,
+        start_year: c.start_year ?? null,
+        end_year: c.end_year ?? null,
+        team_id: c.team_id ?? null,
+
+        // si NO hay team_id, guardamos propuesta para crear team pending luego
+        proposed_team_name: c.team_id ? null : c.club,
+        proposed_team_country: c.team_id ? null : cn,
+        proposed_team_country_code: c.team_id ? null : cc,
+        proposed_team_transfermarkt_url: c?.proposed?.tmUrl ?? null,
+
+        created_by_user_id: user.id,
+      };
+    });
+
+    if (rows.length) {
+      // por las dudas, limpiar propuestas previas de la misma app
+      await db.from("career_item_proposals").delete().eq("application_id", appId);
+
+      const { error: cipErr } = await db.from("career_item_proposals").insert(rows);
+      if (cipErr) {
+        console.error("career_item_proposals insert:", cipErr.message);
+      }
+    }
+  } catch (e) {
+    console.error("career proposals parse error", e);
+  }
+
+  // 6) RPC opcional para equipo actual propuesto (no rompe si falla)
   if (proposed_team_name) {
-    await db
-      .rpc("request_team_from_application", {
-        p_application_id: appId,
-        p_name: proposed_team_name,
-        p_country: proposed_team_country ?? null,
-        p_category: null,
-        p_tm_url: proposed_team_transfermarkt_url ?? null,
-        p_country_code: proposed_team_country_code ?? null,
-      })
-      .match((e: any) => console.error("request_team_from_application:", e?.message || e));
+    const { error: rpcErr } = await db.rpc("request_team_from_application", {
+      p_application_id: appId,
+      p_name: proposed_team_name,
+      p_country: proposed_team_country ?? null,
+      p_category: null,
+      p_tm_url: proposed_team_transfermarkt_url ?? null,
+      p_country_code: proposed_team_country_code ?? null,
+    });
+    if (rpcErr) console.error("request_team_from_application:", rpcErr.message);
   }
 
   // 7) Audit (soft)
@@ -174,8 +223,7 @@ export async function POST(req: Request) {
       subject_table: "player_applications",
       subject_id: appId,
       meta: { status: "pending" } as any,
-    })
-    .match(() => {});
+    });
 
   // 8) 201 OK – el front redirige a /dashboard
   return J(201, { id: appId });

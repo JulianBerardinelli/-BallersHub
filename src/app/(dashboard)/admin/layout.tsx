@@ -24,6 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <nav className="sticky top-6 space-y-1">
             <AdminNavLink href="/admin/applications" label="Jugadores" />
             <AdminNavLink href="/admin/teams" label="Equipos" />
+            <AdminNavLink href="/admin/career" label="Trayectoria" />
           </nav>
         </aside>
 

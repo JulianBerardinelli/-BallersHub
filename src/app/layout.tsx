@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import {Providers} from "./providers";
 import "@/styles/globals.css";
@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   description: "Perfiles profesionales de futbolistas.",
   openGraph: { siteName: "BallersHub", type: "website" },
   twitter: { card: "summary_large_image" },
+};
+
+export const viewport: Viewport = {
   themeColor: "#0a0a0a",
 };
 

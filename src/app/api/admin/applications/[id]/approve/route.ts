@@ -131,6 +131,7 @@ async function doApprove(params: Params) {
     .single();
   if (e2) return NextResponse.json({ error: `create player failed: ${e2.message}` }, { status: 400 });
 
+
   // 6) upsert suscripción free
   const { error: e3 } = await admin
     .from("subscriptions")
@@ -145,6 +146,16 @@ async function doApprove(params: Params) {
       { onConflict: "user_id" }
     );
   if (e3) return NextResponse.json({ error: `upsert subscription failed: ${e3.message}` }, { status: 400 });
+
+
+  // 6.5) materializar trayectoria aceptada (si hay)
+  const { error: matErr } = await admin.rpc("materialize_career_from_application", {
+    p_application_id: id,
+  });
+  if (matErr) {
+    // no frenes la aprobación si esto falla, pero logueá
+    console.error("materialize_career_from_application:", matErr.message);
+  }
 
   // 7) marcar solicitud aprobada
   const { error: e4 } = await admin
