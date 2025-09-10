@@ -1,6 +1,7 @@
 // Relations (opcionales)
 import { relations } from "drizzle-orm";
 import { playerProfiles } from "./players";
+import { teams } from "./teams";
 import { playerMedia } from "./media";
 import { careerItems } from "./career";
 import { statsSeasons } from "./stats";
@@ -9,7 +10,11 @@ import { reviews } from "./reviews";
 import { reviewerProfiles } from "./reviewerProfiles";
 import { reviewerPermissions } from "./reviewerPermissions";
 
-export const playerProfilesRelations = relations(playerProfiles, ({ many }) => ({
+export const playerProfilesRelations = relations(playerProfiles, ({ one, many }) => ({
+  currentTeam: one(teams, {
+    fields: [playerProfiles.currentTeamId],
+    references: [teams.id],
+  }),
   media: many(playerMedia),
   career: many(careerItems),
   seasons: many(statsSeasons),

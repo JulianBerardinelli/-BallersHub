@@ -1,8 +1,7 @@
 // player_profiles
-import { pgTable, uuid, text, timestamp, integer, date, numeric } from "drizzle-orm/pg-core";
-import { playerStatusEnum, visibilityEnum } from "./enums";
-import { teams } from "./teams"; // 👈 nuevo
-import { relations } from "drizzle-orm";
+import { pgTable, uuid, text, timestamp, integer, date, numeric, char } from "drizzle-orm/pg-core";
+import { playerStatusEnum, visibilityEnum, planEnum } from "./enums";
+import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const playerProfiles = pgTable("player_profiles", {
@@ -19,6 +18,8 @@ export const playerProfiles = pgTable("player_profiles", {
   currentClub: text("current_club"), // legado (texto libre)
   // 👇 nuevo: team relacional opcional
   currentTeamId: uuid("current_team_id").references(() => teams.id, { onDelete: "set null" }),
+  planPublic: planEnum("plan_public").notNull().default("free"),
+  nationalityCodes: char("nationality_codes", { length: 2 }).array(),
   bio: text("bio"),
   avatarUrl: text("avatar_url").notNull().default("/images/player-default.jpg"),
   visibility: visibilityEnum("visibility").notNull().default("public"),
@@ -27,13 +28,6 @@ export const playerProfiles = pgTable("player_profiles", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
-
-export const playerProfilesRelations = relations(playerProfiles, ({ one }) => ({
-  currentTeam: one(teams, {
-    fields: [playerProfiles.currentTeamId],
-    references: [teams.id],
-  }),
-}));
 
 export type PlayerProfile = InferSelectModel<typeof playerProfiles>;
 export type NewPlayerProfile = InferInsertModel<typeof playerProfiles>;

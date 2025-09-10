@@ -18,7 +18,7 @@ async function ensureUniqueTeamSlug(base: string, admin: ReturnType<typeof creat
   const MAX = 60;
   const candidate = base.slice(0, MAX);
   const { data } = await admin.from("teams").select("slug").ilike("slug", `${candidate}%`);
-  const taken = new Set((data ?? []).map((r: any) => r.slug));
+  const taken = new Set((data ?? []).map((r: { slug: string }) => r.slug));
   if (!taken.has(candidate)) return candidate;
   for (let n = 2; n < 1000; n++) {
     const next = `${candidate.slice(0, MAX - (`-${n}`).length)}-${n}`;
@@ -46,8 +46,6 @@ export async function POST(_req: Request, ctx: { params: Params }) {
     .maybeSingle();
   if (eApp) return NextResponse.json({ error: eApp.message }, { status: 400 });
   if (!app) return NextResponse.json({ error: "application_not_found" }, { status: 404 });
-
-  const proposedCurrent = (app.proposed_team_name || "").trim().toLowerCase();
 
   async function findExistingTeamIdByName(nameRaw: string): Promise<string | null> {
     const name = nameRaw.trim();
@@ -93,23 +91,6 @@ export async function POST(_req: Request, ctx: { params: Params }) {
     const displayName = (it.proposed_team_name || it.club || "").trim();
     const key = displayName.toLowerCase();
 
-    // Equipo actual propuesto -> no duplicar; si ya existe, vincular
-    if (proposedCurrent && key === proposedCurrent) {
-      const maybeTeamId = await findExistingTeamIdByName(displayName);
-      const upd = await admin
-        .from("career_item_proposals")
-        .update({
-          status: "accepted",
-          team_id: maybeTeamId ?? null,
-          reviewed_by_user_id: user.id,
-          reviewed_at: nowIso,
-        })
-        .eq("id", it.id);
-      if (upd.error) return NextResponse.json({ error: upd.error.message }, { status: 400 });
-      acceptedItems++;
-      continue;
-    }
-
     // reutilizar si ya lo creamos en esta tanda
     let teamId = createdForName.get(key) || null;
     if (!teamId) teamId = await findExistingTeamIdByName(displayName);
@@ -127,7 +108,7 @@ export async function POST(_req: Request, ctx: { params: Params }) {
           transfermarkt_url: it.proposed_team_transfermarkt_url ?? null,
           requested_in_application_id: applicationId,
           requested_by_user_id: it.created_by_user_id ?? user.id,
-          requested_from_career_item_id: it.id,            // 👈 NUEVO: enlazamos con la CIP
+          requested_from_career_item_id: it.id,            // 👈 enlazamos con la CIP
           status: "pending",
           visibility: "public",
         })
@@ -144,8 +125,8 @@ export async function POST(_req: Request, ctx: { params: Params }) {
       .update({
         team_id: teamId,
         status: "accepted",
-        reviewed_by_user_id: user.id,                      // 👈 NUEVO: auditoría
-        reviewed_at: nowIso,                                // 👈 NUEVO: auditoría
+        reviewed_by_user_id: user.id,                      // auditoría
+        reviewed_at: nowIso,                                // auditoría
       })
       .eq("id", it.id);
     if (upd.error) return NextResponse.json({ error: upd.error.message }, { status: 400 });
