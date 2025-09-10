@@ -149,7 +149,9 @@ async function doApprove(params: Params) {
 
 
   // 6.5) materializar trayectoria aceptada (si hay)
-  const { error: matErr } = await admin.rpc("materialize_career_from_application", {
+  //    Usamos el cliente con sesión de usuario para que `auth.uid()` en la función SQL
+  //    coincida con el admin autenticado y supere la validación de `is_admin`.
+  const { error: matErr } = await supa.rpc("materialize_career_from_application", {
     p_application_id: id,
   });
   if (matErr) {

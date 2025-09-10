@@ -11,7 +11,7 @@ export const careerItemProposals = pgTable("career_item_proposals", {
   division: text("division"),
   startYear: integer("start_year"),
   endYear: integer("end_year"),
-  teamId: uuid("team_id").references(() => teams.id),
+  teamId: uuid("team_id").references(() => teams.id, { onDelete: "cascade" }),
   proposedTeamName: text("proposed_team_name"),
   proposedTeamCountry: text("proposed_team_country"),
   proposedTeamCountryCode: char("proposed_team_country_code", { length: 2 }),

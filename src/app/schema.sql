@@ -118,3 +118,36 @@ begin
   return jsonb_build_object('inserted', v_cnt_inserted);
 end;
 $$;
+
+-- Cascade deletes between career item proposals and teams
+ALTER TABLE ONLY public.career_item_proposals
+  DROP CONSTRAINT IF EXISTS career_item_proposals_team_id_fkey,
+  ADD CONSTRAINT career_item_proposals_team_id_fkey
+    FOREIGN KEY (team_id) REFERENCES public.teams(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.teams
+  DROP CONSTRAINT IF EXISTS teams_requested_from_career_item_id_fkey,
+  ADD CONSTRAINT teams_requested_from_career_item_id_fkey
+    FOREIGN KEY (requested_from_career_item_id) REFERENCES public.career_item_proposals(id) ON DELETE CASCADE;
+
+-- Delete KYC files from storage when removing an application
+CREATE OR REPLACE FUNCTION public.delete_application_kyc_files()
+RETURNS trigger
+LANGUAGE plpgsql SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+  IF OLD.id_doc_url IS NOT NULL THEN
+    DELETE FROM storage.objects WHERE bucket_id = 'kyc' AND name = OLD.id_doc_url;
+  END IF;
+  IF OLD.selfie_url IS NOT NULL THEN
+    DELETE FROM storage.objects WHERE bucket_id = 'kyc' AND name = OLD.selfie_url;
+  END IF;
+  RETURN OLD;
+END;
+$$;
+
+CREATE TRIGGER delete_application_kyc_files
+AFTER DELETE ON public.player_applications
+FOR EACH ROW EXECUTE FUNCTION public.delete_application_kyc_files();
+
