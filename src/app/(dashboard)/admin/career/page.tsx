@@ -12,7 +12,7 @@ type RawApp = {
   transfermarkt_url: string | null;
   external_profile_url: string | null;
   nationality: string[] | null;
-  notes: any | null;
+  notes: unknown | null;
 };
 type RawRow = {
   id: string;
@@ -72,7 +72,7 @@ export default async function CareerAdminPage() {
     .select(`
       id, status, club, division, start_year, end_year, team_id, application_id,
       proposed_team_name, proposed_team_country, proposed_team_country_code,
-      team:teams ( name, crest_url, country_code ),
+      team:teams!career_item_proposals_team_id_fkey ( name, crest_url, country_code ),
       player_applications!inner (
         id, user_id, full_name, transfermarkt_url, external_profile_url, nationality, notes
       )
@@ -86,7 +86,8 @@ export default async function CareerAdminPage() {
 
   // Agrupar por application_id
   const groupsMap = new Map<string, Group>();
-  for (const r of (data as RawRow[] ?? [])) {
+  const rows = (data ?? []) as unknown as RawRow[];
+  for (const r of rows) {
     const appRel = Array.isArray(r.player_applications)
       ? (r.player_applications[0] ?? null)
       : (r.player_applications ?? null);
@@ -95,7 +96,7 @@ export default async function CareerAdminPage() {
     const nationality_codes = Array.isArray(notes?.nationality_codes) ? notes.nationality_codes : [];
     const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
 
-    const g = groupsMap.get(r.application_id) ?? {
+    const g: Group = groupsMap.get(r.application_id) ?? {
       application_id: r.application_id,
       applicant: appRel ? {
         id: appRel.id,

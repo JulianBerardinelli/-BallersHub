@@ -6,8 +6,9 @@ import { Avatar, Button, Card, CardBody, Chip } from "@heroui/react";
 import CountryFlag from "@/components/common/CountryFlag";
 import { Globe, Instagram, Link as LinkIcon } from "lucide-react";
 import type { Group } from "./page";
+import TeamCrest from "@/components/teams/TeamCrest";
 
-async function post(url: string, body?: any) {
+async function post(url: string, body?: unknown) {
   const res = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -29,8 +30,8 @@ export default function CareerInbox({ groups }: { groups: Group[] }) {
       await post(`/api/admin/career/applications/${applicationId}/approve`);
       // recargar para refrescar lista
       window.location.reload();
-    } catch (e: any) {
-      setErr(e?.message ?? "Error inesperado");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Error inesperado");
     } finally {
       setBusy(null);
     }
@@ -99,9 +100,11 @@ export default function CareerInbox({ groups }: { groups: Group[] }) {
             <ul className="text-sm grid gap-1">
               {g.items.map((it) => (
                 <li key={it.id} className="flex items-center gap-2 min-w-0">
-                  <Avatar
+                  <TeamCrest
                     src={it.crest_url || "/images/team-default.svg"}
-                    className="w-6 h-6 shrink-0"
+                    name={it.team_name}
+                    size={28}
+                    className="shrink-0"
                   />
                   <span className="truncate">{it.team_name}</span>
                   <span className="text-neutral-500">· {it.division ?? "—"}</span>
