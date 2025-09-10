@@ -10,7 +10,9 @@ type RawApp = {
   user_id: string;
   full_name: string | null;
   transfermarkt_url: string | null;
-  proposed_team_name: string | null;
+  external_profile_url: string | null;
+  nationality: string[] | null;
+  notes: any | null;
 };
 type RawRow = {
   id: string;
@@ -24,6 +26,7 @@ type RawRow = {
   proposed_team_name: string | null;
   proposed_team_country: string | null;
   proposed_team_country_code: string | null;
+  team: { name: string | null; crest_url: string | null; country_code: string | null } | null;
   // join
   player_applications?: RawApp[] | RawApp | null;
 };
@@ -36,7 +39,9 @@ export type Group = {
     user_id: string;
     full_name: string | null;
     transfermarkt_url: string | null;
-    proposed_team_name: string | null;
+    external_profile_url: string | null;
+    social_url: string | null;
+    nationality_codes: string[];
   } | null;
   items: Array<{
     id: string;
@@ -46,6 +51,9 @@ export type Group = {
     start_year: number | null;
     end_year: number | null;
     team_id: string | null;
+    team_name: string;
+    crest_url: string | null;
+    country_code: string | null;
   }>;
 };
 
@@ -64,8 +72,9 @@ export default async function CareerAdminPage() {
     .select(`
       id, status, club, division, start_year, end_year, team_id, application_id,
       proposed_team_name, proposed_team_country, proposed_team_country_code,
+      team:teams ( name, crest_url, country_code ),
       player_applications!inner (
-        id, user_id, full_name, transfermarkt_url, proposed_team_name
+        id, user_id, full_name, transfermarkt_url, external_profile_url, nationality, notes
       )
     `)
     .eq("status", "pending")
@@ -82,6 +91,10 @@ export default async function CareerAdminPage() {
       ? (r.player_applications[0] ?? null)
       : (r.player_applications ?? null);
 
+    const notes = appRel?.notes && typeof appRel.notes === "string" ? JSON.parse(appRel.notes) : appRel?.notes;
+    const nationality_codes = Array.isArray(notes?.nationality_codes) ? notes.nationality_codes : [];
+    const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
+
     const g = groupsMap.get(r.application_id) ?? {
       application_id: r.application_id,
       applicant: appRel ? {
@@ -89,7 +102,9 @@ export default async function CareerAdminPage() {
         user_id: appRel.user_id,
         full_name: appRel.full_name,
         transfermarkt_url: appRel.transfermarkt_url,
-        proposed_team_name: appRel.proposed_team_name,
+        external_profile_url: appRel.external_profile_url,
+        social_url,
+        nationality_codes,
       } : null,
       items: [],
     };
@@ -101,6 +116,9 @@ export default async function CareerAdminPage() {
       start_year: r.start_year,
       end_year: r.end_year,
       team_id: r.team_id,
+      team_name: r.team?.name ?? r.club,
+      crest_url: r.team?.crest_url ?? null,
+      country_code: r.team?.country_code ?? r.proposed_team_country_code ?? null,
     });
     groupsMap.set(r.application_id, g);
   }
