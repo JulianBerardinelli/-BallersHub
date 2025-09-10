@@ -62,7 +62,7 @@ async function ensureUniqueSlug(base: string, admin: ReturnType<typeof createSup
     .ilike("slug", `${candidate}%`);
   if (error) throw new Error(`slug query failed: ${error.message}`);
 
-  const existing = new Set((data ?? []).map((r: any) => r.slug));
+  const existing = new Set((data ?? []).map((r: { slug: string }) => r.slug));
   if (!existing.has(candidate)) return candidate;
 
   for (let n = 2; n < 1000; n++) {
@@ -104,7 +104,7 @@ async function doApprove(params: Params) {
   if (!app) return NextResponse.json({ error: `application ${id} not found` }, { status: 404 });
 
   // 3b) si hay team, levantamos su nombre por las dudas
-  let teamName: string | null = app.current_team_id ?? null
+  const teamName: string | null = app.current_team_id
     ? (await admin.from("teams").select("name").eq("id", app.current_team_id).maybeSingle()).data?.name ?? null
     : null;
 
@@ -140,7 +140,7 @@ async function doApprove(params: Params) {
         user_id: app.user_id,
         plan: "free",
         status: "active",
-        limits_json: FREE_LIMITS as any,
+        limits_json: FREE_LIMITS as Record<string, unknown>,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "user_id" }
@@ -153,8 +153,10 @@ async function doApprove(params: Params) {
     p_application_id: id,
   });
   if (matErr) {
-    // no frenes la aprobación si esto falla, pero logueá
-    console.error("materialize_career_from_application:", matErr.message);
+    return NextResponse.json(
+      { error: `materialize failed: ${matErr.message}` },
+      { status: 400 }
+    );
   }
 
   // 7) marcar solicitud aprobada
