@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 type Step1 = {
   fullName: string;
   nationalities: { code: string; name: string }[];
-  birthDate: any | null;
+  birthDate: unknown | null;
   position: { role: "ARQ" | "DEF" | "MID" | "DEL"; subs: string[] };
   heightCm: number | null;
   weightKg: number | null;
@@ -53,7 +53,7 @@ type Step2 = {
   social?: string | null;
 };
 
-function J(status: number, data: any) {
+function J(status: number, data: unknown) {
   return NextResponse.json(data, { status });
 }
 const Bad = (msg: string) => J(400, { error: msg });
@@ -141,8 +141,8 @@ export async function POST(req: Request) {
     plan_requested: "free" as const,
     status: "pending" as const,
     full_name: step1.fullName || null,
-    nationality: nationalityNames as any,
-    positions: positions as any,
+    nationality: nationalityNames as string[],
+    positions: positions as string[],
     current_club,
     transfermarkt_url: step2?.transfermarkt ?? null,
     external_profile_url,
@@ -153,7 +153,7 @@ export async function POST(req: Request) {
     current_team_id,
     proposed_team_name,
     proposed_team_country,
-    proposed_team_country_code: proposed_team_country_code as any,
+    proposed_team_country_code: proposed_team_country_code as string | null,
     proposed_team_transfermarkt_url,
     updated_at: new Date().toISOString(),
   };
@@ -201,20 +201,7 @@ export async function POST(req: Request) {
     console.error("career proposals parse error", e);
   }
 
-  // 6) RPC opcional para equipo actual propuesto (no rompe si falla)
-  if (proposed_team_name) {
-    const { error: rpcErr } = await db.rpc("request_team_from_application", {
-      p_application_id: appId,
-      p_name: proposed_team_name,
-      p_country: proposed_team_country ?? null,
-      p_category: null,
-      p_tm_url: proposed_team_transfermarkt_url ?? null,
-      p_country_code: proposed_team_country_code ?? null,
-    });
-    if (rpcErr) console.error("request_team_from_application:", rpcErr.message);
-  }
-
-  // 7) Audit (soft)
+  // 6) Audit (soft)
   await db
     .from("audit_logs")
     .insert({
@@ -222,9 +209,9 @@ export async function POST(req: Request) {
       action: "player_apply_submit",
       subject_table: "player_applications",
       subject_id: appId,
-      meta: { status: "pending" } as any,
+      meta: { status: "pending" } as Record<string, unknown>,
     });
 
-  // 8) 201 OK – el front redirige a /dashboard
+  // 7) 201 OK – el front redirige a /dashboard
   return J(201, { id: appId });
 }
