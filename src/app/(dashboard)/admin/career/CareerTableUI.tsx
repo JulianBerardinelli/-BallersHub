@@ -11,12 +11,13 @@ import {
   TableCell,
   Chip,
   Button,
-  Avatar,
   Tooltip,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
+  Spinner,
+  Input,
 } from "@heroui/react";
 import { Eye, Pencil, Trash2, Check, Copy } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -26,7 +27,6 @@ import { useAdminModalPreset } from "../ui/modalPresets";
 import { careerColumns } from "./columns";
 import type { CareerRow, CareerItem } from "./types";
 import { Globe, Instagram, Link as LinkIcon } from "lucide-react";
-import { Input } from "@heroui/react";
 import type { SortDescriptor, Key } from "@react-types/shared";
 
 type SortDir = "ascending" | "descending";
@@ -99,7 +99,7 @@ function EditableItem({
         editing ? "bg-warning-50" : "bg-content2/60"
       }`}
     >
-      <Avatar src={crest} className="w-6 h-6 shrink-0" />
+      <TeamCrest src={crest} size={24} className="shrink-0" />
       <span className="truncate font-medium">{item.team_name}</span>
       <span className="text-default-500 text-sm">· {item.division ?? "—"}</span>
       {item.country_code && <CountryFlag code={item.country_code} size={12} />}
@@ -309,8 +309,15 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
                   size="sm"
                   color="primary"
                   variant="flat"
-                  startContent={<Eye className="size-4" />}
+                  startContent={
+                    busy === t.id ? (
+                      <Spinner className="text-current size-4" />
+                    ) : (
+                      <Eye className="size-4" />
+                    )
+                  }
                   onPress={() => setModal({ kind: "process", id: t.id })}
+                  isDisabled={busy === t.id}
                 >
                   Process
                 </Button>
@@ -352,7 +359,7 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
       default:
         return null;
     }
-  }, []);
+  }, [busy]);
 
   return (
     <>
@@ -372,14 +379,7 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
               allowsSorting={col.sortable}
               className={col.className}
             >
-              {col.uid === "id" ? (
-                <span>
-                  ID
-                  <span className="ml-1 text-[10px] italic text-default-400">solicitud</span>
-                </span>
-              ) : (
-                col.name
-              )}
+              {col.name}
             </TableColumn>
           )}
         </TableHeader>
