@@ -18,7 +18,7 @@ import {
   ModalHeader,
   ModalBody,
 } from "@heroui/react";
-import { Eye, Pencil, Trash2, Check } from "lucide-react";
+import { Eye, Pencil, Trash2, Check, Copy } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
@@ -95,13 +95,13 @@ function EditableItem({
 
   return (
     <li
-      className={`flex items-center gap-2 min-w-0 p-1 rounded-md ${
-        editing ? "bg-warning-50" : ""
+      className={`flex items-center gap-2 min-w-0 p-2 rounded-lg ring-1 ring-white/10 ${
+        editing ? "bg-warning-50" : "bg-content2/60"
       }`}
     >
       <Avatar src={crest} className="w-6 h-6 shrink-0" />
-      <span className="truncate">{item.team_name}</span>
-      <span className="text-neutral-500">· {item.division ?? "—"}</span>
+      <span className="truncate font-medium">{item.team_name}</span>
+      <span className="text-default-500 text-sm">· {item.division ?? "—"}</span>
       {item.country_code && <CountryFlag code={item.country_code} size={12} />}
       {editing ? (
         <>
@@ -156,9 +156,13 @@ function EditableItem({
             {item.start_year ?? "—"}–{item.end_year ?? "…"}
           </Chip>
           {!readOnly && (
-            <Button size="sm" variant="light" onPress={() => setEditing(true)}>
-              <Pencil size={14} />
-            </Button>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="flat"
+              onPress={() => setEditing(true)}
+              startContent={<Pencil size={14} />}
+            />
           )}
         </>
       )}
@@ -233,7 +237,18 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
   const renderCell = React.useCallback((t: CareerRow, columnKey: React.Key) => {
     switch (columnKey) {
       case "id":
-        return <span className="truncate block">{t.id}</span>;
+        return (
+          <Tooltip content="Copiar ID" color="foreground">
+            <Button
+              isIconOnly
+              size="sm"
+              variant="flat"
+              onPress={() => navigator.clipboard.writeText(t.id)}
+            >
+              <Copy size={16} />
+            </Button>
+          </Tooltip>
+        );
       case "applicant":
         return (
           <span className="truncate block">
@@ -287,16 +302,17 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
         );
       case "actions":
         return (
-          <div className="relative flex items-center gap-2">
+          <div className="relative flex items-center justify-end gap-2">
             {t.status === "pending" ? (
               <Tooltip content="Procesar" color="foreground">
                 <Button
-                  isIconOnly
                   size="sm"
-                  variant="light"
+                  color="primary"
+                  variant="flat"
+                  startContent={<Eye className="size-4" />}
                   onPress={() => setModal({ kind: "process", id: t.id })}
                 >
-                  <Eye size={16} />
+                  Process
                 </Button>
               </Tooltip>
             ) : (
@@ -305,26 +321,29 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
                   <Button
                     isIconOnly
                     size="sm"
-                    variant="light"
+                    variant="flat"
+                    startContent={<Eye className="size-4" />}
                     onPress={() => setModal({ kind: "details", id: t.id })}
-                  >
-                    <Eye size={16} />
-                  </Button>
+                  />
                 </Tooltip>
                 <Tooltip content="Editar" color="foreground">
                   <Button
                     isIconOnly
                     size="sm"
-                    variant="light"
+                    variant="flat"
+                    startContent={<Pencil className="size-4" />}
                     onPress={() => setModal({ kind: "edit", id: t.id })}
-                  >
-                    <Pencil size={16} />
-                  </Button>
+                  />
                 </Tooltip>
                 <Tooltip content="Eliminar" color="danger">
-                  <Button isIconOnly size="sm" variant="light" isDisabled>
-                    <Trash2 size={16} />
-                  </Button>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    color="danger"
+                    variant="light"
+                    startContent={<Trash2 className="size-4" />}
+                    isDisabled
+                  />
                 </Tooltip>
               </>
             )}
@@ -338,20 +357,33 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
   return (
     <>
       {err && <p className="text-sm text-red-500 mb-2">{err}</p>}
-      <Table sortDescriptor={sort} onSortChange={setSort} aria-label="Trayectorias">
+      <Table
+        aria-label="Trayectorias"
+        sortDescriptor={sort}
+        onSortChange={setSort}
+        removeWrapper
+        classNames={{ table: "table-fixed w-full" }}
+      >
         <TableHeader columns={careerColumns}>
           {(col) => (
-              <TableColumn
-                key={col.uid}
-                align={col.align as "start" | "center" | "end" | undefined}
-                allowsSorting={col.sortable}
-                className={col.className}
-              >
-                {col.name}
-              </TableColumn>
+            <TableColumn
+              key={col.uid}
+              align={col.align as "start" | "center" | "end" | undefined}
+              allowsSorting={col.sortable}
+              className={col.className}
+            >
+              {col.uid === "id" ? (
+                <span>
+                  ID
+                  <span className="ml-1 text-[10px] italic text-default-400">solicitud</span>
+                </span>
+              ) : (
+                col.name
+              )}
+            </TableColumn>
           )}
         </TableHeader>
-        <TableBody emptyContent={"No hay solicitudes"} items={sorted}>
+        <TableBody emptyContent="No hay solicitudes" items={sorted}>
           {(item) => (
             <TableRow key={item.id}>
               {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
@@ -373,13 +405,24 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
             return (
               <>
                 <ModalHeader className={modalPreset.classNames?.header}>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium truncate">
-                      {openItem.applicant ?? "(sin nombre)"}
-                    </span>
-                    {openItem.nationalities.map((c) => (
-                      <CountryFlag key={c} code={c} size={14} />
-                    ))}
+                  <div className="flex items-start gap-2 w-full">
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <span className="font-medium truncate">
+                          {openItem.applicant ?? "(sin nombre)"}
+                        </span>
+                        {openItem.nationalities.map((c) => (
+                          <CountryFlag key={c} code={c} size={14} />
+                        ))}
+                      </div>
+                      <span className="text-xs text-default-500">
+                        {mode === "process"
+                          ? "Procesar trayectoria"
+                          : mode === "edit"
+                          ? "Editar trayectoria"
+                          : "Detalle de trayectoria"}
+                      </span>
+                    </div>
                     <div className="ml-auto flex gap-2">
                       {openItem.links.map((u, i) => {
                         const low = u.toLowerCase();
@@ -407,6 +450,14 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
                   </div>
                 </ModalHeader>
                 <ModalBody className={modalPreset.classNames?.body}>
+                  <h3 className="text-sm font-semibold">Etapas de la carrera</h3>
+                  <p className="text-xs text-default-500 mb-2">
+                    {mode === "process"
+                      ? "Verifica y ajusta la información antes de aprobar."
+                      : mode === "edit"
+                      ? "Modifica los datos de los clubes ya registrados."
+                      : "Detalle de la trayectoria aprobada."}
+                  </p>
                   <ul className="grid gap-2">
                     {openItem.items.map((it) => (
                       <EditableItem
