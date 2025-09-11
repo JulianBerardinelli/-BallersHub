@@ -19,7 +19,7 @@ export const applicationColumns: ColumnDef[] = [
   {
     name: "Equipo",
     uid: "current_team",
-    className: "hidden md:table-cell md:w-[24%] max-w-0",
+    className: "hidden md:table-cell md:w-[20%] max-w-0",
   },
   { name: "Tareas", uid: "tasks", className: "hidden md:table-cell md:w-[8%]" },
   { name: "Acciones", uid: "actions", className: "md:w-[12%] text-right" },

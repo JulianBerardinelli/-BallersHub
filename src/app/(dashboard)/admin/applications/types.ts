@@ -18,6 +18,9 @@ export type ApplicationRow = {
   free_agent: boolean;
   tasks: Task[];
   transfermarkt_url: string | null;
+  personal_info_approved: boolean;
+  links: string[];
+  kyc_urls: string[];
 };
 
 export type ColumnDef = {

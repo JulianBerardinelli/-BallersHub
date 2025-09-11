@@ -17,6 +17,9 @@ interface RawApp {
   transfermarkt_url: string | null;
   proposed_team_name: string | null;
   proposed_team_country_code: string | null;
+  personal_info_approved: boolean | null;
+  links: string[] | null;
+  kyc_urls: string[] | null;
   current_team: {
     name: string | null;
     crest_url: string | null;
@@ -47,6 +50,7 @@ export default async function AdminApplicationsPage() {
       id, full_name, nationality, plan_requested, created_at, status,
       free_agent, transfermarkt_url,
       proposed_team_name, proposed_team_country_code,
+      personal_info_approved, links, kyc_urls,
       current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
       career_item_proposals ( status )
     `
@@ -71,10 +75,13 @@ export default async function AdminApplicationsPage() {
 
     const tasks: ApplicationRow["tasks"] = [];
     if (pendingItems > 0) {
-      tasks.push({ label: "Trayectoria pendiente", color: "bg-purple-600" });
+      tasks.push({ label: "Trayectoria", color: "bg-violet-600" });
     }
     if (teamTask) {
-      tasks.push({ label: "Equipo propuesto", color: "bg-orange-600" });
+      tasks.push({ label: "Equipos", color: "bg-orange-600" });
+    }
+    if (!app.personal_info_approved) {
+      tasks.push({ label: "Informacion", color: "bg-pink-600" });
     }
 
     return {
@@ -92,6 +99,9 @@ export default async function AdminApplicationsPage() {
       free_agent: app.free_agent,
       tasks,
       transfermarkt_url: app.transfermarkt_url,
+      personal_info_approved: !!app.personal_info_approved,
+      links: Array.isArray(app.links) ? app.links : [],
+      kyc_urls: Array.isArray(app.kyc_urls) ? app.kyc_urls : [],
     };
   });
 

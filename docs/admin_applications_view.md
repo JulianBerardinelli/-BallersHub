@@ -11,12 +11,12 @@ Columns:
 - **Status** – current state (pending review, awaiting tasks, approved, rejected).
 - **Plan** – subscription or account type requested.
 - **Current Club** – associated club or "Free Agent".
-- **Tasks** – animated badge cycling through outstanding items (trajectory approvals, new team creation, etc.).
+ - **Tasks** – animated badge cycling through outstanding items (Trayectoria, Equipos, Información).
 
 ## Row Actions
-- **Accept Application** – available when tasks are resolved; prompts confirmation summary before finalizing.
-- **External Links** – quick access to references such as Transfermarkt.
-- *(Future)* view details, task review and rejection flows can be added modularly.
+- **Personal Data Review / Details** – icon button that opens a modal with personal info, links and KYC documents. After acceptance it remains as a detail viewer.
+- **External Links** – icon link to resources such as Transfermarkt.
+- **Accept Application** – icon button enabled only when all tasks are completed.
 
 ## Filters
 Header includes a filter button which opens selections for:
@@ -26,9 +26,9 @@ Header includes a filter button which opens selections for:
 Selected filters appear as removable badges next to the button.
 
 ## Workflow Integration
-1. Application submitted ⇒ entry appears in table with pending status and task count.
-2. Admin reviews and completes required tasks (trajectory approvals, team creation).
-3. Once tasks = 0, admin can accept or reject application.
+1. Application submitted ⇒ entry appears in table with pending status and task badges.
+2. Admin reviews and completes required tasks (Trayectoria approvals, new team creation, personal data verification).
+3. Once badges disappear (tasks = 0), the accept button is enabled.
 4. Acceptance triggers account creation and removes row from pending view.
 
 ## Scalability Considerations

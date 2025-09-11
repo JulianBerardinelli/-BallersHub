@@ -19,14 +19,20 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
-import { Copy, Filter } from "lucide-react";
+import { Copy, Filter, ExternalLink, UserCheck, Eye, Check } from "lucide-react";
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
 import type { ApplicationRow } from "./types";
 import { applicationColumns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
+import { useAdminModalPreset } from "../ui/modalPresets";
 
 const statusColor: Record<ApplicationRow["status"], "success" | "warning" | "danger"> = {
   approved: "success",
@@ -63,7 +69,7 @@ function TaskBadge({ tasks }: { tasks: ApplicationRow["tasks"] }) {
   return (
     <Chip
       size="sm"
-      className={`${t.color} text-white transition-opacity duration-200 ${
+      className={`${t.color} text-white transition-opacity duration-200 w-28 justify-start ${
         fade ? "opacity-0" : "opacity-100"
       }`}
       startContent={<span className="font-bold">{index + 1}</span>}
@@ -76,6 +82,12 @@ function TaskBadge({ tasks }: { tasks: ApplicationRow["tasks"] }) {
 
 export default function ApplicationsTableUI({ items: initialItems }: { items: ApplicationRow[] }) {
   const [items] = React.useState<ApplicationRow[]>(initialItems);
+  const modalPreset = useAdminModalPreset();
+  const [modalId, setModalId] = React.useState<string | null>(null);
+  const openItem = React.useMemo(
+    () => (modalId ? items.find((i) => i.id === modalId) ?? null : null),
+    [items, modalId],
+  );
   const [sort, setSort] = React.useState<SortDescriptor>({
     column: "created_at" as Key,
     direction: "descending",
@@ -237,24 +249,54 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       case "actions":
         return (
           <div className="flex justify-end gap-2">
-            {a.status === "pending" && (
-              <form action={`/api/admin/applications/${a.id}/approve`} method="post">
-                <Button size="sm" color="primary" type="submit">
-                  Approve
-                </Button>
-              </form>
-            )}
             {a.transfermarkt_url && (
               <Tooltip content="Transfermarkt">
-                <a
-                  className="text-xs underline"
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  as="a"
                   href={a.transfermarkt_url}
                   target="_blank"
                   rel="noreferrer"
                 >
-                  TM
-                </a>
+                  <ExternalLink size={16} />
+                </Button>
               </Tooltip>
+            )}
+            <Tooltip content={
+              a.personal_info_approved ? "Ver datos" : "Revisar datos"
+            }>
+              <Button
+                isIconOnly
+                size="sm"
+                variant="flat"
+                onPress={() => setModalId(a.id)}
+              >
+                {a.personal_info_approved ? (
+                  <Eye size={16} />
+                ) : (
+                  <UserCheck size={16} />
+                )}
+              </Button>
+            </Tooltip>
+            {a.status === "pending" && (
+              <form
+                action={`/api/admin/applications/${a.id}/approve`}
+                method="post"
+              >
+                <Tooltip content="Aceptar solicitud">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    color="success"
+                    type="submit"
+                    isDisabled={a.tasks.length > 0}
+                  >
+                    <Check size={16} />
+                  </Button>
+                </Tooltip>
+              </form>
             )}
           </div>
         );
@@ -391,27 +433,155 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               )}
             </div>
             <div className="flex justify-end gap-2">
+              {a.transfermarkt_url && (
+                <Tooltip content="Transfermarkt">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    as="a"
+                    href={a.transfermarkt_url}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <ExternalLink size={16} />
+                  </Button>
+                </Tooltip>
+              )}
+              <Tooltip content={a.personal_info_approved ? "Ver datos" : "Revisar datos"}>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="flat"
+                  onPress={() => setModalId(a.id)}
+                >
+                  {a.personal_info_approved ? (
+                    <Eye size={16} />
+                  ) : (
+                    <UserCheck size={16} />
+                  )}
+                </Button>
+              </Tooltip>
               {a.status === "pending" && (
                 <form action={`/api/admin/applications/${a.id}/approve`} method="post">
-                  <Button size="sm" color="primary" type="submit">
-                    Approve
-                  </Button>
+                  <Tooltip content="Aceptar solicitud">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      color="success"
+                      type="submit"
+                      isDisabled={a.tasks.length > 0}
+                    >
+                      <Check size={16} />
+                    </Button>
+                  </Tooltip>
                 </form>
-              )}
-              {a.transfermarkt_url && (
-                <a
-                  className="text-xs underline"
-                  href={a.transfermarkt_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  TM
-                </a>
               )}
             </div>
           </div>
         ))}
       </div>
+
+      <Modal
+        isOpen={modalId !== null && !!openItem}
+        onOpenChange={(open) => {
+          if (!open) setModalId(null);
+        }}
+        {...modalPreset}
+      >
+        <ModalContent>
+          {(onClose) => {
+            if (!openItem) return null;
+            return (
+              <>
+                <ModalHeader className={modalPreset.classNames?.header}>
+                  <div className="min-w-0">
+                    <div className="truncate font-semibold">
+                      {openItem.applicant ?? "(sin nombre)"}
+                    </div>
+                    <div className="text-xs text-foreground-500">
+                      ID: {openItem.id}
+                    </div>
+                  </div>
+                </ModalHeader>
+                <ModalBody className={modalPreset.classNames?.body}>
+                  <div className="grid gap-3 text-sm">
+                    <div>
+                      <p className="font-medium mb-1">Nacionalidades</p>
+                      <p>{openItem.nationalities.join(", ") || "—"}</p>
+                    </div>
+                    {openItem.links.length > 0 && (
+                      <div>
+                        <p className="font-medium mb-1">Links</p>
+                        <ul className="list-disc pl-4">
+                          {openItem.links.map((l, i) => (
+                            <li key={i}>
+                              <a
+                                href={l}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary underline"
+                              >
+                                {l}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {openItem.kyc_urls.length > 0 && (
+                      <div>
+                        <p className="font-medium mb-1">Documentos KYC</p>
+                        <ul className="list-disc pl-4">
+                          {openItem.kyc_urls.map((u, i) => (
+                            <li key={i}>
+                              <a
+                                href={u}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-primary underline"
+                              >
+                                Documento {i + 1}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {openItem.tasks.filter((t) => t.label !== "Informacion").length > 0 && (
+                      <div>
+                        <p className="font-medium mb-1">Tareas pendientes</p>
+                        <div className="flex flex-wrap gap-2">
+                          {openItem.tasks
+                            .filter((t) => t.label !== "Informacion")
+                            .map((t, i) => (
+                              <Chip key={i} size="sm" className={`${t.color} text-white`}>
+                                {t.label}
+                              </Chip>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </ModalBody>
+                <ModalFooter>
+                  {!openItem.personal_info_approved && (
+                    <form
+                      action={`/api/admin/applications/${openItem.id}/personal-info/approve`}
+                      method="post"
+                      className="ml-auto"
+                    >
+                      <Button color="primary" type="submit">
+                        Aceptar datos
+                      </Button>
+                    </form>
+                  )}
+                </ModalFooter>
+              </>
+            );
+          }}
+        </ModalContent>
+      </Modal>
     </>
   );
 }
