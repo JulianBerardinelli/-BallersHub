@@ -2,9 +2,10 @@
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
-import CareerInbox from "./CareerInboxTable";
+import CareerTableUI from "./CareerTableUI";
+import type { CareerRow } from "./types";
 
-// Tipos crudos de la consulta
+// Raw query types
 type RawApp = {
   id: string;
   user_id: string;
@@ -13,8 +14,11 @@ type RawApp = {
   external_profile_url: string | null;
   nationality: string[] | null;
   notes: unknown | null;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
 };
-type RawRow = {
+
+type RawItem = {
   id: string;
   status: "pending" | "accepted" | "rejected";
   club: string;
@@ -22,119 +26,112 @@ type RawRow = {
   start_year: number | null;
   end_year: number | null;
   team_id: string | null;
-  application_id: string;
-  proposed_team_name: string | null;
-  proposed_team_country: string | null;
-  proposed_team_country_code: string | null;
   team: { name: string | null; crest_url: string | null; country_code: string | null } | null;
-  // join
-  player_applications?: RawApp[] | RawApp | null;
 };
 
-// Estructura agrupada por solicitud
-export type Group = {
-  application_id: string;
-  applicant: {
-    id: string;
-    user_id: string;
-    full_name: string | null;
-    transfermarkt_url: string | null;
-    external_profile_url: string | null;
-    social_url: string | null;
-    nationality_codes: string[];
-  } | null;
-  items: Array<{
-    id: string;
-    status: "pending" | "accepted" | "rejected";
-    club: string;
-    division: string | null;
-    start_year: number | null;
-    end_year: number | null;
-    team_id: string | null;
-    team_name: string;
-    crest_url: string | null;
-    country_code: string | null;
-  }>;
+type RawRow = RawApp & {
+  current_team: { name: string | null; crest_url: string | null; country_code: string | null } | null;
+  career_item_proposals: RawItem[] | null;
 };
 
 export default async function CareerAdminPage() {
   noStore();
   const supa = await createSupabaseServerRSC();
 
-  const { data: { user } } = await supa.auth.getUser();
+  const {
+    data: { user },
+  } = await supa.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/admin/career");
-  const { data: up } = await supa.from("user_profiles").select("role").eq("user_id", user.id).maybeSingle();
+  const { data: up } = await supa
+    .from("user_profiles")
+    .select("role")
+    .eq("user_id", user.id)
+    .maybeSingle();
   if (up?.role !== "admin") redirect("/dashboard");
 
-  // Traemos sólo propuestas PENDING
   const { data, error } = await supa
-    .from("career_item_proposals")
-    .select(`
-      id, status, club, division, start_year, end_year, team_id, application_id,
-      proposed_team_name, proposed_team_country, proposed_team_country_code,
-      team:teams!career_item_proposals_team_id_fkey ( name, crest_url, country_code ),
-      player_applications!inner (
-        id, user_id, full_name, transfermarkt_url, external_profile_url, nationality, notes
+    .from("player_applications")
+    .select(
+      `
+      id, user_id, full_name, status, created_at,
+      transfermarkt_url, external_profile_url, nationality, notes,
+      current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
+      career_item_proposals (
+        id, status, club, division, start_year, end_year, team_id,
+        team:teams!career_item_proposals_team_id_fkey ( name, crest_url, country_code )
       )
-    `)
-    .eq("status", "pending")
+    `
+    )
     .order("created_at", { ascending: false });
 
   if (error) {
-    return <main className="p-8"><p className="text-red-500">{error.message}</p></main>;
+    return (
+      <main className="p-8">
+        <p className="text-red-500">{error.message}</p>
+      </main>
+    );
   }
 
-  // Agrupar por application_id
-  const groupsMap = new Map<string, Group>();
   const rows = (data ?? []) as unknown as RawRow[];
-  for (const r of rows) {
-    const appRel = Array.isArray(r.player_applications)
-      ? (r.player_applications[0] ?? null)
-      : (r.player_applications ?? null);
-
-    const notes = appRel?.notes && typeof appRel.notes === "string" ? JSON.parse(appRel.notes) : appRel?.notes;
-    const nationality_codes = Array.isArray(notes?.nationality_codes) ? notes.nationality_codes : [];
+  const items: CareerRow[] = rows.map((app) => {
+    const notes =
+      app.notes && typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
+    const nationality_codes = Array.isArray(notes?.nationality_codes)
+      ? notes.nationality_codes
+      : [];
     const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
+    const links = [app.transfermarkt_url, app.external_profile_url, social_url].filter(
+      Boolean
+    ) as string[];
 
-    const g: Group = groupsMap.get(r.application_id) ?? {
-      application_id: r.application_id,
-      applicant: appRel ? {
-        id: appRel.id,
-        user_id: appRel.user_id,
-        full_name: appRel.full_name,
-        transfermarkt_url: appRel.transfermarkt_url,
-        external_profile_url: appRel.external_profile_url,
-        social_url,
-        nationality_codes,
-      } : null,
-      items: [],
+    const items = (app.career_item_proposals ?? []).map((ci) => ({
+      id: ci.id,
+      status: ci.status,
+      club: ci.club,
+      division: ci.division,
+      start_year: ci.start_year,
+      end_year: ci.end_year,
+      team_id: ci.team_id,
+      team_name: ci.team?.name ?? ci.club,
+      crest_url: ci.team?.crest_url ?? null,
+      country_code: ci.team?.country_code ?? null,
+    }));
+
+    let current = app.current_team;
+    if (!current) {
+      const curItem = items.find((i) => i.end_year == null);
+      if (curItem) {
+        current = {
+          name: curItem.team_name,
+          crest_url: curItem.crest_url,
+          country_code: curItem.country_code,
+        };
+      }
+    }
+
+    return {
+      id: app.id,
+      applicant: app.full_name,
+      status: app.status,
+      created_at: app.created_at,
+      current_team_name: current?.name ?? null,
+      current_team_crest_url: current?.crest_url ?? null,
+      current_team_country_code: current?.country_code ?? null,
+      nationalities: nationality_codes,
+      links,
+      items,
     };
-    g.items.push({
-      id: r.id,
-      status: r.status,
-      club: r.club,
-      division: r.division,
-      start_year: r.start_year,
-      end_year: r.end_year,
-      team_id: r.team_id,
-      team_name: r.team?.name ?? r.club,
-      crest_url: r.team?.crest_url ?? null,
-      country_code: r.team?.country_code ?? r.proposed_team_country_code ?? null,
-    });
-    groupsMap.set(r.application_id, g);
-  }
-
-  const groups = Array.from(groupsMap.values());
+  });
 
   return (
     <main className="mx-auto max-w-6xl p-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Trayectorias propuestas</h1>
+        <h1 className="text-2xl font-semibold">Trayectorias</h1>
         <p className="text-sm text-neutral-500">
-          Aceptá la trayectoria completa. Los equipos que no existan se crearán en <b>Teams</b> como <b>pending</b>.
+          Gestioná trayectorias propuestas y aprobadas.
         </p>
       </div>
-      <CareerInbox groups={groups} />
+      <CareerTableUI items={items} />
     </main>
   );
 }
