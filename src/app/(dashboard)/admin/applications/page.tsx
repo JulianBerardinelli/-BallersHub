@@ -49,15 +49,26 @@ export default async function AdminApplicationsPage() {
   const { data, error } = await supabase
     .from("player_applications")
     .select(
-      `
-      id, full_name, nationality, positions, plan_requested, created_at, status,
-      free_agent, transfermarkt_url,
-      proposed_team_name, proposed_team_country_code,
-      external_profile_url, id_doc_url, selfie_url, notes,
-      user:auth.users!player_applications_user_id_fkey ( email ),
-      current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
-      career_item_proposals ( status )
-    `
+      [
+        "id",
+        "full_name",
+        "nationality",
+        "positions",
+        "plan_requested",
+        "created_at",
+        "status",
+        "free_agent",
+        "transfermarkt_url",
+        "proposed_team_name",
+        "proposed_team_country_code",
+        "external_profile_url",
+        "id_doc_url",
+        "selfie_url",
+        "notes",
+        "user:auth.users!player_applications_user_id_fkey(email)",
+        "current_team:teams!player_applications_current_team_id_fkey(name,crest_url,country_code)",
+        "career_item_proposals(status)",
+      ].join(",")
     )
     .order("created_at", { ascending: false });
 
