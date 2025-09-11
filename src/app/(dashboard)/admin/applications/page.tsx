@@ -54,7 +54,7 @@ export default async function AdminApplicationsPage() {
       free_agent, transfermarkt_url,
       proposed_team_name, proposed_team_country_code,
       external_profile_url, id_doc_url, selfie_url, notes,
-      user:users!player_applications_user_id_fkey ( email ),
+      user:auth.users!player_applications_user_id_fkey ( email ),
       current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
       career_item_proposals ( status )
     `
