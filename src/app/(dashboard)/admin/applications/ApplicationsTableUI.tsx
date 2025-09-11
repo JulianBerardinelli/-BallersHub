@@ -611,10 +611,6 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                         <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
                       </div>
                     </div>
-                    <div>
-                      <p className="font-medium mb-1">Email</p>
-                      <p>{openItem.email ?? "—"}</p>
-                    </div>
                     {openItem.links.length > 0 && (
                       <div>
                         <p className="font-medium mb-1">Links</p>

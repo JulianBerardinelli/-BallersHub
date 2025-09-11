@@ -22,7 +22,6 @@ interface RawApp {
   id_doc_url: string | null;
   selfie_url: string | null;
   notes: unknown | null;
-  user: { email: string | null } | null;
   current_team: {
     name: string | null;
     crest_url: string | null;
@@ -65,7 +64,6 @@ export default async function AdminApplicationsPage() {
         "id_doc_url",
         "selfie_url",
         "notes",
-        "user:auth.users!player_applications_user_id_fkey(email)",
         "current_team:teams!player_applications_current_team_id_fkey(name,crest_url,country_code)",
         "career_item_proposals(status)",
       ].join(",")
@@ -81,7 +79,7 @@ export default async function AdminApplicationsPage() {
   }
 
   const rows = (data ?? []) as unknown as RawApp[];
-  const storageBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kyc/`;
+  const kycStorage = supabase.storage.from("kyc");
   const items: ApplicationRow[] = rows.map((app) => {
     const notes =
       app.notes && typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
@@ -111,9 +109,15 @@ export default async function AdminApplicationsPage() {
 
     const kyc_docs: ApplicationRow["kyc_docs"] = [];
     if (app.id_doc_url)
-      kyc_docs.push({ label: "Documento", url: storageBase + app.id_doc_url });
+      kyc_docs.push({
+        label: "Documento",
+        url: kycStorage.getPublicUrl(app.id_doc_url).data.publicUrl,
+      });
     if (app.selfie_url)
-      kyc_docs.push({ label: "Selfie", url: storageBase + app.selfie_url });
+      kyc_docs.push({
+        label: "Selfie",
+        url: kycStorage.getPublicUrl(app.selfie_url).data.publicUrl,
+      });
 
     const personalInfoProvided =
       links.length > 0 || kyc_docs.length > 0 || birth_date || height_cm || weight_kg;
@@ -153,7 +157,6 @@ export default async function AdminApplicationsPage() {
       positions: Array.isArray(app.positions) ? app.positions : [],
       birth_date,
       age,
-      email: app.user?.email ?? null,
       height_cm,
       weight_kg,
       created_at: app.created_at,
