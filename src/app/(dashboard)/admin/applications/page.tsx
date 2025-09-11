@@ -10,6 +10,7 @@ interface RawApp {
   id: string;
   full_name: string | null;
   nationality: string[] | null;
+  positions: string[] | null;
   plan_requested: "free" | "pro" | "pro_plus";
   created_at: string;
   status: "pending" | "approved" | "rejected";
@@ -20,6 +21,8 @@ interface RawApp {
   external_profile_url: string | null;
   id_doc_url: string | null;
   selfie_url: string | null;
+  notes: unknown | null;
+  user: { email: string | null } | null;
   current_team: {
     name: string | null;
     crest_url: string | null;
@@ -47,10 +50,11 @@ export default async function AdminApplicationsPage() {
     .from("player_applications")
     .select(
       `
-      id, full_name, nationality, plan_requested, created_at, status,
+      id, full_name, nationality, positions, plan_requested, created_at, status,
       free_agent, transfermarkt_url,
       proposed_team_name, proposed_team_country_code,
-      external_profile_url, id_doc_url, selfie_url,
+      external_profile_url, id_doc_url, selfie_url, notes,
+      user:users!player_applications_user_id_fkey ( email ),
       current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
       career_item_proposals ( status )
     `
@@ -66,34 +70,81 @@ export default async function AdminApplicationsPage() {
   }
 
   const rows = (data ?? []) as unknown as RawApp[];
+  const storageBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/kyc/`;
   const items: ApplicationRow[] = rows.map((app) => {
+    const notes =
+      app.notes && typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
+    const nationality_codes = Array.isArray(notes?.nationality_codes)
+      ? notes.nationality_codes
+      : [];
+    const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
+    const birth_date = typeof notes?.birth_date === "string" ? notes.birth_date : null;
+    const height_cm = typeof notes?.height_cm === "number" ? notes.height_cm : null;
+    const weight_kg = typeof notes?.weight_kg === "number" ? notes.weight_kg : null;
+    const age = birth_date
+      ? Math.floor((Date.now() - new Date(birth_date).getTime()) / 31557600000)
+      : null;
+
     const pendingItems = (app.career_item_proposals ?? []).filter(
       (ci) => ci.status === "pending"
     ).length;
     const teamTask =
       !app.current_team && app.proposed_team_name && !app.free_agent;
 
-    const links = app.external_profile_url ? [app.external_profile_url] : [];
-    const kyc_urls = [app.id_doc_url, app.selfie_url].filter(
-      (u): u is string => !!u
-    );
-    const personalInfoProvided = links.length > 0 || kyc_urls.length > 0;
+    const links: ApplicationRow["links"] = [];
+    if (app.transfermarkt_url)
+      links.push({ label: "Transfermarkt", url: app.transfermarkt_url });
+    if (app.external_profile_url)
+      links.push({ label: "Perfil", url: app.external_profile_url });
+    if (social_url) links.push({ label: "Social", url: social_url });
+
+    const kyc_docs: ApplicationRow["kyc_docs"] = [];
+    if (app.id_doc_url)
+      kyc_docs.push({ label: "Documento", url: storageBase + app.id_doc_url });
+    if (app.selfie_url)
+      kyc_docs.push({ label: "Selfie", url: storageBase + app.selfie_url });
+
+    const personalInfoProvided =
+      links.length > 0 || kyc_docs.length > 0 || birth_date || height_cm || weight_kg;
 
     const tasks: ApplicationRow["tasks"] = [];
-    if (pendingItems > 0) {
-      tasks.push({ label: "Trayectoria", color: "bg-violet-600" });
+    if (app.status !== "approved") {
+      if (pendingItems > 0) {
+        tasks.push({
+          label: "Trayectoria",
+          className: "text-purple-700 bg-purple-100 border-purple-200",
+        });
+      }
+      if (teamTask) {
+        tasks.push({
+          label: "Equipos",
+          className: "text-pink-700 bg-pink-100 border-pink-200",
+        });
+      }
+      if (personalInfoProvided) {
+        tasks.push({
+          label: "Informacion",
+          className: "text-orange-700 bg-orange-100 border-orange-200",
+        });
+      }
     }
-    if (teamTask) {
-      tasks.push({ label: "Equipos", color: "bg-orange-600" });
-    }
-    if (personalInfoProvided) {
-      tasks.push({ label: "Informacion", color: "bg-pink-600" });
-    }
+
+    const personal_info_approved = app.status === "approved" || !personalInfoProvided;
+
+    const nationalities = (Array.isArray(app.nationality) ? app.nationality : []).map(
+      (n, i) => ({ name: n, code: nationality_codes[i] ?? null })
+    );
 
     return {
       id: app.id,
       applicant: app.full_name,
-      nationalities: Array.isArray(app.nationality) ? app.nationality : [],
+      nationalities,
+      positions: Array.isArray(app.positions) ? app.positions : [],
+      birth_date,
+      age,
+      email: app.user?.email ?? null,
+      height_cm,
+      weight_kg,
       created_at: app.created_at,
       status: app.status,
       plan: app.plan_requested,
@@ -104,10 +155,9 @@ export default async function AdminApplicationsPage() {
       proposed_team_country_code: app.proposed_team_country_code,
       free_agent: app.free_agent,
       tasks,
-      transfermarkt_url: app.transfermarkt_url,
-      personal_info_approved: !personalInfoProvided,
+      personal_info_approved,
       links,
-      kyc_urls,
+      kyc_docs,
     };
   });
 

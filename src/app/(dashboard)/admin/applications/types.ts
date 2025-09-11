@@ -1,12 +1,21 @@
 export type Task = {
   label: string;
-  color: string; // tailwind bg class, e.g. "bg-purple-600"
+  className: string; // Tailwind classes for faded chip colors
 };
+
+export type LinkInfo = { label: string; url: string };
+export type KycDoc = { label: string; url: string };
 
 export type ApplicationRow = {
   id: string;
   applicant: string | null;
-  nationalities: string[];
+  nationalities: { code: string | null; name: string }[];
+  positions: string[];
+  birth_date: string | null;
+  age: number | null;
+  email: string | null;
+  height_cm: number | null;
+  weight_kg: number | null;
   created_at: string;
   status: "pending" | "approved" | "rejected";
   plan: "free" | "pro" | "pro_plus";
@@ -17,10 +26,9 @@ export type ApplicationRow = {
   proposed_team_country_code: string | null;
   free_agent: boolean;
   tasks: Task[];
-  transfermarkt_url: string | null;
   personal_info_approved: boolean;
-  links: string[];
-  kyc_urls: string[];
+  links: LinkInfo[];
+  kyc_docs: KycDoc[];
 };
 
 export type ColumnDef = {

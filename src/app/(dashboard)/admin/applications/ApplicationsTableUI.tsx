@@ -25,7 +25,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
-import { Copy, Filter, ExternalLink, UserCheck, Eye, Check } from "lucide-react";
+import { Copy, Filter, UserCheck, Eye, Check, Info } from "lucide-react";
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -48,7 +48,13 @@ const planColor: Record<ApplicationRow["plan"], "default" | "primary" | "warning
 
 type SortDir = "ascending" | "descending";
 
-function TaskBadge({ tasks }: { tasks: ApplicationRow["tasks"] }) {
+function TaskBadge({
+  tasks,
+  onPress,
+}: {
+  tasks: ApplicationRow["tasks"];
+  onPress: () => void;
+}) {
   const [index, setIndex] = React.useState(0);
   const [fade, setFade] = React.useState(false);
 
@@ -69,11 +75,12 @@ function TaskBadge({ tasks }: { tasks: ApplicationRow["tasks"] }) {
   return (
     <Chip
       size="sm"
-      className={`${t.color} text-white transition-opacity duration-200 w-28 justify-start ${
+      variant="faded"
+      onClick={onPress}
+      className={`cursor-pointer transition-opacity duration-200 w-32 justify-start border ${
         fade ? "opacity-0" : "opacity-100"
-      }`}
-      startContent={<span className="font-bold">{index + 1}</span>}
-      variant="solid"
+      } ${t.className}`}
+      startContent={<Info size={14} />}
     >
       {t.label}
     </Chip>
@@ -83,10 +90,13 @@ function TaskBadge({ tasks }: { tasks: ApplicationRow["tasks"] }) {
 export default function ApplicationsTableUI({ items: initialItems }: { items: ApplicationRow[] }) {
   const [items, setItems] = React.useState<ApplicationRow[]>(initialItems);
   const modalPreset = useAdminModalPreset();
-  const [modalId, setModalId] = React.useState<string | null>(null);
+  const [modal, setModal] = React.useState<{
+    id: string;
+    mode: "detail" | "review" | "tasks";
+  } | null>(null);
   const openItem = React.useMemo(
-    () => (modalId ? items.find((i) => i.id === modalId) ?? null : null),
-    [items, modalId],
+    () => (modal ? items.find((i) => i.id === modal.id) ?? null : null),
+    [items, modal],
   );
   const [sort, setSort] = React.useState<SortDescriptor>({
     column: "created_at" as Key,
@@ -123,7 +133,10 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
   }, []);
 
   const allCountries = React.useMemo(
-    () => Array.from(new Set(items.flatMap((i) => i.nationalities))).sort(),
+    () =>
+      Array.from(
+        new Set(items.flatMap((i) => i.nationalities.map((n) => n.name)))
+      ).sort(),
     [items],
   );
 
@@ -133,7 +146,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       if (filters.plan.size && !filters.plan.has(i.plan)) return false;
       if (
         filters.country.size &&
-        !i.nationalities.some((c) => filters.country.has(c))
+        !i.nationalities.some((c) => filters.country.has(c.name))
       )
         return false;
       return true;
@@ -189,7 +202,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
           : it,
       ),
     );
-    setModalId(null);
+    setModal(null);
   }, []);
 
   const renderCell = React.useCallback(
@@ -214,7 +227,9 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
           <div className="min-w-0">
             <div className="truncate font-medium">{a.applicant ?? "(sin nombre)"}</div>
             {a.nationalities.length > 0 && (
-              <div className="text-xs text-neutral-500 truncate">{a.nationalities.join(", ")}</div>
+              <div className="text-xs text-neutral-500 truncate">
+                {a.nationalities.map((n) => n.name).join(", ")}
+              </div>
             )}
           </div>
         );
@@ -262,34 +277,31 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       }
 
       case "tasks":
-        return <TaskBadge tasks={a.tasks} />;
+        return (
+          <TaskBadge
+            tasks={a.tasks}
+            onPress={() => setModal({ id: a.id, mode: "tasks" })}
+          />
+        );
 
       case "actions":
         return (
           <div className="flex justify-end gap-2">
-            {a.transfermarkt_url && (
-              <Tooltip content="Transfermarkt">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="light"
-                  as="a"
-                  href={a.transfermarkt_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <ExternalLink size={16} />
-                </Button>
-              </Tooltip>
-            )}
-            <Tooltip content={
-              a.personal_info_approved ? "Ver datos" : "Revisar datos"
-            }>
+            <Tooltip
+              content={
+                a.personal_info_approved ? "Ver datos" : "Revisar datos"
+              }
+            >
               <Button
                 isIconOnly
                 size="sm"
                 variant="flat"
-                onPress={() => setModalId(a.id)}
+                onPress={() =>
+                  setModal({
+                    id: a.id,
+                    mode: a.personal_info_approved ? "detail" : "review",
+                  })
+                }
               >
                 {a.personal_info_approved ? (
                   <Eye size={16} />
@@ -426,14 +438,19 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               <div className="min-w-0">
                 <div className="truncate font-medium">{a.applicant ?? "(sin nombre)"}</div>
                 {a.nationalities.length > 0 && (
-                  <div className="text-xs text-neutral-500 truncate">{a.nationalities.join(", ")}</div>
+                  <div className="text-xs text-neutral-500 truncate">
+                    {a.nationalities.map((n) => n.name).join(", ")}
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 <Chip size="sm" variant="flat" color={statusColor[a.status]} className="capitalize">
                   {a.status}
                 </Chip>
-                <TaskBadge tasks={a.tasks} />
+                <TaskBadge
+                  tasks={a.tasks}
+                  onPress={() => setModal({ id: a.id, mode: "tasks" })}
+                />
               </div>
             </div>
             <div className="text-sm">
@@ -451,27 +468,17 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               )}
             </div>
             <div className="flex justify-end gap-2">
-              {a.transfermarkt_url && (
-                <Tooltip content="Transfermarkt">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="light"
-                    as="a"
-                    href={a.transfermarkt_url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <ExternalLink size={16} />
-                  </Button>
-                </Tooltip>
-              )}
               <Tooltip content={a.personal_info_approved ? "Ver datos" : "Revisar datos"}>
                 <Button
                   isIconOnly
                   size="sm"
                   variant="flat"
-                  onPress={() => setModalId(a.id)}
+                  onPress={() =>
+                    setModal({
+                      id: a.id,
+                      mode: a.personal_info_approved ? "detail" : "review",
+                    })
+                  }
                 >
                   {a.personal_info_approved ? (
                     <Eye size={16} />
@@ -501,32 +508,112 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       </div>
 
       <Modal
-        isOpen={modalId !== null && !!openItem}
+        isOpen={modal !== null && !!openItem}
         onOpenChange={(open) => {
-          if (!open) setModalId(null);
+          if (!open) setModal(null);
         }}
         {...modalPreset}
       >
         <ModalContent>
           {(onClose) => {
-            if (!openItem) return null;
+            if (!openItem || !modal) return null;
+            if (modal.mode === "tasks") {
+              return (
+                <>
+                  <ModalHeader className={modalPreset.classNames?.header}>
+                    <div>
+                      <h3 className="font-semibold">Tareas pendientes</h3>
+                      <p className="text-sm text-foreground-500">
+                        Resolvé estas tareas antes de aceptar.
+                      </p>
+                    </div>
+                  </ModalHeader>
+                  <ModalBody className={modalPreset.classNames?.body}>
+                    <div className="flex flex-wrap gap-2">
+                      {openItem.tasks.map((t, i) => (
+                        <Chip key={i} variant="faded" className={`border ${t.className}`}>
+                          {t.label}
+                        </Chip>
+                      ))}
+                    </div>
+                  </ModalBody>
+                </>
+              );
+            }
+
             return (
               <>
                 <ModalHeader className={modalPreset.classNames?.header}>
-                  <div className="min-w-0">
-                    <div className="truncate font-semibold">
-                      {openItem.applicant ?? "(sin nombre)"}
-                    </div>
-                    <div className="text-xs text-foreground-500">
-                      ID: {openItem.id}
-                    </div>
+                  <div>
+                    <h3 className="font-semibold">
+                      {modal.mode === "review" ? "Revisar datos" : "Detalle del jugador"}
+                    </h3>
+                    <p className="text-sm text-foreground-500">
+                      {modal.mode === "review"
+                        ? "Confirmá la información personal del jugador."
+                        : "Información registrada en la solicitud."}
+                    </p>
                   </div>
                 </ModalHeader>
                 <ModalBody className={modalPreset.classNames?.body}>
-                  <div className="grid gap-3 text-sm">
+                  <div className="grid gap-4 text-sm">
+                    <div>
+                      <p className="font-medium">Nombre</p>
+                      <p>{openItem.applicant ?? "(sin nombre)"}</p>
+                      <p className="text-xs text-foreground-500">ID: {openItem.id}</p>
+                    </div>
                     <div>
                       <p className="font-medium mb-1">Nacionalidades</p>
-                      <p>{openItem.nationalities.join(", ") || "—"}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {openItem.nationalities.map((n, i) => (
+                          <Chip
+                            key={i}
+                            size="sm"
+                            variant="flat"
+                            startContent={
+                              n.code ? <CountryFlag code={n.code} size={16} /> : null
+                            }
+                          >
+                            {n.name}
+                          </Chip>
+                        ))}
+                      </div>
+                    </div>
+                    {openItem.positions.length > 0 && (
+                      <div>
+                        <p className="font-medium mb-1">Posiciones</p>
+                        <div className="flex flex-wrap gap-2">
+                          {openItem.positions.map((p, i) => (
+                            <Chip key={i} size="sm" variant="flat">
+                              {p}
+                            </Chip>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-6">
+                      <div>
+                        <p className="font-medium mb-1">Fecha de nacimiento</p>
+                        <p>{openItem.birth_date ? <ClientDate iso={openItem.birth_date} /> : "—"}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium mb-1">Edad</p>
+                        <p>{openItem.age ?? "—"}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-6">
+                      <div>
+                        <p className="font-medium mb-1">Altura</p>
+                        <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium mb-1">Peso</p>
+                        <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="font-medium mb-1">Email</p>
+                      <p>{openItem.email ?? "—"}</p>
                     </div>
                     {openItem.links.length > 0 && (
                       <div>
@@ -535,55 +622,41 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           {openItem.links.map((l, i) => (
                             <li key={i}>
                               <a
-                                href={l}
+                                href={l.url}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="text-primary underline"
                               >
-                                {l}
+                                {l.label}
                               </a>
                             </li>
                           ))}
                         </ul>
                       </div>
                     )}
-                    {openItem.kyc_urls.length > 0 && (
+                    {openItem.kyc_docs.length > 0 && (
                       <div>
                         <p className="font-medium mb-1">Documentos KYC</p>
                         <ul className="list-disc pl-4">
-                          {openItem.kyc_urls.map((u, i) => (
+                          {openItem.kyc_docs.map((d, i) => (
                             <li key={i}>
                               <a
-                                href={u}
+                                href={d.url}
                                 target="_blank"
                                 rel="noreferrer"
                                 className="text-primary underline"
                               >
-                                Documento {i + 1}
+                                {d.label}
                               </a>
                             </li>
                           ))}
                         </ul>
-                      </div>
-                    )}
-                    {openItem.tasks.filter((t) => t.label !== "Informacion").length > 0 && (
-                      <div>
-                        <p className="font-medium mb-1">Tareas pendientes</p>
-                        <div className="flex flex-wrap gap-2">
-                          {openItem.tasks
-                            .filter((t) => t.label !== "Informacion")
-                            .map((t, i) => (
-                              <Chip key={i} size="sm" className={`${t.color} text-white`}>
-                                {t.label}
-                              </Chip>
-                            ))}
-                        </div>
                       </div>
                     )}
                   </div>
                 </ModalBody>
-                <ModalFooter>
-                  {!openItem.personal_info_approved && (
+                {modal.mode === "review" && (
+                  <ModalFooter>
                     <Button
                       color="primary"
                       className="ml-auto"
@@ -591,8 +664,8 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                     >
                       Aceptar datos
                     </Button>
-                  )}
-                </ModalFooter>
+                  </ModalFooter>
+                )}
               </>
             );
           }}

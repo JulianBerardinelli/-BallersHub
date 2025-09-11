@@ -11,11 +11,10 @@ Columns:
 - **Status** – current state (pending review, awaiting tasks, approved, rejected).
 - **Plan** – subscription or account type requested.
 - **Current Club** – associated club or "Free Agent".
- - **Tasks** – animated badge cycling through outstanding items (Trayectoria, Equipos, Información).
+ - **Tasks** – faded chip cycling through outstanding items (Trayectoria, Equipos, Información) and opening a task summary modal.
 
 ## Row Actions
-- **Personal Data Review / Details** – icon button that opens a modal with personal info, links and KYC documents. After acceptance it remains as a detail viewer.
-- **External Links** – icon link to resources such as Transfermarkt.
+- **Personal Data Review / Details** – icon button that opens a modal with full player information, links and KYC documents. After acceptance it remains as a detail viewer.
 - **Accept Application** – icon button enabled only when all tasks are completed.
 
 ## Filters
