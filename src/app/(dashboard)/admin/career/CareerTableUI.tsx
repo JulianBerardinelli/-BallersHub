@@ -183,6 +183,7 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
   });
   const [busy, setBusy] = React.useState<string | null>(null);
   const [err, setErr] = React.useState<string | null>(null);
+  const [copied, setCopied] = React.useState<string | null>(null);
 
   const openItem = React.useMemo(
     () => (modal.id ? items.find((x) => x.id === modal.id) ?? null : null),
@@ -234,16 +235,25 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
     }
   };
 
+  const copyId = React.useCallback((id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 1500);
+  }, []);
+
   const renderCell = React.useCallback((t: CareerRow, columnKey: React.Key) => {
     switch (columnKey) {
       case "id":
         return (
-          <Tooltip content="Copiar ID" color="foreground">
+          <Tooltip
+            content={copied === t.id ? "Copiado!" : "Copiar ID"}
+            color="foreground"
+          >
             <Button
               isIconOnly
               size="sm"
               variant="flat"
-              onPress={() => navigator.clipboard.writeText(t.id)}
+              onPress={() => copyId(t.id)}
             >
               <Copy size={16} />
             </Button>
@@ -359,38 +369,144 @@ export default function CareerTableUI({ items: initialItems }: { items: CareerRo
       default:
         return null;
     }
-  }, [busy]);
+  }, [busy, copied, copyId]);
 
   return (
     <>
       {err && <p className="text-sm text-red-500 mb-2">{err}</p>}
-      <Table
-        aria-label="Trayectorias"
-        sortDescriptor={sort}
-        onSortChange={setSort}
-        removeWrapper
-        classNames={{ table: "table-fixed w-full" }}
-      >
-        <TableHeader columns={careerColumns}>
-          {(col) => (
-            <TableColumn
-              key={col.uid}
-              align={col.align as "start" | "center" | "end" | undefined}
-              allowsSorting={col.sortable}
-              className={col.className}
-            >
-              {col.name}
-            </TableColumn>
-          )}
-        </TableHeader>
-        <TableBody emptyContent="No hay solicitudes" items={sorted}>
-          {(item) => (
-            <TableRow key={item.id}>
-              {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      {/* DESKTOP TABLE */}
+      <div className="hidden md:block">
+        <Table
+          aria-label="Trayectorias"
+          sortDescriptor={sort}
+          onSortChange={setSort}
+          removeWrapper
+          classNames={{ table: "table-fixed w-full" }}
+        >
+          <TableHeader columns={careerColumns}>
+            {(col) => (
+              <TableColumn
+                key={col.uid}
+                align={col.align as "start" | "center" | "end" | undefined}
+                allowsSorting={col.sortable}
+                className={col.className}
+              >
+                {col.name}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody emptyContent="No hay solicitudes" items={sorted}>
+            {(item) => (
+              <TableRow key={item.id}>
+                {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* MOBILE CARDS */}
+      <div className="md:hidden grid gap-3">
+        {sorted.map((t) => (
+          <div key={t.id} className="rounded-lg border border-neutral-800 p-4">
+            <div className="flex items-center gap-3">
+              <TeamCrest
+                src={
+                  t.current_team_crest_url
+                    ? `${t.current_team_crest_url}?v=${Date.parse(t.created_at) || 0}`
+                    : "/images/team-default.svg"
+                }
+                size={36}
+              />
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium flex items-center gap-1">
+                  {t.applicant ?? "(sin nombre)"}
+                  {t.nationalities.map((c) => (
+                    <CountryFlag key={c} code={c} size={14} />
+                  ))}
+                </div>
+                <div className="text-xs text-neutral-500 truncate flex items-center gap-1">
+                  <span className="truncate">{t.current_team_name ?? "Libre"}</span>
+                  {t.current_team_country_code && (
+                    <CountryFlag code={t.current_team_country_code} size={14} />
+                  )}
+                </div>
+              </div>
+              <Tooltip
+                content={copied === t.id ? "Copiado!" : "Copiar ID"}
+                color="foreground"
+              >
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="flat"
+                  onPress={() => copyId(t.id)}
+                >
+                  <Copy size={16} />
+                </Button>
+              </Tooltip>
+            </div>
+            <div className="mt-3 flex justify-between items-center">
+              <Chip
+                size="sm"
+                variant="flat"
+                color={statusColor[t.status]}
+                className="capitalize"
+              >
+                {t.status}
+              </Chip>
+              <div className="flex gap-2">
+                {t.status === "pending" ? (
+                  <Button
+                    size="sm"
+                    color="primary"
+                    variant="flat"
+                    startContent={
+                      busy === t.id ? (
+                        <Spinner className="text-current size-4" />
+                      ) : (
+                        <Eye className="size-4" />
+                      )
+                    }
+                    onPress={() => setModal({ kind: "process", id: t.id })}
+                    isDisabled={busy === t.id}
+                  >
+                    Process
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="flat"
+                      startContent={<Eye className="size-4" />}
+                      aria-label="Detalles"
+                      onPress={() => setModal({ kind: "details", id: t.id })}
+                    />
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="flat"
+                      startContent={<Pencil className="size-4" />}
+                      aria-label="Editar"
+                      onPress={() => setModal({ kind: "edit", id: t.id })}
+                    />
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      color="danger"
+                      variant="light"
+                      startContent={<Trash2 className="size-4" />}
+                      isDisabled
+                      aria-label="Eliminar"
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
 
       {/* Modal: Process / Details / Edit share same structure for now */}
       <Modal
