@@ -81,7 +81,7 @@ function TaskBadge({ tasks }: { tasks: ApplicationRow["tasks"] }) {
 }
 
 export default function ApplicationsTableUI({ items: initialItems }: { items: ApplicationRow[] }) {
-  const [items] = React.useState<ApplicationRow[]>(initialItems);
+  const [items, setItems] = React.useState<ApplicationRow[]>(initialItems);
   const modalPreset = useAdminModalPreset();
   const [modalId, setModalId] = React.useState<string | null>(null);
   const openItem = React.useMemo(
@@ -173,6 +173,24 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     },
     [],
   );
+
+  const approvePersonalInfo = React.useCallback(async (id: string) => {
+    await fetch(`/api/admin/applications/${id}/personal-info/approve`, {
+      method: "POST",
+    });
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === id
+          ? {
+              ...it,
+              personal_info_approved: true,
+              tasks: it.tasks.filter((t) => t.label !== "Informacion"),
+            }
+          : it,
+      ),
+    );
+    setModalId(null);
+  }, []);
 
   const renderCell = React.useCallback(
     (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {
@@ -566,15 +584,13 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                 </ModalBody>
                 <ModalFooter>
                   {!openItem.personal_info_approved && (
-                    <form
-                      action={`/api/admin/applications/${openItem.id}/personal-info/approve`}
-                      method="post"
+                    <Button
+                      color="primary"
                       className="ml-auto"
+                      onPress={() => approvePersonalInfo(openItem.id)}
                     >
-                      <Button color="primary" type="submit">
-                        Aceptar datos
-                      </Button>
-                    </form>
+                      Aceptar datos
+                    </Button>
                   )}
                 </ModalFooter>
               </>

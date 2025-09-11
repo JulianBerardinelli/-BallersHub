@@ -17,9 +17,9 @@ interface RawApp {
   transfermarkt_url: string | null;
   proposed_team_name: string | null;
   proposed_team_country_code: string | null;
-  personal_info_approved: boolean | null;
-  links: string[] | null;
-  kyc_urls: string[] | null;
+  external_profile_url: string | null;
+  id_doc_url: string | null;
+  selfie_url: string | null;
   current_team: {
     name: string | null;
     crest_url: string | null;
@@ -50,7 +50,7 @@ export default async function AdminApplicationsPage() {
       id, full_name, nationality, plan_requested, created_at, status,
       free_agent, transfermarkt_url,
       proposed_team_name, proposed_team_country_code,
-      personal_info_approved, links, kyc_urls,
+      external_profile_url, id_doc_url, selfie_url,
       current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
       career_item_proposals ( status )
     `
@@ -73,6 +73,12 @@ export default async function AdminApplicationsPage() {
     const teamTask =
       !app.current_team && app.proposed_team_name && !app.free_agent;
 
+    const links = app.external_profile_url ? [app.external_profile_url] : [];
+    const kyc_urls = [app.id_doc_url, app.selfie_url].filter(
+      (u): u is string => !!u
+    );
+    const personalInfoProvided = links.length > 0 || kyc_urls.length > 0;
+
     const tasks: ApplicationRow["tasks"] = [];
     if (pendingItems > 0) {
       tasks.push({ label: "Trayectoria", color: "bg-violet-600" });
@@ -80,7 +86,7 @@ export default async function AdminApplicationsPage() {
     if (teamTask) {
       tasks.push({ label: "Equipos", color: "bg-orange-600" });
     }
-    if (!app.personal_info_approved) {
+    if (personalInfoProvided) {
       tasks.push({ label: "Informacion", color: "bg-pink-600" });
     }
 
@@ -99,9 +105,9 @@ export default async function AdminApplicationsPage() {
       free_agent: app.free_agent,
       tasks,
       transfermarkt_url: app.transfermarkt_url,
-      personal_info_approved: !!app.personal_info_approved,
-      links: Array.isArray(app.links) ? app.links : [],
-      kyc_urls: Array.isArray(app.kyc_urls) ? app.kyc_urls : [],
+      personal_info_approved: !personalInfoProvided,
+      links,
+      kyc_urls,
     };
   });
 
