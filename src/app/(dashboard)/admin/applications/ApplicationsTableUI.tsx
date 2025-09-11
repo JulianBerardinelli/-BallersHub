@@ -25,7 +25,19 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/react";
-import { Copy, Filter, UserCheck, Eye, Check, Info } from "lucide-react";
+import {
+  Copy,
+  Filter,
+  UserCheck,
+  Eye,
+  Check,
+  Info,
+  Globe,
+  Instagram,
+  Link as LinkIcon,
+  FileText,
+  Camera,
+} from "lucide-react";
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -544,24 +556,43 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
             return (
               <>
                 <ModalHeader className={modalPreset.classNames?.header}>
-                  <div>
-                    <h3 className="font-semibold">
-                      {modal.mode === "review" ? "Revisar datos" : "Detalle del jugador"}
-                    </h3>
-                    <p className="text-sm text-foreground-500">
-                      {modal.mode === "review"
-                        ? "Confirmá la información personal del jugador."
-                        : "Información registrada en la solicitud."}
-                    </p>
+                  <div className="flex items-start gap-2 w-full">
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <span className="font-medium truncate">
+                          {openItem.applicant ?? "(sin nombre)"}
+                        </span>
+                        {openItem.nationalities.map((n, i) =>
+                          n.code ? <CountryFlag key={i} code={n.code} size={14} /> : null,
+                        )}
+                      </div>
+                      <span className="text-xs text-default-500">
+                        {modal.mode === "review"
+                          ? "Revisar datos personales"
+                          : "Detalle del jugador"}
+                      </span>
+                    </div>
+                    <div className="ml-auto flex gap-2">
+                      {openItem.links.map((l, i) => {
+                        const low = l.url.toLowerCase();
+                        let Icon = LinkIcon;
+                        if (low.includes("instagram")) Icon = Instagram;
+                        else if (
+                          low.includes("transfermarkt") ||
+                          low.includes("besoccer")
+                        )
+                          Icon = Globe;
+                        return (
+                          <a key={i} href={l.url} target="_blank" className="text-default-500">
+                            <Icon size={16} />
+                          </a>
+                        );
+                      })}
+                    </div>
                   </div>
                 </ModalHeader>
                 <ModalBody className={modalPreset.classNames?.body}>
                   <div className="grid gap-4 text-sm">
-                    <div>
-                      <p className="font-medium">Nombre</p>
-                      <p>{openItem.applicant ?? "(sin nombre)"}</p>
-                      <p className="text-xs text-foreground-500">ID: {openItem.id}</p>
-                    </div>
                     <div>
                       <p className="font-medium mb-1">Nacionalidades</p>
                       <div className="flex flex-wrap gap-2">
@@ -569,10 +600,11 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           <Chip
                             key={i}
                             size="sm"
-                            variant="flat"
+                            variant="faded"
                             startContent={
                               n.code ? <CountryFlag code={n.code} size={16} /> : null
                             }
+                            className="text-default-700"
                           >
                             {n.name}
                           </Chip>
@@ -584,7 +616,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                         <p className="font-medium mb-1">Posiciones</p>
                         <div className="flex flex-wrap gap-2">
                           {openItem.positions.map((p, i) => (
-                            <Chip key={i} size="sm" variant="flat">
+                            <Chip key={i} size="sm" variant="faded">
                               {p}
                             </Chip>
                           ))}
@@ -594,7 +626,13 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                     <div className="flex flex-wrap gap-6">
                       <div>
                         <p className="font-medium mb-1">Fecha de nacimiento</p>
-                        <p>{openItem.birth_date ? <ClientDate iso={openItem.birth_date} /> : "—"}</p>
+                        <p>
+                          {openItem.birth_date ? (
+                            <ClientDate iso={openItem.birth_date} />
+                          ) : (
+                            "—"
+                          )}
+                        </p>
                       </div>
                       <div>
                         <p className="font-medium mb-1">Edad</p>
@@ -611,42 +649,24 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                         <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
                       </div>
                     </div>
-                    {openItem.links.length > 0 && (
-                      <div>
-                        <p className="font-medium mb-1">Links</p>
-                        <ul className="list-disc pl-4">
-                          {openItem.links.map((l, i) => (
-                            <li key={i}>
-                              <a
-                                href={l.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-primary underline"
-                              >
-                                {l.label}
-                              </a>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
                     {openItem.kyc_docs.length > 0 && (
                       <div>
                         <p className="font-medium mb-1">Documentos KYC</p>
-                        <ul className="list-disc pl-4">
-                          {openItem.kyc_docs.map((d, i) => (
-                            <li key={i}>
+                        <div className="flex gap-2">
+                          {openItem.kyc_docs.map((d, i) => {
+                            const Icon = d.label === "Documento" ? FileText : Camera;
+                            return (
                               <a
+                                key={i}
                                 href={d.url}
                                 target="_blank"
-                                rel="noreferrer"
-                                className="text-primary underline"
+                                className="text-default-500"
                               >
-                                {d.label}
+                                <Icon size={16} />
                               </a>
-                            </li>
-                          ))}
-                        </ul>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </div>

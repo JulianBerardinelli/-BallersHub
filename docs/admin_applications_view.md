@@ -10,11 +10,11 @@ Columns:
 - **Submitted** – date of application submission.
 - **Status** – current state (pending review, awaiting tasks, approved, rejected).
 - **Plan** – subscription or account type requested.
-- **Current Club** – associated club or "Free Agent".
- - **Tasks** – faded chip cycling through outstanding items (Trayectoria, Equipos, Información) and opening a task summary modal.
+- **Current Club** – associated club or "Free Agent" (column kept compact to free space for actions).
+- **Tasks** – faded chip cycling through outstanding items (Trayectoria, Equipos, Información) and opening a task summary modal.
 
 ## Row Actions
-- **Personal Data Review / Details** – icon button that opens a modal with full player information, links and KYC documents. After acceptance it remains as a detail viewer.
+- **Personal Data Review / Details** – icon button that opens a modal with full player information, links and KYC documents; header mirrors career detail view with nationality flags and shows birth date with calculated age. After acceptance it remains as a detail viewer.
 - **Accept Application** – icon button enabled only when all tasks are completed.
 
 ## Filters
