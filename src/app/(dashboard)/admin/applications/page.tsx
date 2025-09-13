@@ -80,12 +80,13 @@ export default async function AdminApplicationsPage() {
 
   const rows = (data ?? []) as unknown as RawApp[];
   const kycStorage = supabase.storage.from("kyc");
-  const items: ApplicationRow[] = rows.map((app) => {
-    const notes =
-      app.notes && typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
-    const nationality_codes = Array.isArray(notes?.nationality_codes)
-      ? notes.nationality_codes
-      : [];
+  const items: ApplicationRow[] = await Promise.all(
+    rows.map(async (app) => {
+      const notes =
+        app.notes && typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
+      const nationality_codes = Array.isArray(notes?.nationality_codes)
+        ? notes.nationality_codes
+        : [];
     const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
     const birth_date = typeof notes?.birth_date === "string" ? notes.birth_date : null;
     const height_cm = typeof notes?.height_cm === "number" ? notes.height_cm : null;
@@ -108,16 +109,24 @@ export default async function AdminApplicationsPage() {
     if (social_url) links.push({ label: "Social", url: social_url });
 
     const kyc_docs: ApplicationRow["kyc_docs"] = [];
-    if (app.id_doc_url)
-      kyc_docs.push({
-        label: "Documento",
-        url: kycStorage.getPublicUrl(app.id_doc_url).data.publicUrl,
-      });
-    if (app.selfie_url)
-      kyc_docs.push({
-        label: "Selfie",
-        url: kycStorage.getPublicUrl(app.selfie_url).data.publicUrl,
-      });
+    if (app.id_doc_url) {
+      const { data: signed } = await kycStorage.createSignedUrl(
+        app.id_doc_url,
+        60 * 5
+      );
+      if (signed?.signedUrl) {
+        kyc_docs.push({ label: "Documento", url: signed.signedUrl });
+      }
+    }
+    if (app.selfie_url) {
+      const { data: signed } = await kycStorage.createSignedUrl(
+        app.selfie_url,
+        60 * 5
+      );
+      if (signed?.signedUrl) {
+        kyc_docs.push({ label: "Selfie", url: signed.signedUrl });
+      }
+    }
 
     const personalInfoProvided =
       links.length > 0 || kyc_docs.length > 0 || birth_date || height_cm || weight_kg;
@@ -173,7 +182,8 @@ export default async function AdminApplicationsPage() {
       links,
       kyc_docs,
     };
-  });
+  })
+  );
 
   return (
     <main className="mx-auto max-w-6xl p-8 space-y-6">
