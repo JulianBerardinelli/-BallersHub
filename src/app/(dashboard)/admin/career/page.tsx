@@ -26,7 +26,7 @@ type RawItem = {
   start_year: number | null;
   end_year: number | null;
   team_id: string | null;
-  team: { name: string | null; crest_url: string | null; country_code: string | null } | null;
+  team: { name: string | null; crest_url: string | null; country_code: string | null; status: string | null } | null;
 };
 
 type RawRow = RawApp & {
@@ -58,7 +58,7 @@ export default async function CareerAdminPage() {
       current_team:teams!player_applications_current_team_id_fkey ( name, crest_url, country_code ),
       career_item_proposals (
         id, status, club, division, start_year, end_year, team_id,
-        team:teams!career_item_proposals_team_id_fkey ( name, crest_url, country_code )
+        team:teams!career_item_proposals_team_id_fkey ( name, crest_url, country_code, status )
       )
     `
     )
@@ -95,6 +95,11 @@ export default async function CareerAdminPage() {
       team_name: ci.team?.name ?? ci.club,
       crest_url: ci.team?.crest_url ?? null,
       country_code: ci.team?.country_code ?? null,
+      team_status: (ci.team?.status ?? null) as
+        | "pending"
+        | "approved"
+        | "rejected"
+        | null,
     }));
 
     let current = app.current_team;
@@ -109,10 +114,14 @@ export default async function CareerAdminPage() {
       }
     }
 
+    const pendingItems = items.some((i) => i.status === "pending");
+    const pendingTeams = items.some((i) => i.team_status === "pending");
+    const status = pendingItems ? "pending" : pendingTeams ? "waiting" : "approved";
+
     return {
       id: app.id,
       applicant: app.full_name,
-      status: app.status,
+      status,
       created_at: app.created_at,
       current_team_name: current?.name ?? null,
       current_team_crest_url: current?.crest_url ?? null,

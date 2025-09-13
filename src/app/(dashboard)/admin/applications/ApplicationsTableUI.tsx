@@ -19,11 +19,13 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  Input,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Spinner,
 } from "@heroui/react";
 import {
   Copy,
@@ -41,6 +43,12 @@ import {
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
+import CountryMultiPicker, {
+  type CountryPick,
+} from "@/components/common/CountryMultiPicker";
+import PositionPicker, {
+  type PositionPickerValue,
+} from "@/components/common/PositionPicker";
 import type { ApplicationRow } from "./types";
 import { applicationColumns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
@@ -104,7 +112,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
   const modalPreset = useAdminModalPreset();
   const [modal, setModal] = React.useState<{
     id: string;
-    mode: "detail" | "review" | "tasks";
+    mode: "detail" | "review" | "tasks" | "confirm";
   } | null>(null);
   const openItem = React.useMemo(
     () => (modal ? items.find((i) => i.id === modal.id) ?? null : null),
@@ -217,6 +225,140 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     setModal(null);
   }, []);
 
+  const [editingInfo, setEditingInfo] = React.useState(false);
+  const [editForm, setEditForm] = React.useState<{
+    full_name: string;
+    birth_date: string;
+    height_cm: string;
+    weight_kg: string;
+    nationalities: CountryPick[];
+    position: PositionPickerValue;
+  }>({
+    full_name: "",
+    birth_date: "",
+    height_cm: "",
+    weight_kg: "",
+    nationalities: [],
+    position: { role: "DEL", subs: [] },
+  });
+
+  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
+  const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
+
+  const hVal = editForm.height_cm ? Number(editForm.height_cm) : NaN;
+  const wVal = editForm.weight_kg ? Number(editForm.weight_kg) : NaN;
+  const nameInvalid = !!touched.full_name && !minChars(editForm.full_name);
+  const natInvalid = !!touched.nationalities && editForm.nationalities.length < 1;
+  const dobInvalid = !!touched.birth_date && !editForm.birth_date;
+  const heightInvalid =
+    !!touched.height_cm &&
+    !(Number.isFinite(hVal) && hVal >= 120 && hVal <= 230);
+  const weightInvalid =
+    !!touched.weight_kg &&
+    !(Number.isFinite(wVal) && wVal >= 40 && wVal <= 140);
+  const posInvalid =
+    !!touched.position && editForm.position.subs.length < 1;
+  const formValid =
+    minChars(editForm.full_name) &&
+    editForm.nationalities.length >= 1 &&
+    !!editForm.birth_date &&
+    Number.isFinite(hVal) &&
+    hVal >= 120 &&
+    hVal <= 230 &&
+    Number.isFinite(wVal) &&
+    wVal >= 40 &&
+    wVal <= 140 &&
+    editForm.position.subs.length >= 1;
+
+  React.useEffect(() => {
+    if (openItem && modal && (modal.mode === "detail" || modal.mode === "review")) {
+      setEditingInfo(false);
+      setTouched({});
+      setEditForm({
+        full_name: openItem.applicant ?? "",
+        birth_date: openItem.birth_date ?? "",
+        height_cm: openItem.height_cm?.toString() ?? "",
+        weight_kg: openItem.weight_kg?.toString() ?? "",
+        nationalities: openItem.nationalities.map((n) => ({
+          code: n.code ?? "",
+          name: n.name,
+        })),
+        position: openItem.positions.length
+          ? {
+              role: openItem.positions[0] as PositionPickerValue["role"],
+              subs: openItem.positions.slice(1),
+            }
+          : { role: "DEL", subs: [] },
+      });
+    }
+  }, [openItem, modal]);
+
+  const savePersonalInfo = React.useCallback(async () => {
+    setTouched({
+      full_name: true,
+      nationalities: true,
+      birth_date: true,
+      height_cm: true,
+      weight_kg: true,
+      position: true,
+    });
+    if (!openItem || !formValid) return;
+
+    await fetch(`/api/admin/applications/${openItem.id}/personal-info/update`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        full_name: editForm.full_name,
+        birth_date: editForm.birth_date,
+        height_cm: Number(editForm.height_cm),
+        weight_kg: Number(editForm.weight_kg),
+        nationalities: editForm.nationalities,
+        position: editForm.position,
+      }),
+    });
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === openItem.id
+          ? {
+              ...it,
+              applicant: editForm.full_name,
+              birth_date: editForm.birth_date,
+              height_cm: Number(editForm.height_cm),
+              weight_kg: Number(editForm.weight_kg),
+              nationalities: editForm.nationalities,
+              positions: [
+                editForm.position.role,
+                ...editForm.position.subs,
+              ],
+            }
+          : it,
+      ),
+    );
+    setEditingInfo(false);
+  }, [openItem, editForm, formValid, setItems]);
+
+  type CareerItem = {
+    id: string;
+    team_name: string;
+    crest_url: string | null;
+    country_code: string | null;
+    division: string | null;
+    start_year: number | null;
+    end_year: number | null;
+  };
+
+  const [careerItems, setCareerItems] = React.useState<CareerItem[] | null>(null);
+
+  React.useEffect(() => {
+    if (modal?.mode === "confirm" && openItem) {
+      setCareerItems(null);
+      fetch(`/api/admin/applications/${openItem.id}/career`)
+        .then((r) => r.json())
+        .then((d) => setCareerItems(d.items ?? []))
+        .catch(() => setCareerItems([]));
+    }
+  }, [modal, openItem]);
+
   const renderCell = React.useCallback(
     (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {
     switch (columnKey) {
@@ -323,22 +465,17 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               </Button>
             </Tooltip>
             {a.status === "pending" && (
-              <form
-                action={`/api/admin/applications/${a.id}/approve`}
-                method="post"
-              >
-                <Tooltip content="Aceptar solicitud">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    color="success"
-                    type="submit"
-                    isDisabled={a.tasks.length > 0}
-                  >
-                    <Check size={16} />
-                  </Button>
-                </Tooltip>
-              </form>
+              <Tooltip content="Aceptar solicitud">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  color="success"
+                  isDisabled={a.tasks.length > 0}
+                  onPress={() => setModal({ id: a.id, mode: "confirm" })}
+                >
+                  <Check size={16} />
+                </Button>
+              </Tooltip>
             )}
           </div>
         );
@@ -500,19 +637,17 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                 </Button>
               </Tooltip>
               {a.status === "pending" && (
-                <form action={`/api/admin/applications/${a.id}/approve`} method="post">
-                  <Tooltip content="Aceptar solicitud">
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      color="success"
-                      type="submit"
-                      isDisabled={a.tasks.length > 0}
-                    >
-                      <Check size={16} />
-                    </Button>
-                  </Tooltip>
-                </form>
+                <Tooltip content="Aceptar solicitud">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    color="success"
+                    isDisabled={a.tasks.length > 0}
+                    onPress={() => setModal({ id: a.id, mode: "confirm" })}
+                  >
+                    <Check size={16} />
+                  </Button>
+                </Tooltip>
               )}
             </div>
           </div>
@@ -553,6 +688,120 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               );
             }
 
+            if (modal.mode === "confirm") {
+              return (
+                <>
+                  <ModalHeader className={modalPreset.classNames?.header}>
+                    <div className="flex flex-col">
+                      <h3 className="font-semibold">Confirmar solicitud</h3>
+                      <p className="text-sm text-foreground-500">
+                        Revisá la información antes de aceptar.
+                      </p>
+                    </div>
+                  </ModalHeader>
+                  <ModalBody className={modalPreset.classNames?.body}>
+                    <div className="grid gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium truncate">
+                          {openItem.applicant ?? "(sin nombre)"}
+                        </span>
+                        {openItem.nationalities.map((n, i) =>
+                          n.code ? <CountryFlag key={i} code={n.code} size={14} /> : null,
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-6">
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Fecha de nacimiento</p>
+                          <p>
+                            {openItem.birth_date ? (
+                              <ClientDate iso={openItem.birth_date} />
+                            ) : (
+                              "—"
+                            )}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Altura</p>
+                          <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Peso</p>
+                          <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
+                        </div>
+                      </div>
+                      {careerItems === null ? (
+                        <div className="flex justify-center py-4">
+                          <Spinner />
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Trayectoria</p>
+                          {careerItems.length > 0 ? (
+                            <ul className="grid gap-2">
+                              {careerItems.map((ci) => (
+                                <li
+                                  key={ci.id}
+                                  className="flex items-center gap-2 min-w-0 p-2 rounded-lg bg-content2/60"
+                                >
+                                  <TeamCrest
+                                    src={ci.crest_url || "/images/team-default.svg"}
+                                    size={24}
+                                    className="shrink-0"
+                                  />
+                                  <span className="truncate font-medium">{ci.team_name}</span>
+                                  <span className="text-default-500 text-sm">
+                                    · {ci.division ?? "—"}
+                                  </span>
+                                  {ci.country_code && (
+                                    <CountryFlag code={ci.country_code} size={12} />
+                                  )}
+                                  <Chip size="sm" variant="flat">
+                                    {ci.start_year ?? "—"}–{ci.end_year ?? "…"}
+                                  </Chip>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-default-500">Sin trayectoria</p>
+                          )}
+                        </div>
+                      )}
+                      {openItem.proposed_team_name && (
+                        <div>
+                          <p className="text-sm text-default-500 mb-1 mt-2">Equipo propuesto</p>
+                          <div className="flex items-center gap-2">
+                            <TeamCrest src={null} size={24} />
+                            <span className="font-medium truncate">
+                              {openItem.proposed_team_name}
+                            </span>
+                            {openItem.proposed_team_country_code && (
+                              <CountryFlag
+                                code={openItem.proposed_team_country_code}
+                                size={16}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="flat" onPress={onClose}>
+                      Cancelar
+                    </Button>
+                    <form
+                      action={`/api/admin/applications/${openItem.id}/approve`}
+                      method="post"
+                    >
+                      <Button color="success" type="submit">
+                        Aceptar solicitud
+                      </Button>
+                    </form>
+                  </ModalFooter>
+                </>
+              );
+            }
+
             return (
               <>
                 <ModalHeader className={modalPreset.classNames?.header}>
@@ -588,91 +837,215 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           </a>
                         );
                       })}
+                      {!editingInfo && (
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          onPress={() => setEditingInfo(true)}
+                        >
+                          Editar
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </ModalHeader>
                 <ModalBody className={modalPreset.classNames?.body}>
-                  <div className="grid gap-4 text-sm">
-                    <div>
-                      <p className="font-medium mb-1">Nacionalidades</p>
-                      <div className="flex flex-wrap gap-2">
-                        {openItem.nationalities.map((n, i) => (
-                          <Chip
-                            key={i}
-                            size="sm"
-                            variant="faded"
-                            startContent={
-                              n.code ? <CountryFlag code={n.code} size={16} /> : null
+                  {editingInfo ? (
+                    <div className="grid gap-4">
+                      <Input
+                        isRequired
+                        label="Nombre completo"
+                        value={editForm.full_name}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, full_name: e.target.value }))
+                        }
+                        onBlur={() => setTouched((t) => ({ ...t, full_name: true }))}
+                        isInvalid={nameInvalid}
+                        errorMessage="Ingresá al menos 3 caracteres."
+                      />
+                      <div
+                        onBlurCapture={() =>
+                          setTouched((t) => ({ ...t, nationalities: true }))
+                        }
+                      >
+                        <CountryMultiPicker
+                          key={`nat-${openItem.id}`}
+                          defaultValue={editForm.nationalities}
+                          onChange={(vals) =>
+                            setEditForm((f) => ({ ...f, nationalities: vals }))
+                          }
+                          isInvalid={natInvalid}
+                          errorMessage="Seleccioná al menos una nacionalidad."
+                        />
+                      </div>
+                      <Input
+                        isRequired
+                        label="Fecha de nacimiento"
+                        type="date"
+                        value={editForm.birth_date}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, birth_date: e.target.value }))
+                        }
+                        onBlur={() => setTouched((t) => ({ ...t, birth_date: true }))}
+                        isInvalid={dobInvalid}
+                        errorMessage="Seleccioná la fecha de nacimiento."
+                      />
+                      <div className="flex flex-wrap gap-6">
+                        <Input
+                          isRequired
+                          label="Altura (cm)"
+                          type="number"
+                          value={editForm.height_cm}
+                          onChange={(e) =>
+                            setEditForm((f) => ({
+                              ...f,
+                              height_cm: e.target.value,
+                            }))
+                          }
+                          onBlur={() => setTouched((t) => ({ ...t, height_cm: true }))}
+                          isInvalid={heightInvalid}
+                          errorMessage="Ingresá una altura válida (120–230 cm)."
+                          endContent={<span className="text-xs text-foreground-500">cm</span>}
+                        />
+                        <Input
+                          isRequired
+                          label="Peso (kg)"
+                          type="number"
+                          value={editForm.weight_kg}
+                          onChange={(e) =>
+                            setEditForm((f) => ({
+                              ...f,
+                              weight_kg: e.target.value,
+                            }))
+                          }
+                          onBlur={() => setTouched((t) => ({ ...t, weight_kg: true }))}
+                          isInvalid={weightInvalid}
+                          errorMessage="Ingresá un peso válido (40–140 kg)."
+                          endContent={<span className="text-xs text-foreground-500">kg</span>}
+                        />
+                      </div>
+                      <div className="grid gap-2">
+                        <span className="text-sm text-default-500">Posición</span>
+                        <div
+                          className={[
+                            "rounded-2xl border p-3",
+                            posInvalid ? "border-danger" : "border-default",
+                          ].join(" ")}
+                          onBlur={(e) => {
+                            const next = e.relatedTarget as Node | null;
+                            if (!next || !e.currentTarget.contains(next)) {
+                              setTouched((t) => ({ ...t, position: true }));
                             }
-                            className="text-default-700"
-                          >
-                            {n.name}
-                          </Chip>
-                        ))}
+                          }}
+                        >
+                          <PositionPicker
+                            key={`pos-${openItem.id}`}
+                            defaultRole={editForm.position.role}
+                            defaultSubs={editForm.position.subs}
+                            onChange={(val) =>
+                              setEditForm((f) => ({ ...f, position: val }))
+                            }
+                          />
+                        </div>
+                        {posInvalid && (
+                          <p className="text-sm text-danger">
+                            Elegí al menos una sub-posición.
+                          </p>
+                        )}
                       </div>
                     </div>
-                    {openItem.positions.length > 0 && (
+                  ) : (
+                    <div className="grid gap-4 text-sm">
                       <div>
-                        <p className="font-medium mb-1">Posiciones</p>
+                        <p className="text-sm text-default-500 mb-1">Nacionalidades</p>
                         <div className="flex flex-wrap gap-2">
-                          {openItem.positions.map((p, i) => (
-                            <Chip key={i} size="sm" variant="faded">
-                              {p}
+                          {openItem.nationalities.map((n, i) => (
+                            <Chip
+                              key={i}
+                              size="sm"
+                              variant="faded"
+                              startContent={
+                                n.code ? <CountryFlag code={n.code} size={16} /> : null
+                              }
+                              className="text-default-700"
+                            >
+                              {n.name}
                             </Chip>
                           ))}
                         </div>
                       </div>
-                    )}
-                    <div className="flex flex-wrap gap-6">
-                      <div>
-                        <p className="font-medium mb-1">Fecha de nacimiento</p>
-                        <p>
-                          {openItem.birth_date ? (
-                            <ClientDate iso={openItem.birth_date} />
-                          ) : (
-                            "—"
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-medium mb-1">Edad</p>
-                        <p>{openItem.age ?? "—"}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-6">
-                      <div>
-                        <p className="font-medium mb-1">Altura</p>
-                        <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium mb-1">Peso</p>
-                        <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
-                      </div>
-                    </div>
-                    {openItem.kyc_docs.length > 0 && (
-                      <div>
-                        <p className="font-medium mb-1">Documentos KYC</p>
-                        <div className="flex gap-2">
-                          {openItem.kyc_docs.map((d, i) => {
-                            const Icon = d.label === "Documento" ? FileText : Camera;
-                            return (
-                              <a
-                                key={i}
-                                href={d.url}
-                                target="_blank"
-                                className="text-default-500"
-                              >
-                                <Icon size={16} />
-                              </a>
-                            );
-                          })}
+                      {openItem.positions.length > 0 && (
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Posiciones</p>
+                          <div className="flex flex-wrap gap-2">
+                            {openItem.positions.map((p, i) => (
+                              <Chip key={i} size="sm" variant="faded">
+                                {p}
+                              </Chip>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-6">
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Fecha de nacimiento</p>
+                          <p>
+                            {openItem.birth_date ? (
+                              <ClientDate iso={openItem.birth_date} />
+                            ) : (
+                              "—"
+                            )}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Edad</p>
+                          <p>{openItem.age ?? "—"}</p>
                         </div>
                       </div>
-                    )}
-                  </div>
+                      <div className="flex flex-wrap gap-6">
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Altura</p>
+                          <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Peso</p>
+                          <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
+                        </div>
+                      </div>
+                      {openItem.kyc_docs.length > 0 && (
+                        <div>
+                          <p className="text-sm text-default-500 mb-1">Documentos KYC</p>
+                          <div className="flex gap-2">
+                            {openItem.kyc_docs.map((d, i) => {
+                              const Icon = d.label === "Documento" ? FileText : Camera;
+                              return (
+                                <a
+                                  key={i}
+                                  href={d.url}
+                                  target="_blank"
+                                  className="text-default-500"
+                                >
+                                  <Icon size={16} />
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </ModalBody>
-                {modal.mode === "review" && (
-                  <ModalFooter>
+                <ModalFooter>
+                  {editingInfo ? (
+                    <>
+                      <Button variant="flat" onPress={() => setEditingInfo(false)}>
+                        Cancelar
+                      </Button>
+                      <Button color="primary" onPress={savePersonalInfo}>
+                        Guardar
+                      </Button>
+                    </>
+                  ) : modal.mode === "review" ? (
                     <Button
                       color="primary"
                       className="ml-auto"
@@ -680,8 +1053,8 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                     >
                       Aceptar datos
                     </Button>
-                  </ModalFooter>
-                )}
+                  ) : null}
+                </ModalFooter>
               </>
             );
           }}

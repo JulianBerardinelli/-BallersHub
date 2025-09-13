@@ -9,12 +9,13 @@ export type CareerItem = {
     team_name: string;
     crest_url: string | null;
     country_code: string | null;
+    team_status: "pending" | "approved" | "rejected" | null;
   };
-  
+
   export type CareerRow = {
     id: string; // player_application id
     applicant: string | null;
-    status: "pending" | "approved" | "rejected";
+    status: "pending" | "waiting" | "approved";
     created_at: string;
     current_team_name: string | null;
     current_team_crest_url: string | null;
