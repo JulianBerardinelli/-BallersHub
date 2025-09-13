@@ -98,7 +98,7 @@ export default async function AdminApplicationsPage() {
       : null;
 
     const pendingItems = (app.career_item_proposals ?? []).filter(
-      (ci) => ci.status === "pending"
+      (ci) => ci.status === "pending" || ci.status === "waiting"
     ).length;
     const teamTask =
       !app.current_team && app.proposed_team_name && !app.free_agent;

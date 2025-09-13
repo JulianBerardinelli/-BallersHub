@@ -1604,7 +1604,10 @@ ALTER TABLE ONLY "public"."subscriptions"
 
 
 ALTER TABLE ONLY "public"."teams"
-    ADD CONSTRAINT "teams_requested_from_career_item_id_fkey" FOREIGN KEY ("requested_from_career_item_id") REFERENCES "public"."career_item_proposals"("id");
+    ADD CONSTRAINT "teams_requested_from_career_item_id_fkey" FOREIGN KEY ("requested_from_career_item_id") REFERENCES "public"."career_item_proposals"("id") ON DELETE SET NULL;
+
+ALTER TABLE ONLY "public"."teams"
+    ADD CONSTRAINT "teams_requested_in_application_id_fkey" FOREIGN KEY ("requested_in_application_id") REFERENCES "public"."player_applications"("id") ON DELETE SET NULL;
 
 
 
