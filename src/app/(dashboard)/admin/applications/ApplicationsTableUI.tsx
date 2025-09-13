@@ -12,13 +12,39 @@ import {
   Chip,
   Button,
   Tooltip,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  CheckboxGroup,
+  Checkbox,
+  Select,
+  SelectItem,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
+import {
+  Copy,
+  Filter,
+  UserCheck,
+  Eye,
+  Check,
+  Info,
+  Globe,
+  Instagram,
+  Link as LinkIcon,
+  FileText,
+  Camera,
+} from "lucide-react";
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
 import type { ApplicationRow } from "./types";
 import { applicationColumns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
+import { useAdminModalPreset } from "../ui/modalPresets";
 
 const statusColor: Record<ApplicationRow["status"], "success" | "warning" | "danger"> = {
   approved: "success",
@@ -34,11 +60,65 @@ const planColor: Record<ApplicationRow["plan"], "default" | "primary" | "warning
 
 type SortDir = "ascending" | "descending";
 
+function TaskBadge({
+  tasks,
+  onPress,
+}: {
+  tasks: ApplicationRow["tasks"];
+  onPress: () => void;
+}) {
+  const [index, setIndex] = React.useState(0);
+  const [fade, setFade] = React.useState(false);
+
+  React.useEffect(() => {
+    if (tasks.length <= 1) return;
+    const id = setInterval(() => {
+      setFade(true);
+      setTimeout(() => {
+        setIndex((i) => (i + 1) % tasks.length);
+        setFade(false);
+      }, 200);
+    }, 3000);
+    return () => clearInterval(id);
+  }, [tasks.length]);
+
+  if (!tasks.length) return <span className="text-default-500">—</span>;
+  const t = tasks[index];
+  return (
+    <Chip
+      size="sm"
+      variant="faded"
+      onClick={onPress}
+      className={`cursor-pointer transition-opacity duration-200 w-32 justify-start border ${
+        fade ? "opacity-0" : "opacity-100"
+      } ${t.className}`}
+      startContent={<Info size={14} />}
+    >
+      {t.label}
+    </Chip>
+  );
+}
+
 export default function ApplicationsTableUI({ items: initialItems }: { items: ApplicationRow[] }) {
-  const [items] = React.useState<ApplicationRow[]>(initialItems);
+  const [items, setItems] = React.useState<ApplicationRow[]>(initialItems);
+  const modalPreset = useAdminModalPreset();
+  const [modal, setModal] = React.useState<{
+    id: string;
+    mode: "detail" | "review" | "tasks";
+  } | null>(null);
+  const openItem = React.useMemo(
+    () => (modal ? items.find((i) => i.id === modal.id) ?? null : null),
+    [items, modal],
+  );
   const [sort, setSort] = React.useState<SortDescriptor>({
     column: "created_at" as Key,
     direction: "descending",
+  });
+  const [copied, setCopied] = React.useState<string | null>(null);
+  const [filters, setFilters] = React.useState({
+    status: new Set<string>(),
+    plan: new Set<string>(),
+    country: new Set<string>(),
   });
 
   const cmp = React.useCallback((a: unknown, b: unknown, dir: SortDir) => {
@@ -58,8 +138,35 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     return dir === "ascending" ? res : -res;
   }, []);
 
+  const copyId = React.useCallback((id: string) => {
+    navigator.clipboard.writeText(id);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 1500);
+  }, []);
+
+  const allCountries = React.useMemo(
+    () =>
+      Array.from(
+        new Set(items.flatMap((i) => i.nationalities.map((n) => n.name)))
+      ).sort(),
+    [items],
+  );
+
+  const filtered = React.useMemo(() => {
+    return items.filter((i) => {
+      if (filters.status.size && !filters.status.has(i.status)) return false;
+      if (filters.plan.size && !filters.plan.has(i.plan)) return false;
+      if (
+        filters.country.size &&
+        !i.nationalities.some((c) => filters.country.has(c.name))
+      )
+        return false;
+      return true;
+    });
+  }, [items, filters]);
+
   const sorted = React.useMemo(() => {
-    const list = [...items];
+    const list = [...filtered];
     const col = sort.column as keyof ApplicationRow | "actions" | "current_team";
     const direction = (sort.direction ?? "ascending") as SortDir;
     if (col === "actions" || col === "current_team") return list;
@@ -71,17 +178,70 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       ),
     );
     return list;
-  }, [items, sort, cmp]);
+  }, [filtered, sort, cmp]);
+
+  const activeFilters = React.useMemo(() => {
+    const arr: { type: keyof typeof filters; value: string; label: string }[] = [];
+    filters.status.forEach((v) => arr.push({ type: "status", value: v, label: `Estado: ${v}` }));
+    filters.plan.forEach((v) => arr.push({ type: "plan", value: v, label: `Plan: ${v}` }));
+    filters.country.forEach((v) => arr.push({ type: "country", value: v, label: `País: ${v}` }));
+    return arr;
+  }, [filters]);
+
+  const removeFilter = React.useCallback(
+    (type: keyof typeof filters, value: string) => {
+      setFilters((f) => {
+        const next = new Set(f[type]);
+        next.delete(value);
+        return { ...f, [type]: next };
+      });
+    },
+    [],
+  );
+
+  const approvePersonalInfo = React.useCallback(async (id: string) => {
+    await fetch(`/api/admin/applications/${id}/personal-info/approve`, {
+      method: "POST",
+    });
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === id
+          ? {
+              ...it,
+              personal_info_approved: true,
+              tasks: it.tasks.filter((t) => t.label !== "Informacion"),
+            }
+          : it,
+      ),
+    );
+    setModal(null);
+  }, []);
 
   const renderCell = React.useCallback(
     (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {
     switch (columnKey) {
+      case "id":
+        return (
+          <Tooltip content={copied === a.id ? "Copiado!" : "Copiar ID"}>
+            <Button
+              isIconOnly
+              size="sm"
+              variant="flat"
+              onPress={() => copyId(a.id)}
+            >
+              <Copy size={16} />
+            </Button>
+          </Tooltip>
+        );
+
       case "applicant":
         return (
           <div className="min-w-0">
             <div className="truncate font-medium">{a.applicant ?? "(sin nombre)"}</div>
             {a.nationalities.length > 0 && (
-              <div className="text-xs text-neutral-500 truncate">{a.nationalities.join(", ")}</div>
+              <div className="text-xs text-neutral-500 truncate">
+                {a.nationalities.map((n) => n.name).join(", ")}
+              </div>
             )}
           </div>
         );
@@ -129,29 +289,56 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       }
 
       case "tasks":
-        return <span>{a.tasks}</span>;
+        return (
+          <TaskBadge
+            tasks={a.tasks}
+            onPress={() => setModal({ id: a.id, mode: "tasks" })}
+          />
+        );
 
       case "actions":
         return (
           <div className="flex justify-end gap-2">
+            <Tooltip
+              content={
+                a.personal_info_approved ? "Ver datos" : "Revisar datos"
+              }
+            >
+              <Button
+                isIconOnly
+                size="sm"
+                variant="flat"
+                onPress={() =>
+                  setModal({
+                    id: a.id,
+                    mode: a.personal_info_approved ? "detail" : "review",
+                  })
+                }
+              >
+                {a.personal_info_approved ? (
+                  <Eye size={16} />
+                ) : (
+                  <UserCheck size={16} />
+                )}
+              </Button>
+            </Tooltip>
             {a.status === "pending" && (
-              <form action={`/api/admin/applications/${a.id}/approve`} method="post">
-                <Button size="sm" color="primary" type="submit">
-                  Approve
-                </Button>
+              <form
+                action={`/api/admin/applications/${a.id}/approve`}
+                method="post"
+              >
+                <Tooltip content="Aceptar solicitud">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    color="success"
+                    type="submit"
+                    isDisabled={a.tasks.length > 0}
+                  >
+                    <Check size={16} />
+                  </Button>
+                </Tooltip>
               </form>
-            )}
-            {a.transfermarkt_url && (
-              <Tooltip content="Transfermarkt">
-                <a
-                  className="text-xs underline"
-                  href={a.transfermarkt_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  TM
-                </a>
-              </Tooltip>
             )}
           </div>
         );
@@ -166,6 +353,66 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
 
   return (
     <>
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <Popover placement="bottom-start">
+          <PopoverTrigger>
+            <Button variant="flat" startContent={<Filter size={16} />}>Filtros</Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-4 w-64">
+            <div className="grid gap-4">
+              <CheckboxGroup
+                label="Estado"
+                value={[...filters.status]}
+                onChange={(vals) =>
+                  setFilters((f) => ({ ...f, status: new Set(vals) }))
+                }
+              >
+                <Checkbox value="pending">pending</Checkbox>
+                <Checkbox value="approved">approved</Checkbox>
+                <Checkbox value="rejected">rejected</Checkbox>
+              </CheckboxGroup>
+              <CheckboxGroup
+                label="Plan"
+                value={[...filters.plan]}
+                onChange={(vals) => setFilters((f) => ({ ...f, plan: new Set(vals) }))}
+              >
+                <Checkbox value="free">free</Checkbox>
+                <Checkbox value="pro">pro</Checkbox>
+                <Checkbox value="pro_plus">pro_plus</Checkbox>
+              </CheckboxGroup>
+              {allCountries.length > 0 && (
+                <Select
+                  label="País"
+                  selectionMode="multiple"
+                  selectedKeys={filters.country}
+                  onSelectionChange={(keys) =>
+                    setFilters((f) => ({
+                      ...f,
+                      country: new Set(Array.from(keys as Set<string>)),
+                    }))
+                  }
+                >
+                  {allCountries.map((c) => (
+                    <SelectItem key={c}>{c}</SelectItem>
+                  ))}
+                </Select>
+              )}
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {activeFilters.map((f) => (
+          <Chip
+            key={`${f.type}-${f.value}`}
+            onClose={() => removeFilter(f.type, f.value)}
+            variant="flat"
+            className="capitalize"
+          >
+            {f.label}
+          </Chip>
+        ))}
+      </div>
+
       <div className="hidden md:block">
         <Table
           aria-label="Solicitudes de jugador"
@@ -203,12 +450,20 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               <div className="min-w-0">
                 <div className="truncate font-medium">{a.applicant ?? "(sin nombre)"}</div>
                 {a.nationalities.length > 0 && (
-                  <div className="text-xs text-neutral-500 truncate">{a.nationalities.join(", ")}</div>
+                  <div className="text-xs text-neutral-500 truncate">
+                    {a.nationalities.map((n) => n.name).join(", ")}
+                  </div>
                 )}
               </div>
-              <Chip size="sm" variant="flat" color={statusColor[a.status]} className="capitalize">
-                {a.status}
-              </Chip>
+              <div className="flex items-center gap-2">
+                <Chip size="sm" variant="flat" color={statusColor[a.status]} className="capitalize">
+                  {a.status}
+                </Chip>
+                <TaskBadge
+                  tasks={a.tasks}
+                  onPress={() => setModal({ id: a.id, mode: "tasks" })}
+                />
+              </div>
             </div>
             <div className="text-sm">
               {a.current_team_name ? (
@@ -225,27 +480,213 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               )}
             </div>
             <div className="flex justify-end gap-2">
+              <Tooltip content={a.personal_info_approved ? "Ver datos" : "Revisar datos"}>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="flat"
+                  onPress={() =>
+                    setModal({
+                      id: a.id,
+                      mode: a.personal_info_approved ? "detail" : "review",
+                    })
+                  }
+                >
+                  {a.personal_info_approved ? (
+                    <Eye size={16} />
+                  ) : (
+                    <UserCheck size={16} />
+                  )}
+                </Button>
+              </Tooltip>
               {a.status === "pending" && (
                 <form action={`/api/admin/applications/${a.id}/approve`} method="post">
-                  <Button size="sm" color="primary" type="submit">
-                    Approve
-                  </Button>
+                  <Tooltip content="Aceptar solicitud">
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      color="success"
+                      type="submit"
+                      isDisabled={a.tasks.length > 0}
+                    >
+                      <Check size={16} />
+                    </Button>
+                  </Tooltip>
                 </form>
-              )}
-              {a.transfermarkt_url && (
-                <a
-                  className="text-xs underline"
-                  href={a.transfermarkt_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  TM
-                </a>
               )}
             </div>
           </div>
         ))}
       </div>
+
+      <Modal
+        isOpen={modal !== null && !!openItem}
+        onOpenChange={(open) => {
+          if (!open) setModal(null);
+        }}
+        {...modalPreset}
+      >
+        <ModalContent>
+          {(onClose) => {
+            if (!openItem || !modal) return null;
+            if (modal.mode === "tasks") {
+              return (
+                <>
+                  <ModalHeader className={modalPreset.classNames?.header}>
+                    <div>
+                      <h3 className="font-semibold">Tareas pendientes</h3>
+                      <p className="text-sm text-foreground-500">
+                        Resolvé estas tareas antes de aceptar.
+                      </p>
+                    </div>
+                  </ModalHeader>
+                  <ModalBody className={modalPreset.classNames?.body}>
+                    <div className="flex flex-wrap gap-2">
+                      {openItem.tasks.map((t, i) => (
+                        <Chip key={i} variant="faded" className={`border ${t.className}`}>
+                          {t.label}
+                        </Chip>
+                      ))}
+                    </div>
+                  </ModalBody>
+                </>
+              );
+            }
+
+            return (
+              <>
+                <ModalHeader className={modalPreset.classNames?.header}>
+                  <div className="flex items-start gap-2 w-full">
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <span className="font-medium truncate">
+                          {openItem.applicant ?? "(sin nombre)"}
+                        </span>
+                        {openItem.nationalities.map((n, i) =>
+                          n.code ? <CountryFlag key={i} code={n.code} size={14} /> : null,
+                        )}
+                      </div>
+                      <span className="text-xs text-default-500">
+                        {modal.mode === "review"
+                          ? "Revisar datos personales"
+                          : "Detalle del jugador"}
+                      </span>
+                    </div>
+                    <div className="ml-auto flex gap-2">
+                      {openItem.links.map((l, i) => {
+                        const low = l.url.toLowerCase();
+                        let Icon = LinkIcon;
+                        if (low.includes("instagram")) Icon = Instagram;
+                        else if (
+                          low.includes("transfermarkt") ||
+                          low.includes("besoccer")
+                        )
+                          Icon = Globe;
+                        return (
+                          <a key={i} href={l.url} target="_blank" className="text-default-500">
+                            <Icon size={16} />
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </ModalHeader>
+                <ModalBody className={modalPreset.classNames?.body}>
+                  <div className="grid gap-4 text-sm">
+                    <div>
+                      <p className="font-medium mb-1">Nacionalidades</p>
+                      <div className="flex flex-wrap gap-2">
+                        {openItem.nationalities.map((n, i) => (
+                          <Chip
+                            key={i}
+                            size="sm"
+                            variant="faded"
+                            startContent={
+                              n.code ? <CountryFlag code={n.code} size={16} /> : null
+                            }
+                            className="text-default-700"
+                          >
+                            {n.name}
+                          </Chip>
+                        ))}
+                      </div>
+                    </div>
+                    {openItem.positions.length > 0 && (
+                      <div>
+                        <p className="font-medium mb-1">Posiciones</p>
+                        <div className="flex flex-wrap gap-2">
+                          {openItem.positions.map((p, i) => (
+                            <Chip key={i} size="sm" variant="faded">
+                              {p}
+                            </Chip>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex flex-wrap gap-6">
+                      <div>
+                        <p className="font-medium mb-1">Fecha de nacimiento</p>
+                        <p>
+                          {openItem.birth_date ? (
+                            <ClientDate iso={openItem.birth_date} />
+                          ) : (
+                            "—"
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-medium mb-1">Edad</p>
+                        <p>{openItem.age ?? "—"}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-6">
+                      <div>
+                        <p className="font-medium mb-1">Altura</p>
+                        <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium mb-1">Peso</p>
+                        <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
+                      </div>
+                    </div>
+                    {openItem.kyc_docs.length > 0 && (
+                      <div>
+                        <p className="font-medium mb-1">Documentos KYC</p>
+                        <div className="flex gap-2">
+                          {openItem.kyc_docs.map((d, i) => {
+                            const Icon = d.label === "Documento" ? FileText : Camera;
+                            return (
+                              <a
+                                key={i}
+                                href={d.url}
+                                target="_blank"
+                                className="text-default-500"
+                              >
+                                <Icon size={16} />
+                              </a>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </ModalBody>
+                {modal.mode === "review" && (
+                  <ModalFooter>
+                    <Button
+                      color="primary"
+                      className="ml-auto"
+                      onPress={() => approvePersonalInfo(openItem.id)}
+                    >
+                      Aceptar datos
+                    </Button>
+                  </ModalFooter>
+                )}
+              </>
+            );
+          }}
+        </ModalContent>
+      </Modal>
     </>
   );
 }
