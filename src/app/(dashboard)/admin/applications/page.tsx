@@ -22,6 +22,7 @@ interface RawApp {
   id_doc_url: string | null;
   selfie_url: string | null;
   notes: unknown | null;
+  personal_info_approved: boolean;
   current_team: {
     name: string | null;
     crest_url: string | null;
@@ -64,6 +65,7 @@ export default async function AdminApplicationsPage() {
         "id_doc_url",
         "selfie_url",
         "notes",
+        "personal_info_approved",
         "current_team:teams!player_applications_current_team_id_fkey(name,crest_url,country_code)",
         "career_item_proposals(status)",
       ].join(",")
@@ -131,6 +133,9 @@ export default async function AdminApplicationsPage() {
     const personalInfoProvided =
       links.length > 0 || kyc_docs.length > 0 || birth_date || height_cm || weight_kg;
 
+    const personal_info_approved =
+      app.personal_info_approved || app.status === "approved" || !personalInfoProvided;
+
     const tasks: ApplicationRow["tasks"] = [];
     if (app.status !== "approved") {
       if (pendingItems > 0) {
@@ -145,15 +150,13 @@ export default async function AdminApplicationsPage() {
           className: "text-pink-700 bg-pink-100 border-pink-200",
         });
       }
-      if (personalInfoProvided) {
+      if (personalInfoProvided && !personal_info_approved) {
         tasks.push({
           label: "Informacion",
           className: "text-orange-700 bg-orange-100 border-orange-200",
         });
       }
     }
-
-    const personal_info_approved = app.status === "approved" || !personalInfoProvided;
 
     const nationalities = (Array.isArray(app.nationality) ? app.nationality : []).map(
       (n, i) => ({ name: n, code: nationality_codes[i] ?? null })

@@ -31,10 +31,10 @@ import type { SortDescriptor, Key } from "@react-types/shared";
 
 type SortDir = "ascending" | "descending";
 
-const statusColor: Record<CareerRow["status"], "success" | "warning" | "danger"> = {
+const statusColor: Record<CareerRow["status"], "success" | "warning" | "primary"> = {
   approved: "success",
   pending: "warning",
-  rejected: "danger",
+  waiting: "primary",
 };
 
 async function post(url: string, body?: unknown) {

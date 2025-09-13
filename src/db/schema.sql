@@ -1083,6 +1083,7 @@ CREATE TABLE IF NOT EXISTS "public"."player_applications" (
     "proposed_team_name" "text",
     "proposed_team_country" "text",
     "free_agent" boolean DEFAULT false NOT NULL,
+    "personal_info_approved" boolean DEFAULT false NOT NULL,
     "proposed_team_category" "text",
     "proposed_team_transfermarkt_url" "text",
     "proposed_team_country_code" character(2)
