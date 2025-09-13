@@ -19,11 +19,13 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  Input,
   Modal,
   ModalContent,
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Spinner,
 } from "@heroui/react";
 import {
   Copy,
@@ -104,7 +106,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
   const modalPreset = useAdminModalPreset();
   const [modal, setModal] = React.useState<{
     id: string;
-    mode: "detail" | "review" | "tasks";
+    mode: "detail" | "review" | "tasks" | "confirm";
   } | null>(null);
   const openItem = React.useMemo(
     () => (modal ? items.find((i) => i.id === modal.id) ?? null : null),
@@ -217,6 +219,76 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     setModal(null);
   }, []);
 
+  const [editingInfo, setEditingInfo] = React.useState(false);
+  const [editForm, setEditForm] = React.useState({
+    full_name: "",
+    birth_date: "",
+    height_cm: "",
+    weight_kg: "",
+  });
+
+  React.useEffect(() => {
+    if (openItem && modal && (modal.mode === "detail" || modal.mode === "review")) {
+      setEditingInfo(false);
+      setEditForm({
+        full_name: openItem.applicant ?? "",
+        birth_date: openItem.birth_date ?? "",
+        height_cm: openItem.height_cm?.toString() ?? "",
+        weight_kg: openItem.weight_kg?.toString() ?? "",
+      });
+    }
+  }, [openItem, modal]);
+
+  const savePersonalInfo = React.useCallback(async () => {
+    if (!openItem) return;
+    await fetch(`/api/admin/applications/${openItem.id}/personal-info/update`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        full_name: editForm.full_name || null,
+        birth_date: editForm.birth_date || null,
+        height_cm: editForm.height_cm ? Number(editForm.height_cm) : null,
+        weight_kg: editForm.weight_kg ? Number(editForm.weight_kg) : null,
+      }),
+    });
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === openItem.id
+          ? {
+              ...it,
+              applicant: editForm.full_name || null,
+              birth_date: editForm.birth_date || null,
+              height_cm: editForm.height_cm ? Number(editForm.height_cm) : null,
+              weight_kg: editForm.weight_kg ? Number(editForm.weight_kg) : null,
+            }
+          : it,
+      ),
+    );
+    setEditingInfo(false);
+  }, [openItem, editForm, setItems]);
+
+  type CareerItem = {
+    id: string;
+    team_name: string;
+    crest_url: string | null;
+    country_code: string | null;
+    division: string | null;
+    start_year: number | null;
+    end_year: number | null;
+  };
+
+  const [careerItems, setCareerItems] = React.useState<CareerItem[] | null>(null);
+
+  React.useEffect(() => {
+    if (modal?.mode === "confirm" && openItem) {
+      setCareerItems(null);
+      fetch(`/api/admin/applications/${openItem.id}/career`)
+        .then((r) => r.json())
+        .then((d) => setCareerItems(d.items ?? []))
+        .catch(() => setCareerItems([]));
+    }
+  }, [modal, openItem]);
+
   const renderCell = React.useCallback(
     (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {
     switch (columnKey) {
@@ -323,22 +395,17 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               </Button>
             </Tooltip>
             {a.status === "pending" && (
-              <form
-                action={`/api/admin/applications/${a.id}/approve`}
-                method="post"
-              >
-                <Tooltip content="Aceptar solicitud">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    color="success"
-                    type="submit"
-                    isDisabled={a.tasks.length > 0}
-                  >
-                    <Check size={16} />
-                  </Button>
-                </Tooltip>
-              </form>
+              <Tooltip content="Aceptar solicitud">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  color="success"
+                  isDisabled={a.tasks.length > 0}
+                  onPress={() => setModal({ id: a.id, mode: "confirm" })}
+                >
+                  <Check size={16} />
+                </Button>
+              </Tooltip>
             )}
           </div>
         );
@@ -500,19 +567,17 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                 </Button>
               </Tooltip>
               {a.status === "pending" && (
-                <form action={`/api/admin/applications/${a.id}/approve`} method="post">
-                  <Tooltip content="Aceptar solicitud">
-                    <Button
-                      isIconOnly
-                      size="sm"
-                      color="success"
-                      type="submit"
-                      isDisabled={a.tasks.length > 0}
-                    >
-                      <Check size={16} />
-                    </Button>
-                  </Tooltip>
-                </form>
+                <Tooltip content="Aceptar solicitud">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    color="success"
+                    isDisabled={a.tasks.length > 0}
+                    onPress={() => setModal({ id: a.id, mode: "confirm" })}
+                  >
+                    <Check size={16} />
+                  </Button>
+                </Tooltip>
               )}
             </div>
           </div>
@@ -553,6 +618,116 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               );
             }
 
+            if (modal.mode === "confirm") {
+              return (
+                <>
+                  <ModalHeader className={modalPreset.classNames?.header}>
+                    <div className="flex flex-col">
+                      <h3 className="font-semibold">Confirmar solicitud</h3>
+                      <p className="text-sm text-foreground-500">
+                        Revisá la información antes de aceptar.
+                      </p>
+                    </div>
+                  </ModalHeader>
+                  <ModalBody className={modalPreset.classNames?.body}>
+                    <div className="grid gap-4 text-sm">
+                      <div className="flex items-center gap-1">
+                        <span className="font-medium truncate">
+                          {openItem.applicant ?? "(sin nombre)"}
+                        </span>
+                        {openItem.nationalities.map((n, i) =>
+                          n.code ? <CountryFlag key={i} code={n.code} size={14} /> : null,
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-6">
+                        <div>
+                          <p className="font-medium mb-1">Fecha de nacimiento</p>
+                          <p>
+                            {openItem.birth_date ? (
+                              <ClientDate iso={openItem.birth_date} />
+                            ) : (
+                              "—"
+                            )}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">Altura</p>
+                          <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">Peso</p>
+                          <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
+                        </div>
+                      </div>
+                      {careerItems === null ? (
+                        <div className="flex justify-center py-4">
+                          <Spinner />
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="font-medium mb-1">Trayectoria</p>
+                          <ul className="grid gap-2">
+                            {careerItems.map((ci) => (
+                              <li
+                                key={ci.id}
+                                className="flex items-center gap-2 min-w-0 p-2 rounded-lg bg-content2/60"
+                              >
+                                <TeamCrest
+                                  src={ci.crest_url || "/images/team-default.svg"}
+                                  size={24}
+                                  className="shrink-0"
+                                />
+                                <span className="truncate font-medium">{ci.team_name}</span>
+                                <span className="text-default-500 text-sm">
+                                  · {ci.division ?? "—"}
+                                </span>
+                                {ci.country_code && (
+                                  <CountryFlag code={ci.country_code} size={12} />
+                                )}
+                                <Chip size="sm" variant="flat">
+                                  {ci.start_year ?? "—"}–{ci.end_year ?? "…"}
+                                </Chip>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {openItem.proposed_team_name && (
+                        <div>
+                          <p className="font-medium mb-1 mt-2">Equipo propuesto</p>
+                          <div className="flex items-center gap-2">
+                            <TeamCrest src={null} size={24} />
+                            <span className="font-medium truncate">
+                              {openItem.proposed_team_name}
+                            </span>
+                            {openItem.proposed_team_country_code && (
+                              <CountryFlag
+                                code={openItem.proposed_team_country_code}
+                                size={16}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="flat" onPress={onClose}>
+                      Cancelar
+                    </Button>
+                    <form
+                      action={`/api/admin/applications/${openItem.id}/approve`}
+                      method="post"
+                    >
+                      <Button color="success" type="submit">
+                        Aceptar solicitud
+                      </Button>
+                    </form>
+                  </ModalFooter>
+                </>
+              );
+            }
+
             return (
               <>
                 <ModalHeader className={modalPreset.classNames?.header}>
@@ -588,91 +763,153 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           </a>
                         );
                       })}
+                      {!editingInfo && (
+                        <Button
+                          size="sm"
+                          variant="flat"
+                          onPress={() => setEditingInfo(true)}
+                        >
+                          Editar
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </ModalHeader>
                 <ModalBody className={modalPreset.classNames?.body}>
-                  <div className="grid gap-4 text-sm">
-                    <div>
-                      <p className="font-medium mb-1">Nacionalidades</p>
-                      <div className="flex flex-wrap gap-2">
-                        {openItem.nationalities.map((n, i) => (
-                          <Chip
-                            key={i}
-                            size="sm"
-                            variant="faded"
-                            startContent={
-                              n.code ? <CountryFlag code={n.code} size={16} /> : null
-                            }
-                            className="text-default-700"
-                          >
-                            {n.name}
-                          </Chip>
-                        ))}
+                  {editingInfo ? (
+                    <div className="grid gap-4">
+                      <Input
+                        label="Nombre completo"
+                        value={editForm.full_name}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, full_name: e.target.value }))
+                        }
+                      />
+                      <Input
+                        label="Fecha de nacimiento"
+                        type="date"
+                        value={editForm.birth_date}
+                        onChange={(e) =>
+                          setEditForm((f) => ({ ...f, birth_date: e.target.value }))
+                        }
+                      />
+                      <div className="flex flex-wrap gap-6">
+                        <Input
+                          label="Altura (cm)"
+                          type="number"
+                          value={editForm.height_cm}
+                          onChange={(e) =>
+                            setEditForm((f) => ({
+                              ...f,
+                              height_cm: e.target.value,
+                            }))
+                          }
+                        />
+                        <Input
+                          label="Peso (kg)"
+                          type="number"
+                          value={editForm.weight_kg}
+                          onChange={(e) =>
+                            setEditForm((f) => ({
+                              ...f,
+                              weight_kg: e.target.value,
+                            }))
+                          }
+                        />
                       </div>
                     </div>
-                    {openItem.positions.length > 0 && (
+                  ) : (
+                    <div className="grid gap-4 text-sm">
                       <div>
-                        <p className="font-medium mb-1">Posiciones</p>
+                        <p className="font-medium mb-1">Nacionalidades</p>
                         <div className="flex flex-wrap gap-2">
-                          {openItem.positions.map((p, i) => (
-                            <Chip key={i} size="sm" variant="faded">
-                              {p}
+                          {openItem.nationalities.map((n, i) => (
+                            <Chip
+                              key={i}
+                              size="sm"
+                              variant="faded"
+                              startContent={
+                                n.code ? <CountryFlag code={n.code} size={16} /> : null
+                              }
+                              className="text-default-700"
+                            >
+                              {n.name}
                             </Chip>
                           ))}
                         </div>
                       </div>
-                    )}
-                    <div className="flex flex-wrap gap-6">
-                      <div>
-                        <p className="font-medium mb-1">Fecha de nacimiento</p>
-                        <p>
-                          {openItem.birth_date ? (
-                            <ClientDate iso={openItem.birth_date} />
-                          ) : (
-                            "—"
-                          )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="font-medium mb-1">Edad</p>
-                        <p>{openItem.age ?? "—"}</p>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap gap-6">
-                      <div>
-                        <p className="font-medium mb-1">Altura</p>
-                        <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
-                      </div>
-                      <div>
-                        <p className="font-medium mb-1">Peso</p>
-                        <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
-                      </div>
-                    </div>
-                    {openItem.kyc_docs.length > 0 && (
-                      <div>
-                        <p className="font-medium mb-1">Documentos KYC</p>
-                        <div className="flex gap-2">
-                          {openItem.kyc_docs.map((d, i) => {
-                            const Icon = d.label === "Documento" ? FileText : Camera;
-                            return (
-                              <a
-                                key={i}
-                                href={d.url}
-                                target="_blank"
-                                className="text-default-500"
-                              >
-                                <Icon size={16} />
-                              </a>
-                            );
-                          })}
+                      {openItem.positions.length > 0 && (
+                        <div>
+                          <p className="font-medium mb-1">Posiciones</p>
+                          <div className="flex flex-wrap gap-2">
+                            {openItem.positions.map((p, i) => (
+                              <Chip key={i} size="sm" variant="faded">
+                                {p}
+                              </Chip>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex flex-wrap gap-6">
+                        <div>
+                          <p className="font-medium mb-1">Fecha de nacimiento</p>
+                          <p>
+                            {openItem.birth_date ? (
+                              <ClientDate iso={openItem.birth_date} />
+                            ) : (
+                              "—"
+                            )}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">Edad</p>
+                          <p>{openItem.age ?? "—"}</p>
                         </div>
                       </div>
-                    )}
-                  </div>
+                      <div className="flex flex-wrap gap-6">
+                        <div>
+                          <p className="font-medium mb-1">Altura</p>
+                          <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-1">Peso</p>
+                          <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
+                        </div>
+                      </div>
+                      {openItem.kyc_docs.length > 0 && (
+                        <div>
+                          <p className="font-medium mb-1">Documentos KYC</p>
+                          <div className="flex gap-2">
+                            {openItem.kyc_docs.map((d, i) => {
+                              const Icon = d.label === "Documento" ? FileText : Camera;
+                              return (
+                                <a
+                                  key={i}
+                                  href={d.url}
+                                  target="_blank"
+                                  className="text-default-500"
+                                >
+                                  <Icon size={16} />
+                                </a>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </ModalBody>
-                {modal.mode === "review" && (
-                  <ModalFooter>
+                <ModalFooter>
+                  {editingInfo ? (
+                    <>
+                      <Button variant="flat" onPress={() => setEditingInfo(false)}>
+                        Cancelar
+                      </Button>
+                      <Button color="primary" onPress={savePersonalInfo}>
+                        Guardar
+                      </Button>
+                    </>
+                  ) : modal.mode === "review" ? (
                     <Button
                       color="primary"
                       className="ml-auto"
@@ -680,8 +917,8 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                     >
                       Aceptar datos
                     </Button>
-                  </ModalFooter>
-                )}
+                  ) : null}
+                </ModalFooter>
               </>
             );
           }}
