@@ -35,17 +35,30 @@ export async function PATCH(req: Request, ctx: { params: Params }) {
   if (appErr) return NextResponse.json({ error: appErr.message }, { status: 400 });
 
   const notes = (app?.notes && typeof app.notes === "object" ? app.notes : {}) as Record<string, unknown>;
+  const nationalityNames = Array.isArray(body.nationalities)
+    ? body.nationalities.map((n: any) => n.name)
+    : null;
+  const nationalityCodes = Array.isArray(body.nationalities)
+    ? body.nationalities.map((n: any) => n.code)
+    : null;
+  const positionArr = body.position
+    ? [body.position.role, ...(body.position.subs ?? [])]
+    : null;
+
   const newNotes = {
     ...notes,
     birth_date: body.birth_date ?? null,
     height_cm: body.height_cm ?? null,
     weight_kg: body.weight_kg ?? null,
+    nationality_codes: nationalityCodes ?? null,
   };
 
   const { error } = await admin
     .from("player_applications")
     .update({
       full_name: body.full_name ?? null,
+      nationality: nationalityNames ?? null,
+      positions: positionArr ?? null,
       notes: newNotes,
       updated_at: new Date().toISOString(),
     })

@@ -90,7 +90,19 @@ export default async function AdminApplicationsPage() {
         ? notes.nationality_codes
         : [];
     const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
-    const birth_date = typeof notes?.birth_date === "string" ? notes.birth_date : null;
+    let birth_date: string | null = null;
+    if (typeof notes?.birth_date === "string") {
+      birth_date = notes.birth_date;
+    } else if (
+      notes?.birth_date &&
+      typeof notes.birth_date === "object" &&
+      typeof (notes.birth_date as any).year === "number" &&
+      typeof (notes.birth_date as any).month === "number" &&
+      typeof (notes.birth_date as any).day === "number"
+    ) {
+      const b = notes.birth_date as any;
+      birth_date = `${b.year}-${String(b.month).padStart(2, "0")}-${String(b.day).padStart(2, "0")}`;
+    }
     const height_cm = typeof notes?.height_cm === "number" ? notes.height_cm : null;
     const weight_kg = typeof notes?.weight_kg === "number" ? notes.weight_kg : null;
     const age = birth_date

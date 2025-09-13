@@ -43,6 +43,12 @@ import {
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
+import CountryMultiPicker, {
+  type CountryPick,
+} from "@/components/common/CountryMultiPicker";
+import PositionPicker, {
+  type PositionPickerValue,
+} from "@/components/common/PositionPicker";
 import type { ApplicationRow } from "./types";
 import { applicationColumns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
@@ -220,11 +226,20 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
   }, []);
 
   const [editingInfo, setEditingInfo] = React.useState(false);
-  const [editForm, setEditForm] = React.useState({
+  const [editForm, setEditForm] = React.useState<{
+    full_name: string;
+    birth_date: string;
+    height_cm: string;
+    weight_kg: string;
+    nationalities: CountryPick[];
+    position: PositionPickerValue;
+  }>({
     full_name: "",
     birth_date: "",
     height_cm: "",
     weight_kg: "",
+    nationalities: [],
+    position: { role: "DEL", subs: [] },
   });
 
   React.useEffect(() => {
@@ -235,6 +250,15 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
         birth_date: openItem.birth_date ?? "",
         height_cm: openItem.height_cm?.toString() ?? "",
         weight_kg: openItem.weight_kg?.toString() ?? "",
+        nationalities: openItem.nationalities
+          .filter((n) => n.code)
+          .map((n) => ({ code: n.code!, name: n.name })),
+        position: openItem.positions.length
+          ? {
+              role: openItem.positions[0] as PositionPickerValue["role"],
+              subs: openItem.positions.slice(1),
+            }
+          : { role: "DEL", subs: [] },
       });
     }
   }, [openItem, modal]);
@@ -249,6 +273,8 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
         birth_date: editForm.birth_date || null,
         height_cm: editForm.height_cm ? Number(editForm.height_cm) : null,
         weight_kg: editForm.weight_kg ? Number(editForm.weight_kg) : null,
+        nationalities: editForm.nationalities,
+        position: editForm.position,
       }),
     });
     setItems((prev) =>
@@ -260,6 +286,11 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
               birth_date: editForm.birth_date || null,
               height_cm: editForm.height_cm ? Number(editForm.height_cm) : null,
               weight_kg: editForm.weight_kg ? Number(editForm.weight_kg) : null,
+              nationalities: editForm.nationalities,
+              positions: [
+                editForm.position.role,
+                ...editForm.position.subs,
+              ],
             }
           : it,
       ),
@@ -641,7 +672,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                       </div>
                       <div className="flex flex-wrap gap-6">
                         <div>
-                          <p className="font-medium mb-1">Fecha de nacimiento</p>
+                          <p className="text-sm text-default-500 mb-1">Fecha de nacimiento</p>
                           <p>
                             {openItem.birth_date ? (
                               <ClientDate iso={openItem.birth_date} />
@@ -651,11 +682,11 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           </p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Altura</p>
+                          <p className="text-sm text-default-500 mb-1">Altura</p>
                           <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Peso</p>
+                          <p className="text-sm text-default-500 mb-1">Peso</p>
                           <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
                         </div>
                       </div>
@@ -665,36 +696,40 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                         </div>
                       ) : (
                         <div>
-                          <p className="font-medium mb-1">Trayectoria</p>
-                          <ul className="grid gap-2">
-                            {careerItems.map((ci) => (
-                              <li
-                                key={ci.id}
-                                className="flex items-center gap-2 min-w-0 p-2 rounded-lg bg-content2/60"
-                              >
-                                <TeamCrest
-                                  src={ci.crest_url || "/images/team-default.svg"}
-                                  size={24}
-                                  className="shrink-0"
-                                />
-                                <span className="truncate font-medium">{ci.team_name}</span>
-                                <span className="text-default-500 text-sm">
-                                  · {ci.division ?? "—"}
-                                </span>
-                                {ci.country_code && (
-                                  <CountryFlag code={ci.country_code} size={12} />
-                                )}
-                                <Chip size="sm" variant="flat">
-                                  {ci.start_year ?? "—"}–{ci.end_year ?? "…"}
-                                </Chip>
-                              </li>
-                            ))}
-                          </ul>
+                          <p className="text-sm text-default-500 mb-1">Trayectoria</p>
+                          {careerItems.length > 0 ? (
+                            <ul className="grid gap-2">
+                              {careerItems.map((ci) => (
+                                <li
+                                  key={ci.id}
+                                  className="flex items-center gap-2 min-w-0 p-2 rounded-lg bg-content2/60"
+                                >
+                                  <TeamCrest
+                                    src={ci.crest_url || "/images/team-default.svg"}
+                                    size={24}
+                                    className="shrink-0"
+                                  />
+                                  <span className="truncate font-medium">{ci.team_name}</span>
+                                  <span className="text-default-500 text-sm">
+                                    · {ci.division ?? "—"}
+                                  </span>
+                                  {ci.country_code && (
+                                    <CountryFlag code={ci.country_code} size={12} />
+                                  )}
+                                  <Chip size="sm" variant="flat">
+                                    {ci.start_year ?? "—"}–{ci.end_year ?? "…"}
+                                  </Chip>
+                                </li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="text-default-500">Sin trayectoria</p>
+                          )}
                         </div>
                       )}
                       {openItem.proposed_team_name && (
                         <div>
-                          <p className="font-medium mb-1 mt-2">Equipo propuesto</p>
+                          <p className="text-sm text-default-500 mb-1 mt-2">Equipo propuesto</p>
                           <div className="flex items-center gap-2">
                             <TeamCrest src={null} size={24} />
                             <span className="font-medium truncate">
@@ -785,6 +820,13 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           setEditForm((f) => ({ ...f, full_name: e.target.value }))
                         }
                       />
+                      <CountryMultiPicker
+                        key={`nat-${openItem.id}`}
+                        defaultValue={editForm.nationalities}
+                        onChange={(vals) =>
+                          setEditForm((f) => ({ ...f, nationalities: vals }))
+                        }
+                      />
                       <Input
                         label="Fecha de nacimiento"
                         type="date"
@@ -817,11 +859,22 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           }
                         />
                       </div>
+                      <div className="grid gap-2">
+                        <span className="text-sm text-default-500">Posición</span>
+                        <PositionPicker
+                          key={`pos-${openItem.id}`}
+                          defaultRole={editForm.position.role}
+                          defaultSubs={editForm.position.subs}
+                          onChange={(val) =>
+                            setEditForm((f) => ({ ...f, position: val }))
+                          }
+                        />
+                      </div>
                     </div>
                   ) : (
                     <div className="grid gap-4 text-sm">
                       <div>
-                        <p className="font-medium mb-1">Nacionalidades</p>
+                        <p className="text-sm text-default-500 mb-1">Nacionalidades</p>
                         <div className="flex flex-wrap gap-2">
                           {openItem.nationalities.map((n, i) => (
                             <Chip
@@ -840,7 +893,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                       </div>
                       {openItem.positions.length > 0 && (
                         <div>
-                          <p className="font-medium mb-1">Posiciones</p>
+                          <p className="text-sm text-default-500 mb-1">Posiciones</p>
                           <div className="flex flex-wrap gap-2">
                             {openItem.positions.map((p, i) => (
                               <Chip key={i} size="sm" variant="faded">
@@ -852,7 +905,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                       )}
                       <div className="flex flex-wrap gap-6">
                         <div>
-                          <p className="font-medium mb-1">Fecha de nacimiento</p>
+                          <p className="text-sm text-default-500 mb-1">Fecha de nacimiento</p>
                           <p>
                             {openItem.birth_date ? (
                               <ClientDate iso={openItem.birth_date} />
@@ -862,23 +915,23 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                           </p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Edad</p>
+                          <p className="text-sm text-default-500 mb-1">Edad</p>
                           <p>{openItem.age ?? "—"}</p>
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-6">
                         <div>
-                          <p className="font-medium mb-1">Altura</p>
+                          <p className="text-sm text-default-500 mb-1">Altura</p>
                           <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
                         </div>
                         <div>
-                          <p className="font-medium mb-1">Peso</p>
+                          <p className="text-sm text-default-500 mb-1">Peso</p>
                           <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
                         </div>
                       </div>
                       {openItem.kyc_docs.length > 0 && (
                         <div>
-                          <p className="font-medium mb-1">Documentos KYC</p>
+                          <p className="text-sm text-default-500 mb-1">Documentos KYC</p>
                           <div className="flex gap-2">
                             {openItem.kyc_docs.map((d, i) => {
                               const Icon = d.label === "Documento" ? FileText : Camera;
