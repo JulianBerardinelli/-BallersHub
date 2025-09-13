@@ -242,17 +242,47 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     position: { role: "DEL", subs: [] },
   });
 
+  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
+  const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
+
+  const hVal = editForm.height_cm ? Number(editForm.height_cm) : NaN;
+  const wVal = editForm.weight_kg ? Number(editForm.weight_kg) : NaN;
+  const nameInvalid = !!touched.full_name && !minChars(editForm.full_name);
+  const natInvalid = !!touched.nationalities && editForm.nationalities.length < 1;
+  const dobInvalid = !!touched.birth_date && !editForm.birth_date;
+  const heightInvalid =
+    !!touched.height_cm &&
+    !(Number.isFinite(hVal) && hVal >= 120 && hVal <= 230);
+  const weightInvalid =
+    !!touched.weight_kg &&
+    !(Number.isFinite(wVal) && wVal >= 40 && wVal <= 140);
+  const posInvalid =
+    !!touched.position && editForm.position.subs.length < 1;
+  const formValid =
+    minChars(editForm.full_name) &&
+    editForm.nationalities.length >= 1 &&
+    !!editForm.birth_date &&
+    Number.isFinite(hVal) &&
+    hVal >= 120 &&
+    hVal <= 230 &&
+    Number.isFinite(wVal) &&
+    wVal >= 40 &&
+    wVal <= 140 &&
+    editForm.position.subs.length >= 1;
+
   React.useEffect(() => {
     if (openItem && modal && (modal.mode === "detail" || modal.mode === "review")) {
       setEditingInfo(false);
+      setTouched({});
       setEditForm({
         full_name: openItem.applicant ?? "",
         birth_date: openItem.birth_date ?? "",
         height_cm: openItem.height_cm?.toString() ?? "",
         weight_kg: openItem.weight_kg?.toString() ?? "",
-        nationalities: openItem.nationalities
-          .filter((n) => n.code)
-          .map((n) => ({ code: n.code!, name: n.name })),
+        nationalities: openItem.nationalities.map((n) => ({
+          code: n.code ?? "",
+          name: n.name,
+        })),
         position: openItem.positions.length
           ? {
               role: openItem.positions[0] as PositionPickerValue["role"],
@@ -264,15 +294,24 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
   }, [openItem, modal]);
 
   const savePersonalInfo = React.useCallback(async () => {
-    if (!openItem) return;
+    setTouched({
+      full_name: true,
+      nationalities: true,
+      birth_date: true,
+      height_cm: true,
+      weight_kg: true,
+      position: true,
+    });
+    if (!openItem || !formValid) return;
+
     await fetch(`/api/admin/applications/${openItem.id}/personal-info/update`, {
       method: "PATCH",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        full_name: editForm.full_name || null,
-        birth_date: editForm.birth_date || null,
-        height_cm: editForm.height_cm ? Number(editForm.height_cm) : null,
-        weight_kg: editForm.weight_kg ? Number(editForm.weight_kg) : null,
+        full_name: editForm.full_name,
+        birth_date: editForm.birth_date,
+        height_cm: Number(editForm.height_cm),
+        weight_kg: Number(editForm.weight_kg),
         nationalities: editForm.nationalities,
         position: editForm.position,
       }),
@@ -282,10 +321,10 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
         it.id === openItem.id
           ? {
               ...it,
-              applicant: editForm.full_name || null,
-              birth_date: editForm.birth_date || null,
-              height_cm: editForm.height_cm ? Number(editForm.height_cm) : null,
-              weight_kg: editForm.weight_kg ? Number(editForm.weight_kg) : null,
+              applicant: editForm.full_name,
+              birth_date: editForm.birth_date,
+              height_cm: Number(editForm.height_cm),
+              weight_kg: Number(editForm.weight_kg),
               nationalities: editForm.nationalities,
               positions: [
                 editForm.position.role,
@@ -296,7 +335,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       ),
     );
     setEditingInfo(false);
-  }, [openItem, editForm, setItems]);
+  }, [openItem, editForm, formValid, setItems]);
 
   type CareerItem = {
     id: string;
@@ -814,29 +853,46 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                   {editingInfo ? (
                     <div className="grid gap-4">
                       <Input
+                        isRequired
                         label="Nombre completo"
                         value={editForm.full_name}
                         onChange={(e) =>
                           setEditForm((f) => ({ ...f, full_name: e.target.value }))
                         }
+                        onBlur={() => setTouched((t) => ({ ...t, full_name: true }))}
+                        isInvalid={nameInvalid}
+                        errorMessage="Ingresá al menos 3 caracteres."
                       />
-                      <CountryMultiPicker
-                        key={`nat-${openItem.id}`}
-                        defaultValue={editForm.nationalities}
-                        onChange={(vals) =>
-                          setEditForm((f) => ({ ...f, nationalities: vals }))
+                      <div
+                        onBlurCapture={() =>
+                          setTouched((t) => ({ ...t, nationalities: true }))
                         }
-                      />
+                      >
+                        <CountryMultiPicker
+                          key={`nat-${openItem.id}`}
+                          defaultValue={editForm.nationalities}
+                          onChange={(vals) =>
+                            setEditForm((f) => ({ ...f, nationalities: vals }))
+                          }
+                          isInvalid={natInvalid}
+                          errorMessage="Seleccioná al menos una nacionalidad."
+                        />
+                      </div>
                       <Input
+                        isRequired
                         label="Fecha de nacimiento"
                         type="date"
                         value={editForm.birth_date}
                         onChange={(e) =>
                           setEditForm((f) => ({ ...f, birth_date: e.target.value }))
                         }
+                        onBlur={() => setTouched((t) => ({ ...t, birth_date: true }))}
+                        isInvalid={dobInvalid}
+                        errorMessage="Seleccioná la fecha de nacimiento."
                       />
                       <div className="flex flex-wrap gap-6">
                         <Input
+                          isRequired
                           label="Altura (cm)"
                           type="number"
                           value={editForm.height_cm}
@@ -846,8 +902,13 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                               height_cm: e.target.value,
                             }))
                           }
+                          onBlur={() => setTouched((t) => ({ ...t, height_cm: true }))}
+                          isInvalid={heightInvalid}
+                          errorMessage="Ingresá una altura válida (120–230 cm)."
+                          endContent={<span className="text-xs text-foreground-500">cm</span>}
                         />
                         <Input
+                          isRequired
                           label="Peso (kg)"
                           type="number"
                           value={editForm.weight_kg}
@@ -857,18 +918,40 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
                               weight_kg: e.target.value,
                             }))
                           }
+                          onBlur={() => setTouched((t) => ({ ...t, weight_kg: true }))}
+                          isInvalid={weightInvalid}
+                          errorMessage="Ingresá un peso válido (40–140 kg)."
+                          endContent={<span className="text-xs text-foreground-500">kg</span>}
                         />
                       </div>
                       <div className="grid gap-2">
                         <span className="text-sm text-default-500">Posición</span>
-                        <PositionPicker
-                          key={`pos-${openItem.id}`}
-                          defaultRole={editForm.position.role}
-                          defaultSubs={editForm.position.subs}
-                          onChange={(val) =>
-                            setEditForm((f) => ({ ...f, position: val }))
-                          }
-                        />
+                        <div
+                          className={[
+                            "rounded-2xl border p-3",
+                            posInvalid ? "border-danger" : "border-default",
+                          ].join(" ")}
+                          onBlur={(e) => {
+                            const next = e.relatedTarget as Node | null;
+                            if (!next || !e.currentTarget.contains(next)) {
+                              setTouched((t) => ({ ...t, position: true }));
+                            }
+                          }}
+                        >
+                          <PositionPicker
+                            key={`pos-${openItem.id}`}
+                            defaultRole={editForm.position.role}
+                            defaultSubs={editForm.position.subs}
+                            onChange={(val) =>
+                              setEditForm((f) => ({ ...f, position: val }))
+                            }
+                          />
+                        </div>
+                        {posInvalid && (
+                          <p className="text-sm text-danger">
+                            Elegí al menos una sub-posición.
+                          </p>
+                        )}
                       </div>
                     </div>
                   ) : (

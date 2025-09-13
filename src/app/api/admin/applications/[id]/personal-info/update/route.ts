@@ -35,30 +35,50 @@ export async function PATCH(req: Request, ctx: { params: Params }) {
   if (appErr) return NextResponse.json({ error: appErr.message }, { status: 400 });
 
   const notes = (app?.notes && typeof app.notes === "object" ? app.notes : {}) as Record<string, unknown>;
+
   const nationalityNames = Array.isArray(body.nationalities)
     ? body.nationalities.map((n: any) => n.name)
     : null;
   const nationalityCodes = Array.isArray(body.nationalities)
-    ? body.nationalities.map((n: any) => n.code)
+    ? body.nationalities.map((n: any) => String(n.code || "").toUpperCase().slice(0, 2))
     : null;
   const positionArr = body.position
     ? [body.position.role, ...(body.position.subs ?? [])]
     : null;
 
+  const nameOk = typeof body.full_name === "string" && body.full_name.trim().length >= 3;
+  const birthOk = typeof body.birth_date === "string" && !Number.isNaN(Date.parse(body.birth_date));
+  const heightNum = Number(body.height_cm);
+  const weightNum = Number(body.weight_kg);
+  const heightOk = Number.isFinite(heightNum) && heightNum >= 120 && heightNum <= 230;
+  const weightOk = Number.isFinite(weightNum) && weightNum >= 40 && weightNum <= 140;
+  const natOk =
+    Array.isArray(nationalityNames) &&
+    nationalityNames.length > 0 &&
+    Array.isArray(nationalityCodes) &&
+    nationalityCodes.every((c: any) => typeof c === "string" && c.length === 2);
+  const posOk =
+    Array.isArray(positionArr) &&
+    positionArr.length > 1 &&
+    positionArr.every((p: any) => typeof p === "string" && p.length > 0);
+
+  if (!nameOk || !birthOk || !heightOk || !weightOk || !natOk || !posOk)
+    return NextResponse.json({ error: "invalid" }, { status: 400 });
+
   const newNotes = {
     ...notes,
-    birth_date: body.birth_date ?? null,
-    height_cm: body.height_cm ?? null,
-    weight_kg: body.weight_kg ?? null,
-    nationality_codes: nationalityCodes ?? null,
+    birth_date: body.birth_date,
+    height_cm: heightNum,
+    weight_kg: weightNum,
+    nationality_codes: nationalityCodes,
   };
 
   const { error } = await admin
     .from("player_applications")
     .update({
-      full_name: body.full_name ?? null,
-      nationality: nationalityNames ?? null,
-      positions: positionArr ?? null,
+      full_name: body.full_name,
+      nationality: nationalityNames,
+      positions: positionArr,
       notes: newNotes,
       updated_at: new Date().toISOString(),
     })
