@@ -22,6 +22,7 @@ interface RawApp {
   id_doc_url: string | null;
   selfie_url: string | null;
   notes: unknown | null;
+  personal_info_approved: boolean;
   current_team: {
     name: string | null;
     crest_url: string | null;
@@ -64,6 +65,7 @@ export default async function AdminApplicationsPage() {
         "id_doc_url",
         "selfie_url",
         "notes",
+        "personal_info_approved",
         "current_team:teams!player_applications_current_team_id_fkey(name,crest_url,country_code)",
         "career_item_proposals(status)",
       ].join(",")
@@ -88,7 +90,19 @@ export default async function AdminApplicationsPage() {
         ? notes.nationality_codes
         : [];
     const social_url = typeof notes?.social_url === "string" ? notes.social_url : null;
-    const birth_date = typeof notes?.birth_date === "string" ? notes.birth_date : null;
+    let birth_date: string | null = null;
+    if (typeof notes?.birth_date === "string") {
+      birth_date = notes.birth_date;
+    } else if (
+      notes?.birth_date &&
+      typeof notes.birth_date === "object" &&
+      typeof (notes.birth_date as any).year === "number" &&
+      typeof (notes.birth_date as any).month === "number" &&
+      typeof (notes.birth_date as any).day === "number"
+    ) {
+      const b = notes.birth_date as any;
+      birth_date = `${b.year}-${String(b.month).padStart(2, "0")}-${String(b.day).padStart(2, "0")}`;
+    }
     const height_cm = typeof notes?.height_cm === "number" ? notes.height_cm : null;
     const weight_kg = typeof notes?.weight_kg === "number" ? notes.weight_kg : null;
     const age = birth_date
@@ -96,7 +110,7 @@ export default async function AdminApplicationsPage() {
       : null;
 
     const pendingItems = (app.career_item_proposals ?? []).filter(
-      (ci) => ci.status === "pending"
+      (ci) => ci.status === "pending" || ci.status === "waiting"
     ).length;
     const teamTask =
       !app.current_team && app.proposed_team_name && !app.free_agent;
@@ -131,6 +145,9 @@ export default async function AdminApplicationsPage() {
     const personalInfoProvided =
       links.length > 0 || kyc_docs.length > 0 || birth_date || height_cm || weight_kg;
 
+    const personal_info_approved =
+      app.personal_info_approved || app.status === "approved" || !personalInfoProvided;
+
     const tasks: ApplicationRow["tasks"] = [];
     if (app.status !== "approved") {
       if (pendingItems > 0) {
@@ -145,15 +162,13 @@ export default async function AdminApplicationsPage() {
           className: "text-pink-700 bg-pink-100 border-pink-200",
         });
       }
-      if (personalInfoProvided) {
+      if (personalInfoProvided && !personal_info_approved) {
         tasks.push({
           label: "Informacion",
           className: "text-orange-700 bg-orange-100 border-orange-200",
         });
       }
     }
-
-    const personal_info_approved = app.status === "approved" || !personalInfoProvided;
 
     const nationalities = (Array.isArray(app.nationality) ? app.nationality : []).map(
       (n, i) => ({ name: n, code: nationality_codes[i] ?? null })

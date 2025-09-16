@@ -26,6 +26,7 @@ export const playerApplications = pgTable("player_applications", {
   proposedTeamName: text("proposed_team_name"),
   proposedTeamCountry: text("proposed_team_country"),
   freeAgent: boolean("free_agent").notNull().default(false),
+  personalInfoApproved: boolean("personal_info_approved").notNull().default(false),
   proposedTeamCategory: text("proposed_team_category"),
   proposedTeamTransfermarktUrl: text("proposed_team_transfermarkt_url"),
   proposedTeamCountryCode: char("proposed_team_country_code", { length: 2 }),
