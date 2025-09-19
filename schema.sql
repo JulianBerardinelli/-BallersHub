@@ -46,4 +46,19 @@ begin
 
   return p_team_id;
 end;
-$$;
+  $$;
+
+-- Asegurar que los equipos no se eliminen al borrar solicitudes o trayectorias
+alter table public.teams
+  drop constraint if exists teams_requested_in_application_id_fkey,
+  add constraint teams_requested_in_application_id_fkey
+    foreign key (requested_in_application_id)
+    references public.player_applications(id)
+    on delete set null;
+
+alter table public.teams
+  drop constraint if exists teams_requested_from_career_item_id_fkey,
+  add constraint teams_requested_from_career_item_id_fkey
+    foreign key (requested_from_career_item_id)
+    references public.career_item_proposals(id)
+    on delete set null;

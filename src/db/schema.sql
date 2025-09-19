@@ -1083,6 +1083,7 @@ CREATE TABLE IF NOT EXISTS "public"."player_applications" (
     "proposed_team_name" "text",
     "proposed_team_country" "text",
     "free_agent" boolean DEFAULT false NOT NULL,
+    "personal_info_approved" boolean DEFAULT false NOT NULL,
     "proposed_team_category" "text",
     "proposed_team_transfermarkt_url" "text",
     "proposed_team_country_code" character(2)
@@ -1603,7 +1604,10 @@ ALTER TABLE ONLY "public"."subscriptions"
 
 
 ALTER TABLE ONLY "public"."teams"
-    ADD CONSTRAINT "teams_requested_from_career_item_id_fkey" FOREIGN KEY ("requested_from_career_item_id") REFERENCES "public"."career_item_proposals"("id");
+    ADD CONSTRAINT "teams_requested_from_career_item_id_fkey" FOREIGN KEY ("requested_from_career_item_id") REFERENCES "public"."career_item_proposals"("id") ON DELETE SET NULL;
+
+ALTER TABLE ONLY "public"."teams"
+    ADD CONSTRAINT "teams_requested_in_application_id_fkey" FOREIGN KEY ("requested_in_application_id") REFERENCES "public"."player_applications"("id") ON DELETE SET NULL;
 
 
 

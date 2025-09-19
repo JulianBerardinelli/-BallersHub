@@ -25,3 +25,24 @@ html, body { min-height: 100%; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+@keyframes bh-marquee-slide {
+  0%,
+  10% {
+    transform: translateX(0);
+  }
+  45%,
+  55% {
+    transform: translateX(calc(-1 * var(--marquee-distance, 0px)));
+  }
+  90%,
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.bh-marquee {
+  --marquee-distance: 0px;
+  animation: bh-marquee-slide 9s ease-in-out infinite;
+  will-change: transform;
+}
+

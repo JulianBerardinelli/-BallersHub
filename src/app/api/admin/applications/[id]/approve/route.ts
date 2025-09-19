@@ -108,6 +108,20 @@ async function doApprove(params: Params) {
     ? (await admin.from("teams").select("name").eq("id", app.current_team_id).maybeSingle()).data?.name ?? null
     : null;
 
+  // 3c) no permitir aprobar si la trayectoria está "waiting"
+  const { data: waiting, error: wErr } = await admin
+    .from("career_item_proposals")
+    .select("id")
+    .eq("application_id", id)
+    .eq("status", "waiting")
+    .limit(1);
+  if (wErr)
+    return NextResponse.json({ error: `waiting check failed: ${wErr.message}` }, {
+      status: 400,
+    });
+  if ((waiting ?? []).length > 0)
+    return NextResponse.json({ error: "trajectory waiting" }, { status: 400 });
+
   // 4) slug único para el jugador
   const slug = await ensureUniqueSlug(slugify(app.full_name ?? "player"), admin);
 
