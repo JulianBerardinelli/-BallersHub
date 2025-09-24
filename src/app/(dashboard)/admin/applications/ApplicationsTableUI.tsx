@@ -24,35 +24,20 @@ import {
   ModalContent,
   ModalHeader,
   ModalBody,
-  ModalFooter,
-  Spinner,
 } from "@heroui/react";
-import {
-  Copy,
-  Filter,
-  UserCheck,
-  Eye,
-  Check,
-  Info,
-  Globe,
-  Instagram,
-  Link as LinkIcon,
-  FileText,
-  Camera,
-} from "lucide-react";
+import { Copy, Filter, UserCheck, Eye, Check } from "lucide-react";
 import ClientDate from "@/components/common/ClientDate";
 import TeamCrest from "@/components/teams/TeamCrest";
-import CountryFlag from "@/components/common/CountryFlag";
-import CountryMultiPicker, {
-  type CountryPick,
-} from "@/components/common/CountryMultiPicker";
-import PositionPicker, {
-  type PositionPickerValue,
-} from "@/components/common/PositionPicker";
 import type { ApplicationRow } from "./types";
 import { applicationColumns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
 import { useAdminModalPreset } from "../ui/modalPresets";
+import TaskBadge from "./components/TaskBadge";
+import TeamNameTicker from "./components/TeamNameTicker";
+import ConfirmApplicationModal from "./components/ConfirmApplicationModal";
+import PersonalInfoModal, {
+  type PersonalInfoFormValues,
+} from "./components/PersonalInfoModal";
 
 const statusColor: Record<ApplicationRow["status"], "success" | "warning" | "danger"> = {
   approved: "success",
@@ -66,46 +51,9 @@ const planColor: Record<ApplicationRow["plan"], "default" | "primary" | "warning
   pro_plus: "warning",
 };
 
+
+
 type SortDir = "ascending" | "descending";
-
-function TaskBadge({
-  tasks,
-  onPress,
-}: {
-  tasks: ApplicationRow["tasks"];
-  onPress: () => void;
-}) {
-  const [index, setIndex] = React.useState(0);
-  const [fade, setFade] = React.useState(false);
-
-  React.useEffect(() => {
-    if (tasks.length <= 1) return;
-    const id = setInterval(() => {
-      setFade(true);
-      setTimeout(() => {
-        setIndex((i) => (i + 1) % tasks.length);
-        setFade(false);
-      }, 200);
-    }, 3000);
-    return () => clearInterval(id);
-  }, [tasks.length]);
-
-  if (!tasks.length) return <span className="text-default-500">—</span>;
-  const t = tasks[index];
-  return (
-    <Chip
-      size="sm"
-      variant="faded"
-      onClick={onPress}
-      className={`cursor-pointer transition-opacity duration-200 w-32 justify-start border ${
-        fade ? "opacity-0" : "opacity-100"
-      } ${t.className}`}
-      startContent={<Info size={14} />}
-    >
-      {t.label}
-    </Chip>
-  );
-}
 
 export default function ApplicationsTableUI({ items: initialItems }: { items: ApplicationRow[] }) {
   const [items, setItems] = React.useState<ApplicationRow[]>(initialItems);
@@ -207,23 +155,67 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     [],
   );
 
-  const approvePersonalInfo = React.useCallback(async (id: string) => {
-    await fetch(`/api/admin/applications/${id}/personal-info/approve`, {
-      method: "POST",
-    });
-    setItems((prev) =>
-      prev.map((it) =>
-        it.id === id
-          ? {
-              ...it,
-              personal_info_approved: true,
-              tasks: it.tasks.filter((t) => t.label !== "Informacion"),
-            }
-          : it,
-      ),
-    );
-    setModal(null);
-  }, []);
+  const handleApprovePersonalInfo = React.useCallback(
+    async (id: string) => {
+      const res = await fetch(`/api/admin/applications/${id}/personal-info/approve`, {
+        method: "POST",
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body?.error ?? "No se pudo aprobar los datos personales.");
+      }
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === id
+            ? {
+                ...it,
+                personal_info_approved: true,
+                tasks: it.tasks.filter((t) => t.label !== "Informacion"),
+              }
+            : it,
+        ),
+      );
+      setModal(null);
+    },
+    [setItems, setModal],
+  );
+
+  const handleSavePersonalInfo = React.useCallback(
+    async (id: string, values: PersonalInfoFormValues) => {
+      const res = await fetch(`/api/admin/applications/${id}/personal-info/update`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          full_name: values.full_name,
+          birth_date: values.birth_date,
+          height_cm: values.height_cm,
+          weight_kg: values.weight_kg,
+          nationalities: values.nationalities,
+          position: values.position,
+        }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body?.error ?? "No se pudieron guardar los datos.");
+      }
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === id
+            ? {
+                ...it,
+                applicant: values.full_name,
+                birth_date: values.birth_date,
+                height_cm: values.height_cm,
+                weight_kg: values.weight_kg,
+                nationalities: values.nationalities,
+                positions: [values.position.role, ...values.position.subs],
+              }
+            : it,
+        ),
+      );
+    },
+    [setItems],
+  );
 
   const [editingInfo, setEditingInfo] = React.useState(false);
   const [editForm, setEditForm] = React.useState<{
@@ -361,11 +353,11 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
 
   const renderCell = React.useCallback(
     (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {
-    switch (columnKey) {
-      case "id":
-        return (
-          <Tooltip content={copied === a.id ? "Copiado!" : "Copiar ID"}>
-            <Button
+      switch (columnKey) {
+        case "id":
+          return (
+            <Tooltip content={copied === a.id ? "Copiado!" : "Copiar ID"}>
+              <Button
               isIconOnly
               size="sm"
               variant="flat"
@@ -408,13 +400,15 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
       case "current_team": {
         if (a.current_team_name) {
           return (
-            <span className="inline-flex items-center gap-2 truncate">
+            <div className="flex items-center gap-2 min-w-0">
               <TeamCrest src={a.current_team_crest_url || null} size={20} />
-              <span className="truncate">{a.current_team_name}</span>
-              {a.current_team_country_code && (
-                <CountryFlag code={a.current_team_country_code} size={16} />
-              )}
-            </span>
+              <div className="flex-1 min-w-0">
+                <TeamNameTicker
+                  name={a.current_team_name}
+                  countryCode={a.current_team_country_code}
+                />
+              </div>
+            </div>
           );
         }
         if (a.free_agent) {
@@ -486,7 +480,7 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
           "—"
         ) as React.ReactNode;
     }
-  }, []);
+  }, [copied, copyId]);
 
   return (
     <>
@@ -604,10 +598,15 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
             </div>
             <div className="text-sm">
               {a.current_team_name ? (
-                <span className="inline-flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   <TeamCrest src={a.current_team_crest_url || null} size={20} />
-                  <span className="truncate">{a.current_team_name}</span>
-                </span>
+                  <div className="flex-1 min-w-0">
+                    <TeamNameTicker
+                      name={a.current_team_name}
+                      countryCode={a.current_team_country_code}
+                    />
+                  </div>
+                </div>
               ) : a.free_agent ? (
                 <span>Libre</span>
               ) : a.proposed_team_name ? (
@@ -690,372 +689,22 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
 
             if (modal.mode === "confirm") {
               return (
-                <>
-                  <ModalHeader className={modalPreset.classNames?.header}>
-                    <div className="flex flex-col">
-                      <h3 className="font-semibold">Confirmar solicitud</h3>
-                      <p className="text-sm text-foreground-500">
-                        Revisá la información antes de aceptar.
-                      </p>
-                    </div>
-                  </ModalHeader>
-                  <ModalBody className={modalPreset.classNames?.body}>
-                    <div className="grid gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <span className="font-medium truncate">
-                          {openItem.applicant ?? "(sin nombre)"}
-                        </span>
-                        {openItem.nationalities.map((n, i) =>
-                          n.code ? <CountryFlag key={i} code={n.code} size={14} /> : null,
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-6">
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Fecha de nacimiento</p>
-                          <p>
-                            {openItem.birth_date ? (
-                              <ClientDate iso={openItem.birth_date} />
-                            ) : (
-                              "—"
-                            )}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Altura</p>
-                          <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Peso</p>
-                          <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
-                        </div>
-                      </div>
-                      {careerItems === null ? (
-                        <div className="flex justify-center py-4">
-                          <Spinner />
-                        </div>
-                      ) : (
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Trayectoria</p>
-                          {careerItems.length > 0 ? (
-                            <ul className="grid gap-2">
-                              {careerItems.map((ci) => (
-                                <li
-                                  key={ci.id}
-                                  className="flex items-center gap-2 min-w-0 p-2 rounded-lg bg-content2/60"
-                                >
-                                  <TeamCrest
-                                    src={ci.crest_url || "/images/team-default.svg"}
-                                    size={24}
-                                    className="shrink-0"
-                                  />
-                                  <span className="truncate font-medium">{ci.team_name}</span>
-                                  <span className="text-default-500 text-sm">
-                                    · {ci.division ?? "—"}
-                                  </span>
-                                  {ci.country_code && (
-                                    <CountryFlag code={ci.country_code} size={12} />
-                                  )}
-                                  <Chip size="sm" variant="flat">
-                                    {ci.start_year ?? "—"}–{ci.end_year ?? "…"}
-                                  </Chip>
-                                </li>
-                              ))}
-                            </ul>
-                          ) : (
-                            <p className="text-default-500">Sin trayectoria</p>
-                          )}
-                        </div>
-                      )}
-                      {openItem.proposed_team_name && (
-                        <div>
-                          <p className="text-sm text-default-500 mb-1 mt-2">Equipo propuesto</p>
-                          <div className="flex items-center gap-2">
-                            <TeamCrest src={null} size={24} />
-                            <span className="font-medium truncate">
-                              {openItem.proposed_team_name}
-                            </span>
-                            {openItem.proposed_team_country_code && (
-                              <CountryFlag
-                                code={openItem.proposed_team_country_code}
-                                size={16}
-                              />
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button variant="flat" onPress={onClose}>
-                      Cancelar
-                    </Button>
-                    <form
-                      action={`/api/admin/applications/${openItem.id}/approve`}
-                      method="post"
-                    >
-                      <Button color="success" type="submit">
-                        Aceptar solicitud
-                      </Button>
-                    </form>
-                  </ModalFooter>
-                </>
+                <ConfirmApplicationModal
+                  application={openItem}
+                  classNames={modalPreset.classNames}
+                  onClose={onClose}
+                />
               );
             }
 
             return (
-              <>
-                <ModalHeader className={modalPreset.classNames?.header}>
-                  <div className="flex items-start gap-2 w-full">
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-1 min-w-0">
-                        <span className="font-medium truncate">
-                          {openItem.applicant ?? "(sin nombre)"}
-                        </span>
-                        {openItem.nationalities.map((n, i) =>
-                          n.code ? <CountryFlag key={i} code={n.code} size={14} /> : null,
-                        )}
-                      </div>
-                      <span className="text-xs text-default-500">
-                        {modal.mode === "review"
-                          ? "Revisar datos personales"
-                          : "Detalle del jugador"}
-                      </span>
-                    </div>
-                    <div className="ml-auto flex gap-2">
-                      {openItem.links.map((l, i) => {
-                        const low = l.url.toLowerCase();
-                        let Icon = LinkIcon;
-                        if (low.includes("instagram")) Icon = Instagram;
-                        else if (
-                          low.includes("transfermarkt") ||
-                          low.includes("besoccer")
-                        )
-                          Icon = Globe;
-                        return (
-                          <a key={i} href={l.url} target="_blank" className="text-default-500">
-                            <Icon size={16} />
-                          </a>
-                        );
-                      })}
-                      {!editingInfo && (
-                        <Button
-                          size="sm"
-                          variant="flat"
-                          onPress={() => setEditingInfo(true)}
-                        >
-                          Editar
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </ModalHeader>
-                <ModalBody className={modalPreset.classNames?.body}>
-                  {editingInfo ? (
-                    <div className="grid gap-4">
-                      <Input
-                        isRequired
-                        label="Nombre completo"
-                        value={editForm.full_name}
-                        onChange={(e) =>
-                          setEditForm((f) => ({ ...f, full_name: e.target.value }))
-                        }
-                        onBlur={() => setTouched((t) => ({ ...t, full_name: true }))}
-                        isInvalid={nameInvalid}
-                        errorMessage="Ingresá al menos 3 caracteres."
-                      />
-                      <div
-                        onBlurCapture={() =>
-                          setTouched((t) => ({ ...t, nationalities: true }))
-                        }
-                      >
-                        <CountryMultiPicker
-                          key={`nat-${openItem.id}`}
-                          defaultValue={editForm.nationalities}
-                          onChange={(vals) =>
-                            setEditForm((f) => ({ ...f, nationalities: vals }))
-                          }
-                          isInvalid={natInvalid}
-                          errorMessage="Seleccioná al menos una nacionalidad."
-                        />
-                      </div>
-                      <Input
-                        isRequired
-                        label="Fecha de nacimiento"
-                        type="date"
-                        value={editForm.birth_date}
-                        onChange={(e) =>
-                          setEditForm((f) => ({ ...f, birth_date: e.target.value }))
-                        }
-                        onBlur={() => setTouched((t) => ({ ...t, birth_date: true }))}
-                        isInvalid={dobInvalid}
-                        errorMessage="Seleccioná la fecha de nacimiento."
-                      />
-                      <div className="flex flex-wrap gap-6">
-                        <Input
-                          isRequired
-                          label="Altura (cm)"
-                          type="number"
-                          value={editForm.height_cm}
-                          onChange={(e) =>
-                            setEditForm((f) => ({
-                              ...f,
-                              height_cm: e.target.value,
-                            }))
-                          }
-                          onBlur={() => setTouched((t) => ({ ...t, height_cm: true }))}
-                          isInvalid={heightInvalid}
-                          errorMessage="Ingresá una altura válida (120–230 cm)."
-                          endContent={<span className="text-xs text-foreground-500">cm</span>}
-                        />
-                        <Input
-                          isRequired
-                          label="Peso (kg)"
-                          type="number"
-                          value={editForm.weight_kg}
-                          onChange={(e) =>
-                            setEditForm((f) => ({
-                              ...f,
-                              weight_kg: e.target.value,
-                            }))
-                          }
-                          onBlur={() => setTouched((t) => ({ ...t, weight_kg: true }))}
-                          isInvalid={weightInvalid}
-                          errorMessage="Ingresá un peso válido (40–140 kg)."
-                          endContent={<span className="text-xs text-foreground-500">kg</span>}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <span className="text-sm text-default-500">Posición</span>
-                        <div
-                          className={[
-                            "rounded-2xl border p-3",
-                            posInvalid ? "border-danger" : "border-default",
-                          ].join(" ")}
-                          onBlur={(e) => {
-                            const next = e.relatedTarget as Node | null;
-                            if (!next || !e.currentTarget.contains(next)) {
-                              setTouched((t) => ({ ...t, position: true }));
-                            }
-                          }}
-                        >
-                          <PositionPicker
-                            key={`pos-${openItem.id}`}
-                            defaultRole={editForm.position.role}
-                            defaultSubs={editForm.position.subs}
-                            onChange={(val) =>
-                              setEditForm((f) => ({ ...f, position: val }))
-                            }
-                          />
-                        </div>
-                        {posInvalid && (
-                          <p className="text-sm text-danger">
-                            Elegí al menos una sub-posición.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4 text-sm">
-                      <div>
-                        <p className="text-sm text-default-500 mb-1">Nacionalidades</p>
-                        <div className="flex flex-wrap gap-2">
-                          {openItem.nationalities.map((n, i) => (
-                            <Chip
-                              key={i}
-                              size="sm"
-                              variant="faded"
-                              startContent={
-                                n.code ? <CountryFlag code={n.code} size={16} /> : null
-                              }
-                              className="text-default-700"
-                            >
-                              {n.name}
-                            </Chip>
-                          ))}
-                        </div>
-                      </div>
-                      {openItem.positions.length > 0 && (
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Posiciones</p>
-                          <div className="flex flex-wrap gap-2">
-                            {openItem.positions.map((p, i) => (
-                              <Chip key={i} size="sm" variant="faded">
-                                {p}
-                              </Chip>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      <div className="flex flex-wrap gap-6">
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Fecha de nacimiento</p>
-                          <p>
-                            {openItem.birth_date ? (
-                              <ClientDate iso={openItem.birth_date} />
-                            ) : (
-                              "—"
-                            )}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Edad</p>
-                          <p>{openItem.age ?? "—"}</p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-6">
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Altura</p>
-                          <p>{openItem.height_cm ? `${openItem.height_cm} cm` : "—"}</p>
-                        </div>
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Peso</p>
-                          <p>{openItem.weight_kg ? `${openItem.weight_kg} kg` : "—"}</p>
-                        </div>
-                      </div>
-                      {openItem.kyc_docs.length > 0 && (
-                        <div>
-                          <p className="text-sm text-default-500 mb-1">Documentos KYC</p>
-                          <div className="flex gap-2">
-                            {openItem.kyc_docs.map((d, i) => {
-                              const Icon = d.label === "Documento" ? FileText : Camera;
-                              return (
-                                <a
-                                  key={i}
-                                  href={d.url}
-                                  target="_blank"
-                                  className="text-default-500"
-                                >
-                                  <Icon size={16} />
-                                </a>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </ModalBody>
-                <ModalFooter>
-                  {editingInfo ? (
-                    <>
-                      <Button variant="flat" onPress={() => setEditingInfo(false)}>
-                        Cancelar
-                      </Button>
-                      <Button color="primary" onPress={savePersonalInfo}>
-                        Guardar
-                      </Button>
-                    </>
-                  ) : modal.mode === "review" ? (
-                    <Button
-                      color="primary"
-                      className="ml-auto"
-                      onPress={() => approvePersonalInfo(openItem.id)}
-                    >
-                      Aceptar datos
-                    </Button>
-                  ) : null}
-                </ModalFooter>
-              </>
+              <PersonalInfoModal
+                application={openItem}
+                mode={modal.mode === "review" ? "review" : "detail"}
+                classNames={modalPreset.classNames}
+                onApprove={() => handleApprovePersonalInfo(openItem.id)}
+                onSave={(values) => handleSavePersonalInfo(openItem.id, values)}
+              />
             );
           }}
         </ModalContent>

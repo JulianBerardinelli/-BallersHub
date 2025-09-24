@@ -345,49 +345,85 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
       {/* Modal: Details */}
       <Modal
         isOpen={modal.kind === "details" && !!openItem}
-        onClose={() => setModal({ kind: null, id: null })}
-        size={isMobile ? "full" : "md"}
-        backdrop="blur"
-        scrollBehavior="inside"
-        classNames={{ wrapper: "mx-2", base: "max-h-[90vh] sm:max-h-[85vh]" }}
+        onOpenChange={(open) => {
+          if (!open) setModal({ kind: null, id: null });
+        }}
+        {...modalPreset}
       >
         <ModalContent>
-          {() => (
-            <ModalBody className="p-6">
-              {openItem && (
-                <div className="grid gap-3">
-                  <div className="flex items-center gap-3">
-                    <TeamCrest
-                      src={
-                        openItem.crest_url
-                          ? `${openItem.crest_url}?v=${Date.parse(openItem.updated_at ?? "") || 0}`
-                          : null
-                      }
-                      size={44}
-                    />
-                    <div>
-                      <div className="font-semibold">{openItem.name}</div>
-                      <div className="text-xs text-neutral-500">{openItem.slug ?? "—"}</div>
+          {() => {
+            if (!openItem) return null;
+            const crestSrc = openItem.crest_url
+              ? `${openItem.crest_url}?v=${Date.parse(openItem.updated_at ?? "") || 0}`
+              : null;
+            return (
+              <>
+                <ModalHeader className={modalPreset.classNames?.header}>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <TeamCrest src={crestSrc} size={40} className="shrink-0" />
+                    <div className="min-w-0">
+                      <div className="font-medium truncate">{openItem.name}</div>
+                      <div className="text-xs text-default-500 truncate">
+                        {openItem.slug ?? "—"}
+                      </div>
                     </div>
+                    <Chip
+                      size="sm"
+                      variant="flat"
+                      color={statusColorMap[openItem.status]}
+                      className="capitalize ml-auto"
+                    >
+                      {openItem.status}
+                    </Chip>
                   </div>
-                  <div className="text-sm">
-                    <div><b>Country:</b> {openItem.country ?? "—"}</div>
-                    <div><b>Division:</b> {openItem.category ?? "—"}</div>
-                    <div>
-                      <b>Status:</b>{" "}
-                      <Chip size="sm" variant="flat" color={statusColorMap[openItem.status]} className="capitalize">
-                        {openItem.status}
-                      </Chip>
+                </ModalHeader>
+                <ModalBody className={modalPreset.classNames?.body}>
+                  <div className="grid gap-4 text-sm">
+                    <div className="rounded-xl bg-content2/60 p-4 ring-1 ring-white/10">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="text-xs text-default-500 mb-1">País</p>
+                          <p className="font-medium text-default-700">
+                            {openItem.country ?? "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-default-500 mb-1">División</p>
+                          <p className="font-medium text-default-700">
+                            {openItem.category ?? "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-default-500 mb-1">Creado</p>
+                          <p className="font-medium text-default-700">
+                            <ClientDate iso={openItem.created_at} />
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-default-500 mb-1">Solicitud vinculada</p>
+                          <p className="font-medium text-default-700">
+                            {openItem.requested_in_application_id ? "Desde una aplicación" : "—"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div><b>Created:</b> <ClientDate iso={openItem.created_at} /></div>
                     {openItem.transfermarkt_url && (
-                      <div><b>TM:</b> <a className="underline" href={openItem.transfermarkt_url} target="_blank">link</a></div>
+                      <div className="rounded-xl bg-content2/60 p-4 ring-1 ring-white/10">
+                        <p className="text-xs text-default-500 mb-1">Transfermarkt</p>
+                        <a
+                          href={openItem.transfermarkt_url}
+                          target="_blank"
+                          className="text-sm font-medium text-primary underline-offset-2 hover:underline"
+                        >
+                          Ver ficha
+                        </a>
+                      </div>
                     )}
                   </div>
-                </div>
-              )}
-            </ModalBody>
-          )}
+                </ModalBody>
+              </>
+            );
+          }}
         </ModalContent>
       </Modal>
 
