@@ -19,6 +19,7 @@ import {
   Checkbox,
   Select,
   SelectItem,
+  Input,
   Modal,
   ModalContent,
   ModalHeader,
@@ -215,6 +216,140 @@ export default function ApplicationsTableUI({ items: initialItems }: { items: Ap
     },
     [setItems],
   );
+
+  const [editingInfo, setEditingInfo] = React.useState(false);
+  const [editForm, setEditForm] = React.useState<{
+    full_name: string;
+    birth_date: string;
+    height_cm: string;
+    weight_kg: string;
+    nationalities: CountryPick[];
+    position: PositionPickerValue;
+  }>({
+    full_name: "",
+    birth_date: "",
+    height_cm: "",
+    weight_kg: "",
+    nationalities: [],
+    position: { role: "DEL", subs: [] },
+  });
+
+  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
+  const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
+
+  const hVal = editForm.height_cm ? Number(editForm.height_cm) : NaN;
+  const wVal = editForm.weight_kg ? Number(editForm.weight_kg) : NaN;
+  const nameInvalid = !!touched.full_name && !minChars(editForm.full_name);
+  const natInvalid = !!touched.nationalities && editForm.nationalities.length < 1;
+  const dobInvalid = !!touched.birth_date && !editForm.birth_date;
+  const heightInvalid =
+    !!touched.height_cm &&
+    !(Number.isFinite(hVal) && hVal >= 120 && hVal <= 230);
+  const weightInvalid =
+    !!touched.weight_kg &&
+    !(Number.isFinite(wVal) && wVal >= 40 && wVal <= 140);
+  const posInvalid =
+    !!touched.position && editForm.position.subs.length < 1;
+  const formValid =
+    minChars(editForm.full_name) &&
+    editForm.nationalities.length >= 1 &&
+    !!editForm.birth_date &&
+    Number.isFinite(hVal) &&
+    hVal >= 120 &&
+    hVal <= 230 &&
+    Number.isFinite(wVal) &&
+    wVal >= 40 &&
+    wVal <= 140 &&
+    editForm.position.subs.length >= 1;
+
+  React.useEffect(() => {
+    if (openItem && modal && (modal.mode === "detail" || modal.mode === "review")) {
+      setEditingInfo(false);
+      setTouched({});
+      setEditForm({
+        full_name: openItem.applicant ?? "",
+        birth_date: openItem.birth_date ?? "",
+        height_cm: openItem.height_cm?.toString() ?? "",
+        weight_kg: openItem.weight_kg?.toString() ?? "",
+        nationalities: openItem.nationalities.map((n) => ({
+          code: n.code ?? "",
+          name: n.name,
+        })),
+        position: openItem.positions.length
+          ? {
+              role: openItem.positions[0] as PositionPickerValue["role"],
+              subs: openItem.positions.slice(1),
+            }
+          : { role: "DEL", subs: [] },
+      });
+    }
+  }, [openItem, modal]);
+
+  const savePersonalInfo = React.useCallback(async () => {
+    setTouched({
+      full_name: true,
+      nationalities: true,
+      birth_date: true,
+      height_cm: true,
+      weight_kg: true,
+      position: true,
+    });
+    if (!openItem || !formValid) return;
+
+    await fetch(`/api/admin/applications/${openItem.id}/personal-info/update`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        full_name: editForm.full_name,
+        birth_date: editForm.birth_date,
+        height_cm: Number(editForm.height_cm),
+        weight_kg: Number(editForm.weight_kg),
+        nationalities: editForm.nationalities,
+        position: editForm.position,
+      }),
+    });
+    setItems((prev) =>
+      prev.map((it) =>
+        it.id === openItem.id
+          ? {
+              ...it,
+              applicant: editForm.full_name,
+              birth_date: editForm.birth_date,
+              height_cm: Number(editForm.height_cm),
+              weight_kg: Number(editForm.weight_kg),
+              nationalities: editForm.nationalities,
+              positions: [
+                editForm.position.role,
+                ...editForm.position.subs,
+              ],
+            }
+          : it,
+      ),
+    );
+    setEditingInfo(false);
+  }, [openItem, editForm, formValid, setItems]);
+
+  type CareerItem = {
+    id: string;
+    team_name: string;
+    crest_url: string | null;
+    country_code: string | null;
+    division: string | null;
+    start_year: number | null;
+    end_year: number | null;
+  };
+
+  const [careerItems, setCareerItems] = React.useState<CareerItem[] | null>(null);
+
+  React.useEffect(() => {
+    if (modal?.mode === "confirm" && openItem) {
+      setCareerItems(null);
+      fetch(`/api/admin/applications/${openItem.id}/career`)
+        .then((r) => r.json())
+        .then((d) => setCareerItems(d.items ?? []))
+        .catch(() => setCareerItems([]));
+    }
+  }, [modal, openItem]);
 
   const renderCell = React.useCallback(
     (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {

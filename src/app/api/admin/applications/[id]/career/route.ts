@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -22,6 +23,7 @@ export async function GET(_req: Request, ctx: { params: Params }) {
     .maybeSingle();
   if (up?.role !== "admin")
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
+
 
   const { data, error } = await supa
     .from("career_item_proposals")
@@ -66,6 +68,7 @@ export async function GET(_req: Request, ctx: { params: Params }) {
       .select("notes")
       .eq("id", id)
       .maybeSingle();
+
     if (appError) return NextResponse.json({ error: appError.message }, { status: 400 });
 
     let notes: unknown = app?.notes ?? null;
