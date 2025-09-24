@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
-import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,13 +23,25 @@ export async function GET(_req: Request, ctx: { params: Params }) {
   if (up?.role !== "admin")
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
-  const admin = createSupabaseAdmin();
-  const { data, error } = await admin
+  const { data, error } = await supa
     .from("career_item_proposals")
     .select(
-      `id, club, division, start_year, end_year, status,
-       proposed_team_name, proposed_team_country_code,
-       team:teams(name, crest_url, country_code, status)`
+      `
+        id,
+        club,
+        division,
+        start_year,
+        end_year,
+        status,
+        proposed_team_name,
+        proposed_team_country_code,
+        team:teams!career_item_proposals_team_id_fkey (
+          name,
+          crest_url,
+          country_code,
+          status
+        )
+      `,
     )
     .eq("application_id", id)
     .in("status", ["accepted", "approved", "waiting"])
@@ -50,18 +61,27 @@ export async function GET(_req: Request, ctx: { params: Params }) {
   }));
 
   if (items.length === 0) {
-    const { data: app } = await admin
+    const { data: app, error: appError } = await supa
       .from("player_applications")
       .select("notes")
       .eq("id", id)
       .maybeSingle();
-    const notes =
-      app?.notes && typeof app.notes === "string"
-        ? JSON.parse(app.notes)
-        : app?.notes;
-    const draft = Array.isArray(notes?.career_draft)
-      ? notes.career_draft
+    if (appError) return NextResponse.json({ error: appError.message }, { status: 400 });
+
+    let notes: unknown = app?.notes ?? null;
+    if (typeof notes === "string") {
+      try {
+        notes = JSON.parse(notes);
+      } catch (err) {
+        console.error("career draft parse", err);
+        notes = null;
+      }
+    }
+
+    const draft = Array.isArray((notes as any)?.career_draft)
+      ? (notes as any).career_draft
       : [];
+
     items = draft.map((ci: any, idx: number) => ({
       id: ci.id ?? `draft-${idx}`,
       status: "draft",
