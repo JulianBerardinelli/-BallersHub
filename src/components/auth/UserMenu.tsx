@@ -64,19 +64,22 @@ export default function UserMenuHero({
         <DropdownItem key="dashboard" as={Link} href="/dashboard">
           Dashboard
         </DropdownItem>
-        <DropdownItem key="profile" as={Link} href="/dashboard/profile">
-          Editar perfil
+        <DropdownItem key="profile" as={Link} href="/dashboard/edit-profile/personal-data">
+          Datos personales
         </DropdownItem>
-        <DropdownItem key="media" as={Link} href="/dashboard/media">
-          Media
+        <DropdownItem key="football" as={Link} href="/dashboard/edit-profile/football-data">
+          Datos futbolísticos
         </DropdownItem>
-        <DropdownItem key="career" as={Link} href="/dashboard/career">
-          Trayectoria
+        <DropdownItem key="media" as={Link} href="/dashboard/edit-profile/multimedia">
+          Multimedia
         </DropdownItem>
-        <DropdownItem key="billing" as={Link} href="/dashboard/billing">
+        <DropdownItem key="template" as={Link} href="/dashboard/edit-template/styles">
+          Plantilla
+        </DropdownItem>
+        <DropdownItem key="billing" as={Link} href="/dashboard/settings/subscription">
           Suscripción
         </DropdownItem>
-        <DropdownItem key="settings" as={Link} href="/dashboard/settings">
+        <DropdownItem key="settings" as={Link} href="/dashboard/settings/account">
           Configuración
         </DropdownItem>
         <DropdownItem
