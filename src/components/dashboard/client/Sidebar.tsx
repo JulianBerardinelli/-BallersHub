@@ -22,6 +22,8 @@ import type {
 } from "@/app/(dashboard)/dashboard/navigation";
 import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
 
+const MAX_BADGE_COUNT = 99;
+
 const badgeColorMap: Record<
   TaskSeverity,
   "default" | "primary" | "secondary" | "success" | "warning" | "danger"
@@ -173,17 +175,16 @@ function SidebarItem({
 
   return (
     <Badge
-      content={badge.count}
+      content={formatBadgeCount(badge.count)}
       color={badgeColorMap[badge.severity]}
-      placement="top-right"
       size="sm"
-      className="block w-full"
+      placement="top-right"
       classNames={{
-        badge: "px-2 py-0.5 text-[10px] font-semibold",
-        base: "w-full",
+        base: "relative block w-full",
+        badge: "px-1.5 py-0.5 text-[10px] font-semibold",
       }}
     >
-      {link}
+      <div className="w-full">{link}</div>
     </Badge>
   );
 }
@@ -193,6 +194,13 @@ function isActive(pathname: string, href: string) {
     return pathname === href;
   }
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function formatBadgeCount(count: number): string {
+  if (count > MAX_BADGE_COUNT) {
+    return `${MAX_BADGE_COUNT}+`;
+  }
+  return String(count);
 }
 
 function SidebarContent({

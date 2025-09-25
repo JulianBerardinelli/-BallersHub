@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Chip } from "@heroui/react";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import TaskSeverityChip from "@/components/dashboard/client/TaskSeverityChip";
 import DashboardProgressList, {
   type DashboardProgressSection,
 } from "@/components/dashboard/client/overview/DashboardProgressList";
@@ -10,33 +10,20 @@ import DashboardStatusSummary, {
   type DashboardStatusSummaryProps,
 } from "@/components/dashboard/client/overview/DashboardStatusSummary";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
-import { fetchPlayerTaskMetrics, type PlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
+import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
   evaluateDashboardTasks,
   orderTasksBySeverity,
-  type ClientTaskContext,
   type EvaluatedTask,
   type TaskEvaluation,
-  type TaskSeverity,
 } from "@/lib/dashboard/client/tasks";
+import {
+  EMPTY_PLAYER_TASK_METRICS,
+  buildTaskContext,
+  type TaskProfileSnapshot,
+} from "@/lib/dashboard/client/task-context";
 
-type PlayerOverview = {
-  id: string;
-  status: string;
-  slug: string | null;
-  visibility: string;
-  full_name: string | null;
-  birth_date: string | null;
-  nationality: string[] | null;
-  positions: string[] | null;
-  current_club: string | null;
-  bio: string | null;
-  avatar_url: string | null;
-  foot: string | null;
-  height_cm: number | null;
-  weight_kg: number | null;
-  updated_at: string | null;
-};
+type PlayerOverview = TaskProfileSnapshot & { updated_at: string | null };
 
 type ApplicationOverview = {
   status: string;
@@ -81,18 +68,6 @@ const PROGRESS_COPY: Record<string, { title: string; description: string; href: 
     description: "Fotos e historias que enriquecen tu perfil público.",
     href: "/dashboard/edit-profile/multimedia",
   },
-};
-
-const SEVERITY_META: Record<TaskSeverity, { label: string; chipColor: "danger" | "warning" | "secondary" }> = {
-  danger: { label: "Crítico", chipColor: "danger" },
-  warning: { label: "Prioritario", chipColor: "warning" },
-  secondary: { label: "Recomendado", chipColor: "secondary" },
-};
-
-const EMPTY_METRICS: PlayerTaskMetrics = {
-  careerItems: 0,
-  media: { total: 0, photos: 0, videos: 0, docs: 0 },
-  contactReferences: 0,
 };
 
 const PROFILE_STATUS_META: Record<
@@ -276,33 +251,6 @@ function getPrimaryCta(
   return undefined;
 }
 
-function buildTaskContext(
-  profile: PlayerOverview | null,
-  metrics: PlayerTaskMetrics,
-): ClientTaskContext {
-  return {
-    profile: profile
-      ? {
-          id: profile.id,
-          status: profile.status,
-          slug: profile.slug,
-          visibility: profile.visibility,
-          full_name: profile.full_name,
-          birth_date: profile.birth_date,
-          nationality: profile.nationality,
-          positions: profile.positions,
-          current_club: profile.current_club,
-          bio: profile.bio,
-          avatar_url: profile.avatar_url,
-          foot: profile.foot,
-          height_cm: profile.height_cm,
-          weight_kg: profile.weight_kg,
-        }
-      : null,
-    metrics,
-  };
-}
-
 function buildProgressSectionsFromTasks(
   evaluation: TaskEvaluation,
 ): DashboardProgressSection[] {
@@ -373,8 +321,27 @@ export default async function DashboardPage() {
   const profile = (profileRaw as PlayerOverview | null) ?? null;
   const application = (applicationRaw as ApplicationOverview | null) ?? null;
 
-  const metrics = profile ? await fetchPlayerTaskMetrics(supabase, profile.id) : EMPTY_METRICS;
-  const taskContext = buildTaskContext(profile, metrics);
+  const metrics = profile ? await fetchPlayerTaskMetrics(supabase, profile.id) : EMPTY_PLAYER_TASK_METRICS;
+  const normalizedProfile: TaskProfileSnapshot | null = profile
+    ? {
+        id: profile.id,
+        status: profile.status,
+        slug: profile.slug ?? null,
+        visibility: profile.visibility,
+        full_name: profile.full_name ?? null,
+        birth_date: profile.birth_date ?? null,
+        nationality: profile.nationality ?? null,
+        positions: profile.positions ?? null,
+        current_club: profile.current_club ?? null,
+        bio: profile.bio ?? null,
+        avatar_url: profile.avatar_url ?? null,
+        foot: profile.foot ?? null,
+        height_cm: profile.height_cm ?? null,
+        weight_kg: profile.weight_kg ?? null,
+      }
+    : null;
+
+  const taskContext = buildTaskContext(normalizedProfile, metrics);
   const taskEvaluation = evaluateDashboardTasks(taskContext);
 
   const statusSummary = getProfileSummary(profile, application);
@@ -409,7 +376,6 @@ export default async function DashboardPage() {
         {nextSteps.length > 0 ? (
           <ol className="space-y-3 text-sm text-neutral-300">
             {nextSteps.map((task) => {
-              const severityMeta = SEVERITY_META[task.severity];
               return (
                 <li
                   key={task.id}
@@ -422,14 +388,7 @@ export default async function DashboardPage() {
                       </Link>
                       <p className="text-xs text-neutral-400">{task.description}</p>
                     </div>
-                    <Chip
-                      color={severityMeta.chipColor}
-                      variant="flat"
-                      size="sm"
-                      className="font-semibold uppercase tracking-wide"
-                    >
-                      {severityMeta.label}
-                    </Chip>
+                    <TaskSeverityChip severity={task.severity} />
                   </div>
                 </li>
               );

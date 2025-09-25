@@ -3,15 +3,19 @@ import { redirect } from "next/navigation";
 import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
+import {
+  buildTaskContext,
+  getPendingTasksForSection,
+  type TaskProfileSnapshot,
+} from "@/lib/dashboard/client/task-context";
+import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
 
-type FootballProfile = {
-  id: string;
-  positions: string[] | null;
-  foot: string | null;
-  current_club: string | null;
+type FootballProfile = TaskProfileSnapshot & {
   market_value_eur: string | number | null;
-  slug: string | null;
+  updated_at: string | null;
 };
 
 type CareerItem = {
@@ -32,7 +36,9 @@ export default async function FootballDataPage() {
 
   const { data: profileRaw } = await supabase
     .from("player_profiles")
-    .select("id, positions, foot, current_club, market_value_eur, slug")
+    .select(
+      "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, market_value_eur, updated_at",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -69,6 +75,35 @@ export default async function FootballDataPage() {
 
   const career = (careerRaw as CareerItem[] | null) ?? null;
 
+  const metrics = await fetchPlayerTaskMetrics(supabase, profile.id);
+
+  const normalizedProfile: TaskProfileSnapshot = {
+    id: profile.id,
+    status: profile.status,
+    slug: profile.slug ?? null,
+    visibility: profile.visibility,
+    full_name: profile.full_name ?? null,
+    birth_date: profile.birth_date ?? null,
+    nationality: profile.nationality ?? null,
+    positions: profile.positions ?? null,
+    current_club: profile.current_club ?? null,
+    bio: profile.bio ?? null,
+    avatar_url: profile.avatar_url ?? null,
+    foot: profile.foot ?? null,
+    height_cm: profile.height_cm ?? null,
+    weight_kg: profile.weight_kg ?? null,
+  };
+
+  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(normalizedProfile, metrics));
+  const pendingTasks = orderTasksBySeverity(getPendingTasksForSection(taskEvaluation, "football-data"));
+  const taskCallouts = pendingTasks.map((task) => ({
+    id: task.id,
+    severity: task.severity,
+    title: task.title,
+    description: task.description,
+    href: task.href,
+  }));
+
   const positions = profile.positions?.join(", ") ?? "";
   const dominantFoot = profile.foot ?? "";
   const currentClub = profile.current_club ?? "";
@@ -80,6 +115,8 @@ export default async function FootballDataPage() {
         title="Datos futbolísticos"
         description="Organizá toda tu información deportiva para construir un perfil completo y actualizado."
       />
+
+      <TaskCalloutList tasks={taskCallouts} />
 
       <SectionCard
         title="Perfil deportivo"

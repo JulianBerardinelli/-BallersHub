@@ -3,7 +3,19 @@ import { redirect } from "next/navigation";
 import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
+import {
+  buildTaskContext,
+  getPendingTasksForSection,
+  type TaskProfileSnapshot,
+} from "@/lib/dashboard/client/task-context";
+import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
+
+type MultimediaProfile = TaskProfileSnapshot & {
+  updated_at: string | null;
+};
 
 export default async function MultimediaPage() {
   const supabase = await createSupabaseServerRSC();
@@ -15,11 +27,13 @@ export default async function MultimediaPage() {
 
   const { data: profileRaw } = await supabase
     .from("player_profiles")
-    .select("id")
+    .select(
+      "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, updated_at",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const profile = (profileRaw as { id: string } | null) ?? null;
+  const profile = (profileRaw as MultimediaProfile | null) ?? null;
 
   if (!profile) {
     return (
@@ -46,12 +60,43 @@ export default async function MultimediaPage() {
 
   const placeholderPhotos = Array.from({ length: 6 });
 
+  const metrics = await fetchPlayerTaskMetrics(supabase, profile.id);
+
+  const normalizedProfile: TaskProfileSnapshot = {
+    id: profile.id,
+    status: profile.status,
+    slug: profile.slug ?? null,
+    visibility: profile.visibility,
+    full_name: profile.full_name ?? null,
+    birth_date: profile.birth_date ?? null,
+    nationality: profile.nationality ?? null,
+    positions: profile.positions ?? null,
+    current_club: profile.current_club ?? null,
+    bio: profile.bio ?? null,
+    avatar_url: profile.avatar_url ?? null,
+    foot: profile.foot ?? null,
+    height_cm: profile.height_cm ?? null,
+    weight_kg: profile.weight_kg ?? null,
+  };
+
+  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(normalizedProfile, metrics));
+  const pendingTasks = orderTasksBySeverity(getPendingTasksForSection(taskEvaluation, "multimedia"));
+  const taskCallouts = pendingTasks.map((task) => ({
+    id: task.id,
+    severity: task.severity,
+    title: task.title,
+    description: task.description,
+    href: task.href,
+  }));
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Multimedia"
         description="Centralizá imágenes, videos y artículos destacados para potenciar tu presencia digital."
       />
+
+      <TaskCalloutList tasks={taskCallouts} />
 
       <SectionCard
         title="Galería fotográfica"

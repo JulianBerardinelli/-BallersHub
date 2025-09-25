@@ -5,17 +5,18 @@ import AvatarUploader from "@/components/dashboard/AvatarUploader";
 import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
+import {
+  buildTaskContext,
+  getPendingTasksForSection,
+  type TaskProfileSnapshot,
+} from "@/lib/dashboard/client/task-context";
+import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
 
-type PersonalProfile = {
-  id: string;
-  full_name: string;
-  avatar_url: string | null;
-  birth_date: string | null;
-  nationality: string[] | null;
-  height_cm: number | null;
-  weight_kg: number | null;
-  bio: string | null;
+type PersonalProfile = TaskProfileSnapshot & {
+  updated_at: string | null;
 };
 
 export default async function PersonalDataPage() {
@@ -28,7 +29,9 @@ export default async function PersonalDataPage() {
 
   const { data: profileRaw } = await supabase
     .from("player_profiles")
-    .select("id, full_name, avatar_url, birth_date, nationality, height_cm, weight_kg, bio")
+    .select(
+      "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, updated_at",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -57,6 +60,35 @@ export default async function PersonalDataPage() {
     );
   }
 
+  const metrics = await fetchPlayerTaskMetrics(supabase, profile.id);
+
+  const normalizedProfile: TaskProfileSnapshot = {
+    id: profile.id,
+    status: profile.status,
+    slug: profile.slug ?? null,
+    visibility: profile.visibility,
+    full_name: profile.full_name ?? null,
+    birth_date: profile.birth_date ?? null,
+    nationality: profile.nationality ?? null,
+    positions: profile.positions ?? null,
+    current_club: profile.current_club ?? null,
+    bio: profile.bio ?? null,
+    avatar_url: profile.avatar_url ?? null,
+    foot: profile.foot ?? null,
+    height_cm: profile.height_cm ?? null,
+    weight_kg: profile.weight_kg ?? null,
+  };
+
+  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(normalizedProfile, metrics));
+  const pendingTasks = orderTasksBySeverity(getPendingTasksForSection(taskEvaluation, "personal-data"));
+  const taskCallouts = pendingTasks.map((task) => ({
+    id: task.id,
+    severity: task.severity,
+    title: task.title,
+    description: task.description,
+    href: task.href,
+  }));
+
   const birthDate = profile.birth_date ? new Date(profile.birth_date).toLocaleDateString() : "";
   const nationalities = profile.nationality?.join(", ") ?? "";
 
@@ -66,6 +98,8 @@ export default async function PersonalDataPage() {
         title="Datos personales"
         description="Gestioná tu información básica y de contacto. Estos datos se utilizarán para tu perfil público y comunicaciones."
       />
+
+      <TaskCalloutList tasks={taskCallouts} />
 
       <SectionCard
         title="Avatar e identidad"
@@ -97,7 +131,7 @@ export default async function PersonalDataPage() {
       >
         <form className="grid gap-6">
           <div className="grid gap-4 md:grid-cols-2">
-            <FormField id="full_name" label="Nombre completo" defaultValue={profile.full_name} />
+            <FormField id="full_name" label="Nombre completo" defaultValue={profile.full_name ?? ""} />
             <FormField id="birth_date" label="Fecha de nacimiento" defaultValue={birthDate} placeholder="dd/mm/aaaa" />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
