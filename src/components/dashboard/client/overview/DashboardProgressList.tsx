@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Button, Chip, Progress } from "@heroui/react";
+import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
 
 export type DashboardProgressSection = {
   id: string;
@@ -11,7 +12,13 @@ export type DashboardProgressSection = {
   href: string;
   completed: number;
   total: number;
-  missing: string[];
+  missing: { label: string; severity: TaskSeverity }[];
+};
+
+const severityTextColor: Record<TaskSeverity, string> = {
+  danger: "text-red-400",
+  warning: "text-amber-300",
+  secondary: "text-neutral-400",
 };
 
 function getProgressColor(percentage: number): "primary" | "success" | "warning" {
@@ -57,9 +64,11 @@ export default function DashboardProgressList({ sections }: { sections: Dashboar
             />
 
             {pending > 0 ? (
-              <ul className="list-disc space-y-1 pl-4 text-xs text-neutral-400">
+              <ul className="list-disc space-y-1 pl-4 text-xs">
                 {section.missing.map((item) => (
-                  <li key={item}>{item}</li>
+                  <li key={item.label} className={severityTextColor[item.severity]}>
+                    {item.label}
+                  </li>
                 ))}
               </ul>
             ) : (

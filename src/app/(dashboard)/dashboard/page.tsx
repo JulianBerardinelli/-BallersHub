@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Chip } from "@heroui/react";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import DashboardProgressList, {
@@ -9,6 +10,15 @@ import DashboardStatusSummary, {
   type DashboardStatusSummaryProps,
 } from "@/components/dashboard/client/overview/DashboardStatusSummary";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchPlayerTaskMetrics, type PlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
+import {
+  evaluateDashboardTasks,
+  orderTasksBySeverity,
+  type ClientTaskContext,
+  type EvaluatedTask,
+  type TaskEvaluation,
+  type TaskSeverity,
+} from "@/lib/dashboard/client/tasks";
 
 type PlayerOverview = {
   id: string;
@@ -21,6 +31,10 @@ type PlayerOverview = {
   positions: string[] | null;
   current_club: string | null;
   bio: string | null;
+  avatar_url: string | null;
+  foot: string | null;
+  height_cm: number | null;
+  weight_kg: number | null;
   updated_at: string | null;
 };
 
@@ -69,26 +83,17 @@ const PROGRESS_COPY: Record<string, { title: string; description: string; href: 
   },
 };
 
-const NEXT_STEPS = [
-  {
-    id: "personal-data",
-    title: "Actualizar datos personales",
-    description: "Completá información de contacto y tu biografía.",
-    href: "/dashboard/edit-profile/personal-data",
-  },
-  {
-    id: "football-data",
-    title: "Cargar datos futbolísticos",
-    description: "Sumá trayectoria, club actual y links relevantes.",
-    href: "/dashboard/edit-profile/football-data",
-  },
-  {
-    id: "multimedia",
-    title: "Publicar material multimedia",
-    description: "Agregá fotos, videos y notas para potenciar tu perfil.",
-    href: "/dashboard/edit-profile/multimedia",
-  },
-];
+const SEVERITY_META: Record<TaskSeverity, { label: string; chipColor: "danger" | "warning" | "secondary" }> = {
+  danger: { label: "Crítico", chipColor: "danger" },
+  warning: { label: "Prioritario", chipColor: "warning" },
+  secondary: { label: "Recomendado", chipColor: "secondary" },
+};
+
+const EMPTY_METRICS: PlayerTaskMetrics = {
+  careerItems: 0,
+  media: { total: 0, photos: 0, videos: 0, docs: 0 },
+  contactReferences: 0,
+};
 
 const PROFILE_STATUS_META: Record<
   string,
@@ -141,58 +146,6 @@ const APPLICATION_STATUS_META: Record<
     color: "danger",
   },
 };
-
-type PersonalProgress = {
-  completed: number;
-  total: number;
-  missing: string[];
-};
-
-function isFilled(value: unknown): boolean {
-  if (Array.isArray(value)) return value.length > 0;
-  if (typeof value === "string") return value.trim().length > 0;
-  if (typeof value === "number") return Number.isFinite(value) && value > 0;
-  return value !== null && value !== undefined;
-}
-
-function computePersonalDataProgress(profile: PlayerOverview | null): PersonalProgress {
-  const checklist = [
-    { label: "Nombre completo", done: isFilled(profile?.full_name) },
-    { label: "Fecha de nacimiento", done: isFilled(profile?.birth_date) },
-    { label: "Nacionalidad", done: isFilled(profile?.nationality) },
-    { label: "Posiciones", done: isFilled(profile?.positions) },
-    { label: "Biografía", done: isFilled(profile?.bio) },
-  ];
-
-  const completed = checklist.filter((item) => item.done).length;
-  const missing = checklist.filter((item) => !item.done).map((item) => item.label);
-  return { completed, total: checklist.length, missing };
-}
-
-function computeFootballDataProgress(
-  profile: PlayerOverview | null,
-  careerItemsCount: number,
-): PersonalProgress {
-  const checklist = [
-    { label: "Trayectoria profesional", done: careerItemsCount > 0 },
-    { label: "Club actual", done: isFilled(profile?.current_club) },
-    { label: "Posición principal", done: isFilled(profile?.positions) },
-  ];
-
-  const completed = checklist.filter((item) => item.done).length;
-  const missing = checklist.filter((item) => !item.done).map((item) => item.label);
-  return { completed, total: checklist.length, missing };
-}
-
-function computeMultimediaProgress(mediaCount: number): PersonalProgress {
-  const checklist = [
-    { label: "Galería de fotos", done: mediaCount > 0 },
-  ];
-
-  const completed = checklist.filter((item) => item.done).length;
-  const missing = checklist.filter((item) => !item.done).map((item) => item.label);
-  return { completed, total: checklist.length, missing };
-}
 
 function getProfileSummary(
   profile: PlayerOverview | null,
@@ -323,38 +276,73 @@ function getPrimaryCta(
   return undefined;
 }
 
-function buildProgressSections(
+function buildTaskContext(
   profile: PlayerOverview | null,
-  careerItemsCount: number,
-  mediaCount: number,
-): DashboardProgressSection[] {
-  const personal = computePersonalDataProgress(profile);
-  const football = computeFootballDataProgress(profile, careerItemsCount);
-  const multimedia = computeMultimediaProgress(mediaCount);
+  metrics: PlayerTaskMetrics,
+): ClientTaskContext {
+  return {
+    profile: profile
+      ? {
+          id: profile.id,
+          status: profile.status,
+          slug: profile.slug,
+          visibility: profile.visibility,
+          full_name: profile.full_name,
+          birth_date: profile.birth_date,
+          nationality: profile.nationality,
+          positions: profile.positions,
+          current_club: profile.current_club,
+          bio: profile.bio,
+          avatar_url: profile.avatar_url,
+          foot: profile.foot,
+          height_cm: profile.height_cm,
+          weight_kg: profile.weight_kg,
+        }
+      : null,
+    metrics,
+  };
+}
 
-  return [
-    {
-      id: "personal-data",
-      ...PROGRESS_COPY["personal-data"],
-      completed: personal.completed,
-      total: personal.total,
-      missing: personal.missing,
-    },
-    {
-      id: "football-data",
-      ...PROGRESS_COPY["football-data"],
-      completed: football.completed,
-      total: football.total,
-      missing: football.missing,
-    },
-    {
-      id: "multimedia",
-      ...PROGRESS_COPY.multimedia,
-      completed: multimedia.completed,
-      total: multimedia.total,
-      missing: multimedia.missing,
-    },
-  ];
+function buildProgressSectionsFromTasks(
+  evaluation: TaskEvaluation,
+): DashboardProgressSection[] {
+  return Object.entries(PROGRESS_COPY).map(([sectionId, meta]) => {
+    const summary =
+      evaluation.sections[sectionId] ?? {
+        total: 0,
+        completed: 0,
+        pending: 0,
+        severityCounts: { danger: 0, warning: 0, secondary: 0 },
+      };
+
+    const missing = evaluation.tasks
+      .filter((task) => task.sectionId === sectionId && !task.completed)
+      .map((task) => ({ label: task.title, severity: task.severity }));
+
+    return {
+      id: sectionId,
+      ...meta,
+      completed: summary.completed,
+      total: summary.total,
+      missing,
+    } satisfies DashboardProgressSection;
+  });
+}
+
+function selectNextSteps(evaluation: TaskEvaluation): EvaluatedTask[] {
+  const danger = orderTasksBySeverity(evaluation.bySeverity.danger);
+  const warning = orderTasksBySeverity(evaluation.bySeverity.warning);
+  const secondary = orderTasksBySeverity(evaluation.bySeverity.secondary);
+
+  if (danger.length > 0) {
+    return [...danger, ...warning];
+  }
+
+  if (warning.length > 0) {
+    return warning;
+  }
+
+  return secondary;
 }
 
 export default async function DashboardPage() {
@@ -369,7 +357,7 @@ export default async function DashboardPage() {
     supabase
       .from("player_profiles")
       .select(
-        "id, status, slug, visibility, full_name, birth_date, nationality, positions, current_club, bio, updated_at",
+        "id, status, slug, visibility, full_name, birth_date, nationality, positions, current_club, bio, avatar_url, foot, height_cm, weight_kg, updated_at",
       )
       .eq("user_id", user.id)
       .maybeSingle(),
@@ -385,34 +373,13 @@ export default async function DashboardPage() {
   const profile = (profileRaw as PlayerOverview | null) ?? null;
   const application = (applicationRaw as ApplicationOverview | null) ?? null;
 
-  const [careerCountResponse, mediaCountResponse] = profile
-    ? await Promise.all([
-        supabase
-          .from("career_items")
-          .select("id", { count: "exact", head: true })
-          .eq("player_id", profile.id),
-        supabase
-          .from("player_media")
-          .select("id", { count: "exact", head: true })
-          .eq("player_id", profile.id),
-      ])
-    : [null, null];
-
-  const careerItemsCount = careerCountResponse?.count ?? 0;
-  const mediaCount = mediaCountResponse?.count ?? 0;
+  const metrics = profile ? await fetchPlayerTaskMetrics(supabase, profile.id) : EMPTY_METRICS;
+  const taskContext = buildTaskContext(profile, metrics);
+  const taskEvaluation = evaluateDashboardTasks(taskContext);
 
   const statusSummary = getProfileSummary(profile, application);
-  const progressSections = buildProgressSections(profile, careerItemsCount, mediaCount);
-
-  const nextStepsWithStatus = NEXT_STEPS.map((step) => {
-    const progress = progressSections.find((section) => section.id === step.id);
-    const pending = progress ? Math.max(progress.total - progress.completed, 0) : 0;
-    return {
-      ...step,
-      pending,
-      completed: pending === 0,
-    };
-  }).sort((a, b) => a.pending - b.pending);
+  const progressSections = buildProgressSectionsFromTasks(taskEvaluation);
+  const nextSteps = selectNextSteps(taskEvaluation);
 
   return (
     <div className="space-y-6">
@@ -439,32 +406,41 @@ export default async function DashboardPage() {
         title="Próximos pasos"
         description="Estas tareas te ayudarán a completar la información necesaria para publicar tu perfil."
       >
-        <ol className="space-y-3 text-sm text-neutral-300">
-          {nextStepsWithStatus.map((step) => (
-            <li
-              key={step.id}
-              className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-4 transition-colors hover:border-neutral-700"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <Link href={step.href} className="text-sm font-semibold text-white underline-offset-4 hover:underline">
-                    {step.title}
-                  </Link>
-                  <p className="text-xs text-neutral-400">{step.description}</p>
-                </div>
-                <span
-                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${
-                    step.completed
-                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-400"
-                      : "border-amber-500/40 bg-amber-500/10 text-amber-300"
-                  }`}
+        {nextSteps.length > 0 ? (
+          <ol className="space-y-3 text-sm text-neutral-300">
+            {nextSteps.map((task) => {
+              const severityMeta = SEVERITY_META[task.severity];
+              return (
+                <li
+                  key={task.id}
+                  className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-4 transition-colors hover:border-neutral-700"
                 >
-                  {step.completed ? "Completado" : `${step.pending} pendientes`}
-                </span>
-              </div>
-            </li>
-          ))}
-        </ol>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <Link href={task.href} className="text-sm font-semibold text-white underline-offset-4 hover:underline">
+                        {task.title}
+                      </Link>
+                      <p className="text-xs text-neutral-400">{task.description}</p>
+                    </div>
+                    <Chip
+                      color={severityMeta.chipColor}
+                      variant="flat"
+                      size="sm"
+                      className="font-semibold uppercase tracking-wide"
+                    >
+                      {severityMeta.label}
+                    </Chip>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        ) : (
+          <p className="text-xs text-neutral-400">
+            ¡Excelente! No tenés tareas pendientes. Seguiremos sumando recomendaciones a medida que incorporemos nuevas
+            funcionalidades.
+          </p>
+        )}
       </SectionCard>
 
       <SectionCard

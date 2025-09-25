@@ -6,7 +6,16 @@ import { signOutAction } from "@/app/actions/auth";
 import ClientDashboardSidebar, {
   ClientDashboardSidebarMobile,
 } from "@/components/dashboard/client/Sidebar";
-import { clientDashboardNavigation } from "./navigation";
+import { buildClientDashboardNavigation } from "./navigation";
+import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
+import {
+  evaluateDashboardTasks,
+  pickHighestSeverity,
+  type ClientTaskContext,
+  type TaskEvaluation,
+  type TaskSeverity,
+} from "@/lib/dashboard/client/tasks";
+import type { ClientDashboardNavBadge } from "./navigation";
 
 type PlayerSummary = {
   id: string;
@@ -16,6 +25,14 @@ type PlayerSummary = {
   status: string;
   visibility: string;
   plan_public: string;
+  birth_date: string | null;
+  nationality: string[] | null;
+  positions: string[] | null;
+  current_club: string | null;
+  bio: string | null;
+  foot: string | null;
+  height_cm: number | null;
+  weight_kg: number | null;
 };
 
 type SubscriptionSummary = {
@@ -34,7 +51,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const [{ data: profileRaw }, { data: subscriptionRaw }] = await Promise.all([
     supabase
       .from("player_profiles")
-      .select("id, full_name, avatar_url, slug, status, visibility, plan_public")
+      .select(
+        "id, full_name, avatar_url, slug, status, visibility, plan_public, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg",
+      )
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase
@@ -46,6 +65,40 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const player = (profileRaw as PlayerSummary | null) ?? null;
   const sub = (subscriptionRaw as SubscriptionSummary | null) ?? null;
+
+  const metrics = player
+    ? await fetchPlayerTaskMetrics(supabase, player.id)
+    : {
+        careerItems: 0,
+        media: { total: 0, photos: 0, videos: 0, docs: 0 },
+        contactReferences: 0,
+      };
+
+  const taskContext: ClientTaskContext = {
+    profile: player
+      ? {
+          id: player.id,
+          status: player.status,
+          slug: player.slug,
+          visibility: player.visibility,
+          full_name: player.full_name,
+          birth_date: player.birth_date,
+          nationality: player.nationality,
+          positions: player.positions,
+          current_club: player.current_club,
+          bio: player.bio,
+          avatar_url: player.avatar_url,
+          foot: player.foot,
+          height_cm: player.height_cm,
+          weight_kg: player.weight_kg,
+        }
+      : null,
+    metrics,
+  };
+
+  const taskEvaluation = evaluateDashboardTasks(taskContext);
+  const navigationBadges = buildNavigationBadges(taskEvaluation);
+  const navigation = buildClientDashboardNavigation(navigationBadges);
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
@@ -112,17 +165,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
       </header>
 
-      <ClientDashboardSidebarMobile
-        sections={clientDashboardNavigation}
-        onSignOut={signOutAction}
-      />
+      <ClientDashboardSidebarMobile sections={navigation} onSignOut={signOutAction} />
 
       <div className="space-y-6 lg:grid lg:grid-cols-12 lg:gap-6 lg:space-y-0">
         <aside className="hidden lg:col-span-4 xl:col-span-3 lg:block">
-          <ClientDashboardSidebar
-            sections={clientDashboardNavigation}
-            onSignOut={signOutAction}
-          />
+          <ClientDashboardSidebar sections={navigation} onSignOut={signOutAction} />
         </aside>
         <section className="col-span-12 space-y-6 lg:col-span-8 xl:col-span-9">{children}</section>
       </div>
@@ -147,4 +194,30 @@ function SummaryBadge({
   };
 
   return <span className={`${baseClasses} ${toneClasses[tone]}`}>{children}</span>;
+}
+
+function buildNavigationBadges(
+  evaluation: TaskEvaluation,
+): Partial<Record<string, ClientDashboardNavBadge>> {
+  const badges: Partial<Record<string, ClientDashboardNavBadge>> = {};
+
+  for (const [sectionId, summary] of Object.entries(evaluation.sections)) {
+    const severity = pickHighestSeverity(summary);
+    if (!severity) continue;
+    const count = summary.severityCounts[severity];
+    if (count > 0) {
+      badges[sectionId] = { count, severity };
+    }
+  }
+
+  const severityOrder: TaskSeverity[] = ["danger", "warning", "secondary"];
+  for (const severity of severityOrder) {
+    const total = evaluation.totals[severity];
+    if (total > 0) {
+      badges.home = { count: total, severity };
+      break;
+    }
+  }
+
+  return badges;
 }

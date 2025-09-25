@@ -1,10 +1,17 @@
+import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
+
+export type ClientDashboardNavBadge = {
+  count: number;
+  severity: TaskSeverity;
+};
+
 export type ClientDashboardNavLink = {
   kind: "link";
   id: string;
   title: string;
   href: string;
   description?: string;
-  badge?: string;
+  badge?: ClientDashboardNavBadge;
 };
 
 export type ClientDashboardNavAction = {
@@ -25,7 +32,20 @@ export type ClientDashboardNavSection = {
   items: ClientDashboardNavItem[];
 };
 
-export const clientDashboardNavigation: ClientDashboardNavSection[] = [
+const BASE_NAVIGATION: ClientDashboardNavSection[] = [
+  {
+    id: "dashboard",
+    title: "Panel",
+    items: [
+      {
+        kind: "link",
+        id: "home",
+        title: "Panel de control",
+        href: "/dashboard",
+        description: "Resumen general y próximos pasos prioritarios.",
+      },
+    ],
+  },
   {
     id: "edit-profile",
     title: "Editar perfil",
@@ -101,3 +121,21 @@ export const clientDashboardNavigation: ClientDashboardNavSection[] = [
     ],
   },
 ];
+
+export function buildClientDashboardNavigation(
+  badges: Partial<Record<string, ClientDashboardNavBadge>> = {},
+): ClientDashboardNavSection[] {
+  return BASE_NAVIGATION.map((section) => ({
+    ...section,
+    items: section.items.map((item) =>
+      item.kind === "link"
+        ? {
+            ...item,
+            badge: badges[item.id],
+          }
+        : item,
+    ),
+  }));
+}
+
+export const clientDashboardNavigation = buildClientDashboardNavigation();

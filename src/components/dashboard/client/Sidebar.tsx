@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTransition } from "react";
 import {
+  Badge,
   Button,
   Drawer,
   DrawerBody,
@@ -17,7 +18,18 @@ import { Menu } from "lucide-react";
 import type {
   ClientDashboardNavSection,
   ClientDashboardNavItem,
+  ClientDashboardNavBadge,
 } from "@/app/(dashboard)/dashboard/navigation";
+import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
+
+const badgeColorMap: Record<
+  TaskSeverity,
+  "default" | "primary" | "secondary" | "success" | "warning" | "danger"
+> = {
+  danger: "danger",
+  warning: "warning",
+  secondary: "secondary",
+};
 
 export default function ClientDashboardSidebar({
   sections,
@@ -129,11 +141,12 @@ function SidebarItem({
     );
   }
 
-  const active = isActive(currentPath, item.href);
+  const linkItem = item as Extract<ClientDashboardNavItem, { kind: "link" }>;
+  const active = isActive(currentPath, linkItem.href);
 
-  return (
+  const link = (
     <Link
-      href={item.href}
+      href={linkItem.href}
       className={clsx(
         "block rounded-md border px-3 py-2 text-sm transition-colors",
         active
@@ -144,15 +157,34 @@ function SidebarItem({
       onClick={onNavigate}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-medium text-neutral-100">{item.title}</span>
-        {item.badge ? (
-          <span className="rounded-full bg-neutral-900 px-2 py-0.5 text-xs text-neutral-300">{item.badge}</span>
-        ) : null}
+        <span className="font-medium text-neutral-100">{linkItem.title}</span>
       </div>
-      {item.description ? (
-        <p className="mt-1 text-xs text-neutral-500">{item.description}</p>
+      {linkItem.description ? (
+        <p className="mt-1 text-xs text-neutral-500">{linkItem.description}</p>
       ) : null}
     </Link>
+  );
+
+  const badge: ClientDashboardNavBadge | undefined = linkItem.badge;
+
+  if (!badge || badge.count === 0) {
+    return link;
+  }
+
+  return (
+    <Badge
+      content={badge.count}
+      color={badgeColorMap[badge.severity]}
+      placement="top-right"
+      size="sm"
+      className="block w-full"
+      classNames={{
+        badge: "px-2 py-0.5 text-[10px] font-semibold",
+        base: "w-full",
+      }}
+    >
+      {link}
+    </Badge>
   );
 }
 
