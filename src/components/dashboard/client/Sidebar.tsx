@@ -4,6 +4,16 @@ import clsx from "classnames";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTransition } from "react";
+import {
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  ScrollShadow,
+  useDisclosure,
+} from "@heroui/react";
+import { Menu } from "lucide-react";
 import type {
   ClientDashboardNavSection,
   ClientDashboardNavItem,
@@ -21,25 +31,70 @@ export default function ClientDashboardSidebar({
 
   return (
     <nav className="space-y-8">
-      {sections.map((section) => (
-        <div key={section.id} className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-            {section.title}
-          </p>
-          <div className="space-y-1">
-            {section.items.map((item) => (
-              <SidebarItem
-                key={item.id}
-                item={item}
-                currentPath={pathname}
-                pending={pending}
-                onSignOut={() => startTransition(() => onSignOut())}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
+      <SidebarContent
+        sections={sections}
+        pathname={pathname}
+        pending={pending}
+        onSignOut={() => startTransition(() => onSignOut())}
+      />
     </nav>
+  );
+}
+
+export function ClientDashboardSidebarMobile({
+  sections,
+  onSignOut,
+}: {
+  sections: ClientDashboardNavSection[];
+  onSignOut: () => Promise<void>;
+}) {
+  const pathname = usePathname();
+  const [pending, startTransition] = useTransition();
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  return (
+    <div className="lg:hidden">
+      <Button
+        variant="flat"
+        radius="sm"
+        startContent={<Menu className="size-5" />}
+        className="w-full justify-start border border-neutral-800 bg-neutral-950/60 text-neutral-100"
+        onPress={onOpen}
+      >
+        Menú principal
+      </Button>
+
+      <Drawer
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        placement="left"
+        classNames={{
+          base: "bg-neutral-950 text-neutral-100",
+          backdrop: "bg-black/60",
+        }}
+      >
+        <DrawerContent>
+          {(onClose) => (
+            <>
+              <DrawerHeader className="border-b border-neutral-800 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
+                Navegación
+              </DrawerHeader>
+              <DrawerBody className="px-0">
+                <ScrollShadow className="max-h-[calc(100vh-9rem)] space-y-8 px-6 py-4">
+                  <SidebarContent
+                    sections={sections}
+                    pathname={pathname}
+                    pending={pending}
+                    onSignOut={() => startTransition(() => onSignOut())}
+                    onNavigate={onClose}
+                  />
+                </ScrollShadow>
+              </DrawerBody>
+            </>
+          )}
+        </DrawerContent>
+      </Drawer>
+    </div>
   );
 }
 
@@ -48,11 +103,13 @@ function SidebarItem({
   currentPath,
   pending,
   onSignOut,
+  onNavigate,
 }: {
   item: ClientDashboardNavItem;
   currentPath: string;
   pending: boolean;
   onSignOut: () => void;
+  onNavigate?: () => void;
 }) {
   if (item.kind === "action") {
     return (
@@ -84,6 +141,7 @@ function SidebarItem({
           : "border-neutral-800 bg-neutral-950/40 text-neutral-300 hover:bg-neutral-900"
       )}
       data-active={active}
+      onClick={onNavigate}
     >
       <div className="flex items-center justify-between gap-2">
         <span className="font-medium text-neutral-100">{item.title}</span>
@@ -103,4 +161,38 @@ function isActive(pathname: string, href: string) {
     return pathname === href;
   }
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function SidebarContent({
+  sections,
+  pathname,
+  pending,
+  onSignOut,
+  onNavigate,
+}: {
+  sections: ClientDashboardNavSection[];
+  pathname: string;
+  pending: boolean;
+  onSignOut: () => void;
+  onNavigate?: () => void;
+}) {
+  return sections.map((section) => (
+    <div key={section.id} className="space-y-2">
+      <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+        {section.title}
+      </p>
+      <div className="space-y-1">
+        {section.items.map((item) => (
+          <SidebarItem
+            key={item.id}
+            item={item}
+            currentPath={pathname}
+            pending={pending}
+            onSignOut={onSignOut}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </div>
+    </div>
+  ));
 }

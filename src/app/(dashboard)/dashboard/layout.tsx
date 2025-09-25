@@ -3,7 +3,9 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
-import ClientDashboardSidebar from "@/components/dashboard/client/Sidebar";
+import ClientDashboardSidebar, {
+  ClientDashboardSidebarMobile,
+} from "@/components/dashboard/client/Sidebar";
 import { clientDashboardNavigation } from "./navigation";
 
 type PlayerSummary = {
@@ -110,9 +112,17 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
       </header>
 
-      <div className="grid grid-cols-12 gap-6">
-        <aside className="col-span-12 lg:col-span-4 xl:col-span-3">
-          <ClientDashboardSidebar sections={clientDashboardNavigation} onSignOut={signOutAction} />
+      <ClientDashboardSidebarMobile
+        sections={clientDashboardNavigation}
+        onSignOut={signOutAction}
+      />
+
+      <div className="space-y-6 lg:grid lg:grid-cols-12 lg:gap-6 lg:space-y-0">
+        <aside className="hidden lg:col-span-4 xl:col-span-3 lg:block">
+          <ClientDashboardSidebar
+            sections={clientDashboardNavigation}
+            onSignOut={signOutAction}
+          />
         </aside>
         <section className="col-span-12 space-y-6 lg:col-span-8 xl:col-span-9">{children}</section>
       </div>
