@@ -1,57 +1,67 @@
-# Roadmap módulo dashboard del cliente
+# Client dashboard delivery plan
 
-## Alcance actual
-- Se implementó la estructura UI base para todas las secciones solicitadas (perfil, plantilla y configuración).
-- Navegación lateral modular alimentada por `navigation.ts`, lista para condicionar items según roles o planes.
-- Layout general unificado con resumen de sesión, estado del perfil y badges para visibilidad/plan.
-- Páginas individuales con componentes reutilizables (`PageHeader`, `SectionCard`, `FormField`, `Sidebar`).
-- Contenido placeholder que describe futuras funcionalidades sin lógica de negocio asociada.
+## Versioning strategy
+- **V0 (Scaffold)** – UI shell, navigation, and placeholder copy (completado).
+- **V1 (Player onboarding sync)** – Datos personales + estado de solicitud alineados con Supabase.
+- **V2 (Profile publishing)** – Gestión integral de perfil, multimedia y plantilla para generar el CV público.
+- **V3 (Account growth & insights)** – Herramientas de suscripción, métricas y acompañamiento.
 
-## Próximos desarrollos (priorizados)
+## Cross-cutting foundations
+- [ ] Consolidar un `DashboardDataProvider` que recupere `user`, `player_profile`, `player_applications`, `subscriptions` y `plan_features` usando Supabase RPC / vistas materializadas.
+- [ ] Definir utilidades de autorización (`canEditProfile`, `canEditTemplate`, `hasActiveApplication`, `isProPlan`, etc.) basadas en `role`, `player_status` y `plan`.
+- [ ] Instrumentar estados vacíos y loaders unificados (HeroUI `Skeleton`, `EmptyState`) para cada sección.
+- [ ] Preparar esquema de analytics/eventos (ej. `dashboard.task_completed`) para medir adopción.
 
-### Autenticación y contexto de datos
-- [ ] Crear un contexto/servicio que exponga `user`, `playerProfile`, `subscription` y flags de permisos para evitar múltiples fetch en cada página.
-- [ ] Definir guards para rutas según tipo de cuenta (jugador aprobado, en revisión, sin perfil, staff, etc.).
-- [ ] Implementar feedback visual/redirects cuando falten datos críticos (ej: perfil borrador) aprovechando la navegación modular.
+## V1 · Player onboarding sync
+### Estado general (dashboard/page.tsx)
+- [ ] Mostrar tarjeta resumen con estado del perfil (`player_status`) y aplicación activa (`player_applications.status`).
+- [ ] Habilitar badges de progreso por sección calculando campos obligatorios completados (datos personales, trayectoria, multimedia mínima).
+- [ ] Incorporar CTA contextual: crear solicitud si no existe, ver solicitud si está en revisión, ir a perfil público si está aprobado.
 
-### Edición de perfil
-- [ ] Conectar formularios con Supabase/Drizzle y manejar validaciones (`react-hook-form` + `zod`).
-- [ ] Sincronizar datos personales con onboarding step 1 (formato de fechas, nacionalidades, documentos, idiomas).
-- [ ] Definir almacenamiento seguro de teléfono/redes sociales y parámetros de visibilidad pública.
-- [ ] Integrar subida/transformación de avatar con crop y preview en vivo.
+### Editar perfil · Datos personales (`edit-profile/personal-data`)
+- [ ] Mapear campos de `player_profiles` y `player_personal_details` (nombre, documento, fecha de nacimiento, altura, peso, idiomas).
+- [ ] Sincronizar dirección/país utilizando catálogo `countries` y helper `trg_set_country_code_from_text` del schema.
+- [ ] Gestionar avatar en Supabase Storage (`player_media` con `media_type = 'photo'` y flag `is_primary`).
+- [ ] Registrar historial de cambios críticos (auditoría mínima con tabla `profile_change_logs`).
 
-### Datos futbolísticos
-- [ ] Construir CRUD de trayectoria (tabla `career_items` + nuevos endpoints) con drag & drop y validaciones de solapamiento.
-- [ ] Gestionar links externos (Transfermarkt, BeSoccer, redes) con normalización y previews.
-- [ ] Agregar soporte para estados contractuales, agente actual y valor de mercado con reglas por plan.
-- [ ] Incorporar palmarés y estadísticas dinámicas (posible tabla dedicada + endpoints).
+### Solicitud y permisos
+- [ ] Crear vista combinada `player_dashboard_state` que una `profiles`, `player_applications`, `plan_subscriptions` para hidratar el dashboard en una llamada.
+- [ ] Bloquear secciones `edit-profile/*` y `edit-template/*` cuando `player_status` ∈ {`draft`, `pending_review`} mostrando componente de desbloqueo.
+- [ ] Permitir reabrir onboarding si la solicitud fue rechazada (`player_applications.status = 'rejected'`).
 
-### Multimedia
-- [ ] Integrar almacenamiento de fotos/videos en Supabase Storage con categorías, metadatos y estados de publicación.
-- [ ] Añadir generador de thumbnails y conversión a resoluciones optimizadas.
-- [ ] Conectar feeds de prensa/noticias (API interna o scraping autorizado) y permitir curación manual.
-- [ ] Implementar controles de derechos de uso y expiración de contenidos.
+## V2 · Profile publishing
+### Datos futbolísticos (`edit-profile/football-data`)
+- [ ] Construir CRUD para `career_items` con reordenamiento y sincronización de `teams` (respetar triggers de integridad).
+- [ ] Gestionar vínculos externos (`player_links` tabla derivada) validando dominios permitidos.
+- [ ] Capturar logros (`player_honours`) y estadísticas (`stats_seasons`) con filtros por temporada/competición.
 
-### Editor de plantilla
-- [ ] Persistir selección de estilos/colores por jugador y reflejarla en la página pública.
-- [ ] Desarrollar switchers interactivos (toggle, drag & drop) con feedback inmediato.
-- [ ] Configurar reglas condicionales (mostrar/ocultar bloques según existencia de datos o plan) reutilizando la config de navegación.
-- [ ] Preparar render de vista previa en vivo (iframe/preview component) integrado con generador de CV.
+### Multimedia (`edit-profile/multimedia`)
+- [ ] Integrar uploader para `player_media` (fotos, videos, docs) con procesamiento asíncrono y estados `visibility`.
+- [ ] Etiquetar contenidos por tipo de uso (perfil público, prensa, CV) con metadata JSONB.
+- [ ] Implementar moderación interna (flags `needs_review`, `review_status`).
 
-### Configuración de cuenta y suscripción
-- [ ] Habilitar actualización de email/contraseña y conexión con OAuth providers.
-- [ ] Construir centro de notificaciones (elección de canales, frecuencia, plantillas de correo).
-- [ ] Integrar Supabase Auth para listado/cierre de sesiones activas.
-- [ ] Conectar con Stripe para gestionar upgrades, cancelaciones, reintentos de cobro y emisión de comprobantes.
+### Editor de plantilla (`edit-template/*`)
+- [ ] Persistir selección de layout y colores en `profile_theme_settings` (nueva tabla normalizada por `player_id`).
+- [ ] Configurar toggles para activar bloques (`show_highlights`, `show_press`, etc.) guardados en `profile_sections_visibility`.
+- [ ] Generar vista previa con `public/[slug]` embebido y señales en tiempo real (posiblemente usando Supabase Realtime).
 
-### Experiencia y soporte
-- [ ] Añadir breadcrumbs y estados vacíos contextualizados para cada sección.
-- [ ] Crear sistema de toasts/modales para confirmar acciones críticas (cancelación de plan, cambio de plantilla, etc.).
-- [ ] Diseñar métricas y tracking (Amplitude/Mixpanel) para entender uso del dashboard.
-- [ ] Preparar documentación para desarrolladores sobre cómo extender el menú y reutilizar componentes.
+## V3 · Account growth & insights
+### Configuración de cuenta (`settings/account`)
+- [ ] Permitir actualización de correo/contraseña via Supabase Auth y registro de sesiones activas (`auth.sessions`).
+- [ ] Añadir preferencias de notificación (`user_notification_settings`) con granularidad por canal.
+- [ ] Gestionar integraciones sociales (OAuth) y 2FA.
 
-## Consideraciones técnicas
-- Centralizar constantes (presets, estructura de secciones) en archivos compartidos para evitar duplicidad.
-- Mantener componentes desacoplados (server vs client) para optimizar performance en Next.js 15/React 19.
-- Planificar pruebas unitarias/e2e una vez que se agregue lógica (formularios, mutaciones, condicionales).
-- Documentar contratos de API antes de implementar mutaciones para alinear frontend y backend.
+### Suscripción (`settings/subscription`)
+- [ ] Conectar con Stripe Billing (checkout, portal, webhooks) y sincronizar `plan_subscriptions`.
+- [ ] Mostrar histórico de facturación (`invoices`) y estado de pago (`payment_intents`).
+- [ ] Habilitar upgrades/downgrades condicionales según `plan_features` y límites de contenido.
+
+### Experiencia asistida
+- [ ] Crear "assistant" contextual que guíe tareas pendientes (helper component que consume backlog de `dashboard_tasks`).
+- [ ] Implementar centro de soporte (FAQ dinámica + enlace a ticketing) gestionado desde `support_articles`.
+- [ ] Añadir métricas de rendimiento del perfil (visitas, compartidos) consumiendo `profile_views` y `share_events`.
+
+## Referencias de base de datos
+- `src/db/schema.sql` contiene la definición actualizada de perfiles, aplicaciones, multimedia y sus relaciones.
+- `schema.sql` en la raíz incorpora funciones administrativas (aprobación de equipos) relevantes para sincronizar clubes.
+- Revisar políticas RLS y triggers (`player_profiles_cud`, `trg_set_country_code_from_text`) antes de exponer mutaciones desde el dashboard.
