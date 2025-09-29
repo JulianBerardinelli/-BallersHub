@@ -6,7 +6,6 @@ import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
-import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
   buildTaskContext,
@@ -14,9 +13,29 @@ import {
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
+import {
+  coerceNotesDate,
+  coerceNotesNumber,
+  parseApplicationNotes,
+  pickFirstPresent,
+} from "@/lib/dashboard/client/profile-data";
+import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
 type PersonalProfile = TaskProfileSnapshot & {
   updated_at: string | null;
+};
+
+type PlayerApplicationSnapshot = {
+  id: string;
+  full_name: string | null;
+  nationality: string[] | null;
+  positions: string[] | null;
+  current_club: string | null;
+  transfermarkt_url: string | null;
+  external_profile_url: string | null;
+  notes: string | null;
+  status: string | null;
+  created_at: string | null;
 };
 
 export default async function PersonalDataPage() {
@@ -27,15 +46,28 @@ export default async function PersonalDataPage() {
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-profile/personal-data");
 
-  const { data: profileRaw } = await supabase
-    .from("player_profiles")
-    .select(
-      "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, updated_at",
-    )
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [profileResult, applicationResult] = await Promise.all([
+    supabase
+      .from("player_profiles")
+      .select(
+        "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, updated_at",
+      )
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("player_applications")
+      .select("id, full_name, nationality, positions, current_club, transfermarkt_url, external_profile_url, notes, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const profileRaw = profileResult.data;
+  const applicationRaw = applicationResult.data;
 
   const profile = (profileRaw as PersonalProfile | null) ?? null;
+  const application = (applicationRaw as PlayerApplicationSnapshot | null) ?? null;
 
   if (!profile) {
     return (
@@ -89,8 +121,17 @@ export default async function PersonalDataPage() {
     href: task.href,
   }));
 
-  const birthDate = profile.birth_date ? new Date(profile.birth_date).toLocaleDateString() : "";
-  const nationalities = profile.nationality?.join(", ") ?? "";
+  const applicationNotes = parseApplicationNotes(application?.notes ?? null);
+  const displayFullName = pickFirstPresent(profile.full_name, application?.full_name) ?? "";
+  const birthDateSource = pickFirstPresent(
+    profile.birth_date,
+    coerceNotesDate(applicationNotes?.birth_date),
+  );
+  const birthDate = birthDateSource ? new Date(birthDateSource).toLocaleDateString() : "";
+  const nationalityList = pickFirstPresent(profile.nationality, application?.nationality) ?? [];
+  const nationalities = Array.isArray(nationalityList) ? nationalityList.join(", ") : String(nationalityList);
+  const heightCm = pickFirstPresent(profile.height_cm, coerceNotesNumber(applicationNotes?.height_cm));
+  const weightKg = pickFirstPresent(profile.weight_kg, coerceNotesNumber(applicationNotes?.weight_kg));
 
   return (
     <div className="space-y-6">
@@ -131,7 +172,7 @@ export default async function PersonalDataPage() {
       >
         <form className="grid gap-6">
           <div className="grid gap-4 md:grid-cols-2">
-            <FormField id="full_name" label="Nombre completo" defaultValue={profile.full_name ?? ""} />
+            <FormField id="full_name" label="Nombre completo" defaultValue={displayFullName} />
             <FormField id="birth_date" label="Fecha de nacimiento" defaultValue={birthDate} placeholder="dd/mm/aaaa" />
           </div>
           <div className="grid gap-4 md:grid-cols-2">
@@ -152,13 +193,13 @@ export default async function PersonalDataPage() {
             <FormField
               id="height_cm"
               label="Altura (cm)"
-              defaultValue={profile.height_cm ? String(profile.height_cm) : ""}
+              defaultValue={heightCm != null ? String(heightCm) : ""}
               placeholder="Ej: 184"
             />
             <FormField
               id="weight_kg"
               label="Peso (kg)"
-              defaultValue={profile.weight_kg ? String(profile.weight_kg) : ""}
+              defaultValue={weightKg != null ? String(weightKg) : ""}
               placeholder="Ej: 78"
             />
           </div>

@@ -4,7 +4,6 @@ import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
-import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
   buildTaskContext,
@@ -12,6 +11,8 @@ import {
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
+import { extractApplicationLinks, pickFirstPresent } from "@/lib/dashboard/client/profile-data";
+import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
 type FootballProfile = TaskProfileSnapshot & {
   market_value_eur: string | number | null;
@@ -26,6 +27,27 @@ type CareerItem = {
   end_date: string | null;
 };
 
+type PlayerApplicationSnapshot = {
+  id: string;
+  full_name: string | null;
+  nationality: string[] | null;
+  positions: string[] | null;
+  current_club: string | null;
+  transfermarkt_url: string | null;
+  external_profile_url: string | null;
+  notes: string | null;
+  status: string | null;
+  created_at: string | null;
+};
+
+type PlayerMediaItem = {
+  id: string;
+  type: "photo" | "video" | "doc";
+  url: string;
+  title: string | null;
+  provider: string | null;
+};
+
 export default async function FootballDataPage() {
   const supabase = await createSupabaseServerRSC();
   const {
@@ -34,15 +56,28 @@ export default async function FootballDataPage() {
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-profile/football-data");
 
-  const { data: profileRaw } = await supabase
-    .from("player_profiles")
-    .select(
-      "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, market_value_eur, updated_at",
-    )
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [profileResult, applicationResult] = await Promise.all([
+    supabase
+      .from("player_profiles")
+      .select(
+        "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, market_value_eur, updated_at",
+      )
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("player_applications")
+      .select("id, full_name, nationality, positions, current_club, transfermarkt_url, external_profile_url, notes, status, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+
+  const profileRaw = profileResult.data;
+  const applicationRaw = applicationResult.data;
 
   const profile = (profileRaw as FootballProfile | null) ?? null;
+  const application = (applicationRaw as PlayerApplicationSnapshot | null) ?? null;
 
   if (!profile) {
     return (
@@ -67,15 +102,29 @@ export default async function FootballDataPage() {
     );
   }
 
-  const { data: careerRaw } = await supabase
-    .from("career_items")
-    .select("id, club, division, start_date, end_date")
-    .eq("player_id", profile.id)
-    .order("start_date", { ascending: false });
+  const [careerResult, mediaResult, metrics] = await Promise.all([
+    supabase
+      .from("career_items")
+      .select("id, club, division, start_date, end_date")
+      .eq("player_id", profile.id)
+      .order("start_date", { ascending: false }),
+    supabase
+      .from("player_media")
+      .select("id, type, url, title, provider")
+      .eq("player_id", profile.id)
+      .order("created_at", { ascending: true }),
+    fetchPlayerTaskMetrics(supabase, profile.id),
+  ]);
+
+  const careerRaw = careerResult.data;
+  const mediaRaw = mediaResult.data;
 
   const career = (careerRaw as CareerItem[] | null) ?? null;
+  const media = (mediaRaw as PlayerMediaItem[] | null) ?? [];
 
-  const metrics = await fetchPlayerTaskMetrics(supabase, profile.id);
+  const primaryHighlight = media.find((item) => item.type === "video") ?? null;
+
+  const applicationLinks = extractApplicationLinks(application);
 
   const normalizedProfile: TaskProfileSnapshot = {
     id: profile.id,
@@ -104,10 +153,36 @@ export default async function FootballDataPage() {
     href: task.href,
   }));
 
-  const positions = profile.positions?.join(", ") ?? "";
+  const positionsList = pickFirstPresent(profile.positions, application?.positions) ?? [];
+  const positions = Array.isArray(positionsList) ? positionsList.join(", ") : String(positionsList);
   const dominantFoot = profile.foot ?? "";
-  const currentClub = profile.current_club ?? "";
+  const currentClub = pickFirstPresent(profile.current_club, application?.current_club) ?? "";
   const marketValue = profile.market_value_eur ? String(profile.market_value_eur) : "";
+  const highlightUrl = pickFirstPresent(
+    primaryHighlight?.url ?? null,
+    applicationLinks.youtube,
+    applicationLinks.social,
+  );
+  const transfermarktUrl = applicationLinks.transfermarkt ?? "";
+  const besoccerUrl = applicationLinks.besoccer ?? "";
+  const youtubeUrl = pickFirstPresent(
+    applicationLinks.youtube,
+    primaryHighlight?.url && /youtu(be|\.com)/i.test(primaryHighlight.url)
+      ? primaryHighlight.url
+      : null,
+  );
+  const instagramUrl = pickFirstPresent(
+    applicationLinks.instagram,
+    applicationLinks.social && /instagram\.com/i.test(applicationLinks.social)
+      ? applicationLinks.social
+      : null,
+  );
+  const linkedinUrl = pickFirstPresent(
+    applicationLinks.linkedin,
+    applicationLinks.social && /linkedin\.com/i.test(applicationLinks.social)
+      ? applicationLinks.social
+      : null,
+  );
 
   return (
     <div className="space-y-6">
@@ -190,12 +265,42 @@ export default async function FootballDataPage() {
         description="Conectá tu perfil con plataformas externas para validar tu experiencia."
       >
         <form className="grid gap-4 md:grid-cols-2">
-          <FormField id="highlight" label="Video destacado" placeholder="Link a tu mejor highlight" />
-          <FormField id="transfermarkt" label="Transfermarkt" placeholder="URL pública" />
-          <FormField id="besoccer" label="BeSoccer" placeholder="URL pública" />
-          <FormField id="youtube" label="YouTube" placeholder="Canal o playlist" />
-          <FormField id="instagram" label="Instagram" placeholder="Usuario o URL" />
-          <FormField id="linkedin" label="LinkedIn" placeholder="Perfil profesional" />
+          <FormField
+            id="highlight"
+            label="Video destacado"
+            placeholder="Link a tu mejor highlight"
+            defaultValue={highlightUrl ?? ""}
+          />
+          <FormField
+            id="transfermarkt"
+            label="Transfermarkt"
+            placeholder="URL pública"
+            defaultValue={transfermarktUrl}
+          />
+          <FormField
+            id="besoccer"
+            label="BeSoccer"
+            placeholder="URL pública"
+            defaultValue={besoccerUrl}
+          />
+          <FormField
+            id="youtube"
+            label="YouTube"
+            placeholder="Canal o playlist"
+            defaultValue={youtubeUrl ?? ""}
+          />
+          <FormField
+            id="instagram"
+            label="Instagram"
+            placeholder="Usuario o URL"
+            defaultValue={instagramUrl ?? ""}
+          />
+          <FormField
+            id="linkedin"
+            label="LinkedIn"
+            placeholder="Perfil profesional"
+            defaultValue={linkedinUrl ?? ""}
+          />
         </form>
       </SectionCard>
 
