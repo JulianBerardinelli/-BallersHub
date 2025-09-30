@@ -13,12 +13,7 @@ import {
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
-import {
-  coerceNotesDate,
-  coerceNotesNumber,
-  parseApplicationNotes,
-  pickFirstPresent,
-} from "@/lib/dashboard/client/profile-data";
+import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
 type PersonalProfile = TaskProfileSnapshot & {
@@ -111,7 +106,10 @@ export default async function PersonalDataPage() {
     weight_kg: profile.weight_kg ?? null,
   };
 
-  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(normalizedProfile, metrics));
+  const hydratedProfile =
+    hydrateTaskProfileSnapshot(normalizedProfile, application ?? null) ?? normalizedProfile;
+
+  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(hydratedProfile, metrics));
   const pendingTasks = orderTasksBySeverity(getPendingTasksForSection(taskEvaluation, "personal-data"));
   const taskCallouts = pendingTasks.map((task) => ({
     id: task.id,
@@ -121,17 +119,15 @@ export default async function PersonalDataPage() {
     href: task.href,
   }));
 
-  const applicationNotes = parseApplicationNotes(application?.notes ?? null);
-  const displayFullName = pickFirstPresent(profile.full_name, application?.full_name) ?? "";
-  const birthDateSource = pickFirstPresent(
-    profile.birth_date,
-    coerceNotesDate(applicationNotes?.birth_date),
-  );
-  const birthDate = birthDateSource ? new Date(birthDateSource).toLocaleDateString() : "";
-  const nationalityList = pickFirstPresent(profile.nationality, application?.nationality) ?? [];
-  const nationalities = Array.isArray(nationalityList) ? nationalityList.join(", ") : String(nationalityList);
-  const heightCm = pickFirstPresent(profile.height_cm, coerceNotesNumber(applicationNotes?.height_cm));
-  const weightKg = pickFirstPresent(profile.weight_kg, coerceNotesNumber(applicationNotes?.weight_kg));
+  const displayFullName = hydratedProfile.full_name ?? "";
+  const birthDate = hydratedProfile.birth_date
+    ? new Date(hydratedProfile.birth_date).toLocaleDateString()
+    : "";
+  const nationalities = Array.isArray(hydratedProfile.nationality)
+    ? hydratedProfile.nationality.join(", ")
+    : "";
+  const heightCm = hydratedProfile.height_cm;
+  const weightKg = hydratedProfile.weight_kg;
 
   return (
     <div className="space-y-6">

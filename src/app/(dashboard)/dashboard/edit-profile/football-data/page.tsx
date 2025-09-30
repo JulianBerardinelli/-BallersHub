@@ -11,7 +11,11 @@ import {
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
-import { extractApplicationLinks, pickFirstPresent } from "@/lib/dashboard/client/profile-data";
+import {
+  extractApplicationLinks,
+  hydrateTaskProfileSnapshot,
+  pickFirstPresent,
+} from "@/lib/dashboard/client/profile-data";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
 type FootballProfile = TaskProfileSnapshot & {
@@ -143,7 +147,10 @@ export default async function FootballDataPage() {
     weight_kg: profile.weight_kg ?? null,
   };
 
-  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(normalizedProfile, metrics));
+  const hydratedProfile =
+    hydrateTaskProfileSnapshot(normalizedProfile, application ?? null) ?? normalizedProfile;
+
+  const taskEvaluation = evaluateDashboardTasks(buildTaskContext(hydratedProfile, metrics));
   const pendingTasks = orderTasksBySeverity(getPendingTasksForSection(taskEvaluation, "football-data"));
   const taskCallouts = pendingTasks.map((task) => ({
     id: task.id,
@@ -153,10 +160,11 @@ export default async function FootballDataPage() {
     href: task.href,
   }));
 
-  const positionsList = pickFirstPresent(profile.positions, application?.positions) ?? [];
-  const positions = Array.isArray(positionsList) ? positionsList.join(", ") : String(positionsList);
-  const dominantFoot = profile.foot ?? "";
-  const currentClub = pickFirstPresent(profile.current_club, application?.current_club) ?? "";
+  const positions = Array.isArray(hydratedProfile.positions)
+    ? hydratedProfile.positions.join(", ")
+    : "";
+  const dominantFoot = hydratedProfile.foot ?? "";
+  const currentClub = hydratedProfile.current_club ?? "";
   const marketValue = profile.market_value_eur ? String(profile.market_value_eur) : "";
   const highlightUrl = pickFirstPresent(
     primaryHighlight?.url ?? null,

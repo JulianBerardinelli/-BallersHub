@@ -22,6 +22,7 @@ import {
   buildTaskContext,
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
+import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 
 type PlayerOverview = TaskProfileSnapshot & { updated_at: string | null };
 
@@ -29,6 +30,11 @@ type ApplicationOverview = {
   status: string;
   created_at: string;
   plan_requested: string | null;
+  full_name: string | null;
+  nationality: string[] | null;
+  positions: string[] | null;
+  current_club: string | null;
+  notes: string | null;
 };
 
 const QUICK_ACTIONS = [
@@ -311,7 +317,9 @@ export default async function DashboardPage() {
       .maybeSingle(),
     supabase
       .from("player_applications")
-      .select("status, created_at, plan_requested")
+      .select(
+        "status, created_at, plan_requested, full_name, nationality, positions, current_club, notes",
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -341,7 +349,9 @@ export default async function DashboardPage() {
       }
     : null;
 
-  const taskContext = buildTaskContext(normalizedProfile, metrics);
+  const hydratedProfile = hydrateTaskProfileSnapshot(normalizedProfile, application ?? null);
+
+  const taskContext = buildTaskContext(hydratedProfile ?? normalizedProfile, metrics);
   const taskEvaluation = evaluateDashboardTasks(taskContext);
 
   const statusSummary = getProfileSummary(profile, application);

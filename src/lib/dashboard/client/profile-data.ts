@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { TaskProfileSnapshot } from "./task-context";
+
 export type ParsedApplicationNotes = {
   birth_date?: unknown;
   height_cm?: unknown;
@@ -140,4 +142,64 @@ export function extractApplicationLinks(application: {
     instagram,
     linkedin,
   };
+}
+
+export type TaskApplicationSnapshot = {
+  full_name?: string | null;
+  nationality?: string[] | null;
+  positions?: string[] | null;
+  current_club?: string | null;
+  notes?: string | null;
+};
+
+function normalizeStringArray(value: string[] | string | null | undefined): string[] | null {
+  if (Array.isArray(value)) {
+    return value.length > 0 ? value : null;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? [trimmed] : null;
+  }
+
+  return null;
+}
+
+export function hydrateTaskProfileSnapshot(
+  profile: TaskProfileSnapshot | null,
+  application: TaskApplicationSnapshot | null,
+): TaskProfileSnapshot | null {
+  if (!profile) return null;
+
+  const notes = parseApplicationNotes(application?.notes ?? null);
+
+  const birthDate = pickFirstPresent<string | null>(
+    profile.birth_date,
+    coerceNotesDate(notes?.birth_date),
+  );
+
+  const nationality =
+    normalizeStringArray(profile.nationality) ??
+    normalizeStringArray(application?.nationality) ??
+    normalizeStringArray(notes?.nationality_codes);
+
+  const positions =
+    normalizeStringArray(profile.positions) ?? normalizeStringArray(application?.positions);
+
+  const currentClub = pickFirstPresent<string | null>(profile.current_club, application?.current_club);
+  const fullName = pickFirstPresent<string | null>(profile.full_name, application?.full_name);
+
+  const heightCm = profile.height_cm ?? coerceNotesNumber(notes?.height_cm);
+  const weightKg = profile.weight_kg ?? coerceNotesNumber(notes?.weight_kg);
+
+  return {
+    ...profile,
+    full_name: fullName,
+    birth_date: birthDate,
+    nationality: nationality ?? null,
+    positions: positions ?? null,
+    current_club: currentClub ?? null,
+    height_cm: heightCm ?? null,
+    weight_kg: weightKg ?? null,
+  } satisfies TaskProfileSnapshot;
 }

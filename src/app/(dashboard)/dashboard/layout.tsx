@@ -15,11 +15,12 @@ import {
   type TaskEvaluation,
   type TaskSeverity,
 } from "@/lib/dashboard/client/tasks";
+import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import type { ClientDashboardNavBadge } from "./navigation";
 
 type PlayerSummary = {
   id: string;
-  full_name: string;
+  full_name: string | null;
   avatar_url: string | null;
   slug: string | null;
   status: string;
@@ -35,6 +36,14 @@ type PlayerSummary = {
   weight_kg: number | null;
 };
 
+type PlayerApplicationForTasks = {
+  full_name: string | null;
+  nationality: string[] | null;
+  positions: string[] | null;
+  current_club: string | null;
+  notes: string | null;
+};
+
 type SubscriptionSummary = {
   plan: string;
   status: string;
@@ -48,7 +57,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard");
 
-  const [{ data: profileRaw }, { data: subscriptionRaw }] = await Promise.all([
+  const [{ data: profileRaw }, { data: subscriptionRaw }, { data: applicationRaw }] = await Promise.all([
     supabase
       .from("player_profiles")
       .select(
@@ -61,10 +70,18 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       .select("plan, status")
       .eq("user_id", user.id)
       .maybeSingle(),
+    supabase
+      .from("player_applications")
+      .select("full_name, nationality, positions, current_club, notes")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   const player = (profileRaw as PlayerSummary | null) ?? null;
   const sub = (subscriptionRaw as SubscriptionSummary | null) ?? null;
+  const application = (applicationRaw as PlayerApplicationForTasks | null) ?? null;
 
   const metrics = player
     ? await fetchPlayerTaskMetrics(supabase, player.id)
@@ -74,25 +91,29 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         contactReferences: 0,
       };
 
+  const normalizedProfile = player
+    ? {
+        id: player.id,
+        status: player.status,
+        slug: player.slug,
+        visibility: player.visibility,
+        full_name: player.full_name,
+        birth_date: player.birth_date,
+        nationality: player.nationality,
+        positions: player.positions,
+        current_club: player.current_club,
+        bio: player.bio,
+        avatar_url: player.avatar_url,
+        foot: player.foot,
+        height_cm: player.height_cm,
+        weight_kg: player.weight_kg,
+      }
+    : null;
+
+  const hydratedProfile = hydrateTaskProfileSnapshot(normalizedProfile, application ?? null);
+
   const taskContext: ClientTaskContext = {
-    profile: player
-      ? {
-          id: player.id,
-          status: player.status,
-          slug: player.slug,
-          visibility: player.visibility,
-          full_name: player.full_name,
-          birth_date: player.birth_date,
-          nationality: player.nationality,
-          positions: player.positions,
-          current_club: player.current_club,
-          bio: player.bio,
-          avatar_url: player.avatar_url,
-          foot: player.foot,
-          height_cm: player.height_cm,
-          weight_kg: player.weight_kg,
-        }
-      : null,
+    profile: hydratedProfile,
     metrics,
   };
 
@@ -114,9 +135,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="relative size-16 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900">
-                {player ? (
+                {hydratedProfile ? (
                   <Image
-                    src={player.avatar_url ?? "/images/player-default.png"}
+                    src={hydratedProfile.avatar_url ?? "/images/player-default.png"}
                     alt="Avatar del jugador"
                     fill
                     sizes="64px"
@@ -131,10 +152,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-semibold text-white">
-                  {player?.full_name ?? "Perfil sin configurar"}
+                  {hydratedProfile?.full_name ?? "Perfil sin configurar"}
                 </p>
                 <p className="text-xs text-neutral-500">
-                  {player?.slug ? `/${player.slug}` : "Creá tu perfil para habilitar tu página pública."}
+                  {hydratedProfile?.slug
+                    ? `/${hydratedProfile.slug}`
+                    : "Creá tu perfil para habilitar tu página pública."}
                 </p>
               </div>
             </div>
@@ -145,10 +168,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {player ? (
+            {hydratedProfile ? (
               <>
-                <SummaryBadge>Perfil: {player.status}</SummaryBadge>
-                <SummaryBadge>Visibilidad: {player.visibility}</SummaryBadge>
+                <SummaryBadge>Perfil: {hydratedProfile.status}</SummaryBadge>
+                <SummaryBadge>Visibilidad: {hydratedProfile.visibility}</SummaryBadge>
               </>
             ) : (
               <SummaryBadge tone="warning">Aún no completaste tu perfil de jugador</SummaryBadge>
