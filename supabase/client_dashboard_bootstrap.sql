@@ -79,6 +79,24 @@ GRANT ALL ON public.profile_change_logs TO authenticated;
 GRANT ALL ON public.profile_change_logs TO service_role;
 
 -- Identity metadata table required by the consolidated dashboard view.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'player_media'
+      AND column_name = 'is_primary'
+  ) THEN
+    ALTER TABLE public.player_media
+      ADD COLUMN is_primary boolean DEFAULT false NOT NULL;
+
+    CREATE INDEX IF NOT EXISTS idx_player_media_primary_photo
+      ON public.player_media (player_id)
+      WHERE is_primary;
+  END IF;
+END$$;
+
 CREATE TABLE IF NOT EXISTS public.player_personal_details (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   player_id uuid NOT NULL,
