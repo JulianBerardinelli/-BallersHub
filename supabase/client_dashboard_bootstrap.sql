@@ -4,6 +4,9 @@
 
 BEGIN;
 
+-- Ensure cryptographic helpers are available for UUID generation.
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Auditing table to track critical profile mutations from the dashboard UI.
 CREATE TABLE IF NOT EXISTS public.profile_change_logs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
