@@ -78,6 +78,205 @@ GRANT ALL ON public.profile_change_logs TO anon;
 GRANT ALL ON public.profile_change_logs TO authenticated;
 GRANT ALL ON public.profile_change_logs TO service_role;
 
+-- Identity metadata table required by the consolidated dashboard view.
+CREATE TABLE IF NOT EXISTS public.player_personal_details (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  player_id uuid NOT NULL,
+  document_type text,
+  document_number text,
+  document_country text,
+  document_country_code char(2),
+  languages text[],
+  phone text,
+  residence_city text,
+  residence_country text,
+  residence_country_code char(2),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.player_personal_details
+  ADD COLUMN IF NOT EXISTS document_type text,
+  ADD COLUMN IF NOT EXISTS document_number text,
+  ADD COLUMN IF NOT EXISTS document_country text,
+  ADD COLUMN IF NOT EXISTS document_country_code char(2),
+  ADD COLUMN IF NOT EXISTS languages text[],
+  ADD COLUMN IF NOT EXISTS phone text,
+  ADD COLUMN IF NOT EXISTS residence_city text,
+  ADD COLUMN IF NOT EXISTS residence_country text,
+  ADD COLUMN IF NOT EXISTS residence_country_code char(2),
+  ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now(),
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'player_personal_details_player_id_key'
+      AND conrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    ALTER TABLE public.player_personal_details
+      ADD CONSTRAINT player_personal_details_player_id_key UNIQUE (player_id);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'player_personal_details_pkey'
+      AND conrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    ALTER TABLE public.player_personal_details
+      ADD CONSTRAINT player_personal_details_pkey PRIMARY KEY (id);
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'player_personal_details_player_id_fkey'
+      AND conrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    ALTER TABLE public.player_personal_details
+      ADD CONSTRAINT player_personal_details_player_id_fkey
+      FOREIGN KEY (player_id)
+      REFERENCES public.player_profiles(id)
+      ON DELETE CASCADE;
+  END IF;
+END$$;
+
+CREATE INDEX IF NOT EXISTS idx_player_personal_details_player
+  ON public.player_personal_details (player_id);
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'biu_set_country_code_player_personal'
+      AND tgrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    CREATE TRIGGER biu_set_country_code_player_personal
+      BEFORE INSERT OR UPDATE OF residence_country, residence_country_code,
+        document_country, document_country_code
+      ON public.player_personal_details
+      FOR EACH ROW
+      EXECUTE FUNCTION public.trg_set_country_code_from_text();
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_trigger
+    WHERE tgname = 'trg_player_personal_details_updated'
+      AND tgrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    CREATE TRIGGER trg_player_personal_details_updated
+      BEFORE UPDATE ON public.player_personal_details
+      FOR EACH ROW
+      EXECUTE FUNCTION public.set_updated_at();
+  END IF;
+END$$;
+
+ALTER TABLE public.player_personal_details ENABLE ROW LEVEL SECURITY;
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'player_personal_details_select'
+      AND polrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    DROP POLICY player_personal_details_select ON public.player_personal_details;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'player_personal_details_insert'
+      AND polrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    DROP POLICY player_personal_details_insert ON public.player_personal_details;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'player_personal_details_update'
+      AND polrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    DROP POLICY player_personal_details_update ON public.player_personal_details;
+  END IF;
+
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'player_personal_details_delete'
+      AND polrelid = 'public.player_personal_details'::regclass
+  ) THEN
+    DROP POLICY player_personal_details_delete ON public.player_personal_details;
+  END IF;
+END$$;
+
+CREATE POLICY player_personal_details_select
+  ON public.player_personal_details
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.player_profiles p
+      WHERE p.id = player_personal_details.player_id
+        AND (p.user_id = auth.uid() OR public.is_admin(auth.uid()))
+    )
+  );
+
+CREATE POLICY player_personal_details_insert
+  ON public.player_personal_details
+  FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.player_profiles p
+      WHERE p.id = player_personal_details.player_id
+        AND (p.user_id = auth.uid() OR public.is_admin(auth.uid()))
+    )
+  );
+
+CREATE POLICY player_personal_details_update
+  ON public.player_personal_details
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.player_profiles p
+      WHERE p.id = player_personal_details.player_id
+        AND (p.user_id = auth.uid() OR public.is_admin(auth.uid()))
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1
+      FROM public.player_profiles p
+      WHERE p.id = player_personal_details.player_id
+        AND (p.user_id = auth.uid() OR public.is_admin(auth.uid()))
+    )
+  );
+
+CREATE POLICY player_personal_details_delete
+  ON public.player_personal_details
+  FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.player_profiles p
+      WHERE p.id = player_personal_details.player_id
+        AND (p.user_id = auth.uid() OR public.is_admin(auth.uid()))
+    )
+  );
+
+GRANT ALL ON public.player_personal_details TO anon;
+GRANT ALL ON public.player_personal_details TO authenticated;
+GRANT ALL ON public.player_personal_details TO service_role;
+
 -- Consolidated view consumed by the client dashboard data provider.
 DROP VIEW IF EXISTS public.player_dashboard_state;
 
