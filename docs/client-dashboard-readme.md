@@ -32,7 +32,7 @@ FormField.tsx    # Labeled content block for future form controls/inputs
 
 ## How it works today
 
-1. `layout.tsx` consulta la vista `player_dashboard_state` mediante `fetchDashboardState` para obtener perfil, solicitud y plan en una sola llamada antes de renderizar el shell.
+1. `layout.tsx` consulta la vista `player_dashboard_state` mediante `fetchDashboardState` para obtener perfil, solicitud y plan en una sola llamada antes de renderizar el shell (y, si la vista aún no existe en el entorno local, cae de manera transparente a lecturas directas de las tablas base).
 2. The `Sidebar` component receives the `navigation.ts` configuration and renders both the fixed sidebar (`lg` and up) and the mobile drawer trigger (below `lg`).
 3. Each feature page imports `PageHeader`, `SectionCard`, and `FormField` to provide consistent spacing, typography, and future form slotting.
 4. Current pages contain descriptive placeholders that outline the upcoming business logic to implement (forms, CRUD tables, toggles, etc.).
