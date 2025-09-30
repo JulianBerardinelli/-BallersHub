@@ -12,10 +12,9 @@ import {
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
-
-type MultimediaProfile = TaskProfileSnapshot & {
-  updated_at: string | null;
-};
+import LockedSection from "@/components/dashboard/client/LockedSection";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
 export default async function MultimediaPage() {
   const supabase = await createSupabaseServerRSC();
@@ -25,15 +24,9 @@ export default async function MultimediaPage() {
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-profile/multimedia");
 
-  const { data: profileRaw } = await supabase
-    .from("player_profiles")
-    .select(
-      "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, updated_at",
-    )
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const dashboardState = await fetchDashboardState(supabase, user.id);
 
-  const profile = (profileRaw as MultimediaProfile | null) ?? null;
+  const profile = dashboardState.profile;
 
   if (!profile) {
     return (
@@ -58,6 +51,24 @@ export default async function MultimediaPage() {
     );
   }
 
+  const access = resolveDashboardAccess({
+    profileStatus: profile.status,
+    hasProfile: true,
+    applicationStatus: dashboardState.application?.status ?? null,
+  });
+
+  if (access.profileLock) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Multimedia"
+          description="Centralizá imágenes, videos y artículos destacados para potenciar tu presencia digital."
+        />
+        <LockedSection {...access.profileLock} />
+      </div>
+    );
+  }
+
   const placeholderPhotos = Array.from({ length: 6 });
 
   const metrics = await fetchPlayerTaskMetrics(supabase, profile.id);
@@ -73,7 +84,7 @@ export default async function MultimediaPage() {
     positions: profile.positions ?? null,
     current_club: profile.current_club ?? null,
     bio: profile.bio ?? null,
-    avatar_url: profile.avatar_url ?? null,
+    avatar_url: profile.avatar_url ?? dashboardState.primaryPhotoUrl ?? null,
     foot: profile.foot ?? null,
     height_cm: profile.height_cm ?? null,
     weight_kg: profile.weight_kg ?? null,

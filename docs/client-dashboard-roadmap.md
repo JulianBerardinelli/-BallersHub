@@ -7,27 +7,27 @@
 - **V3 (Account growth & insights)** – Herramientas de suscripción, métricas y acompañamiento.
 
 ## Cross-cutting foundations
-- [ ] Consolidar un `DashboardDataProvider` que recupere `user`, `player_profile`, `player_applications`, `subscriptions` y `plan_features` usando Supabase RPC / vistas materializadas.
-- [ ] Definir utilidades de autorización (`canEditProfile`, `canEditTemplate`, `hasActiveApplication`, `isProPlan`, etc.) basadas en `role`, `player_status` y `plan`.
+- [x] Consolidar un `DashboardDataProvider` que recupere `user`, `player_profile`, `player_applications`, `subscriptions` y `plan_features` usando Supabase RPC / vistas materializadas.
+- [x] Definir utilidades de autorización (`canEditProfile`, `canEditTemplate`, `hasActiveApplication`, `isProPlan`, etc.) basadas en `role`, `player_status` y `plan`.
 - [ ] Instrumentar estados vacíos y loaders unificados (HeroUI `Skeleton`, `EmptyState`) para cada sección.
 - [ ] Preparar esquema de analytics/eventos (ej. `dashboard.task_completed`) para medir adopción.
 
 ## V1 · Player onboarding sync
 ### Estado general (dashboard/page.tsx)
-- [ ] Mostrar tarjeta resumen con estado del perfil (`player_status`) y aplicación activa (`player_applications.status`).
-- [ ] Habilitar badges de progreso por sección calculando campos obligatorios completados (datos personales, trayectoria, multimedia mínima).
-- [ ] Incorporar CTA contextual: crear solicitud si no existe, ver solicitud si está en revisión, ir a perfil público si está aprobado.
+- [x] Mostrar tarjeta resumen con estado del perfil (`player_status`) y aplicación activa (`player_applications.status`).
+- [x] Habilitar badges de progreso por sección calculando campos obligatorios completados (datos personales, trayectoria, multimedia mínima).
+- [x] Incorporar CTA contextual: crear solicitud si no existe, ver solicitud si está en revisión, ir a perfil público si está aprobado.
 
 ### Editar perfil · Datos personales (`edit-profile/personal-data`)
-- [ ] Mapear campos de `player_profiles` y `player_personal_details` (nombre, documento, fecha de nacimiento, altura, peso, idiomas).
-- [ ] Sincronizar dirección/país utilizando catálogo `countries` y helper `trg_set_country_code_from_text` del schema.
-- [ ] Gestionar avatar en Supabase Storage (`player_media` con `media_type = 'photo'` y flag `is_primary`).
-- [ ] Registrar historial de cambios críticos (auditoría mínima con tabla `profile_change_logs`).
+- [x] Mapear campos de `player_profiles` y `player_personal_details` (nombre, documento, fecha de nacimiento, altura, peso, idiomas).
+- [x] Sincronizar dirección/país utilizando catálogo `countries` y helper `trg_set_country_code_from_text` del schema.
+- [x] Gestionar avatar en Supabase Storage (`player_media` con `media_type = 'photo'` y flag `is_primary`).
+- [x] Registrar historial de cambios críticos (auditoría mínima con tabla `profile_change_logs`).
 
 ### Solicitud y permisos
-- [ ] Crear vista combinada `player_dashboard_state` que una `profiles`, `player_applications`, `plan_subscriptions` para hidratar el dashboard en una llamada.
-- [ ] Bloquear secciones `edit-profile/*` y `edit-template/*` cuando `player_status` ∈ {`draft`, `pending_review`} mostrando componente de desbloqueo.
-- [ ] Permitir reabrir onboarding si la solicitud fue rechazada (`player_applications.status = 'rejected'`).
+- [x] Crear vista combinada `player_dashboard_state` que una `profiles`, `player_applications`, `plan_subscriptions` para hidratar el dashboard en una llamada.
+- [x] Bloquear secciones `edit-profile/*` y `edit-template/*` cuando `player_status` ∈ {`draft`, `pending_review`} mostrando componente de desbloqueo.
+- [x] Permitir reabrir onboarding si la solicitud fue rechazada (`player_applications.status = 'rejected'`).
 
 ## V2 · Profile publishing
 ### Datos futbolísticos (`edit-profile/football-data`)

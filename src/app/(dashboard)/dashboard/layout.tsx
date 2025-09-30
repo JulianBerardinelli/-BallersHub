@@ -16,38 +16,8 @@ import {
   type TaskSeverity,
 } from "@/lib/dashboard/client/tasks";
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import type { ClientDashboardNavBadge } from "./navigation";
-
-type PlayerSummary = {
-  id: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  slug: string | null;
-  status: string;
-  visibility: string;
-  plan_public: string;
-  birth_date: string | null;
-  nationality: string[] | null;
-  positions: string[] | null;
-  current_club: string | null;
-  bio: string | null;
-  foot: string | null;
-  height_cm: number | null;
-  weight_kg: number | null;
-};
-
-type PlayerApplicationForTasks = {
-  full_name: string | null;
-  nationality: string[] | null;
-  positions: string[] | null;
-  current_club: string | null;
-  notes: string | null;
-};
-
-type SubscriptionSummary = {
-  plan: string;
-  status: string;
-};
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -57,56 +27,36 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard");
 
-  const [{ data: profileRaw }, { data: subscriptionRaw }, { data: applicationRaw }] = await Promise.all([
-    supabase
-      .from("player_profiles")
-      .select(
-        "id, full_name, avatar_url, slug, status, visibility, plan_public, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg",
-      )
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("subscriptions")
-      .select("plan, status")
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("player_applications")
-      .select("full_name, nationality, positions, current_club, notes")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  const dashboardState = await fetchDashboardState(supabase, user.id);
 
-  const player = (profileRaw as PlayerSummary | null) ?? null;
-  const sub = (subscriptionRaw as SubscriptionSummary | null) ?? null;
-  const application = (applicationRaw as PlayerApplicationForTasks | null) ?? null;
+  const profile = dashboardState.profile;
+  const application = dashboardState.application;
+  const subscription = dashboardState.subscription;
 
-  const metrics = player
-    ? await fetchPlayerTaskMetrics(supabase, player.id)
+  const metrics = profile
+    ? await fetchPlayerTaskMetrics(supabase, profile.id)
     : {
         careerItems: 0,
         media: { total: 0, photos: 0, videos: 0, docs: 0 },
         contactReferences: 0,
       };
 
-  const normalizedProfile = player
+  const normalizedProfile = profile
     ? {
-        id: player.id,
-        status: player.status,
-        slug: player.slug,
-        visibility: player.visibility,
-        full_name: player.full_name,
-        birth_date: player.birth_date,
-        nationality: player.nationality,
-        positions: player.positions,
-        current_club: player.current_club,
-        bio: player.bio,
-        avatar_url: player.avatar_url,
-        foot: player.foot,
-        height_cm: player.height_cm,
-        weight_kg: player.weight_kg,
+        id: profile.id,
+        status: profile.status,
+        slug: profile.slug,
+        visibility: profile.visibility,
+        full_name: profile.full_name,
+        birth_date: profile.birth_date,
+        nationality: profile.nationality,
+        positions: profile.positions,
+        current_club: profile.current_club,
+        bio: profile.bio,
+        avatar_url: profile.avatar_url ?? dashboardState.primaryPhotoUrl ?? null,
+        foot: profile.foot,
+        height_cm: profile.height_cm,
+        weight_kg: profile.weight_kg,
       }
     : null;
 
@@ -177,11 +127,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               <SummaryBadge tone="warning">Aún no completaste tu perfil de jugador</SummaryBadge>
             )}
             <SummaryBadge>
-              Plan: {(sub?.plan ?? player?.plan_public ?? "free").toUpperCase()}
+              Plan: {(subscription?.plan ?? profile?.plan_public ?? "free").toUpperCase()}
             </SummaryBadge>
-            {sub ? (
-              <SummaryBadge tone={sub.status === "active" ? "success" : "warning"}>
-                Estado plan: {sub.status}
+            {subscription ? (
+              <SummaryBadge tone={subscription.status === "active" ? "success" : "warning"}>
+                Estado plan: {subscription.status}
               </SummaryBadge>
             ) : null}
           </div>

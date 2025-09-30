@@ -4,6 +4,7 @@ import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
+import LockedSection from "@/components/dashboard/client/LockedSection";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
   buildTaskContext,
@@ -17,11 +18,8 @@ import {
   pickFirstPresent,
 } from "@/lib/dashboard/client/profile-data";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
-
-type FootballProfile = TaskProfileSnapshot & {
-  market_value_eur: string | number | null;
-  updated_at: string | null;
-};
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
 type CareerItem = {
   id: string;
@@ -60,30 +58,12 @@ export default async function FootballDataPage() {
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-profile/football-data");
 
-  const [profileResult, applicationResult] = await Promise.all([
-    supabase
-      .from("player_profiles")
-      .select(
-        "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, market_value_eur, updated_at",
-      )
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("player_applications")
-      .select("id, full_name, nationality, positions, current_club, transfermarkt_url, external_profile_url, notes, status, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  const dashboardState = await fetchDashboardState(supabase, user.id);
 
-  const profileRaw = profileResult.data;
-  const applicationRaw = applicationResult.data;
+  const profileData = dashboardState.profile;
+  const applicationData = dashboardState.application;
 
-  const profile = (profileRaw as FootballProfile | null) ?? null;
-  const application = (applicationRaw as PlayerApplicationSnapshot | null) ?? null;
-
-  if (!profile) {
+  if (!profileData) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -106,18 +86,36 @@ export default async function FootballDataPage() {
     );
   }
 
+  const access = resolveDashboardAccess({
+    profileStatus: profileData.status,
+    hasProfile: true,
+    applicationStatus: applicationData?.status ?? null,
+  });
+
+  if (access.profileLock) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Datos futbolísticos"
+          description="Organizá toda tu información deportiva para construir un perfil completo y actualizado."
+        />
+        <LockedSection {...access.profileLock} />
+      </div>
+    );
+  }
+
   const [careerResult, mediaResult, metrics] = await Promise.all([
     supabase
       .from("career_items")
       .select("id, club, division, start_date, end_date")
-      .eq("player_id", profile.id)
+      .eq("player_id", profileData.id)
       .order("start_date", { ascending: false }),
     supabase
       .from("player_media")
       .select("id, type, url, title, provider")
-      .eq("player_id", profile.id)
+      .eq("player_id", profileData.id)
       .order("created_at", { ascending: true }),
-    fetchPlayerTaskMetrics(supabase, profile.id),
+    fetchPlayerTaskMetrics(supabase, profileData.id),
   ]);
 
   const careerRaw = careerResult.data;
@@ -128,23 +126,38 @@ export default async function FootballDataPage() {
 
   const primaryHighlight = media.find((item) => item.type === "video") ?? null;
 
+  const application: PlayerApplicationSnapshot | null = applicationData
+    ? {
+        id: applicationData.id,
+        full_name: applicationData.full_name ?? null,
+        nationality: applicationData.nationality ?? null,
+        positions: applicationData.positions ?? null,
+        current_club: applicationData.current_club ?? null,
+        transfermarkt_url: applicationData.transfermarkt_url ?? null,
+        external_profile_url: applicationData.external_profile_url ?? null,
+        notes: applicationData.notes ?? null,
+        status: applicationData.status ?? null,
+        created_at: applicationData.created_at ?? null,
+      }
+    : null;
+
   const applicationLinks = extractApplicationLinks(application);
 
   const normalizedProfile: TaskProfileSnapshot = {
-    id: profile.id,
-    status: profile.status,
-    slug: profile.slug ?? null,
-    visibility: profile.visibility,
-    full_name: profile.full_name ?? null,
-    birth_date: profile.birth_date ?? null,
-    nationality: profile.nationality ?? null,
-    positions: profile.positions ?? null,
-    current_club: profile.current_club ?? null,
-    bio: profile.bio ?? null,
-    avatar_url: profile.avatar_url ?? null,
-    foot: profile.foot ?? null,
-    height_cm: profile.height_cm ?? null,
-    weight_kg: profile.weight_kg ?? null,
+    id: profileData.id,
+    status: profileData.status,
+    slug: profileData.slug ?? null,
+    visibility: profileData.visibility,
+    full_name: profileData.full_name ?? null,
+    birth_date: profileData.birth_date ?? null,
+    nationality: profileData.nationality ?? null,
+    positions: profileData.positions ?? null,
+    current_club: profileData.current_club ?? null,
+    bio: profileData.bio ?? null,
+    avatar_url: profileData.avatar_url ?? dashboardState.primaryPhotoUrl ?? null,
+    foot: profileData.foot ?? null,
+    height_cm: profileData.height_cm ?? null,
+    weight_kg: profileData.weight_kg ?? null,
   };
 
   const hydratedProfile =
@@ -165,7 +178,7 @@ export default async function FootballDataPage() {
     : "";
   const dominantFoot = hydratedProfile.foot ?? "";
   const currentClub = hydratedProfile.current_club ?? "";
-  const marketValue = profile.market_value_eur ? String(profile.market_value_eur) : "";
+  const marketValue = profileData.market_value_eur ? String(profileData.market_value_eur) : "";
   const highlightUrl = pickFirstPresent(
     primaryHighlight?.url ?? null,
     applicationLinks.youtube,

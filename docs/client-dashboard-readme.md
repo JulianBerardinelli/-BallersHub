@@ -32,10 +32,11 @@ FormField.tsx    # Labeled content block for future form controls/inputs
 
 ## How it works today
 
-1. `layout.tsx` loads the authenticated user context via the existing `getUserProfile` util and surfaces top-level metadata (plan, review status, etc.).
+1. `layout.tsx` consulta la vista `player_dashboard_state` mediante `fetchDashboardState` para obtener perfil, solicitud y plan en una sola llamada antes de renderizar el shell.
 2. The `Sidebar` component receives the `navigation.ts` configuration and renders both the fixed sidebar (`lg` and up) and the mobile drawer trigger (below `lg`).
 3. Each feature page imports `PageHeader`, `SectionCard`, and `FormField` to provide consistent spacing, typography, and future form slotting.
 4. Current pages contain descriptive placeholders that outline the upcoming business logic to implement (forms, CRUD tables, toggles, etc.).
+5. `LockedSection` + `resolveDashboardAccess` determinan qué secciones permanecen inactivas cuando el perfil está en borrador o pendiente de revisión.
 
 ## Extensibility guidelines
 

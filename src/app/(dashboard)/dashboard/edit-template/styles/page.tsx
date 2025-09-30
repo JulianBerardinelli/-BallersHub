@@ -3,6 +3,9 @@ import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import LockedSection from "@/components/dashboard/client/LockedSection";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
 const TEMPLATE_OPTIONS = [
   {
@@ -42,6 +45,42 @@ export default async function TemplateStylesPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-template/styles");
+
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const profile = dashboardState.profile;
+  const access = resolveDashboardAccess({
+    profileStatus: profile?.status ?? null,
+    hasProfile: Boolean(profile),
+    applicationStatus: dashboardState.application?.status ?? null,
+  });
+
+  if (!profile) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Estilos de plantilla"
+          description="Configura la apariencia visual de tu página pública y mantené consistencia con tu marca personal."
+        />
+        <LockedSection
+          title="Configuración no disponible"
+          description="Necesitás contar con un perfil aprobado para personalizar estilos y colores. Completa el onboarding para habilitar esta sección."
+          action={{ label: "Ir al onboarding", href: "/onboarding/start", tone: "primary" }}
+        />
+      </div>
+    );
+  }
+
+  if (access.templateLock) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Estilos de plantilla"
+          description="Configura la apariencia visual de tu página pública y mantené consistencia con tu marca personal."
+        />
+        <LockedSection {...access.templateLock} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

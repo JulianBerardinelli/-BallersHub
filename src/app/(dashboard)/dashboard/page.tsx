@@ -23,6 +23,7 @@ import {
   type TaskProfileSnapshot,
 } from "@/lib/dashboard/client/task-context";
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 
 type PlayerOverview = TaskProfileSnapshot & { updated_at: string | null };
 
@@ -175,50 +176,34 @@ function getPrimaryCta(
   profile: PlayerOverview | null,
   application: ApplicationOverview | null,
 ): DashboardStatusSummaryProps["cta"] {
-  if (profile) {
-    switch (profile.status) {
-      case "approved":
-        if (profile.slug) {
-          return {
-            label: "Ver perfil público",
-            href: `/${profile.slug}`,
-            variant: "solid",
-            color: "primary",
-          };
-        }
-        return {
-          label: "Configurar URL pública",
-          href: "/dashboard/edit-profile/personal-data",
-          variant: "solid",
-          color: "primary",
-        };
-      case "draft":
-        return {
-          label: "Completar datos pendientes",
-          href: "/dashboard/edit-profile/personal-data",
-          variant: "solid",
-          color: "primary",
-        };
-      case "pending_review":
-        return {
-          label: "Ver solicitud",
-          href: "/onboarding/player/apply",
-          variant: "bordered",
-          color: "primary",
-        };
-      case "rejected":
-        return {
-          label: "Reabrir onboarding",
-          href: "/onboarding/start",
-          variant: "solid",
-          color: "warning",
-        };
-      default:
-        return undefined;
+  if (!profile) {
+    if (application?.status === "pending") {
+      return {
+        label: "Ver solicitud",
+        href: "/onboarding/player/apply",
+        variant: "bordered",
+        color: "primary",
+      };
     }
-  }
 
-  if (!application) {
+    if (application?.status === "rejected") {
+      return {
+        label: "Reabrir onboarding",
+        href: "/onboarding/start",
+        variant: "solid",
+        color: "warning",
+      };
+    }
+
+    if (application?.status === "approved") {
+      return {
+        label: "Configurar perfil",
+        href: "/dashboard/edit-profile/personal-data",
+        variant: "solid",
+        color: "primary",
+      };
+    }
+
     return {
       label: "Crear solicitud",
       href: "/onboarding/start",
@@ -227,34 +212,46 @@ function getPrimaryCta(
     };
   }
 
-  if (application.status === "pending") {
-    return {
-      label: "Ver solicitud",
-      href: "/onboarding/player/apply",
-      variant: "bordered",
-      color: "primary",
-    };
+  switch (profile.status) {
+    case "approved":
+      if (profile.slug) {
+        return {
+          label: "Ver perfil público",
+          href: `/${profile.slug}`,
+          variant: "solid",
+          color: "primary",
+        };
+      }
+      return {
+        label: "Configurar URL pública",
+        href: "/dashboard/edit-profile/personal-data",
+        variant: "solid",
+        color: "primary",
+      };
+    case "draft":
+      return {
+        label: "Completar datos pendientes",
+        href: "/dashboard/edit-profile/personal-data",
+        variant: "solid",
+        color: "primary",
+      };
+    case "pending_review":
+      return {
+        label: "Ver solicitud",
+        href: "/onboarding/player/apply",
+        variant: "bordered",
+        color: "primary",
+      };
+    case "rejected":
+      return {
+        label: "Reabrir onboarding",
+        href: "/onboarding/start",
+        variant: "solid",
+        color: "warning",
+      };
+    default:
+      return undefined;
   }
-
-  if (application.status === "rejected") {
-    return {
-      label: "Reintentar solicitud",
-      href: "/onboarding/start",
-      variant: "solid",
-      color: "warning",
-    };
-  }
-
-  if (application.status === "approved") {
-    return {
-      label: "Configurar perfil",
-      href: "/dashboard/edit-profile/personal-data",
-      variant: "solid",
-      color: "primary",
-    };
-  }
-
-  return undefined;
 }
 
 function buildProgressSectionsFromTasks(
@@ -307,27 +304,40 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard");
 
-  const [{ data: profileRaw }, { data: applicationRaw }] = await Promise.all([
-    supabase
-      .from("player_profiles")
-      .select(
-        "id, status, slug, visibility, full_name, birth_date, nationality, positions, current_club, bio, avatar_url, foot, height_cm, weight_kg, updated_at",
-      )
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("player_applications")
-      .select(
-        "status, created_at, plan_requested, full_name, nationality, positions, current_club, notes",
-      )
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  const dashboardState = await fetchDashboardState(supabase, user.id);
 
-  const profile = (profileRaw as PlayerOverview | null) ?? null;
-  const application = (applicationRaw as ApplicationOverview | null) ?? null;
+  const profile = dashboardState.profile
+    ? ({
+        id: dashboardState.profile.id,
+        status: dashboardState.profile.status,
+        slug: dashboardState.profile.slug ?? null,
+        visibility: dashboardState.profile.visibility,
+        full_name: dashboardState.profile.full_name ?? null,
+        birth_date: dashboardState.profile.birth_date ?? null,
+        nationality: dashboardState.profile.nationality ?? null,
+        positions: dashboardState.profile.positions ?? null,
+        current_club: dashboardState.profile.current_club ?? null,
+        bio: dashboardState.profile.bio ?? null,
+        avatar_url: dashboardState.profile.avatar_url ?? dashboardState.primaryPhotoUrl ?? null,
+        foot: dashboardState.profile.foot ?? null,
+        height_cm: dashboardState.profile.height_cm ?? null,
+        weight_kg: dashboardState.profile.weight_kg ?? null,
+        updated_at: dashboardState.profile.updated_at ?? null,
+      } satisfies PlayerOverview)
+    : null;
+
+  const application = dashboardState.application
+    ? ({
+        status: dashboardState.application.status ?? "pending",
+        created_at: dashboardState.application.created_at ?? "",
+        plan_requested: dashboardState.application.plan_requested ?? null,
+        full_name: dashboardState.application.full_name ?? null,
+        nationality: dashboardState.application.nationality ?? null,
+        positions: dashboardState.application.positions ?? null,
+        current_club: dashboardState.application.current_club ?? null,
+        notes: dashboardState.application.notes ?? null,
+      } satisfies ApplicationOverview)
+    : null;
 
   const metrics = profile ? await fetchPlayerTaskMetrics(supabase, profile.id) : EMPTY_PLAYER_TASK_METRICS;
   const normalizedProfile: TaskProfileSnapshot | null = profile

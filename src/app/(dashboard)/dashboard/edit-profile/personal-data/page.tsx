@@ -6,6 +6,7 @@ import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
+import LockedSection from "@/components/dashboard/client/LockedSection";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
   buildTaskContext,
@@ -15,10 +16,8 @@ import {
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
-
-type PersonalProfile = TaskProfileSnapshot & {
-  updated_at: string | null;
-};
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
 type PlayerApplicationSnapshot = {
   id: string;
@@ -41,30 +40,13 @@ export default async function PersonalDataPage() {
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-profile/personal-data");
 
-  const [profileResult, applicationResult] = await Promise.all([
-    supabase
-      .from("player_profiles")
-      .select(
-        "id, status, slug, visibility, full_name, avatar_url, birth_date, nationality, positions, current_club, bio, foot, height_cm, weight_kg, updated_at",
-      )
-      .eq("user_id", user.id)
-      .maybeSingle(),
-    supabase
-      .from("player_applications")
-      .select("id, full_name, nationality, positions, current_club, transfermarkt_url, external_profile_url, notes, status, created_at")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+  const dashboardState = await fetchDashboardState(supabase, user.id);
 
-  const profileRaw = profileResult.data;
-  const applicationRaw = applicationResult.data;
+  const profileData = dashboardState.profile;
+  const applicationData = dashboardState.application;
+  const personalDetails = dashboardState.personalDetails;
 
-  const profile = (profileRaw as PersonalProfile | null) ?? null;
-  const application = (applicationRaw as PlayerApplicationSnapshot | null) ?? null;
-
-  if (!profile) {
+  if (!profileData) {
     return (
       <div className="space-y-6">
         <PageHeader
@@ -87,24 +69,57 @@ export default async function PersonalDataPage() {
     );
   }
 
-  const metrics = await fetchPlayerTaskMetrics(supabase, profile.id);
+  const access = resolveDashboardAccess({
+    profileStatus: profileData.status,
+    hasProfile: true,
+    applicationStatus: applicationData?.status ?? null,
+  });
+
+  if (access.profileLock) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Datos personales"
+          description="Gestioná tu información básica y de contacto. Estos datos se utilizarán para tu perfil público y comunicaciones."
+        />
+        <LockedSection {...access.profileLock} />
+      </div>
+    );
+  }
+
+  const metrics = await fetchPlayerTaskMetrics(supabase, profileData.id);
 
   const normalizedProfile: TaskProfileSnapshot = {
-    id: profile.id,
-    status: profile.status,
-    slug: profile.slug ?? null,
-    visibility: profile.visibility,
-    full_name: profile.full_name ?? null,
-    birth_date: profile.birth_date ?? null,
-    nationality: profile.nationality ?? null,
-    positions: profile.positions ?? null,
-    current_club: profile.current_club ?? null,
-    bio: profile.bio ?? null,
-    avatar_url: profile.avatar_url ?? null,
-    foot: profile.foot ?? null,
-    height_cm: profile.height_cm ?? null,
-    weight_kg: profile.weight_kg ?? null,
+    id: profileData.id,
+    status: profileData.status,
+    slug: profileData.slug ?? null,
+    visibility: profileData.visibility,
+    full_name: profileData.full_name ?? null,
+    birth_date: profileData.birth_date ?? null,
+    nationality: profileData.nationality ?? null,
+    positions: profileData.positions ?? null,
+    current_club: profileData.current_club ?? null,
+    bio: profileData.bio ?? null,
+    avatar_url: profileData.avatar_url ?? dashboardState.primaryPhotoUrl ?? null,
+    foot: profileData.foot ?? null,
+    height_cm: profileData.height_cm ?? null,
+    weight_kg: profileData.weight_kg ?? null,
   };
+
+  const application: PlayerApplicationSnapshot | null = applicationData
+    ? {
+        id: applicationData.id,
+        full_name: applicationData.full_name ?? null,
+        nationality: applicationData.nationality ?? null,
+        positions: applicationData.positions ?? null,
+        current_club: applicationData.current_club ?? null,
+        transfermarkt_url: applicationData.transfermarkt_url ?? null,
+        external_profile_url: applicationData.external_profile_url ?? null,
+        notes: applicationData.notes ?? null,
+        status: applicationData.status ?? null,
+        created_at: applicationData.created_at ?? null,
+      }
+    : null;
 
   const hydratedProfile =
     hydrateTaskProfileSnapshot(normalizedProfile, application ?? null) ?? normalizedProfile;
@@ -119,15 +134,50 @@ export default async function PersonalDataPage() {
     href: task.href,
   }));
 
+  const { data: countriesRaw } = await supabase
+    .from("countries")
+    .select("code, name_es, name_en");
+
+  const countries = new Map<string, string>();
+  (countriesRaw ?? []).forEach((country) => {
+    const label = country.name_es ?? country.name_en ?? country.code;
+    countries.set(country.code, label);
+  });
+
+  function resolveCountryName(code: string | null | undefined, fallback: string | null | undefined) {
+    if (code && countries.has(code)) {
+      return countries.get(code) ?? fallback ?? "";
+    }
+    return fallback ?? "";
+  }
+
   const displayFullName = hydratedProfile.full_name ?? "";
   const birthDate = hydratedProfile.birth_date
     ? new Date(hydratedProfile.birth_date).toLocaleDateString()
     : "";
-  const nationalities = Array.isArray(hydratedProfile.nationality)
-    ? hydratedProfile.nationality.join(", ")
-    : "";
+  const nationalityCandidates = Array.isArray(hydratedProfile.nationality)
+    ? hydratedProfile.nationality
+    : (profileData.nationalityCodes ?? []).map((code) => resolveCountryName(code, code));
+  const nationalities = nationalityCandidates.filter((value) => value && value.length > 0).join(", ");
   const heightCm = hydratedProfile.height_cm;
   const weightKg = hydratedProfile.weight_kg;
+  const residenceCountryName = resolveCountryName(
+    personalDetails?.residence_country_code ?? null,
+    personalDetails?.residence_country ?? null,
+  );
+  const residenceCity = personalDetails?.residence_city ?? "";
+  const residence = [residenceCity, residenceCountryName].filter((value) => value && value.trim().length > 0).join(", ");
+  const languagesValue = personalDetails?.languages?.join(", ") ?? "";
+  const phoneValue = personalDetails?.phone ?? "";
+  const documentValue = [personalDetails?.document_type, personalDetails?.document_number]
+    .map((value) => (typeof value === "string" ? value.trim() : ""))
+    .filter((value) => value.length > 0)
+    .join(" · ");
+  const documentCountryName = resolveCountryName(
+    personalDetails?.document_country_code ?? null,
+    personalDetails?.document_country ?? null,
+  );
+  const avatarUrl = normalizedProfile.avatar_url ?? "/images/player-default.png";
 
   return (
     <div className="space-y-6">
@@ -145,7 +195,7 @@ export default async function PersonalDataPage() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
           <div className="relative size-24 overflow-hidden rounded-lg border border-neutral-800">
             <Image
-              src={profile.avatar_url ?? "/images/player-default.png"}
+              src={avatarUrl}
               alt="Avatar actual"
               fill
               sizes="96px"
@@ -157,7 +207,7 @@ export default async function PersonalDataPage() {
             <p className="text-sm text-neutral-300">
               Utilizá una imagen en alta resolución, formato cuadrado. Las imágenes se utilizarán en tu CV automatizado y perfil público.
             </p>
-            <AvatarUploader playerId={profile.id} />
+            <AvatarUploader playerId={profileData.id} currentAvatarUrl={avatarUrl} />
           </div>
         </div>
       </SectionCard>
@@ -181,6 +231,7 @@ export default async function PersonalDataPage() {
             <FormField
               id="residence"
               label="Residencia actual"
+              defaultValue={residence}
               placeholder="Ciudad, país"
               description="Podrás definir la ubicación que se mostrará en tu perfil."
             />
@@ -204,7 +255,7 @@ export default async function PersonalDataPage() {
             as="textarea"
             rows={4}
             label="Biografía breve"
-            defaultValue={profile.bio ?? ""}
+            defaultValue={hydratedProfile.bio ?? ""}
             placeholder="Contá brevemente tu trayectoria y objetivos profesionales."
           />
         </form>
@@ -219,19 +270,28 @@ export default async function PersonalDataPage() {
           <FormField
             id="phone"
             label="Teléfono de contacto"
+            defaultValue={phoneValue}
             placeholder="Próximamente podrás agregar números verificados"
           />
           <FormField
             id="languages"
             label="Idiomas"
+            defaultValue={languagesValue}
             placeholder="Ej: Español, Inglés"
             description="Definí los idiomas en los que te pueden contactar."
           />
           <FormField
             id="documents"
             label="Documentación"
+            defaultValue={documentValue}
             placeholder="Pasaporte UE, DNI, etc."
             description="Se integrará con verificación documental más adelante."
+          />
+          <FormField
+            id="document_country"
+            label="País del documento"
+            defaultValue={documentCountryName}
+            placeholder="País emisor"
           />
         </form>
       </SectionCard>

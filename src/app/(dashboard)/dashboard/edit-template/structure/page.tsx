@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import LockedSection from "@/components/dashboard/client/LockedSection";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
 const STRUCTURE_BLOCKS = [
   {
@@ -65,6 +68,42 @@ export default async function TemplateStructurePage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard/edit-template/structure");
+
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const profile = dashboardState.profile;
+  const access = resolveDashboardAccess({
+    profileStatus: profile?.status ?? null,
+    hasProfile: Boolean(profile),
+    applicationStatus: dashboardState.application?.status ?? null,
+  });
+
+  if (!profile) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Estructura de la plantilla"
+          description="Activá, desactivá y ordená bloques de contenido para adaptar tu página pública a diferentes escenarios."
+        />
+        <LockedSection
+          title="Bloques no disponibles"
+          description="Creá y aprobá tu perfil de jugador para personalizar qué secciones se publican en tu CV."
+          action={{ label: "Completar perfil", href: "/onboarding/start", tone: "primary" }}
+        />
+      </div>
+    );
+  }
+
+  if (access.templateLock) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Estructura de la plantilla"
+          description="Activá, desactivá y ordená bloques de contenido para adaptar tu página pública a diferentes escenarios."
+        />
+        <LockedSection {...access.templateLock} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
