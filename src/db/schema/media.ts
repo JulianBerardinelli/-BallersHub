@@ -1,5 +1,5 @@
 // player_media
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean } from "drizzle-orm/pg-core";
 import { mediaTypeEnum } from "./enums";
 import { playerProfiles } from "./players";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -11,6 +11,7 @@ export const playerMedia = pgTable("player_media", {
   url: text("url").notNull(),
   title: text("title"),
   provider: text("provider"),
+  isPrimary: boolean("is_primary").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

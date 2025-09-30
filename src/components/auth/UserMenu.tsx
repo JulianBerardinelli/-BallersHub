@@ -1,11 +1,20 @@
 "use client";
 
 import {
-  Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
-  User as HeroUser, Avatar
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  User as HeroUser,
+  Avatar,
 } from "@heroui/react";
 import Link from "next/link";
 import { useTransition } from "react";
+import {
+  hasActiveApplication,
+  isApplicationDraft,
+  normalizeApplicationStatus,
+} from "@/lib/dashboard/client/application-status";
 
 export default function UserMenuHero({
   displayName,
@@ -14,6 +23,7 @@ export default function UserMenuHero({
   avatarUrl,
   hasPlayerProfile,   // ahora significa: “público & aprobado”
   playerSlug,
+  applicationStatus,
   onSignOut,
 }: {
   displayName: string;
@@ -22,9 +32,13 @@ export default function UserMenuHero({
   avatarUrl?: string | null;
   hasPlayerProfile: boolean;
   playerSlug?: string | null;
+  applicationStatus?: string | null;
   onSignOut: () => Promise<void>;
 }) {
   const [pending, startTransition] = useTransition();
+  const normalizedApplicationStatus = normalizeApplicationStatus(applicationStatus ?? null);
+  const activeApplication = hasActiveApplication(normalizedApplicationStatus);
+  const draftApplication = isApplicationDraft(normalizedApplicationStatus);
 
   return (
     <Dropdown placement="bottom-end">
@@ -54,8 +68,15 @@ export default function UserMenuHero({
           <DropdownItem key="public-profile" as={Link} href={`/${playerSlug}`}>
             Ver perfil público
           </DropdownItem>
+        ) : activeApplication ? (
+          <DropdownItem key="application-status" as={Link} href="/onboarding/player/apply" color="primary">
+            Ver solicitud en revisión
+          </DropdownItem>
+        ) : draftApplication ? (
+          <DropdownItem key="application-draft" as={Link} href="/onboarding/player/apply" color="primary">
+            Continuar solicitud
+          </DropdownItem>
         ) : (
-          // 🔹 Primero ver planes; desde ahí ir al apply
           <DropdownItem key="apply" as={Link} href="/onboarding/player/plan" color="primary">
             Solicitar cuenta de jugador
           </DropdownItem>
@@ -64,19 +85,22 @@ export default function UserMenuHero({
         <DropdownItem key="dashboard" as={Link} href="/dashboard">
           Dashboard
         </DropdownItem>
-        <DropdownItem key="profile" as={Link} href="/dashboard/profile">
-          Editar perfil
+        <DropdownItem key="profile" as={Link} href="/dashboard/edit-profile/personal-data">
+          Datos personales
         </DropdownItem>
-        <DropdownItem key="media" as={Link} href="/dashboard/media">
-          Media
+        <DropdownItem key="football" as={Link} href="/dashboard/edit-profile/football-data">
+          Datos futbolísticos
         </DropdownItem>
-        <DropdownItem key="career" as={Link} href="/dashboard/career">
-          Trayectoria
+        <DropdownItem key="media" as={Link} href="/dashboard/edit-profile/multimedia">
+          Multimedia
         </DropdownItem>
-        <DropdownItem key="billing" as={Link} href="/dashboard/billing">
+        <DropdownItem key="template" as={Link} href="/dashboard/edit-template/styles">
+          Plantilla
+        </DropdownItem>
+        <DropdownItem key="billing" as={Link} href="/dashboard/settings/subscription">
           Suscripción
         </DropdownItem>
-        <DropdownItem key="settings" as={Link} href="/dashboard/settings">
+        <DropdownItem key="settings" as={Link} href="/dashboard/settings/account">
           Configuración
         </DropdownItem>
         <DropdownItem

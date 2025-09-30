@@ -982,6 +982,18 @@ begin
       new.nationality_codes := public.country_guess_codes(new.nationality);
     end if;
     return new;
+
+  elsif TG_TABLE_NAME = 'player_personal_details' then
+    if (new.residence_country_code is null or length(trim(new.residence_country_code))=0)
+       and new.residence_country is not null then
+      new.residence_country_code := public.country_guess_code(new.residence_country);
+    end if;
+
+    if (new.document_country_code is null or length(trim(new.document_country_code))=0)
+       and new.document_country is not null then
+      new.document_country_code := public.country_guess_code(new.document_country);
+    end if;
+    return new;
   end if;
 
   return new;
@@ -1100,6 +1112,7 @@ CREATE TABLE IF NOT EXISTS "public"."player_media" (
     "url" "text" NOT NULL,
     "title" "text",
     "provider" "text",
+    "is_primary" boolean DEFAULT false NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
@@ -1137,6 +1150,110 @@ ALTER TABLE "public"."player_profiles" OWNER TO "postgres";
 
 COMMENT ON COLUMN "public"."player_profiles"."market_value_eur" IS 'Valor de mercado opcional en EUR. Puede ser null.';
 
+
+
+CREATE TABLE IF NOT EXISTS "public"."player_personal_details" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "player_id" "uuid" NOT NULL,
+    "document_type" "text",
+    "document_number" "text",
+    "document_country" "text",
+    "document_country_code" character(2),
+    "languages" "text"[],
+    "phone" "text",
+    "residence_city" "text",
+    "residence_country" "text",
+    "residence_country_code" character(2),
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+
+ALTER TABLE "public"."player_personal_details" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."profile_change_logs" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "player_id" "uuid" NOT NULL,
+    "user_id" "uuid",
+    "field" "text" NOT NULL,
+    "old_value" "jsonb",
+    "new_value" "jsonb",
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+
+ALTER TABLE "public"."profile_change_logs" OWNER TO "postgres";
+
+
+
+CREATE OR REPLACE VIEW "public"."player_dashboard_state" AS
+ SELECT
+    u.id AS user_id,
+    u.email AS user_email,
+    p.id AS profile_id,
+    p.status AS profile_status,
+    p.slug AS profile_slug,
+    p.visibility AS profile_visibility,
+    p.full_name AS profile_full_name,
+    p.birth_date AS profile_birth_date,
+    p.nationality AS profile_nationality,
+    p.nationality_codes AS profile_nationality_codes,
+    p.positions AS profile_positions,
+    p.current_club AS profile_current_club,
+    p.bio AS profile_bio,
+    p.market_value_eur AS profile_market_value_eur,
+    p.avatar_url AS profile_avatar_url,
+    p.foot AS profile_foot,
+    p.height_cm AS profile_height_cm,
+    p.weight_kg AS profile_weight_kg,
+    p.updated_at AS profile_updated_at,
+    p.plan_public AS profile_plan_public,
+    ppd.id AS personal_details_id,
+    ppd.document_type AS personal_document_type,
+    ppd.document_number AS personal_document_number,
+    ppd.document_country AS personal_document_country,
+    ppd.document_country_code AS personal_document_country_code,
+    ppd.languages AS personal_languages,
+    ppd.phone AS personal_phone,
+    ppd.residence_city AS personal_residence_city,
+    ppd.residence_country AS personal_residence_country,
+    ppd.residence_country_code AS personal_residence_country_code,
+    app.id AS application_id,
+    app.status AS application_status,
+    app.created_at AS application_created_at,
+    app.plan_requested AS application_plan_requested,
+    app.transfermarkt_url AS application_transfermarkt_url,
+    app.external_profile_url AS application_external_profile_url,
+    app.full_name AS application_full_name,
+    app.nationality AS application_nationality,
+    app.positions AS application_positions,
+    app.current_club AS application_current_club,
+    app.notes AS application_notes,
+    sub.plan AS subscription_plan,
+    sub.status AS subscription_status,
+    media.url AS primary_photo_url
+ FROM auth.users u
+ LEFT JOIN public.player_profiles p ON p.user_id = u.id
+ LEFT JOIN public.player_personal_details ppd ON ppd.player_id = p.id
+ LEFT JOIN LATERAL (
+        SELECT pa.*
+        FROM public.player_applications pa
+        WHERE pa.user_id = u.id
+        ORDER BY pa.created_at DESC
+        LIMIT 1
+    ) app ON true
+ LEFT JOIN public.subscriptions sub ON sub.user_id = u.id
+ LEFT JOIN LATERAL (
+        SELECT pm.url
+        FROM public.player_media pm
+        WHERE pm.player_id = p.id AND pm.type = 'photo'::public.media_type AND pm.is_primary = true
+        ORDER BY pm.created_at DESC
+        LIMIT 1
+    ) media ON true;
+
+
+ALTER VIEW "public"."player_dashboard_state" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."review_invitations" (
@@ -1308,6 +1425,16 @@ ALTER TABLE ONLY "public"."player_profiles"
 
 
 
+ALTER TABLE ONLY "public"."player_personal_details"
+    ADD CONSTRAINT "player_personal_details_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."profile_change_logs"
+    ADD CONSTRAINT "profile_change_logs_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."player_profiles"
     ADD CONSTRAINT "player_profiles_slug_key" UNIQUE ("slug");
 
@@ -1315,6 +1442,11 @@ ALTER TABLE ONLY "public"."player_profiles"
 
 ALTER TABLE ONLY "public"."review_invitations"
     ADD CONSTRAINT "review_invitations_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."player_personal_details"
+    ADD CONSTRAINT "player_personal_details_player_id_key" UNIQUE ("player_id");
 
 
 
@@ -1405,6 +1537,10 @@ CREATE INDEX "idx_player_media_player" ON "public"."player_media" USING "btree" 
 
 
 
+CREATE INDEX "idx_player_media_primary_photo" ON "public"."player_media" USING "btree" ("player_id") WHERE ("is_primary");
+
+
+
 CREATE INDEX "idx_player_profiles_current_team_id" ON "public"."player_profiles" USING "btree" ("current_team_id");
 
 
@@ -1422,6 +1558,18 @@ CREATE INDEX "idx_player_slug" ON "public"."player_profiles" USING "btree" ("slu
 
 
 CREATE INDEX "idx_reviewer_profiles_user" ON "public"."reviewer_profiles" USING "btree" ("user_id");
+
+
+
+CREATE INDEX "idx_player_personal_details_player" ON "public"."player_personal_details" USING "btree" ("player_id");
+
+
+
+CREATE INDEX "idx_profile_change_logs_player" ON "public"."profile_change_logs" USING "btree" ("player_id");
+
+
+
+CREATE INDEX "idx_profile_change_logs_created_at" ON "public"."profile_change_logs" USING "btree" ("created_at");
 
 
 
@@ -1475,6 +1623,8 @@ CREATE OR REPLACE TRIGGER "biu_set_country_code_teams" BEFORE INSERT OR UPDATE O
 
 CREATE OR REPLACE TRIGGER "biu_set_nationality_codes_players" BEFORE INSERT OR UPDATE OF "nationality", "nationality_codes" ON "public"."player_profiles" FOR EACH ROW EXECUTE FUNCTION "public"."trg_set_country_code_from_text"();
 
+CREATE OR REPLACE TRIGGER "biu_set_country_code_player_personal" BEFORE INSERT OR UPDATE OF "residence_country", "residence_country_code", "document_country", "document_country_code" ON "public"."player_personal_details" FOR EACH ROW EXECUTE FUNCTION "public"."trg_set_country_code_from_text"();
+
 
 
 CREATE OR REPLACE TRIGGER "pa_defaults_bi" BEFORE INSERT ON "public"."player_applications" FOR EACH ROW EXECUTE FUNCTION "public"."pa_defaults_tg"();
@@ -1486,6 +1636,10 @@ CREATE OR REPLACE TRIGGER "trg_cip_set_updated" BEFORE UPDATE ON "public"."caree
 
 
 CREATE OR REPLACE TRIGGER "trg_sync_team_denorm" AFTER UPDATE OF "name" ON "public"."teams" FOR EACH ROW EXECUTE FUNCTION "public"."sync_team_denorm"();
+
+
+
+CREATE OR REPLACE TRIGGER "trg_player_personal_details_updated" BEFORE UPDATE ON "public"."player_personal_details" FOR EACH ROW EXECUTE FUNCTION "public"."set_updated_at"();
 
 
 
@@ -1515,6 +1669,21 @@ ALTER TABLE ONLY "public"."career_item_proposals"
 
 ALTER TABLE ONLY "public"."career_items"
     ADD CONSTRAINT "career_items_player_id_fkey" FOREIGN KEY ("player_id") REFERENCES "public"."player_profiles"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."player_personal_details"
+    ADD CONSTRAINT "player_personal_details_player_id_fkey" FOREIGN KEY ("player_id") REFERENCES "public"."player_profiles"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."profile_change_logs"
+    ADD CONSTRAINT "profile_change_logs_player_id_fkey" FOREIGN KEY ("player_id") REFERENCES "public"."player_profiles"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."profile_change_logs"
+    ADD CONSTRAINT "profile_change_logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE SET NULL;
 
 
 
@@ -1733,6 +1902,52 @@ CREATE POLICY "player_profiles_cud" ON "public"."player_profiles" USING ((("user
 
 
 CREATE POLICY "player_profiles_read" ON "public"."player_profiles" FOR SELECT USING (((("visibility" = 'public'::"public"."visibility") AND ("status" = 'approved'::"public"."player_status")) OR ("user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"())));
+
+
+
+ALTER TABLE "public"."player_personal_details" ENABLE ROW LEVEL SECURITY;
+
+
+
+CREATE POLICY "player_personal_details_select" ON "public"."player_personal_details" FOR SELECT USING (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "player_personal_details"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"()))))));
+
+
+
+CREATE POLICY "player_personal_details_insert" ON "public"."player_personal_details" FOR INSERT WITH CHECK (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "player_personal_details"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"()))))));
+
+
+
+CREATE POLICY "player_personal_details_update" ON "public"."player_personal_details" FOR UPDATE USING (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "player_personal_details"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"())))))) WITH CHECK (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "player_personal_details"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"()))))));
+
+
+
+CREATE POLICY "player_personal_details_delete" ON "public"."player_personal_details" FOR DELETE USING (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "player_personal_details"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"()))))));
+
+
+
+ALTER TABLE "public"."profile_change_logs" ENABLE ROW LEVEL SECURITY;
+
+
+
+CREATE POLICY "profile_change_logs_select" ON "public"."profile_change_logs" FOR SELECT USING (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "profile_change_logs"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"()))))));
+
+
+
+CREATE POLICY "profile_change_logs_insert" ON "public"."profile_change_logs" FOR INSERT WITH CHECK (((EXISTS ( SELECT 1
+   FROM "public"."player_profiles" "p"
+  WHERE (("p"."id" = "profile_change_logs"."player_id") AND (("p"."user_id" = "auth"."uid"()) OR "public"."is_admin"("auth"."uid"()))))));
 
 
 
@@ -2276,7 +2491,24 @@ GRANT ALL ON TABLE "public"."player_profiles" TO "service_role";
 
 
 
+GRANT ALL ON TABLE "public"."player_personal_details" TO "anon";
+GRANT ALL ON TABLE "public"."player_personal_details" TO "authenticated";
+GRANT ALL ON TABLE "public"."player_personal_details" TO "service_role";
+
+
+
+GRANT ALL ON TABLE "public"."profile_change_logs" TO "anon";
+GRANT ALL ON TABLE "public"."profile_change_logs" TO "authenticated";
+GRANT ALL ON TABLE "public"."profile_change_logs" TO "service_role";
+
+
+
 GRANT ALL ON TABLE "public"."review_invitations" TO "anon";
+
+
+
+GRANT SELECT ON TABLE "public"."player_dashboard_state" TO "authenticated";
+GRANT SELECT ON TABLE "public"."player_dashboard_state" TO "service_role";
 GRANT ALL ON TABLE "public"."review_invitations" TO "authenticated";
 GRANT ALL ON TABLE "public"."review_invitations" TO "service_role";
 

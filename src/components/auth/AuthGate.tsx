@@ -3,6 +3,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
 import UserMenu from "./UserMenu";
 import InOutButtons from "./InOutButtons";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 
 export default async function AuthGate() {
   const supabase = await createSupabaseServerRSC();
@@ -18,13 +19,9 @@ export default async function AuthGate() {
     );
   }
 
-  // Player profile vinculado (si existe)
-// ⬇️ Traemos también visibility y status para decidir si el perfil es “público & aprobado”
-  const { data: profile } = await supabase
-    .from("player_profiles")
-    .select("slug, avatar_url, visibility, status")
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const profile = dashboardState.profile;
+  const application = dashboardState.application;
 
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ??
@@ -42,9 +39,10 @@ export default async function AuthGate() {
       displayName={displayName}
       email={user.email ?? ""}
       handle={handle}
-      avatarUrl={profile?.avatar_url ?? null}
-      hasPlayerProfile={hasPublicProfile} 
+      avatarUrl={profile?.avatar_url ?? dashboardState.primaryPhotoUrl ?? null}
+      hasPlayerProfile={hasPublicProfile}
       playerSlug={profile?.slug ?? null}
+      applicationStatus={application?.status ?? null}
       onSignOut={signOutAction}
     />
   );

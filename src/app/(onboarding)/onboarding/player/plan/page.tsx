@@ -1,12 +1,36 @@
 // src/app/onboarding/plan/page.tsx
 import Link from "next/link";
-import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import {
+  hasActiveApplication,
+  isApplicationApproved,
+  isApplicationDraft,
+  normalizeApplicationStatus,
+} from "@/lib/dashboard/client/application-status";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 
 export default async function PlayerPlanPage() {
   const supabase = await createSupabaseServerRSC();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/onboarding/player/plan");
+
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const profile = dashboardState.profile;
+  const application = dashboardState.application;
+  const applicationStatus = normalizeApplicationStatus(application?.status ?? null);
+
+  if (profile || isApplicationApproved(applicationStatus)) {
+    redirect("/dashboard");
+  }
+
+  if (isApplicationDraft(applicationStatus)) {
+    redirect("/onboarding/player/apply");
+  }
+
+  if (hasActiveApplication(applicationStatus)) {
+    redirect("/onboarding/start");
+  }
 
   return (
     <main className="mx-auto max-w-xl p-8 space-y-6">
