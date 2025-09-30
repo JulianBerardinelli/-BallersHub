@@ -295,6 +295,63 @@ GRANT ALL ON public.player_personal_details TO anon;
 GRANT ALL ON public.player_personal_details TO authenticated;
 GRANT ALL ON public.player_personal_details TO service_role;
 
+-- Ensure player profile deletions cascade through related tables
+ALTER TABLE public.career_items
+  DROP CONSTRAINT IF EXISTS career_items_player_id_fkey,
+  ADD CONSTRAINT career_items_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.player_media
+  DROP CONSTRAINT IF EXISTS player_media_player_id_fkey,
+  ADD CONSTRAINT player_media_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.profile_change_logs
+  DROP CONSTRAINT IF EXISTS profile_change_logs_player_id_fkey,
+  ADD CONSTRAINT profile_change_logs_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.player_personal_details
+  DROP CONSTRAINT IF EXISTS player_personal_details_player_id_fkey,
+  ADD CONSTRAINT player_personal_details_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.review_invitations
+  DROP CONSTRAINT IF EXISTS review_invitations_player_id_fkey,
+  ADD CONSTRAINT review_invitations_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.reviewer_permissions
+  DROP CONSTRAINT IF EXISTS reviewer_permissions_player_id_fkey,
+  ADD CONSTRAINT reviewer_permissions_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.reviews
+  DROP CONSTRAINT IF EXISTS reviews_player_id_fkey,
+  ADD CONSTRAINT reviews_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE public.stats_seasons
+  DROP CONSTRAINT IF EXISTS stats_seasons_player_id_fkey,
+  ADD CONSTRAINT stats_seasons_player_id_fkey
+    FOREIGN KEY (player_id)
+    REFERENCES public.player_profiles(id)
+    ON DELETE CASCADE;
+
 -- Consolidated view consumed by the client dashboard data provider.
 DROP VIEW IF EXISTS public.player_dashboard_state;
 

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
@@ -63,6 +62,12 @@ export default async function FootballDataPage() {
   const profileData = dashboardState.profile;
   const applicationData = dashboardState.application;
 
+  const access = resolveDashboardAccess({
+    profileStatus: profileData?.status ?? null,
+    hasProfile: Boolean(profileData),
+    applicationStatus: applicationData?.status ?? null,
+  });
+
   if (!profileData) {
     return (
       <div className="space-y-6">
@@ -70,27 +75,10 @@ export default async function FootballDataPage() {
           title="Datos futbolísticos"
           description="Creá tu perfil para gestionar trayectoria, estadísticas y enlaces deportivos."
         />
-        <SectionCard
-          title="Información no disponible"
-          description="Completá primero tu onboarding para habilitar la gestión de datos deportivos."
-        >
-          <p className="text-sm text-neutral-300">
-            Una vez que tu perfil esté creado, podrás editar tus posiciones, trayectoria y estadísticas relevantes. Iniciá el{' '}
-            <Link href="/onboarding/start" className="text-primary underline">
-              onboarding
-            </Link>{' '}
-            para continuar.
-          </p>
-        </SectionCard>
+        {access.profileLock ? <LockedSection {...access.profileLock} /> : null}
       </div>
     );
   }
-
-  const access = resolveDashboardAccess({
-    profileStatus: profileData.status,
-    hasProfile: true,
-    applicationStatus: applicationData?.status ?? null,
-  });
 
   if (access.profileLock) {
     return (

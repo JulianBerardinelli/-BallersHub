@@ -18,6 +18,11 @@ import {
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import type { ClientDashboardNavBadge } from "./navigation";
+import {
+  hasActiveApplication,
+  isApplicationDraft,
+  normalizeApplicationStatus,
+} from "@/lib/dashboard/client/application-status";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -32,6 +37,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const profile = dashboardState.profile;
   const application = dashboardState.application;
   const subscription = dashboardState.subscription;
+  const normalizedApplicationStatus = normalizeApplicationStatus(application?.status ?? null);
 
   const metrics = profile
     ? await fetchPlayerTaskMetrics(supabase, profile.id)
@@ -123,6 +129,10 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 <SummaryBadge>Perfil: {hydratedProfile.status}</SummaryBadge>
                 <SummaryBadge>Visibilidad: {hydratedProfile.visibility}</SummaryBadge>
               </>
+            ) : hasActiveApplication(normalizedApplicationStatus) ? (
+              <SummaryBadge tone="warning">Tu solicitud está en revisión</SummaryBadge>
+            ) : isApplicationDraft(normalizedApplicationStatus) ? (
+              <SummaryBadge tone="warning">Retomá el onboarding para completar tu perfil</SummaryBadge>
             ) : (
               <SummaryBadge tone="warning">Aún no completaste tu perfil de jugador</SummaryBadge>
             )}

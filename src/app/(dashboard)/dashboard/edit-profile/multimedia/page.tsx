@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
@@ -27,6 +26,11 @@ export default async function MultimediaPage() {
   const dashboardState = await fetchDashboardState(supabase, user.id);
 
   const profile = dashboardState.profile;
+  const access = resolveDashboardAccess({
+    profileStatus: profile?.status ?? null,
+    hasProfile: Boolean(profile),
+    applicationStatus: dashboardState.application?.status ?? null,
+  });
 
   if (!profile) {
     return (
@@ -35,27 +39,10 @@ export default async function MultimediaPage() {
           title="Multimedia"
           description="Creá tu perfil para gestionar galerías, videos y notas de prensa."
         />
-        <SectionCard
-          title="Sin acceso a multimedia"
-          description="Completá el onboarding para habilitar la carga de archivos e integración con prensa."
-        >
-          <p className="text-sm text-neutral-300">
-            Una vez que generes tu perfil de jugador, podrás organizar imágenes y videos para tu CV automático. Iniciá el{' '}
-            <Link href="/onboarding/start" className="text-primary underline">
-              onboarding
-            </Link>{' '}
-            para continuar.
-          </p>
-        </SectionCard>
+        {access.profileLock ? <LockedSection {...access.profileLock} /> : null}
       </div>
     );
   }
-
-  const access = resolveDashboardAccess({
-    profileStatus: profile.status,
-    hasProfile: true,
-    applicationStatus: dashboardState.application?.status ?? null,
-  });
 
   if (access.profileLock) {
     return (

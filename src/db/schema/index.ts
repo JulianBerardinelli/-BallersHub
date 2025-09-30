@@ -15,4 +15,6 @@ export * from "./reviewerPermissions";
 export * from "./reviews";
 export * from "./subscriptions";
 export * from "./auditLogs";
+export * from "./personalDetails";
+export * from "./profileChangeLogs";
 export * from "./relations";

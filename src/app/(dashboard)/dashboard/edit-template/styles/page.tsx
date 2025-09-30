@@ -61,11 +61,7 @@ export default async function TemplateStylesPage() {
           title="Estilos de plantilla"
           description="Configura la apariencia visual de tu página pública y mantené consistencia con tu marca personal."
         />
-        <LockedSection
-          title="Configuración no disponible"
-          description="Necesitás contar con un perfil aprobado para personalizar estilos y colores. Completa el onboarding para habilitar esta sección."
-          action={{ label: "Ir al onboarding", href: "/onboarding/start", tone: "primary" }}
-        />
+        {access.templateLock ? <LockedSection {...access.templateLock} /> : null}
       </div>
     );
   }

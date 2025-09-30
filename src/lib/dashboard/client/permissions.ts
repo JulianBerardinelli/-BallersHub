@@ -1,3 +1,11 @@
+import {
+  hasActiveApplication,
+  isApplicationApproved,
+  isApplicationDraft,
+  isApplicationRejected,
+  normalizeApplicationStatus,
+} from "./application-status";
+
 export type LockAction = {
   label: string;
   href: string;
@@ -23,26 +31,16 @@ export function resolveDashboardAccess(options: {
   applicationStatus: string | null;
 }): DashboardAccess {
   const { profileStatus, hasProfile, applicationStatus } = options;
+  const normalizedApplicationStatus = normalizeApplicationStatus(applicationStatus);
 
   if (!hasProfile) {
-    const lock: SectionLock = {
-      title: "Perfil de jugador no disponible",
-      description:
-        "Necesitás iniciar el onboarding para desbloquear la edición de datos personales, deportivos y multimedia.",
-      action: { label: "Crear perfil", href: "/onboarding/start", tone: "primary" },
-    };
-
-    const templateLock: SectionLock = {
-      title: "Plantillas bloqueadas",
-      description:
-        "La personalización de tu CV estará disponible una vez que generes y aprueben tu perfil de jugador.",
-      action: { label: "Comenzar onboarding", href: "/onboarding/start", tone: "primary" },
-    };
+    const profileLock = resolveProfilelessLock(normalizedApplicationStatus);
+    const templateLock = resolveProfilelessTemplateLock(normalizedApplicationStatus);
 
     return {
       canEditProfile: false,
       canEditTemplate: false,
-      profileLock: lock,
+      profileLock,
       templateLock,
     };
   }
@@ -133,4 +131,94 @@ export function resolveDashboardAccess(options: {
       };
     }
   }
+}
+
+function resolveProfilelessLock(status: string | null): SectionLock {
+  if (hasActiveApplication(status)) {
+    return {
+      title: "Solicitud en revisión",
+      description:
+        "Ya recibimos tu información y nuestro equipo la está evaluando. Te avisaremos por mail cuando puedas continuar.",
+      action: { label: "Ver solicitud", href: "/onboarding/player/apply", tone: "primary" },
+    };
+  }
+
+  if (isApplicationDraft(status)) {
+    return {
+      title: "Solicitud en progreso",
+      description:
+        "Retomá el onboarding desde donde lo dejaste para completar los datos obligatorios y enviar tu perfil a revisión.",
+      action: { label: "Continuar onboarding", href: "/onboarding/player/apply", tone: "primary" },
+    };
+  }
+
+  if (isApplicationRejected(status)) {
+    return {
+      title: "Solicitud rechazada",
+      description:
+        "Podés revisar los comentarios del equipo y volver a enviar tu perfil cuando hayas realizado los ajustes necesarios.",
+      action: { label: "Reabrir onboarding", href: "/onboarding/start", tone: "warning" },
+    };
+  }
+
+  if (isApplicationApproved(status)) {
+    return {
+      title: "Solicitud aprobada",
+      description:
+        "Estamos generando tu perfil profesional. En los próximos minutos vas a poder acceder a las secciones de edición.",
+      action: { label: "Ir al dashboard", href: "/dashboard", tone: "primary" },
+    };
+  }
+
+  return {
+    title: "Perfil de jugador no disponible",
+    description:
+      "Necesitás iniciar el onboarding para desbloquear la edición de datos personales, deportivos y multimedia.",
+    action: { label: "Crear perfil", href: "/onboarding/start", tone: "primary" },
+  };
+}
+
+function resolveProfilelessTemplateLock(status: string | null): SectionLock {
+  if (hasActiveApplication(status)) {
+    return {
+      title: "Plantilla en espera",
+      description:
+        "La personalización quedará habilitada una vez que finalice la revisión de tu solicitud y se cree tu perfil de jugador.",
+      action: { label: "Ver solicitud", href: "/onboarding/player/apply", tone: "primary" },
+    };
+  }
+
+  if (isApplicationDraft(status)) {
+    return {
+      title: "Completá tu solicitud",
+      description:
+        "Terminá los pasos críticos del onboarding antes de elegir estilos o activar secciones del CV público.",
+      action: { label: "Continuar onboarding", href: "/onboarding/player/apply", tone: "primary" },
+    };
+  }
+
+  if (isApplicationRejected(status)) {
+    return {
+      title: "Plantilla bloqueada",
+      description:
+        "Necesitás reenviar la solicitud con la información corregida para volver a habilitar la configuración de tu CV.",
+      action: { label: "Reabrir onboarding", href: "/onboarding/start", tone: "warning" },
+    };
+  }
+
+  if (isApplicationApproved(status)) {
+    return {
+      title: "Perfil en preparación",
+      description:
+        "En breve podrás personalizar estilos y bloques. Refrescá el dashboard cuando recibas la confirmación de publicación.",
+      action: { label: "Ver resumen", href: "/dashboard", tone: "primary" },
+    };
+  }
+
+  return {
+    title: "Plantillas bloqueadas",
+    description:
+      "La personalización de tu CV estará disponible una vez que generes y aprueben tu perfil de jugador.",
+    action: { label: "Comenzar onboarding", href: "/onboarding/start", tone: "primary" },
+  };
 }

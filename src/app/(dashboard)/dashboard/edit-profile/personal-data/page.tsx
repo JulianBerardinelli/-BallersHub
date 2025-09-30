@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import AvatarUploader from "@/components/dashboard/AvatarUploader";
 import FormField from "@/components/dashboard/client/FormField";
@@ -46,6 +45,12 @@ export default async function PersonalDataPage() {
   const applicationData = dashboardState.application;
   const personalDetails = dashboardState.personalDetails;
 
+  const access = resolveDashboardAccess({
+    profileStatus: profileData?.status ?? null,
+    hasProfile: Boolean(profileData),
+    applicationStatus: applicationData?.status ?? null,
+  });
+
   if (!profileData) {
     return (
       <div className="space-y-6">
@@ -53,27 +58,10 @@ export default async function PersonalDataPage() {
           title="Datos personales"
           description="Creá tu perfil para habilitar la edición de datos personales."
         />
-        <SectionCard
-          title="Sin perfil de jugador"
-          description="Completá el onboarding para comenzar a cargar tu información personal."
-        >
-          <p className="text-sm text-neutral-300">
-            No encontramos un perfil asociado a tu cuenta. Iniciá el proceso desde el{' '}
-            <Link href="/onboarding/start" className="text-primary underline">
-              onboarding
-            </Link>{' '}
-            para generar tu ficha profesional.
-          </p>
-        </SectionCard>
+        {access.profileLock ? <LockedSection {...access.profileLock} /> : null}
       </div>
     );
   }
-
-  const access = resolveDashboardAccess({
-    profileStatus: profileData.status,
-    hasProfile: true,
-    applicationStatus: applicationData?.status ?? null,
-  });
 
   if (access.profileLock) {
     return (

@@ -84,11 +84,7 @@ export default async function TemplateStructurePage() {
           title="Estructura de la plantilla"
           description="Activá, desactivá y ordená bloques de contenido para adaptar tu página pública a diferentes escenarios."
         />
-        <LockedSection
-          title="Bloques no disponibles"
-          description="Creá y aprobá tu perfil de jugador para personalizar qué secciones se publican en tu CV."
-          action={{ label: "Completar perfil", href: "/onboarding/start", tone: "primary" }}
-        />
+        {access.templateLock ? <LockedSection {...access.templateLock} /> : null}
       </div>
     );
   }

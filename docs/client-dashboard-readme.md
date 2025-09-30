@@ -37,6 +37,7 @@ FormField.tsx    # Labeled content block for future form controls/inputs
 3. Each feature page imports `PageHeader`, `SectionCard`, and `FormField` to provide consistent spacing, typography, and future form slotting.
 4. Current pages contain descriptive placeholders that outline the upcoming business logic to implement (forms, CRUD tables, toggles, etc.).
 5. `LockedSection` + `resolveDashboardAccess` determinan qué secciones permanecen inactivas cuando el perfil está en borrador o pendiente de revisión.
+6. Las utilidades de `application-status` sincronizan la navegación, el user menu y el onboarding para evitar solicitudes duplicadas cuando ya existe una revisión en curso.
 
 ## Extensibility guidelines
 

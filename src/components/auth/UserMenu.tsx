@@ -1,11 +1,20 @@
 "use client";
 
 import {
-  Dropdown, DropdownTrigger, DropdownMenu, DropdownItem,
-  User as HeroUser, Avatar
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+  User as HeroUser,
+  Avatar,
 } from "@heroui/react";
 import Link from "next/link";
 import { useTransition } from "react";
+import {
+  hasActiveApplication,
+  isApplicationDraft,
+  normalizeApplicationStatus,
+} from "@/lib/dashboard/client/application-status";
 
 export default function UserMenuHero({
   displayName,
@@ -14,6 +23,7 @@ export default function UserMenuHero({
   avatarUrl,
   hasPlayerProfile,   // ahora significa: “público & aprobado”
   playerSlug,
+  applicationStatus,
   onSignOut,
 }: {
   displayName: string;
@@ -22,9 +32,13 @@ export default function UserMenuHero({
   avatarUrl?: string | null;
   hasPlayerProfile: boolean;
   playerSlug?: string | null;
+  applicationStatus?: string | null;
   onSignOut: () => Promise<void>;
 }) {
   const [pending, startTransition] = useTransition();
+  const normalizedApplicationStatus = normalizeApplicationStatus(applicationStatus ?? null);
+  const activeApplication = hasActiveApplication(normalizedApplicationStatus);
+  const draftApplication = isApplicationDraft(normalizedApplicationStatus);
 
   return (
     <Dropdown placement="bottom-end">
@@ -54,8 +68,15 @@ export default function UserMenuHero({
           <DropdownItem key="public-profile" as={Link} href={`/${playerSlug}`}>
             Ver perfil público
           </DropdownItem>
+        ) : activeApplication ? (
+          <DropdownItem key="application-status" as={Link} href="/onboarding/player/apply" color="primary">
+            Ver solicitud en revisión
+          </DropdownItem>
+        ) : draftApplication ? (
+          <DropdownItem key="application-draft" as={Link} href="/onboarding/player/apply" color="primary">
+            Continuar solicitud
+          </DropdownItem>
         ) : (
-          // 🔹 Primero ver planes; desde ahí ir al apply
           <DropdownItem key="apply" as={Link} href="/onboarding/player/plan" color="primary">
             Solicitar cuenta de jugador
           </DropdownItem>
