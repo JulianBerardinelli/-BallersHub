@@ -13,10 +13,10 @@ identificar los próximos pasos.
   configuración real del jugador, mostrando resúmenes dinámicos en lugar de placeholders estáticos.
 - Documentamos los cambios de base de datos en `docs/db/client-dashboard-publishing-v2.sql` para facilitar su ejecución en
   Supabase.
+- Desplegamos formularios interactivos para enlaces, palmarés y estadísticas usando React Hook Form + Zod, con acciones de
+  Supabase que validan permisos, aplican RLS y revalidan la página tras cada alta, edición o eliminación.
 
 ## 🔜 Próximos pasos sugeridos
-- Implementar formularios interactivos (React Hook Form + Zod) para crear/editar links externos, honores y estadísticas
-  directamente desde el dashboard, respetando las nuevas políticas RLS.
 - Conectar los toggles de `profile_sections_visibility` con persistencia real (mutations) y drag & drop para ordenar bloques de
   la plantilla pública.
 - Incorporar vistas previas en vivo del perfil público utilizando Supabase Realtime y los ajustes guardados en
