@@ -42,6 +42,7 @@ export type DashboardHonour = {
   description: string | null;
   createdAt: string | null;
   updatedAt: string | null;
+  careerItemId: string | null;
 };
 
 export type DashboardSeasonStat = {
@@ -56,6 +57,7 @@ export type DashboardSeasonStat = {
   yellowCards: number | null;
   redCards: number | null;
   createdAt: string | null;
+  careerItemId: string | null;
 };
 
 export type DashboardPublishingState = {
@@ -185,6 +187,7 @@ function mapHonour(input: Record<string, unknown>): DashboardHonour | null {
     description: typeof input.description === "string" ? input.description : null,
     createdAt: typeof input.created_at === "string" ? input.created_at : null,
     updatedAt: typeof input.updated_at === "string" ? input.updated_at : null,
+    careerItemId: typeof input.career_item_id === "string" ? input.career_item_id : null,
   };
 }
 
@@ -205,6 +208,7 @@ function mapSeasonStat(input: Record<string, unknown>): DashboardSeasonStat | nu
     yellowCards: typeof input.yellow_cards === "number" ? input.yellow_cards : null,
     redCards: typeof input.red_cards === "number" ? input.red_cards : null,
     createdAt: typeof input.created_at === "string" ? input.created_at : null,
+    careerItemId: typeof input.career_item_id === "string" ? input.career_item_id : null,
   };
 }
 
@@ -252,6 +256,7 @@ type HonourRow = {
   description: string | null;
   created_at: string | null;
   updated_at: string | null;
+  career_item_id: string | null;
 };
 
 type StatRow = {
@@ -266,6 +271,7 @@ type StatRow = {
   yellow_cards: number | null;
   red_cards: number | null;
   created_at: string | null;
+  career_item_id: string | null;
 };
 
 async function fetchPublishingStateFromBaseTables(
@@ -289,14 +295,18 @@ async function fetchPublishingStateFromBaseTables(
       .returns<LinkRow[]>(),
     supabase
       .from("player_honours")
-      .select("id, title, competition, season, awarded_on, description, created_at, updated_at")
+      .select(
+        "id, title, competition, season, awarded_on, description, created_at, updated_at, career_item_id",
+      )
       .eq("player_id", playerId)
       .order("awarded_on", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false })
       .returns<HonourRow[]>(),
     supabase
       .from("stats_seasons")
-      .select("id, season, competition, team, matches, minutes, goals, assists, yellow_cards, red_cards, created_at")
+      .select(
+        "id, season, competition, team, matches, minutes, goals, assists, yellow_cards, red_cards, created_at, career_item_id",
+      )
       .eq("player_id", playerId)
       .order("season", { ascending: false })
       .order("created_at", { ascending: false })

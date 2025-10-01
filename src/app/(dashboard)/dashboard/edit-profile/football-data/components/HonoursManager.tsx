@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -16,13 +16,17 @@ type FormValues = {
   season: string;
   awardedOn: string;
   description: string;
+  careerItemId: string;
 };
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
+type CareerOption = { id: string; label: string; club: string | null };
+
 type Props = {
   playerId: string;
   honours: DashboardHonour[];
+  careerOptions: CareerOption[];
 };
 
 const defaultValues: FormValues = {
@@ -32,26 +36,48 @@ const defaultValues: FormValues = {
   season: "",
   awardedOn: "",
   description: "",
+  careerItemId: "",
 };
 
 const inputClassName =
   "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
 
-export default function HonoursManager({ playerId, honours }: Props) {
+export default function HonoursManager({ playerId, honours, careerOptions }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const lastAutoSeasonRef = useRef<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     setError,
+    getValues,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues,
   });
+
+  const optionMap = useMemo(() => new Map(careerOptions.map((option) => [option.id, option])), [careerOptions]);
+  const watchCareerItemId = watch("careerItemId");
+
+  useEffect(() => {
+    if (!watchCareerItemId) {
+      lastAutoSeasonRef.current = null;
+      return;
+    }
+    const option = optionMap.get(watchCareerItemId);
+    if (!option) return;
+    const currentSeason = getValues("season");
+    if (!currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
+      setValue("season", option.label, { shouldDirty: true });
+      lastAutoSeasonRef.current = option.label;
+    }
+  }, [getValues, optionMap, setValue, watchCareerItemId]);
 
   const onSubmit = handleSubmit((values) => {
     const parsed = honourMutationSchema.safeParse({
@@ -75,6 +101,7 @@ export default function HonoursManager({ playerId, honours }: Props) {
       router.refresh();
       setEditingId(null);
       reset(defaultValues);
+      lastAutoSeasonRef.current = null;
     });
   });
 
@@ -87,6 +114,7 @@ export default function HonoursManager({ playerId, honours }: Props) {
       season: honour.season ?? "",
       awardedOn: honour.awardedOn ?? "",
       description: honour.description ?? "",
+      careerItemId: honour.careerItemId ?? "",
     });
     setStatus(null);
   };
@@ -95,6 +123,7 @@ export default function HonoursManager({ playerId, honours }: Props) {
     setEditingId(null);
     reset(defaultValues);
     setStatus(null);
+    lastAutoSeasonRef.current = null;
   };
 
   const handleDelete = (honour: DashboardHonour) => {
@@ -119,19 +148,24 @@ export default function HonoursManager({ playerId, honours }: Props) {
     <div className="space-y-6">
       {honours.length > 0 ? (
         <ul className="space-y-3">
-          {honours.map((honour) => (
-            <li
-              key={honour.id}
-              className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
-            >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
-                  <p className="text-sm font-semibold text-white">{honour.title}</p>
-                  <p className="text-xs text-neutral-400">
-                    {honour.competition ?? "Competencia pendiente"} · {honour.season ?? "Temporada sin definir"}
-                  </p>
-                  {honour.description ? <p className="text-xs text-neutral-400">{honour.description}</p> : null}
-                </div>
+          {honours.map((honour) => {
+            const linkedStage = honour.careerItemId ? optionMap.get(honour.careerItemId) : null;
+            return (
+              <li
+                key={honour.id}
+                className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
+              >
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-1">
+                    <p className="text-sm font-semibold text-white">{honour.title}</p>
+                    <p className="text-xs text-neutral-400">
+                      {honour.competition ?? "Competencia pendiente"} · {honour.season ?? "Temporada sin definir"}
+                    </p>
+                    {linkedStage ? (
+                      <p className="text-[11px] text-neutral-500">Vinculado a: {linkedStage.label}</p>
+                    ) : null}
+                    {honour.description ? <p className="text-xs text-neutral-400">{honour.description}</p> : null}
+                  </div>
                 <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
                   <span className="rounded-full border border-neutral-800 px-3 py-1">
                     {formatHonourDate(honour.awardedOn)}
@@ -153,9 +187,10 @@ export default function HonoursManager({ playerId, honours }: Props) {
                     Eliminar
                   </button>
                 </div>
-              </div>
-            </li>
-          ))}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       ) : (
         <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
@@ -188,18 +223,34 @@ export default function HonoursManager({ playerId, honours }: Props) {
             {errors.competition ? <FieldError message={errors.competition.message} /> : null}
           </label>
           <label className="space-y-1.5 text-sm text-neutral-300">
+            <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
+            <select
+              {...register("careerItemId")}
+              className={inputClassName}
+              disabled={pending}
+            >
+              <option value="">Seleccioná una etapa</option>
+              {careerOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errors.careerItemId ? <FieldError message={errors.careerItemId.message} /> : null}
+          </label>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="space-y-1.5 text-sm text-neutral-300">
             <span className="font-medium text-neutral-200">Temporada</span>
             <input
               {...register("season")}
               type="text"
-              placeholder="Ej: 2023"
+              placeholder="Ej: 2023 / 2024"
               className={inputClassName}
               disabled={pending}
             />
             {errors.season ? <FieldError message={errors.season.message} /> : null}
           </label>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1.5 text-sm text-neutral-300">
             <span className="font-medium text-neutral-200">Fecha</span>
             <input
@@ -210,18 +261,18 @@ export default function HonoursManager({ playerId, honours }: Props) {
             />
             {errors.awardedOn ? <FieldError message={errors.awardedOn.message} /> : null}
           </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Descripción</span>
-            <textarea
-              {...register("description")}
-              rows={3}
-              placeholder="Detalles adicionales o méritos individuales"
-              className={`${inputClassName} min-h-[96px] resize-y`}
-              disabled={pending}
-            />
-            {errors.description ? <FieldError message={errors.description.message} /> : null}
-          </label>
         </div>
+        <label className="space-y-1.5 text-sm text-neutral-300">
+          <span className="font-medium text-neutral-200">Descripción</span>
+          <textarea
+            {...register("description")}
+            rows={3}
+            placeholder="Detalles adicionales o méritos individuales"
+            className={`${inputClassName} min-h-[96px] resize-y`}
+            disabled={pending}
+          />
+          {errors.description ? <FieldError message={errors.description.message} /> : null}
+        </label>
 
         {status ? <FormStatus status={status} /> : null}
 

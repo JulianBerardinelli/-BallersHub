@@ -15,8 +15,20 @@ identificar los próximos pasos.
   Supabase.
 - Desplegamos formularios interactivos para enlaces, palmarés y estadísticas usando React Hook Form + Zod, con acciones de
   Supabase que validan permisos, aplican RLS y revalidan la página tras cada alta, edición o eliminación.
+- Diseñamos el plan funcional de la iteración v2 y versionamos el análisis en `docs/client-dashboard-v2-analysis.md` para
+  alinear roadmap y entregables.
+- Especificamos las tablas y políticas necesarias para solicitudes de trayectoria y vinculación de temporadas en
+  `docs/db/client-dashboard-career-requests.sql`.
+- Habilitamos la UI inicial de trayectoria dentro del dashboard, reutilizando el editor del onboarding y preparando la
+  sincronización con solicitudes administrables.
 
 ## 🔜 Próximos pasos sugeridos
+- Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y
+  temporadas.
+- Completar el flujo de persistencia desde el dashboard hacia las tablas de solicitudes, incluyendo estados de aprobación y
+  revalidaciones automáticas.
+- Extender el panel de administración con vistas dedicadas a las solicitudes de trayectoria provenientes del dashboard y el
+  nuevo menú de gestión de perfiles.
 - Conectar los toggles de `profile_sections_visibility` con persistencia real (mutations) y drag & drop para ordenar bloques de
   la plantilla pública.
 - Incorporar vistas previas en vivo del perfil público utilizando Supabase Realtime y los ajustes guardados en

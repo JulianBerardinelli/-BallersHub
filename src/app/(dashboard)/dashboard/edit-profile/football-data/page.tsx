@@ -23,6 +23,11 @@ import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing
 import ExternalLinksManager from "./components/ExternalLinksManager";
 import HonoursManager from "./components/HonoursManager";
 import SeasonStatsManager from "./components/SeasonStatsManager";
+import CareerManager, {
+  type CareerStage,
+  type CareerRequestSnapshot,
+  type CareerRequestStage,
+} from "./components/CareerManager";
 import type { LinkKind } from "./schemas";
 
 type CareerItem = {
@@ -31,6 +36,12 @@ type CareerItem = {
   division: string | null;
   start_date: string | null;
   end_date: string | null;
+  team: {
+    id: string | null;
+    name: string | null;
+    crest_url: string | null;
+    country_code: string | null;
+  } | null;
 };
 
 type PlayerApplicationSnapshot = {
@@ -52,6 +63,36 @@ type PlayerMediaItem = {
   url: string;
   title: string | null;
   provider: string | null;
+};
+
+type CareerRevisionItemRow = {
+  id: string;
+  club: string | null;
+  division: string | null;
+  start_year: number | null;
+  end_year: number | null;
+  order_index: number | null;
+  team: {
+    id: string | null;
+    name: string | null;
+    crest_url: string | null;
+    country_code: string | null;
+  } | null;
+  proposed_team: {
+    id: string | null;
+    name: string | null;
+    country_code: string | null;
+    country_name: string | null;
+  } | null;
+};
+
+type CareerRevisionRequestRow = {
+  id: string;
+  status: string | null;
+  submitted_at: string | null;
+  reviewed_at: string | null;
+  change_summary: string | null;
+  items: CareerRevisionItemRow[] | null;
 };
 
 export default async function FootballDataPage() {
@@ -97,10 +138,13 @@ export default async function FootballDataPage() {
     );
   }
 
-  const [careerResult, mediaResult, metrics, publishingState] = await Promise.all([
+  const [careerResult, mediaResult, metrics, publishingState, revisionResult] = await Promise.all([
     supabase
       .from("career_items")
-      .select("id, club, division, start_date, end_date")
+      .select(
+        `id, club, division, start_date, end_date,
+         team:teams!career_items_team_id_fkey ( id, name, crest_url, country_code )`
+      )
       .eq("player_id", profileData.id)
       .order("start_date", { ascending: false }),
     supabase
@@ -110,12 +154,36 @@ export default async function FootballDataPage() {
       .order("created_at", { ascending: true }),
     fetchPlayerTaskMetrics(supabase, profileData.id),
     fetchDashboardPublishingState(supabase, profileData.id),
+    supabase
+      .from("career_revision_requests")
+      .select(
+        `id, status, submitted_at, reviewed_at, change_summary,
+         items:career_revision_items (
+           id,
+           club,
+           division,
+           start_year,
+           end_year,
+           order_index,
+           team:teams!career_revision_items_team_id_fkey ( id, name, crest_url, country_code ),
+           proposed_team:career_revision_proposed_teams!career_revision_items_proposed_team_id_fkey (
+             id,
+             name,
+             country_code,
+             country_name
+           )
+         )`
+      )
+      .eq("player_id", profileData.id)
+      .order("submitted_at", { ascending: false })
+      .limit(1)
+      .maybeSingle<CareerRevisionRequestRow>(),
   ]);
 
   const careerRaw = careerResult.data;
   const mediaRaw = mediaResult.data;
 
-  const career = (careerRaw as CareerItem[] | null) ?? null;
+  const careerRows = (careerRaw as CareerItem[] | null) ?? [];
   const media = (mediaRaw as PlayerMediaItem[] | null) ?? [];
 
   const primaryHighlight = media.find((item) => item.type === "video") ?? null;
@@ -214,6 +282,68 @@ export default async function FootballDataPage() {
     linkedin: linkedinUrl ?? null,
   } satisfies Partial<Record<LinkKind, string | null>>;
 
+  const careerStages: CareerStage[] = careerRows.map((item) => ({
+    id: item.id,
+    club: item.club,
+    division: item.division,
+    startYear: item.start_date ? safeYear(item.start_date) : null,
+    endYear: item.end_date ? safeYear(item.end_date) : null,
+    team: item.team
+      ? {
+          id: item.team.id ?? null,
+          name: item.team.name ?? null,
+          crestUrl: item.team.crest_url ?? null,
+          countryCode: item.team.country_code ?? null,
+        }
+      : null,
+  }));
+
+  const careerSeasonOptions = careerStages.map((stage) => ({
+    id: stage.id,
+    label: describeCareerStage(stage),
+    club: stage.team?.name ?? stage.club ?? "Club sin definir",
+  }));
+
+  let latestRevision: CareerRequestSnapshot | null = null;
+  if (!revisionResult.error && revisionResult.data) {
+    const items: CareerRequestStage[] = Array.isArray(revisionResult.data.items)
+      ? revisionResult.data.items
+          .slice()
+          .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
+          .map((item) => ({
+            id: item.id,
+            club: item.club,
+            division: item.division,
+            startYear: item.start_year ?? null,
+            endYear: item.end_year ?? null,
+            team: item.team
+              ? {
+                  id: item.team.id ?? null,
+                  name: item.team.name ?? null,
+                  crestUrl: item.team.crest_url ?? null,
+                  countryCode: item.team.country_code ?? null,
+                }
+              : null,
+            proposedTeam: item.proposed_team
+              ? {
+                  name: item.proposed_team.name ?? null,
+                  countryCode: item.proposed_team.country_code ?? null,
+                  countryName: item.proposed_team.country_name ?? null,
+                }
+              : null,
+          }))
+      : [];
+
+    latestRevision = {
+      id: revisionResult.data.id,
+      status: normalizeRequestStatus(revisionResult.data.status),
+      submittedAt: revisionResult.data.submitted_at ?? null,
+      reviewedAt: revisionResult.data.reviewed_at ?? null,
+      note: revisionResult.data.change_summary ?? null,
+      items,
+    };
+  }
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -261,33 +391,9 @@ export default async function FootballDataPage() {
 
       <SectionCard
         title="Trayectoria"
-        description="Registrar cada etapa de tu carrera te ayudará a generar reportes y CV automáticos."
-        footer="Muy pronto podrás cargar experiencias, competiciones y estadísticas por temporada."
+        description="Gestioná tu historial deportivo y enviá cambios al equipo de Ballers para su validación."
       >
-        {career && career.length > 0 ? (
-          <ul className="space-y-3">
-            {career.map((item) => (
-              <li
-                key={item.id}
-                className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
-              >
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-semibold text-white">{item.club ?? "Club sin definir"}</p>
-                    <p className="text-xs text-neutral-400">{item.division ?? "División pendiente"}</p>
-                  </div>
-                  <p className="text-xs text-neutral-400">
-                    {formatSeason(item.start_date, item.end_date)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
-            Todavía no registraste experiencias. Podrás importar trayectorias desde aplicaciones, archivos o integraciones de terceros.
-          </div>
-        )}
+        <CareerManager playerId={profileData.id} stages={careerStages} latestRequest={latestRevision} />
       </SectionCard>
 
       <SectionCard
@@ -305,7 +411,11 @@ export default async function FootballDataPage() {
         title="Palmarés y reconocimientos"
         description="Documentá títulos, premios individuales y estadísticas destacadas."
       >
-        <HonoursManager playerId={profileData.id} honours={publishingState.honours} />
+        <HonoursManager
+          playerId={profileData.id}
+          honours={publishingState.honours}
+          careerOptions={careerSeasonOptions}
+        />
         <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
           <span className="rounded-full border border-neutral-800 px-3 py-1">🏆 Campeonatos</span>
           <span className="rounded-full border border-neutral-800 px-3 py-1">⭐ Premios individuales</span>
@@ -317,7 +427,11 @@ export default async function FootballDataPage() {
         title="Estadísticas por temporada"
         description="Seguimiento agregado de tus números oficiales para compartir con clubes y representantes."
       >
-        <SeasonStatsManager playerId={profileData.id} stats={publishingState.stats} />
+        <SeasonStatsManager
+          playerId={profileData.id}
+          stats={publishingState.stats}
+          careerOptions={careerSeasonOptions}
+        />
       </SectionCard>
 
       <SectionCard
@@ -344,10 +458,22 @@ export default async function FootballDataPage() {
   );
 }
 
-function formatSeason(start: string | null, end: string | null) {
-  if (!start && !end) return "Temporada pendiente";
-  const startYear = start ? new Date(start).getFullYear() : "¿?";
-  const endYear = end ? new Date(end).getFullYear() : "Actualidad";
-  return `${startYear} - ${endYear}`;
+function safeYear(value: string): number | null {
+  const year = new Date(value).getFullYear();
+  return Number.isNaN(year) ? null : year;
 }
 
+function describeCareerStage(stage: CareerStage): string {
+  const club = stage.team?.name ?? stage.club ?? "Club sin definir";
+  const from = stage.startYear ?? "¿?";
+  const to = stage.endYear ?? "Actual";
+  const division = stage.division ? ` · ${stage.division}` : "";
+  return `${club}${division} (${from} – ${to})`;
+}
+
+function normalizeRequestStatus(status: string | null | undefined): CareerRequestSnapshot["status"] {
+  if (status === "approved" || status === "rejected" || status === "cancelled") {
+    return status;
+  }
+  return "pending";
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -20,13 +20,17 @@ type FormValues = {
   assists: string;
   yellowCards: string;
   redCards: string;
+  careerItemId: string;
 };
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
+type CareerOption = { id: string; label: string; club: string | null };
+
 type Props = {
   playerId: string;
   stats: DashboardSeasonStat[];
+  careerOptions: CareerOption[];
 };
 
 const defaultValues: FormValues = {
@@ -40,26 +44,58 @@ const defaultValues: FormValues = {
   assists: "",
   yellowCards: "",
   redCards: "",
+  careerItemId: "",
 };
 
 const inputClassName =
   "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
 
-export default function SeasonStatsManager({ playerId, stats }: Props) {
+export default function SeasonStatsManager({ playerId, stats, careerOptions }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const lastAutoTeamRef = useRef<string | null>(null);
+  const lastAutoSeasonRef = useRef<string | null>(null);
 
   const {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     setError,
+    getValues,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues,
   });
+
+  const optionMap = useMemo(() => new Map(careerOptions.map((option) => [option.id, option])), [careerOptions]);
+  const watchCareerItemId = watch("careerItemId");
+
+  useEffect(() => {
+    if (!watchCareerItemId) {
+      lastAutoTeamRef.current = null;
+      lastAutoSeasonRef.current = null;
+      return;
+    }
+    const option = optionMap.get(watchCareerItemId);
+    if (!option) return;
+    const currentTeam = getValues("team");
+    if (!currentTeam || currentTeam.trim().length === 0 || currentTeam === lastAutoTeamRef.current) {
+      const club = option.club ?? "";
+      if (club) {
+        setValue("team", club, { shouldDirty: true });
+        lastAutoTeamRef.current = club;
+      }
+    }
+    const currentSeason = getValues("season");
+    if (!currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
+      setValue("season", option.label, { shouldDirty: true });
+      lastAutoSeasonRef.current = option.label;
+    }
+  }, [getValues, optionMap, setValue, watchCareerItemId]);
 
   const onSubmit = handleSubmit((values) => {
     const parsed = seasonStatMutationSchema.safeParse({
@@ -83,6 +119,8 @@ export default function SeasonStatsManager({ playerId, stats }: Props) {
       router.refresh();
       setEditingId(null);
       reset(defaultValues);
+      lastAutoTeamRef.current = null;
+      lastAutoSeasonRef.current = null;
     });
   });
 
@@ -99,6 +137,7 @@ export default function SeasonStatsManager({ playerId, stats }: Props) {
       assists: stat.assists?.toString() ?? "",
       yellowCards: stat.yellowCards?.toString() ?? "",
       redCards: stat.redCards?.toString() ?? "",
+      careerItemId: stat.careerItemId ?? "",
     });
     setStatus(null);
   };
@@ -107,6 +146,8 @@ export default function SeasonStatsManager({ playerId, stats }: Props) {
     setEditingId(null);
     reset(defaultValues);
     setStatus(null);
+    lastAutoTeamRef.current = null;
+    lastAutoSeasonRef.current = null;
   };
 
   const handleDelete = (stat: DashboardSeasonStat) => {
@@ -167,39 +208,49 @@ export default function SeasonStatsManager({ playerId, stats }: Props) {
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-900">
-              {stats.map((stat) => (
-                <tr key={stat.id} className="bg-neutral-950/40">
-                  <td className="whitespace-nowrap px-4 py-3 font-semibold text-white">{stat.season}</td>
+              {stats.map((stat) => {
+                const linkedStage = stat.careerItemId ? optionMap.get(stat.careerItemId) : null;
+                return (
+                  <tr key={stat.id} className="bg-neutral-950/40">
+                    <td className="whitespace-nowrap px-4 py-3">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-white">{stat.season}</span>
+                        {linkedStage ? (
+                          <span className="text-[11px] text-neutral-500">{linkedStage.label}</span>
+                        ) : null}
+                      </div>
+                    </td>
                   <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? "Competencia pendiente"}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{stat.team ?? "Equipo sin definir"}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.matches)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.goals)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.assists)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.minutes)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.yellowCards)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.redCards)}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2 text-xs">
-                      <button
-                        type="button"
-                        className="rounded-md border border-neutral-800 px-3 py-1 font-medium text-neutral-300 transition hover:border-neutral-700 hover:text-white"
-                        onClick={() => startEditing(stat)}
-                        disabled={pending}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-red-400 transition hover:border-red-700 hover:text-red-300"
-                        onClick={() => handleDelete(stat)}
-                        disabled={pending}
-                      >
-                        Eliminar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    <td className="whitespace-nowrap px-4 py-3">{stat.team ?? "Equipo sin definir"}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.matches)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.goals)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.assists)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.minutes)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.yellowCards)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.redCards)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <div className="flex justify-end gap-2 text-xs">
+                        <button
+                          type="button"
+                          className="rounded-md border border-neutral-800 px-3 py-1 font-medium text-neutral-300 transition hover:border-neutral-700 hover:text-white"
+                          onClick={() => startEditing(stat)}
+                          disabled={pending}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-red-400 transition hover:border-red-700 hover:text-red-300"
+                          onClick={() => handleDelete(stat)}
+                          disabled={pending}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -210,7 +261,7 @@ export default function SeasonStatsManager({ playerId, stats }: Props) {
       )}
 
       <form className="space-y-4" onSubmit={onSubmit}>
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-1.5 text-sm text-neutral-300">
             <span className="font-medium text-neutral-200">Temporada</span>
             <input
@@ -232,6 +283,22 @@ export default function SeasonStatsManager({ playerId, stats }: Props) {
               disabled={pending}
             />
             {errors.competition ? <FieldError message={errors.competition.message} /> : null}
+          </label>
+          <label className="space-y-1.5 text-sm text-neutral-300">
+            <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
+            <select
+              {...register("careerItemId")}
+              className={inputClassName}
+              disabled={pending}
+            >
+              <option value="">Seleccioná una etapa</option>
+              {careerOptions.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {errors.careerItemId ? <FieldError message={errors.careerItemId.message} /> : null}
           </label>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
