@@ -302,6 +302,8 @@ export default async function FootballDataPage() {
     id: stage.id,
     label: describeCareerStage(stage),
     club: stage.team?.name ?? stage.club ?? "Club sin definir",
+    period: describeCareerPeriod(stage),
+    crestUrl: stage.team?.crestUrl ?? null,
   }));
 
   let latestRevision: CareerRequestSnapshot | null = null;
@@ -469,6 +471,12 @@ function describeCareerStage(stage: CareerStage): string {
   const to = stage.endYear ?? "Actual";
   const division = stage.division ? ` · ${stage.division}` : "";
   return `${club}${division} (${from} – ${to})`;
+}
+
+function describeCareerPeriod(stage: CareerStage): string {
+  const from = stage.startYear ?? "¿?";
+  const to = stage.endYear ?? "Actual";
+  return `${from} – ${to}`;
 }
 
 function normalizeRequestStatus(status: string | null | undefined): CareerRequestSnapshot["status"] {

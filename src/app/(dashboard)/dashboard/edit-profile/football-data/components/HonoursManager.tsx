@@ -21,7 +21,7 @@ type FormValues = {
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
-type CareerOption = { id: string; label: string; club: string | null };
+type CareerOption = { id: string; label: string; club: string | null; period: string };
 
 type Props = {
   playerId: string;
@@ -74,8 +74,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
     if (!option) return;
     const currentSeason = getValues("season");
     if (!currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
-      setValue("season", option.label, { shouldDirty: true });
-      lastAutoSeasonRef.current = option.label;
+      setValue("season", option.period, { shouldDirty: true });
+      lastAutoSeasonRef.current = option.period;
     }
   }, [getValues, optionMap, setValue, watchCareerItemId]);
 

@@ -21,12 +21,16 @@ identificar los próximos pasos.
   `docs/db/client-dashboard-career-requests.sql`.
 - Habilitamos la UI inicial de trayectoria dentro del dashboard, reutilizando el editor del onboarding y preparando la
   sincronización con solicitudes administrables.
+- Ajustamos la gestión de trayectoria para que sólo pueda enviarse una solicitud al agregar nuevas etapas, incluyendo la
+  designación de club actual que actualiza cierres anteriores y elimina estados de "jugador libre" redundantes.
+- Refinamos la vinculación de palmarés y estadísticas con etapas concretas mostrando periodos abreviados, escudos y mejoras de
+  legibilidad en las tablas y formularios.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y
   temporadas.
-- Completar el flujo de persistencia desde el dashboard hacia las tablas de solicitudes, incluyendo estados de aprobación y
-  revalidaciones automáticas.
+- Completar el flujo de persistencia desde el dashboard hacia las tablas de solicitudes, incluyendo estados de aprobación,
+  cierres automáticos de etapas anteriores y revalidaciones automáticas.
 - Extender el panel de administración con vistas dedicadas a las solicitudes de trayectoria provenientes del dashboard y el
   nuevo menú de gestión de perfiles.
 - Conectar los toggles de `profile_sections_visibility` con persistencia real (mutations) y drag & drop para ordenar bloques de

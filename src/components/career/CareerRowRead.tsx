@@ -57,6 +57,11 @@ export default function CareerRowRead({
                         {!teamMeta?.crest_url && proposedCountry && (
                             <Chip size="sm" variant="flat" className="px-2">Propuesto</Chip>
                         )}
+                        {isCurrent ? (
+                            <Chip size="sm" color="primary" variant="flat" className="px-2">
+                                Actual
+                            </Chip>
+                        ) : null}
                     </div>
                     <p className="text-sm text-foreground-500 truncate">
                         {division || "—"} · {start_year ?? "?"}–{end_year ?? "Actual"}

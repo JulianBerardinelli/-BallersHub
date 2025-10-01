@@ -25,7 +25,7 @@ type FormValues = {
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
-type CareerOption = { id: string; label: string; club: string | null };
+type CareerOption = { id: string; label: string; club: string | null; period: string; crestUrl: string | null };
 
 type Props = {
   playerId: string;
@@ -92,8 +92,8 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     }
     const currentSeason = getValues("season");
     if (!currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
-      setValue("season", option.label, { shouldDirty: true });
-      lastAutoSeasonRef.current = option.label;
+      setValue("season", option.period, { shouldDirty: true });
+      lastAutoSeasonRef.current = option.period;
     }
   }, [getValues, optionMap, setValue, watchCareerItemId]);
 
@@ -210,17 +210,22 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
             <tbody className="divide-y divide-neutral-900">
               {stats.map((stat) => {
                 const linkedStage = stat.careerItemId ? optionMap.get(stat.careerItemId) : null;
+                const crest = linkedStage?.crestUrl || "/images/team-default.svg";
+                const periodLabel = linkedStage?.period ?? stat.season;
                 return (
                   <tr key={stat.id} className="bg-neutral-950/40">
                     <td className="whitespace-nowrap px-4 py-3">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-white">{stat.season}</span>
-                        {linkedStage ? (
-                          <span className="text-[11px] text-neutral-500">{linkedStage.label}</span>
-                        ) : null}
+                      <div className="flex items-center gap-3">
+                        <img src={crest} alt="" className="h-7 w-7 shrink-0 object-contain" width={28} height={28} />
+                        <div className="min-w-0">
+                          <span className="block text-sm font-semibold text-white">{periodLabel}</span>
+                          {linkedStage ? (
+                            <span className="block text-[11px] text-neutral-500 truncate">{linkedStage.label}</span>
+                          ) : null}
+                        </div>
                       </div>
                     </td>
-                  <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? "Competencia pendiente"}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? "Competencia pendiente"}</td>
                     <td className="whitespace-nowrap px-4 py-3">{stat.team ?? "Equipo sin definir"}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.matches)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.goals)}</td>
