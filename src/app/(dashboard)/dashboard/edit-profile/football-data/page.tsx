@@ -19,6 +19,7 @@ import {
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
+import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing-state";
 
 type CareerItem = {
   id: string;
@@ -92,7 +93,7 @@ export default async function FootballDataPage() {
     );
   }
 
-  const [careerResult, mediaResult, metrics] = await Promise.all([
+  const [careerResult, mediaResult, metrics, publishingState] = await Promise.all([
     supabase
       .from("career_items")
       .select("id, club, division, start_date, end_date")
@@ -104,6 +105,7 @@ export default async function FootballDataPage() {
       .eq("player_id", profileData.id)
       .order("created_at", { ascending: true }),
     fetchPlayerTaskMetrics(supabase, profileData.id),
+    fetchDashboardPublishingState(supabase, profileData.id),
   ]);
 
   const careerRaw = careerResult.data;
@@ -167,31 +169,37 @@ export default async function FootballDataPage() {
   const dominantFoot = hydratedProfile.foot ?? "";
   const currentClub = hydratedProfile.current_club ?? "";
   const marketValue = profileData.market_value_eur ? String(profileData.market_value_eur) : "";
+  const getLinkByKind = (kind: string) => publishingState.links.find((link) => link.kind === kind)?.url ?? null;
+
   const highlightUrl = pickFirstPresent(
+    getLinkByKind("highlight"),
     primaryHighlight?.url ?? null,
     applicationLinks.youtube,
     applicationLinks.social,
   );
-  const transfermarktUrl = applicationLinks.transfermarkt ?? "";
-  const besoccerUrl = applicationLinks.besoccer ?? "";
+  const transfermarktUrl = pickFirstPresent(getLinkByKind("transfermarkt"), applicationLinks.transfermarkt) ?? "";
+  const besoccerUrl = pickFirstPresent(getLinkByKind("besoccer"), applicationLinks.besoccer) ?? "";
   const youtubeUrl = pickFirstPresent(
+    getLinkByKind("youtube"),
     applicationLinks.youtube,
     primaryHighlight?.url && /youtu(be|\.com)/i.test(primaryHighlight.url)
       ? primaryHighlight.url
       : null,
-  );
+  ) ?? "";
   const instagramUrl = pickFirstPresent(
+    getLinkByKind("instagram"),
     applicationLinks.instagram,
     applicationLinks.social && /instagram\.com/i.test(applicationLinks.social)
       ? applicationLinks.social
       : null,
-  );
+  ) ?? "";
   const linkedinUrl = pickFirstPresent(
+    getLinkByKind("linkedin"),
     applicationLinks.linkedin,
     applicationLinks.social && /linkedin\.com/i.test(applicationLinks.social)
       ? applicationLinks.social
       : null,
-  );
+  ) ?? "";
 
   return (
     <div className="space-y-6">
@@ -273,60 +281,177 @@ export default async function FootballDataPage() {
         title="Referencias y enlaces"
         description="Conectá tu perfil con plataformas externas para validar tu experiencia."
       >
-        <form className="grid gap-4 md:grid-cols-2">
-          <FormField
-            id="highlight"
-            label="Video destacado"
-            placeholder="Link a tu mejor highlight"
-            defaultValue={highlightUrl ?? ""}
-          />
-          <FormField
-            id="transfermarkt"
-            label="Transfermarkt"
-            placeholder="URL pública"
-            defaultValue={transfermarktUrl}
-          />
-          <FormField
-            id="besoccer"
-            label="BeSoccer"
-            placeholder="URL pública"
-            defaultValue={besoccerUrl}
-          />
-          <FormField
-            id="youtube"
-            label="YouTube"
-            placeholder="Canal o playlist"
-            defaultValue={youtubeUrl ?? ""}
-          />
-          <FormField
-            id="instagram"
-            label="Instagram"
-            placeholder="Usuario o URL"
-            defaultValue={instagramUrl ?? ""}
-          />
-          <FormField
-            id="linkedin"
-            label="LinkedIn"
-            placeholder="Perfil profesional"
-            defaultValue={linkedinUrl ?? ""}
-          />
-        </form>
+        <div className="space-y-6">
+          {publishingState.links.length > 0 ? (
+            <ul className="space-y-3">
+              {publishingState.links.map((link) => (
+                <li
+                  key={link.id}
+                  className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-xs uppercase tracking-wide text-neutral-500">
+                        {formatLinkKind(link.kind)}
+                      </p>
+                      <p className="text-sm font-semibold text-white">
+                        {link.label ?? formatLinkKind(link.kind)}
+                      </p>
+                      <p className="text-xs text-neutral-500">
+                        {getLinkKindDescription(link.kind)}
+                      </p>
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="break-all text-xs text-primary underline"
+                      >
+                        {link.url}
+                      </a>
+                    </div>
+                    {link.isPrimary ? (
+                      <span className="inline-flex items-center rounded-full border border-primary/40 px-3 py-1 text-xs text-primary">
+                        Principal
+                      </span>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
+              Aún no cargaste enlaces externos. Pronto podrás gestionarlos directamente desde esta sección.
+            </div>
+          )}
+
+          <form className="grid gap-4 md:grid-cols-2">
+            <FormField
+              id="highlight"
+              label="Video destacado"
+              placeholder="Link a tu mejor highlight"
+              defaultValue={highlightUrl ?? ""}
+            />
+            <FormField
+              id="transfermarkt"
+              label="Transfermarkt"
+              placeholder="URL pública"
+              defaultValue={transfermarktUrl}
+            />
+            <FormField
+              id="besoccer"
+              label="BeSoccer"
+              placeholder="URL pública"
+              defaultValue={besoccerUrl}
+            />
+            <FormField
+              id="youtube"
+              label="YouTube"
+              placeholder="Canal o playlist"
+              defaultValue={youtubeUrl ?? ""}
+            />
+            <FormField
+              id="instagram"
+              label="Instagram"
+              placeholder="Usuario o URL"
+              defaultValue={instagramUrl ?? ""}
+            />
+            <FormField
+              id="linkedin"
+              label="LinkedIn"
+              placeholder="Perfil profesional"
+              defaultValue={linkedinUrl ?? ""}
+            />
+          </form>
+
+          <p className="text-xs text-neutral-500">
+            Próximamente se habilitarán formularios para crear y editar enlaces personalizados directamente desde el dashboard.
+          </p>
+        </div>
       </SectionCard>
 
       <SectionCard
         title="Palmarés y reconocimientos"
         description="Documentá títulos, premios individuales y estadísticas destacadas."
       >
-        <div className="space-y-3">
-          <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
-            Aquí podrás cargar logros, premios y estadísticas relevantes para mostrar en tu CV digital.
-          </div>
+        <div className="space-y-4">
+          {publishingState.honours.length > 0 ? (
+            <ul className="space-y-3">
+              {publishingState.honours.map((honour) => (
+                <li
+                  key={honour.id}
+                  className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="space-y-1">
+                      <p className="text-sm font-semibold text-white">{honour.title}</p>
+                      <p className="text-xs text-neutral-400">
+                        {honour.competition ?? "Competencia pendiente"} · {honour.season ?? "Temporada sin definir"}
+                      </p>
+                      {honour.description ? (
+                        <p className="text-xs text-neutral-400">{honour.description}</p>
+                      ) : null}
+                    </div>
+                    <p className="text-xs text-neutral-500">{formatHonourDate(honour.awardedOn)}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
+              Aquí podrás cargar logros, premios y estadísticas relevantes para mostrar en tu CV digital.
+            </div>
+          )}
           <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
             <span className="rounded-full border border-neutral-800 px-3 py-1">🏆 Campeonatos</span>
             <span className="rounded-full border border-neutral-800 px-3 py-1">⭐ Premios individuales</span>
             <span className="rounded-full border border-neutral-800 px-3 py-1">📈 Estadísticas clave</span>
           </div>
         </div>
+      </SectionCard>
+
+      <SectionCard
+        title="Estadísticas por temporada"
+        description="Seguimiento agregado de tus números oficiales para compartir con clubes y representantes."
+      >
+        {publishingState.stats.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-800 text-sm text-neutral-300">
+              <thead className="bg-neutral-950/60 text-xs uppercase tracking-wide text-neutral-500">
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-left font-medium">Temporada</th>
+                  <th scope="col" className="px-4 py-3 text-left font-medium">Competencia</th>
+                  <th scope="col" className="px-4 py-3 text-left font-medium">Equipo</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium">PJ</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium">Goles</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium">Asist.</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium">Minutos</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium">TA</th>
+                  <th scope="col" className="px-4 py-3 text-center font-medium">TR</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-900">
+                {publishingState.stats.map((stat) => (
+                  <tr key={stat.id} className="bg-neutral-950/40">
+                    <td className="whitespace-nowrap px-4 py-3 font-semibold text-white">{stat.season}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? "Competencia pendiente"}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{stat.team ?? "Equipo sin definir"}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.matches)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.goals)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.assists)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.minutes)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.yellowCards)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.redCards)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
+            Cargá tus estadísticas oficiales para potenciar el análisis deportivo. Podrás sincronizarlas con integraciones y
+            reportes externos.
+          </div>
+        )}
       </SectionCard>
 
       <SectionCard
@@ -358,4 +483,45 @@ function formatSeason(start: string | null, end: string | null) {
   const startYear = start ? new Date(start).getFullYear() : "¿?";
   const endYear = end ? new Date(end).getFullYear() : "Actualidad";
   return `${startYear} - ${endYear}`;
+}
+
+const HONOUR_DATE_FORMATTER = new Intl.DateTimeFormat("es-AR", { year: "numeric", month: "short" });
+const NUMBER_FORMATTER = new Intl.NumberFormat("es-AR");
+
+const LINK_KIND_LABELS: Record<string, string> = {
+  highlight: "Video destacado",
+  transfermarkt: "Transfermarkt",
+  besoccer: "BeSoccer",
+  youtube: "YouTube",
+  instagram: "Instagram",
+  linkedin: "LinkedIn",
+};
+
+const LINK_KIND_DESCRIPTIONS: Record<string, string> = {
+  highlight: "Link utilizado como presentación principal de tu perfil.",
+  transfermarkt: "Referencia oficial para valor de mercado y trayectoria.",
+  besoccer: "Sincronización con estadísticas verificadas de BeSoccer.",
+  youtube: "Canal o playlist con tus mejores jugadas.",
+  instagram: "Perfil social para mostrar actualidad y backstage.",
+  linkedin: "Perfil profesional orientado a clubes y agentes.",
+};
+
+function formatHonourDate(date: string | null): string {
+  if (!date) return "Fecha pendiente";
+  const parsed = new Date(date);
+  if (Number.isNaN(parsed.getTime())) return "Fecha pendiente";
+  return HONOUR_DATE_FORMATTER.format(parsed);
+}
+
+function formatNumericStat(value: number | null): string {
+  if (value === null || Number.isNaN(value)) return "–";
+  return NUMBER_FORMATTER.format(value);
+}
+
+function formatLinkKind(kind: string): string {
+  return LINK_KIND_LABELS[kind] ?? kind;
+}
+
+function getLinkKindDescription(kind: string): string {
+  return LINK_KIND_DESCRIPTIONS[kind] ?? "Enlace personalizado sin clasificación.";
 }
