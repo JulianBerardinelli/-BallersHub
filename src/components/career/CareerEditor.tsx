@@ -13,12 +13,16 @@ export default function CareerEditor({
   items,
   onChange,
   optional = true,
-  onRequestRemoveCurrent,                  // 👈 NUEVO
+  onRequestRemoveCurrent,
+  showCurrentToggle = true,
+  onRequestCurrentChange,
 }: {
   items: CareerItemInput[];
   onChange: (rows: CareerItemInput[]) => void;
   optional?: boolean;
-  onRequestRemoveCurrent?: () => void;     // 👈 NUEVO
+  onRequestRemoveCurrent?: () => void;
+  showCurrentToggle?: boolean;
+  onRequestCurrentChange?: (row: CareerItemInput, selected: boolean) => boolean;
 }) {
   const [skipped, setSkipped] = React.useState(false);
 
@@ -148,6 +152,10 @@ export default function CareerEditor({
                   if (row.source === "current") setConfirmId(row.id); else removeRow(row.id);
                 }}
                 overlapError={overlapMsg(row)}
+                showCurrentToggle={showCurrentToggle}
+                onRequestCurrentChange={(selected) =>
+                  onRequestCurrentChange ? onRequestCurrentChange(row, selected) : true
+                }
               />
             )}
           </motion.div>

@@ -186,7 +186,9 @@ export default function Step2Football({
           optional
           onRequestRemoveCurrent={() => {
             setTeam(null);
-          }} />
+          }}
+          showCurrentToggle={false}
+        />
 
         <div className="grid gap-3 rounded-xl border p-4">
           <h3 className="text-base font-medium">Perfiles externos (opcional)</h3>

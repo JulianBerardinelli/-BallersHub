@@ -51,6 +51,8 @@ export default function CareerRowEditor({
   onCancel,
   onRemove,
   overlapError,
+  showCurrentToggle = true,
+  onRequestCurrentChange,
 }: {
   value: RowDraft;
   onPatch: (patch: Partial<RowDraft>) => void;
@@ -58,6 +60,8 @@ export default function CareerRowEditor({
   onCancel: () => void;
   onRemove: () => void;
   overlapError?: string | null;
+  showCurrentToggle?: boolean;
+  onRequestCurrentChange?: (selected: boolean) => boolean | void;
 }) {
   // --- Autocomplete club ---
   const [q, setQ] = React.useState(value.club ?? "");
@@ -299,19 +303,24 @@ export default function CareerRowEditor({
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <Switch
-            size="sm"
-            isSelected={isCurrent}
-            onValueChange={(selected) => {
-              if (selected) {
-                onPatch({ source: "current", lockEnd: true, end_year: null });
-              } else {
-                onPatch({ source: "manual", lockEnd: false });
-              }
-            }}
-          >
-            Es mi equipo actual
-          </Switch>
+          {showCurrentToggle ? (
+            <Switch
+              size="sm"
+              isSelected={isCurrent}
+              onValueChange={(selected) => {
+                if (selected) {
+                  const allowed = onRequestCurrentChange ? onRequestCurrentChange(true) !== false : true;
+                  if (!allowed) return;
+                  onPatch({ source: "current", lockEnd: true, end_year: null });
+                } else {
+                  onPatch({ source: "manual", lockEnd: false });
+                  onRequestCurrentChange?.(false);
+                }
+              }}
+            >
+              Es mi equipo actual
+            </Switch>
+          ) : null}
 
           <div className="flex gap-2">
             {!value.team_id && (

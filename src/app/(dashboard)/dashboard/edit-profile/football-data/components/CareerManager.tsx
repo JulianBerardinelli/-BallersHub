@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { useRouter } from "next/navigation";
 
@@ -129,6 +129,7 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
   const baseIds = useMemo(() => new Set(baseItems.map((item) => item.id)), [baseItems]);
   const baseOriginalMap = useMemo(() => new Map(baseItems.map((item) => [item.id, item.originalId ?? null])), [baseItems]);
   const [items, setItems] = useState<AugmentedCareerItem[]>(baseItems);
+  const [guardMessage, setGuardMessage] = useState<string | null>(null);
   const requestDescriptor = useMemo(
     () => (latestRequest ? formatStatus(latestRequest.status) : null),
     [latestRequest],
@@ -140,9 +141,11 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
     setItems(baseItems);
     setStatus(DEFAULT_STATUS);
     setNote("");
+    setGuardMessage(null);
   }, [baseItems]);
 
   const handleChange = (next: CareerItemInput[]) => {
+    let nextGuard = guardMessage;
     setItems((prev) => {
       let normalized = next.map((item) => {
         const previous = prev.find((p) => p.id === item.id);
@@ -153,13 +156,7 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
         } as AugmentedCareerItem;
       });
 
-      const prevCurrentId = prev.find((p) => p.source === "current")?.id ?? null;
-      const newlyCurrent = normalized.find((item) => {
-        if (item.source !== "current") return false;
-        const prevMatch = prev.find((p) => p.id === item.id);
-        return !prevMatch || prevMatch.source !== "current";
-      });
-      const currentCandidate = newlyCurrent ?? normalized.find((item) => item.source === "current") ?? null;
+      const currentCandidate = normalized.find((item) => item.source === "current") ?? null;
       const currentId = currentCandidate?.id ?? null;
 
       if (currentId) {
@@ -178,20 +175,6 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
           return item;
         });
 
-        const currentStage = normalized.find((item) => item.id === currentId) ?? null;
-        if (currentStage && prevCurrentId && prevCurrentId !== currentId) {
-          const closingYear = currentStage.start_year ?? null;
-          normalized = normalized.map((item) => {
-            if (item.id !== prevCurrentId) return item;
-            return {
-              ...item,
-              source: "manual",
-              lockEnd: false,
-              end_year: closingYear,
-            };
-          });
-        }
-
         normalized = normalized.filter((item) => {
           if (item.id === currentId) return true;
           if (item.team_id || item.team_meta || item.proposed) return true;
@@ -201,9 +184,59 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
         });
       }
 
+      const hasOpenOtherStage = normalized.some((item) => {
+        if (item.id === currentId) return false;
+        const meaningful = Boolean(
+          item.team_id ||
+            item.team_meta ||
+            item.proposed ||
+            (item.club && item.club.trim().length > 0),
+        );
+        if (!meaningful) return false;
+        return item.end_year === null;
+      });
+
+      if (!hasOpenOtherStage) {
+        nextGuard = null;
+      }
+
       return normalized;
     });
+
+    setGuardMessage(nextGuard);
   };
+
+  const handleRequestCurrentChange = useCallback(
+    (row: CareerItemInput, selected: boolean) => {
+      if (!selected) {
+        setGuardMessage(null);
+        return true;
+      }
+
+      const hasOpenOtherStage = items.some((item) => {
+        if (item.id === row.id) return false;
+        const meaningful = Boolean(
+          item.team_id ||
+            item.team_meta ||
+            item.proposed ||
+            (item.club && item.club.trim().length > 0),
+        );
+        if (!meaningful) return false;
+        return item.end_year === null;
+      });
+
+      if (hasOpenOtherStage) {
+        setGuardMessage(
+          "Para marcar un nuevo equipo como actual, cerrá la etapa vigente indicando su año de finalización.",
+        );
+        return false;
+      }
+
+      setGuardMessage(null);
+      return true;
+    },
+    [items],
+  );
 
   const confirmedItems = useMemo(() => items.filter((item) => item.confirmed), [items]);
   const hasPendingDrafts = useMemo(() => items.some((item) => !item.confirmed), [items]);
@@ -365,7 +398,18 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
         </section>
       ) : null}
 
-      <CareerEditor items={items} onChange={handleChange} optional={false} />
+      {guardMessage ? (
+        <p className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+          {guardMessage}
+        </p>
+      ) : null}
+
+      <CareerEditor
+        items={items}
+        onChange={handleChange}
+        optional={false}
+        onRequestCurrentChange={handleRequestCurrentChange}
+      />
 
       {showActionPanel ? (
         <div className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
