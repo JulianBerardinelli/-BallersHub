@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useForm, type UseFormSetError } from "react-hook-form";
+import { Controller, useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 import type { DashboardSeasonStat } from "@/lib/dashboard/client/publishing-state";
 import { seasonStatMutationSchema, type SeasonStatMutationInput } from "../schemas";
 import { deleteSeasonStat, upsertSeasonStat } from "../actions";
+import TeamCrest from "@/components/teams/TeamCrest";
 
 type FormValues = {
   id?: string;
@@ -26,6 +28,7 @@ type FormValues = {
 type StatusState = { type: "success" | "error"; message: string } | null;
 
 type CareerOption = { id: string; label: string; club: string | null; period: string; crestUrl: string | null };
+type StageOption = CareerOption & { disabled: boolean };
 
 type Props = {
   playerId: string;
@@ -50,6 +53,11 @@ const defaultValues: FormValues = {
 const inputClassName =
   "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
 
+const formatStageLabel = (option: Pick<CareerOption, "club" | "period">) => {
+  const club = option.club && option.club.trim().length > 0 ? option.club : "Club sin definir";
+  return `${club} · ${option.period}`;
+};
+
 export default function SeasonStatsManager({ playerId, stats, careerOptions }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
@@ -57,6 +65,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const [pending, startTransition] = useTransition();
   const lastAutoTeamRef = useRef<string | null>(null);
   const lastAutoSeasonRef = useRef<string | null>(null);
+  const [careerInputValue, setCareerInputValue] = useState("");
 
   const {
     register,
@@ -67,6 +76,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     setError,
     clearErrors,
     getValues,
+    control,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues,
@@ -76,6 +86,32 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const watchCareerItemId = watch("careerItemId");
   const watchSeason = watch("season");
   const watchId = watch("id");
+
+  const selectedStage = watchCareerItemId ? optionMap.get(watchCareerItemId) ?? null : null;
+
+  const stageOptions: StageOption[] = useMemo(() => {
+    const excludedId = watchId ?? null;
+    return careerOptions.map((option) => {
+      const duplicate = stats.some((stat) => {
+        if (excludedId && stat.id === excludedId) return false;
+        const sameStage = stat.careerItemId && stat.careerItemId === option.id;
+        const samePeriod = stat.season === option.period;
+        return sameStage || samePeriod;
+      });
+      return {
+        ...option,
+        disabled: duplicate,
+      };
+    });
+  }, [careerOptions, stats, watchId]);
+
+  useEffect(() => {
+    if (selectedStage) {
+      setCareerInputValue(formatStageLabel(selectedStage));
+    } else if (!watchCareerItemId) {
+      setCareerInputValue("");
+    }
+  }, [selectedStage, watchCareerItemId]);
 
   useEffect(() => {
     if (!watchSeason || watchSeason.trim().length === 0) {
@@ -98,6 +134,9 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     if (!watchCareerItemId) {
       lastAutoTeamRef.current = null;
       lastAutoSeasonRef.current = null;
+      if (getValues("season")) {
+        setValue("season", "", { shouldDirty: true });
+      }
       return;
     }
     const option = optionMap.get(watchCareerItemId);
@@ -111,11 +150,33 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       }
     }
     const currentSeason = getValues("season");
-    if (!currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
+    if (currentSeason !== option.period) {
       setValue("season", option.period, { shouldDirty: true });
-      lastAutoSeasonRef.current = option.period;
     }
+    lastAutoSeasonRef.current = option.period;
   }, [getValues, optionMap, setValue, watchCareerItemId]);
+
+  useEffect(() => {
+    if (!watchCareerItemId) {
+      clearErrors("careerItemId");
+      return;
+    }
+    const option = optionMap.get(watchCareerItemId);
+    const duplicate = stats.some((stat) => {
+      if (watchId && stat.id === watchId) return false;
+      const sameStage = stat.careerItemId && stat.careerItemId === watchCareerItemId;
+      const samePeriod = option ? stat.season === option.period : false;
+      return sameStage || samePeriod;
+    });
+    if (duplicate) {
+      setError("careerItemId", {
+        type: "manual",
+        message: "Ya registraste estadísticas para esa etapa. Editá la fila existente antes de duplicarla.",
+      });
+    } else {
+      clearErrors("careerItemId");
+    }
+  }, [clearErrors, optionMap, setError, stats, watchCareerItemId, watchId]);
 
   const onSubmit = handleSubmit((values) => {
     const parsed = seasonStatMutationSchema.safeParse({
@@ -136,6 +197,23 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       });
       setStatus({ type: "error", message: "Ya existe una estadística cargada para esa temporada." });
       return;
+    }
+
+    if (parsed.data.careerItemId) {
+      const duplicateStage = stats.some(
+        (stat) =>
+          stat.id !== parsed.data.id &&
+          stat.careerItemId &&
+          stat.careerItemId === parsed.data.careerItemId,
+      );
+      if (duplicateStage) {
+        setError("careerItemId", {
+          type: "manual",
+          message: "Ya registraste estadísticas para esa etapa. Editá la fila existente antes de duplicarla.",
+        });
+        setStatus({ type: "error", message: "La etapa seleccionada ya tiene estadísticas registradas." });
+        return;
+      }
     }
 
     startTransition(async () => {
@@ -297,14 +375,86 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
 
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-3">
+          <label className="space-y-1.5 text-sm text-neutral-300 md:col-span-2">
+            <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
+            <Controller
+              control={control}
+              name="careerItemId"
+              render={({ field }) => (
+                <Autocomplete
+                  aria-label="Etapa de trayectoria"
+                  placeholder="Seleccioná una etapa"
+                  selectedKey={field.value ? field.value : undefined}
+                  inputValue={careerInputValue}
+                  onInputChange={setCareerInputValue}
+                  onSelectionChange={(key) => {
+                    const value = key ? String(key) : "";
+                    field.onChange(value);
+                    const option = value ? optionMap.get(value) ?? null : null;
+                    setCareerInputValue(option ? formatStageLabel(option) : "");
+                  }}
+                  onBlur={field.onBlur}
+                  isDisabled={pending}
+                  allowsCustomValue={false}
+                  variant="bordered"
+                  className="w-full text-sm"
+                  classNames={{
+                    inputWrapper:
+                      "bg-neutral-950 border border-neutral-800 data-[hover=true]:border-neutral-700", 
+                    listbox:
+                      "bg-neutral-950 text-neutral-200",
+                    listboxWrapper: "bg-neutral-950 border border-neutral-800",
+                    popoverContent: "bg-neutral-950 border border-neutral-800",
+                  }}
+                  startContent={
+                    selectedStage ? (
+                      <TeamCrest
+                        src={selectedStage.crestUrl}
+                        name={selectedStage.club ?? "Club"}
+                        size={24}
+                        className="rounded-md bg-neutral-900/60"
+                      />
+                    ) : null
+                  }
+                  items={stageOptions}
+                >
+                  {(item: StageOption) => (
+                    <AutocompleteItem
+                      key={item.id}
+                      textValue={formatStageLabel(item)}
+                      isDisabled={item.disabled}
+                      startContent={
+                        <TeamCrest
+                          src={item.crestUrl}
+                          name={item.club ?? "Club"}
+                          size={24}
+                          className="rounded-md bg-neutral-900/60"
+                        />
+                      }
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
+                        <span className="text-xs text-neutral-400">{item.period}</span>
+                        {item.disabled ? (
+                          <span className="text-[11px] text-amber-400">Ya registraste estadísticas para esta etapa.</span>
+                        ) : null}
+                      </div>
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              )}
+            />
+            {errors.careerItemId ? <FieldError message={errors.careerItemId.message} /> : null}
+          </label>
           <label className="space-y-1.5 text-sm text-neutral-300">
             <span className="font-medium text-neutral-200">Temporada</span>
             <input
               {...register("season")}
               type="text"
-              placeholder="Ej: 2024/25"
-              className={inputClassName}
-              disabled={pending}
+              placeholder="Se completa al elegir la etapa"
+              className={`${inputClassName} cursor-not-allowed bg-neutral-900/60 text-neutral-400`}
+              readOnly
+              tabIndex={-1}
             />
             {errors.season ? <FieldError message={errors.season.message} /> : null}
           </label>
@@ -318,22 +468,6 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
               disabled={pending}
             />
             {errors.competition ? <FieldError message={errors.competition.message} /> : null}
-          </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
-            <select
-              {...register("careerItemId")}
-              className={inputClassName}
-              disabled={pending}
-            >
-              <option value="">Seleccioná una etapa</option>
-              {careerOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {errors.careerItemId ? <FieldError message={errors.careerItemId.message} /> : null}
           </label>
         </div>
         <div className="grid gap-4 md:grid-cols-2">

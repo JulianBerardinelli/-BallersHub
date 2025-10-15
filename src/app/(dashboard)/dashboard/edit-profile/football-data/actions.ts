@@ -234,6 +234,32 @@ export async function upsertSeasonStat(input: SeasonStatMutationInput): Promise<
     };
   }
 
+  if (parsed.data.careerItemId) {
+    let stageCheck = supabase
+      .from("stats_seasons")
+      .select("id")
+      .eq("player_id", parsed.data.playerId)
+      .eq("career_item_id", parsed.data.careerItemId)
+      .limit(1);
+
+    if (parsed.data.id) {
+      stageCheck = stageCheck.neq("id", parsed.data.id);
+    }
+
+    const { data: stageDuplicates, error: stageError } = await stageCheck;
+
+    if (stageError) {
+      return { success: false, message: mapPostgrestError(stageError) };
+    }
+
+    if (stageDuplicates && stageDuplicates.length > 0) {
+      return {
+        success: false,
+        message: "La etapa seleccionada ya tiene estadísticas registradas. Actualizá la fila existente antes de crear otra.",
+      };
+    }
+  }
+
   const payload = {
     season: parsed.data.season,
     competition: parsed.data.competition,
