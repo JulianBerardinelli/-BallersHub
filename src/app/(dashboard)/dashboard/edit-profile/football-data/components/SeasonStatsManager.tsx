@@ -317,7 +317,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
             <tbody className="divide-y divide-neutral-900">
               {stats.map((stat) => {
                 const linkedStage = stat.careerItemId ? optionMap.get(stat.careerItemId) : null;
-                const crest = linkedStage?.crestUrl || "/images/team-default.svg";
+                const crest = stat.crestUrl ?? linkedStage?.crestUrl ?? "/images/team-default.svg";
                 const periodLabel = linkedStage?.period ?? stat.season;
                 return (
                   <tr key={stat.id} className="bg-neutral-950/40">

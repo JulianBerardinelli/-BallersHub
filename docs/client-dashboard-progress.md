@@ -30,6 +30,8 @@ identificar los próximos pasos.
   etapas con registros previos, pero permitiendo editar manualmente la temporada bajo la validación de duplicados.
 - Renovamos el selector de etapas en palmarés para reutilizar la experiencia de autocompletado con crest y mantener la
   sincronización automática de temporadas sin perder flexibilidad al editar.
+- Extendimos la vista `player_dashboard_publishing_state` para incluir el crest del equipo asociado a cada estadística, de modo
+  que el dashboard pueda mostrarlo consistentemente al listar temporadas existentes.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y

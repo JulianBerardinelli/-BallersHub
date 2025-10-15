@@ -475,11 +475,15 @@ SELECT
           'assists', st.assists,
           'yellow_cards', st.yellow_cards,
           'red_cards', st.red_cards,
-          'created_at', st.created_at
+          'created_at', st.created_at,
+          'career_item_id', st.career_item_id,
+          'team_crest_url', tm.crest_url
         )
         ORDER BY st.season DESC, st.created_at DESC
       )
       FROM public.stats_seasons st
+      LEFT JOIN public.career_items ci ON ci.id = st.career_item_id
+      LEFT JOIN public.teams tm ON tm.id = ci.team_id
       WHERE st.player_id = p.id
     ),
     '[]'::jsonb

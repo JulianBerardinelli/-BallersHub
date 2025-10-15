@@ -50,6 +50,7 @@ export type DashboardSeasonStat = {
   season: string;
   competition: string | null;
   team: string | null;
+  crestUrl: string | null;
   matches: number | null;
   minutes: number | null;
   goals: number | null;
@@ -201,6 +202,7 @@ function mapSeasonStat(input: Record<string, unknown>): DashboardSeasonStat | nu
     season,
     competition: typeof input.competition === "string" ? input.competition : null,
     team: typeof input.team === "string" ? input.team : null,
+    crestUrl: typeof input.team_crest_url === "string" ? input.team_crest_url : null,
     matches: typeof input.matches === "number" ? input.matches : null,
     minutes: typeof input.minutes === "number" ? input.minutes : null,
     goals: typeof input.goals === "number" ? input.goals : null,
