@@ -26,8 +26,10 @@ identificar los próximos pasos.
 - Refinamos la vinculación de palmarés y estadísticas con etapas concretas mostrando periodos abreviados, escudos y mejoras de
   legibilidad en las tablas y formularios.
 - Impedimos duplicar temporadas en estadísticas, validando desde la UI y las acciones que sólo exista una fila por periodo.
-- Actualizamos el selector de etapas en estadísticas para mostrar crest, bloquear periodos ya utilizados y completar la
-  temporada de forma automática y no editable.
+- Reajustamos el selector de etapas en estadísticas con la misma UI que el resto del dashboard, mostrando crest e indicios de
+  etapas con registros previos, pero permitiendo editar manualmente la temporada bajo la validación de duplicados.
+- Renovamos el selector de etapas en palmarés para reutilizar la experiencia de autocompletado con crest y mantener la
+  sincronización automática de temporadas sin perder flexibilidad al editar.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y

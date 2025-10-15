@@ -28,7 +28,7 @@ type FormValues = {
 type StatusState = { type: "success" | "error"; message: string } | null;
 
 type CareerOption = { id: string; label: string; club: string | null; period: string; crestUrl: string | null };
-type StageOption = CareerOption & { disabled: boolean };
+type StageOption = CareerOption & { hasExistingStats: boolean };
 
 type Props = {
   playerId: string;
@@ -65,6 +65,8 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const [pending, startTransition] = useTransition();
   const lastAutoTeamRef = useRef<string | null>(null);
   const lastAutoSeasonRef = useRef<string | null>(null);
+  const lastSelectedStageIdRef = useRef<string | null>(null);
+  const skipStageAutofillRef = useRef(false);
   const [careerInputValue, setCareerInputValue] = useState("");
 
   const {
@@ -87,23 +89,22 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const watchSeason = watch("season");
   const watchId = watch("id");
 
+  const editingStat = useMemo(
+    () => (watchId ? stats.find((stat) => stat.id === watchId) ?? null : null),
+    [stats, watchId],
+  );
+
   const selectedStage = watchCareerItemId ? optionMap.get(watchCareerItemId) ?? null : null;
 
   const stageOptions: StageOption[] = useMemo(() => {
-    const excludedId = watchId ?? null;
-    return careerOptions.map((option) => {
-      const duplicate = stats.some((stat) => {
-        if (excludedId && stat.id === excludedId) return false;
-        const sameStage = stat.careerItemId && stat.careerItemId === option.id;
-        const samePeriod = stat.season === option.period;
-        return sameStage || samePeriod;
-      });
-      return {
-        ...option,
-        disabled: duplicate,
-      };
-    });
-  }, [careerOptions, stats, watchId]);
+    return careerOptions.map((option) => ({
+      ...option,
+      hasExistingStats: stats.some((stat) => {
+        if (editingStat && stat.id === editingStat.id) return false;
+        return stat.careerItemId === option.id;
+      }),
+    }));
+  }, [careerOptions, stats, editingStat]);
 
   useEffect(() => {
     if (selectedStage) {
@@ -134,49 +135,46 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     if (!watchCareerItemId) {
       lastAutoTeamRef.current = null;
       lastAutoSeasonRef.current = null;
+      lastSelectedStageIdRef.current = null;
+      skipStageAutofillRef.current = false;
       if (getValues("season")) {
         setValue("season", "", { shouldDirty: true });
       }
       return;
     }
+
     const option = optionMap.get(watchCareerItemId);
     if (!option) return;
+
+    if (skipStageAutofillRef.current) {
+      skipStageAutofillRef.current = false;
+      lastSelectedStageIdRef.current = option.id;
+      return;
+    }
+
+    const stageChanged = lastSelectedStageIdRef.current !== option.id;
+    const club = option.club ?? "";
     const currentTeam = getValues("team");
-    if (!currentTeam || currentTeam.trim().length === 0 || currentTeam === lastAutoTeamRef.current) {
-      const club = option.club ?? "";
+    if (
+      stageChanged ||
+      !currentTeam ||
+      currentTeam.trim().length === 0 ||
+      currentTeam === lastAutoTeamRef.current
+    ) {
       if (club) {
         setValue("team", club, { shouldDirty: true });
         lastAutoTeamRef.current = club;
       }
     }
-    const currentSeason = getValues("season");
-    if (currentSeason !== option.period) {
-      setValue("season", option.period, { shouldDirty: true });
-    }
-    lastAutoSeasonRef.current = option.period;
-  }, [getValues, optionMap, setValue, watchCareerItemId]);
 
-  useEffect(() => {
-    if (!watchCareerItemId) {
-      clearErrors("careerItemId");
-      return;
+    const currentSeason = getValues("season");
+    if (stageChanged || !currentSeason || currentSeason === lastAutoSeasonRef.current) {
+      setValue("season", option.period, { shouldDirty: true });
+      lastAutoSeasonRef.current = option.period;
     }
-    const option = optionMap.get(watchCareerItemId);
-    const duplicate = stats.some((stat) => {
-      if (watchId && stat.id === watchId) return false;
-      const sameStage = stat.careerItemId && stat.careerItemId === watchCareerItemId;
-      const samePeriod = option ? stat.season === option.period : false;
-      return sameStage || samePeriod;
-    });
-    if (duplicate) {
-      setError("careerItemId", {
-        type: "manual",
-        message: "Ya registraste estadísticas para esa etapa. Editá la fila existente antes de duplicarla.",
-      });
-    } else {
-      clearErrors("careerItemId");
-    }
-  }, [clearErrors, optionMap, setError, stats, watchCareerItemId, watchId]);
+
+    lastSelectedStageIdRef.current = option.id;
+  }, [getValues, optionMap, setValue, watchCareerItemId]);
 
   const onSubmit = handleSubmit((values) => {
     const parsed = seasonStatMutationSchema.safeParse({
@@ -199,23 +197,6 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       return;
     }
 
-    if (parsed.data.careerItemId) {
-      const duplicateStage = stats.some(
-        (stat) =>
-          stat.id !== parsed.data.id &&
-          stat.careerItemId &&
-          stat.careerItemId === parsed.data.careerItemId,
-      );
-      if (duplicateStage) {
-        setError("careerItemId", {
-          type: "manual",
-          message: "Ya registraste estadísticas para esa etapa. Editá la fila existente antes de duplicarla.",
-        });
-        setStatus({ type: "error", message: "La etapa seleccionada ya tiene estadísticas registradas." });
-        return;
-      }
-    }
-
     startTransition(async () => {
       const result = await upsertSeasonStat(parsed.data);
       if (!result.success) {
@@ -229,6 +210,9 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       reset(defaultValues);
       lastAutoTeamRef.current = null;
       lastAutoSeasonRef.current = null;
+      lastSelectedStageIdRef.current = null;
+      skipStageAutofillRef.current = false;
+      setCareerInputValue("");
     });
   });
 
@@ -248,6 +232,18 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       careerItemId: stat.careerItemId ?? "",
     });
     setStatus(null);
+    skipStageAutofillRef.current = true;
+    lastSelectedStageIdRef.current = stat.careerItemId ?? null;
+    lastAutoSeasonRef.current = stat.season;
+    lastAutoTeamRef.current = stat.team ?? null;
+    if (stat.careerItemId) {
+      const option = optionMap.get(stat.careerItemId);
+      if (option) {
+        setCareerInputValue(formatStageLabel(option));
+      }
+    } else {
+      setCareerInputValue("");
+    }
   };
 
   const cancelEditing = () => {
@@ -256,6 +252,9 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     setStatus(null);
     lastAutoTeamRef.current = null;
     lastAutoSeasonRef.current = null;
+    lastSelectedStageIdRef.current = null;
+    skipStageAutofillRef.current = false;
+    setCareerInputValue("");
   };
 
   const handleDelete = (stat: DashboardSeasonStat) => {
@@ -391,20 +390,30 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                     const value = key ? String(key) : "";
                     field.onChange(value);
                     const option = value ? optionMap.get(value) ?? null : null;
+                    if (!value) {
+                      lastSelectedStageIdRef.current = null;
+                      lastAutoSeasonRef.current = null;
+                      lastAutoTeamRef.current = null;
+                      skipStageAutofillRef.current = false;
+                    }
                     setCareerInputValue(option ? formatStageLabel(option) : "");
                   }}
                   onBlur={field.onBlur}
                   isDisabled={pending}
                   allowsCustomValue={false}
-                  variant="bordered"
+                  variant="flat"
+                  radius="sm"
                   className="w-full text-sm"
                   classNames={{
+                    base: "w-full",
                     inputWrapper:
-                      "bg-neutral-950 border border-neutral-800 data-[hover=true]:border-neutral-700", 
-                    listbox:
-                      "bg-neutral-950 text-neutral-200",
-                    listboxWrapper: "bg-neutral-950 border border-neutral-800",
-                    popoverContent: "bg-neutral-950 border border-neutral-800",
+                      "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
+                    innerWrapper: "px-0",
+                    input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
+                    helperWrapper: "hidden",
+                    listbox: "bg-neutral-950 text-neutral-200",
+                    listboxWrapper: "bg-neutral-950 border border-neutral-800 rounded-md",
+                    popoverContent: "bg-neutral-950 border border-neutral-800 rounded-md",
                   }}
                   startContent={
                     selectedStage ? (
@@ -412,7 +421,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                         src={selectedStage.crestUrl}
                         name={selectedStage.club ?? "Club"}
                         size={24}
-                        className="rounded-md bg-neutral-900/60"
+                        className="rounded-sm bg-neutral-900/60"
                       />
                     ) : null
                   }
@@ -422,23 +431,22 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                     <AutocompleteItem
                       key={item.id}
                       textValue={formatStageLabel(item)}
-                      isDisabled={item.disabled}
                       startContent={
                         <TeamCrest
                           src={item.crestUrl}
                           name={item.club ?? "Club"}
                           size={24}
-                          className="rounded-md bg-neutral-900/60"
+                          className="rounded-sm bg-neutral-900/60"
                         />
                       }
-                    >
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
-                        <span className="text-xs text-neutral-400">{item.period}</span>
-                        {item.disabled ? (
-                          <span className="text-[11px] text-amber-400">Ya registraste estadísticas para esta etapa.</span>
-                        ) : null}
-                      </div>
+                      >
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
+                          <span className="text-xs text-neutral-400">{item.period}</span>
+                          {item.hasExistingStats ? (
+                            <span className="text-[11px] text-neutral-500">Ya cargaste estadísticas vinculadas.</span>
+                          ) : null}
+                        </div>
                     </AutocompleteItem>
                   )}
                 </Autocomplete>
@@ -451,10 +459,9 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
             <input
               {...register("season")}
               type="text"
-              placeholder="Se completa al elegir la etapa"
-              className={`${inputClassName} cursor-not-allowed bg-neutral-900/60 text-neutral-400`}
-              readOnly
-              tabIndex={-1}
+              placeholder="Ej: 2023 / 2024"
+              className={inputClassName}
+              disabled={pending}
             />
             {errors.season ? <FieldError message={errors.season.message} /> : null}
           </label>

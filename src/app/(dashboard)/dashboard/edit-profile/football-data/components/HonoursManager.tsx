@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { useForm, type UseFormSetError } from "react-hook-form";
+import { Controller, useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+
+import { Autocomplete, AutocompleteItem } from "@heroui/react";
 
 import type { DashboardHonour } from "@/lib/dashboard/client/publishing-state";
 import { honourMutationSchema, type HonourMutationInput } from "../schemas";
 import { deletePlayerHonour, upsertPlayerHonour } from "../actions";
+import TeamCrest from "@/components/teams/TeamCrest";
 
 type FormValues = {
   id?: string;
@@ -21,7 +24,7 @@ type FormValues = {
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
-type CareerOption = { id: string; label: string; club: string | null; period: string };
+type CareerOption = { id: string; label: string; club: string | null; period: string; crestUrl: string | null };
 
 type Props = {
   playerId: string;
@@ -48,8 +51,12 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const lastAutoSeasonRef = useRef<string | null>(null);
+  const lastSelectedStageIdRef = useRef<string | null>(null);
+  const skipStageAutofillRef = useRef(false);
+  const [careerInputValue, setCareerInputValue] = useState("");
 
   const {
+    control,
     register,
     handleSubmit,
     reset,
@@ -64,19 +71,37 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
 
   const optionMap = useMemo(() => new Map(careerOptions.map((option) => [option.id, option])), [careerOptions]);
   const watchCareerItemId = watch("careerItemId");
+  const selectedStage = watchCareerItemId ? optionMap.get(watchCareerItemId) ?? null : null;
+
+  useEffect(() => {
+    if (selectedStage) {
+      setCareerInputValue(selectedStage.label);
+    } else if (!watchCareerItemId) {
+      setCareerInputValue("");
+    }
+  }, [selectedStage, watchCareerItemId]);
 
   useEffect(() => {
     if (!watchCareerItemId) {
       lastAutoSeasonRef.current = null;
+      lastSelectedStageIdRef.current = null;
+      setCareerInputValue("");
       return;
     }
     const option = optionMap.get(watchCareerItemId);
     if (!option) return;
+    if (skipStageAutofillRef.current) {
+      skipStageAutofillRef.current = false;
+      lastSelectedStageIdRef.current = option.id;
+      return;
+    }
+    const stageChanged = lastSelectedStageIdRef.current !== option.id;
     const currentSeason = getValues("season");
-    if (!currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
+    if (stageChanged || !currentSeason || currentSeason.trim().length === 0 || currentSeason === lastAutoSeasonRef.current) {
       setValue("season", option.period, { shouldDirty: true });
       lastAutoSeasonRef.current = option.period;
     }
+    lastSelectedStageIdRef.current = option.id;
   }, [getValues, optionMap, setValue, watchCareerItemId]);
 
   const onSubmit = handleSubmit((values) => {
@@ -102,6 +127,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
       setEditingId(null);
       reset(defaultValues);
       lastAutoSeasonRef.current = null;
+      skipStageAutofillRef.current = false;
+      setCareerInputValue("");
     });
   });
 
@@ -117,6 +144,17 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
       careerItemId: honour.careerItemId ?? "",
     });
     setStatus(null);
+    skipStageAutofillRef.current = true;
+    lastSelectedStageIdRef.current = honour.careerItemId ?? null;
+    lastAutoSeasonRef.current = honour.season ?? null;
+    if (honour.careerItemId) {
+      const option = optionMap.get(honour.careerItemId);
+      if (option) {
+        setCareerInputValue(option.label);
+      }
+    } else {
+      setCareerInputValue("");
+    }
   };
 
   const cancelEditing = () => {
@@ -124,6 +162,9 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
     reset(defaultValues);
     setStatus(null);
     lastAutoSeasonRef.current = null;
+    skipStageAutofillRef.current = false;
+    lastSelectedStageIdRef.current = null;
+    setCareerInputValue("");
   };
 
   const handleDelete = (honour: DashboardHonour) => {
@@ -224,18 +265,77 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
           </label>
           <label className="space-y-1.5 text-sm text-neutral-300">
             <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
-            <select
-              {...register("careerItemId")}
-              className={inputClassName}
-              disabled={pending}
-            >
-              <option value="">Seleccioná una etapa</option>
-              {careerOptions.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="careerItemId"
+              render={({ field }) => (
+                <Autocomplete
+                  aria-label="Etapa de trayectoria"
+                  placeholder="Seleccioná una etapa"
+                  selectedKey={field.value ? field.value : undefined}
+                  inputValue={careerInputValue}
+                  onInputChange={setCareerInputValue}
+                  onSelectionChange={(key) => {
+                    const value = key ? String(key) : "";
+                    field.onChange(value);
+                    const option = value ? optionMap.get(value) ?? null : null;
+                    if (!value) {
+                      lastSelectedStageIdRef.current = null;
+                      lastAutoSeasonRef.current = null;
+                    }
+                    setCareerInputValue(option ? option.label : "");
+                  }}
+                  onBlur={field.onBlur}
+                  isDisabled={pending}
+                  allowsCustomValue={false}
+                  variant="flat"
+                  radius="sm"
+                  className="w-full text-sm"
+                  classNames={{
+                    base: "w-full",
+                    inputWrapper:
+                      "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
+                    innerWrapper: "px-0",
+                    input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
+                    helperWrapper: "hidden",
+                    listbox: "bg-neutral-950 text-neutral-200",
+                    listboxWrapper: "bg-neutral-950 border border-neutral-800 rounded-md",
+                    popoverContent: "bg-neutral-950 border border-neutral-800 rounded-md",
+                  }}
+                  startContent={
+                    selectedStage ? (
+                      <TeamCrest
+                        src={selectedStage.crestUrl}
+                        name={selectedStage.club ?? "Club"}
+                        size={24}
+                        className="rounded-sm bg-neutral-900/60"
+                      />
+                    ) : null
+                  }
+                  items={careerOptions}
+                >
+                  {(item: CareerOption) => (
+                    <AutocompleteItem
+                      key={item.id}
+                      textValue={item.label}
+                      startContent={
+                        <TeamCrest
+                          src={item.crestUrl}
+                          name={item.club ?? "Club"}
+                          size={24}
+                          className="rounded-sm bg-neutral-900/60"
+                        />
+                      }
+                    >
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
+                        <span className="text-xs text-neutral-400">{item.period}</span>
+                      </div>
+                    </AutocompleteItem>
+                  )}
+                </Autocomplete>
+              )}
+            />
             {errors.careerItemId ? <FieldError message={errors.careerItemId.message} /> : null}
           </label>
         </div>
