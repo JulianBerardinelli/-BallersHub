@@ -65,6 +65,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     watch,
     setValue,
     setError,
+    clearErrors,
     getValues,
     formState: { errors },
   } = useForm<FormValues>({
@@ -73,6 +74,25 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
 
   const optionMap = useMemo(() => new Map(careerOptions.map((option) => [option.id, option])), [careerOptions]);
   const watchCareerItemId = watch("careerItemId");
+  const watchSeason = watch("season");
+  const watchId = watch("id");
+
+  useEffect(() => {
+    if (!watchSeason || watchSeason.trim().length === 0) {
+      clearErrors("season");
+      return;
+    }
+
+    const hasDuplicate = stats.some((stat) => stat.season === watchSeason && stat.id !== watchId);
+    if (hasDuplicate) {
+      setError("season", {
+        type: "manual",
+        message: "Ya cargaste estadísticas para esta temporada. Actualizá la fila existente antes de crear otra.",
+      });
+    } else {
+      clearErrors("season");
+    }
+  }, [watchSeason, watchId, stats, setError, clearErrors]);
 
   useEffect(() => {
     if (!watchCareerItemId) {
@@ -105,6 +125,16 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
 
     if (!parsed.success) {
       reflectValidationErrors(parsed.error, setError, setStatus);
+      return;
+    }
+
+    const duplicateSeason = stats.some((stat) => stat.season === parsed.data.season && stat.id !== parsed.data.id);
+    if (duplicateSeason) {
+      setError("season", {
+        type: "manual",
+        message: "Ya registraste estadísticas para esa temporada. Editá la fila existente o eliminála antes de crear otra.",
+      });
+      setStatus({ type: "error", message: "Ya existe una estadística cargada para esa temporada." });
       return;
     }
 

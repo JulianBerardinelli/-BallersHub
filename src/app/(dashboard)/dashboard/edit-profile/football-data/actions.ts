@@ -210,6 +210,30 @@ export async function upsertSeasonStat(input: SeasonStatMutationInput): Promise<
     return { success: false, message: error };
   }
 
+  let duplicateCheck = supabase
+    .from("stats_seasons")
+    .select("id")
+    .eq("player_id", parsed.data.playerId)
+    .eq("season", parsed.data.season)
+    .limit(1);
+
+  if (parsed.data.id) {
+    duplicateCheck = duplicateCheck.neq("id", parsed.data.id);
+  }
+
+  const { data: duplicateRows, error: duplicateError } = await duplicateCheck;
+
+  if (duplicateError) {
+    return { success: false, message: mapPostgrestError(duplicateError) };
+  }
+
+  if (duplicateRows && duplicateRows.length > 0) {
+    return {
+      success: false,
+      message: "Ya cargaste estadísticas para esa temporada. Editá la fila existente o eliminála antes de crear otra.",
+    };
+  }
+
   const payload = {
     season: parsed.data.season,
     competition: parsed.data.competition,

@@ -25,6 +25,7 @@ identificar los próximos pasos.
   designación de club actual que actualiza cierres anteriores y elimina estados de "jugador libre" redundantes.
 - Refinamos la vinculación de palmarés y estadísticas con etapas concretas mostrando periodos abreviados, escudos y mejoras de
   legibilidad en las tablas y formularios.
+- Impedimos duplicar temporadas en estadísticas, validando desde la UI y las acciones que sólo exista una fila por periodo.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y
