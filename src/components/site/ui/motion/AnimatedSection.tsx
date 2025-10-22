@@ -3,7 +3,7 @@
 import clsx from 'classnames';
 import type { ElementType, HTMLAttributes, ReactNode } from 'react';
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
 
 export type AnimatedSectionProps = Omit<HTMLAttributes<HTMLElement>, 'children'> &
@@ -30,7 +30,7 @@ export function AnimatedSection({
   transition: transitionProp,
   ...rest
 }: AnimatedSectionProps) {
-  const MotionComponent = useMemo(() => motion(as), [as]);
+  const MotionComponent = useMemo(() => m(as), [as]);
 
   const initialValue = rest.initial ?? { opacity: 0, y: initialY };
   const whileInViewValue = rest.whileInView ?? { opacity: 1, y: 0 };

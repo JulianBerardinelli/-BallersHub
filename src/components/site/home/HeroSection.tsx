@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button, CardBody, Chip, Divider } from "@heroui/react";
 import { ArrowRight, ShieldCheck, Users } from "lucide-react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 import { AnimatedCard, AnimatedSection, FloatingShapes } from "@/components/site/ui/motion";
 
@@ -52,14 +52,14 @@ export default function HeroSection() {
     >
       <FloatingShapes className="opacity-90" />
 
-      <motion.div
+      <m.div
         className="relative z-10 space-y-8"
         variants={TEXT_VARIANTS}
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-18% 0px -18% 0px" }}
       >
-        <motion.div variants={ITEM_VARIANTS}>
+        <m.div variants={ITEM_VARIANTS}>
           <Chip
             color="success"
             variant="flat"
@@ -67,9 +67,9 @@ export default function HeroSection() {
           >
             Beta abierta
           </Chip>
-        </motion.div>
+        </m.div>
 
-        <motion.div className="space-y-4" variants={ITEM_VARIANTS}>
+        <m.div className="space-y-4" variants={ITEM_VARIANTS}>
           <h1 className="text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-[2.8rem]">
             El Hub donde el Talento Futbolístico gana Visibilidad Real.
           </h1>
@@ -77,9 +77,9 @@ export default function HeroSection() {
             Centralizá tu perfil profesional, sumá reseñas verificadas y conectá con clubes que buscan potenciar su plantel.
             Todo en un solo lugar con seguimiento humano y transparente.
           </p>
-        </motion.div>
+        </m.div>
 
-        <motion.div className="flex flex-wrap items-center gap-4" variants={ITEM_VARIANTS}>
+        <m.div className="flex flex-wrap items-center gap-4" variants={ITEM_VARIANTS}>
           <Button
             as={Link}
             href="/onboarding/start"
@@ -100,9 +100,9 @@ export default function HeroSection() {
           >
             Cómo validamos
           </Button>
-        </motion.div>
+        </m.div>
 
-        <motion.div
+        <m.div
           className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
           variants={ITEM_VARIANTS}
         >
@@ -115,8 +115,8 @@ export default function HeroSection() {
             scouting.”
           </p>
           <span className="text-sm text-neutral-500">Club Atlético Aurora · Dirección Deportiva</span>
-        </motion.div>
-      </motion.div>
+        </m.div>
+      </m.div>
 
       <AnimatedCard
         className="relative z-10 border-white/15 bg-black/40 backdrop-blur"
@@ -133,7 +133,7 @@ export default function HeroSection() {
           <Divider className="bg-white/10" />
           <div className="grid gap-4">
             {STAT_ITEMS.map((item, index) => (
-              <motion.div
+              <m.div
                 key={item.label}
                 className="rounded-xl border border-white/10 bg-white/5 p-4"
                 variants={ITEM_VARIANTS}
@@ -145,7 +145,7 @@ export default function HeroSection() {
                 <p className="text-sm text-neutral-400">{item.label}</p>
                 <p className="text-3xl font-semibold text-white">{item.value}</p>
                 <p className="text-sm text-neutral-400">{item.description}</p>
-              </motion.div>
+              </m.div>
             ))}
           </div>
         </CardBody>

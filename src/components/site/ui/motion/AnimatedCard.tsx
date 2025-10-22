@@ -3,10 +3,10 @@
 import clsx from 'classnames';
 import type { CardProps } from '@heroui/react';
 import { Card } from '@heroui/react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
 
-const MotionCard = motion(Card);
+const MotionCard = m(Card);
 
 export type AnimatedCardProps = CardProps &
   MotionProps & {

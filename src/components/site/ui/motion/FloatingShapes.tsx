@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'classnames';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import type { MotionProps } from 'framer-motion';
 
 export type FloatingShape = {
@@ -58,7 +58,7 @@ export function FloatingShapes({ className, shapes = DEFAULT_SHAPES, ...motionPr
   return (
     <div className={clsx('pointer-events-none absolute inset-0 -z-10 overflow-hidden', className)}>
       {shapes.map((shape, index) => (
-        <motion.span
+        <m.span
           key={`${shape.top}-${shape.left}-${index}`}
           aria-hidden
           initial={{ opacity: 0, scale: 0.9 }}
