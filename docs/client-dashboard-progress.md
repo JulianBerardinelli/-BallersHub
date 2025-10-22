@@ -34,14 +34,14 @@ identificar los próximos pasos.
   que el dashboard pueda mostrarlo consistentemente al listar temporadas existentes.
 - Habilitamos que las ediciones de etapas existentes generen solicitudes válidas, comparando los cambios confirmados y
   persistiendo las revisiones en base sin modificar la UI vigente.
+- Conectamos las solicitudes de revisión con el panel de administración, incorporando la bandeja de revisiones con edición
+  inline, control de notas y aprobación/rechazo que impacta en `career_items`, equipos propuestos y el club actual del perfil.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y
   temporadas.
-- Completar el flujo de persistencia desde el dashboard hacia las tablas de solicitudes, incluyendo estados de aprobación,
-  cierres automáticos de etapas anteriores y revalidaciones automáticas.
-- Extender el panel de administración con vistas dedicadas a las solicitudes de trayectoria provenientes del dashboard y el
-  nuevo menú de gestión de perfiles.
+- Integrar notificaciones internas/realtime para avisar a los administradores cuando ingresa una revisión de trayectoria.
+- Consolidar métricas operativas que destaquen solicitudes pendientes, aceptadas y rechazadas dentro del panel de admin.
 - Conectar los toggles de `profile_sections_visibility` con persistencia real (mutations) y drag & drop para ordenar bloques de
   la plantilla pública.
 - Incorporar vistas previas en vivo del perfil público utilizando Supabase Realtime y los ajustes guardados en
