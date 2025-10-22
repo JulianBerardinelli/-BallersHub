@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`relative min-h-screen bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable}`}>
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(125%_125%_at_50%_10%,#00151d_40%,#22d3ee_100%)]"
+          className="pointer-events-none fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(125%_125%_at_50%_10%,#001915_40%,#0dd5a5_100%)]"
         />
         <Providers>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
