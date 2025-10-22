@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import { Button, Card, CardBody } from "@heroui/react";
 import { ArrowRightCircle } from "lucide-react";

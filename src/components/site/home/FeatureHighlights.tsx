@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
 import { CalendarCheck, Sparkles, Trophy } from "lucide-react";
 

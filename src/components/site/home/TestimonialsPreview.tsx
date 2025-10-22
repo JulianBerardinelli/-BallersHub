@@ -1,3 +1,5 @@
+'use client';
+
 import { Avatar, Card, CardBody } from "@heroui/react";
 import { Quote } from "lucide-react";
 

@@ -1,3 +1,5 @@
+'use client';
+
 import Link from "next/link";
 import { Button, Card, CardBody, Chip, Divider } from "@heroui/react";
 import { ArrowRight, ShieldCheck, Users } from "lucide-react";
