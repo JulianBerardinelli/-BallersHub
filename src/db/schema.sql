@@ -645,6 +645,131 @@ $$;
 ALTER FUNCTION "public"."materialize_career_from_application"("p_application_id" "uuid") OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."apply_career_proposals"("p_application_id" "uuid") RETURNS "jsonb"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+declare
+  v_app record;
+  v_player_id uuid;
+  v_now timestamptz := now();
+  v_cnt_updated int := 0;
+  v_cnt_inserted int := 0;
+  v_cnt_skipped int := 0;
+  r record;
+begin
+  if not public.is_admin(auth.uid()) then
+    raise exception 'forbidden';
+  end if;
+
+  select a.*, p.id as player_profile_id
+  into v_app
+  from public.player_applications a
+  join public.player_profiles p on p.user_id = a.user_id
+  where a.id = p_application_id
+  order by p.created_at desc
+  limit 1;
+
+  if not found then
+    raise exception 'application_or_profile_not_found';
+  end if;
+
+  v_player_id := v_app.player_profile_id;
+  if v_player_id is null then
+    raise exception 'player_profile_not_found';
+  end if;
+
+  for r in
+    select *
+    from public.career_item_proposals cip
+    where cip.application_id = p_application_id
+      and cip.status = 'accepted'
+      and cip.materialized_at is null
+  loop
+    if r.career_item_id is not null then
+      update public.career_items as ci
+         set club = coalesce((select t.name from public.teams t where t.id = coalesce(r.team_id, ci.team_id)), r.club),
+             division = r.division,
+             start_date = case when r.start_year is not null then make_date(r.start_year, 1, 1) else null end,
+             end_date = case when r.end_year is not null then make_date(r.end_year, 12, 31) else null end,
+             team_id = r.team_id,
+             updated_at = v_now
+       where ci.id = r.career_item_id
+         and ci.player_id = v_player_id;
+
+      if found then
+        v_cnt_updated := v_cnt_updated + 1;
+      else
+        v_cnt_skipped := v_cnt_skipped + 1;
+      end if;
+    else
+      insert into public.career_items (
+        player_id,
+        club,
+        division,
+        start_date,
+        end_date,
+        team_id,
+        created_at,
+        updated_at
+      )
+      values (
+        v_player_id,
+        coalesce((select t.name from public.teams t where t.id = r.team_id), r.club),
+        r.division,
+        case when r.start_year is not null then make_date(r.start_year, 1, 1) else null end,
+        case when r.end_year is not null then make_date(r.end_year, 12, 31) else null end,
+        r.team_id,
+        v_now,
+        v_now
+      );
+      v_cnt_inserted := v_cnt_inserted + 1;
+    end if;
+
+    update public.career_item_proposals
+       set materialized_at = v_now
+     where id = r.id;
+  end loop;
+
+  with latest as (
+    select *
+    from public.career_items
+    where player_id = v_player_id
+    order by case when end_date is null then 0 else 1 end,
+             coalesce(end_date, start_date, make_date(1900,1,1)) desc,
+             start_date desc
+    limit 1
+  )
+  update public.player_profiles
+     set current_team_id = latest.team_id,
+         current_club = case
+           when latest.team_id is not null then coalesce((select t.name from public.teams t where t.id = latest.team_id), latest.club)
+           else latest.club
+         end,
+         updated_at = v_now
+   from latest
+   where public.player_profiles.id = v_player_id;
+
+  if not found then
+    update public.player_profiles
+       set current_team_id = null,
+           current_club = null,
+           updated_at = v_now
+     where id = v_player_id;
+  end if;
+
+  return jsonb_build_object(
+    'updated', v_cnt_updated,
+    'inserted', v_cnt_inserted,
+    'skipped', v_cnt_skipped
+  );
+end;
+$$;
+
+
+ALTER FUNCTION "public"."apply_career_proposals"("p_application_id" "uuid") OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."max_active_invitations"("p_player_id" "uuid") RETURNS integer
     LANGUAGE "sql" STABLE
     AS $$
@@ -1026,6 +1151,8 @@ ALTER TABLE "public"."audit_logs" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."career_item_proposals" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "application_id" "uuid" NOT NULL,
+    "player_id" "uuid",
+    "career_item_id" "uuid",
     "club" "text" NOT NULL,
     "division" "text",
     "start_year" integer,
@@ -1044,6 +1171,12 @@ CREATE TABLE IF NOT EXISTS "public"."career_item_proposals" (
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
+ALTER TABLE "public"."career_item_proposals"
+    ADD COLUMN IF NOT EXISTS "player_id" "uuid";
+
+ALTER TABLE "public"."career_item_proposals"
+    ADD COLUMN IF NOT EXISTS "career_item_id" "uuid";
+
 
 ALTER TABLE "public"."career_item_proposals" OWNER TO "postgres";
 
@@ -1056,8 +1189,12 @@ CREATE TABLE IF NOT EXISTS "public"."career_items" (
     "start_date" "date",
     "end_date" "date",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "team_id" "uuid"
 );
+
+ALTER TABLE "public"."career_items"
+    ADD COLUMN IF NOT EXISTS "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL;
 
 
 ALTER TABLE "public"."career_items" OWNER TO "postgres";
@@ -1528,6 +1665,11 @@ CREATE INDEX "idx_cip_status" ON "public"."career_item_proposals" USING "btree" 
 CREATE INDEX "idx_cip_team" ON "public"."career_item_proposals" USING "btree" ("team_id");
 
 
+CREATE INDEX "idx_cip_player" ON "public"."career_item_proposals" USING "btree" ("player_id");
+
+
+CREATE INDEX "idx_cip_career_item" ON "public"."career_item_proposals" USING "btree" ("career_item_id");
+
 
 CREATE INDEX "idx_inv_player" ON "public"."review_invitations" USING "btree" ("player_id");
 
@@ -1665,6 +1807,13 @@ ALTER TABLE ONLY "public"."career_item_proposals"
 ALTER TABLE ONLY "public"."career_item_proposals"
     ADD CONSTRAINT "career_item_proposals_team_id_fkey" FOREIGN KEY ("team_id") REFERENCES "public"."teams"("id");
 
+
+ALTER TABLE ONLY "public"."career_item_proposals"
+    ADD CONSTRAINT "career_item_proposals_player_id_fkey" FOREIGN KEY ("player_id") REFERENCES "public"."player_profiles"("id") ON DELETE SET NULL;
+
+
+ALTER TABLE ONLY "public"."career_item_proposals"
+    ADD CONSTRAINT "career_item_proposals_career_item_id_fkey" FOREIGN KEY ("career_item_id") REFERENCES "public"."career_items"("id") ON DELETE SET NULL;
 
 
 ALTER TABLE ONLY "public"."career_items"
@@ -2325,6 +2474,11 @@ GRANT ALL ON FUNCTION "public"."is_admin"("u" "uuid") TO "service_role";
 GRANT ALL ON FUNCTION "public"."materialize_career_from_application"("p_application_id" "uuid") TO "anon";
 GRANT ALL ON FUNCTION "public"."materialize_career_from_application"("p_application_id" "uuid") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."materialize_career_from_application"("p_application_id" "uuid") TO "service_role";
+
+
+GRANT ALL ON FUNCTION "public"."apply_career_proposals"("p_application_id" "uuid") TO "anon";
+GRANT ALL ON FUNCTION "public"."apply_career_proposals"("p_application_id" "uuid") TO "authenticated";
+GRANT ALL ON FUNCTION "public"."apply_career_proposals"("p_application_id" "uuid") TO "service_role";
 
 
 

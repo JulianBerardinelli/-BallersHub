@@ -1,12 +1,16 @@
 // career_item_proposals
 import { pgTable, uuid, text, timestamp, integer, char } from "drizzle-orm/pg-core";
 import { playerApplications } from "./applications";
+import { playerProfiles } from "./players";
+import { careerItems } from "./career";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const careerItemProposals = pgTable("career_item_proposals", {
   id: uuid("id").defaultRandom().primaryKey(),
   applicationId: uuid("application_id").notNull().references(() => playerApplications.id, { onDelete: "cascade" }),
+  playerId: uuid("player_id").references(() => playerProfiles.id, { onDelete: "set null" }),
+  careerItemId: uuid("career_item_id").references(() => careerItems.id, { onDelete: "set null" }),
   club: text("club").notNull(),
   division: text("division"),
   startYear: integer("start_year"),

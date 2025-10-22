@@ -134,8 +134,20 @@ export async function POST(_req: Request, ctx: { params: Params }) {
     acceptedItems++;
   }
 
+  const { data: applied, error: applyErr } = await supa.rpc("apply_career_proposals", {
+    p_application_id: applicationId,
+  });
+  if (applyErr) {
+    return NextResponse.json({ error: applyErr.message }, { status: 400 });
+  }
+
   return NextResponse.json(
-    { ok: true, created_teams: createdTeams, accepted_items: acceptedItems },
+    {
+      ok: true,
+      created_teams: createdTeams,
+      accepted_items: acceptedItems,
+      applied: applied ?? null,
+    },
     { status: 200 }
   );
 }

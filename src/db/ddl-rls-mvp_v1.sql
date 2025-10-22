@@ -32,11 +32,22 @@ create table if not exists public.player_profiles (
   weight_kg integer,
   positions text[],
   current_club text,
+  current_team_id uuid references public.teams(id) on delete set null,
   bio text,
   visibility visibility not null default 'public',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table if exists public.player_applications
+  add column if not exists current_team_id uuid references public.teams(id) on delete set null,
+  add column if not exists proposed_team_name text,
+  add column if not exists proposed_team_country text,
+  add column if not exists proposed_team_country_code char(2),
+  add column if not exists proposed_team_transfermarkt_url text,
+  add column if not exists proposed_team_category text,
+  add column if not exists free_agent boolean default false not null,
+  add column if not exists personal_info_approved boolean default false not null;
 create index if not exists idx_player_profiles_user on public.player_profiles(user_id);
 create index if not exists idx_player_slug on public.player_profiles(slug);
 
@@ -60,9 +71,36 @@ create table if not exists public.career_items (
   division text,
   start_date date,
   end_date date,
-  created_at timestamptz not null default now()
+  team_id uuid references public.teams(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 create index if not exists idx_career_player on public.career_items(player_id);
+
+create table if not exists public.career_item_proposals (
+  id uuid primary key default gen_random_uuid(),
+  application_id uuid not null references public.player_applications(id) on delete cascade,
+  player_id uuid references public.player_profiles(id) on delete set null,
+  career_item_id uuid references public.career_items(id) on delete set null,
+  club text not null,
+  division text,
+  start_year integer,
+  end_year integer,
+  team_id uuid references public.teams(id) on delete set null,
+  proposed_team_name text,
+  proposed_team_country text,
+  proposed_team_country_code char(2),
+  proposed_team_transfermarkt_url text,
+  status text not null default 'pending',
+  reviewed_by_user_id uuid,
+  reviewed_at timestamptz,
+  materialized_at timestamptz,
+  created_by_user_id uuid not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists idx_cip_player on public.career_item_proposals(player_id);
+create index if not exists idx_cip_career_item on public.career_item_proposals(career_item_id);
 
 -- stats_seasons
 create table if not exists public.stats_seasons (
@@ -470,3 +508,132 @@ create index if not exists idx_inv_player on public.review_invitations(player_id
 create index if not exists idx_reviewer_profiles_user on public.reviewer_profiles(user_id);
 create index if not exists idx_player_profiles_user on public.player_profiles(user_id);
 create index if not exists idx_player_slug on public.player_profiles(slug);
+create index if not exists idx_player_profiles_current_team on public.player_profiles(current_team_id);
+create index if not exists idx_player_media_primary_photo on public.player_media(player_id) where is_primary;
+
+create or replace function public.apply_career_proposals(
+  p_application_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_app record;
+  v_player_id uuid;
+  v_now timestamptz := now();
+  v_cnt_updated int := 0;
+  v_cnt_inserted int := 0;
+  v_cnt_skipped int := 0;
+  r record;
+begin
+  if not public.is_admin(auth.uid()) then
+    raise exception 'forbidden';
+  end if;
+
+  select a.*, p.id as player_profile_id
+  into v_app
+  from public.player_applications a
+  join public.player_profiles p on p.user_id = a.user_id
+  where a.id = p_application_id
+  order by p.created_at desc
+  limit 1;
+
+  if not found then
+    raise exception 'application_or_profile_not_found';
+  end if;
+
+  v_player_id := v_app.player_profile_id;
+  if v_player_id is null then
+    raise exception 'player_profile_not_found';
+  end if;
+
+  for r in
+    select *
+    from public.career_item_proposals cip
+    where cip.application_id = p_application_id
+      and cip.status = 'accepted'
+      and cip.materialized_at is null
+  loop
+    if r.career_item_id is not null then
+      update public.career_items as ci
+         set club = coalesce((select t.name from public.teams t where t.id = coalesce(r.team_id, ci.team_id)), r.club),
+             division = r.division,
+             start_date = case when r.start_year is not null then make_date(r.start_year, 1, 1) else null end,
+             end_date = case when r.end_year is not null then make_date(r.end_year, 12, 31) else null end,
+             team_id = r.team_id,
+             updated_at = v_now
+       where ci.id = r.career_item_id
+         and ci.player_id = v_player_id;
+
+      if found then
+        v_cnt_updated := v_cnt_updated + 1;
+      else
+        v_cnt_skipped := v_cnt_skipped + 1;
+      end if;
+    else
+      insert into public.career_items (
+        player_id,
+        club,
+        division,
+        start_date,
+        end_date,
+        team_id,
+        created_at,
+        updated_at
+      )
+      values (
+        v_player_id,
+        coalesce((select t.name from public.teams t where t.id = r.team_id), r.club),
+        r.division,
+        case when r.start_year is not null then make_date(r.start_year, 1, 1) else null end,
+        case when r.end_year is not null then make_date(r.end_year, 12, 31) else null end,
+        r.team_id,
+        v_now,
+        v_now
+      );
+      v_cnt_inserted := v_cnt_inserted + 1;
+    end if;
+
+    update public.career_item_proposals
+       set materialized_at = v_now
+     where id = r.id;
+  end loop;
+
+  with latest as (
+    select *
+    from public.career_items
+    where player_id = v_player_id
+    order by case when end_date is null then 0 else 1 end,
+             coalesce(end_date, start_date, make_date(1900,1,1)) desc,
+             start_date desc
+    limit 1
+  )
+  update public.player_profiles
+     set current_team_id = latest.team_id,
+         current_club = case
+           when latest.team_id is not null then coalesce((select t.name from public.teams t where t.id = latest.team_id), latest.club)
+           else latest.club
+         end,
+         updated_at = v_now
+   from latest
+   where public.player_profiles.id = v_player_id;
+
+  if not found then
+    update public.player_profiles
+       set current_team_id = null,
+           current_club = null,
+           updated_at = v_now
+     where id = v_player_id;
+  end if;
+
+  return jsonb_build_object(
+    'updated', v_cnt_updated,
+    'inserted', v_cnt_inserted,
+    'skipped', v_cnt_skipped
+  );
+end;
+$$;
+
+grant execute on function public.apply_career_proposals(uuid) to anon, authenticated, service_role;

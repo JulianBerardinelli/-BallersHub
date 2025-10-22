@@ -19,6 +19,7 @@ import {
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
+import CareerSection from "@/components/dashboard/football/CareerSection";
 
 type CareerItem = {
   id: string;
@@ -26,6 +27,20 @@ type CareerItem = {
   division: string | null;
   start_date: string | null;
   end_date: string | null;
+  team_id: string | null;
+  team: { name: string | null; crest_url: string | null; country_code: string | null } | null;
+};
+
+type PendingCareerProposal = {
+  id: string;
+  status: string;
+  club: string | null;
+  division: string | null;
+  start_year: number | null;
+  end_year: number | null;
+  career_item_id: string | null;
+  team_id: string | null;
+  team: { name: string | null } | null;
 };
 
 type PlayerApplicationSnapshot = {
@@ -92,10 +107,13 @@ export default async function FootballDataPage() {
     );
   }
 
-  const [careerResult, mediaResult, metrics] = await Promise.all([
+  const [careerResult, mediaResult, metrics, pendingProposalResult] = await Promise.all([
     supabase
       .from("career_items")
-      .select("id, club, division, start_date, end_date")
+      .select(
+        `id, club, division, start_date, end_date, team_id,
+         team:teams!career_items_team_id_fkey ( name, crest_url, country_code )`
+      )
       .eq("player_id", profileData.id)
       .order("start_date", { ascending: false }),
     supabase
@@ -104,13 +122,30 @@ export default async function FootballDataPage() {
       .eq("player_id", profileData.id)
       .order("created_at", { ascending: true }),
     fetchPlayerTaskMetrics(supabase, profileData.id),
+    applicationData?.id
+      ? supabase
+          .from("career_item_proposals")
+          .select(
+            `id, status, club, division, start_year, end_year, career_item_id, team_id,
+             team:teams!career_item_proposals_team_id_fkey ( name )`
+          )
+          .eq("application_id", applicationData.id)
+          .in("status", ["pending", "waiting"] as const)
+          .order("created_at", { ascending: true })
+          .limit(1)
+          .maybeSingle<PendingCareerProposal>()
+      : Promise.resolve({ data: null, error: null } as const),
   ]);
 
   const careerRaw = careerResult.data;
   const mediaRaw = mediaResult.data;
 
-  const career = (careerRaw as CareerItem[] | null) ?? null;
+  const career = (careerRaw as CareerItem[] | null) ?? [];
   const media = (mediaRaw as PlayerMediaItem[] | null) ?? [];
+
+  const pendingProposalRow = (pendingProposalResult as
+    | { data: PendingCareerProposal | null; error: null }
+    | { data: null; error: unknown }).data;
 
   const primaryHighlight = media.find((item) => item.type === "video") ?? null;
 
@@ -238,36 +273,50 @@ export default async function FootballDataPage() {
         </form>
       </SectionCard>
 
-      <SectionCard
-        title="Trayectoria"
-        description="Registrar cada etapa de tu carrera te ayudará a generar reportes y CV automáticos."
-        footer="Muy pronto podrás cargar experiencias, competiciones y estadísticas por temporada."
-      >
-        {career && career.length > 0 ? (
-          <ul className="space-y-3">
-            {career.map((item) => (
-              <li
-                key={item.id}
-                className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
-              >
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <p className="font-semibold text-white">{item.club ?? "Club sin definir"}</p>
-                    <p className="text-xs text-neutral-400">{item.division ?? "División pendiente"}</p>
-                  </div>
-                  <p className="text-xs text-neutral-400">
-                    {formatSeason(item.start_date, item.end_date)}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
+      {applicationData?.id ? (
+        <CareerSection
+          stages={career.map((item) => ({
+            id: item.id,
+            club: item.club ?? "Club sin definir",
+            division: item.division ?? null,
+            startYear: item.start_date ? new Date(item.start_date).getFullYear() : null,
+            endYear: item.end_date ? new Date(item.end_date).getFullYear() : null,
+            team: item.team_id
+              ? {
+                  id: item.team_id,
+                  name: item.team?.name ?? null,
+                  crestUrl: item.team?.crest_url ?? null,
+                  countryCode: item.team?.country_code ?? null,
+                }
+              : null,
+          }))}
+          pendingRequest={
+            pendingProposalRow
+              ? {
+                  id: pendingProposalRow.id,
+                  status: pendingProposalRow.status,
+                  club: pendingProposalRow.club ?? "Club sin definir",
+                  division: pendingProposalRow.division ?? null,
+                  startYear: pendingProposalRow.start_year,
+                  endYear: pendingProposalRow.end_year,
+                  careerItemId: pendingProposalRow.career_item_id,
+                  teamName: pendingProposalRow.team?.name ?? null,
+                }
+              : null
+          }
+          applicationId={applicationData.id}
+        />
+      ) : (
+        <SectionCard
+          title="Trayectoria"
+          description="Registrar cada etapa de tu carrera te ayudará a generar reportes y CV automáticos."
+          footer="Muy pronto podrás cargar experiencias, competiciones y estadísticas por temporada."
+        >
           <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
-            Todavía no registraste experiencias. Podrás importar trayectorias desde aplicaciones, archivos o integraciones de terceros.
+            Necesitás completar la solicitud inicial antes de gestionar cambios en tu trayectoria.
           </div>
-        )}
-      </SectionCard>
+        </SectionCard>
+      )}
 
       <SectionCard
         title="Referencias y enlaces"
@@ -353,9 +402,3 @@ export default async function FootballDataPage() {
   );
 }
 
-function formatSeason(start: string | null, end: string | null) {
-  if (!start && !end) return "Temporada pendiente";
-  const startYear = start ? new Date(start).getFullYear() : "¿?";
-  const endYear = end ? new Date(end).getFullYear() : "Actualidad";
-  return `${startYear} - ${endYear}`;
-}
