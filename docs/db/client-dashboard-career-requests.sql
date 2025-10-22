@@ -57,7 +57,6 @@ create table if not exists public.career_revision_items (
 create index if not exists idx_career_revision_items_request on public.career_revision_items(request_id);
 create index if not exists idx_career_revision_items_original on public.career_revision_items(original_item_id);
 
--- 4) Hooks de actualización de timestamp reutilizando la función global.
 do $$
 begin
   if exists (select 1 from pg_proc where proname = 'set_updated_at') then
@@ -79,68 +78,170 @@ alter table public.career_revision_items enable row level security;
 alter table public.career_revision_proposed_teams enable row level security;
 
 -- Política: propietarios (jugadores) pueden insertar y leer sus solicitudes.
-create policy if not exists career_revision_requests_owner_rw on public.career_revision_requests
-  for all to authenticated
-  using (
-    player_id in (
-      select id from public.player_profiles where user_id = auth.uid()
-    )
-  )
-  with check (
-    player_id in (
-      select id from public.player_profiles where user_id = auth.uid()
-    )
-  );
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_requests'
+      and policyname = 'career_revision_requests_owner_rw'
+  ) then
+    execute $ddl$
+      create policy career_revision_requests_owner_rw on public.career_revision_requests
+        for all to authenticated
+        using (
+          player_id in (
+            select id from public.player_profiles where user_id = auth.uid()
+          )
+        )
+        with check (
+          player_id in (
+            select id from public.player_profiles where user_id = auth.uid()
+          )
+        );
+    $ddl$;
+  end if;
+end $$;
 
 -- Política: administradores acceso completo.
-create policy if not exists career_revision_requests_admin_all on public.career_revision_requests
-  for all to authenticated
-  using (public.is_admin(auth.uid()))
-  with check (public.is_admin(auth.uid()));
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_requests'
+      and policyname = 'career_revision_requests_admin_all'
+  ) then
+    execute $ddl$
+      create policy career_revision_requests_admin_all on public.career_revision_requests
+        for all to authenticated
+        using (public.is_admin(auth.uid()))
+        with check (public.is_admin(auth.uid()));
+    $ddl$;
+  end if;
+end $$;
 
 -- Items heredan permisos via solicitud.
-create policy if not exists career_revision_items_owner_select on public.career_revision_items
-  for select to authenticated using (
-    request_id in (
-      select id from public.career_revision_requests
-      where player_id in (select id from public.player_profiles where user_id = auth.uid())
-    )
-  );
+-- Selección.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_items'
+      and policyname = 'career_revision_items_owner_select'
+  ) then
+    execute $ddl$
+      create policy career_revision_items_owner_select on public.career_revision_items
+        for select to authenticated using (
+          request_id in (
+            select id from public.career_revision_requests
+            where player_id in (select id from public.player_profiles where user_id = auth.uid())
+          )
+        );
+    $ddl$;
+  end if;
+end $$;
 
-create policy if not exists career_revision_items_owner_insert on public.career_revision_items
-  for insert to authenticated with check (
-    request_id in (
-      select id from public.career_revision_requests
-      where player_id in (select id from public.player_profiles where user_id = auth.uid())
-    )
-  );
+-- Inserción.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_items'
+      and policyname = 'career_revision_items_owner_insert'
+  ) then
+    execute $ddl$
+      create policy career_revision_items_owner_insert on public.career_revision_items
+        for insert to authenticated with check (
+          request_id in (
+            select id from public.career_revision_requests
+            where player_id in (select id from public.player_profiles where user_id = auth.uid())
+          )
+        );
+    $ddl$;
+  end if;
+end $$;
 
-create policy if not exists career_revision_items_admin_all on public.career_revision_items
-  for all to authenticated
-  using (public.is_admin(auth.uid()))
-  with check (public.is_admin(auth.uid()));
+-- Acceso completo administradores.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_items'
+      and policyname = 'career_revision_items_admin_all'
+  ) then
+    execute $ddl$
+      create policy career_revision_items_admin_all on public.career_revision_items
+        for all to authenticated
+        using (public.is_admin(auth.uid()))
+        with check (public.is_admin(auth.uid()));
+    $ddl$;
+  end if;
+end $$;
 
 -- Equipos propuestos también siguen el scope de la solicitud.
-create policy if not exists career_revision_proposed_teams_owner_select on public.career_revision_proposed_teams
-  for select to authenticated using (
-    request_id in (
-      select id from public.career_revision_requests
-      where player_id in (select id from public.player_profiles where user_id = auth.uid())
-    )
-  );
+-- Selección.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_proposed_teams'
+      and policyname = 'career_revision_proposed_teams_owner_select'
+  ) then
+    execute $ddl$
+      create policy career_revision_proposed_teams_owner_select on public.career_revision_proposed_teams
+        for select to authenticated using (
+          request_id in (
+            select id from public.career_revision_requests
+            where player_id in (select id from public.player_profiles where user_id = auth.uid())
+          )
+        );
+    $ddl$;
+  end if;
+end $$;
 
-create policy if not exists career_revision_proposed_teams_owner_insert on public.career_revision_proposed_teams
-  for insert to authenticated with check (
-    request_id in (
-      select id from public.career_revision_requests
-      where player_id in (select id from public.player_profiles where user_id = auth.uid())
-    )
-  );
+-- Inserción.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_proposed_teams'
+      and policyname = 'career_revision_proposed_teams_owner_insert'
+  ) then
+    execute $ddl$
+      create policy career_revision_proposed_teams_owner_insert on public.career_revision_proposed_teams
+        for insert to authenticated with check (
+          request_id in (
+            select id from public.career_revision_requests
+            where player_id in (select id from public.player_profiles where user_id = auth.uid())
+          )
+        );
+    $ddl$;
+  end if;
+end $$;
 
-create policy if not exists career_revision_proposed_teams_admin_all on public.career_revision_proposed_teams
-  for all to authenticated
-  using (public.is_admin(auth.uid()))
-  with check (public.is_admin(auth.uid()));
+-- Acceso completo administradores.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'career_revision_proposed_teams'
+      and policyname = 'career_revision_proposed_teams_admin_all'
+  ) then
+    execute $ddl$
+      create policy career_revision_proposed_teams_admin_all on public.career_revision_proposed_teams
+        for all to authenticated
+        using (public.is_admin(auth.uid()))
+        with check (public.is_admin(auth.uid()));
+    $ddl$;
+  end if;
+end $$;
 
 -- Grants mínimos para clientes autenticados y rol de servicio.
 grant all on table public.career_revision_requests to authenticated, service_role;
