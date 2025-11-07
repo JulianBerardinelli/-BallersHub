@@ -55,11 +55,14 @@ export function NotificationBootstrap({ userName, onboarding, latestReview }: Pr
       }
 
       enqueue(
-        onboardingNotification.approved({
-          userName: userName ?? undefined,
-          requestId: onboarding.requestId,
-          dashboardHref: onboarding.dashboardHref ?? DASHBOARD_FALLBACK,
-        }),
+        onboardingNotification.approved(
+          {
+            userName: userName ?? undefined,
+            requestId: onboarding.requestId,
+            dashboardHref: onboarding.dashboardHref ?? DASHBOARD_FALLBACK,
+          },
+          eventId,
+        ),
       );
       return;
     }
@@ -71,12 +74,15 @@ export function NotificationBootstrap({ userName, onboarding, latestReview }: Pr
       }
 
       enqueue(
-        onboardingNotification.rejected({
-          userName: userName ?? undefined,
-          requestId: onboarding.requestId,
-          retryHref: onboarding.retryHref ?? undefined,
-          moderatorMessage: onboarding.moderatorMessage ?? undefined,
-        }),
+        onboardingNotification.rejected(
+          {
+            userName: userName ?? undefined,
+            requestId: onboarding.requestId,
+            retryHref: onboarding.retryHref ?? undefined,
+            moderatorMessage: onboarding.moderatorMessage ?? undefined,
+          },
+          eventId,
+        ),
       );
     }
   }, [enqueue, onboarding, userName]);
@@ -96,12 +102,15 @@ export function NotificationBootstrap({ userName, onboarding, latestReview }: Pr
       }
 
       enqueue(
-        reviewNotification.approved({
-          userName: userName ?? undefined,
-          requestId: latestReview.requestId,
-          topicLabel,
-          detailsHref: latestReview.detailsHref ?? REVIEW_DETAILS_FALLBACK,
-        }),
+        reviewNotification.approved(
+          {
+            userName: userName ?? undefined,
+            requestId: latestReview.requestId,
+            topicLabel,
+            detailsHref: latestReview.detailsHref ?? REVIEW_DETAILS_FALLBACK,
+          },
+          eventId,
+        ),
       );
       return;
     }
@@ -113,13 +122,16 @@ export function NotificationBootstrap({ userName, onboarding, latestReview }: Pr
       }
 
       enqueue(
-        reviewNotification.rejected({
-          userName: userName ?? undefined,
-          requestId: latestReview.requestId,
-          topicLabel,
-          retryHref: latestReview.retryHref ?? REVIEW_DETAILS_FALLBACK,
-          moderatorMessage: latestReview.moderatorMessage ?? undefined,
-        }),
+        reviewNotification.rejected(
+          {
+            userName: userName ?? undefined,
+            requestId: latestReview.requestId,
+            topicLabel,
+            retryHref: latestReview.retryHref ?? REVIEW_DETAILS_FALLBACK,
+            moderatorMessage: latestReview.moderatorMessage ?? undefined,
+          },
+          eventId,
+        ),
       );
     }
   }, [enqueue, latestReview, userName]);
