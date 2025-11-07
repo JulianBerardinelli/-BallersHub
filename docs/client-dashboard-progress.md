@@ -36,6 +36,8 @@ identificar los próximos pasos.
   persistiendo las revisiones en base sin modificar la UI vigente.
 - Conectamos las solicitudes de revisión con el panel de administración, incorporando la bandeja de revisiones con edición
   inline, control de notas y aprobación/rechazo que impacta en `career_items`, equipos propuestos y el club actual del perfil.
+- Añadimos `updated_at` a `career_items` y recreamos los triggers de timestamp de manera idempotente en
+  `client-dashboard-career-requests.sql`, desbloqueando la aprobación de revisiones desde admin sin errores de esquema.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y

@@ -57,22 +57,37 @@ create table if not exists public.career_revision_items (
 create index if not exists idx_career_revision_items_request on public.career_revision_items(request_id);
 create index if not exists idx_career_revision_items_original on public.career_revision_items(original_item_id);
 
+-- 4) Compatibilidad: columna updated_at en career_items para sincronización.
+alter table if exists public.career_items
+  add column if not exists updated_at timestamptz not null default now();
+
+-- 5) Hooks de actualización de timestamp reutilizando la función global.
 do $$
 begin
   if exists (select 1 from pg_proc where proname = 'set_updated_at') then
-    create trigger trg_career_revision_requests_updated
-      before update on public.career_revision_requests
-      for each row execute function public.set_updated_at();
-    create trigger trg_career_revision_items_updated
-      before update on public.career_revision_items
-      for each row execute function public.set_updated_at();
-    create trigger trg_career_revision_proposed_teams_updated
-      before update on public.career_revision_proposed_teams
-      for each row execute function public.set_updated_at();
+    if exists (select 1 from pg_trigger where tgname = 'trg_career_items_updated') then
+      execute 'drop trigger trg_career_items_updated on public.career_items';
+    end if;
+    execute 'create trigger trg_career_items_updated before update on public.career_items for each row execute function public.set_updated_at();';
+
+    if exists (select 1 from pg_trigger where tgname = 'trg_career_revision_requests_updated') then
+      execute 'drop trigger trg_career_revision_requests_updated on public.career_revision_requests';
+    end if;
+    execute 'create trigger trg_career_revision_requests_updated before update on public.career_revision_requests for each row execute function public.set_updated_at();';
+
+    if exists (select 1 from pg_trigger where tgname = 'trg_career_revision_items_updated') then
+      execute 'drop trigger trg_career_revision_items_updated on public.career_revision_items';
+    end if;
+    execute 'create trigger trg_career_revision_items_updated before update on public.career_revision_items for each row execute function public.set_updated_at();';
+
+    if exists (select 1 from pg_trigger where tgname = 'trg_career_revision_proposed_teams_updated') then
+      execute 'drop trigger trg_career_revision_proposed_teams_updated on public.career_revision_proposed_teams';
+    end if;
+    execute 'create trigger trg_career_revision_proposed_teams_updated before update on public.career_revision_proposed_teams for each row execute function public.set_updated_at();';
   end if;
 end $$;
 
--- 5) Seguridad y permisos.
+-- 6) Seguridad y permisos.
 alter table public.career_revision_requests enable row level security;
 alter table public.career_revision_items enable row level security;
 alter table public.career_revision_proposed_teams enable row level security;
@@ -248,7 +263,7 @@ grant all on table public.career_revision_requests to authenticated, service_rol
 grant all on table public.career_revision_items to authenticated, service_role;
 grant all on table public.career_revision_proposed_teams to authenticated, service_role;
 
--- 6) Player honours y stats enlazados a career_items.
+-- 7) Player honours y stats enlazados a career_items.
 alter table if exists public.player_honours
   add column if not exists career_item_id uuid references public.career_items(id) on delete set null;
 
@@ -259,7 +274,7 @@ alter table if exists public.stats_seasons
 
 create index if not exists idx_stats_seasons_career_item on public.stats_seasons(career_item_id);
 
--- 7) Vista auxiliar para administración: solicitudes pendientes con conteo de equipos propuestos.
+-- 8) Vista auxiliar para administración: solicitudes pendientes con conteo de equipos propuestos.
 create or replace view public.career_revision_inbox as
 select
   crr.id,
