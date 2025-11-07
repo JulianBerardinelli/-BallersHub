@@ -12,6 +12,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Switch,
 } from "@heroui/react";
 import { supabase } from "@/lib/supabase/client";
 import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
@@ -50,6 +51,8 @@ export default function CareerRowEditor({
   onCancel,
   onRemove,
   overlapError,
+  showCurrentToggle = true,
+  onRequestCurrentChange,
 }: {
   value: RowDraft;
   onPatch: (patch: Partial<RowDraft>) => void;
@@ -57,6 +60,8 @@ export default function CareerRowEditor({
   onCancel: () => void;
   onRemove: () => void;
   overlapError?: string | null;
+  showCurrentToggle?: boolean;
+  onRequestCurrentChange?: (selected: boolean) => boolean | void;
 }) {
   // --- Autocomplete club ---
   const [q, setQ] = React.useState(value.club ?? "");
@@ -75,6 +80,8 @@ export default function CareerRowEditor({
   const [touchedStart, setTouchedStart] = React.useState(false);
   const [touchedEnd, setTouchedEnd] = React.useState(false);
   const [triedConfirm, setTriedConfirm] = React.useState(false);
+
+  const isCurrent = value.source === "current";
 
   React.useEffect(() => { setStartStr(value.start_year ? String(value.start_year) : ""); }, [value.start_year]);
   React.useEffect(() => { setEndStr(value.end_year ? String(value.end_year) : ""); }, [value.end_year]);
@@ -282,8 +289,8 @@ export default function CareerRowEditor({
         isInvalid={endInvalid}
       />
 
-      <div className="lg:col-span-5 flex items-center justify-between">
-        <div className="flex flex-wrap gap-2">
+      <div className="lg:col-span-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-2">
           {value.team_id && <Chip color="success" variant="flat">Equipo verificado</Chip>}
           {!value.team_id && value.proposed?.country && (
             <Chip variant="flat" startContent={<CountryFlag code={value.proposed.country.code} size={12} />}>
@@ -295,19 +302,40 @@ export default function CareerRowEditor({
           {overlapError && <span className="text-danger text-sm">{overlapError}</span>}
         </div>
 
-        <div className="flex gap-2">
-          {!value.team_id && (
-            <Button size="sm" variant="flat" onPress={() => setModalOpen(true)}>
-              {value.proposed?.country || value.proposed?.tmUrl ? "Editar detalles" : "Completar detalles"}
+        <div className="flex flex-wrap items-center gap-3">
+          {showCurrentToggle ? (
+            <Switch
+              size="sm"
+              isSelected={isCurrent}
+              onValueChange={(selected) => {
+                if (selected) {
+                  const allowed = onRequestCurrentChange ? onRequestCurrentChange(true) !== false : true;
+                  if (!allowed) return;
+                  onPatch({ source: "current", lockEnd: true, end_year: null });
+                } else {
+                  onPatch({ source: "manual", lockEnd: false });
+                  onRequestCurrentChange?.(false);
+                }
+              }}
+            >
+              Es mi equipo actual
+            </Switch>
+          ) : null}
+
+          <div className="flex gap-2">
+            {!value.team_id && (
+              <Button size="sm" variant="flat" onPress={() => setModalOpen(true)}>
+                {value.proposed?.country || value.proposed?.tmUrl ? "Editar detalles" : "Completar detalles"}
+              </Button>
+            )}
+            {!value.lockDelete && <Button size="sm" variant="light" onPress={onCancel}>Cancelar</Button>}
+            <Button size="sm" color="primary" onPress={handleConfirm}>
+              Confirmar etapa
             </Button>
-          )}
-          {!value.lockDelete && <Button size="sm" variant="light" onPress={onCancel}>Cancelar</Button>}
-          <Button size="sm" color="primary" onPress={handleConfirm}>
-            Confirmar etapa
-          </Button>
-          {!value.lockDelete && (
-            <Button size="sm" variant="light" color="danger" onPress={onRemove}>Eliminar</Button>
-          )}
+            {!value.lockDelete && (
+              <Button size="sm" variant="light" color="danger" onPress={onRemove}>Eliminar</Button>
+            )}
+          </div>
         </div>
       </div>
 
