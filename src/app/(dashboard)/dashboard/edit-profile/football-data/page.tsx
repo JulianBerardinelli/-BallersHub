@@ -161,8 +161,8 @@ export default async function FootballDataPage() {
         `id, status, submitted_at, reviewed_at, change_summary, resolution_note,
          items:career_revision_items (
            id,
-            club,
-            division,
+           club,
+           division,
            start_year,
            end_year,
            order_index,

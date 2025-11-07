@@ -3,12 +3,36 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Info, XCircle } from "lucide-react";
 
 import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEditor";
 import CountryFlag from "@/components/common/CountryFlag";
 import type { CareerStageInput } from "../schemas";
 import { submitCareerRevision } from "../actions";
+
+const RESOLUTION_TONE_STYLES = {
+  success: {
+    container: "border-emerald-500/40 bg-emerald-500/10",
+    label: "text-emerald-200",
+    note: "text-emerald-100/90",
+    icon: "text-emerald-300",
+  },
+  danger: {
+    container: "border-red-500/40 bg-red-500/10",
+    label: "text-red-200",
+    note: "text-red-100/90",
+    icon: "text-red-300",
+  },
+  default: {
+    container: "border-neutral-700 bg-neutral-900/60",
+    label: "text-neutral-200",
+    note: "text-neutral-300",
+    icon: "text-neutral-300",
+  },
+} as const;
+
+type ResolutionTone = keyof typeof RESOLUTION_TONE_STYLES;
+
 import { reviewNotification, useNotificationContext } from "@/modules/notifications";
 import { ensureEventRecorded } from "@/modules/notifications/utils/eventStore";
 
@@ -45,6 +69,13 @@ export type CareerRequestSnapshot = {
 };
 
 type StatusState = { type: "success" | "error"; message: string } | null;
+
+type ResolutionDescriptor = {
+  label: string;
+  note: string;
+  tone: ResolutionTone;
+};
+
 
 type Props = {
   playerId: string;
@@ -224,6 +255,27 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
   const pendingItems = latestRequest?.status === "pending" ? latestRequest.items : [];
   const pendingNote = latestRequest?.status === "pending" ? latestRequest.note : null;
   const isLockedByRequest = latestRequest?.status === "pending";
+  const resolutionDescriptor = useMemo<ResolutionDescriptor | null>(() => {
+    if (!latestRequest || latestRequest.status === "pending") {
+      return null;
+    }
+
+    const note = latestRequest.resolutionNote?.trim();
+    if (!note) {
+      return null;
+    }
+
+    switch (latestRequest.status) {
+      case "approved":
+        return { label: "Solicitud aprobada", note, tone: "success" };
+      case "rejected":
+        return { label: "Solicitud rechazada", note, tone: "danger" };
+      case "cancelled":
+        return { label: "Solicitud cancelada", note, tone: "default" };
+      default:
+        return null;
+    }
+  }, [latestRequest]);
 
   useEffect(() => {
     if (!latestRequest?.id) {
@@ -505,6 +557,27 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
           </p>
         ) : null}
       </header>
+
+      {resolutionDescriptor ? (
+        (() => {
+          const styles = RESOLUTION_TONE_STYLES[resolutionDescriptor.tone];
+          const IconComponent =
+            resolutionDescriptor.tone === "success"
+              ? CheckCircle2
+              : resolutionDescriptor.tone === "danger"
+              ? XCircle
+              : Info;
+          return (
+            <div className={`flex items-start gap-3 rounded-lg border px-4 py-3 ${styles.container}`}>
+              <IconComponent className={`mt-0.5 h-5 w-5 shrink-0 ${styles.icon}`} />
+              <div className="space-y-1">
+                <p className={`text-sm font-semibold ${styles.label}`}>{resolutionDescriptor.label}</p>
+                <p className={`text-xs leading-relaxed ${styles.note}`}>{resolutionDescriptor.note}</p>
+              </div>
+            </div>
+          );
+        })()
+      ) : null}
 
       {pendingItems.length > 0 ? (
         <section className="space-y-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-4">

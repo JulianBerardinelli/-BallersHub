@@ -38,6 +38,8 @@ identificar los próximos pasos.
   inline, control de notas y aprobación/rechazo que impacta en `career_items`, equipos propuestos y el club actual del perfil.
 - Añadimos `updated_at` a `career_items` y recreamos los triggers de timestamp de manera idempotente en
   `client-dashboard-career-requests.sql`, desbloqueando la aprobación de revisiones desde admin sin errores de esquema.
+- Exponemos en el dashboard las notas de resolución que deja administración al aprobar o rechazar solicitudes de
+  trayectoria, reforzando la comunicación con los jugadores una vez procesados sus cambios.
 
 ## 🔜 Próximos pasos sugeridos
 - Ejecutar los scripts de base de datos nuevos para habilitar `career_revision_requests` y los vínculos entre trayectoria y
