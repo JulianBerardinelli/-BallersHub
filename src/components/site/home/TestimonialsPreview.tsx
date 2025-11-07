@@ -1,5 +1,9 @@
-import { Avatar, Card, CardBody } from "@heroui/react";
+'use client';
+
+import { Avatar, CardBody } from "@heroui/react";
 import { Quote } from "lucide-react";
+
+import { AnimatedCard, AnimatedSection } from "@/components/site/ui/motion";
 
 const TESTIMONIALS = [
   {
@@ -18,9 +22,9 @@ const TESTIMONIALS = [
 
 export default function TestimonialsPreview() {
   return (
-    <section className="space-y-6">
+    <AnimatedSection className="space-y-6" as="section" initialY={40}>
       <div className="flex items-center gap-3">
-        <span className="rounded-full border border-white/10 bg-white/5 p-2">
+        <span className="rounded-full border border-success-500/40 bg-success-500/15 p-2">
           <Quote className="h-5 w-5 text-success-300" />
         </span>
         <div>
@@ -29,8 +33,13 @@ export default function TestimonialsPreview() {
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        {TESTIMONIALS.map(({ name, role, quote }) => (
-          <Card key={name} className="h-full border-white/10 bg-black/40 backdrop-blur">
+        {TESTIMONIALS.map(({ name, role, quote }, index) => (
+          <AnimatedCard
+            key={name}
+            className="h-full border-white/10 bg-black/35 backdrop-blur"
+            delay={0.14 * index}
+            hoverElevation={12}
+          >
             <CardBody className="space-y-4">
               <p className="text-neutral-200">“{quote}”</p>
               <div className="flex items-center gap-3">
@@ -41,9 +50,9 @@ export default function TestimonialsPreview() {
                 </div>
               </div>
             </CardBody>
-          </Card>
+          </AnimatedCard>
         ))}
       </div>
-    </section>
+    </AnimatedSection>
   );
 }

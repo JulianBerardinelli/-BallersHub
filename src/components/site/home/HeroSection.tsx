@@ -1,6 +1,30 @@
+'use client';
+
 import Link from "next/link";
-import { Button, Card, CardBody, Chip, Divider } from "@heroui/react";
+import { Button, CardBody, Chip, Divider } from "@heroui/react";
 import { ArrowRight, ShieldCheck, Users } from "lucide-react";
+import { m } from "framer-motion";
+
+import { AnimatedCard, AnimatedSection, FloatingShapes } from "@/components/site/ui/motion";
+
+const TEXT_VARIANTS = {
+  hidden: { opacity: 0, y: 28 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: "easeOut",
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 24 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
 
 const STAT_ITEMS = [
   {
@@ -22,28 +46,47 @@ const STAT_ITEMS = [
 
 export default function HeroSection() {
   return (
-    <section className="grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_420px]">
-      <div className="space-y-8">
-        <Chip color="success" variant="flat" className="w-fit uppercase tracking-wide">
-          Beta abierta
-        </Chip>
-        <div className="space-y-4">
-          <h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl">
-            El hub donde el talento futbolístico gana visibilidad real.
+    <AnimatedSection
+      className="relative grid items-start gap-12 overflow-hidden rounded-3xl border border-white/10 bg-black/25 p-10 shadow-[0_0_60px_rgba(13,213,165,0.08)] backdrop-blur-xl lg:grid-cols-[minmax(0,1fr)_420px]"
+      initialY={48}
+    >
+      <FloatingShapes className="opacity-90" />
+
+      <m.div
+        className="relative z-10 space-y-8"
+        variants={TEXT_VARIANTS}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-18% 0px -18% 0px" }}
+      >
+        <m.div variants={ITEM_VARIANTS}>
+          <Chip
+            color="success"
+            variant="flat"
+            className="w-fit border border-success-500/30 bg-success-500/10 uppercase tracking-[0.3em] text-xs text-success-200"
+          >
+            Beta abierta
+          </Chip>
+        </m.div>
+
+        <m.div className="space-y-4" variants={ITEM_VARIANTS}>
+          <h1 className="text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-[2.8rem]">
+            El Hub donde el Talento Futbolístico gana Visibilidad Real.
           </h1>
-          <p className="text-lg text-neutral-300">
-            Centralizá tu perfil profesional, sumá reseñas verificadas y conectá con clubes que
-            buscan potenciar su plantel. Todo en un solo lugar y con verificación humana.
+          <p className="text-base text-neutral-300 sm:text-lg">
+            Centralizá tu perfil profesional, sumá reseñas verificadas y conectá con clubes que buscan potenciar su plantel.
+            Todo en un solo lugar con seguimiento humano y transparente.
           </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-4">
+        </m.div>
+
+        <m.div className="flex flex-wrap items-center gap-4" variants={ITEM_VARIANTS}>
           <Button
             as={Link}
             href="/onboarding/start"
             color="success"
             size="lg"
             endContent={<ArrowRight className="h-4 w-4" />}
-            className="font-semibold"
+            className="font-semibold shadow-[0_18px_45px_rgba(13,213,165,0.25)]"
           >
             Crear mi perfil
           </Button>
@@ -52,26 +95,34 @@ export default function HeroSection() {
             href="/auth/sign-in"
             variant="bordered"
             size="lg"
-            className="border-white/20 text-white"
+            className="border-white/30 text-white backdrop-blur"
             endContent={<ShieldCheck className="h-4 w-4" />}
           >
             Cómo validamos
           </Button>
-        </div>
-        <div className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-black/30 p-6 backdrop-blur">
+        </m.div>
+
+        <m.div
+          className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+          variants={ITEM_VARIANTS}
+        >
           <div className="flex items-center gap-3 text-sm uppercase tracking-wide text-neutral-400">
             <Users className="h-4 w-4" />
             <span>Lo que dicen los clubes</span>
           </div>
           <p className="text-neutral-200">
-            “En BallersHub encontramos perfiles con historial comprobado y referencias confiables. Nos ahorra
-            semanas de scouting.”
+            “En BallersHub encontramos perfiles con historial comprobado y referencias confiables. Nos ahorra semanas de
+            scouting.”
           </p>
           <span className="text-sm text-neutral-500">Club Atlético Aurora · Dirección Deportiva</span>
-        </div>
-      </div>
+        </m.div>
+      </m.div>
 
-      <Card className="border-white/10 bg-black/30 backdrop-blur">
+      <AnimatedCard
+        className="relative z-10 border-white/15 bg-black/40 backdrop-blur"
+        delay={0.2}
+        hoverElevation={18}
+      >
         <CardBody className="space-y-6">
           <div className="space-y-2 text-center">
             <h2 className="text-xl font-semibold text-white">Tu trayectoria, sintetizada</h2>
@@ -80,17 +131,25 @@ export default function HeroSection() {
             </p>
           </div>
           <Divider className="bg-white/10" />
-          <div className="grid gap-6">
-            {STAT_ITEMS.map((item) => (
-              <div key={item.label} className="rounded-xl border border-white/10 bg-white/5 p-4">
+          <div className="grid gap-4">
+            {STAT_ITEMS.map((item, index) => (
+              <m.div
+                key={item.label}
+                className="rounded-xl border border-white/10 bg-white/5 p-4"
+                variants={ITEM_VARIANTS}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, margin: "-20% 0px -20% 0px" }}
+                transition={{ delay: 0.15 * index, duration: 0.5, ease: "easeOut" }}
+              >
                 <p className="text-sm text-neutral-400">{item.label}</p>
                 <p className="text-3xl font-semibold text-white">{item.value}</p>
                 <p className="text-sm text-neutral-400">{item.description}</p>
-              </div>
+              </m.div>
             ))}
           </div>
         </CardBody>
-      </Card>
-    </section>
+      </AnimatedCard>
+    </AnimatedSection>
   );
 }

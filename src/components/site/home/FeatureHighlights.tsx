@@ -1,5 +1,9 @@
-import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
+'use client';
+
+import { CardBody, CardHeader, Chip } from "@heroui/react";
 import { CalendarCheck, Sparkles, Trophy } from "lucide-react";
+
+import { AnimatedCard, AnimatedSection } from "@/components/site/ui/motion";
 
 const FEATURES = [
   {
@@ -27,9 +31,13 @@ const FEATURES = [
 
 export default function FeatureHighlights() {
   return (
-    <section className="space-y-6">
+    <AnimatedSection className="space-y-8" as="section" initialY={42}>
       <div className="space-y-2">
-        <Chip variant="bordered" color="success" className="w-fit border-success-500/40 text-success-400">
+        <Chip
+          variant="bordered"
+          color="success"
+          className="w-fit border-success-500/40 bg-success-500/5 text-success-200"
+        >
           Pensado para profesionales
         </Chip>
         <h2 className="text-3xl font-semibold text-white">Construí un perfil listo para compartir</h2>
@@ -38,11 +46,16 @@ export default function FeatureHighlights() {
         </p>
       </div>
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {FEATURES.map(({ title, description, icon: Icon, tag }) => (
-          <Card key={title} className="h-full border-white/10 bg-black/40 backdrop-blur">
+        {FEATURES.map(({ title, description, icon: Icon, tag }, index) => (
+          <AnimatedCard
+            key={title}
+            className="h-full border-white/10 bg-black/35 backdrop-blur"
+            delay={0.12 * index}
+            hoverElevation={14}
+          >
             <CardHeader className="flex flex-col items-start gap-3">
-              <span className="rounded-full border border-white/10 bg-white/5 p-2">
-                <Icon className="h-5 w-5 text-success-400" />
+              <span className="rounded-full border border-success-500/40 bg-success-500/15 p-2">
+                <Icon className="h-5 w-5 text-success-300" />
               </span>
               <div className="space-y-1">
                 <h3 className="text-xl font-semibold text-white">{title}</h3>
@@ -54,9 +67,9 @@ export default function FeatureHighlights() {
             <CardBody>
               <p className="text-sm leading-6 text-neutral-300">{description}</p>
             </CardBody>
-          </Card>
+          </AnimatedCard>
         ))}
       </div>
-    </section>
+    </AnimatedSection>
   );
 }
