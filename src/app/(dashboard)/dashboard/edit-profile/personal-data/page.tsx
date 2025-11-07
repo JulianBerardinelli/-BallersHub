@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import AvatarUploader from "@/components/dashboard/AvatarUploader";
-import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
@@ -17,6 +16,8 @@ import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data"
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
+import BasicInfoForm, { type CountryOption } from "./components/BasicInfoForm";
+import ContactInfoForm from "./components/ContactInfoForm";
 
 type PlayerApplicationSnapshot = {
   id: string;
@@ -126,45 +127,14 @@ export default async function PersonalDataPage() {
     .from("countries")
     .select("code, name_es, name_en");
 
-  const countries = new Map<string, string>();
-  (countriesRaw ?? []).forEach((country) => {
-    const label = country.name_es ?? country.name_en ?? country.code;
-    countries.set(country.code, label);
-  });
+  const countryOptions: CountryOption[] = (countriesRaw ?? []).map((country) => ({
+    code: country.code,
+    name: country.name_es ?? country.name_en ?? country.code,
+  }));
 
-  function resolveCountryName(code: string | null | undefined, fallback: string | null | undefined) {
-    if (code && countries.has(code)) {
-      return countries.get(code) ?? fallback ?? "";
-    }
-    return fallback ?? "";
-  }
-
-  const displayFullName = hydratedProfile.full_name ?? "";
-  const birthDate = hydratedProfile.birth_date
-    ? new Date(hydratedProfile.birth_date).toLocaleDateString()
-    : "";
-  const nationalityCandidates = Array.isArray(hydratedProfile.nationality)
-    ? hydratedProfile.nationality
-    : (profileData.nationalityCodes ?? []).map((code) => resolveCountryName(code, code));
-  const nationalities = nationalityCandidates.filter((value) => value && value.length > 0).join(", ");
-  const heightCm = hydratedProfile.height_cm;
-  const weightKg = hydratedProfile.weight_kg;
-  const residenceCountryName = resolveCountryName(
-    personalDetails?.residence_country_code ?? null,
-    personalDetails?.residence_country ?? null,
-  );
-  const residenceCity = personalDetails?.residence_city ?? "";
-  const residence = [residenceCity, residenceCountryName].filter((value) => value && value.trim().length > 0).join(", ");
-  const languagesValue = personalDetails?.languages?.join(", ") ?? "";
-  const phoneValue = personalDetails?.phone ?? "";
-  const documentValue = [personalDetails?.document_type, personalDetails?.document_number]
-    .map((value) => (typeof value === "string" ? value.trim() : ""))
-    .filter((value) => value.length > 0)
-    .join(" · ");
-  const documentCountryName = resolveCountryName(
-    personalDetails?.document_country_code ?? null,
-    personalDetails?.document_country ?? null,
-  );
+  const birthDateValue = typeof profileData.birth_date === "string"
+    ? profileData.birth_date.slice(0, 10)
+    : null;
   const avatarUrl = normalizedProfile.avatar_url ?? "/images/player-default.png";
 
   return (
@@ -202,86 +172,36 @@ export default async function PersonalDataPage() {
 
       <SectionCard
         title="Información básica"
-        description="Próximamente podrás editar cada campo y sincronizar la información con tus documentos oficiales."
+        description="Actualizá tus datos personales clave para mantener tu perfil consistente y listo para revisión."
       >
-        <form className="grid gap-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField id="full_name" label="Nombre completo" defaultValue={displayFullName} />
-            <FormField id="birth_date" label="Fecha de nacimiento" defaultValue={birthDate} placeholder="dd/mm/aaaa" />
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              id="nationality"
-              label="Nacionalidades"
-              defaultValue={nationalities}
-              placeholder="Seleccioná una o más nacionalidades"
-            />
-            <FormField
-              id="residence"
-              label="Residencia actual"
-              defaultValue={residence}
-              placeholder="Ciudad, país"
-              description="Podrás definir la ubicación que se mostrará en tu perfil."
-            />
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              id="height_cm"
-              label="Altura (cm)"
-              defaultValue={heightCm != null ? String(heightCm) : ""}
-              placeholder="Ej: 184"
-            />
-            <FormField
-              id="weight_kg"
-              label="Peso (kg)"
-              defaultValue={weightKg != null ? String(weightKg) : ""}
-              placeholder="Ej: 78"
-            />
-          </div>
-          <FormField
-            id="bio"
-            as="textarea"
-            rows={4}
-            label="Biografía breve"
-            defaultValue={hydratedProfile.bio ?? ""}
-            placeholder="Contá brevemente tu trayectoria y objetivos profesionales."
-          />
-        </form>
+        <BasicInfoForm
+          playerId={profileData.id}
+          fullName={profileData.full_name ?? ""}
+          birthDate={birthDateValue}
+          nationalityCodes={profileData.nationalityCodes ?? []}
+          residenceCity={personalDetails?.residence_city ?? null}
+          residenceCountryCode={personalDetails?.residence_country_code ?? null}
+          heightCm={profileData.height_cm}
+          weightKg={profileData.weight_kg}
+          bio={profileData.bio}
+          countries={countryOptions}
+        />
       </SectionCard>
 
       <SectionCard
         title="Datos de contacto"
-        description="Esta información se utilizará para comunicaciones privadas. Podrás decidir qué mostrar de forma pública."
+        description="Definí cómo querés que te contacten y mantené tu documentación personal actualizada."
       >
-        <form className="grid gap-4 md:grid-cols-2">
-          <FormField id="email" label="Email principal" defaultValue={user.email ?? ""} />
-          <FormField
-            id="phone"
-            label="Teléfono de contacto"
-            defaultValue={phoneValue}
-            placeholder="Próximamente podrás agregar números verificados"
-          />
-          <FormField
-            id="languages"
-            label="Idiomas"
-            defaultValue={languagesValue}
-            placeholder="Ej: Español, Inglés"
-            description="Definí los idiomas en los que te pueden contactar."
-          />
-          <FormField
-            id="documents"
-            label="Documentación"
-            defaultValue={documentValue}
-            placeholder="Pasaporte UE, DNI, etc."
-            description="Se integrará con verificación documental más adelante."
-          />
-          <FormField
-            id="document_country"
-            label="País del documento"
-            defaultValue={documentCountryName}
-            placeholder="País emisor"
-          />
-        </form>
+        <ContactInfoForm
+          playerId={profileData.id}
+          email={user.email ?? null}
+          phone={personalDetails?.phone ?? null}
+          languages={personalDetails?.languages ?? null}
+          documentType={personalDetails?.document_type ?? null}
+          documentNumber={personalDetails?.document_number ?? null}
+          documentCountryCode={personalDetails?.document_country_code ?? null}
+          countries={countryOptions}
+        />
       </SectionCard>
     </div>
   );
