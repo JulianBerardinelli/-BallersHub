@@ -397,7 +397,12 @@ export default async function FootballDataPage() {
         title="Trayectoria"
         description="Gestioná tu historial deportivo y enviá cambios al equipo de Ballers para su validación."
       >
-        <CareerManager playerId={profileData.id} stages={careerStages} latestRequest={latestRevision} />
+        <CareerManager
+          playerId={profileData.id}
+          playerName={profileData.full_name ?? null}
+          stages={careerStages}
+          latestRequest={latestRevision}
+        />
       </SectionCard>
 
       <SectionCard

@@ -17,6 +17,7 @@ import {
 } from "@/lib/dashboard/client/tasks";
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { NotificationBootstrap } from "@/modules/notifications";
 import type { ClientDashboardNavBadge } from "./navigation";
 import {
   hasActiveApplication,
@@ -77,15 +78,35 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const navigationBadges = buildNavigationBadges(taskEvaluation);
   const navigation = buildClientDashboardNavigation(navigationBadges);
 
+  const userDisplayName =
+    hydratedProfile?.full_name ??
+    profile?.full_name ??
+    application?.full_name ??
+    user.email ??
+    null;
+
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
-      <header className="space-y-4">
-        <div>
-          <h1 className="text-2xl font-semibold text-white">Área del cliente</h1>
-          <p className="text-sm text-neutral-400">
-            Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta.
-          </p>
-        </div>
+    <>
+      <NotificationBootstrap
+        userName={userDisplayName}
+        onboarding={
+          application?.id
+            ? {
+                requestId: application.id,
+                status: application.status ?? null,
+                dashboardHref: "/dashboard",
+              }
+            : null
+        }
+      />
+      <div className="mx-auto max-w-7xl space-y-6 p-6">
+        <header className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Área del cliente</h1>
+            <p className="text-sm text-neutral-400">
+              Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta.
+            </p>
+          </div>
 
         <div className="space-y-4 rounded-xl border border-neutral-800 bg-neutral-950/60 p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -156,7 +177,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </aside>
         <section className="col-span-12 space-y-6 lg:col-span-8 xl:col-span-9">{children}</section>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

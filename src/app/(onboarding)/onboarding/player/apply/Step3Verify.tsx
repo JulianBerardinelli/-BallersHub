@@ -5,6 +5,7 @@ import { Form, Button, Checkbox, Chip } from "@heroui/react";
 import KycUploader from "@/app/(onboarding)/onboarding/KycUploader";
 import type { CountryPick } from "@/components/common/CountryMultiPicker";
 import { supabase } from "@/lib/supabase/client";
+import { onboardingNotification, useNotificationContext } from "@/modules/notifications";
 import { useRouter } from "next/navigation";
 
 // Tipos mínimos esperados desde Step1/Step2
@@ -68,6 +69,7 @@ export default function Step3Verify({
   onSent: (applicationId: string) => void;
 }) {
   const router = useRouter();
+  const { enqueue } = useNotificationContext();
 
   const [idDocKey, setIdDocKey] = React.useState<string | null>(null);
   const [selfieKey, setSelfieKey] = React.useState<string | null>(null);
@@ -118,12 +120,24 @@ export default function Step3Verify({
 
       // 4) manejar respuestas
       if (res.status === 201 && data?.id) {
+        enqueue(
+          onboardingNotification.submitted({
+            userName: step1.fullName || undefined,
+            requestId: data.id,
+          }),
+        );
         onSent?.(data.id);
         router.replace("/dashboard?applied=1");
         return;
       }
       // Caso: ya hay una pending — lo tratamos como "ok" para UX
       if (res.status === 409 && data?.id) {
+        enqueue(
+          onboardingNotification.submitted({
+            userName: step1.fullName || undefined,
+            requestId: data.id,
+          }),
+        );
         onSent?.(data.id);
         router.replace("/dashboard?applied=1");
         return;

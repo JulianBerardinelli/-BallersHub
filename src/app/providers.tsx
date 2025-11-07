@@ -1,12 +1,13 @@
 // app/providers.tsx
-'use client'
+"use client";
 
-import {HeroUIProvider} from '@heroui/react'
+import { HeroUIProvider } from "@heroui/react";
+import { NotificationProvider } from "@/modules/notifications";
 
-export function Providers({children}: { children: React.ReactNode }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <HeroUIProvider>
-      {children}
+      <NotificationProvider>{children}</NotificationProvider>
     </HeroUIProvider>
-  )
+  );
 }

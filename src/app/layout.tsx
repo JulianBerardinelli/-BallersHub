@@ -1,7 +1,7 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import {Providers} from "./providers";
+import { Providers } from "./providers";
 import "@/styles/globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -20,10 +20,19 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // 👇 NO comentarios ni JSX suelto dentro de <html>
-  return <html lang="es" className="dark">
-    <body className={`dark bg-background text-foreground ${geistSans.variable} ${geistMono.variable}`}>
-      <Providers>{children}</Providers>
-    </body>
-  </html>;
+  return (
+    <html lang="es" className="dark">
+      <body className={`relative min-h-screen bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable}`}>
+        <div
+          aria-hidden
+          className="pointer-events-none fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(125%_125%_at_50%_10%,#001915_40%,#0dd5a5_100%)]"
+        />
+        <Providers>
+          <div className="relative flex min-h-screen flex-col overflow-x-hidden">
+            {children}
+          </div>
+        </Providers>
+      </body>
+    </html>
+  );
 }
