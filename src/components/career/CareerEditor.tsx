@@ -16,6 +16,7 @@ export default function CareerEditor({
   onRequestRemoveCurrent,
   showCurrentToggle = true,
   onRequestCurrentChange,
+  readOnly = false,
 }: {
   items: CareerItemInput[];
   onChange: (rows: CareerItemInput[]) => void;
@@ -23,6 +24,7 @@ export default function CareerEditor({
   onRequestRemoveCurrent?: () => void;
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (row: CareerItemInput, selected: boolean) => boolean;
+  readOnly?: boolean;
 }) {
   const [skipped, setSkipped] = React.useState(false);
 
@@ -30,6 +32,7 @@ export default function CareerEditor({
   const [confirmId, setConfirmId] = React.useState<string | null>(null);
 
   function addRow() {
+    if (readOnly) return;
     onChange([
       ...items,
       {
@@ -48,9 +51,11 @@ export default function CareerEditor({
   }
 
   function patchRow(id: string, patch: Partial<CareerItemInput>) {
+    if (readOnly) return;
     onChange(items.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   }
   function removeRow(id: string) {
+    if (readOnly) return;
     onChange(items.filter((r) => r.id !== id));
   }
 
@@ -65,6 +70,7 @@ export default function CareerEditor({
   }
 
   function confirmRow(id: string) {
+    if (readOnly) return;
     const row = items.find((r) => r.id === id);
     if (!row) return;
     const warn = overlapMsg(row);
@@ -124,7 +130,7 @@ export default function CareerEditor({
       <AnimatePresence initial={false}>
         {items.map((row) => (
           <motion.div key={row.id} layout initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }} transition={{ type: "spring", stiffness: 300, damping: 30 }}>
-            {row.confirmed ? (
+            {row.confirmed || readOnly ? (
               <CareerRowRead
                 club={row.club}
                 division={row.division}
@@ -132,10 +138,17 @@ export default function CareerEditor({
                 end_year={row.end_year}
                 teamMeta={row.team_meta ?? null}
                 proposedCountry={row.proposed?.country ?? null}
-                isCurrent={row.source === "current"}             // 👈 NUEVO
-                onEdit={() => patchRow(row.id, { confirmed: false })}
-                onEditProposed={!row.team_meta ? () => patchRow(row.id, { confirmed: false }) : undefined}
-                onRemove={() => handleRemove(row)}               // 👈 siempre permitimos, con confirm si “current”
+                isCurrent={row.source === "current"} // 👈 NUEVO
+                onEdit={readOnly ? undefined : () => patchRow(row.id, { confirmed: false })}
+                onEditProposed={
+                  readOnly || row.team_meta
+                    ? undefined
+                    : () => patchRow(row.id, { confirmed: false })
+                }
+                onRemove={
+                  readOnly ? undefined : () => handleRemove(row)
+                } // 👈 siempre permitimos, con confirm si “current”
+                readOnly={readOnly}
               />
             ) : (
               <CareerRowEditor
@@ -152,7 +165,7 @@ export default function CareerEditor({
                   if (row.source === "current") setConfirmId(row.id); else removeRow(row.id);
                 }}
                 overlapError={overlapMsg(row)}
-                showCurrentToggle={showCurrentToggle}
+                showCurrentToggle={showCurrentToggle && !readOnly}
                 onRequestCurrentChange={(selected) =>
                   onRequestCurrentChange ? onRequestCurrentChange(row, selected) : true
                 }
@@ -162,12 +175,14 @@ export default function CareerEditor({
         ))}
       </AnimatePresence>
 
-      <div className="flex justify-end">
-        <Button size="sm" onPress={addRow}>Agregar etapa</Button>
-      </div>
+      {readOnly ? null : (
+        <div className="flex justify-end">
+          <Button size="sm" onPress={addRow}>Agregar etapa</Button>
+        </div>
+      )}
 
       {/* Modal confirmación para borrar etapa ligada al “Club actual” */}
-      <Modal isOpen={!!confirmId} onOpenChange={(o) => !o && setConfirmId(null)} size="sm">
+      <Modal isOpen={!readOnly && !!confirmId} onOpenChange={(o) => !o && setConfirmId(null)} size="sm">
         <ModalContent>
           <ModalHeader>Eliminar etapa y club actual</ModalHeader>
           <ModalBody>

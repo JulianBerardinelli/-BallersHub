@@ -22,7 +22,8 @@ export default function CareerRowRead({
     onEdit,
     onEditProposed,
     onRemove,
-    isCurrent
+    isCurrent,
+    readOnly = false,
 }: {
     club: string;
     division?: string | null;
@@ -30,10 +31,11 @@ export default function CareerRowRead({
     end_year?: number | null;
     teamMeta?: TeamMeta | null;
     proposedCountry?: { code: string; name: string } | null;
-    onEdit: () => void;
+    onEdit?: () => void;
     onEditProposed?: () => void;
-    onRemove: () => void;
-    isCurrent?: boolean;  
+    onRemove?: () => void;
+    isCurrent?: boolean;
+    readOnly?: boolean;
 }) {
     const crest = (teamMeta?.crest_url && teamMeta.crest_url.trim())
         ? teamMeta.crest_url
@@ -69,26 +71,30 @@ export default function CareerRowRead({
                 </div>
             </div>
 
-            <div className="justify-self-end opacity-0 group-hover:opacity-100 transition-opacity">
-                <Dropdown placement="bottom-end">
-                    <DropdownTrigger>
-                        <Button isIconOnly variant="light" className="data-[hover=true]:bg-content2">
-                            <MoreHorizontal size={18} />
-                        </Button>
-                    </DropdownTrigger>
-                    <DropdownMenu aria-label="Acciones">
-                        <DropdownItem key="edit" onPress={onEdit}>Editar</DropdownItem>
-                        {onEditProposed && !teamMeta?.crest_url ? (
-                            <DropdownItem key="proposed" onPress={onEditProposed}>
-                                Detalles de equipo propuesto
-                            </DropdownItem>
-                        ) : null}
-                        <DropdownItem key="delete" color="danger" className="text-danger" onPress={onRemove}>
-                            Eliminar
-                        </DropdownItem>
-                    </DropdownMenu>
-                </Dropdown>
-            </div>
+            {readOnly ? null : (
+                <div className="justify-self-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Dropdown placement="bottom-end">
+                        <DropdownTrigger>
+                            <Button isIconOnly variant="light" className="data-[hover=true]:bg-content2">
+                                <MoreHorizontal size={18} />
+                            </Button>
+                        </DropdownTrigger>
+                        <DropdownMenu aria-label="Acciones">
+                            {onEdit ? <DropdownItem key="edit" onPress={onEdit}>Editar</DropdownItem> : null}
+                            {onEditProposed && !teamMeta?.crest_url ? (
+                                <DropdownItem key="proposed" onPress={onEditProposed}>
+                                    Detalles de equipo propuesto
+                                </DropdownItem>
+                            ) : null}
+                            {onRemove ? (
+                                <DropdownItem key="delete" color="danger" className="text-danger" onPress={onRemove}>
+                                    Eliminar
+                                </DropdownItem>
+                            ) : null}
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+            )}
         </div>
     );
 }

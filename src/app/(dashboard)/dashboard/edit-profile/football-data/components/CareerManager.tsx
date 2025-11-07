@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { useRouter } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 
 import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEditor";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -217,6 +218,7 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
   );
   const pendingItems = latestRequest?.status === "pending" ? latestRequest.items : [];
   const pendingNote = latestRequest?.status === "pending" ? latestRequest.note : null;
+  const isLockedByRequest = latestRequest?.status === "pending";
 
   useEffect(() => {
     setItems(baseItems);
@@ -226,6 +228,9 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
   }, [baseItems]);
 
   const handleChange = (next: CareerItemInput[]) => {
+    if (isLockedByRequest) {
+      return;
+    }
     let nextGuard = guardMessage;
     setItems((prev) => {
       let normalized = next.map((item) => {
@@ -330,7 +335,6 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
     [confirmedPayloads],
   );
   const hasPendingDrafts = useMemo(() => items.some((item) => !item.confirmed), [items]);
-  const isLockedByRequest = latestRequest?.status === "pending";
   const hasConfirmedChanges = useMemo(() => {
     const confirmedKeys = new Set<string>();
 
@@ -527,7 +531,17 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
         onChange={handleChange}
         optional={false}
         onRequestCurrentChange={handleRequestCurrentChange}
+        readOnly={isLockedByRequest}
       />
+
+      {isLockedByRequest ? (
+        <p className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
+          <AlertTriangle className="mt-[2px] h-4 w-4 shrink-0" />
+          <span>
+            Tenés una solicitud de revisión pendiente. Esperá la respuesta del equipo para editar nuevamente tu trayectoria.
+          </span>
+        </p>
+      ) : null}
 
       {showActionPanel ? (
         <div className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
