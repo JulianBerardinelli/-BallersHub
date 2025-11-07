@@ -92,6 +92,7 @@ type CareerRevisionRequestRow = {
   submitted_at: string | null;
   reviewed_at: string | null;
   change_summary: string | null;
+  resolution_note: string | null;
   items: CareerRevisionItemRow[] | null;
 };
 
@@ -157,11 +158,11 @@ export default async function FootballDataPage() {
     supabase
       .from("career_revision_requests")
       .select(
-        `id, status, submitted_at, reviewed_at, change_summary,
+        `id, status, submitted_at, reviewed_at, change_summary, resolution_note,
          items:career_revision_items (
            id,
-           club,
-           division,
+            club,
+            division,
            start_year,
            end_year,
            order_index,
@@ -342,6 +343,7 @@ export default async function FootballDataPage() {
       submittedAt: revisionResult.data.submitted_at ?? null,
       reviewedAt: revisionResult.data.reviewed_at ?? null,
       note: revisionResult.data.change_summary ?? null,
+      resolutionNote: revisionResult.data.resolution_note ?? null,
       items,
     };
   }
@@ -395,7 +397,12 @@ export default async function FootballDataPage() {
         title="Trayectoria"
         description="Gestioná tu historial deportivo y enviá cambios al equipo de Ballers para su validación."
       >
-        <CareerManager playerId={profileData.id} stages={careerStages} latestRequest={latestRevision} />
+        <CareerManager
+          playerId={profileData.id}
+          playerName={profileData.full_name ?? null}
+          stages={careerStages}
+          latestRequest={latestRevision}
+        />
       </SectionCard>
 
       <SectionCard

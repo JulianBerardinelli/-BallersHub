@@ -5,6 +5,8 @@ Este módulo provee un **Notification Center** modular basado en HeroUI que rend
 ## Componentes clave
 - `NotificationProvider` (`src/modules/notifications/NotificationProvider.tsx`): gestiona el estado, animaciones, audio y persistencia de descartes.
 - `NotificationCenter` (`src/modules/notifications/components/NotificationCenter.tsx`): contenedor fijo que muestra las cards.
+- `NotificationBootstrap` (`src/modules/notifications/components/NotificationBootstrap.tsx`): listener cliente que consume
+  estados del servidor (onboarding, revisiones) y dispara las plantillas correspondientes evitando duplicados.
 - `notificationTemplates` (`src/modules/notifications/messages.ts`): catálogo centralizado y editable de textos.
 - Builders (`src/modules/notifications/builders.ts`): funciones helper para disparar eventos comunes de onboarding, revisiones y anuncios.
 
@@ -34,6 +36,8 @@ export function ExampleComponent({ userName }: { userName: string }) {
 - Las notificaciones se deduplican por `id`. Podés pasar un `id` explícito para sincronizar con el backend.
 - Los descartes se guardan en `localStorage` (`ballershub.notifications.dismissed`). Si el usuario cierra una card, no se volverá a mostrar tras recargar.
 - Para reiniciar descartes (por ejemplo, desde un panel de usuario) llamá a `resetDismissed()` del hook.
+- Los eventos automáticos se registran en `localStorage` (`ballershub.notifications.events`) mediante `ensureEventRecorded()` para
+  evitar disparos repetidos al cambiar de página.
 
 ## Personalizar textos
 Editá `src/modules/notifications/messages.ts`. Cada plantilla define:

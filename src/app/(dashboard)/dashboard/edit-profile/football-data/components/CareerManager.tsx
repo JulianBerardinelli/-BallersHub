@@ -9,6 +9,8 @@ import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEd
 import CountryFlag from "@/components/common/CountryFlag";
 import type { CareerStageInput } from "../schemas";
 import { submitCareerRevision } from "../actions";
+import { reviewNotification, useNotificationContext } from "@/modules/notifications";
+import { ensureEventRecorded } from "@/modules/notifications/utils/eventStore";
 
 export type CareerStage = {
   id: string;
@@ -38,6 +40,7 @@ export type CareerRequestSnapshot = {
   submittedAt: string | null;
   reviewedAt: string | null;
   note: string | null;
+  resolutionNote: string | null;
   items: CareerRequestStage[];
 };
 
@@ -45,6 +48,7 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 
 type Props = {
   playerId: string;
+  playerName?: string | null;
   stages: CareerStage[];
   latestRequest: CareerRequestSnapshot | null;
 };
@@ -188,11 +192,12 @@ function formatDate(value: string | null): string {
   }
 }
 
-export default function CareerManager({ playerId, stages, latestRequest }: Props) {
+export default function CareerManager({ playerId, playerName, stages, latestRequest }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(DEFAULT_STATUS);
   const [note, setNote] = useState<string>("");
   const [pending, startTransition] = useTransition();
+  const { enqueue } = useNotificationContext();
 
   const baseItems = useMemo<AugmentedCareerItem[]>(() => stages.map(toEditorItem), [stages]);
   const baseOriginalMap = useMemo(
@@ -219,6 +224,41 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
   const pendingItems = latestRequest?.status === "pending" ? latestRequest.items : [];
   const pendingNote = latestRequest?.status === "pending" ? latestRequest.note : null;
   const isLockedByRequest = latestRequest?.status === "pending";
+
+  useEffect(() => {
+    if (!latestRequest?.id) {
+      return;
+    }
+
+    if (latestRequest.status === "approved") {
+      const eventId = `career.review.approved:${latestRequest.id}:${latestRequest.reviewedAt ?? ""}`;
+      if (ensureEventRecorded(eventId)) {
+        enqueue(
+          reviewNotification.approved({
+            userName: playerName ?? undefined,
+            requestId: latestRequest.id,
+            topicLabel: "tu trayectoria",
+            detailsHref: "/dashboard/edit-profile/football-data",
+          }),
+        );
+      }
+    }
+
+    if (latestRequest.status === "rejected") {
+      const eventId = `career.review.rejected:${latestRequest.id}:${latestRequest.reviewedAt ?? ""}`;
+      if (ensureEventRecorded(eventId)) {
+        enqueue(
+          reviewNotification.rejected({
+            userName: playerName ?? undefined,
+            requestId: latestRequest.id,
+            topicLabel: "tu trayectoria",
+            retryHref: "/dashboard/edit-profile/football-data",
+            moderatorMessage: latestRequest.resolutionNote ?? undefined,
+          }),
+        );
+      }
+    }
+  }, [enqueue, latestRequest, playerName]);
 
   useEffect(() => {
     setItems(baseItems);
@@ -412,6 +452,15 @@ export default function CareerManager({ playerId, stages, latestRequest }: Props
 
       setStatus({ type: "success", message: "Solicitud enviada para revisión del equipo." });
       setNote("");
+      if (result.requestId) {
+        enqueue(
+          reviewNotification.submitted({
+            userName: playerName ?? undefined,
+            requestId: result.requestId,
+            topicLabel: "tu trayectoria",
+          }),
+        );
+      }
       router.refresh();
     });
   };
