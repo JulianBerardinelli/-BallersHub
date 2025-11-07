@@ -2,30 +2,12 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
+import { ensureUniqueTeamSlug, findExistingTeamIdByName, slugify } from "@/lib/admin/teams";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 type Params = Promise<{ id: string }>;
-
-function slugify(input: string) {
-  return (input || "team")
-    .toLowerCase()
-    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || "team";
-}
-async function ensureUniqueTeamSlug(base: string, admin: ReturnType<typeof createSupabaseAdmin>) {
-  const MAX = 60;
-  const candidate = base.slice(0, MAX);
-  const { data } = await admin.from("teams").select("slug").ilike("slug", `${candidate}%`);
-  const taken = new Set((data ?? []).map((r: { slug: string }) => r.slug));
-  if (!taken.has(candidate)) return candidate;
-  for (let n = 2; n < 1000; n++) {
-    const next = `${candidate.slice(0, MAX - (`-${n}`).length)}-${n}`;
-    if (!taken.has(next)) return next;
-  }
-  return `${candidate}-${Date.now()}`;
-}
 
 export async function POST(_req: Request, ctx: { params: Params }) {
   const { id: applicationId } = await ctx.params;
@@ -46,20 +28,6 @@ export async function POST(_req: Request, ctx: { params: Params }) {
     .maybeSingle();
   if (eApp) return NextResponse.json({ error: eApp.message }, { status: 400 });
   if (!app) return NextResponse.json({ error: "application_not_found" }, { status: 404 });
-
-  async function findExistingTeamIdByName(nameRaw: string): Promise<string | null> {
-    const name = nameRaw.trim();
-    if (!name) return null;
-    const slug = slugify(name);
-
-    const bySlug = await admin.from("teams").select("id").eq("slug", slug).maybeSingle();
-    if (bySlug.data?.id) return bySlug.data.id as string;
-
-    const byName = await admin.from("teams").select("id").ilike("name", name);
-    if (byName.data && byName.data.length > 0) return byName.data[0].id as string;
-
-    return null;
-  }
 
   const { data: items, error: eCip } = await admin
     .from("career_item_proposals")
