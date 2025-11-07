@@ -2,6 +2,21 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+const NAV_SECTIONS = [
+  {
+    title: "Onboarding",
+    items: [
+      { href: "/admin/applications", label: "Solicitudes" },
+      { href: "/admin/teams", label: "Equipos" },
+      { href: "/admin/career", label: "Trayectorias" },
+    ],
+  },
+  {
+    title: "Perfiles activos",
+    items: [{ href: "/admin/revisions", label: "Revisiones de trayectoria" }],
+  },
+];
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServerRSC();
   const { data: { user } } = await supabase.auth.getUser();
@@ -13,25 +28,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="mx-auto max-w-7xl p-6">
-      <header className="mb-6">
+      <header className="mb-6 space-y-1">
         <h1 className="text-2xl font-semibold">Panel de administración</h1>
-        <p className="text-sm text-neutral-500">Gestioná solicitudes de jugadores y alta/edición de equipos.</p>
+        <p className="text-sm text-neutral-500">
+          Gestioná nuevas aplicaciones, actualizaciones de perfiles y el catálogo de equipos oficiales.
+        </p>
       </header>
 
       <div className="grid grid-cols-12 gap-6">
-        {/* Sidebar */}
         <aside className="col-span-12 md:col-span-3 lg:col-span-2">
-          <nav className="sticky top-6 space-y-1">
-            <AdminNavLink href="/admin/applications" label="Jugadores" />
-            <AdminNavLink href="/admin/teams" label="Equipos" />
-            <AdminNavLink href="/admin/career" label="Trayectoria" />
+          <nav className="sticky top-6 space-y-6">
+            {NAV_SECTIONS.map((section) => (
+              <div key={section.title} className="space-y-2">
+                <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+                  {section.title}
+                </p>
+                <div className="space-y-1">
+                  {section.items.map((item) => (
+                    <AdminNavLink key={item.href} href={item.href} label={item.label} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </nav>
         </aside>
 
-        {/* Content */}
-        <section className="col-span-12 md:col-span-9 lg:col-span-10">
-          {children}
-        </section>
+        <section className="col-span-12 md:col-span-9 lg:col-span-10">{children}</section>
       </div>
     </div>
   );
