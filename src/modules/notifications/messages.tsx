@@ -1,16 +1,24 @@
+import { Fragment, type ReactNode } from "react";
+
 import { NotificationTemplate, NotificationTemplateKey } from "./types";
 
 const displayName = (name?: string) => (name ? `${name}, ` : "");
 
-const listFormatter = new Intl.ListFormat("es", { style: "long", type: "conjunction" });
+const formatFieldList = (fields: string[]): ReactNode => {
+  if (fields.length === 0) return null;
 
-const formatFieldList = (fields: string[]) => {
-  if (fields.length === 0) return "";
+  return fields.map((field, index) => {
+    const isLast = index === fields.length - 1;
+    const isPenultimate = index === fields.length - 2;
+    const separator = isLast ? "" : isPenultimate ? " y " : ", ";
 
-  const formattedFields = fields.map((field) => `**${field.toUpperCase()}**`);
-
-  if (formattedFields.length === 1) return formattedFields[0];
-  return listFormatter.format(formattedFields);
+    return (
+      <Fragment key={`${field}-${index}`}>
+        <strong>{field}</strong>
+        {separator}
+      </Fragment>
+    );
+  });
 };
 
 export const notificationTemplates: {
@@ -123,14 +131,20 @@ export const notificationTemplates: {
       }
 
       if (changedFields.length === 1) {
-        return `Actualizaste ${list}.`;
+        return <>
+          Se actualizó {list} correctamente.
+        </>;
       }
 
-      return `Actualizaste ${changedFields.length} datos: ${list}.`;
+      return <>
+        Se actualizaron {changedFields.length} datos: {list}.
+      </>;
     },
     details: ({ changedFields }) => {
       if (changedFields.length <= 1) return undefined;
-      return `Campos editados: ${formatFieldList(changedFields)}.`;
+      return <>
+        Campos editados: {formatFieldList(changedFields)}.
+      </>;
     },
     expandable: false,
   },

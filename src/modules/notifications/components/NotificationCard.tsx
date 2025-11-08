@@ -51,6 +51,7 @@ const categoryLabel: Record<NotificationPayload["category"], string> = {
   onboarding: "Onboarding",
   review: "Revisiones",
   announcement: "Novedades",
+  profile: "Perfil",
 };
 
 const formatRelativeTime = (isoDate: string) => {
