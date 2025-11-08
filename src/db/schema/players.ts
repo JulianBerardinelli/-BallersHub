@@ -16,8 +16,10 @@ export const playerProfiles = pgTable("player_profiles", {
   weightKg: integer("weight_kg"),
   positions: text("positions").array(),
   currentClub: text("current_club"), // legado (texto libre)
+  contractStatus: text("contract_status"),
   // 👇 nuevo: team relacional opcional
   currentTeamId: uuid("current_team_id").references(() => teams.id, { onDelete: "set null" }),
+  careerObjectives: text("career_objectives"),
   planPublic: planEnum("plan_public").notNull().default("free"),
   nationalityCodes: char("nationality_codes", { length: 2 }).array(),
   bio: text("bio"),

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { type PostgrestError } from "@supabase/supabase-js";
+import { z } from "zod";
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import {
@@ -20,9 +21,126 @@ const DASHBOARD_ROUTE = "/dashboard/edit-profile/football-data";
 const RUN_CAREER_SCRIPT_MESSAGE =
   "Actualizá tu base ejecutando docs/db/client-dashboard-career-requests.sql antes de continuar.";
 
+const sportProfileSchema = z.object({
+  playerId: z.string().uuid(),
+  foot: z.string().trim().max(50, "Ingresá un perfil válido.").optional(),
+  contractStatus: z.string().trim().max(120, "La situación contractual es muy extensa.").optional(),
+});
+
+const marketProjectionSchema = z.object({
+  playerId: z.string().uuid(),
+  marketValue: z
+    .string()
+    .trim()
+    .max(32, "El valor de mercado es demasiado largo.")
+    .optional(),
+  careerObjectives: z
+    .string()
+    .trim()
+    .max(600, "Los objetivos deben tener menos de 600 caracteres.")
+    .optional(),
+});
+
+type FormActionSuccess<T> = { success: true; data: T; message?: string };
+type FormActionFailure = { success: false; message: string; fieldErrors?: Record<string, string | undefined> };
+type FormActionResult<T> = FormActionSuccess<T> | FormActionFailure;
+
+type SportProfileResponse = {
+  positions: string;
+  foot: string;
+  currentClub: string;
+  contractStatus: string;
+};
+
+type MarketProjectionResponse = {
+  marketValue: string;
+  careerObjectives: string;
+};
+
 type ActionResult =
   | { success: true; requestId?: string }
   | { success: false; message: string };
+
+type ChangeLogEntry = { field: string; oldValue: unknown; newValue: unknown };
+
+function sanitizeText(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? null : trimmed;
+}
+
+function formatPositions(positions: string[] | null | undefined): string {
+  if (!Array.isArray(positions) || positions.length === 0) return "";
+  return positions
+    .map((position) => sanitizeText(position) ?? null)
+    .filter((position): position is string => Boolean(position))
+    .join(", ");
+}
+
+function parseMarketValue(
+  value: string | null | undefined,
+): { dbValue: string | null; display: string; error?: string } {
+  const sanitized = sanitizeText(value);
+  if (!sanitized) {
+    return { dbValue: null, display: "" };
+  }
+
+  const stripped = sanitized.replace(/[^0-9.,]/g, "").replace(/\s+/g, "");
+  if (!stripped) {
+    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
+  }
+
+  const lastComma = stripped.lastIndexOf(",");
+  const lastDot = stripped.lastIndexOf(".");
+  let normalized = stripped;
+
+  if (lastComma > lastDot) {
+    const integerPart = stripped.slice(0, lastComma).replace(/[^0-9]/g, "");
+    const decimalPart = stripped.slice(lastComma + 1).replace(/[^0-9]/g, "");
+    normalized = decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : integerPart;
+  } else if (lastDot > lastComma) {
+    const integerPart = stripped.slice(0, lastDot).replace(/[^0-9]/g, "");
+    const decimalPart = stripped.slice(lastDot + 1).replace(/[^0-9]/g, "");
+    normalized = decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : integerPart;
+  } else {
+    normalized = stripped.replace(/[^0-9]/g, "");
+  }
+
+  if (!normalized) {
+    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
+  }
+
+  const numeric = Number(normalized);
+  if (!Number.isFinite(numeric)) {
+    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
+  }
+
+  if (numeric < 0) {
+    return { dbValue: null, display: "", error: "El valor no puede ser negativo." };
+  }
+
+  const dbValue = numeric.toFixed(2);
+  const display = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(numeric);
+  return { dbValue, display };
+}
+
+async function recordChanges(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>,
+  playerId: string,
+  userId: string | undefined,
+  changes: ChangeLogEntry[],
+) {
+  if (!userId || changes.length === 0) return;
+  await supabase.from("profile_change_logs").insert(
+    changes.map((change) => ({
+      player_id: playerId,
+      user_id: userId,
+      field: change.field,
+      old_value: change.oldValue ?? null,
+      new_value: change.newValue ?? null,
+    })),
+  );
+}
 
 function mapPostgrestError(error: PostgrestError | null): string {
   if (!error) return "Error desconocido";
@@ -70,6 +188,196 @@ async function ensureAuthenticatedPlayer(playerId: string) {
 
 function isMissingCareerSchema(error: PostgrestError | null) {
   return error?.code === "42P01";
+}
+
+export async function updateSportProfile(
+  input: z.infer<typeof sportProfileSchema>,
+): Promise<FormActionResult<SportProfileResponse>> {
+  const parsed = sportProfileSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      message: "Revisá los datos ingresados e intentá nuevamente.",
+      fieldErrors: {
+        foot: errors.foot?.[0],
+        contractStatus: errors.contractStatus?.[0],
+      },
+    };
+  }
+
+  const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (ownership.error) {
+    return { success: false, message: ownership.error };
+  }
+
+  const { data: profileBefore, error: fetchError } = await ownership.supabase
+    .from("player_profiles")
+    .select("positions, current_club, foot, contract_status")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{
+      positions: string[] | null;
+      current_club: string | null;
+      foot: string | null;
+      contract_status: string | null;
+    }>();
+
+  if (fetchError) {
+    return { success: false, message: mapPostgrestError(fetchError) };
+  }
+
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
+  const foot = sanitizeText(parsed.data.foot);
+  const contractStatus = sanitizeText(parsed.data.contractStatus);
+
+  const changes: ChangeLogEntry[] = [];
+
+  if ((profileBefore.foot ?? null) !== (foot ?? null)) {
+    changes.push({ field: "foot", oldValue: profileBefore.foot, newValue: foot });
+  }
+
+  if ((profileBefore.contract_status ?? null) !== (contractStatus ?? null)) {
+    changes.push({
+      field: "contract_status",
+      oldValue: profileBefore.contract_status,
+      newValue: contractStatus,
+    });
+  }
+
+  const { error: updateError } = await ownership.supabase
+    .from("player_profiles")
+    .update({ foot, contract_status: contractStatus })
+    .eq("id", parsed.data.playerId);
+
+  if (updateError) {
+    return { success: false, message: mapPostgrestError(updateError) };
+  }
+
+  await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
+  revalidatePath(DASHBOARD_ROUTE);
+
+  return {
+    success: true,
+    data: {
+      positions: formatPositions(profileBefore.positions),
+      foot: foot ?? "",
+      currentClub: sanitizeText(profileBefore.current_club) ?? "",
+      contractStatus: contractStatus ?? "",
+    },
+    message: "Perfil deportivo actualizado correctamente.",
+  };
+}
+
+export async function updateMarketProjection(
+  input: z.infer<typeof marketProjectionSchema>,
+): Promise<FormActionResult<MarketProjectionResponse>> {
+  const parsed = marketProjectionSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      message: "Revisá los datos ingresados e intentá nuevamente.",
+      fieldErrors: {
+        marketValue: errors.marketValue?.[0],
+        careerObjectives: errors.careerObjectives?.[0],
+      },
+    };
+  }
+
+  const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (ownership.error) {
+    return { success: false, message: ownership.error };
+  }
+
+  const { data: profileBefore, error: fetchError } = await ownership.supabase
+    .from("player_profiles")
+    .select("market_value_eur, career_objectives")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{ market_value_eur: string | number | null; career_objectives: string | null }>();
+
+  if (fetchError) {
+    if (isMissingCareerSchema(fetchError)) {
+      return {
+        success: false,
+        message: RUN_CAREER_SCRIPT_MESSAGE,
+      };
+    }
+
+    return { success: false, message: mapPostgrestError(fetchError) };
+  }
+
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
+  const parsedMarketValue = parseMarketValue(parsed.data.marketValue ?? null);
+  if (parsedMarketValue.error) {
+    return {
+      success: false,
+      message: parsedMarketValue.error,
+      fieldErrors: { marketValue: parsedMarketValue.error },
+    };
+  }
+
+  const careerObjectives = sanitizeText(parsed.data.careerObjectives);
+
+  const previousMarketValue =
+    profileBefore.market_value_eur === null || profileBefore.market_value_eur === undefined
+      ? null
+      : Number(profileBefore.market_value_eur);
+  const nextMarketValue = parsedMarketValue.dbValue === null ? null : Number(parsedMarketValue.dbValue);
+
+  const changes: ChangeLogEntry[] = [];
+
+  if (previousMarketValue !== nextMarketValue) {
+    changes.push({
+      field: "market_value_eur",
+      oldValue: profileBefore.market_value_eur,
+      newValue: parsedMarketValue.dbValue,
+    });
+  }
+
+  if ((profileBefore.career_objectives ?? null) !== (careerObjectives ?? null)) {
+    changes.push({
+      field: "career_objectives",
+      oldValue: profileBefore.career_objectives,
+      newValue: careerObjectives,
+    });
+  }
+
+  const { error: updateError } = await ownership.supabase
+    .from("player_profiles")
+    .update({
+      market_value_eur: parsedMarketValue.dbValue,
+      career_objectives: careerObjectives,
+    })
+    .eq("id", parsed.data.playerId);
+
+  if (updateError) {
+    if (isMissingCareerSchema(updateError)) {
+      return {
+        success: false,
+        message: RUN_CAREER_SCRIPT_MESSAGE,
+      };
+    }
+
+    return { success: false, message: mapPostgrestError(updateError) };
+  }
+
+  await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
+  revalidatePath(DASHBOARD_ROUTE);
+
+  return {
+    success: true,
+    data: {
+      marketValue: parsedMarketValue.display,
+      careerObjectives: careerObjectives ?? "",
+    },
+    message: "Valor de mercado actualizado correctamente.",
+  };
 }
 
 export async function upsertPlayerLink(input: LinkMutationInput): Promise<ActionResult> {

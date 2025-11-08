@@ -67,6 +67,12 @@ alter table public.teams
 ALTER TABLE public.player_media
   ADD COLUMN IF NOT EXISTS is_primary boolean DEFAULT false NOT NULL;
 
+ALTER TABLE public.player_profiles
+  ADD COLUMN IF NOT EXISTS contract_status text;
+
+ALTER TABLE public.player_profiles
+  ADD COLUMN IF NOT EXISTS career_objectives text;
+
 CREATE INDEX IF NOT EXISTS idx_player_media_primary_photo
   ON public.player_media (player_id)
   WHERE is_primary;
@@ -375,6 +381,7 @@ select
   p.nationality_codes as profile_nationality_codes,
   p.positions as profile_positions,
   p.current_club as profile_current_club,
+  p.contract_status as profile_contract_status,
   p.bio as profile_bio,
   p.avatar_url as profile_avatar_url,
   p.foot as profile_foot,
@@ -383,6 +390,7 @@ select
   p.updated_at as profile_updated_at,
   p.plan_public as profile_plan_public,
   p.market_value_eur as profile_market_value_eur,
+  p.career_objectives as profile_career_objectives,
   ppd.id as personal_details_id,
   ppd.document_type as personal_document_type,
   ppd.document_number as personal_document_number,
