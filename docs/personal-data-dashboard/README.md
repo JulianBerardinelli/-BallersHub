@@ -15,6 +15,8 @@ Implementar la edición completa de los módulos "Información básica" y "Datos
 - Las acciones de servidor normalizan y validan los datos (formato de fechas, números, países, etc.) utilizando la tabla `countries` como referencia para obtener códigos ISO y etiquetas.
 - Se registran todos los cambios significativos en `profile_change_logs`, asegurando trazabilidad.
 - El email se actualiza mediante `supabase.auth.updateUser`, sólo cuando el valor cambia y supera validaciones básicas.
+- Los campos bloqueados (nombre completo y nacionalidades) permanecen sólo lectura en el cliente y se resguardan en el servidor, garantizando consistencia en todo el dashboard.
+- Las fechas y métricas numéricas se normalizan al hidratar la UI para que los inputs muestren los valores actuales provenientes de la base de datos.
 
 ## Próximos pasos sugeridos
 - Implementar selectores específicos (autocomplete) para países y nacionalidades, reutilizando el lookup que ya construyen las acciones.

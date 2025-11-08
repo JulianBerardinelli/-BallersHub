@@ -20,6 +20,26 @@ import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import BasicInformationSection from "./components/BasicInformationSection";
 import ContactInformationSection from "./components/ContactInformationSection";
 
+function formatDateForDisplay(value: string | null | undefined): string {
+  if (!value) return "";
+
+  const isoMatch = /^\d{4}-\d{2}-\d{2}/.exec(value);
+  if (isoMatch) {
+    const [year, month, day] = isoMatch[0].split("-");
+    return `${day}/${month}/${year}`;
+  }
+
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) {
+    const year = parsed.getUTCFullYear();
+    const month = String(parsed.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(parsed.getUTCDate()).padStart(2, "0");
+    return `${day}/${month}/${year}`;
+  }
+
+  return value;
+}
+
 type PlayerApplicationSnapshot = {
   id: string;
   full_name: string | null;
@@ -142,9 +162,7 @@ export default async function PersonalDataPage() {
   }
 
   const displayFullName = hydratedProfile.full_name ?? "";
-  const birthDate = hydratedProfile.birth_date
-    ? new Date(hydratedProfile.birth_date).toLocaleDateString()
-    : "";
+  const birthDate = formatDateForDisplay(hydratedProfile.birth_date);
   const nationalityCandidates = Array.isArray(hydratedProfile.nationality)
     ? hydratedProfile.nationality
     : (profileData.nationalityCodes ?? []).map((code) => resolveCountryName(code, code));

@@ -196,40 +196,37 @@ function parseBirthDate(value: string | null | undefined): { iso: string | null;
   return { iso: null, display: sanitized, error: "Ingresá una fecha válida." };
 }
 
-function parseNationalities(
-  value: string | null | undefined,
+function formatStoredNationalities(
+  names: string[] | null | undefined,
+  codes: string[] | null | undefined,
   lookup: CountryLookup,
-): { names: string[] | null; codes: string[] | null; display: string } {
-  const sanitized = sanitizeText(value);
-  if (!sanitized) {
-    return { names: null, codes: null, display: "" };
-  }
+): string {
+  const tokens: string[] = [];
+  const seen = new Set<string>();
 
-  const tokens = sanitized
-    .split(/[,;\n]/)
-    .map((token) => sanitizeText(token))
-    .filter((token): token is string => Boolean(token));
-
-  const names: string[] = [];
-  const codes: string[] = [];
-
-  tokens.forEach((token) => {
-    const { info, display } = resolveCountry(token, lookup);
-    if (info) {
-      names.push(info.label);
-      if (!codes.includes(info.code)) {
-        codes.push(info.code);
-      }
-    } else if (display) {
-      names.push(display);
+  (names ?? []).forEach((name) => {
+    const sanitized = sanitizeText(name);
+    if (!sanitized) return;
+    const normalized = sanitized;
+    if (!seen.has(normalized)) {
+      tokens.push(normalized);
+      seen.add(normalized);
     }
   });
 
-  return {
-    names: names.length > 0 ? names : null,
-    codes: codes.length > 0 ? codes : null,
-    display: names.join(", "),
-  };
+  (codes ?? []).forEach((code) => {
+    const sanitized = sanitizeText(code);
+    if (!sanitized) return;
+    const normalized = sanitized.toUpperCase();
+    const info = lookup.byCode.get(normalized);
+    const label = info?.label ?? normalized;
+    if (!seen.has(label)) {
+      tokens.push(label);
+      seen.add(label);
+    }
+  });
+
+  return tokens.join(", ");
 }
 
 function parseResidence(
@@ -379,7 +376,6 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
   const lookup = await fetchCountryLookup(ownership.supabase);
   const fieldErrors: Record<string, string | undefined> = {};
 
-  const fullName = sanitizeText(parsed.data.fullName);
   const bio = sanitizeText(parsed.data.bio);
 
   const birthDateResult = parseBirthDate(parsed.data.birthDate);
@@ -387,7 +383,6 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
     fieldErrors.birthDate = birthDateResult.error;
   }
 
-  const nationalityResult = parseNationalities(parsed.data.nationalities, lookup);
   const residenceResult = parseResidence(parsed.data.residence, lookup);
 
   const heightResult = parseMeasurement(parsed.data.heightCm, "Altura", { min: 120, max: 250 });
@@ -422,6 +417,10 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
       bio: string | null;
     }>();
 
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
   const { data: personalBefore } = await ownership.supabase
     .from("player_personal_details")
     .select("id, residence_city, residence_country, residence_country_code")
@@ -434,10 +433,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
     }>();
 
   const profilePayload = {
-    full_name: fullName,
     birth_date: birthDateResult.iso,
-    nationality: nationalityResult.names,
-    nationality_codes: nationalityResult.codes,
     height_cm: heightResult.numeric,
     weight_kg: weightResult.numeric,
     bio,
@@ -469,26 +465,8 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
 
   const changes: ChangeLogEntry[] = [];
 
-  if ((profileBefore?.full_name ?? null) !== (fullName ?? null)) {
-    changes.push({ field: "full_name", oldValue: profileBefore?.full_name, newValue: fullName });
-  }
-
   if ((profileBefore?.birth_date ?? null) !== (birthDateResult.iso ?? null)) {
     changes.push({ field: "birth_date", oldValue: profileBefore?.birth_date, newValue: birthDateResult.iso });
-  }
-
-  if (
-    JSON.stringify(profileBefore?.nationality ?? null) !== JSON.stringify(nationalityResult.names ?? null) ||
-    JSON.stringify(profileBefore?.nationality_codes ?? null) !== JSON.stringify(nationalityResult.codes ?? null)
-  ) {
-    changes.push({
-      field: "nationality",
-      oldValue: {
-        names: profileBefore?.nationality ?? null,
-        codes: profileBefore?.nationality_codes ?? null,
-      },
-      newValue: { names: nationalityResult.names ?? null, codes: nationalityResult.codes ?? null },
-    });
   }
 
   if ((profileBefore?.height_cm ?? null) !== (heightResult.numeric ?? null)) {
@@ -531,9 +509,13 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
     success: true,
     message: "Información básica actualizada correctamente.",
     data: {
-      fullName: fullName ?? "",
+      fullName: profileBefore.full_name?.trim() ?? "",
       birthDate: birthDateResult.display,
-      nationalities: nationalityResult.display,
+      nationalities: formatStoredNationalities(
+        profileBefore.nationality ?? null,
+        profileBefore.nationality_codes ?? null,
+        lookup,
+      ),
       residence: residenceResult.display,
       heightCm: heightResult.display,
       weightKg: weightResult.display,

@@ -77,9 +77,9 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
 
       const result = await updateBasicInformation({
         playerId,
-        fullName: values.fullName,
+        fullName: defaults.fullName,
         birthDate: values.birthDate,
-        nationalities: values.nationalities,
+        nationalities: defaults.nationalities,
         residence: values.residence,
         heightCm: values.heightCm,
         weightKg: values.weightKg,
@@ -127,7 +127,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
             key={`fullName-${defaults.fullName}`}
             id="full_name"
             label="Nombre completo"
-            readOnly={!isEditing}
+            readOnly
             defaultValue={defaults.fullName}
             errorMessage={errors.fullName?.message}
             {...register("fullName")}
@@ -149,7 +149,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
             id="nationality"
             label="Nacionalidades"
             placeholder="Seleccioná una o más nacionalidades"
-            readOnly={!isEditing}
+            readOnly
             defaultValue={defaults.nationalities}
             errorMessage={errors.nationalities?.message}
             {...register("nationalities")}
