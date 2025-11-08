@@ -1,16 +1,14 @@
--- Dashboard football-data module: Supabase SQL helpers
--- Run these statements in the Supabase SQL editor (or through a migration)
--- to align the hosted schema with the local development changes.
-
--- 1) Ensure the editable projection fields exist on player_profiles.
+-- 1) Asegurar columnas en public.player_profiles
 ALTER TABLE public.player_profiles
   ADD COLUMN IF NOT EXISTS contract_status text;
 
 ALTER TABLE public.player_profiles
   ADD COLUMN IF NOT EXISTS career_objectives text;
 
--- 2) Refresh the dashboard hydration view so the new fields are exposed.
-CREATE OR REPLACE VIEW public.player_dashboard_state AS
+-- 2) (Re)crear la vista de estado del dashboard de forma segura
+DROP VIEW IF EXISTS public.player_dashboard_state;
+
+CREATE VIEW public.player_dashboard_state AS
 SELECT
   u.id AS user_id,
   u.email AS user_email,
@@ -72,10 +70,13 @@ LEFT JOIN public.subscriptions sub ON sub.user_id = u.id
 LEFT JOIN LATERAL (
   SELECT pm.url
   FROM public.player_media pm
-  WHERE pm.player_id = p.id AND pm.type = 'photo'::public.media_type AND pm.is_primary = true
+  WHERE pm.player_id = p.id
+    AND pm.type = 'photo'::public.media_type
+    AND pm.is_primary = true
   ORDER BY pm.created_at DESC
   LIMIT 1
 ) media ON true;
 
+-- 3) Permisos
 GRANT SELECT ON public.player_dashboard_state TO authenticated;
 GRANT SELECT ON public.player_dashboard_state TO service_role;
