@@ -28,7 +28,7 @@ const contactInfoSchema = z.object({
   documentCountry: z.string().trim().optional(),
 });
 
-type ActionSuccess<T> = { success: true; data: T; message?: string };
+type ActionSuccess<T> = { success: true; data: T; message?: string; updatedFields: string[] };
 type ActionFailure = { success: false; message: string; fieldErrors?: Record<string, string | undefined> };
 type ActionResult<T> = ActionSuccess<T> | ActionFailure;
 
@@ -464,21 +464,26 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
   }
 
   const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
 
   if ((profileBefore?.birth_date ?? null) !== (birthDateResult.iso ?? null)) {
     changes.push({ field: "birth_date", oldValue: profileBefore?.birth_date, newValue: birthDateResult.iso });
+    updatedFields.add("Fecha de nacimiento");
   }
 
   if ((profileBefore?.height_cm ?? null) !== (heightResult.numeric ?? null)) {
     changes.push({ field: "height_cm", oldValue: profileBefore?.height_cm, newValue: heightResult.numeric });
+    updatedFields.add("Altura");
   }
 
   if ((profileBefore?.weight_kg ?? null) !== (weightResult.numeric ?? null)) {
     changes.push({ field: "weight_kg", oldValue: profileBefore?.weight_kg, newValue: weightResult.numeric });
+    updatedFields.add("Peso");
   }
 
   if ((profileBefore?.bio ?? null) !== (bio ?? null)) {
     changes.push({ field: "bio", oldValue: profileBefore?.bio, newValue: bio });
+    updatedFields.add("Biografía");
   }
 
   if (
@@ -499,6 +504,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
         countryCode: residenceResult.countryCode ?? null,
       },
     });
+    updatedFields.add("Residencia");
   }
 
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
@@ -521,6 +527,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
       weightKg: weightResult.display,
       bio: bio ?? "",
     },
+    updatedFields: Array.from(updatedFields),
   };
 }
 
@@ -605,17 +612,21 @@ export async function updateContactInformation(
   }
 
   const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
 
   if ((personalBefore?.phone ?? null) !== (phone ?? null)) {
     changes.push({ field: "phone", oldValue: personalBefore?.phone ?? null, newValue: phone ?? null });
+    updatedFields.add("Teléfono");
   }
 
   if (JSON.stringify(personalBefore?.languages ?? null) !== JSON.stringify(languagesResult.list ?? null)) {
     changes.push({ field: "languages", oldValue: personalBefore?.languages ?? null, newValue: languagesResult.list ?? null });
+    updatedFields.add("Idiomas");
   }
 
   if ((personalBefore?.document_type ?? null) !== (documentsResult.type ?? null)) {
     changes.push({ field: "document_type", oldValue: personalBefore?.document_type ?? null, newValue: documentsResult.type ?? null });
+    updatedFields.add("Tipo de documento");
   }
 
   if ((personalBefore?.document_number ?? null) !== (documentsResult.number ?? null)) {
@@ -624,6 +635,7 @@ export async function updateContactInformation(
       oldValue: personalBefore?.document_number ?? null,
       newValue: documentsResult.number ?? null,
     });
+    updatedFields.add("Número de documento");
   }
 
   if (
@@ -641,6 +653,7 @@ export async function updateContactInformation(
         countryCode: documentCountryResult.info?.code ?? null,
       },
     });
+    updatedFields.add("País del documento");
   }
 
   if (email && email !== (ownership.userEmail ?? null)) {
@@ -649,6 +662,7 @@ export async function updateContactInformation(
       return { success: false, message: emailError.message ?? "No fue posible actualizar el email." };
     }
     changes.push({ field: "contact_email", oldValue: ownership.userEmail ?? null, newValue: email });
+    updatedFields.add("Email principal");
   }
 
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
@@ -665,5 +679,6 @@ export async function updateContactInformation(
       documents: documentsResult.display,
       documentCountry: documentCountryResult.display ?? "",
     },
+    updatedFields: Array.from(updatedFields),
   };
 }

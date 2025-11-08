@@ -41,7 +41,7 @@ const marketProjectionSchema = z.object({
     .optional(),
 });
 
-type FormActionSuccess<T> = { success: true; data: T; message?: string };
+type FormActionSuccess<T> = { success: true; data: T; message?: string; updatedFields: string[] };
 type FormActionFailure = { success: false; message: string; fieldErrors?: Record<string, string | undefined> };
 type FormActionResult<T> = FormActionSuccess<T> | FormActionFailure;
 
@@ -234,9 +234,11 @@ export async function updateSportProfile(
   const contractStatus = sanitizeText(parsed.data.contractStatus);
 
   const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
 
   if ((profileBefore.foot ?? null) !== (foot ?? null)) {
     changes.push({ field: "foot", oldValue: profileBefore.foot, newValue: foot });
+    updatedFields.add("Perfil dominante");
   }
 
   if ((profileBefore.contract_status ?? null) !== (contractStatus ?? null)) {
@@ -245,6 +247,7 @@ export async function updateSportProfile(
       oldValue: profileBefore.contract_status,
       newValue: contractStatus,
     });
+    updatedFields.add("Situación contractual");
   }
 
   const { error: updateError } = await ownership.supabase
@@ -268,6 +271,7 @@ export async function updateSportProfile(
       contractStatus: contractStatus ?? "",
     },
     message: "Perfil deportivo actualizado correctamente.",
+    updatedFields: Array.from(updatedFields),
   };
 }
 
@@ -331,6 +335,7 @@ export async function updateMarketProjection(
   const nextMarketValue = parsedMarketValue.dbValue === null ? null : Number(parsedMarketValue.dbValue);
 
   const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
 
   if (previousMarketValue !== nextMarketValue) {
     changes.push({
@@ -338,6 +343,7 @@ export async function updateMarketProjection(
       oldValue: profileBefore.market_value_eur,
       newValue: parsedMarketValue.dbValue,
     });
+    updatedFields.add("Valor de mercado");
   }
 
   if ((profileBefore.career_objectives ?? null) !== (careerObjectives ?? null)) {
@@ -346,6 +352,7 @@ export async function updateMarketProjection(
       oldValue: profileBefore.career_objectives,
       newValue: careerObjectives,
     });
+    updatedFields.add("Objetivos de carrera");
   }
 
   const { error: updateError } = await ownership.supabase
@@ -377,6 +384,7 @@ export async function updateMarketProjection(
       careerObjectives: careerObjectives ?? "",
     },
     message: "Valor de mercado actualizado correctamente.",
+    updatedFields: Array.from(updatedFields),
   };
 }
 

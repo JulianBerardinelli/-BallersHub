@@ -2,6 +2,14 @@ import { NotificationTemplate, NotificationTemplateKey } from "./types";
 
 const displayName = (name?: string) => (name ? `${name}, ` : "");
 
+const listFormatter = new Intl.ListFormat("es", { style: "long", type: "conjunction" });
+
+const formatFieldList = (fields: string[]) => {
+  if (fields.length === 0) return "";
+  if (fields.length === 1) return fields[0];
+  return listFormatter.format(fields);
+};
+
 export const notificationTemplates: {
   [K in NotificationTemplateKey]: NotificationTemplate<K>;
 } = {
@@ -98,5 +106,36 @@ export const notificationTemplates: {
     cta: ({ ctaHref, ctaLabel }) =>
       ctaHref && ctaLabel ? { label: ctaLabel, href: ctaHref } : undefined,
     expandable: true,
+  },
+  "profile.updated": {
+    key: "profile.updated",
+    category: "profile",
+    tone: "success",
+    headline: ({ userName, sectionLabel }) =>
+      `${displayName(userName)}actualizaste ${sectionLabel} ✅`,
+    body: ({ changedFields }) => {
+      const list = formatFieldList(changedFields);
+      if (!list) {
+        return "Guardamos tu información sin cambios detectados.";
+      }
+
+      if (changedFields.length === 1) {
+        return `Se actualizó ${list}.`;
+      }
+
+      return `Se actualizaron ${changedFields.length} datos: ${list}.`;
+    },
+    details: ({ changedFields }) => {
+      if (changedFields.length <= 1) return undefined;
+      return `Campos editados: ${formatFieldList(changedFields)}.`;
+    },
+    cta: ({ detailsHref }) =>
+      detailsHref
+        ? {
+            label: "Ver sección",
+            href: detailsHref,
+          }
+        : undefined,
+    expandable: false,
   },
 };

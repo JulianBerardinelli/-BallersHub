@@ -1,4 +1,4 @@
-export type NotificationCategory = "onboarding" | "review" | "announcement";
+export type NotificationCategory = "onboarding" | "review" | "announcement" | "profile";
 
 export type NotificationTone = "info" | "success" | "warning" | "danger";
 
@@ -9,7 +9,8 @@ export type NotificationTemplateKey =
   | "review.submitted"
   | "review.approved"
   | "review.rejected"
-  | "announcement.general";
+  | "announcement.general"
+  | "profile.updated";
 
 export type TemplateContextMap = {
   "onboarding.submitted": BaseContext;
@@ -23,6 +24,11 @@ export type TemplateContextMap = {
     body: string;
     ctaLabel?: string;
     ctaHref?: string;
+  };
+  "profile.updated": BaseContext & {
+    sectionLabel: string;
+    changedFields: string[];
+    detailsHref?: string;
   };
 };
 

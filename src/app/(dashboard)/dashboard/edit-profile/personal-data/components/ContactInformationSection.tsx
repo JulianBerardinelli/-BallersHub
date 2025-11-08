@@ -7,6 +7,7 @@ import { Pencil, X } from "lucide-react";
 
 import FormField from "@/components/dashboard/client/FormField";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import { profileNotification, useNotificationContext } from "@/modules/notifications";
 
 import { updateContactInformation } from "../actions";
 
@@ -30,6 +31,7 @@ export default function ContactInformationSection({ playerId, initialValues }: P
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
   const [isPending, startTransition] = useTransition();
+  const { enqueue } = useNotificationContext();
 
   const {
     register,
@@ -97,6 +99,16 @@ export default function ContactInformationSection({ playerId, initialValues }: P
       reset(result.data);
       setIsEditing(false);
       setStatus({ type: "success", message: result.message ?? "Datos de contacto actualizados correctamente." });
+
+      if (result.updatedFields.length > 0) {
+        enqueue(
+          profileNotification.updated({
+            sectionLabel: "tus datos de contacto",
+            changedFields: result.updatedFields,
+            detailsHref: "/dashboard/edit-profile/personal-data",
+          }),
+        );
+      }
     });
   });
 

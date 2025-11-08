@@ -7,6 +7,7 @@ import { Pencil, X } from "lucide-react";
 
 import FormField from "@/components/dashboard/client/FormField";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import { profileNotification, useNotificationContext } from "@/modules/notifications";
 
 import { updateSportProfile } from "../actions";
 
@@ -29,6 +30,7 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
   const [isPending, startTransition] = useTransition();
+  const { enqueue } = useNotificationContext();
 
   const {
     register,
@@ -99,6 +101,16 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
         type: "success",
         message: result.message ?? "Perfil deportivo actualizado correctamente.",
       });
+
+      if (result.updatedFields.length > 0) {
+        enqueue(
+          profileNotification.updated({
+            sectionLabel: "tu perfil deportivo",
+            changedFields: result.updatedFields,
+            detailsHref: "/dashboard/edit-profile/football-data",
+          }),
+        );
+      }
     });
   });
 

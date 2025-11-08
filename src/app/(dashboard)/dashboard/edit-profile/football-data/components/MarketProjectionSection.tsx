@@ -7,6 +7,7 @@ import { Pencil, X } from "lucide-react";
 
 import FormField from "@/components/dashboard/client/FormField";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import { profileNotification, useNotificationContext } from "@/modules/notifications";
 
 import { updateMarketProjection } from "../actions";
 
@@ -27,6 +28,7 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
   const [isPending, startTransition] = useTransition();
+  const { enqueue } = useNotificationContext();
 
   const {
     register,
@@ -97,6 +99,16 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
         type: "success",
         message: result.message ?? "Valor de mercado actualizado correctamente.",
       });
+
+      if (result.updatedFields.length > 0) {
+        enqueue(
+          profileNotification.updated({
+            sectionLabel: "tu valor de mercado y proyección",
+            changedFields: result.updatedFields,
+            detailsHref: "/dashboard/edit-profile/football-data",
+          }),
+        );
+      }
     });
   });
 
