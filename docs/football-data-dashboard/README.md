@@ -9,6 +9,7 @@ Extender `dashboard/edit-profile/football-data` con flujos de edición reutiliza
 - Implementar acciones de servidor (`updateSportProfile`, `updateMarketProjection`) que validan, normalizan y persisten cambios en `player_profiles`, registrando auditorías en `profile_change_logs`.
 - Formatear automáticamente el valor de mercado utilizando `Intl.NumberFormat` y mostrar feedback contextual con HeroUI.
 - Añadir documentación y columnas nuevas (`contract_status`, `career_objectives`) al esquema para que otros módulos puedan reutilizar la información.
+- Documentar los scripts SQL necesarios para Supabase en `supabase-snippets.sql` y facilitar su ejecución manual cuando sea requerido.
 
 ## Decisiones clave
 - Se añadieron las columnas `contract_status` y `career_objectives` en `player_profiles`, además de exponerlas en la vista `player_dashboard_state` para hidratar el dashboard sin consultas adicionales.
@@ -21,3 +22,4 @@ Extender `dashboard/edit-profile/football-data` con flujos de edición reutiliza
 - Integrar selectores específicos para posiciones y clubes utilizando catálogos relacionales cuando estén disponibles.
 - Sincronizar el valor de mercado con fuentes externas (Transfermarkt, BeSoccer) aprovechando los enlaces gestionados en el mismo módulo.
 - Unificar la notificación de cambios guardados mediante el módulo de notificaciones global del dashboard.
+- Automatizar estas sentencias SQL dentro del pipeline de despliegue para que los ambientes compartan la misma estructura.
