@@ -6,8 +6,11 @@ const listFormatter = new Intl.ListFormat("es", { style: "long", type: "conjunct
 
 const formatFieldList = (fields: string[]) => {
   if (fields.length === 0) return "";
-  if (fields.length === 1) return fields[0];
-  return listFormatter.format(fields);
+
+  const formattedFields = fields.map((field) => `**${field.toUpperCase()}**`);
+
+  if (formattedFields.length === 1) return formattedFields[0];
+  return listFormatter.format(formattedFields);
 };
 
 export const notificationTemplates: {
@@ -112,7 +115,7 @@ export const notificationTemplates: {
     category: "profile",
     tone: "success",
     headline: ({ userName, sectionLabel }) =>
-      `${displayName(userName)}actualizaste ${sectionLabel} ✅`,
+      `${displayName(userName)}Actualizaste ${sectionLabel} ✅`,
     body: ({ changedFields }) => {
       const list = formatFieldList(changedFields);
       if (!list) {
@@ -120,22 +123,15 @@ export const notificationTemplates: {
       }
 
       if (changedFields.length === 1) {
-        return `Se actualizó ${list}.`;
+        return `Actualizaste ${list}.`;
       }
 
-      return `Se actualizaron ${changedFields.length} datos: ${list}.`;
+      return `Actualizaste ${changedFields.length} datos: ${list}.`;
     },
     details: ({ changedFields }) => {
       if (changedFields.length <= 1) return undefined;
       return `Campos editados: ${formatFieldList(changedFields)}.`;
     },
-    cta: ({ detailsHref }) =>
-      detailsHref
-        ? {
-            label: "Ver sección",
-            href: detailsHref,
-          }
-        : undefined,
     expandable: false,
   },
 };
