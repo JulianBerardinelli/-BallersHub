@@ -10,7 +10,14 @@ export const statsSeasons = pgTable("stats_seasons", {
   goals: integer("goals").default(0),
   assists: integer("assists").default(0),
   minutes: integer("minutes").default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  yellowCards: integer("yellow_cards").default(0),
+  redCards: integer("red_cards").default(0),
+  competition: text("competition"),
+  team: text("team"),
+  careerItemId: uuid("career_item_id"), // Not explicitly adding references() here to prevent circular dependencies at this exact file scope, but it's a UUID FK.
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
 });
 
 export type StatsSeason = InferSelectModel<typeof statsSeasons>;

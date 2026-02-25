@@ -18,3 +18,5 @@ export * from "./auditLogs";
 export * from "./personalDetails";
 export * from "./profileChangeLogs";
 export * from "./relations";
+export * from "./profilePublishing";
+export * from "./careerRevisions";
