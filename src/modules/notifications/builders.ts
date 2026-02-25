@@ -20,3 +20,7 @@ export const reviewNotification = {
 export const announcementNotification = {
   general: ((context, id) => ({ template: "announcement.general", context, id })) satisfies Builder<"announcement.general">,
 };
+
+export const profileNotification = {
+  updated: ((context, id) => ({ template: "profile.updated", context, id })) satisfies Builder<"profile.updated">,
+};

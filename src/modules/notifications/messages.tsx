@@ -1,6 +1,25 @@
+import { Fragment, type ReactNode } from "react";
+
 import { NotificationTemplate, NotificationTemplateKey } from "./types";
 
 const displayName = (name?: string) => (name ? `${name}, ` : "");
+
+const formatFieldList = (fields: string[]): ReactNode => {
+  if (fields.length === 0) return null;
+
+  return fields.map((field, index) => {
+    const isLast = index === fields.length - 1;
+    const isPenultimate = index === fields.length - 2;
+    const separator = isLast ? "" : isPenultimate ? " y " : ", ";
+
+    return (
+      <Fragment key={`${field}-${index}`}>
+        <strong>{field}</strong>
+        {separator}
+      </Fragment>
+    );
+  });
+};
 
 export const notificationTemplates: {
   [K in NotificationTemplateKey]: NotificationTemplate<K>;
@@ -98,5 +117,35 @@ export const notificationTemplates: {
     cta: ({ ctaHref, ctaLabel }) =>
       ctaHref && ctaLabel ? { label: ctaLabel, href: ctaHref } : undefined,
     expandable: true,
+  },
+  "profile.updated": {
+    key: "profile.updated",
+    category: "profile",
+    tone: "success",
+    headline: ({ userName, sectionLabel }) =>
+      `${displayName(userName)}Actualizaste ${sectionLabel} ✅`,
+    body: ({ changedFields }) => {
+      const list = formatFieldList(changedFields);
+      if (!list) {
+        return "Guardamos tu información sin cambios detectados.";
+      }
+
+      if (changedFields.length === 1) {
+        return <>
+          Se actualizó {list} correctamente.
+        </>;
+      }
+
+      return <>
+        Se actualizaron {changedFields.length} datos: {list}.
+      </>;
+    },
+    details: ({ changedFields }) => {
+      if (changedFields.length <= 1) return undefined;
+      return <>
+        Campos editados: {formatFieldList(changedFields)}.
+      </>;
+    },
+    expandable: false,
   },
 };

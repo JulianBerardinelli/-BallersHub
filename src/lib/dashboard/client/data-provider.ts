@@ -14,6 +14,7 @@ export type DashboardProfile = {
   nationalityCodes: string[] | null;
   positions: string[] | null;
   current_club: string | null;
+  contract_status: string | null;
   bio: string | null;
   avatar_url: string | null;
   foot: string | null;
@@ -22,6 +23,7 @@ export type DashboardProfile = {
   updated_at: string | null;
   plan_public: string | null;
   market_value_eur: string | number | null;
+  career_objectives: string | null;
 };
 
 export type DashboardPersonalDetails = {
@@ -79,6 +81,7 @@ type DashboardStateRow = {
   profile_nationality_codes: string[] | null;
   profile_positions: string[] | null;
   profile_current_club: string | null;
+  profile_contract_status: string | null;
   profile_bio: string | null;
   profile_avatar_url: string | null;
   profile_foot: string | null;
@@ -87,6 +90,7 @@ type DashboardStateRow = {
   profile_updated_at: string | null;
   profile_plan_public: string | null;
   profile_market_value_eur: string | number | null;
+  profile_career_objectives: string | null;
   personal_details_id: string | null;
   personal_document_type: string | null;
   personal_document_number: string | null;
@@ -126,6 +130,7 @@ const DASHBOARD_STATE_COLUMNS = [
   "profile_nationality_codes",
   "profile_positions",
   "profile_current_club",
+  "profile_contract_status",
   "profile_bio",
   "profile_avatar_url",
   "profile_foot",
@@ -134,6 +139,7 @@ const DASHBOARD_STATE_COLUMNS = [
   "profile_updated_at",
   "profile_plan_public",
   "profile_market_value_eur",
+  "profile_career_objectives",
   "personal_details_id",
   "personal_document_type",
   "personal_document_number",
@@ -201,6 +207,7 @@ async function fetchDashboardStateFromBaseTables(
     nationality_codes: string[] | null;
     positions: string[] | null;
     current_club: string | null;
+    contract_status: string | null;
     bio: string | null;
     avatar_url: string | null;
     foot: string | null;
@@ -209,6 +216,7 @@ async function fetchDashboardStateFromBaseTables(
     updated_at: string | null;
     plan_public: string | null;
     market_value_eur: string | number | null;
+    career_objectives: string | null;
   };
 
   type PersonalDetailsRow = {
@@ -261,6 +269,7 @@ async function fetchDashboardStateFromBaseTables(
         "nationality_codes",
         "positions",
         "current_club",
+        "contract_status",
         "bio",
         "avatar_url",
         "foot",
@@ -269,6 +278,7 @@ async function fetchDashboardStateFromBaseTables(
         "updated_at",
         "plan_public",
         "market_value_eur",
+        "career_objectives",
       ].join(", "),
     )
     .eq("user_id", userId)
@@ -379,6 +389,7 @@ async function fetchDashboardStateFromBaseTables(
           profile_nationality_codes: profileRow?.nationality_codes ?? null,
           profile_positions: profileRow?.positions ?? null,
           profile_current_club: profileRow?.current_club ?? null,
+          profile_contract_status: profileRow?.contract_status ?? null,
           profile_bio: profileRow?.bio ?? null,
           profile_avatar_url: profileRow?.avatar_url ?? null,
           profile_foot: profileRow?.foot ?? null,
@@ -387,6 +398,7 @@ async function fetchDashboardStateFromBaseTables(
           profile_updated_at: profileRow?.updated_at ?? null,
           profile_plan_public: profileRow?.plan_public ?? null,
           profile_market_value_eur: profileRow?.market_value_eur ?? null,
+          profile_career_objectives: profileRow?.career_objectives ?? null,
           personal_details_id: personalDetailsResult.data?.id ?? null,
           personal_document_type: personalDetailsResult.data?.document_type ?? null,
           personal_document_number: personalDetailsResult.data?.document_number ?? null,
@@ -442,6 +454,7 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
         nationalityCodes: row.profile_nationality_codes,
         positions: row.profile_positions,
         current_club: row.profile_current_club,
+        contract_status: row.profile_contract_status,
         bio: row.profile_bio,
         avatar_url: row.profile_avatar_url,
         foot: row.profile_foot,
@@ -450,6 +463,7 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
         updated_at: row.profile_updated_at,
         plan_public: row.profile_plan_public,
         market_value_eur: row.profile_market_value_eur,
+        career_objectives: row.profile_career_objectives,
       }
     : null;
 

@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
@@ -23,6 +22,8 @@ import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing
 import ExternalLinksManager from "./components/ExternalLinksManager";
 import HonoursManager from "./components/HonoursManager";
 import SeasonStatsManager from "./components/SeasonStatsManager";
+import SportProfileSection from "./components/SportProfileSection";
+import MarketProjectionSection from "./components/MarketProjectionSection";
 import CareerManager, {
   type CareerStage,
   type CareerRequestSnapshot,
@@ -241,7 +242,7 @@ export default async function FootballDataPage() {
     : "";
   const dominantFoot = hydratedProfile.foot ?? "";
   const currentClub = hydratedProfile.current_club ?? "";
-  const marketValue = profileData.market_value_eur ? String(profileData.market_value_eur) : "";
+  const marketValue = formatMarketValue(profileData.market_value_eur ?? null);
   const getLinkByKind = (kind: string) => publishingState.links.find((link) => link.kind === kind)?.url ?? null;
 
   const highlightUrl = pickFirstPresent(
@@ -357,41 +358,15 @@ export default async function FootballDataPage() {
 
       <TaskCalloutList tasks={taskCallouts} />
 
-      <SectionCard
-        title="Perfil deportivo"
-        description="Definí tus posiciones naturales, perfil y club actual para orientar a scouts y clubes."
-      >
-        <form className="grid gap-6">
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              id="positions"
-              label="Posiciones principales"
-              defaultValue={positions}
-              placeholder="Ej: Mediocentro, Interior Derecho"
-            />
-            <FormField
-              id="foot"
-              label="Perfil dominante"
-              defaultValue={dominantFoot}
-              placeholder="Derecho, Izquierdo, Ambidiestro"
-            />
-          </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <FormField
-              id="current_club"
-              label="Club actual"
-              defaultValue={currentClub}
-              placeholder="Equipo o agencia actual"
-            />
-            <FormField
-              id="contract_status"
-              label="Situación contractual"
-              placeholder="Libre, con contrato hasta 2026, etc."
-              description="Configuración pendiente de integración con contratos y documentos."
-            />
-          </div>
-        </form>
-      </SectionCard>
+      <SportProfileSection
+        playerId={profileData.id}
+        initialValues={{
+          positions,
+          foot: dominantFoot,
+          currentClub,
+          contractStatus: profileData.contract_status ?? "",
+        }}
+      />
 
       <SectionCard
         title="Trayectoria"
@@ -443,26 +418,13 @@ export default async function FootballDataPage() {
         />
       </SectionCard>
 
-      <SectionCard
-        title="Valor de mercado y proyección"
-        description="Consolidá métricas económicas para potenciar negociaciones con clubes y agentes."
-      >
-        <form className="grid gap-4 md:grid-cols-2">
-          <FormField
-            id="market_value"
-            label="Valor de mercado"
-            defaultValue={marketValue}
-            placeholder="Ej: 250000"
-            description="El dato podrá integrarse con plataformas externas para mantenerlo actualizado."
-          />
-          <FormField
-            id="expectations"
-            label="Objetivos de carrera"
-            placeholder="Ej: Firmar en Primera División, disputar competencias internacionales"
-            description="Se utilizará para personalizar la comunicación con agentes y reclutadores."
-          />
-        </form>
-      </SectionCard>
+      <MarketProjectionSection
+        playerId={profileData.id}
+        initialValues={{
+          marketValue,
+          careerObjectives: profileData.career_objectives ?? "",
+        }}
+      />
     </div>
   );
 }
@@ -470,6 +432,19 @@ export default async function FootballDataPage() {
 function safeYear(value: string): number | null {
   const year = new Date(value).getFullYear();
   return Number.isNaN(year) ? null : year;
+}
+
+function formatMarketValue(value: string | number | null): string {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  const numeric = typeof value === "string" ? Number(value) : value;
+  if (!Number.isFinite(numeric)) {
+    return "";
+  }
+
+  return new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(numeric);
 }
 
 function describeCareerStage(stage: CareerStage): string {

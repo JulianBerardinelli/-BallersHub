@@ -1,4 +1,6 @@
-export type NotificationCategory = "onboarding" | "review" | "announcement";
+import type { ReactNode } from "react";
+
+export type NotificationCategory = "onboarding" | "review" | "announcement" | "profile";
 
 export type NotificationTone = "info" | "success" | "warning" | "danger";
 
@@ -9,7 +11,8 @@ export type NotificationTemplateKey =
   | "review.submitted"
   | "review.approved"
   | "review.rejected"
-  | "announcement.general";
+  | "announcement.general"
+  | "profile.updated";
 
 export type TemplateContextMap = {
   "onboarding.submitted": BaseContext;
@@ -23,6 +26,11 @@ export type TemplateContextMap = {
     body: string;
     ctaLabel?: string;
     ctaHref?: string;
+  };
+  "profile.updated": BaseContext & {
+    sectionLabel: string;
+    changedFields: string[];
+    detailsHref?: string;
   };
 };
 
@@ -39,8 +47,8 @@ export type NotificationTemplate<T extends NotificationTemplateKey> = {
   category: NotificationCategory;
   tone: NotificationTone;
   headline: (ctx: TemplateContext<T>) => string;
-  body: (ctx: TemplateContext<T>) => string;
-  details?: (ctx: TemplateContext<T>) => string | undefined;
+  body: (ctx: TemplateContext<T>) => ReactNode;
+  details?: (ctx: TemplateContext<T>) => ReactNode | undefined;
   cta?: (ctx: TemplateContext<T>) => NotificationCTA | undefined;
   expandable?: boolean;
 };
@@ -54,8 +62,8 @@ export type NotificationPayload = {
   id: string;
   template: NotificationTemplateKey;
   title: string;
-  message: string;
-  details?: string;
+  message: ReactNode;
+  details?: ReactNode;
   cta?: NotificationCTA;
   category: NotificationCategory;
   tone: NotificationTone;

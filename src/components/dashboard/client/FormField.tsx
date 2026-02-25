@@ -4,6 +4,7 @@ type BaseProps = {
   id: string;
   label: string;
   description?: string;
+  errorMessage?: string;
 };
 
 type InputProps = BaseProps &
@@ -19,7 +20,7 @@ type TextareaProps = BaseProps &
 type FormFieldProps = InputProps | TextareaProps;
 
 export default function FormField(props: FormFieldProps) {
-  const { id, label, description, ...restProps } = props;
+  const { id, label, description, errorMessage, ...restProps } = props;
   const sharedClassName =
     "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
 
@@ -38,6 +39,7 @@ export default function FormField(props: FormFieldProps) {
           className={className ? `${sharedClassName} ${className}` : sharedClassName}
           readOnly={readOnly ?? true}
         />
+        {errorMessage ? <p className="text-xs text-red-400">{errorMessage}</p> : null}
         {description ? <p className="text-xs text-neutral-500">{description}</p> : null}
       </div>
     );
@@ -57,6 +59,7 @@ export default function FormField(props: FormFieldProps) {
         className={className ? `${sharedClassName} ${className}` : sharedClassName}
         readOnly={readOnly ?? true}
       />
+      {errorMessage ? <p className="text-xs text-red-400">{errorMessage}</p> : null}
       {description ? <p className="text-xs text-neutral-500">{description}</p> : null}
     </div>
   );
