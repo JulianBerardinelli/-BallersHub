@@ -24,6 +24,7 @@ export type DashboardProfile = {
   plan_public: string | null;
   market_value_eur: string | number | null;
   career_objectives: string | null;
+  transfermarkt_url: string | null;
 };
 
 export type DashboardPersonalDetails = {
@@ -91,6 +92,7 @@ type DashboardStateRow = {
   profile_plan_public: string | null;
   profile_market_value_eur: string | number | null;
   profile_career_objectives: string | null;
+  profile_transfermarkt_url: string | null;
   personal_details_id: string | null;
   personal_document_type: string | null;
   personal_document_number: string | null;
@@ -140,6 +142,7 @@ const DASHBOARD_STATE_COLUMNS = [
   "profile_plan_public",
   "profile_market_value_eur",
   "profile_career_objectives",
+  "profile_transfermarkt_url",
   "personal_details_id",
   "personal_document_type",
   "personal_document_number",
@@ -217,6 +220,7 @@ async function fetchDashboardStateFromBaseTables(
     plan_public: string | null;
     market_value_eur: string | number | null;
     career_objectives: string | null;
+    transfermarkt_url: string | null;
   };
 
   type PersonalDetailsRow = {
@@ -279,6 +283,7 @@ async function fetchDashboardStateFromBaseTables(
         "plan_public",
         "market_value_eur",
         "career_objectives",
+        "transfermarkt_url",
       ].join(", "),
     )
     .eq("user_id", userId)
@@ -399,6 +404,7 @@ async function fetchDashboardStateFromBaseTables(
           profile_plan_public: profileRow?.plan_public ?? null,
           profile_market_value_eur: profileRow?.market_value_eur ?? null,
           profile_career_objectives: profileRow?.career_objectives ?? null,
+          profile_transfermarkt_url: profileRow?.transfermarkt_url ?? null,
           personal_details_id: personalDetailsResult.data?.id ?? null,
           personal_document_type: personalDetailsResult.data?.document_type ?? null,
           personal_document_number: personalDetailsResult.data?.document_number ?? null,
@@ -464,6 +470,7 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
         plan_public: row.profile_plan_public,
         market_value_eur: row.profile_market_value_eur,
         career_objectives: row.profile_career_objectives,
+        transfermarkt_url: row.profile_transfermarkt_url,
       }
     : null;
 

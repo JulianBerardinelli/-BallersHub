@@ -75,8 +75,8 @@ async function ensureUniqueSlug(base: string, admin: ReturnType<typeof createSup
 // 👇 Next 15: params puede ser Promise
 type Params = Promise<{ id: string }>;
 
-async function doApprove(params: Params) {
-  const { id } = await params;
+export async function POST(req: Request, ctx: { params: Params }) {
+  const { id } = await ctx.params;
 
   // 1) auth + rol admin (cliente con cookies)
   const supa = await createSupabaseServerRoute();
@@ -91,8 +91,39 @@ async function doApprove(params: Params) {
   if (upErr) return NextResponse.json({ error: `profile check failed: ${upErr.message}` }, { status: 400 });
   if (up?.role !== "admin") return NextResponse.json({ error: "forbidden" }, { status: 403 });
 
+  // Petición JSON: extraer overrides (opcional)
+  type Overrides = {
+    full_name?: string;
+    transfermarkt_url?: string;
+    height_cm?: number;
+    weight_kg?: number;
+    birth_date?: string;
+  };
+  let overrides: Overrides = {};
+  if (req.headers.get("content-type")?.includes("application/json")) {
+    const body = await req.json().catch(() => ({}));
+    if (body.overrides) overrides = body.overrides;
+  }
+
   // 2) admin client (service role) para bypassear RLS
   const admin = createSupabaseAdmin();
+
+  // Guardar los overrides localmente en player_applications si es necesario guardarlos:
+  if (Object.keys(overrides).length > 0) {
+    const updatePayload: Partial<Overrides> = {};
+    if (overrides.full_name !== undefined) updatePayload.full_name = overrides.full_name;
+    if (overrides.transfermarkt_url !== undefined) updatePayload.transfermarkt_url = overrides.transfermarkt_url;
+
+    if (Object.keys(updatePayload).length > 0) {
+      const { error: ovErr } = await admin
+        .from("player_applications")
+        .update(updatePayload)
+        .eq("id", id);
+      if (ovErr) {
+        return NextResponse.json({ error: `Failed to save overrides: ${ovErr.message}` }, { status: 400 });
+      }
+    }
+  }
 
   // 3) cargar solicitud
   const { data: app, error: e1 } = await admin
@@ -115,27 +146,40 @@ async function doApprove(params: Params) {
     .eq("application_id", id)
     .eq("status", "waiting")
     .limit(1);
-  if (wErr)
-    return NextResponse.json({ error: `waiting check failed: ${wErr.message}` }, {
-      status: 400,
-    });
-  if ((waiting ?? []).length > 0)
-    return NextResponse.json({ error: "trajectory waiting" }, { status: 400 });
+  if (wErr) return NextResponse.json({ error: `waiting check failed: ${wErr.message}` }, { status: 400 });
+  if ((waiting ?? []).length > 0) return NextResponse.json({ error: "trajectory waiting" }, { status: 400 });
 
   // 4) slug único para el jugador
   const slug = await ensureUniqueSlug(slugify(app.full_name ?? "player"), admin);
 
+  // 4b) Extraer fallback info de app.notes
+  let fallbackBirth: string | null = null;
+  let fallbackHeight: number | null = null;
+  let fallbackWeight: number | null = null;
+  try {
+    if (app.notes) {
+      const parsedNotes = typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
+      if (typeof parsedNotes.birth_date === "string") fallbackBirth = parsedNotes.birth_date;
+      if (typeof parsedNotes.height_cm === "number") fallbackHeight = parsedNotes.height_cm;
+      if (typeof parsedNotes.weight_kg === "number") fallbackWeight = parsedNotes.weight_kg;
+    }
+  } catch (e) {}
+
   // 5) crear player_profile (incluye current_team_id si existe)
-  const { error: e2 } = await admin
+  const e2 = await admin
     .from("player_profiles")
     .insert({
       user_id: app.user_id,
       slug,
-      full_name: app.full_name ?? "Player",
+      full_name: overrides.full_name ?? app.full_name ?? "Player",
       nationality: app.nationality ?? null,
       positions: app.positions ?? null,
       current_club: teamName ?? app.current_club ?? null, // preferimos nombre real del team
-      current_team_id: app.current_team_id ?? null,       // 👈 NUEVO: FK al team
+      current_team_id: app.current_team_id ?? null,
+      transfermarkt_url: overrides.transfermarkt_url ?? app.transfermarkt_url ?? null, // Migramos el override
+      height_cm: overrides.height_cm ?? fallbackHeight ?? null,
+      weight_kg: overrides.weight_kg ?? fallbackWeight ?? null,
+      birth_date: overrides.birth_date ?? fallbackBirth ?? null,
       bio: null,
       visibility: "public",
       status: "approved",
@@ -143,8 +187,21 @@ async function doApprove(params: Params) {
     })
     .select("id,slug")
     .single();
-  if (e2) return NextResponse.json({ error: `create player failed: ${e2.message}` }, { status: 400 });
+  if (e2.error || !e2.data) return NextResponse.json({ error: `create player failed: ${e2.error?.message}` }, { status: 400 });
+  const newProfileId = e2.data.id;
 
+  // 5.5) Crear el dashboard player_link automáticamente si hay url de transfermarkt
+  const tmUrl = overrides.transfermarkt_url ?? app.transfermarkt_url;
+  if (tmUrl) {
+    const { error: tmErr } = await admin.from("player_links").insert({
+      player_id: newProfileId,
+      kind: "transfermarkt",
+      url: tmUrl,
+      label: "Transfermarkt",
+      is_primary: false,
+    });
+    if (tmErr) console.error("Could not insert transfermarkt player_link:", tmErr);
+  }
 
   // 6) upsert suscripción free
   const { error: e3 } = await admin
@@ -187,13 +244,6 @@ async function doApprove(params: Params) {
     .eq("id", id);
   if (e4) return NextResponse.json({ error: `mark approved failed: ${e4.message}` }, { status: 400 });
 
-  // 8) redirect
-  return NextResponse.redirect(new URL("/admin/applications", process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"), { status: 303 });
-}
-
-export async function POST(_req: Request, ctx: { params: Params }) {
-  return doApprove(ctx.params);
-}
-export async function GET(_req: Request, ctx: { params: Params }) {
-  return doApprove(ctx.params);
+  // 8) response JSON in AJAX context
+  return NextResponse.json({ success: true, slug });
 }

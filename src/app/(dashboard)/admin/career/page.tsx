@@ -34,6 +34,18 @@ type RawRow = RawApp & {
   career_item_proposals: RawItem[] | null;
 };
 
+export type Group = {
+  application_id: string;
+  applicant: {
+    full_name: string | null;
+    nationality_codes: string[];
+    transfermarkt_url: string | null;
+    external_profile_url: string | null;
+    social_url: string | null;
+  } | null;
+  items: CareerRow["items"];
+};
+
 export default async function CareerAdminPage() {
   noStore();
   const supa = await createSupabaseServerRSC();

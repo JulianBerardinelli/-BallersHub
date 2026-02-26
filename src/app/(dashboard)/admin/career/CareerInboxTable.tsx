@@ -5,8 +5,20 @@ import * as React from "react";
 import { Avatar, Button, Card, CardBody, Chip } from "@heroui/react";
 import CountryFlag from "@/components/common/CountryFlag";
 import { Globe, Instagram, Link as LinkIcon } from "lucide-react";
-import type { Group } from "./page";
+import type { CareerRow } from "./types";
 import TeamCrest from "@/components/teams/TeamCrest";
+
+export type Group = {
+  application_id: string;
+  applicant: {
+    full_name: string | null;
+    nationality_codes: string[];
+    transfermarkt_url: string | null;
+    external_profile_url: string | null;
+    social_url: string | null;
+  } | null;
+  items: CareerRow["items"];
+};
 
 async function post(url: string, body?: unknown) {
   const res = await fetch(url, {

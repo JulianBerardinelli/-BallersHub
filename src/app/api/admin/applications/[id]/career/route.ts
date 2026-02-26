@@ -46,20 +46,19 @@ export async function GET(_req: Request, ctx: { params: Params }) {
       `,
     )
     .eq("application_id", id)
-    .in("status", ["accepted", "approved", "waiting"])
     .order("start_year", { ascending: true });
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
-  let items = (data ?? []).map((ci: any) => ({
-    id: ci.id,
-    status: ci.status ?? "pending",
-    team_status: ci.team?.status ?? null,
-    team_name: ci.team?.name ?? ci.proposed_team_name ?? ci.club,
-    crest_url: ci.team?.crest_url ?? null,
-    country_code: ci.team?.country_code ?? ci.proposed_team_country_code ?? null,
-    division: ci.division ?? null,
-    start_year: ci.start_year ?? null,
-    end_year: ci.end_year ?? null,
+  let items = (data ?? []).map((ci: Record<string, unknown>) => ({
+    id: ci.id as string,
+    status: (ci.status as string) ?? "pending",
+    team_status: (ci.team as Record<string, unknown>)?.status as string ?? null,
+    team_name: (ci.team as Record<string, unknown>)?.name as string ?? (ci.proposed_team_name as string) ?? (ci.club as string),
+    crest_url: (ci.team as Record<string, unknown>)?.crest_url as string ?? null,
+    country_code: (ci.team as Record<string, unknown>)?.country_code as string ?? (ci.proposed_team_country_code as string) ?? null,
+    division: (ci.division as string) ?? null,
+    start_year: (ci.start_year as number) ?? null,
+    end_year: (ci.end_year as number) ?? null,
   }));
 
   if (items.length === 0) {
@@ -81,20 +80,20 @@ export async function GET(_req: Request, ctx: { params: Params }) {
       }
     }
 
-    const draft = Array.isArray((notes as any)?.career_draft)
-      ? (notes as any).career_draft
+    const draft = Array.isArray((notes as Record<string, unknown>)?.career_draft)
+      ? ((notes as Record<string, unknown>).career_draft as Record<string, unknown>[])
       : [];
 
-    items = draft.map((ci: any, idx: number) => ({
-      id: ci.id ?? `draft-${idx}`,
+    items = draft.map((ci: Record<string, unknown>, idx: number) => ({
+      id: (ci.id as string) ?? `draft-${idx}`,
       status: "draft",
-      team_status: null,
-      team_name: ci.team_name ?? ci.club ?? "—",
-      crest_url: ci.crest_url ?? null,
-      country_code: ci.country_code ?? null,
-      division: ci.division ?? null,
-      start_year: ci.start_year ?? null,
-      end_year: ci.end_year ?? null,
+      team_status: "verified",
+      team_name: (ci.team_name as string) ?? (ci.club as string) ?? "—",
+      crest_url: (ci.crest_url as string) ?? null,
+      country_code: (ci.country_code as string) ?? null,
+      division: (ci.division as string) ?? null,
+      start_year: (ci.start_year as number) ?? null,
+      end_year: (ci.end_year as number) ?? null,
     }));
   }
 

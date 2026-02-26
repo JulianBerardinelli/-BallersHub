@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Tabs, Tab, Card, CardBody } from "@heroui/react";
-import ApplicationsPanel from "../applications/ApplicationsPanel";
+import PlayersPanel from "../players/PlayersPanel";
 import TeamsPanel from "../teams/TeamsPanel";
 import type { TeamRow } from "../teams/types";
 
@@ -69,7 +69,7 @@ export default function AdminShell({
         {/* Content */}
         <section className="col-span-12 md:col-span-9 lg:col-span-10">
           {tab === "applications" ? (
-            <ApplicationsPanel initialItems={initialApps} goTeams={() => setTab("teams")} />
+            <PlayersPanel initialItems={initialApps} goTeams={() => setTab("teams")} />
           ) : (
             <TeamsPanel initialItems={initialTeams} />
           )}

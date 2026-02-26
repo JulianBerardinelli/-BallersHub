@@ -1,5 +1,5 @@
 // career_item_proposals
-import { pgTable, uuid, text, timestamp, integer, char } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer } from "drizzle-orm/pg-core";
 import { playerApplications } from "./applications";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -14,7 +14,7 @@ export const careerItemProposals = pgTable("career_item_proposals", {
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "cascade" }),
   proposedTeamName: text("proposed_team_name"),
   proposedTeamCountry: text("proposed_team_country"),
-  proposedTeamCountryCode: char("proposed_team_country_code", { length: 2 }),
+  proposedTeamCountryCode: text("proposed_team_country_code"),
   proposedTeamTransfermarktUrl: text("proposed_team_transfermarkt_url"),
   status: text("status").notNull().default("pending"),
   reviewedByUserId: uuid("reviewed_by_user_id"),

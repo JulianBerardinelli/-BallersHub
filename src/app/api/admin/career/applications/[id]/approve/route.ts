@@ -61,7 +61,7 @@ export async function POST(_req: Request, ctx: { params: Params }) {
 
     // reutilizar si ya lo creamos en esta tanda
     let teamId = createdForName.get(key) || null;
-    if (!teamId) teamId = await findExistingTeamIdByName(displayName);
+    if (!teamId) teamId = await findExistingTeamIdByName(displayName, admin);
 
     if (!teamId) {
       const slug = await ensureUniqueTeamSlug(slugify(displayName), admin);

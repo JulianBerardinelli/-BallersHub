@@ -13,6 +13,7 @@ export const careerItems = pgTable("career_items", {
   startDate: date("start_date"),
   endDate: date("end_date"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 export type CareerItem = InferSelectModel<typeof careerItems>;
 export type NewCareerItem = InferInsertModel<typeof careerItems>;

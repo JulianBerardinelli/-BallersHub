@@ -8,6 +8,27 @@
       "when": 1772046890787,
       "tag": "0000_fine_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772049052200,
+      "tag": "0001_absurd_xorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772050598449,
+      "tag": "0002_chunky_silvermane",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772057147774,
+      "tag": "0003_sad_synch",
+      "breakpoints": true
     }
   ]
 }

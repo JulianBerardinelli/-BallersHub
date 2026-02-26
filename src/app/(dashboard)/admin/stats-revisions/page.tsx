@@ -1,8 +1,8 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { redirect } from "next/navigation";
 
-import CareerRevisionPanel from "./CareerRevisionPanel";
-import type { RevisionRequest } from "./types";
+import StatsRevisionPanel from "./StatsRevisionPanel";
+import type { StatsRevisionRequest } from "./types";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
 type RevisionRequestRow = {
@@ -24,27 +24,30 @@ type RevisionRequestRow = {
       crest_url: string | null;
       country_code: string | null;
     } | null;
+    links: Array<{
+      url: string;
+      kind: string;
+    }> | null;
   } | null;
   items: Array<{
     id: string;
-    original_item_id: string | null;
-    club: string;
-    division: string | null;
-    start_year: number | null;
-    end_year: number | null;
+    original_stat_id: string | null;
+    season: string;
+    competition: string | null;
+    team: string | null;
+    matches: number | null;
+    starts: number | null;
+    goals: number | null;
+    assists: number | null;
+    minutes: number | null;
+    yellow_cards: number | null;
+    red_cards: number | null;
+    career_item_id: string | null;
     order_index: number;
-    team: {
-      id: string | null;
-      name: string | null;
-      crest_url: string | null;
-      country_code: string | null;
-    } | null;
-    proposed_team: {
-      id: string;
-      name: string | null;
-      country_code: string | null;
-      country_name: string | null;
-      transfermarkt_url: string | null;
+    career_item: {
+      team: {
+        crest_url: string | null;
+      } | null;
     } | null;
   }> | null;
 };
@@ -54,7 +57,7 @@ type SubmitterRow = { user_id: string; full_name: string | null };
 function mapRevisionRequest(
   row: RevisionRequestRow,
   submitters: Map<string, SubmitterRow>,
-): RevisionRequest | null {
+): StatsRevisionRequest | null {
   if (!row.player) return null;
 
   const nationalities = Array.isArray(row.player.nationality)
@@ -63,36 +66,32 @@ function mapRevisionRequest(
 
   const submittedByProfile = submitters.get(row.submitted_by_user_id) ?? null;
 
-  const items = (row.items ?? [])
+  const tmLink =
+    row.player.links?.find((l) => l.kind === "transfermarkt" || l.url.includes("transfermarkt"))?.url ?? null;
+
+  const stats = (row.items ?? [])
     .slice()
     .sort((a, b) => a.order_index - b.order_index)
     .map((item) => ({
       id: item.id,
-      originalItemId: item.original_item_id,
-      club: item.club,
-      division: item.division ?? null,
-      startYear: item.start_year ?? null,
-      endYear: item.end_year ?? null,
-      team: {
-        id: item.team?.id ?? null,
-        name: item.team?.name ?? null,
-        crestUrl: item.team?.crest_url ?? null,
-        countryCode: item.team?.country_code ?? null,
-      },
-      proposedTeam: item.proposed_team
-        ? {
-            id: item.proposed_team.id,
-            name: item.proposed_team.name ?? null,
-            countryCode: item.proposed_team.country_code ?? null,
-            countryName: item.proposed_team.country_name ?? null,
-            transfermarktUrl: item.proposed_team.transfermarkt_url ?? null,
-          }
-        : null,
+      originalStatId: item.original_stat_id,
+      season: item.season,
+      competition: item.competition,
+      team: item.team,
+      matches: item.matches,
+      starts: item.starts,
+      goals: item.goals,
+      assists: item.assists,
+      minutes: item.minutes,
+      yellowCards: item.yellow_cards,
+      redCards: item.red_cards,
+      careerItemId: item.career_item_id,
+      crestUrl: item.career_item?.team?.crest_url ?? null,
     }));
 
   return {
     id: row.id,
-    status: (row.status as RevisionRequest["status"]) ?? "pending",
+    status: (row.status as StatsRevisionRequest["status"]) ?? "pending",
     submittedAt: row.submitted_at,
     reviewedAt: row.reviewed_at,
     note: row.change_summary ?? null,
@@ -108,15 +107,16 @@ function mapRevisionRequest(
         crestUrl: row.player.current_team?.crest_url ?? null,
         countryCode: row.player.current_team?.country_code ?? null,
       },
+      transfermarktUrl: tmLink,
     },
     submittedBy: submittedByProfile
       ? { id: submittedByProfile.user_id, name: submittedByProfile.full_name ?? null }
       : null,
-    items,
+    stats,
   };
 }
 
-export default async function CareerRevisionsPage() {
+export default async function StatsRevisionsPage() {
   noStore();
   const supabase = await createSupabaseServerRSC();
 
@@ -125,7 +125,7 @@ export default async function CareerRevisionsPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in?redirect=/admin/revisions");
+    redirect("/auth/sign-in?redirect=/admin/stats-revisions");
   }
 
   const { data: profile } = await supabase
@@ -159,28 +159,31 @@ export default async function CareerRevisionsPage() {
             name,
             crest_url,
             country_code
+          ),
+          links:player_links (
+            url,
+            kind
           )
         ),
-        items:career_revision_items (
+        items:stats_revision_items (
           id,
-          original_item_id,
-          club,
-          division,
-          start_year,
-          end_year,
+          original_stat_id,
+          season,
+          matches,
+          starts,
+          goals,
+          assists,
+          minutes,
+          yellow_cards,
+          red_cards,
+          competition,
+          team,
+          career_item_id,
           order_index,
-          team:teams!career_revision_items_team_id_fkey (
-            id,
-            name,
-            crest_url,
-            country_code
-          ),
-          proposed_team:career_revision_proposed_teams!career_revision_items_proposed_team_id_fkey (
-            id,
-            name,
-            country_code,
-            country_name,
-            transfermarkt_url
+          career_item:career_items (
+            team:teams (
+              crest_url
+            )
           )
         )
       `,
@@ -203,18 +206,20 @@ export default async function CareerRevisionsPage() {
       .in("user_id", submitterIds);
 
     submitterMap = new Map(
-      (submitters ?? []).map((row) => [row.user_id as string, { user_id: row.user_id as string, full_name: row.full_name ?? null }]),
+      (submitters ?? []).map((row) => [
+        row.user_id as string,
+        { user_id: row.user_id as string, full_name: row.full_name ?? null },
+      ]),
     );
   }
 
   const requests = rows
     .map((row) => mapRevisionRequest(row, submitterMap))
-    .filter((value): value is RevisionRequest => value !== null && value.items.length > 0);
+    .filter((value): value is StatsRevisionRequest => value !== null && value.stats.length > 0);
 
   return (
     <main className="mx-auto max-w-6xl space-y-6 p-6">
-      <CareerRevisionPanel initialRequests={requests} />
+      <StatsRevisionPanel initialRequests={requests} />
     </main>
   );
 }
-

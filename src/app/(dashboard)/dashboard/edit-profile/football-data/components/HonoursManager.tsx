@@ -293,14 +293,15 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                   className="w-full text-sm"
                   classNames={{
                     base: "w-full",
-                    inputWrapper:
-                      "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
-                    innerWrapper: "px-0",
-                    input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
-                    helperWrapper: "hidden",
-                    listbox: "bg-neutral-950 text-neutral-200",
-                    listboxWrapper: "bg-neutral-950 border border-neutral-800 rounded-md",
-                    popoverContent: "bg-neutral-950 border border-neutral-800 rounded-md",
+                  }}
+                  inputProps={{
+                    classNames: {
+                      inputWrapper:
+                        "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
+                      innerWrapper: "px-0",
+                      input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
+                      helperWrapper: "hidden",
+                    },
                   }}
                   startContent={
                     selectedStage ? (

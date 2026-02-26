@@ -1,15 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import React, { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { Controller, useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { Autocomplete, AutocompleteItem } from "@heroui/react";
+import { Autocomplete, AutocompleteItem, Button } from "@heroui/react";
+import Image from "next/image";
 
 import type { DashboardSeasonStat } from "@/lib/dashboard/client/publishing-state";
-import { seasonStatMutationSchema, type SeasonStatMutationInput } from "../schemas";
-import { deleteSeasonStat, upsertSeasonStat } from "../actions";
+import { seasonStatMutationSchema, type SeasonStatMutationInput, type CareerRevisionSubmissionInput } from "../schemas";
+import { submitCareerRevision, deleteSeasonStat } from "../actions";
 import TeamCrest from "@/components/teams/TeamCrest";
+import FormField from "@/components/dashboard/client/FormField";
+import type { CareerRequestSnapshot } from "./CareerManager";
 
 type FormValues = {
   id?: string;
@@ -17,6 +20,7 @@ type FormValues = {
   competition: string;
   team: string;
   matches: string;
+  starts: string;
   minutes: string;
   goals: string;
   assists: string;
@@ -34,6 +38,7 @@ type Props = {
   playerId: string;
   stats: DashboardSeasonStat[];
   careerOptions: CareerOption[];
+  latestRequest?: CareerRequestSnapshot | null;
 };
 
 const defaultValues: FormValues = {
@@ -42,6 +47,7 @@ const defaultValues: FormValues = {
   competition: "",
   team: "",
   matches: "",
+  starts: "",
   minutes: "",
   goals: "",
   assists: "",
@@ -50,15 +56,30 @@ const defaultValues: FormValues = {
   careerItemId: "",
 };
 
-const inputClassName =
-  "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
-
 const formatStageLabel = (option: Pick<CareerOption, "club" | "period">) => {
   const club = option.club && option.club.trim().length > 0 ? option.club : "Club sin definir";
   return `${club} · ${option.period}`;
 };
 
-export default function SeasonStatsManager({ playerId, stats, careerOptions }: Props) {
+type AugmentedStat = {
+  id: string;
+  season: string;
+  matches: number | null;
+  starts: number | null;
+  goals: number | null;
+  assists: number | null;
+  minutes: number | null;
+  yellowCards: number | null;
+  redCards: number | null;
+  competition: string | null;
+  team: string | null;
+  careerItemId: string | null;
+  crestUrl?: string | null; // For display
+  isDraft?: boolean;
+  originalStatId?: string | null;
+};
+
+export default function SeasonStatsManager({ playerId, stats, careerOptions, latestRequest }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -68,6 +89,39 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const lastSelectedStageIdRef = useRef<string | null>(null);
   const skipStageAutofillRef = useRef(false);
   const [careerInputValue, setCareerInputValue] = useState("");
+
+  const baseItems = useMemo<AugmentedStat[]>(() => {
+    const items: AugmentedStat[] = stats.map((s) => ({
+      id: s.id,
+      season: s.season,
+      matches: s.matches,
+      starts: s.starts ?? null,
+      goals: s.goals,
+      assists: s.assists,
+      minutes: s.minutes,
+      yellowCards: s.yellowCards,
+      redCards: s.redCards,
+      competition: s.competition,
+      team: s.team,
+      careerItemId: s.careerItemId,
+      crestUrl: s.crestUrl,
+      isDraft: false,
+    }));
+    return items;
+  }, [stats]);
+
+  const [items, setItems] = useState<AugmentedStat[]>(baseItems);
+  const [submissionStatus, setSubmissionStatus] = useState<StatusState>(null);
+  const [submissionNote, setSubmissionNote] = useState("");
+  const draftsCount = items.filter((i) => i.isDraft).length;
+  
+  // Resincronizar base items solo si el dashboard principal recarga data fresca, evitando perder drafts si items no cambió estructuralmente por afuera
+  useEffect(() => {
+    setItems((current) => {
+      const drafts = current.filter((i) => i.isDraft);
+      return [...baseItems, ...drafts];
+    });
+  }, [baseItems]);
 
   const {
     register,
@@ -87,6 +141,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const optionMap = useMemo(() => new Map(careerOptions.map((option) => [option.id, option])), [careerOptions]);
   const watchCareerItemId = watch("careerItemId");
   const watchSeason = watch("season");
+  const watchCompetition = watch("competition");
   const watchId = watch("id");
 
   const editingStat = useMemo(
@@ -99,12 +154,12 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
   const stageOptions: StageOption[] = useMemo(() => {
     return careerOptions.map((option) => ({
       ...option,
-      hasExistingStats: stats.some((stat) => {
+      hasExistingStats: items.some((stat) => {
         if (editingStat && stat.id === editingStat.id) return false;
         return stat.careerItemId === option.id;
       }),
     }));
-  }, [careerOptions, stats, editingStat]);
+  }, [careerOptions, items, editingStat]);
 
   useEffect(() => {
     if (selectedStage) {
@@ -120,16 +175,22 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       return;
     }
 
-    const hasDuplicate = stats.some((stat) => stat.season === watchSeason && stat.id !== watchId);
+    const hasDuplicate = items.some(
+      (stat) => stat.season === watchSeason && stat.competition === watchCompetition && stat.id !== watchId
+    );
     if (hasDuplicate) {
       setError("season", {
         type: "manual",
-        message: "Ya cargaste estadísticas para esta temporada. Actualizá la fila existente antes de crear otra.",
+        message: "Ya cargaste estadísticas para esta competición en esta temporada.",
+      });
+      setError("competition", {
+        type: "manual",
+        message: "Competición duplicada para esta temporada.",
       });
     } else {
-      clearErrors("season");
+      clearErrors(["season", "competition"]);
     }
-  }, [watchSeason, watchId, stats, setError, clearErrors]);
+  }, [watchSeason, watchCompetition, watchId, items, setError, clearErrors]);
 
   useEffect(() => {
     if (!watchCareerItemId) {
@@ -187,36 +248,60 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       return;
     }
 
-    const duplicateSeason = stats.some((stat) => stat.season === parsed.data.season && stat.id !== parsed.data.id);
+    const duplicateSeason = items.some(
+      (stat) => stat.season === parsed.data.season && stat.competition === parsed.data.competition && stat.id !== parsed.data.id
+    );
     if (duplicateSeason) {
       setError("season", {
         type: "manual",
-        message: "Ya registraste estadísticas para esa temporada. Editá la fila existente o eliminála antes de crear otra.",
+        message: "Ya registraste estadísticas para esta competición y temporada.",
       });
-      setStatus({ type: "error", message: "Ya existe una estadística cargada para esa temporada." });
+      setStatus({ type: "error", message: "Ya existe una estadística cargada para esa temporada y competición." });
       return;
     }
 
-    startTransition(async () => {
-      const result = await upsertSeasonStat(parsed.data);
-      if (!result.success) {
-        setStatus({ type: "error", message: result.message });
-        return;
-      }
+    const isDraft = !parsed.data.id || parsed.data.id.startsWith("draft-");
+    const newId = parsed.data.id || `draft-${crypto.randomUUID()}`;
 
-      setStatus({ type: "success", message: values.id ? "Estadística actualizada." : "Estadística agregada." });
-      router.refresh();
-      setEditingId(null);
-      reset(defaultValues);
-      lastAutoTeamRef.current = null;
-      lastAutoSeasonRef.current = null;
-      lastSelectedStageIdRef.current = null;
-      skipStageAutofillRef.current = false;
-      setCareerInputValue("");
+    const newStat: AugmentedStat = {
+      id: newId,
+      originalStatId: isDraft ? null : newId,
+      season: parsed.data.season,
+      matches: parsed.data.matches ?? null,
+      starts: parsed.data.starts ?? null,
+      goals: parsed.data.goals ?? null,
+      assists: parsed.data.assists ?? null,
+      minutes: parsed.data.minutes ?? null,
+      yellowCards: parsed.data.yellowCards ?? null,
+      redCards: parsed.data.redCards ?? null,
+      competition: parsed.data.competition ?? null,
+      team: parsed.data.team ?? null,
+      careerItemId: parsed.data.careerItemId ?? null,
+      crestUrl: selectedStage?.crestUrl ?? null,
+      isDraft: true,
+    };
+
+    setItems((prev) => {
+      const idx = prev.findIndex((i) => i.id === newId);
+      if (idx >= 0) {
+        const _prev = [...prev];
+        _prev[idx] = newStat;
+        return _prev;
+      }
+      return [...prev, newStat];
     });
+
+    setStatus({ type: "success", message: values.id ? "Cambios guardados en borrador." : "Estadística agregada al borrador." });
+    setEditingId(null);
+    reset(defaultValues);
+    lastAutoTeamRef.current = null;
+    lastAutoSeasonRef.current = null;
+    lastSelectedStageIdRef.current = null;
+    skipStageAutofillRef.current = false;
+    setCareerInputValue("");
   });
 
-  const startEditing = (stat: DashboardSeasonStat) => {
+  const startEditing = (stat: AugmentedStat) => {
     setEditingId(stat.id);
     reset({
       id: stat.id,
@@ -224,6 +309,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
       competition: stat.competition ?? "",
       team: stat.team ?? "",
       matches: stat.matches?.toString() ?? "",
+      starts: stat.starts?.toString() ?? "",
       minutes: stat.minutes?.toString() ?? "",
       goals: stat.goals?.toString() ?? "",
       assists: stat.assists?.toString() ?? "",
@@ -257,9 +343,18 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     setCareerInputValue("");
   };
 
-  const handleDelete = (stat: DashboardSeasonStat) => {
+  const handleDelete = (stat: AugmentedStat) => {
     const confirmed = window.confirm(`¿Eliminar la temporada ${stat.season}? Esta acción no se puede deshacer.`);
     if (!confirmed) return;
+
+    if (stat.isDraft) {
+      setItems((prev) => prev.filter((i) => i.id !== stat.id));
+      setStatus({ type: "success", message: "Borrador de estadística descartado." });
+      if (editingId === stat.id) {
+        cancelEditing();
+      }
+      return;
+    }
 
     startTransition(async () => {
       const result = await deleteSeasonStat({ id: stat.id, playerId });
@@ -267,7 +362,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
         setStatus({ type: "error", message: result.message });
         return;
       }
-      setStatus({ type: "success", message: "Estadística eliminada." });
+      setStatus({ type: "success", message: "Estadística eliminada definitivamente." });
       router.refresh();
       if (editingId === stat.id) {
         cancelEditing();
@@ -275,9 +370,59 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
     });
   };
 
+  const handleSubmitRevision = () => {
+    if (draftsCount === 0) return;
+
+    startTransition(async () => {
+      setSubmissionStatus(null);
+      const input: CareerRevisionSubmissionInput = {
+        playerId,
+        note: submissionNote.trim() || null,
+        items: [], // Enviar stats sin modificar la parte de items de trayectoria
+        stats: items
+          .filter((i) => i.isDraft)
+          .map((i) => ({
+            id: i.id.startsWith("draft-") ? undefined : i.id,
+            playerId,
+            season: i.season,
+            matches: i.matches,
+            starts: i.starts,
+            goals: i.goals,
+            assists: i.assists,
+            minutes: i.minutes,
+            yellowCards: i.yellowCards,
+            redCards: i.redCards,
+            competition: i.competition,
+            team: i.team,
+            careerItemId: i.careerItemId,
+          })),
+      };
+
+      const result = await submitCareerRevision(input);
+      if (!result.success) {
+        setSubmissionStatus({ type: "error", message: result.message });
+        return;
+      }
+      setSubmissionStatus({ type: "success", message: "Estadísticas enviadas a revisión." });
+      setItems(baseItems); // Limpiar drafts locales
+      setSubmissionNote("");
+      router.refresh();
+    });
+  };
+
+  const hasPendingOverallParams = latestRequest && latestRequest.status === "pending";
+
   return (
     <div className="space-y-6">
-      {stats.length > 0 ? (
+      {hasPendingOverallParams ? (
+        <div className="rounded-lg border border-amber-900/60 bg-amber-950/40 p-4 mb-6">
+          <p className="text-sm font-medium text-amber-500">
+            Tenés una revisión de perfil pendiente. El equipo de Control de Calidad debe procesarla antes de que puedas someter más cambios.
+          </p>
+        </div>
+      ) : null}
+
+      {items.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-neutral-800 text-sm text-neutral-300">
             <thead className="bg-neutral-950/60 text-xs uppercase tracking-wide text-neutral-500">
@@ -293,6 +438,9 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
                   PJ
+                </th>
+                <th scope="col" className="px-4 py-3 text-center font-medium">
+                  Titular
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
                   Goles
@@ -315,17 +463,22 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-900">
-              {stats.map((stat) => {
+              {items.map((stat) => {
                 const linkedStage = stat.careerItemId ? optionMap.get(stat.careerItemId) : null;
                 const crest = stat.crestUrl ?? linkedStage?.crestUrl ?? "/images/team-default.svg";
                 const periodLabel = linkedStage?.period ?? stat.season;
+                const isDraftRow = stat.isDraft;
+
                 return (
-                  <tr key={stat.id} className="bg-neutral-950/40">
+                  <tr key={stat.id} className={`transition-colors ${isDraftRow ? "bg-emerald-950/20" : "bg-neutral-950/40"}`}>
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <img src={crest} alt="" className="h-7 w-7 shrink-0 object-contain" width={28} height={28} />
+                        <Image src={crest} alt="" className="h-7 w-7 shrink-0 object-contain" width={28} height={28} />
                         <div className="min-w-0">
-                          <span className="block text-sm font-semibold text-white">{periodLabel}</span>
+                          <span className="block text-sm font-semibold text-white">
+                            {periodLabel}
+                            {isDraftRow && <span className="ml-2 text-[10px] uppercase tracking-wider text-emerald-500 font-bold bg-emerald-950 px-1.5 py-0.5 rounded">Nuevo</span>}
+                          </span>
                           {linkedStage ? (
                             <span className="block text-[11px] text-neutral-500 truncate">{linkedStage.label}</span>
                           ) : null}
@@ -335,6 +488,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                     <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? "Competencia pendiente"}</td>
                     <td className="whitespace-nowrap px-4 py-3">{stat.team ?? "Equipo sin definir"}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.matches)}</td>
+                    <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.starts)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.goals)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.assists)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.minutes)}</td>
@@ -346,17 +500,21 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                           type="button"
                           className="rounded-md border border-neutral-800 px-3 py-1 font-medium text-neutral-300 transition hover:border-neutral-700 hover:text-white"
                           onClick={() => startEditing(stat)}
-                          disabled={pending}
+                          disabled={pending || !!hasPendingOverallParams}
                         >
                           Editar
                         </button>
                         <button
                           type="button"
-                          className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-red-400 transition hover:border-red-700 hover:text-red-300"
+                          className={`rounded-md border px-3 py-1 font-medium transition ${
+                            isDraftRow
+                              ? "border-emerald-900/60 text-emerald-400 hover:border-emerald-700 hover:text-emerald-300"
+                              : "border-red-900/60 text-red-400 hover:border-red-700 hover:text-red-300"
+                          }`}
                           onClick={() => handleDelete(stat)}
-                          disabled={pending}
+                          disabled={pending || !!hasPendingOverallParams}
                         >
-                          Eliminar
+                          {isDraftRow ? "Quitar" : "Eliminar"}
                         </button>
                       </div>
                     </td>
@@ -406,14 +564,18 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                   className="w-full text-sm"
                   classNames={{
                     base: "w-full",
-                    inputWrapper:
-                      "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
-                    innerWrapper: "px-0",
-                    input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
-                    helperWrapper: "hidden",
                     listbox: "bg-neutral-950 text-neutral-200",
                     listboxWrapper: "bg-neutral-950 border border-neutral-800 rounded-md",
                     popoverContent: "bg-neutral-950 border border-neutral-800 rounded-md",
+                  }}
+                  inputProps={{
+                    classNames: {
+                      inputWrapper:
+                        "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
+                      innerWrapper: "px-0",
+                      input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
+                      helperWrapper: "hidden",
+                    },
                   }}
                   startContent={
                     selectedStage ? (
@@ -439,14 +601,17 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
                           className="rounded-sm bg-neutral-900/60"
                         />
                       }
-                      >
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
-                          <span className="text-xs text-neutral-400">{item.period}</span>
-                          {item.hasExistingStats ? (
-                            <span className="text-[11px] text-neutral-500">Ya cargaste estadísticas vinculadas.</span>
-                          ) : null}
-                        </div>
+                      className={item.hasExistingStats ? "opacity-50" : ""}
+                    >
+                      <div className="flex flex-col gap-1 py-1">
+                        <span className="font-medium">{item.club ?? "Club sin definir"}</span>
+                        <span className="text-xs text-neutral-400">{item.period}</span>
+                        {item.hasExistingStats && (
+                          <span className="text-[10px] uppercase tracking-wider text-primary">
+                            Ya tiene estadísticas
+                          </span>
+                        )}
+                      </div>
                     </AutocompleteItem>
                   )}
                 </Autocomplete>
@@ -454,95 +619,80 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
             />
             {errors.careerItemId ? <FieldError message={errors.careerItemId.message} /> : null}
           </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Temporada</span>
-            <input
-              {...register("season")}
-              type="text"
-              placeholder="Ej: 2023 / 2024"
-              className={inputClassName}
-              disabled={pending}
-            />
-            {errors.season ? <FieldError message={errors.season.message} /> : null}
-          </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Competencia</span>
-            <input
-              {...register("competition")}
-              type="text"
-              placeholder="Liga o torneo"
-              className={inputClassName}
-              disabled={pending}
-            />
-            {errors.competition ? <FieldError message={errors.competition.message} /> : null}
-          </label>
+          <FormField
+            {...register("season")}
+            id="season"
+            label="Temporada"
+            placeholder="Ej: 2023 / 2024"
+            disabled={pending}
+            errorMessage={errors.season?.message}
+          />
+          <FormField
+            {...register("competition")}
+            id="competition"
+            label="Competencia"
+            placeholder="Liga o torneo"
+            disabled={pending}
+            errorMessage={errors.competition?.message}
+          />
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Equipo</span>
-            <input
-              {...register("team")}
-              type="text"
-              placeholder="Club"
-              className={inputClassName}
-              disabled={pending}
-            />
-            {errors.team ? <FieldError message={errors.team.message} /> : null}
-          </label>
-          <div className="grid grid-cols-3 gap-4">
+          <FormField
+            {...register("team")}
+            id="team"
+            label="Equipo"
+            placeholder="Club"
+            disabled={pending}
+            errorMessage={errors.team?.message}
+          />
+          <div className="grid grid-cols-4 gap-4">
             {([
               { name: "matches", label: "PJ" },
+              { name: "starts", label: "Titular" },
               { name: "goals", label: "Goles" },
               { name: "assists", label: "Asist." },
             ] as const).map((field) => (
-              <label key={field.name} className="space-y-1.5 text-xs text-neutral-300">
-                <span className="font-medium text-neutral-200">{field.label}</span>
-                <input
-                  {...register(field.name)}
-                  type="number"
-                  min={0}
-                  className={inputClassName}
-                  disabled={pending}
-                />
-                {errors[field.name] ? <FieldError message={errors[field.name]?.message} /> : null}
-              </label>
+              <FormField
+                key={field.name}
+                {...register(field.name)}
+                id={field.name}
+                type="number"
+                min={0}
+                label={field.label}
+                disabled={pending}
+                errorMessage={errors[field.name]?.message}
+              />
             ))}
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          <label className="space-y-1.5 text-xs text-neutral-300">
-            <span className="font-medium text-neutral-200">Minutos</span>
-            <input
-              {...register("minutes")}
-              type="number"
-              min={0}
-              className={inputClassName}
-              disabled={pending}
-            />
-            {errors.minutes ? <FieldError message={errors.minutes.message} /> : null}
-          </label>
-          <label className="space-y-1.5 text-xs text-neutral-300">
-            <span className="font-medium text-neutral-200">Tarjetas amarillas</span>
-            <input
-              {...register("yellowCards")}
-              type="number"
-              min={0}
-              className={inputClassName}
-              disabled={pending}
-            />
-            {errors.yellowCards ? <FieldError message={errors.yellowCards.message} /> : null}
-          </label>
-          <label className="space-y-1.5 text-xs text-neutral-300">
-            <span className="font-medium text-neutral-200">Tarjetas rojas</span>
-            <input
-              {...register("redCards")}
-              type="number"
-              min={0}
-              className={inputClassName}
-              disabled={pending}
-            />
-            {errors.redCards ? <FieldError message={errors.redCards.message} /> : null}
-          </label>
+          <FormField
+            {...register("minutes")}
+            id="minutes"
+            type="number"
+            min={0}
+            label="Minutos"
+            disabled={pending}
+            errorMessage={errors.minutes?.message}
+          />
+          <FormField
+            {...register("yellowCards")}
+            id="yellowCards"
+            type="number"
+            min={0}
+            label="Tarjetas amarillas"
+            disabled={pending || !!hasPendingOverallParams}
+            errorMessage={errors.yellowCards?.message}
+          />
+          <FormField
+            {...register("redCards")}
+            id="redCards"
+            type="number"
+            min={0}
+            label="Tarjetas rojas"
+            disabled={pending || !!hasPendingOverallParams}
+            errorMessage={errors.redCards?.message}
+          />
         </div>
 
         {status ? <FormStatus status={status} /> : null}
@@ -551,22 +701,50 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions }: P
           <button
             type="submit"
             className="inline-flex items-center rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={pending}
+            disabled={pending || !!hasPendingOverallParams}
           >
-            {pending ? "Guardando..." : editingId ? "Actualizar temporada" : "Agregar temporada"}
+            {pending ? "Guardando..." : editingId ? "Actualizar borrador" : "Agregar temporada"}
           </button>
           {editingId ? (
             <button
               type="button"
               onClick={cancelEditing}
               className="inline-flex items-center rounded-md border border-neutral-800 px-4 py-2 text-sm font-semibold text-neutral-300 transition hover:border-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={pending}
+              disabled={pending || !!hasPendingOverallParams}
             >
               Cancelar edición
             </button>
           ) : null}
         </div>
       </form>
+
+      {draftsCount > 0 && !hasPendingOverallParams ? (
+        <div className="rounded-lg border border-primary/40 bg-neutral-900/40 p-5 mt-8 shadow-lg">
+          <h3 className="text-lg font-semibold text-white mb-2">Enviar cambios a revisión</h3>
+          <p className="text-sm text-neutral-300 mb-4">
+            Tenés {draftsCount} estadístic{draftsCount === 1 ? "a" : "as"} lista{draftsCount === 1 ? "s" : "s"} para enviar. 
+            El equipo de Control de Calidad confirmará estos datos verificando las fuentes oficiales.
+          </p>
+          <textarea
+            className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 mb-4"
+            rows={3}
+            placeholder="Añadí información opcional sobre la fuente de las estadísticas (ej: Transfermarkt, BeSoccer)..."
+            value={submissionNote}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSubmissionNote(e.target.value)}
+            disabled={pending}
+          />
+          {submissionStatus ? <div className="mb-4"><FormStatus status={submissionStatus} /></div> : null}
+          <Button
+            color="primary"
+            className="w-full font-bold"
+            onPress={handleSubmitRevision}
+            isLoading={pending}
+            isDisabled={pending}
+          >
+            {pending ? "Enviando..." : "Enviar a control de calidad"}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

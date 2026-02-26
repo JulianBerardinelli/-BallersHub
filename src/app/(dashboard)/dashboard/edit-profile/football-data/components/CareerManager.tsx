@@ -120,7 +120,7 @@ function mapToPayload(item: AugmentedCareerItem): CareerStageInput {
     proposedTeam: item.proposed
       ? {
           name: item.club,
-          countryCode: item.proposed.country?.code ?? null,
+          countryCode: item.proposed.country?.code ?? "",
           countryName: item.proposed.country?.name ?? null,
           transfermarktUrl: item.proposed.tmUrl ?? null,
         }
@@ -671,7 +671,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
             <span className="font-medium text-neutral-200">Nota para el equipo (opcional)</span>
             <textarea
               value={note}
-              onChange={(event) => setNote(event.target.value)}
+              onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setNote(event.target.value)}
               rows={3}
               placeholder="Contanos el contexto de los cambios o la temporada a destacar."
               className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:opacity-60"

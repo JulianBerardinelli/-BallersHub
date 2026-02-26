@@ -52,6 +52,7 @@ export type DashboardSeasonStat = {
   team: string | null;
   crestUrl: string | null;
   matches: number | null;
+  starts: number | null;
   minutes: number | null;
   goals: number | null;
   assists: number | null;
@@ -119,10 +120,10 @@ function mapPublishingStateRow(row: PublishingStateRow): DashboardPublishingStat
   return {
     playerId: row.player_id,
     theme: row.theme_settings ? mapThemeSettings(row.theme_settings) : null,
-    sections: Array.isArray(row.sections) ? row.sections.map(mapSectionVisibility).filter(Boolean) : [],
-    links: Array.isArray(row.links) ? row.links.map(mapExternalLink).filter(Boolean) : [],
-    honours: Array.isArray(row.honours) ? row.honours.map(mapHonour).filter(Boolean) : [],
-    stats: Array.isArray(row.stats) ? row.stats.map(mapSeasonStat).filter(Boolean) : [],
+    sections: Array.isArray(row.sections) ? (row.sections.map(mapSectionVisibility).filter(Boolean) as DashboardSectionVisibility[]) : [],
+    links: Array.isArray(row.links) ? (row.links.map(mapExternalLink).filter(Boolean) as DashboardExternalLink[]) : [],
+    honours: Array.isArray(row.honours) ? (row.honours.map(mapHonour).filter(Boolean) as DashboardHonour[]) : [],
+    stats: Array.isArray(row.stats) ? (row.stats.map(mapSeasonStat).filter(Boolean) as DashboardSeasonStat[]) : [],
   };
 }
 
@@ -204,6 +205,7 @@ function mapSeasonStat(input: Record<string, unknown>): DashboardSeasonStat | nu
     team: typeof input.team === "string" ? input.team : null,
     crestUrl: typeof input.team_crest_url === "string" ? input.team_crest_url : null,
     matches: typeof input.matches === "number" ? input.matches : null,
+    starts: typeof input.starts === "number" ? input.starts : null,
     minutes: typeof input.minutes === "number" ? input.minutes : null,
     goals: typeof input.goals === "number" ? input.goals : null,
     assists: typeof input.assists === "number" ? input.assists : null,

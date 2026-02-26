@@ -1,6 +1,6 @@
 import type { ColumnDef } from "./types";
 
-export const applicationColumns: ColumnDef[] = [
+export const columns: ColumnDef[] = [
   { name: "ID", uid: "id", sortable: true, className: "w-14" },
   {
     name: "Solicitante",

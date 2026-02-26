@@ -6,17 +6,14 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Chip,
   Skeleton,
 } from "@heroui/react";
 import CountryFlag from "@/components/common/CountryFlag";
 import TeamCrest from "@/components/teams/TeamCrest";
 import type { ApplicationRow } from "../types";
+import CareerProposalRow from "./CareerProposalRow";
 import {
-  careerStatusMeta,
-  teamStatusMeta,
   formatBirthDate,
-  formatYearRange,
 } from "../utils";
 
 type ModalClassNames = {
@@ -143,49 +140,15 @@ export default function ConfirmApplicationModal({
               </div>
             ) : items.length > 0 ? (
               <ul className="grid gap-2">
-                {items.map((ci) => {
-                  const statusMeta = careerStatusMeta[ci.status] ?? {
-                    label: ci.status,
-                    color: "default" as const,
-                  };
-                  const teamMeta = ci.team_status
-                    ? teamStatusMeta[ci.team_status] ?? null
-                    : null;
-                  return (
-                    <li
-                      key={ci.id}
-                      className="flex flex-col gap-3 rounded-2xl bg-content2/60 px-4 py-3 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <TeamCrest
-                          src={ci.crest_url || "/images/team-default.svg"}
-                          size={36}
-                          className="shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <p className="font-medium truncate">{ci.team_name}</p>
-                          <div className="flex items-center gap-2 text-xs text-default-500">
-                            <span className="truncate">{ci.division ?? "Sin división"}</span>
-                            {ci.country_code && <CountryFlag code={ci.country_code} size={14} />}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-                        <Chip size="sm" variant="flat">
-                          {formatYearRange(ci.start_year, ci.end_year)}
-                        </Chip>
-                        <Chip size="sm" variant="bordered" color={statusMeta.color}>
-                          {statusMeta.label}
-                        </Chip>
-                        {teamMeta && (
-                          <Chip size="sm" variant="bordered" color={teamMeta.color}>
-                            {teamMeta.label}
-                          </Chip>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
+                {items.map((ci) => (
+                  <CareerProposalRow
+                    key={ci.id}
+                    item={ci}
+                    onChange={(updated) =>
+                      setItems((prev) => prev.map((it) => (it.id === updated.id ? updated : it)))
+                    }
+                  />
+                ))}
               </ul>
             ) : (
               <div className="rounded-2xl bg-content2/60 px-4 py-4 text-sm text-default-500 ring-1 ring-white/10">

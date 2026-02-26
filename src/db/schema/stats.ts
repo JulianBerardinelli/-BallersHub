@@ -7,6 +7,7 @@ export const statsSeasons = pgTable("stats_seasons", {
   playerId: uuid("player_id").notNull(),
   season: text("season").notNull(),
   matches: integer("matches").default(0),
+  starts: integer("starts").default(0),
   goals: integer("goals").default(0),
   assists: integer("assists").default(0),
   minutes: integer("minutes").default(0),

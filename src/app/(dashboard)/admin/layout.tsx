@@ -4,16 +4,25 @@ import Link from "next/link";
 
 const NAV_SECTIONS = [
   {
+    title: "Directorio",
+    items: [
+      { href: "/admin/players", label: "Jugadores" },
+      { href: "/admin/teams", label: "Equipos" },
+    ],
+  },
+  {
     title: "Onboarding",
     items: [
-      { href: "/admin/applications", label: "Solicitudes" },
-      { href: "/admin/teams", label: "Equipos" },
-      { href: "/admin/career", label: "Trayectorias" },
+      { href: "/admin/applications", label: "Solicitudes de alta" },
+      { href: "/admin/career", label: "Trayectorias pendientes" },
     ],
   },
   {
     title: "Perfiles activos",
-    items: [{ href: "/admin/revisions", label: "Revisiones de trayectoria" }],
+    items: [
+      { href: "/admin/revisions", label: "Revisiones de trayectoria" },
+      { href: "/admin/stats-revisions", label: "Revisiones de estadísticas" },
+    ],
   },
 ];
 

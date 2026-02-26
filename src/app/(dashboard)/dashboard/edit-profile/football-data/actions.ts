@@ -756,6 +756,37 @@ export async function submitCareerRevision(
     }
   }
 
+  if (parsed.data.stats && parsed.data.stats.length > 0) {
+    for (const [index, statInput] of parsed.data.stats.entries()) {
+      const { error: statError } = await supabase
+        .from("stats_revision_items")
+        .insert({
+          request_id: requestId,
+          original_stat_id: statInput.id ?? null,
+          season: statInput.season,
+          matches: statInput.matches,
+          goals: statInput.goals,
+          assists: statInput.assists,
+          minutes: statInput.minutes,
+          yellow_cards: statInput.yellowCards,
+          red_cards: statInput.redCards,
+          competition: statInput.competition,
+          team: statInput.team,
+          career_item_id: statInput.careerItemId,
+          order_index: index,
+        });
+
+      if (statError) {
+        if (isMissingCareerSchema(statError)) {
+          await cleanup();
+          return { success: false, message: RUN_CAREER_SCRIPT_MESSAGE };
+        }
+        await cleanup();
+        return { success: false, message: mapPostgrestError(statError) };
+      }
+    }
+  }
+
   revalidatePath(DASHBOARD_ROUTE);
   return { success: true, requestId };
 }

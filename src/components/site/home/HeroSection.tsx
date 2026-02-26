@@ -14,7 +14,7 @@ const TEXT_VARIANTS = {
     y: 0,
     transition: {
       duration: 0.6,
-      ease: "easeOut",
+      ease: "easeOut" as const,
       staggerChildren: 0.12,
       delayChildren: 0.1,
     },
@@ -23,7 +23,7 @@ const TEXT_VARIANTS = {
 
 const ITEM_VARIANTS = {
   hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
 };
 
 const STAT_ITEMS = [

@@ -22,6 +22,7 @@ export const playerProfiles = pgTable("player_profiles", {
   careerObjectives: text("career_objectives"),
   planPublic: planEnum("plan_public").notNull().default("free"),
   nationalityCodes: char("nationality_codes", { length: 2 }).array(),
+  transfermarktUrl: text("transfermarkt_url"),
   bio: text("bio"),
   avatarUrl: text("avatar_url").notNull().default("/images/player-default.jpg"),
   visibility: visibilityEnum("visibility").notNull().default("public"),

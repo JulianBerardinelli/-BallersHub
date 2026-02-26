@@ -1,4 +1,6 @@
-import { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
+import * as React from "react";
+import type { TextareaHTMLAttributes, InputHTMLAttributes } from "react";
+import { forwardRef } from "react";
 
 type BaseProps = {
   id: string;
@@ -17,9 +19,9 @@ type TextareaProps = BaseProps &
     as: "textarea";
   };
 
-type FormFieldProps = InputProps | TextareaProps;
+export type FormFieldProps = InputProps | TextareaProps;
 
-export default function FormField(props: FormFieldProps) {
+const FormField = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormFieldProps>((props, ref) => {
   const { id, label, description, errorMessage, ...restProps } = props;
   const sharedClassName =
     "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
@@ -37,7 +39,8 @@ export default function FormField(props: FormFieldProps) {
           {...(textareaRest as TextareaHTMLAttributes<HTMLTextAreaElement>)}
           id={id}
           className={className ? `${sharedClassName} ${className}` : sharedClassName}
-          readOnly={readOnly ?? true}
+          readOnly={readOnly}
+          ref={ref as React.Ref<HTMLTextAreaElement>}
         />
         {errorMessage ? <p className="text-xs text-red-400">{errorMessage}</p> : null}
         {description ? <p className="text-xs text-neutral-500">{description}</p> : null}
@@ -57,10 +60,15 @@ export default function FormField(props: FormFieldProps) {
         type={type ?? "text"}
         id={id}
         className={className ? `${sharedClassName} ${className}` : sharedClassName}
-        readOnly={readOnly ?? true}
+        readOnly={readOnly}
+        ref={ref as React.Ref<HTMLInputElement>}
       />
       {errorMessage ? <p className="text-xs text-red-400">{errorMessage}</p> : null}
       {description ? <p className="text-xs text-neutral-500">{description}</p> : null}
     </div>
   );
-}
+});
+
+FormField.displayName = "FormField";
+
+export default FormField;

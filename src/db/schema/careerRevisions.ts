@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer, jsonb, char } from "drizzle-orm/pg-core";
 import { playerProfiles } from "./players";
 import { teams } from "./teams";
 import { careerItems } from "./career";
@@ -30,7 +30,7 @@ export const careerRevisionProposedTeams = pgTable("career_revision_proposed_tea
     .references(() => careerRevisionRequests.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   countryName: text("country_name"),
-  countryCode: text("country_code"),
+  countryCode: char("country_code", { length: 2 }),
   transfermarktUrl: text("transfermarkt_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -64,3 +64,28 @@ export type NewCareerRevisionProposedTeam = InferInsertModel<typeof careerRevisi
 
 export type CareerRevisionItem = InferSelectModel<typeof careerRevisionItems>;
 export type NewCareerRevisionItem = InferInsertModel<typeof careerRevisionItems>;
+
+export const statsRevisionItems = pgTable("stats_revision_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  requestId: uuid("request_id")
+    .notNull()
+    .references(() => careerRevisionRequests.id, { onDelete: "cascade" }),
+  originalStatId: uuid("original_stat_id"), // Refers to statsSeasons.id
+  season: text("season").notNull(),
+  matches: integer("matches").default(0),
+  starts: integer("starts").default(0),
+  goals: integer("goals").default(0),
+  assists: integer("assists").default(0),
+  minutes: integer("minutes").default(0),
+  yellowCards: integer("yellow_cards").default(0),
+  redCards: integer("red_cards").default(0),
+  competition: text("competition"),
+  team: text("team"),
+  careerItemId: uuid("career_item_id"), // Not explicitly adding references() here to prevent circular dependencies at this exact file scope, but it's a UUID FK.
+  orderIndex: integer("order_index").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export type StatsRevisionItem = InferSelectModel<typeof statsRevisionItems>;
+export type NewStatsRevisionItem = InferInsertModel<typeof statsRevisionItems>;

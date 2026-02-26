@@ -415,6 +415,7 @@ export default async function FootballDataPage() {
           playerId={profileData.id}
           stats={publishingState.stats}
           careerOptions={careerSeasonOptions}
+          latestRequest={latestRevision}
         />
       </SectionCard>
 

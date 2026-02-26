@@ -1207,6 +1207,7 @@ CREATE OR REPLACE VIEW "public"."player_dashboard_state" AS
     p.bio AS profile_bio,
     p.market_value_eur AS profile_market_value_eur,
     p.career_objectives AS profile_career_objectives,
+    p.transfermarkt_url AS profile_transfermarkt_url,
     p.avatar_url AS profile_avatar_url,
     p.foot AS profile_foot,
     p.height_cm AS profile_height_cm,

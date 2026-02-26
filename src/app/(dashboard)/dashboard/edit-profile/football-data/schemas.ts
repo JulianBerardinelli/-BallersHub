@@ -24,14 +24,14 @@ export const linkMutationSchema = z.object({
     })
     .nullable(),
   url: z
-    .string({ required_error: "Ingresá una URL válida." })
+    .string({ message: "Ingresá una URL válida." })
     .trim()
     .url({ message: "Ingresá una URL válida." }),
   kind: z.enum(LINK_KINDS, {
-    errorMap: () => ({ message: "Seleccioná un tipo de enlace." }),
+    message: "Seleccioná un tipo de enlace.",
   }),
   isPrimary: z.boolean().default(false),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type LinkMutationInput = z.infer<typeof linkMutationSchema>;
@@ -56,7 +56,7 @@ export const honourMutationSchema = z.object({
   id: z.string().uuid({ message: "El identificador es inválido." }).optional(),
   playerId: z.string().uuid({ message: "Jugador no reconocido." }),
   title: z
-    .string({ required_error: "Ingresá un título." })
+    .string({ message: "Ingresá un título." })
     .trim()
     .min(3, "El título debe tener al menos 3 caracteres."),
   competition: z
@@ -124,7 +124,7 @@ export const seasonStatMutationSchema = z.object({
   id: z.string().uuid({ message: "El identificador es inválido." }).optional(),
   playerId: z.string().uuid({ message: "Jugador no reconocido." }),
   season: z
-    .string({ required_error: "Indicá la temporada." })
+    .string({ message: "Indicá la temporada." })
     .trim()
     .min(3, "La temporada debe tener al menos 3 caracteres."),
   competition: z
@@ -144,12 +144,33 @@ export const seasonStatMutationSchema = z.object({
     })
     .nullable(),
   matches: numericField,
+  starts: numericField,
   minutes: numericField,
   goals: numericField,
   assists: numericField,
   yellowCards: numericField,
   redCards: numericField,
   careerItemId: optionalUuid("Seleccioná la temporada asociada a tu trayectoria."),
+}).superRefine((data, ctx) => {
+  if (data.matches && data.minutes) {
+    if (data.minutes > data.matches * 100) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Demasiados minutos para la cantidad de partidos (máx aprox. 100 min/partido).",
+        path: ["minutes"],
+      });
+    }
+  }
+
+  if (data.matches !== null && data.matches !== undefined && data.starts !== null && data.starts !== undefined) {
+    if (data.starts > data.matches) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Las titularidades no pueden superar los partidos jugados.",
+        path: ["starts"],
+      });
+    }
+  }
 });
 
 export type SeasonStatMutationInput = z.infer<typeof seasonStatMutationSchema>;
@@ -175,7 +196,7 @@ export const careerStageInputSchema = z.object({
   id: z.string().uuid().optional(),
   originalId: optionalUuid("Etapa original inválida."),
   club: z
-    .string({ required_error: "Ingresá el nombre del club." })
+    .string({ message: "Ingresá el nombre del club." })
     .trim()
     .min(2, "El club debe tener al menos 2 caracteres."),
   division: z
@@ -193,7 +214,7 @@ export const careerStageInputSchema = z.object({
     .union([
       z.object({
         name: z
-          .string({ required_error: "Ingresá el nombre del equipo." })
+          .string({ message: "Ingresá el nombre del equipo." })
           .trim()
           .min(2, "El nombre debe tener al menos 2 caracteres."),
         countryCode: z
@@ -235,19 +256,30 @@ export const careerStageInputSchema = z.object({
 
 export type CareerStageInput = z.infer<typeof careerStageInputSchema>;
 
-export const careerRevisionSubmissionSchema = z.object({
-  playerId: z.string().uuid({ message: "Jugador no reconocido." }),
-  items: z
-    .array(careerStageInputSchema)
-    .min(1, "Agregá al menos una etapa confirmada."),
-  note: z
-    .union([z.string().trim().max(500, "Máximo 500 caracteres."), z.literal(""), z.null(), z.undefined()])
-    .transform((value) => {
-      if (!value) return null;
-      const trimmed = value.trim();
-      return trimmed.length === 0 ? null : trimmed;
-    })
-    .nullable(),
-});
+export const careerRevisionSubmissionSchema = z
+  .object({
+    playerId: z.string().uuid({ message: "Jugador no reconocido." }),
+    items: z.array(careerStageInputSchema),
+    note: z
+      .union([z.string().trim().max(500, "Máximo 500 caracteres."), z.literal(""), z.null(), z.undefined()])
+      .transform((value) => {
+        if (!value) return null;
+        const trimmed = value.trim();
+        return trimmed.length === 0 ? null : trimmed;
+      })
+      .nullable(),
+    stats: z.array(seasonStatMutationSchema).optional(),
+  })
+  .refine(
+    (data) => {
+      const hasItems = data.items.length > 0;
+      const hasStats = data.stats && data.stats.length > 0;
+      return hasItems || hasStats;
+    },
+    {
+      message: "Tenés que agregar al menos una etapa de trayectoria o estadística para enviar a revisión.",
+      path: ["items"],
+    },
+  );
 
 export type CareerRevisionSubmissionInput = z.infer<typeof careerRevisionSubmissionSchema>;
