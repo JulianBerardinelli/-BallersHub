@@ -3,6 +3,8 @@
 import * as React from "react";
 import ApplicationCard from "./ApplicationCard";
 
+import AdminInboxLayout, { AdminInboxFilterProps } from "@/components/admin/AdminInboxLayout";
+
 // Fallback type for the pending player application
 export type PlayerApplication = {
   id: string;
@@ -34,33 +36,62 @@ export default function ApplicationsPanel({
   countryMap: Record<string, string>;
 }) {
   const [items, setItems] = React.useState<PlayerApplication[]>(initialItems);
+  const [activeTab, setActiveTab] = React.useState<"pending" | "history">("pending");
+  const [statusFilter, setStatusFilter] = React.useState<AdminInboxFilterProps>("all");
+
+  const pendingItems = items.filter((a) => a.status === "pending");
+  const historyItems = items.filter((a) => a.status !== "pending");
+
+  const displayedItems = activeTab === "pending"
+    ? pendingItems
+    : historyItems.filter((a) => {
+        if (statusFilter === "all") return true;
+        if (statusFilter === "approved" && a.status === "approved") return true;
+        if (statusFilter === "rejected" && a.status === "rejected") return true;
+        return false;
+      });
 
   const handleAction = React.useCallback(
     (id: string, action: "approved" | "rejected") => {
-      // Remover optimísticamente de la UI si se aprobó o rechazó.
-      setItems((prev) => prev.filter((app) => app.id !== id));
+      // Optimistically update the status
+      setItems((prev) =>
+        prev.map((app) => (app.id === id ? { ...app, status: action } : app))
+      );
     },
     []
   );
 
-  if (items.length === 0) {
-    return (
-      <div className="flex h-40 items-center justify-center rounded-lg border border-neutral-800 bg-neutral-900/50">
-        <p className="text-neutral-500">No hay solicitudes pendientes.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid gap-6">
-      {items.map((app) => (
-        <ApplicationCard
-          key={app.id}
-          application={app}
-          countryMap={countryMap}
-          onAction={(action) => handleAction(app.id, action)}
-        />
-      ))}
-    </div>
+    <AdminInboxLayout
+      title="Bandeja de Entrada: Onboarding"
+      description="Revisá y aprobá las nuevas solicitudes de creación de perfiles."
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      pendingCount={pendingItems.length}
+      historyCount={historyItems.length}
+      statusFilter={statusFilter}
+      onFilterChange={setStatusFilter}
+    >
+      {displayedItems.length === 0 ? (
+        <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed border-neutral-800 p-8 text-center text-neutral-400">
+          <p>
+            {activeTab === "pending"
+              ? "No hay solicitudes pendientes."
+              : "No hay historial para mostrar."}
+          </p>
+        </div>
+      ) : (
+        <div className="grid gap-6">
+          {displayedItems.map((app) => (
+            <ApplicationCard
+              key={app.id}
+              application={app}
+              countryMap={countryMap}
+              onAction={(action) => handleAction(app.id, action)}
+            />
+          ))}
+        </div>
+      )}
+    </AdminInboxLayout>
   );
 }

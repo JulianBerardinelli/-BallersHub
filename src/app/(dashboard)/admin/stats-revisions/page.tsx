@@ -134,7 +134,7 @@ export default async function StatsRevisionsPage() {
     .eq("user_id", user.id)
     .maybeSingle<{ role: string | null }>();
 
-  if (profile?.role !== "admin") {
+  if (profile?.role !== "admin" && profile?.role !== "analyst") {
     redirect("/dashboard");
   }
 
@@ -217,9 +217,5 @@ export default async function StatsRevisionsPage() {
     .map((row) => mapRevisionRequest(row, submitterMap))
     .filter((value): value is StatsRevisionRequest => value !== null && value.stats.length > 0);
 
-  return (
-    <main className="mx-auto max-w-6xl space-y-6 p-6">
-      <StatsRevisionPanel initialRequests={requests} />
-    </main>
-  );
+  return <StatsRevisionPanel initialRequests={requests} />;
 }

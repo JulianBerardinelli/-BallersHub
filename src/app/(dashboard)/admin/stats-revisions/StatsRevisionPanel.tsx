@@ -408,14 +408,21 @@ function RequestCard({
   );
 }
 
+import AdminInboxLayout, { AdminInboxFilterProps } from "@/components/admin/AdminInboxLayout";
+
 export default function StatsRevisionPanel({ initialRequests }: { initialRequests: StatsRevisionRequest[] }) {
   const [requests, setRequests] = React.useState<StatsRevisionRequest[]>(initialRequests);
-  const [filter, setFilter] = React.useState<"pending" | "resolved">("pending");
+  const [activeTab, setActiveTab] = React.useState<"pending" | "history">("pending");
+  const [statusFilter, setStatusFilter] = React.useState<AdminInboxFilterProps>("all");
+
+  const pendingRequests = requests.filter((r) => r.status === "pending");
+  const historyRequests = requests.filter((r) => r.status !== "pending");
 
   const displayedRequests = React.useMemo(() => {
-    if (filter === "pending") return requests.filter((r) => r.status === "pending");
-    return requests.filter((r) => r.status !== "pending");
-  }, [requests, filter]);
+    if (activeTab === "pending") return pendingRequests;
+    if (statusFilter === "all") return historyRequests;
+    return historyRequests.filter((r) => r.status === statusFilter);
+  }, [pendingRequests, historyRequests, activeTab, statusFilter]);
 
   async function handleApprove(id: string, note: string, modifiedStats?: StatsRevisionItem[]) {
     await post(`/api/admin/stats/revisions/${id}/approve`, {
@@ -444,26 +451,16 @@ export default function StatsRevisionPanel({ initialRequests }: { initialRequest
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-2 border-b border-content3 pb-4">
-        <Button
-          size="sm"
-          variant={filter === "pending" ? "solid" : "light"}
-          color={filter === "pending" ? "primary" : "default"}
-          onPress={() => setFilter("pending")}
-        >
-          Pendientes ({requests.filter((r) => r.status === "pending").length})
-        </Button>
-        <Button
-          size="sm"
-          variant={filter === "resolved" ? "solid" : "light"}
-          color={filter === "resolved" ? "default" : "default"}
-          onPress={() => setFilter("resolved")}
-        >
-          Historial resuelto ({requests.filter((r) => r.status !== "pending").length})
-        </Button>
-      </div>
-
+    <AdminInboxLayout
+      title="Revisiones de Estadísticas"
+      description="Gestiona las solicitudes de adición o modificación de estadísticas que envían los jugadores."
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      pendingCount={pendingRequests.length}
+      historyCount={historyRequests.length}
+      statusFilter={statusFilter}
+      onFilterChange={setStatusFilter}
+    >
       {displayedRequests.length === 0 ? (
         <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-content3 bg-content2/30">
           <p className="text-sm text-default-500">No hay solicitudes en esta categoría.</p>
@@ -475,6 +472,6 @@ export default function StatsRevisionPanel({ initialRequests }: { initialRequest
           ))}
         </div>
       )}
-    </div>
+    </AdminInboxLayout>
   );
 }

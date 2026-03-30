@@ -44,10 +44,10 @@ export default async function AdminTeamsPage() {
   }));
 
   return (
-    <main className="mx-auto max-w-6xl p-8 space-y-6">
+    <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Equipos</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Equipos</h1>
+        <p className="text-sm text-neutral-400 mt-1">
           Gestioná solicitudes pendientes y editá equipos aprobados.
         </p>
       </div>

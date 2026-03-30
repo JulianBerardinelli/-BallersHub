@@ -266,7 +266,7 @@ begin
     'free',
     'active',
     jsonb_build_object(
-      'max_photos',0,
+      'max_photos',2,
       'max_videos',1,
       'reviews_enabled',false,
       'can_invite_reviews',false,
@@ -659,8 +659,8 @@ CREATE OR REPLACE FUNCTION "public"."max_media_allowed"("p_player_id" "uuid", "p
     LANGUAGE "sql" STABLE
     AS $$
   select case
-    when p_type = 'photo'::media_type then coalesce((get_limits_for_player(p_player_id)->>'max_photos')::int, 0)
-    when p_type = 'video'::media_type then coalesce((get_limits_for_player(p_player_id)->>'max_videos')::int, 0)
+    when p_type = 'photo'::media_type then coalesce((get_limits_for_player(p_player_id)->>'max_photos')::int, 2)
+    when p_type = 'video'::media_type then coalesce((get_limits_for_player(p_player_id)->>'max_videos')::int, 1)
     else 0 end;
 $$;
 
@@ -1252,7 +1252,7 @@ CREATE OR REPLACE VIEW "public"."player_dashboard_state" AS
  LEFT JOIN LATERAL (
         SELECT pm.url
         FROM public.player_media pm
-        WHERE pm.player_id = p.id AND pm.type = 'photo'::public.media_type AND pm.is_primary = true
+        WHERE pm.player_id = p.id AND pm.type = 'photo'::public.media_type AND pm.is_primary = true AND pm.is_approved = true
         ORDER BY pm.created_at DESC
         LIMIT 1
     ) media ON true;

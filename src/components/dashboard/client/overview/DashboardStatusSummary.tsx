@@ -30,7 +30,7 @@ type StatusCta = {
 export type DashboardStatusSummaryProps = {
   profileStatus: StatusDescriptor;
   visibility: string | null;
-  slug: string | null;
+  publicUrl: string | null;
   updatedAt: string | null;
   applicationStatus: ApplicationDescriptor | null;
   cta?: StatusCta;
@@ -55,7 +55,7 @@ function getUpdatedCopy(updatedAt: string | null): string | null {
 export default function DashboardStatusSummary({
   profileStatus,
   visibility,
-  slug,
+  publicUrl,
   updatedAt,
   applicationStatus,
   cta,
@@ -80,11 +80,11 @@ export default function DashboardStatusSummary({
 
           <p className="max-w-2xl text-neutral-200">{profileStatus.message}</p>
 
-          {slug ? (
+          {publicUrl ? (
             <p className="text-xs text-neutral-400">
               URL pública:{" "}
-              <Link className="font-semibold text-primary underline-offset-4 hover:underline" href={`/${slug}`}>
-                /{slug}
+              <Link className="font-semibold text-primary underline-offset-4 hover:underline" href={publicUrl}>
+                {publicUrl}
               </Link>
             </p>
           ) : null}

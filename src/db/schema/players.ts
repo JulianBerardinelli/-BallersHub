@@ -1,5 +1,6 @@
 // player_profiles
 import { pgTable, uuid, text, timestamp, integer, date, numeric, char } from "drizzle-orm/pg-core";
+import { agencyProfiles } from "./agencies";
 import { playerStatusEnum, visibilityEnum, planEnum } from "./enums";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -19,6 +20,7 @@ export const playerProfiles = pgTable("player_profiles", {
   contractStatus: text("contract_status"),
   // 👇 nuevo: team relacional opcional
   currentTeamId: uuid("current_team_id").references(() => teams.id, { onDelete: "set null" }),
+  agencyId: uuid("agency_id").references(() => agencyProfiles.id, { onDelete: "set null" }),
   careerObjectives: text("career_objectives"),
   planPublic: planEnum("plan_public").notNull().default("free"),
   nationalityCodes: char("nationality_codes", { length: 2 }).array(),

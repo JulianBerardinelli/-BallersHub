@@ -59,7 +59,7 @@ export default async function CareerAdminPage() {
     .select("role")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (up?.role !== "admin") redirect("/dashboard");
+  if (up?.role !== "admin" && up?.role !== "analyst") redirect("/dashboard");
 
   const { data, error } = await supa
     .from("player_applications")
@@ -145,10 +145,10 @@ export default async function CareerAdminPage() {
   });
 
   return (
-    <main className="mx-auto max-w-6xl p-8 space-y-6">
+    <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Trayectorias</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Trayectorias</h1>
+        <p className="text-sm text-neutral-400 mt-1">
           Gestioná trayectorias propuestas y aprobadas.
         </p>
       </div>

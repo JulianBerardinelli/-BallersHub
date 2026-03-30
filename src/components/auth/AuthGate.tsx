@@ -4,6 +4,7 @@ import { signOutAction } from "@/app/actions/auth";
 import UserMenu from "./UserMenu";
 import InOutButtons from "./InOutButtons";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { db } from "@/lib/db";
 
 export default async function AuthGate() {
   const supabase = await createSupabaseServerRSC();
@@ -23,13 +24,33 @@ export default async function AuthGate() {
   const profile = dashboardState.profile;
   const application = dashboardState.application;
 
+  // Multi-role fetch
+  const up = await db.query.userProfiles.findFirst({
+    where: (profiles, { eq }) => eq(profiles.userId, user.id),
+    with: { agency: true },
+  });
+  const role = up?.role || "member";
+  
+  const { data: managerApp } = await supabase
+    .from("manager_applications")
+    .select("status")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const isManager = role === "manager" || !!managerApp;
+
   const displayName =
+    isManager && up?.agency?.name ? up.agency.name :
     (user.user_metadata?.full_name as string | undefined) ??
     user.email?.split("@")[0] ??
     "Mi cuenta";
 
   // Si tenés un handle (@slug) lo mostramos, si no el email
-  const handle = profile?.slug ? `@${profile.slug}` : null;
+  const handle = isManager && up?.agency?.slug 
+    ? `@${up.agency.slug}` 
+    : profile?.slug ? `@${profile.slug}` : null;
 
   const hasPublicProfile =
     !!profile && profile.visibility === "public" && profile.status === "approved";
@@ -39,10 +60,16 @@ export default async function AuthGate() {
       displayName={displayName}
       email={user.email ?? ""}
       handle={handle}
-      avatarUrl={profile?.avatar_url ?? dashboardState.primaryPhotoUrl ?? null}
+      avatarUrl={isManager && up?.agency?.logoUrl ? up.agency.logoUrl : (profile?.avatar_url ?? dashboardState.primaryPhotoUrl ?? null)}
+      
+      role={isManager ? "manager" : "player"}
+      agencySlug={up?.agency?.slug}
+      managerApplicationStatus={managerApp?.status}
+
       hasPlayerProfile={hasPublicProfile}
       playerSlug={profile?.slug ?? null}
       applicationStatus={application?.status ?? null}
+      
       onSignOut={signOutAction}
     />
   );

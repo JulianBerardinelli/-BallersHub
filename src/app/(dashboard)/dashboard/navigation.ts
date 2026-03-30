@@ -32,7 +32,7 @@ export type ClientDashboardNavSection = {
   items: ClientDashboardNavItem[];
 };
 
-const BASE_NAVIGATION: ClientDashboardNavSection[] = [
+const PLAYER_NAVIGATION: ClientDashboardNavSection[] = [
   {
     id: "dashboard",
     title: "Panel",
@@ -122,10 +122,90 @@ const BASE_NAVIGATION: ClientDashboardNavSection[] = [
   },
 ];
 
+const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
+  {
+    id: "dashboard",
+    title: "Panel",
+    items: [
+      {
+        kind: "link",
+        id: "home",
+        title: "Panel de control",
+        href: "/dashboard",
+        description: "Resumen general de tu agencia.",
+      },
+    ],
+  },
+  {
+    id: "agency",
+    title: "Agencia",
+    items: [
+      {
+        kind: "link",
+        id: "agency-profile",
+        title: "Perfil de la Agencia",
+        href: "/dashboard/agency",
+        description: "Detalles, información y verificación.",
+      },
+      {
+        kind: "link",
+        id: "agency-players",
+        title: "Mis Jugadores",
+        href: "/dashboard/players",
+        description: "Cartera de futbolistas representados.",
+      },
+      {
+        kind: "link",
+        id: "agency-staff",
+        title: "Equipo Staff",
+        href: "/dashboard/agency/staff",
+        description: "Invita colegas y gestiona permisos.",
+      },
+    ],
+  },
+  {
+    id: "settings",
+    title: "Configuración",
+    items: [
+      {
+        kind: "link",
+        id: "manager-profile",
+        title: "Mi Perfil",
+        href: "/dashboard/profile",
+        description: "Tus datos públicos personales.",
+      },
+      {
+        kind: "link",
+        id: "account",
+        title: "Cuenta",
+        href: "/dashboard/settings/account",
+        description: "Datos de acceso y preferencias generales.",
+      },
+      {
+        kind: "link",
+        id: "subscription",
+        title: "Suscripción",
+        href: "/dashboard/settings/subscription",
+        description: "Estado del plan y facturación.",
+      },
+      {
+        kind: "action",
+        id: "logout",
+        title: "Cerrar sesión",
+        action: "sign-out",
+        description: "Salí del panel de manera segura.",
+      },
+    ],
+  },
+];
+
 export function buildClientDashboardNavigation(
   badges: Partial<Record<string, ClientDashboardNavBadge>> = {},
+  isManager: boolean = false
 ): ClientDashboardNavSection[] {
-  return BASE_NAVIGATION.map((section) => ({
+  const source = isManager ? MANAGER_NAVIGATION : PLAYER_NAVIGATION;
+  
+  return source.map((section) => ({
     ...section,
     items: section.items.map((item) =>
       item.kind === "link"

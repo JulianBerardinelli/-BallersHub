@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Button, Chip } from "@heroui/react";
-import { useForm } from "react-hook-form";
+import { Button, Chip, Select, SelectItem } from "@heroui/react";
+import { useForm, Controller } from "react-hook-form";
 import { Pencil, X } from "lucide-react";
 
 import FormField from "@/components/dashboard/client/FormField";
@@ -16,16 +16,20 @@ type SportProfileFormValues = {
   foot: string;
   currentClub: string;
   contractStatus: string;
+  agencyId: string;
 };
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
+type AgencyOption = { id: string; name: string; logoUrl: string | null };
+
 type Props = {
   playerId: string;
   initialValues: SportProfileFormValues;
+  agencies: AgencyOption[];
 };
 
-export default function SportProfileSection({ playerId, initialValues }: Props) {
+export default function SportProfileSection({ playerId, initialValues, agencies }: Props) {
   const [defaults, setDefaults] = useState<SportProfileFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -36,6 +40,7 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
     register,
     handleSubmit,
     reset,
+    control,
     setError,
     clearErrors,
     formState: { errors, isDirty },
@@ -78,6 +83,7 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
         playerId,
         foot: values.foot,
         contractStatus: values.contractStatus,
+        agencyId: values.agencyId,
       });
 
       if (!result.success) {
@@ -94,8 +100,13 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
         return;
       }
 
-      setDefaults(result.data);
-      reset(result.data);
+      const nextDefaults = {
+        ...result.data,
+        agencyId: result.data.agencyId ?? "",
+      };
+
+      setDefaults(nextDefaults);
+      reset(nextDefaults);
       setIsEditing(false);
       setStatus({
         type: "success",
@@ -170,12 +181,44 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
             id="contract_status"
             label="Situación contractual"
             placeholder="Libre, con contrato hasta 2026, etc."
-            description="Configuración pendiente de integración con contratos y documentos."
             readOnly={!isEditing}
             defaultValue={defaults.contractStatus}
             errorMessage={errors.contractStatus?.message}
             {...register("contractStatus")}
           />
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <Controller
+              name="agencyId"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  {...field}
+                  label="Agencia / Representante"
+                  placeholder="Buscá o seleccioná una agencia"
+                  isDisabled={!isEditing}
+                  labelPlacement="outside"
+                  classNames={{
+                    label: "text-xs font-semibold uppercase tracking-wider text-neutral-500",
+                    trigger: "bg-neutral-900/50 border border-neutral-800",
+                  }}
+                  defaultSelectedKeys={field.value ? [field.value] : [""]}
+                  selectedKeys={field.value ? [field.value] : [""]}
+                  onChange={(e) => field.onChange(e.target.value)}
+                >
+                  {[
+                    <SelectItem key="" textValue="Sin representación (Libre)">
+                      Sin representación (Libre)
+                    </SelectItem>,
+                    ...agencies.map((agency) => (
+                      <SelectItem key={agency.id} textValue={agency.name}>
+                        {agency.name}
+                      </SelectItem>
+                    )),
+                  ]}
+                </Select>
+              )}
+            />
+          </div>
         </div>
 
         {status ? (

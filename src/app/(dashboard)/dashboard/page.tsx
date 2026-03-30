@@ -9,6 +9,7 @@ import DashboardProgressList, {
 import DashboardStatusSummary, {
   type DashboardStatusSummaryProps,
 } from "@/components/dashboard/client/overview/DashboardStatusSummary";
+import { db } from "@/lib/db";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
@@ -24,6 +25,7 @@ import {
 } from "@/lib/dashboard/client/task-context";
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import ManagerOverview from "@/components/dashboard/manager/ManagerOverview";
 
 type PlayerOverview = TaskProfileSnapshot & { updated_at: string | null };
 
@@ -158,7 +160,7 @@ function getProfileSummary(
       color: statusMeta.color,
     },
     visibility: profile?.visibility ?? null,
-    slug: profile?.slug ?? null,
+    publicUrl: profile?.slug ? `/${profile.slug}` : null,
     updatedAt: profile?.updated_at ?? null,
     applicationStatus: applicationMeta
       ? {
@@ -338,6 +340,49 @@ export default async function DashboardPage() {
         notes: dashboardState.application.notes ?? null,
       } satisfies ApplicationOverview)
     : null;
+
+  const { data: up } = await supabase.from("user_profiles").select("*").eq("user_id", user.id).maybeSingle();
+  const role = up?.role || "member";
+
+  // En caso de que sea una solicitud Manager (el rol "member" lo mantiene si aún no se le aprueba su agencia)
+  const { data: managerApp } = await supabase
+    .from("manager_applications")
+    .select("status, created_at, agency_name")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const isManager = role === "manager" || !!managerApp;
+
+  if (role === "member" && !profile && !application && !managerApp) {
+    redirect("/onboarding/start");
+  }
+
+  if (isManager) {
+    let agencyData = null;
+    
+    if (up?.agency_id) {
+       const agency = await db.query.agencyProfiles.findFirst({
+         where: (a, { eq }) => eq(a.id, up.agency_id!),
+         with: {
+           players: { columns: { id: true } },
+           invites: { columns: { id: true } }
+         }
+       });
+       
+       if (agency) {
+         // +1 for the main owner/manager creating the agency
+         agencyData = {
+           slug: agency.slug,
+           playersCount: agency.players.length,
+           staffCount: agency.invites.length + 1
+         };
+       }
+    }
+  
+    return <ManagerOverview managerApp={managerApp} role={role} agencyData={agencyData} />;
+  }
 
   const metrics = profile ? await fetchPlayerTaskMetrics(supabase, profile.id) : EMPTY_PLAYER_TASK_METRICS;
   const normalizedProfile: TaskProfileSnapshot | null = profile

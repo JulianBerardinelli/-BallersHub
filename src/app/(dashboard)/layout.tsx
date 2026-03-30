@@ -4,13 +4,11 @@ import SiteHeader from "@/components/layout/SiteHeader";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-
-      <main className="mx-auto max-w-7xl">
-        <SiteHeader/>
-          
+    <div className="flex min-h-screen flex-col">
+      <SiteHeader />
+      <main className="flex-1">
         {children}
       </main>
-    </>
+    </div>
   );
 }

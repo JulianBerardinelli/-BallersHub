@@ -19,6 +19,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing-state";
+import { getActiveAgencies } from "@/app/actions/agencies";
 import ExternalLinksManager from "./components/ExternalLinksManager";
 import HonoursManager from "./components/HonoursManager";
 import SeasonStatsManager from "./components/SeasonStatsManager";
@@ -244,6 +245,8 @@ export default async function FootballDataPage() {
   const currentClub = hydratedProfile.current_club ?? "";
   const marketValue = formatMarketValue(profileData.market_value_eur ?? null);
   const getLinkByKind = (kind: string) => publishingState.links.find((link) => link.kind === kind)?.url ?? null;
+  // Fetch agency dictionary
+  const activeAgencies = await getActiveAgencies();
 
   const highlightUrl = pickFirstPresent(
     getLinkByKind("highlight"),
@@ -349,6 +352,13 @@ export default async function FootballDataPage() {
     };
   }
 
+  // NOTE: Profile state loader is required to fetch extra custom columns when not in basic snapshot
+  const { data: rawProfileRow } = await supabase
+    .from("player_profiles")
+    .select("agency_id")
+    .eq("id", profileData.id)
+    .single();
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -365,7 +375,9 @@ export default async function FootballDataPage() {
           foot: dominantFoot,
           currentClub,
           contractStatus: profileData.contract_status ?? "",
+          agencyId: rawProfileRow?.agency_id ?? "",
         }}
+        agencies={activeAgencies}
       />
 
       <SectionCard

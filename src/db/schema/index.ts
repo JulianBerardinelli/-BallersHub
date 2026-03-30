@@ -1,11 +1,15 @@
 // Re-exports
 export * from "./enums";
 export * from "./users";
+export * from "./agencies";
 export * from "./players";
 export * from "./media";
 export * from "./career";
 export * from "./careerProposals";
 export * from "./applications";
+export * from "./managerApplications";
+export * from "./agencyInvites";
+export * from "./managerProfiles";
 export * from "./teams";
 export * from "./countries";
 export * from "./stats";

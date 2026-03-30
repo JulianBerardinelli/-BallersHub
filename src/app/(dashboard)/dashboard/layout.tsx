@@ -35,6 +35,23 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const dashboardState = await fetchDashboardState(supabase, user.id);
 
+  const { db } = await import("@/lib/db");
+  const up = await db.query.userProfiles.findFirst({
+    where: (profiles, { eq }) => eq(profiles.userId, user.id),
+    with: { agency: true },
+  });
+  const role = up?.role || "member";
+
+  const { data: managerApp } = await supabase
+    .from("manager_applications")
+    .select("status, agency_name")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const isManager = role === "manager" || !!managerApp;
+
   const profile = dashboardState.profile;
   const application = dashboardState.application;
   const subscription = dashboardState.subscription;
@@ -76,7 +93,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   const taskEvaluation = evaluateDashboardTasks(taskContext);
   const navigationBadges = buildNavigationBadges(taskEvaluation);
-  const navigation = buildClientDashboardNavigation(navigationBadges);
+  const navigation = buildClientDashboardNavigation(navigationBadges, isManager);
 
   const userDisplayName =
     hydratedProfile?.full_name ??
@@ -102,9 +119,13 @@ export default async function DashboardLayout({ children }: { children: ReactNod
       <div className="mx-auto max-w-7xl space-y-6 p-6">
         <header className="space-y-4">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Área del cliente</h1>
+            <h1 className="text-2xl font-semibold text-white">
+              {isManager ? "Área de Agencia" : "Área del cliente"}
+            </h1>
             <p className="text-sm text-neutral-400">
-              Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta.
+              {isManager 
+                ? "Gestioná la representación de tus jugadores, permisos del staff y perfil institucional."
+                : "Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta."}
             </p>
           </div>
 
@@ -112,7 +133,19 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-4">
               <div className="relative size-16 overflow-hidden rounded-lg border border-neutral-800 bg-neutral-900">
-                {hydratedProfile ? (
+                {isManager ? (
+                  up?.agency?.logoUrl ? (
+                    <img
+                      src={up.agency.logoUrl}
+                      alt="Logo de la agencia"
+                      className="object-contain w-full h-full"
+                    />
+                  ) : (
+                    <div className="flex size-full items-center justify-center text-xs text-neutral-500 font-medium uppercase">
+                      {(up?.agency?.name || managerApp?.agency_name || "Ag").slice(0,2)}
+                    </div>
+                  )
+                ) : hydratedProfile ? (
                   <Image
                     src={hydratedProfile.avatar_url ?? "/images/player-default.png"}
                     alt="Avatar del jugador"
@@ -128,14 +161,27 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 )}
               </div>
               <div className="space-y-1">
-                <p className="text-sm font-semibold text-white">
-                  {hydratedProfile?.full_name ?? "Perfil sin configurar"}
-                </p>
-                <p className="text-xs text-neutral-500">
-                  {hydratedProfile?.slug
-                    ? `/${hydratedProfile.slug}`
-                    : "Creá tu perfil para habilitar tu página pública."}
-                </p>
+                {isManager ? (
+                  <>
+                    <p className="text-sm font-semibold text-white">
+                      {up?.agency?.name || managerApp?.agency_name || "Agencia en validación"}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {up?.agency?.slug ? `/agency/${up.agency.slug}` : "Configurá tu perfil para activar el enlace público"}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-sm font-semibold text-white">
+                      {hydratedProfile?.full_name ?? "Perfil sin configurar"}
+                    </p>
+                    <p className="text-xs text-neutral-500">
+                      {hydratedProfile?.slug
+                        ? `/${hydratedProfile.slug}`
+                        : "Creá tu perfil para habilitar tu página pública."}
+                    </p>
+                  </>
+                )}
               </div>
             </div>
             <div className="text-sm text-neutral-400">
@@ -145,7 +191,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            {hydratedProfile ? (
+            {isManager && managerApp ? (
+              <SummaryBadge tone={managerApp.status === "approved" ? "success" : "warning"}>
+                Manager: {managerApp.status === "approved" ? "Agencia Activa" : "En revisión"}
+              </SummaryBadge>
+            ) : hydratedProfile ? (
               <>
                 <SummaryBadge>Perfil: {hydratedProfile.status}</SummaryBadge>
                 <SummaryBadge>Visibilidad: {hydratedProfile.visibility}</SummaryBadge>

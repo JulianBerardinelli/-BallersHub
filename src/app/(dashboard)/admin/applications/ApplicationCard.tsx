@@ -190,7 +190,7 @@ export default function ApplicationCard({
                 ) : (
                   <h3 className="text-lg font-semibold">{draft.full_name || "(Sin nombre)"}</h3>
                 )}
-                {!isEditing && (
+                {!isEditing && application.status === "pending" && (
                   <Button
                     isIconOnly
                     size="sm"
@@ -201,7 +201,7 @@ export default function ApplicationCard({
                     <Edit2 size={14} />
                   </Button>
                 )}
-                {isEditing && (
+                {isEditing && application.status === "pending" && (
                   <div className="flex gap-1 ml-2">
                      <Button size="sm" color="primary" variant="flat" onPress={() => setIsEditing(false)}>
                         Listo
@@ -339,24 +339,37 @@ export default function ApplicationCard({
           </div>
 
           <div className="mt-6 flex flex-col gap-2">
-            <Button
-              color="success"
-              variant="flat"
-              startContent={<Check size={16} />}
-              onPress={() => setConfirmModal("approve")}
-              isLoading={loadingAction === "approve"}
-            >
-              Aprobar
-            </Button>
-            <Button
-              color="danger"
-              variant="light"
-              startContent={<Trash2 size={16} />}
-              onPress={() => setConfirmModal("reject")}
-              isLoading={loadingAction === "reject"}
-            >
-              Rechazar
-            </Button>
+            {application.status === "pending" ? (
+              <>
+                <Button
+                  color="success"
+                  variant="flat"
+                  startContent={<Check size={16} />}
+                  onPress={() => setConfirmModal("approve")}
+                  isLoading={loadingAction === "approve"}
+                >
+                  Aprobar
+                </Button>
+                <Button
+                  color="danger"
+                  variant="light"
+                  startContent={<Trash2 size={16} />}
+                  onPress={() => setConfirmModal("reject")}
+                  isLoading={loadingAction === "reject"}
+                >
+                  Rechazar
+                </Button>
+              </>
+            ) : (
+              <div className="flex justify-end mt-4">
+                <Chip
+                  color={application.status === "approved" ? "success" : "danger"}
+                  variant="flat"
+                >
+                  {application.status === "approved" ? "Aprobada" : "Rechazada"}
+                </Chip>
+              </div>
+            )}
           </div>
         </div>
       </div>

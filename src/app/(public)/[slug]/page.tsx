@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { playerProfiles, subscriptions, playerMedia, careerItems } from "@/db/schema";
@@ -37,6 +38,9 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
         eq(p.visibility, "public"),
         eq(p.status, "approved"),
       ),
+    with: {
+      agency: true,
+    }
   });
 
   if (!player) return notFound();
@@ -58,7 +62,10 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
 
   // 4) Media (filtramos en JS para evitar enums en el WHERE)
   const media = await db.select().from(playerMedia)
-    .where(eq(playerMedia.playerId, player.id));
+    .where(and(
+      eq(playerMedia.playerId, player.id),
+      eq(playerMedia.isApproved, true)
+    ));
   const photos = media.filter(m => m.type === "photo").slice(0, maxPhotos);
   const videos = media.filter(m => m.type === "video").slice(0, maxVideos);
 
@@ -76,6 +83,19 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
           <p className="text-sm text-neutral-600">{player.positions.join(" · ")}</p>
         ) : null}
         {player.currentClub ? <p className="text-sm">Club actual: {player.currentClub}</p> : null}
+        {player.agency ? (
+          <p className="text-sm mt-1">
+            Representación:{" "}
+            <Link href={`/agency/${player.agency.slug}`} className="text-primary hover:underline font-medium">
+              {player.agency.name}
+            </Link>
+            {player.agency.agentLicenseType && (
+              <span className="text-xs text-neutral-500 ml-2 border border-neutral-700 rounded-md px-1 py-0.5">
+                {player.agency.agentLicenseType}
+              </span>
+            )}
+          </p>
+        ) : null}
         {player.bio ? <p className="mt-3">{player.bio}</p> : null}
         {player.marketValueEur != null && (
           <p className="text-sm">Valor de mercado: {formatMarketValueEUR(player.marketValueEur)}</p>

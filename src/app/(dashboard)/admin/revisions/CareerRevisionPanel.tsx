@@ -236,17 +236,28 @@ function RevisionStageRow({ item, onChange, disabled = false }: StageRowProps) {
   );
 }
 
+import AdminInboxLayout, { AdminInboxFilterProps } from "@/components/admin/AdminInboxLayout";
+
 type Props = {
   initialRequests: RevisionRequest[];
 };
 
 export default function CareerRevisionPanel({ initialRequests }: Props) {
   const [requests, setRequests] = React.useState(initialRequests);
+  const [activeTab, setActiveTab] = React.useState<"pending" | "history">("pending");
+  const [statusFilter, setStatusFilter] = React.useState<AdminInboxFilterProps>("all");
   const [note, setNote] = React.useState<Record<string, string>>({});
   const [busy, setBusy] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
 
-  const pendingCount = requests.filter((req) => req.status === "pending").length;
+  const pendingRequests = requests.filter((req) => req.status === "pending");
+  const historyRequests = requests.filter((req) => req.status !== "pending");
+
+  const displayedRequests = React.useMemo(() => {
+    if (activeTab === "pending") return pendingRequests;
+    if (statusFilter === "all") return historyRequests;
+    return historyRequests.filter((r) => r.status === statusFilter);
+  }, [pendingRequests, historyRequests, activeTab, statusFilter]);
 
   const handleStageChange = React.useCallback((requestId: string, item: RevisionItem) => {
     setRequests((prev) =>
@@ -275,29 +286,27 @@ export default function CareerRevisionPanel({ initialRequests }: Props) {
     }
   }
 
-  if (!requests.length) {
-    return <p className="text-sm text-default-500">No hay solicitudes registradas todavía.</p>;
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Revisiones de trayectoria</h1>
-          <p className="text-sm text-default-500">
-            Gestioná actualizaciones enviadas por jugadores ya activos en la plataforma.
-          </p>
+    <AdminInboxLayout
+      title="Revisiones de trayectoria"
+      description="Gestioná actualizaciones enviadas por jugadores ya activos en la plataforma."
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+      pendingCount={pendingRequests.length}
+      historyCount={historyRequests.length}
+      statusFilter={statusFilter}
+      onFilterChange={setStatusFilter}
+    >
+      {error && <p className="text-sm text-danger-500 mb-4">{error}</p>}
+
+      {!displayedRequests.length ? (
+        <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-content3 bg-content2/30">
+          <p className="text-sm text-default-500">No hay solicitudes en esta categoría.</p>
         </div>
-        <Chip color={pendingCount > 0 ? "warning" : "success"} variant="flat">
-          {pendingCount} en revisión
-        </Chip>
-      </div>
-
-      {error && <p className="text-sm text-danger-500">{error}</p>}
-
-      <div className="grid gap-4">
-        {requests.map((request) => {
-          const status = mapStatus(request.status);
+      ) : (
+        <div className="grid gap-4">
+          {displayedRequests.map((request) => {
+            const status = mapStatus(request.status);
           return (
             <Card key={request.id} radius="lg" shadow="sm">
               <CardHeader className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between">
@@ -385,9 +394,10 @@ export default function CareerRevisionPanel({ initialRequests }: Props) {
               </CardBody>
             </Card>
           );
-        })}
-      </div>
-    </div>
+          })}
+        </div>
+      )}
+    </AdminInboxLayout>
   );
 }
 

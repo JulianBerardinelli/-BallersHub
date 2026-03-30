@@ -25,6 +25,7 @@ const sportProfileSchema = z.object({
   playerId: z.string().uuid(),
   foot: z.string().trim().max(50, "Ingresá un perfil válido.").optional(),
   contractStatus: z.string().trim().max(120, "La situación contractual es muy extensa.").optional(),
+  agencyId: z.string().trim().nullable().optional(),
 });
 
 const marketProjectionSchema = z.object({
@@ -50,6 +51,7 @@ type SportProfileResponse = {
   foot: string;
   currentClub: string;
   contractStatus: string;
+  agencyId: string | null;
 };
 
 type MarketProjectionResponse = {
@@ -213,13 +215,14 @@ export async function updateSportProfile(
 
   const { data: profileBefore, error: fetchError } = await ownership.supabase
     .from("player_profiles")
-    .select("positions, current_club, foot, contract_status")
+    .select("positions, current_club, foot, contract_status, agency_id")
     .eq("id", parsed.data.playerId)
     .maybeSingle<{
       positions: string[] | null;
       current_club: string | null;
       foot: string | null;
       contract_status: string | null;
+      agency_id: string | null;
     }>();
 
   if (fetchError) {
@@ -232,6 +235,8 @@ export async function updateSportProfile(
 
   const foot = sanitizeText(parsed.data.foot);
   const contractStatus = sanitizeText(parsed.data.contractStatus);
+  const rawAgencyId = parsed.data.agencyId === undefined ? profileBefore.agency_id : parsed.data.agencyId;
+  const agencyId = rawAgencyId === "" ? null : rawAgencyId; // Treat empty string as "no agency"
 
   const changes: ChangeLogEntry[] = [];
   const updatedFields = new Set<string>();
@@ -249,10 +254,19 @@ export async function updateSportProfile(
     });
     updatedFields.add("Situación contractual");
   }
+  
+  if (profileBefore.agency_id !== agencyId) {
+    changes.push({ field: "agency_id", oldValue: profileBefore.agency_id, newValue: agencyId });
+    updatedFields.add("Agencia representante");
+  }
 
   const { error: updateError } = await ownership.supabase
     .from("player_profiles")
-    .update({ foot, contract_status: contractStatus })
+    .update({ 
+      foot, 
+      contract_status: contractStatus,
+      agency_id: agencyId
+    })
     .eq("id", parsed.data.playerId);
 
   if (updateError) {
@@ -269,6 +283,7 @@ export async function updateSportProfile(
       foot: foot ?? "",
       currentClub: sanitizeText(profileBefore.current_club) ?? "",
       contractStatus: contractStatus ?? "",
+      agencyId: agencyId,
     },
     message: "Perfil deportivo actualizado correctamente.",
     updatedFields: Array.from(updatedFields),

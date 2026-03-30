@@ -211,10 +211,6 @@ export default async function CareerRevisionsPage() {
     .map((row) => mapRevisionRequest(row, submitterMap))
     .filter((value): value is RevisionRequest => value !== null && value.items.length > 0);
 
-  return (
-    <main className="mx-auto max-w-6xl space-y-6 p-6">
-      <CareerRevisionPanel initialRequests={requests} />
-    </main>
-  );
+  return <CareerRevisionPanel initialRequests={requests} />;
 }
 

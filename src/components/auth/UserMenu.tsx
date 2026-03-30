@@ -24,6 +24,9 @@ export default function UserMenuHero({
   hasPlayerProfile,   // ahora significa: “público & aprobado”
   playerSlug,
   applicationStatus,
+  role = "player",
+  agencySlug,
+  managerApplicationStatus,
   onSignOut,
 }: {
   displayName: string;
@@ -33,6 +36,9 @@ export default function UserMenuHero({
   hasPlayerProfile: boolean;
   playerSlug?: string | null;
   applicationStatus?: string | null;
+  role?: "player" | "manager" | "admin" | "member";
+  agencySlug?: string | null;
+  managerApplicationStatus?: string | null;
   onSignOut: () => Promise<void>;
 }) {
   const [pending, startTransition] = useTransition();
@@ -64,7 +70,13 @@ export default function UserMenuHero({
           <p className="font-semibold truncate">{email}</p>
         </DropdownItem>
 
-        {hasPlayerProfile && playerSlug ? (
+        {role === "manager" ? (
+          managerApplicationStatus === "pending" || managerApplicationStatus === "draft" ? (
+            <DropdownItem key="manager-status" color="primary" className="cursor-default" isReadOnly>
+              Agencia en revisión
+            </DropdownItem>
+          ) : null
+        ) : hasPlayerProfile && playerSlug ? (
           <DropdownItem key="public-profile" as={Link} href={`/${playerSlug}`}>
             Ver perfil público
           </DropdownItem>
@@ -85,23 +97,43 @@ export default function UserMenuHero({
         <DropdownItem key="dashboard" as={Link} href="/dashboard">
           Dashboard
         </DropdownItem>
-        <DropdownItem key="profile" as={Link} href="/dashboard/edit-profile/personal-data">
-          Datos personales
-        </DropdownItem>
-        <DropdownItem key="football" as={Link} href="/dashboard/edit-profile/football-data">
-          Datos futbolísticos
-        </DropdownItem>
-        <DropdownItem key="media" as={Link} href="/dashboard/edit-profile/multimedia">
-          Multimedia
-        </DropdownItem>
-        <DropdownItem key="template" as={Link} href="/dashboard/edit-template/styles">
-          Plantilla
-        </DropdownItem>
+
+        {role === "manager" ? (
+          <>
+            {agencySlug && (
+               <DropdownItem key="agency-public" as={Link} href={`/agency/${agencySlug}`}>
+                 Ver perfil público de Agencia
+               </DropdownItem>
+            )}
+            <DropdownItem key="agency-settings" as={Link} href="/dashboard/agency">
+              Configuración de Agencia
+            </DropdownItem>
+            <DropdownItem key="manager-profile" as={Link} href="/dashboard/profile">
+              Mi Perfil Manager
+            </DropdownItem>
+          </>
+        ) : (
+          <>
+            <DropdownItem key="profile" as={Link} href="/dashboard/edit-profile/personal-data">
+              Datos personales
+            </DropdownItem>
+            <DropdownItem key="football" as={Link} href="/dashboard/edit-profile/football-data">
+              Datos futbolísticos
+            </DropdownItem>
+            <DropdownItem key="media" as={Link} href="/dashboard/edit-profile/multimedia">
+              Multimedia
+            </DropdownItem>
+            <DropdownItem key="template" as={Link} href="/dashboard/edit-template/styles">
+              Plantilla
+            </DropdownItem>
+          </>
+        )}
+
         <DropdownItem key="billing" as={Link} href="/dashboard/settings/subscription">
           Suscripción
         </DropdownItem>
         <DropdownItem key="settings" as={Link} href="/dashboard/settings/account">
-          Configuración
+          Configuración general
         </DropdownItem>
         <DropdownItem
           key="logout"

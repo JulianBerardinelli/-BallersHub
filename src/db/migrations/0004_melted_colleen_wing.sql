@@ -1,10 +1,12 @@
--- 1. Agregamos la columna faltante en player_profiles
-ALTER TABLE "player_profiles" ADD COLUMN IF NOT EXISTS "transfermarkt_url" text;
+ALTER TABLE "player_profiles" ADD COLUMN "transfermarkt_url" text;--> statement-breakpoint
+ALTER TABLE "player_media" ADD COLUMN "is_approved" boolean DEFAULT true NOT NULL;--> statement-breakpoint
+ALTER TABLE "player_media" ADD COLUMN "is_flagged" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "player_media" ADD COLUMN "reviewed_by" uuid;--> statement-breakpoint
 
 -- 2. Borramos la vista anterior porque PostgreSQL no permite alterar el orden de columnas con CREATE OR REPLACE
-DROP VIEW IF EXISTS "public"."player_dashboard_state";
+DROP VIEW IF EXISTS "public"."player_dashboard_state";--> statement-breakpoint
 
--- 3. Recreamos la vista con la nueva columna integrada
+-- 3. Recreamos la vista con la nueva columna agregada en el schema
 CREATE OR REPLACE VIEW "public"."player_dashboard_state" AS
  SELECT
     u.id AS user_id,
@@ -68,13 +70,13 @@ CREATE OR REPLACE VIEW "public"."player_dashboard_state" AS
  LEFT JOIN LATERAL (
         SELECT pm.url
         FROM public.player_media pm
-        WHERE pm.player_id = p.id AND pm.type = 'photo'::public.media_type AND pm.is_primary = true
+        WHERE pm.player_id = p.id AND pm.type = 'photo'::public.media_type AND pm.is_primary = true AND pm.is_approved = true
         ORDER BY pm.created_at DESC
         LIMIT 1
-    ) media ON true;
+    ) media ON true;--> statement-breakpoint
 
-ALTER VIEW "public"."player_dashboard_state" OWNER TO "postgres";
+ALTER VIEW "public"."player_dashboard_state" OWNER TO "postgres";--> statement-breakpoint
 
 -- 4. Reasignamos los permisos de la vista
-GRANT SELECT ON TABLE "public"."player_dashboard_state" TO "authenticated";
+GRANT SELECT ON TABLE "public"."player_dashboard_state" TO "authenticated";--> statement-breakpoint
 GRANT SELECT ON TABLE "public"."player_dashboard_state" TO "service_role";

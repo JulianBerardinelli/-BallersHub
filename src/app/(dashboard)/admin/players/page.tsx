@@ -201,10 +201,10 @@ export default async function AdminPlayersPage() {
   );
 
   return (
-    <main className="mx-auto max-w-6xl p-8 space-y-6">
+    <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Directorio de Jugadores</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-bold tracking-tight text-white mb-2">Directorio de Jugadores</h1>
+        <p className="text-sm text-neutral-400 mt-1">
           Mantenimiento de catálogo global de perfiles de jugadores pre-existentes.
         </p>
       </div>

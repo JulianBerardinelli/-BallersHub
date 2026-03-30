@@ -21,8 +21,8 @@ export default async function AdminApplicationsPage() {
   const { data: rawApps, error } = await supa
     .from("player_applications")
     .select("*")
-    .eq("status", "pending")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(100);
 
   const kycStorage = supa.storage.from("kyc");
   const apps = await Promise.all((rawApps || []).map(async (app) => {
@@ -58,16 +58,5 @@ export default async function AdminApplicationsPage() {
     );
   }
 
-  return (
-    <div className="mx-auto max-w-7xl p-6">
-      <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Bandeja de Entrada: Onboarding</h1>
-        <p className="text-sm text-neutral-500">
-          Revisá y aprobá las nuevas solicitudes de creación de perfiles.
-        </p>
-      </header>
-
-      <ApplicationsPanel initialItems={apps ?? []} countryMap={countryMap} />
-    </div>
-  );
+  return <ApplicationsPanel initialItems={apps ?? []} countryMap={countryMap} />;
 }
