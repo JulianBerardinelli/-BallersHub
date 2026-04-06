@@ -1,13 +1,13 @@
 "use server";
 
 import crypto from "crypto";
-import { sendAgencyStaffInviteEmail } from "@/lib/resend";
+import { sendPlayerAgencyInviteEmail } from "@/lib/resend";
 import { eq, and, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { agencyInvites, userProfiles } from "@/db/schema";
+import { playerInvites, userProfiles } from "@/db/schema";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
-export async function inviteAgencyStaff(email: string) {
+export async function invitePlayerToAgency(email: string, contractEndDate: string) {
   const supabase = await createSupabaseServerRSC();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -26,8 +26,7 @@ export async function inviteAgencyStaff(email: string) {
 
   const normalizedEmail = email.toLowerCase().trim();
 
-  // 1. Edge Checks: Is the target email already a registered user?
-  // We use the postgres superuser connection in Drizzle to check auth.users securely.
+  // 1. Edge Checks: Is the target email already a registered *manager*?
   try {
     const authResult = await db.execute(
       sql`SELECT id FROM auth.users WHERE email = ${normalizedEmail} LIMIT 1`
@@ -39,17 +38,9 @@ export async function inviteAgencyStaff(email: string) {
         where: eq(userProfiles.userId, targetUserId),
       });
 
-      const targetPlayerProfile = await db.query.playerProfiles.findFirst({
-        where: (profiles, { eq }) => eq(profiles.userId, targetUserId),
-      });
-
-      if (targetPlayerProfile) {
-        return { error: "Este correo electrónico pertenece a un usuario que ya tiene un perfil público de jugador activo. Un jugador no puede ser mánager." };
-      }
-
       if (targetProfile) {
-        if (targetProfile.role === "manager" && targetProfile.agencyId !== userProfile.agencyId) {
-          return { error: "Este usuario ya pertenece como manager a otra agencia." };
+        if (targetProfile.role === "manager") {
+          return { error: "Este correo electrónico pertenece a un mánager. Los managers no pueden ser vinculados como jugadores." };
         }
       }
     }
@@ -57,48 +48,49 @@ export async function inviteAgencyStaff(email: string) {
     console.warn("Could not query auth schema, ignoring edge case check:", error);
   }
 
-  // 2. Check if an invite already exists for this email
-  const existingInvite = await db.query.agencyInvites.findFirst({
+  // 2. Check if a player invite already exists for this email
+  const existingInvite = await db.query.playerInvites.findFirst({
     where: and(
-      eq(agencyInvites.agencyId, userProfile.agencyId),
-      eq(agencyInvites.email, normalizedEmail),
-      eq(agencyInvites.status, "pending")
+      eq(playerInvites.agencyId, userProfile.agencyId),
+      eq(playerInvites.playerEmail, normalizedEmail),
+      eq(playerInvites.status, "pending")
     )
   });
 
   if (existingInvite) {
-    return { error: "Ya existe una invitación pendiente para este correo electrónico" };
+    return { error: "Ya existe una invitación pendiente para este jugador." };
   }
 
   // 3. Insert the invite
   try {
     const token = crypto.randomUUID();
-    const newInvite = await db.insert(agencyInvites).values({
+    const newInvite = await db.insert(playerInvites).values({
       agencyId: userProfile.agencyId,
-      email: normalizedEmail,
+      playerEmail: normalizedEmail,
       invitedByUserId: userProfile.id,
       token,
-      role: "manager", // Default staff role
+      contractEndDate: contractEndDate,
       status: "pending"
     }).returning();
 
     // 4. Send Email via Resend
-    const managerName = user.user_metadata?.full_name || "el equipo de dirección";
-    await sendAgencyStaffInviteEmail(
+    const managerName = user.user_metadata?.full_name || "su equipo de dirección";
+    await sendPlayerAgencyInviteEmail(
       normalizedEmail, 
       managerName, 
       userProfile.agency.name, 
-      token
+      token,
+      contractEndDate
     );
 
     return { success: true, invite: newInvite[0] };
   } catch (error) {
-    console.error("Error creating agency invite:", error);
+    console.error("Error creating player invite:", error);
     return { error: "Ocurrió un error al enviar la invitación. Inténtalo más tarde." };
   }
 }
 
-export async function getPendingInvitesForAgency() {
+export async function revokePlayerInvite(inviteId: string) {
   const supabase = await createSupabaseServerRSC();
   const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -115,48 +107,47 @@ export async function getPendingInvitesForAgency() {
   }
 
   try {
-    const invites = await db.query.agencyInvites.findMany({
+    await db.delete(playerInvites)
+      .where(and(
+        eq(playerInvites.id, inviteId),
+        eq(playerInvites.agencyId, userProfile.agencyId)
+      ));
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error revoking player invite:", error);
+    return { error: "Error al revocar la invitación" };
+  }
+}
+
+export async function getPendingPlayerInvitesForAgency() {
+  const supabase = await createSupabaseServerRSC();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "No autorizado" };
+  }
+
+  const userProfile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+  });
+
+  if (!userProfile?.agencyId || userProfile.role !== "manager") {
+    return { error: "No autorizado" };
+  }
+
+  try {
+    const invites = await db.query.playerInvites.findMany({
       where: and(
-        eq(agencyInvites.agencyId, userProfile.agencyId),
-        eq(agencyInvites.status, "pending")
+        eq(playerInvites.agencyId, userProfile.agencyId),
+        eq(playerInvites.status, "pending")
       ),
       orderBy: (invites, { desc }) => [desc(invites.createdAt)],
     });
 
     return { success: true, invites };
   } catch (error) {
-    console.error("Error fetching agency invites:", error);
-    return { error: "Error al cargar las invitaciones" };
-  }
-}
-
-export async function revokeInvite(inviteId: string) {
-  const supabase = await createSupabaseServerRSC();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    return { error: "No autorizado" };
-  }
-
-  const userProfile = await db.query.userProfiles.findFirst({
-    where: eq(userProfiles.userId, user.id),
-  });
-
-  if (!userProfile?.agencyId || userProfile.role !== "manager") {
-    return { error: "No tienes permisos" };
-  }
-
-  try {
-    // Only allow revoking if the invite belongs to the same agency
-    await db.delete(agencyInvites)
-      .where(and(
-        eq(agencyInvites.id, inviteId),
-        eq(agencyInvites.agencyId, userProfile.agencyId)
-      ));
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error revoking agency invite:", error);
-    return { error: "Error al revocar la invitación" };
+    console.error("Error fetching player invites:", error);
+    return { error: "Error al cargar las invitaciones de jugadores" };
   }
 }

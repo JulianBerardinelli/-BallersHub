@@ -5,9 +5,7 @@ import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const managerProfiles = pgTable("manager_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => userProfiles.id, { onDelete: "cascade" })
-    .notNull(),
+  userId: uuid("user_id").notNull(),
   fullName: text("full_name").notNull(),
   avatarUrl: text("avatar_url"),
   bio: text("bio"),

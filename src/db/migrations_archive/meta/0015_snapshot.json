@@ -1,6 +1,6 @@
 {
-  "id": "c928c6fb-4b60-4f1f-83ca-98bacd129b8e",
-  "prevId": "a2b70330-45f6-4a8a-8cfa-1b34fbc2c5c8",
+  "id": "1b4924c4-f3eb-40c3-b414-9a2227d88d38",
+  "prevId": "e6a9ee21-f70c-4c93-91be-9d89340564fc",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -190,19 +190,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "role": {
-          "name": "role",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'manager'"
-        },
         "status": {
           "name": "status",
           "type": "text",
@@ -255,15 +242,7 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "agency_invites_token_unique": {
-          "name": "agency_invites_token_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
@@ -1835,112 +1814,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.player_invites": {
-      "name": "player_invites",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "agency_id": {
-          "name": "agency_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "player_email": {
-          "name": "player_email",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "invited_by_user_id": {
-          "name": "invited_by_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "contract_end_date": {
-          "name": "contract_end_date",
-          "type": "date",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending'"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "player_invites_agency_id_agency_profiles_id_fk": {
-          "name": "player_invites_agency_id_agency_profiles_id_fk",
-          "tableFrom": "player_invites",
-          "tableTo": "agency_profiles",
-          "columnsFrom": [
-            "agency_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "player_invites_invited_by_user_id_user_profiles_id_fk": {
-          "name": "player_invites_invited_by_user_id_user_profiles_id_fk",
-          "tableFrom": "player_invites",
-          "tableTo": "user_profiles",
-          "columnsFrom": [
-            "invited_by_user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "player_invites_token_unique": {
-          "name": "player_invites_token_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
-        }
-      },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.manager_profiles": {
       "name": "manager_profiles",
       "schema": "",
@@ -2004,7 +1877,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "manager_profiles_user_id_user_profiles_id_fk": {
+          "name": "manager_profiles_user_id_user_profiles_id_fk",
+          "tableFrom": "manager_profiles",
+          "tableTo": "user_profiles",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -3148,6 +3035,39 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.antigravity_test": {
+      "name": "antigravity_test",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},

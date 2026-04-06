@@ -8,13 +8,14 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate --config=src/db/drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=src/db/drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=src/db/drizzle.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@heroui/react": "^2.8.2",
+    "@react-email/components": "^1.0.10",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.55.0",
@@ -28,6 +29,7 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
+    "resend": "^6.10.0",
     "zod": "^4.0.17"
   },
   "devDependencies": {
@@ -36,6 +38,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^17.3.1",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9",
     "eslint-config-next": "15.5.0",

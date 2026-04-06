@@ -8,6 +8,8 @@ import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import Image from "next/image";
 import Link from "next/link";
+import PlayerInviteManager from "@/components/dashboard/client/PlayerInviteManager";
+import { getPendingPlayerInvitesForAgency } from "@/app/actions/player-invites";
 
 export const metadata = {
   title: "Mis Jugadores - Dashboard",
@@ -39,6 +41,9 @@ export default async function AgencyPlayersPage() {
     orderBy: (players, { desc }) => [desc(players.createdAt)]
   });
 
+  const pendingInvitesRes = await getPendingPlayerInvitesForAgency();
+  const pendingInvites = pendingInvitesRes.success && pendingInvitesRes.invites ? pendingInvitesRes.invites : [];
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -51,9 +56,9 @@ export default async function AgencyPlayersPage() {
         description={`Actualmente tienes ${players.length} futbolista(s) vinculados a la agencia.`}
       >
         {players.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
+          <div className="flex flex-col items-center justify-center py-8 text-center">
              <p className="text-neutral-400">No hay jugadores vinculados aún.</p>
-             <p className="text-sm text-neutral-500 mt-2">Los jugadores pueden seleccionar esta agencia directamente desde su panel de edición para figurar en esta lista.</p>
+             <p className="text-sm text-neutral-500 mt-2">Envía una invitación al jugador para agregarlo a tu cartera.</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mt-4">
@@ -62,9 +67,10 @@ export default async function AgencyPlayersPage() {
                   <div className="flex items-center gap-4 p-4 border-b border-neutral-800">
                      <div className="relative size-12 shrink-0 overflow-hidden rounded-full bg-neutral-900">
                        <Image
-                         src={player.avatarUrl ?? "/images/player-default.jpg"}
+                         src={player.avatarUrl ?? "/images/player-default.png"}
                          alt={player.fullName}
                          fill
+                         sizes="48px"
                          className="object-cover"
                          unoptimized
                        />
@@ -95,6 +101,8 @@ export default async function AgencyPlayersPage() {
             ))}
           </div>
         )}
+
+        <PlayerInviteManager pendingInvites={pendingInvites} />
       </SectionCard>
     </div>
   );

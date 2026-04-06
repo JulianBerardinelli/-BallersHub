@@ -2,7 +2,7 @@
 "use client";
 
 import { HeroUIProvider } from "@heroui/react";
-import { NotificationProvider } from "@/modules/notifications";
+import { NotificationProvider } from "@/modules/notifications/NotificationProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

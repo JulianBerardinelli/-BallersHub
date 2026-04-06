@@ -24,6 +24,8 @@ import {
   isApplicationDraft,
   normalizeApplicationStatus,
 } from "@/lib/dashboard/client/application-status";
+import PendingInvitesModal from "@/components/dashboard/client/PendingInvitesModal";
+import PlayerPendingInvitesModal from "@/components/dashboard/client/PlayerPendingInvitesModal";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -51,6 +53,39 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     .maybeSingle();
 
   const isManager = role === "manager" || !!managerApp;
+
+  // Check for pending staff invites
+  const pendingStaffInvites = user.email ? await db.query.agencyInvites.findMany({
+    where: (invites, { eq, and }) => and(
+      eq(invites.email, user.email!),
+      eq(invites.status, "pending")
+    ),
+    with: {
+      agency: true
+    }
+  }) : [];
+
+  const formattedInvites = pendingStaffInvites.map(inv => ({
+    id: inv.id,
+    agencyName: inv.agency?.name || "Agencia"
+  }));
+
+  // Check for pending player representation invites
+  const pendingPlayerInvites = user.email && !isManager ? await db.query.playerInvites.findMany({
+    where: (invites, { eq, and }) => and(
+      eq(invites.playerEmail, user.email!),
+      eq(invites.status, "pending")
+    ),
+    with: {
+      agency: true
+    }
+  }) : [];
+
+  const formattedPlayerInvites = pendingPlayerInvites.map(inv => ({
+    id: inv.id,
+    agencyName: inv.agency?.name || "Agencia",
+    contractEndDate: inv.contractEndDate ? String(inv.contractEndDate) : null
+  }));
 
   const profile = dashboardState.profile;
   const application = dashboardState.application;
@@ -104,6 +139,8 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   return (
     <>
+      <PendingInvitesModal invites={formattedInvites} />
+      <PlayerPendingInvitesModal invites={formattedPlayerInvites} />
       <NotificationBootstrap
         userName={userDisplayName}
         onboarding={

@@ -102,3 +102,15 @@ export const agencyInvitesRelations = relations(agencyInvites, ({ one }) => ({
     references: [userProfiles.id],
   }),
 }));
+
+import { playerInvites } from "./playerInvites";
+export const playerInvitesRelations = relations(playerInvites, ({ one }) => ({
+  agency: one(agencyProfiles, {
+    fields: [playerInvites.agencyId],
+    references: [agencyProfiles.id],
+  }),
+  invitedBy: one(userProfiles, {
+    fields: [playerInvites.invitedByUserId],
+    references: [userProfiles.id],
+  }),
+}));

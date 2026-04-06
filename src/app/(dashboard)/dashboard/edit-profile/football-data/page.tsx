@@ -16,14 +16,15 @@ import {
   pickFirstPresent,
 } from "@/lib/dashboard/client/profile-data";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing-state";
-import { getActiveAgencies } from "@/app/actions/agencies";
 import ExternalLinksManager from "./components/ExternalLinksManager";
 import HonoursManager from "./components/HonoursManager";
 import SeasonStatsManager from "./components/SeasonStatsManager";
 import SportProfileSection from "./components/SportProfileSection";
+import AgencyRepresentationManager from "./components/AgencyRepresentationManager";
 import MarketProjectionSection from "./components/MarketProjectionSection";
 import CareerManager, {
   type CareerStage,
@@ -245,9 +246,7 @@ export default async function FootballDataPage() {
   const currentClub = hydratedProfile.current_club ?? "";
   const marketValue = formatMarketValue(profileData.market_value_eur ?? null);
   const getLinkByKind = (kind: string) => publishingState.links.find((link) => link.kind === kind)?.url ?? null;
-  // Fetch agency dictionary
-  const activeAgencies = await getActiveAgencies();
-
+  // Link suggestions
   const highlightUrl = pickFirstPresent(
     getLinkByKind("highlight"),
     primaryHighlight?.url ?? null,
@@ -359,6 +358,17 @@ export default async function FootballDataPage() {
     .eq("id", profileData.id)
     .single();
 
+  const agencyInfo = rawProfileRow?.agency_id
+    ? await db.query.agencyProfiles.findFirst({
+        where: (agencies, { eq }) => eq(agencies.id, rawProfileRow.agency_id as string),
+        columns: {
+          id: true,
+          name: true,
+          logoUrl: true,
+        }
+      })
+    : null;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -368,6 +378,8 @@ export default async function FootballDataPage() {
 
       <TaskCalloutList tasks={taskCallouts} />
 
+      <AgencyRepresentationManager agency={agencyInfo || null} />
+
       <SportProfileSection
         playerId={profileData.id}
         initialValues={{
@@ -375,9 +387,7 @@ export default async function FootballDataPage() {
           foot: dominantFoot,
           currentClub,
           contractStatus: profileData.contract_status ?? "",
-          agencyId: rawProfileRow?.agency_id ?? "",
         }}
-        agencies={activeAgencies}
       />
 
       <SectionCard

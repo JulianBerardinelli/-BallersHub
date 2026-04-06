@@ -2,11 +2,11 @@
 
 import { useEffect } from "react";
 
+import { useNotificationContext } from "../NotificationProvider";
 import {
   onboardingNotification,
   reviewNotification,
-  useNotificationContext,
-} from "@/modules/notifications";
+} from "../builders";
 import { ensureEventRecorded } from "@/modules/notifications/utils/eventStore";
 
 type OnboardingSnapshot = {
