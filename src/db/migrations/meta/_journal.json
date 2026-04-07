@@ -22,6 +22,34 @@
       "when": 1774911698750,
       "tag": "0002_fresh_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1775578391426,
+      "tag": "0003_thin_iron_monger",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775600862576,
+      "tag": "0004_busy_jamie_braddock",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775601158696,
+      "tag": "0005_pretty_exodus",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1775601860295,
+      "tag": "0006_curved_bug",
+      "breakpoints": true
     }
   ]
 }

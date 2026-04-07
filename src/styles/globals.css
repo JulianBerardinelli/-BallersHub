@@ -15,6 +15,7 @@
 @theme inline {
   --font-sans: var(--font-geist-sans); /* cargadas via next/font en layout */
   --font-mono: var(--font-geist-mono);
+  --font-zuume: var(--font-zuume);
 }
 
 /* Siempre dark + color-scheme coherente */

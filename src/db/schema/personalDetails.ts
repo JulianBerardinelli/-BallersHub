@@ -10,6 +10,7 @@ export const playerPersonalDetails = pgTable("player_personal_details", {
   documentCountry: text("document_country"),
   documentCountryCode: char("document_country_code", { length: 2 }),
   languages: text("languages").array(),
+  education: text("education"),
   phone: text("phone"),
   residenceCity: text("residence_city"),
   residenceCountry: text("residence_country"),

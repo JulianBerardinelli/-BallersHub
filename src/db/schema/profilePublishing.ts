@@ -8,8 +8,10 @@ export const profileThemeSettings = pgTable("profile_theme_settings", {
     .primaryKey()
     .references(() => playerProfiles.id, { onDelete: "cascade" }),
   layout: text("layout").notNull().default("classic"),
-  primaryColor: text("primary_color"),
-  accentColor: text("accent_color"),
+  primaryColor: text("primary_color").default("#10b981"),
+  secondaryColor: text("secondary_color").default("#2A2A2A"),
+  accentColor: text("accent_color").default("#34d399"),
+  backgroundColor: text("background_color").default("#050505"),
   typography: text("typography"),
   coverMode: text("cover_mode").default("photo"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

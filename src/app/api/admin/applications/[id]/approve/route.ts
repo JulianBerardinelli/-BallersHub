@@ -36,8 +36,8 @@ import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
 const FREE_LIMITS = {
-  max_photos: 0,
-  max_videos: 1,
+  max_photos: 10,
+  max_videos: 5,
   reviews_enabled: false,
   can_invite_reviews: false,
   max_active_invitations: 0,

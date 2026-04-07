@@ -1,0 +1,1 @@
+ALTER TABLE "profile_theme_settings" ADD COLUMN "typography" text;

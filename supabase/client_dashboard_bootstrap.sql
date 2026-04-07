@@ -430,4 +430,28 @@ LEFT JOIN LATERAL (
 GRANT SELECT ON public.player_dashboard_state TO authenticated;
 GRANT SELECT ON public.player_dashboard_state TO service_role;
 
+-- Fix RLS policy for player_media to allow avatar upload (is_primary = true) 
+-- bypassing the strict max_photos limit or using it as a separate concern.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_policy
+    WHERE polname = 'player_media_owner_insert_limit'
+      AND polrelid = 'public.player_media'::regclass
+  ) THEN
+    DROP POLICY player_media_owner_insert_limit ON public.player_media;
+  END IF;
+END$$;
+
+CREATE POLICY player_media_owner_insert_limit
+  ON public.player_media
+  FOR INSERT
+  WITH CHECK (
+    EXISTS (SELECT 1 FROM public.player_profiles p WHERE p.id = player_id AND p.user_id = auth.uid())
+    AND (
+      is_primary = TRUE OR public.can_add_media(auth.uid(), player_id, type)
+    )
+  );
+
 COMMIT;

@@ -6,7 +6,9 @@ type AnySupabaseClient = SupabaseClient<any, any, any>;
 export type DashboardThemeSettings = {
   layout: string;
   primaryColor: string | null;
+  secondaryColor: string | null;
   accentColor: string | null;
+  backgroundColor: string | null;
   typography: string | null;
   coverMode: string | null;
   createdAt: string | null;
@@ -131,7 +133,9 @@ function mapThemeSettings(input: Record<string, unknown>): DashboardThemeSetting
   return {
     layout: typeof input.layout === "string" ? input.layout : "classic",
     primaryColor: (typeof input.primary_color === "string" ? input.primary_color : null),
+    secondaryColor: (typeof input.secondary_color === "string" ? input.secondary_color : null),
     accentColor: (typeof input.accent_color === "string" ? input.accent_color : null),
+    backgroundColor: (typeof input.background_color === "string" ? input.background_color : null),
     typography: (typeof input.typography === "string" ? input.typography : null),
     coverMode: (typeof input.cover_mode === "string" ? input.cover_mode : null),
     createdAt: typeof input.created_at === "string" ? input.created_at : null,
@@ -224,7 +228,9 @@ type ThemeRow = {
   player_id: string;
   layout: string | null;
   primary_color: string | null;
+  secondary_color: string | null;
   accent_color: string | null;
+  background_color: string | null;
   typography: string | null;
   cover_mode: string | null;
   created_at: string | null;

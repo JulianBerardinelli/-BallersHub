@@ -35,7 +35,7 @@ export default function AvatarUploader({
 
       await supabase
         .from("player_media")
-        .update({ is_primary: false })
+        .delete()
         .eq("player_id", playerId)
         .eq("type", "photo")
         .eq("is_primary", true);

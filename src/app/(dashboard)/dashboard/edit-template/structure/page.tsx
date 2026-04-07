@@ -6,6 +6,7 @@ import LockedSection from "@/components/dashboard/client/LockedSection";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing-state";
+import StructureManagerClient from "./components/StructureManagerClient";
 
 const DEFAULT_STRUCTURE_BLOCKS = [
   {
@@ -206,35 +207,7 @@ export default async function TemplateStructurePage() {
         title="Bloques disponibles"
         description="Configurá qué secciones estarán visibles según tu perfil y objetivos."
       >
-        <div className="space-y-4">
-          {structureBlocks.map((block) => {
-            const settingsSummary = summarizeSectionSettings(block.settings);
-
-            return (
-              <label
-                key={block.id}
-                className="flex items-start justify-between gap-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-4"
-              >
-                <div>
-                  <p className="text-sm font-semibold text-white">{block.label}</p>
-                  <p className="text-xs text-neutral-400">{block.description}</p>
-                  {settingsSummary ? (
-                    <p className="mt-2 text-xs text-neutral-500">{settingsSummary}</p>
-                  ) : null}
-                </div>
-                <input
-                  type="checkbox"
-                  defaultChecked={block.enabled}
-                  disabled
-                  className="mt-1 h-5 w-5 cursor-not-allowed rounded border-neutral-700 bg-neutral-900 text-primary"
-                />
-              </label>
-            );
-          })}
-        </div>
-        <p className="text-xs text-neutral-500">
-          Próximamente se podrán definir reglas condicionales (por ejemplo, mostrar entrevistas solo si existen registros cargados).
-        </p>
+        <StructureManagerClient initialBlocks={structureBlocks} />
       </SectionCard>
 
       <SectionCard

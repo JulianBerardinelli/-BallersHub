@@ -1,8 +1,6 @@
 import { redirect } from "next/navigation";
 import MultimediaManagerClient from "@/components/dashboard/client/media/MultimediaManagerClient";
-import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
-import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
 import ArticlesManager from "@/components/dashboard/client/media/ArticlesManager";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
@@ -14,6 +12,7 @@ import {
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
 import LockedSection from "@/components/dashboard/client/LockedSection";
+import HeroAssetUploaderClient from "@/components/dashboard/client/media/HeroAssetUploaderClient";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
@@ -70,6 +69,14 @@ export default async function MultimediaPage() {
     .eq("player_id", profile.id)
     .order("published_at", { ascending: false, nullsFirst: false });
 
+  // Fetch hero url explicitly because dashboard view might not have it yet
+  const { data: profileWithHero } = await supabase
+    .from("player_profiles")
+    .select("hero_url")
+    .eq("id", profile.id)
+    .single();
+  const currentHeroUrl = profileWithHero?.hero_url ?? null;
+
   // Map Supabase snake_case back to Drizzle's camelCase PlayerMedia type
   const mediaItems = (rawMediaItems || []).map((item) => ({
     id: item.id,
@@ -125,6 +132,8 @@ export default async function MultimediaPage() {
 
       <TaskCalloutList tasks={taskCallouts} />
 
+      <HeroAssetUploaderClient currentHeroUrl={currentHeroUrl} playerId={profile.id} userId={user.id} />
+
       <MultimediaManagerClient 
         media={mediaItems || []} 
         profileContext={{
@@ -138,31 +147,6 @@ export default async function MultimediaPage() {
 
       <ArticlesManager articles={rawArticles || []} />
 
-      <SectionCard
-        title="Metadatos y categorización"
-        description="Definí etiquetas para organizar tu biblioteca y acelerar búsquedas internas."
-      >
-        <form className="grid gap-4 md:grid-cols-2">
-          <FormField id="tags" label="Etiquetas" placeholder="Ej: Presentación, Pretemporada, Selección" />
-          <FormField
-            id="copyright"
-            label="Derechos"
-            placeholder="Créditos y restricciones de uso"
-          />
-          <FormField
-            id="description"
-            as="textarea"
-            rows={3}
-            label="Descripción general"
-            placeholder="Notas sobre el uso del material multimedia."
-          />
-          <FormField
-            id="visibility"
-            label="Visibilidad multimedia"
-            placeholder="Público, privado, solo enlaces"
-          />
-        </form>
-      </SectionCard>
     </div>
   );
 }
