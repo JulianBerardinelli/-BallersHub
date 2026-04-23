@@ -3,7 +3,7 @@
 import clsx from "classnames";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTransition } from "react";
+import { useTransition, useState } from "react";
 import {
   Badge,
   Button,
@@ -13,6 +13,11 @@ import {
   DrawerHeader,
   ScrollShadow,
   useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
 import { Menu } from "lucide-react";
 import type {
@@ -42,16 +47,46 @@ export default function ClientDashboardSidebar({
 }) {
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
+  const handleSignOut = () => {
+    startTransition(() => {
+      onSignOut().then(() => onClose());
+    });
+  };
 
   return (
-    <nav className="space-y-8">
-      <SidebarContent
-        sections={sections}
-        pathname={pathname}
-        pending={pending}
-        onSignOut={() => startTransition(() => onSignOut())}
-      />
-    </nav>
+    <>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} classNames={{ base: "bg-neutral-950 border border-neutral-800" }}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="text-white">Cerrar Sesión</ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-neutral-400">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={onClose} isDisabled={pending} className="text-neutral-400">
+                  Cancelar
+                </Button>
+                <Button color="danger" isLoading={pending} onPress={handleSignOut}>
+                  {pending ? "Saliendo..." : "Cerrar sesión"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <nav className="space-y-8">
+        <SidebarContent
+          sections={sections}
+          pathname={pathname}
+          pending={pending}
+          onSignOut={onOpen}
+        />
+      </nav>
+    </>
   );
 }
 
@@ -65,9 +100,39 @@ export function ClientDashboardSidebarMobile({
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { isOpen: isModalOpen, onOpen: onModalOpen, onOpenChange: onModalOpenChange, onClose: onModalClose } = useDisclosure();
+
+  const handleSignOut = () => {
+    startTransition(() => {
+      onSignOut().then(() => {
+        onModalClose();
+      });
+    });
+  };
 
   return (
     <div className="lg:hidden">
+      <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange} classNames={{ base: "bg-neutral-950 border border-neutral-800" }}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="text-white">Cerrar Sesión</ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-neutral-400">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={onModalClose} isDisabled={pending} className="text-neutral-400">
+                  Cancelar
+                </Button>
+                <Button color="danger" isLoading={pending} onPress={handleSignOut}>
+                  {pending ? "Saliendo..." : "Cerrar sesión"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
       <Button
         variant="flat"
         radius="sm"
@@ -99,7 +164,7 @@ export function ClientDashboardSidebarMobile({
                     sections={sections}
                     pathname={pathname}
                     pending={pending}
-                    onSignOut={() => startTransition(() => onSignOut())}
+                    onSignOut={onModalOpen}
                     onNavigate={onClose}
                   />
                 </ScrollShadow>
@@ -133,11 +198,11 @@ function SidebarItem({
         disabled={pending}
         className="w-full rounded-md border border-neutral-800 bg-neutral-950/40 px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <div className="font-medium text-neutral-100">
-          {pending ? "Cerrando sesión..." : item.title}
+        <div className="font-medium text-neutral-100 flex items-center justify-between">
+          <span>{item.title}</span>
         </div>
         {item.description ? (
-          <p className="text-xs text-neutral-500">{item.description}</p>
+          <p className="text-xs text-neutral-500 mt-1">{item.description}</p>
         ) : null}
       </button>
     );

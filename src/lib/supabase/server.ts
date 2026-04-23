@@ -10,20 +10,39 @@ export async function createSupabaseServerRSC() {
   const cookieStore = await cookies();
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
-      get(name: string) { return cookieStore.get(name)?.value; },
-      set() {}, remove() {},
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        // En server components ignoramos los sets ya que no se pueden modificar headers
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            // Ignorado intencionalmente
+          })
+        } catch {
+        }
+      },
     },
   });
 }
 
-/** Route Handlers: puede escribir cookies */
+/** Route Handlers / Server Actions: puede escribir cookies */
 export async function createSupabaseServerRoute() {
   const cookieStore = await cookies();
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
-      get(name: string) { return cookieStore.get(name)?.value; },
-      set(name: string, value: string, options: CookieOptions) { cookieStore.set(name, value, options); },
-      remove(name: string, options: CookieOptions) { cookieStore.set(name, "", { ...options, expires: new Date(0) }); },
+      getAll() {
+        return cookieStore.getAll()
+      },
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options)
+          })
+        } catch {
+          // Ignorado preventivo
+        }
+      },
     },
   });
 }

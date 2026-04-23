@@ -23,7 +23,7 @@ export async function POST(_req: Request, ctx: { params: Params }) {
 
   const { data: app, error: eApp } = await admin
     .from("player_applications")
-    .select("id, proposed_team_name")
+    .select("id, proposed_team_name, status")
     .eq("id", applicationId)
     .maybeSingle();
   if (eApp) return NextResponse.json({ error: eApp.message }, { status: 400 });
@@ -100,6 +100,18 @@ export async function POST(_req: Request, ctx: { params: Params }) {
     if (upd.error) return NextResponse.json({ error: upd.error.message }, { status: 400 });
 
     acceptedItems++;
+  }
+
+  // 4) Si la aplicación original ya estaba aprobada, materializar la trayectoria inmediatamente
+  if (app.status === "approved") {
+    const { error: matErr } = await supa.rpc("materialize_career_from_application", {
+      p_application_id: applicationId,
+    });
+    if (matErr) {
+      console.error("Failed to materialize career after career approval:", matErr);
+      // We don't fail the request since the trajectory was accepted successfully,
+      // but we log it.
+    }
   }
 
   return NextResponse.json(

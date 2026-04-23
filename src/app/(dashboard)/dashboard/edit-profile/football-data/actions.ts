@@ -42,6 +42,16 @@ const marketProjectionSchema = z.object({
     .optional(),
 });
 
+const scoutingAnalysisSchema = z.object({
+  playerId: z.string().uuid(),
+  topCharacteristics: z.string().trim().max(300).optional(),
+  tacticsAnalysis: z.string().trim().max(1000).optional(),
+  physicalAnalysis: z.string().trim().max(1000).optional(),
+  mentalAnalysis: z.string().trim().max(1000).optional(),
+  techniqueAnalysis: z.string().trim().max(1000).optional(),
+  analysisAuthor: z.string().trim().max(120).optional(),
+});
+
 type FormActionSuccess<T> = { success: true; data: T; message?: string; updatedFields: string[] };
 type FormActionFailure = { success: false; message: string; fieldErrors?: Record<string, string | undefined> };
 type FormActionResult<T> = FormActionSuccess<T> | FormActionFailure;
@@ -56,7 +66,15 @@ type SportProfileResponse = {
 
 type MarketProjectionResponse = {
   marketValue: string;
-  careerObjectives: string;
+};
+
+type ScoutingAnalysisResponse = {
+  topCharacteristics: string;
+  tacticsAnalysis: string;
+  physicalAnalysis: string;
+  mentalAnalysis: string;
+  techniqueAnalysis: string;
+  analysisAuthor: string;
 };
 
 type ActionResult =
@@ -403,6 +421,135 @@ export async function updateMarketProjection(
   };
 }
 
+export async function updateScoutingAnalysis(
+  input: z.infer<typeof scoutingAnalysisSchema>
+): Promise<FormActionResult<ScoutingAnalysisResponse>> {
+  const parsed = scoutingAnalysisSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      message: "Revisá los datos ingresados e intentá nuevamente.",
+      fieldErrors: {
+        topCharacteristics: errors.topCharacteristics?.[0],
+        tacticsAnalysis: errors.tacticsAnalysis?.[0],
+        physicalAnalysis: errors.physicalAnalysis?.[0],
+        mentalAnalysis: errors.mentalAnalysis?.[0],
+        techniqueAnalysis: errors.techniqueAnalysis?.[0],
+        analysisAuthor: errors.analysisAuthor?.[0],
+      },
+    };
+  }
+
+  const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (ownership.error) {
+    return { success: false, message: ownership.error };
+  }
+
+  const { data: profileBefore, error: fetchError } = await ownership.supabase
+    .from("player_profiles")
+    .select("top_characteristics, tactics_analysis, physical_analysis, mental_analysis, technique_analysis, analysis_author")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{
+      top_characteristics: string[] | null;
+      tactics_analysis: string | null;
+      physical_analysis: string | null;
+      mental_analysis: string | null;
+      technique_analysis: string | null;
+      analysis_author: string | null;
+    }>();
+
+  if (fetchError) {
+    return { success: false, message: mapPostgrestError(fetchError) };
+  }
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
+  const parseCharacteristics = (value: string | null | undefined): string[] => {
+    if (!value?.trim()) return [];
+    return value.split(",").map(v => v.trim()).filter(Boolean);
+  };
+  const stringifyCharacteristics = (arr: string[] | null | undefined): string => {
+    if (!Array.isArray(arr) || arr.length === 0) return "";
+    return arr.join(", ");
+  };
+
+  const topCharacteristicsDb = parseCharacteristics(parsed.data.topCharacteristics);
+  const tacticsAnalysis = sanitizeText(parsed.data.tacticsAnalysis);
+  const physicalAnalysis = sanitizeText(parsed.data.physicalAnalysis);
+  const mentalAnalysis = sanitizeText(parsed.data.mentalAnalysis);
+  const techniqueAnalysis = sanitizeText(parsed.data.techniqueAnalysis);
+  const analysisAuthor = sanitizeText(parsed.data.analysisAuthor);
+
+  const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
+
+  const arraysEqual = (a: string[] | null, b: string[]) => {
+    if (!a) return b.length === 0;
+    if (a.length !== b.length) return false;
+    return a.every((val, index) => val === b[index]);
+  };
+
+  if (!arraysEqual(profileBefore.top_characteristics, topCharacteristicsDb)) {
+    changes.push({ field: "top_characteristics", oldValue: profileBefore.top_characteristics, newValue: topCharacteristicsDb });
+    updatedFields.add("Características principales");
+  }
+  if ((profileBefore.tactics_analysis ?? null) !== (tacticsAnalysis ?? null)) {
+    changes.push({ field: "tactics_analysis", oldValue: profileBefore.tactics_analysis, newValue: tacticsAnalysis });
+    updatedFields.add("Análisis táctico");
+  }
+  if ((profileBefore.physical_analysis ?? null) !== (physicalAnalysis ?? null)) {
+    changes.push({ field: "physical_analysis", oldValue: profileBefore.physical_analysis, newValue: physicalAnalysis });
+    updatedFields.add("Análisis físico");
+  }
+  if ((profileBefore.mental_analysis ?? null) !== (mentalAnalysis ?? null)) {
+    changes.push({ field: "mental_analysis", oldValue: profileBefore.mental_analysis, newValue: mentalAnalysis });
+    updatedFields.add("Análisis mental");
+  }
+  if ((profileBefore.technique_analysis ?? null) !== (techniqueAnalysis ?? null)) {
+    changes.push({ field: "technique_analysis", oldValue: profileBefore.technique_analysis, newValue: techniqueAnalysis });
+    updatedFields.add("Análisis técnico");
+  }
+  if ((profileBefore.analysis_author ?? null) !== (analysisAuthor ?? null)) {
+    changes.push({ field: "analysis_author", oldValue: profileBefore.analysis_author, newValue: analysisAuthor });
+    updatedFields.add("Autor del análisis");
+  }
+
+  const { error: updateError } = await ownership.supabase
+    .from("player_profiles")
+    .update({
+      top_characteristics: topCharacteristicsDb.length ? topCharacteristicsDb : null,
+      tactics_analysis: tacticsAnalysis,
+      physical_analysis: physicalAnalysis,
+      mental_analysis: mentalAnalysis,
+      technique_analysis: techniqueAnalysis,
+      analysis_author: analysisAuthor,
+    })
+    .eq("id", parsed.data.playerId);
+
+  if (updateError) {
+    return { success: false, message: mapPostgrestError(updateError) };
+  }
+
+  await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
+  revalidatePath(DASHBOARD_ROUTE);
+
+  return {
+    success: true,
+    data: {
+      topCharacteristics: stringifyCharacteristics(topCharacteristicsDb),
+      tacticsAnalysis: tacticsAnalysis ?? "",
+      physicalAnalysis: physicalAnalysis ?? "",
+      mentalAnalysis: mentalAnalysis ?? "",
+      techniqueAnalysis: techniqueAnalysis ?? "",
+      analysisAuthor: analysisAuthor ?? "",
+    },
+    message: "Reporte de Scouting actualizado correctamente.",
+    updatedFields: Array.from(updatedFields),
+  };
+}
+
 export async function upsertPlayerLink(input: LinkMutationInput): Promise<ActionResult> {
   const parsed = linkMutationSchema.safeParse(input);
   if (!parsed.success) {
@@ -625,6 +772,7 @@ export async function deleteSeasonStat(input: { id: string; playerId: string }):
 type NormalizedStage = {
   club: string;
   division: string | null;
+  division_id: string | null;
   start_year: number | null;
   end_year: number | null;
   team_id: string | null;
@@ -632,10 +780,11 @@ type NormalizedStage = {
   original_item_id: string | null;
 };
 
-function normalizeStage(input: CareerStageInput): NormalizedStage {
+function normalizeStage(input: CareerStageInput & { divisionId?: string | null }): NormalizedStage {
   return {
     club: input.club,
     division: input.division ?? null,
+    division_id: input.divisionId ?? null,
     start_year: input.startYear ?? null,
     end_year: input.endYear ?? null,
     team_id: input.teamId ?? null,
@@ -747,6 +896,33 @@ export async function submitCareerRevision(
       proposedTeamId = proposedRow?.id ?? null;
     }
 
+    let finalDivisionId = stage.division_id;
+
+    if (finalDivisionId?.startsWith("new:")) {
+      const parts = finalDivisionId.replace("new:", "").split("|");
+      const tmpDivName = parts[0];
+      const tmpCountryCode = parts[1] || stage.proposed_team?.countryCode || "";
+      
+      const slug = tmpDivName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + tmpCountryCode.toLowerCase();
+
+      const { data: divRow, error: divErr } = await supabase
+        .from("divisions")
+        .upsert({
+          name: tmpDivName,
+          country_code: tmpCountryCode.toUpperCase(),
+          slug,
+          status: "pending"
+        }, { onConflict: "slug" })
+        .select("id")
+        .maybeSingle<{id: string}>();
+
+      if (!divErr && divRow) {
+        finalDivisionId = divRow.id;
+      } else {
+        finalDivisionId = null; 
+      }
+    }
+
     const { error: itemError } = await supabase
       .from("career_revision_items")
       .insert({
@@ -754,6 +930,7 @@ export async function submitCareerRevision(
         original_item_id: stage.original_item_id,
         club: stage.club,
         division: stage.division,
+        division_id: finalDivisionId,
         start_year: stage.start_year,
         end_year: stage.end_year,
         team_id: stage.team_id,

@@ -12,6 +12,7 @@ export type TeamRow = {
   created_at: string;
   updated_at: string | null;
   requested_in_application_id: string | null;
+  division?: { id: string; name: string; crest_url: string | null } | null;
 };
 
 export type ColumnDef = {

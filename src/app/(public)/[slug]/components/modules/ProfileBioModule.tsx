@@ -3,6 +3,8 @@ import { careerItems, teams } from "@/db/schema";
 import { desc, eq } from "drizzle-orm";
 import BioClientCard from "./BioClientCard";
 
+import BioAnimatedBackground from "./BioAnimatedBackground";
+
 export default async function ProfileBioModule({ playerId }: { playerId: string }) {
   // 1) Fetch detailed bio asynchronously
   const personalDetails = await db.query.playerPersonalDetails.findFirst({
@@ -32,11 +34,15 @@ export default async function ProfileBioModule({ playerId }: { playerId: string 
 
   // 3) Fetch Team crest and Career Division
   let crestUrl = null;
+  let teamCountryCode = null;
   if (player?.currentTeamId) {
      const t = await db.query.teams.findFirst({
         where: (t, { eq }) => eq(t.id, player.currentTeamId!)
      });
-     if (t) crestUrl = t.crestUrl;
+     if (t) {
+       crestUrl = t.crestUrl;
+       teamCountryCode = t.countryCode;
+     }
   }
 
   const latestCareer = await db.query.careerItems.findFirst({
@@ -50,10 +56,9 @@ export default async function ProfileBioModule({ playerId }: { playerId: string 
 
   return (
     <div className="relative w-full">
-      {/* AMBIENT SPOTLIGHT BACKGROUND NEUTRAL */}
-      <div className="absolute top-1/2 left-[70%] -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-white/[0.03] blur-[140px] rounded-full pointer-events-none mix-blend-screen" />
+      <BioAnimatedBackground />
       
-      <BioClientCard data={personalDetails} player={player || {}} teamCrest={crestUrl} division={latestCareer?.division || null} socialLinks={socialLinks} />
+      <BioClientCard data={personalDetails} player={player || {}} teamCrest={crestUrl} teamCountryCode={teamCountryCode} division={latestCareer?.division || null} socialLinks={socialLinks} />
     </div>
   );
 }

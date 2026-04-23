@@ -16,6 +16,8 @@ import { userProfiles } from "./users";
 import { managerApplications } from "./managerApplications";
 import { agencyInvites } from "./agencyInvites";
 import { managerProfiles } from "./managerProfiles";
+import { divisions } from "./divisions";
+import { countries } from "./countries";
 
 export const playerProfilesRelations = relations(playerProfiles, ({ one, many }) => ({
   currentTeam: one(teams, {
@@ -112,5 +114,32 @@ export const playerInvitesRelations = relations(playerInvites, ({ one }) => ({
   invitedBy: one(userProfiles, {
     fields: [playerInvites.invitedByUserId],
     references: [userProfiles.id],
+  }),
+}));
+
+export const countriesRelations = relations(countries, ({ many }) => ({
+  divisions: many(divisions),
+}));
+
+export const divisionsRelations = relations(divisions, ({ one, many }) => ({
+  country: one(countries, {
+    fields: [divisions.countryCode],
+    references: [countries.code],
+  }),
+  teams: many(teams),
+  careerItems: many(careerItems),
+}));
+
+export const teamsRelations = relations(teams, ({ one }) => ({
+  division: one(divisions, {
+    fields: [teams.divisionId],
+    references: [divisions.id],
+  }),
+}));
+
+export const careerItemsRelations = relations(careerItems, ({ one }) => ({
+  division: one(divisions, {
+    fields: [careerItems.divisionId],
+    references: [divisions.id],
   }),
 }));

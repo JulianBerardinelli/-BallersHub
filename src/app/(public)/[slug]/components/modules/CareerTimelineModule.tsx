@@ -1,22 +1,51 @@
 import { db } from "@/lib/db";
-import { careerItems } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { careerItems, teams, statsSeasons, playerHonours, divisions } from "@/db/schema";
+import { eq, inArray } from "drizzle-orm";
+import ProfileCareerTimelineModule from "./ProfileCareerTimelineModule";
 
 export default async function CareerTimelineModule({ playerId }: { playerId: string }) {
-  // Fetch career asynchronously
-  const career = await db.select().from(careerItems).where(eq(careerItems.playerId, playerId));
+  const [careerRecords, stats, honours, allLinks] = await Promise.all([
+    db.select().from(careerItems).where(eq(careerItems.playerId, playerId)),
+    db.select().from(statsSeasons).where(eq(statsSeasons.playerId, playerId)),
+    db.select().from(playerHonours).where(eq(playerHonours.playerId, playerId)),
+    // playerLinks table — same pattern as ProfileBioModule
+    db.query.playerLinks.findMany({ where: (l, { eq }) => eq(l.playerId, playerId) }),
+  ]);
+
+  const teamIds = Array.from(new Set(careerRecords.map(c => c.teamId).filter(Boolean) as string[]));
+  const mappedTeams = teamIds.length > 0 
+    ? await db.select().from(teams).where(inArray(teams.id, teamIds))
+    : [];
+
+  const divisionIds = Array.from(new Set(careerRecords.map(c => c.divisionId).filter(Boolean) as string[]));
+  const mappedDivisions = divisionIds.length > 0
+    ? await db.select().from(divisions).where(inArray(divisions.id, divisionIds))
+    : [];
+
+  const career = careerRecords.map(item => {
+    const teamDb = mappedTeams.find(t => t.id === item.teamId);
+    const divisionDb = mappedDivisions.find(d => d.id === item.divisionId);
+    return {
+      ...item,
+      stats: stats.filter(s => s.careerItemId === item.id),
+      honours: honours.filter(h => h.careerItemId === item.id),
+      team: teamDb || null,
+      divisionData: divisionDb || null
+    };
+  });
+
+  // Extract sport platform links by kind
+  const findUrl = (kind: string) => allLinks.find(l => l.kind === kind)?.url ?? null;
+
+  const externalLinks = {
+    transfermarkt: findUrl("transfermarkt"),
+    beSoccer: findUrl("besoccer"),
+    flashscore: findUrl("flashscore"),
+  };
 
   return (
-    <section id="career" className="relative z-40 bg-transparent py-16 px-6 md:px-12 max-w-[1400px] w-full mx-auto">
-      <div className="absolute inset-0 bg-white/5 backdrop-blur-3xl rounded-[3rem] border border-white/10" />
-      <div className="relative z-10 p-12">
-        <h3 className="text-4xl font-heading font-black text-white">CAREER TIMELINE</h3>
-        <div className="space-y-4 mt-8">
-           {career.length > 0 ? career.map((c) => (
-             <div key={c.id} className="text-white/80">{c.club} - {c.startDate}</div>
-           )) : <p className="text-white/30">Sin historial registrado.</p>}
-        </div>
-      </div>
-    </section>
+    <div className="-mt-10">
+      <ProfileCareerTimelineModule career={career} externalLinks={externalLinks} />
+    </div>
   );
 }

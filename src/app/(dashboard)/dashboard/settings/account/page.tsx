@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import FormField from "@/components/dashboard/client/FormField";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import AccountSecurityForm from "./components/AccountSecurityForm";
 
 type UserProfileRole = {
   role: string;
@@ -33,26 +33,11 @@ export default async function AccountSettingsPage() {
         description="Gestioná tus credenciales, seguridad y preferencias generales del panel."
       />
 
-      <SectionCard
-        title="Información de acceso"
-        description="Estos datos definen cómo ingresás a tu cuenta. Pronto podrás gestionarlos directamente desde aquí."
-      >
-        <form className="grid gap-4 md:grid-cols-2">
-          <FormField id="email" label="Correo electrónico" defaultValue={user.email ?? ""} />
-          <FormField id="password" label="Contraseña" placeholder="********" description="La actualización de contraseña se habilitará en la próxima iteración." />
-          <FormField
-            id="role"
-            label="Rol de la cuenta"
-            defaultValue={profileRole?.role ?? "member"}
-            description="El rol define permisos dentro del ecosistema BallersHub."
-          />
-          <FormField
-            id="created_at"
-            label="Alta de la cuenta"
-            defaultValue={profileRole?.created_at ? new Date(profileRole.created_at).toLocaleDateString() : ""}
-          />
-        </form>
-      </SectionCard>
+      <AccountSecurityForm 
+        defaultEmail={user.email ?? ""} 
+        role={profileRole?.role ?? "member"} 
+        createdAt={profileRole?.created_at ?? ""} 
+      />
 
       <SectionCard
         title="Seguridad"

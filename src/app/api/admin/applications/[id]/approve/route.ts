@@ -113,6 +113,9 @@ export async function POST(req: Request, ctx: { params: Params }) {
     const updatePayload: Partial<Overrides> = {};
     if (overrides.full_name !== undefined) updatePayload.full_name = overrides.full_name;
     if (overrides.transfermarkt_url !== undefined) updatePayload.transfermarkt_url = overrides.transfermarkt_url;
+    if (overrides.birth_date !== undefined) updatePayload.birth_date = overrides.birth_date;
+    if (overrides.height_cm !== undefined) updatePayload.height_cm = overrides.height_cm;
+    if (overrides.weight_kg !== undefined) updatePayload.weight_kg = overrides.weight_kg;
 
     if (Object.keys(updatePayload).length > 0) {
       const { error: ovErr } = await admin
@@ -139,20 +142,22 @@ export async function POST(req: Request, ctx: { params: Params }) {
     ? (await admin.from("teams").select("name").eq("id", app.current_team_id).maybeSingle()).data?.name ?? null
     : null;
 
-  // 3c) no permitir aprobar si la trayectoria está "waiting"
-  const { data: waiting, error: wErr } = await admin
-    .from("career_item_proposals")
-    .select("id")
-    .eq("application_id", id)
-    .eq("status", "waiting")
-    .limit(1);
-  if (wErr) return NextResponse.json({ error: `waiting check failed: ${wErr.message}` }, { status: 400 });
-  if ((waiting ?? []).length > 0) return NextResponse.json({ error: "trajectory waiting" }, { status: 400 });
+  // 3b) no permitir aprobar si personal_info no está completo
+  if (!app.personal_info_approved) {
+    return NextResponse.json({ error: "personal_info not approved yet" }, { status: 400 });
+  }
 
   // 4) slug único para el jugador
   const slug = await ensureUniqueSlug(slugify(app.full_name ?? "player"), admin);
 
-  // 4b) Extraer fallback info de app.notes
+  // 4) actualizar user_profiles.role = 'player'
+  const { error: roleErr } = await admin
+    .from("user_profiles")
+    .update({ role: "player" })
+    .eq("user_id", app.user_id)
+    .in("role", ["member"]);
+
+  // Extraer fallback info de app.notes
   let fallbackBirth: string | null = null;
   let fallbackHeight: number | null = null;
   let fallbackWeight: number | null = null;
@@ -177,9 +182,9 @@ export async function POST(req: Request, ctx: { params: Params }) {
       current_club: teamName ?? app.current_club ?? null, // preferimos nombre real del team
       current_team_id: app.current_team_id ?? null,
       transfermarkt_url: overrides.transfermarkt_url ?? app.transfermarkt_url ?? null, // Migramos el override
-      height_cm: overrides.height_cm ?? fallbackHeight ?? null,
-      weight_kg: overrides.weight_kg ?? fallbackWeight ?? null,
-      birth_date: overrides.birth_date ?? fallbackBirth ?? null,
+      height_cm: overrides.height_cm ?? app.height_cm ?? fallbackHeight ?? null,
+      weight_kg: overrides.weight_kg ?? app.weight_kg ?? fallbackWeight ?? null,
+      birth_date: overrides.birth_date ?? app.birth_date ?? fallbackBirth ?? null,
       bio: null,
       visibility: "public",
       status: "approved",

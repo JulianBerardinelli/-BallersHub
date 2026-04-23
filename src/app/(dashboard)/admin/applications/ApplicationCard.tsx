@@ -36,13 +36,36 @@ export default function ApplicationCard({
   // Modal states
   const [confirmModal, setConfirmModal] = React.useState<"approve" | "reject" | null>(null);
 
+  // Extract fallback values from notes (for backward compatibility with existing applications)
+  let fallbackBirth = "";
+  let fallbackHeight = "";
+  let fallbackWeight = "";
+  try {
+    if (application.notes) {
+      const parsed = JSON.parse(application.notes);
+      
+      // birthDate could be a string or an object depending on when it was submitted
+      if (typeof parsed.birth_date === "string") {
+        fallbackBirth = parsed.birth_date;
+      } else if (parsed.birth_date && typeof parsed.birth_date === "object") {
+        const b = parsed.birth_date;
+        if (b.year && b.month && b.day) {
+          fallbackBirth = `${b.year}-${String(b.month).padStart(2, "0")}-${String(b.day).padStart(2, "0")}`;
+        }
+      }
+      
+      if (typeof parsed.height_cm === "number") fallbackHeight = String(parsed.height_cm);
+      if (typeof parsed.weight_kg === "number") fallbackWeight = String(parsed.weight_kg);
+    }
+  } catch (e) {}
+
   // Editing state -> overrides
   const [draft, setDraft] = React.useState({
     full_name: application.full_name || "",
-    birth_date: application.birth_date || "",
+    birth_date: application.birth_date || fallbackBirth || "",
     transfermarkt_url: application.transfermarkt_url || "",
-    height_cm: application.height_cm ? String(application.height_cm) : "",
-    weight_kg: application.weight_kg ? String(application.weight_kg) : "",
+    height_cm: application.height_cm ? String(application.height_cm) : fallbackHeight,
+    weight_kg: application.weight_kg ? String(application.weight_kg) : fallbackWeight,
   });
 
   const handleApprove = async () => {

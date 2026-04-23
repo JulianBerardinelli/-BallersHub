@@ -10,6 +10,7 @@ export const careerItems = pgTable("career_items", {
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }), // 👈 nuevo FK
   club: text("club").notNull(),                // nombre libre legacy (mantener por ahora)
   division: text("division"),
+  divisionId: uuid("division_id"), // Reference to divisions.id, FK added in relations or mapped manually
   startDate: date("start_date"),
   endDate: date("end_date"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

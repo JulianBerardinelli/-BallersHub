@@ -26,6 +26,7 @@ import SeasonStatsManager from "./components/SeasonStatsManager";
 import SportProfileSection from "./components/SportProfileSection";
 import AgencyRepresentationManager from "./components/AgencyRepresentationManager";
 import MarketProjectionSection from "./components/MarketProjectionSection";
+import ScoutingAnalysisSection from "./components/ScoutingAnalysisSection";
 import CareerManager, {
   type CareerStage,
   type CareerRequestSnapshot,
@@ -37,6 +38,7 @@ type CareerItem = {
   id: string;
   club: string | null;
   division: string | null;
+  division_id: string | null;
   start_date: string | null;
   end_date: string | null;
   team: {
@@ -72,6 +74,7 @@ type CareerRevisionItemRow = {
   id: string;
   club: string | null;
   division: string | null;
+  division_id: string | null;
   start_year: number | null;
   end_year: number | null;
   order_index: number | null;
@@ -146,7 +149,7 @@ export default async function FootballDataPage() {
     supabase
       .from("career_items")
       .select(
-        `id, club, division, start_date, end_date,
+        `id, club, division, start_date, end_date, division_id,
          team:teams!career_items_team_id_fkey ( id, name, crest_url, country_code )`
       )
       .eq("player_id", profileData.id)
@@ -166,6 +169,7 @@ export default async function FootballDataPage() {
            id,
            club,
            division,
+           division_id,
            start_year,
            end_year,
            order_index,
@@ -255,6 +259,12 @@ export default async function FootballDataPage() {
   );
   const transfermarktUrl = pickFirstPresent(getLinkByKind("transfermarkt"), applicationLinks.transfermarkt);
   const besoccerUrl = pickFirstPresent(getLinkByKind("besoccer"), applicationLinks.besoccer);
+  const flashscoreUrl = pickFirstPresent(
+    getLinkByKind("flashscore"),
+    applicationLinks.social && /flashscore/i.test(applicationLinks.social)
+      ? applicationLinks.social
+      : null,
+  );
   const youtubeUrl = pickFirstPresent(
     getLinkByKind("youtube"),
     applicationLinks.youtube,
@@ -281,6 +291,7 @@ export default async function FootballDataPage() {
     highlight: highlightUrl,
     transfermarkt: transfermarktUrl ?? null,
     besoccer: besoccerUrl ?? null,
+    flashscore: flashscoreUrl ?? null,
     youtube: youtubeUrl ?? null,
     instagram: instagramUrl ?? null,
     linkedin: linkedinUrl ?? null,
@@ -290,6 +301,7 @@ export default async function FootballDataPage() {
     id: item.id,
     club: item.club,
     division: item.division,
+    division_id: item.division_id,
     startYear: item.start_date ? safeYear(item.start_date) : null,
     endYear: item.end_date ? safeYear(item.end_date) : null,
     team: item.team
@@ -320,6 +332,7 @@ export default async function FootballDataPage() {
             id: item.id,
             club: item.club,
             division: item.division,
+            division_id: item.division_id,
             startYear: item.start_year ?? null,
             endYear: item.end_year ?? null,
             team: item.team
@@ -354,7 +367,7 @@ export default async function FootballDataPage() {
   // NOTE: Profile state loader is required to fetch extra custom columns when not in basic snapshot
   const { data: rawProfileRow } = await supabase
     .from("player_profiles")
-    .select("agency_id")
+    .select("agency_id, top_characteristics, tactics_analysis, physical_analysis, mental_analysis, technique_analysis, analysis_author")
     .eq("id", profileData.id)
     .single();
 
@@ -441,6 +454,18 @@ export default async function FootballDataPage() {
         />
       </SectionCard>
 
+      <ScoutingAnalysisSection
+        playerId={profileData.id}
+        initialValues={{
+          topCharacteristics: (rawProfileRow?.top_characteristics as string[])?.join(", ") ?? "",
+          tacticsAnalysis: rawProfileRow?.tactics_analysis ?? "",
+          physicalAnalysis: rawProfileRow?.physical_analysis ?? "",
+          mentalAnalysis: rawProfileRow?.mental_analysis ?? "",
+          techniqueAnalysis: rawProfileRow?.technique_analysis ?? "",
+          analysisAuthor: rawProfileRow?.analysis_author ?? "",
+        }}
+      />
+
       <MarketProjectionSection
         playerId={profileData.id}
         initialValues={{
@@ -453,7 +478,7 @@ export default async function FootballDataPage() {
 }
 
 function safeYear(value: string): number | null {
-  const year = new Date(value).getFullYear();
+  const year = new Date(value).getUTCFullYear();
   return Number.isNaN(year) ? null : year;
 }
 

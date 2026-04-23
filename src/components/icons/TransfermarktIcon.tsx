@@ -1,6 +1,6 @@
 import React from 'react';
 
-const TransfermarktIcon: React.FC = () => {
+const TransfermarktIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       version="1.1"
@@ -10,8 +10,8 @@ const TransfermarktIcon: React.FC = () => {
       x="0px"
       y="0px"
       viewBox="0 0 745.3 299.6"
-      style={{ enableBackground: 'new 0 0 745.3 299.6' }}
       xmlSpace="preserve"
+      {...props}
     >
       <style type="text/css">{`
         .st0 { fill: #FFFFFF; }

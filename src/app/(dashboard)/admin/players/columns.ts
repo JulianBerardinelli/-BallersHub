@@ -1,26 +1,24 @@
 import type { ColumnDef } from "./types";
 
 export const columns: ColumnDef[] = [
-  { name: "ID", uid: "id", sortable: true, className: "w-14" },
   {
-    name: "Solicitante",
-    uid: "applicant",
+    name: "Jugador",
+    uid: "full_name",
     sortable: true,
-    className: "md:w-[20%] max-w-0",
+    className: "md:w-[25%] max-w-0",
   },
   { name: "Plan", uid: "plan", sortable: true, className: "md:w-[10%]" },
-  { name: "Estado", uid: "status", sortable: true, className: "md:w-[12%]" },
+  { name: "Estado", uid: "status", sortable: true, className: "md:w-[10%]" },
   {
-    name: "Fecha",
-    uid: "created_at",
+    name: "Valor (EUR)",
+    uid: "market_value_eur",
     sortable: true,
-    className: "hidden md:table-cell md:w-[16%]",
+    className: "hidden md:table-cell md:w-[15%]",
   },
   {
-    name: "Equipo",
+    name: "Equipo Actual",
     uid: "current_team",
-    className: "hidden md:table-cell md:w-[20%] max-w-0",
+    className: "hidden md:table-cell md:w-[25%] max-w-0",
   },
-  { name: "Tareas", uid: "tasks", className: "hidden md:table-cell md:w-[12%]" },
-  { name: "Acciones", uid: "actions", className: "md:w-[12%] text-right" },
+  { name: "Acciones", uid: "actions", className: "md:w-[15%] text-right" },
 ];

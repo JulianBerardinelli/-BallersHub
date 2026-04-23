@@ -24,24 +24,31 @@ export default async function AdminTeamsPage() {
     .from("teams")
     .select(`
       id, name, slug, country, country_code, category, transfermarkt_url,
-      status, crest_url, created_at, updated_at, requested_in_application_id
+      status, crest_url, created_at, updated_at, requested_in_application_id,
+      division_id
     `)
     .order("created_at", { ascending: false });
 
-  const items: TeamRow[] = (teams ?? []).map(t => ({
-    id: t.id,
-    name: t.name,
-    slug: t.slug ?? null,
-    country: t.country ?? null,
-    country_code: t.country_code ?? null,
-    category: t.category ?? null,
-    transfermarkt_url: t.transfermarkt_url ?? null,
-    status: t.status as TeamRow["status"],
-    crest_url: t.crest_url ?? null,
-    created_at: t.created_at,
-    updated_at: t.updated_at ?? null,
-    requested_in_application_id: t.requested_in_application_id ?? null,
-  }));
+  const { data: allDivisions } = await supabase.from("divisions").select("id, name, crest_url, country_code").eq("status", "approved");
+
+  const items: TeamRow[] = (teams ?? []).map(t => {
+    const tDiv = allDivisions?.find((d) => d.id === t.division_id) || null;
+    return {
+      id: t.id,
+      name: t.name,
+      slug: t.slug ?? null,
+      country: t.country ?? null,
+      country_code: t.country_code ?? null,
+      category: t.category ?? null,
+      transfermarkt_url: t.transfermarkt_url ?? null,
+      status: t.status as TeamRow["status"],
+      crest_url: t.crest_url ?? null,
+      created_at: t.created_at,
+      updated_at: t.updated_at ?? null,
+      requested_in_application_id: t.requested_in_application_id ?? null,
+      division: tDiv ? { id: tDiv.id, name: tDiv.name, crest_url: tDiv.crest_url } : null,
+    };
+  });
 
   return (
     <main className="space-y-6">
@@ -54,7 +61,7 @@ export default async function AdminTeamsPage() {
 
       {error && <p className="text-red-500">{error.message}</p>}
 
-      <TeamsTableUI items={items} />
+      <TeamsTableUI items={items} allDivisions={allDivisions || []} />
     </main>
   );
 }

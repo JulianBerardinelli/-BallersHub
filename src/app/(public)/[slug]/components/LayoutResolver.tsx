@@ -8,6 +8,7 @@ import SmoothScrollProvider from "./SmoothScrollProvider";
 
 // SSR Modules for Streaming
 import ProfileBioModule from "./modules/ProfileBioModule";
+import TacticsModule from "./modules/TacticsModule";
 import CareerTimelineModule from "./modules/CareerTimelineModule";
 import StatsAndMarketModule from "./modules/StatsAndMarketModule";
 import MediaGalleryModule from "./modules/MediaGalleryModule";
@@ -73,6 +74,10 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
                */}
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
                  <ProfileBioModule playerId={player.id} />
+               </Suspense>
+
+               <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando Tácticas...</div>}>
+                 <TacticsModule playerId={player.id} />
                </Suspense>
 
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>

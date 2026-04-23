@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Button, Chip, Switch } from "@heroui/react";
+import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Button, Chip, Switch, Autocomplete, AutocompleteItem } from "@heroui/react";
 import TeamCrest from "@/components/teams/TeamCrest";
 import { supabase } from "@/lib/supabase/client";
 
@@ -24,7 +24,8 @@ export type TeamEditableInput = {
 };
 
 type Props = {
-  team: TeamEditableInput;
+  team: TeamEditableInput & { division?: { id: string, name: string } | null };
+  allDivisions?: any[];
   onSaved?: (updated: TeamEditableInput) => void;
   onCancel?: () => void;
 };
@@ -47,23 +48,35 @@ const statusColor: Record<Props["team"]["status"], "warning" | "success" | "dang
   rejected: "danger",
 };
 
-export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
+export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: Props) {
   // estado del form
   const [name, setName] = React.useState(team.name ?? "");
   const [slug, setSlug] = React.useState(team.slug ?? "");
   const [country, setCountry] = React.useState(team.country ?? "");
   const [countryCode, setCountryCode] = React.useState(team.country_code ?? "");
   const [category, setCategory] = React.useState(team.category ?? "");
+  const [divisionId, setDivisionId] = React.useState<string | null>(team.division?.id ?? null);
   const [tmUrl, setTmUrl] = React.useState(team.transfermarkt_url ?? "");
   const [tags, setTags] = React.useState(arrToCsv(team.tags));
   const [altNames, setAltNames] = React.useState(arrToCsv(team.alt_names));
   const [status, setStatus] = React.useState<Props["team"]["status"]>(team.status ?? "approved");
   const [featured, setFeatured] = React.useState<boolean>(!!team.featured);
   const [crestUrl, setCrestUrl] = React.useState<string>(team.crest_url ?? "/images/team-default.svg");
+  const [externalCrestUrl, setExternalCrestUrl] = React.useState<string>(
+    team.crest_url && team.crest_url.startsWith("http") && !team.crest_url.includes("supabase.co")
+      ? team.crest_url
+      : ""
+  );
 
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState<string | null>(null);
   const [ok, setOk] = React.useState<string | null>(null);
+
+  const filteredDivisions = React.useMemo(() => {
+    if (!onCancel) {} // ignore unused warning
+    if (!allDivisions) return [];
+    return allDivisions.filter(d => d.country_code === countryCode.toUpperCase());
+  }, [allDivisions, countryCode]);
 
   async function uploadCrest(file: File) {
     try {
@@ -84,6 +97,7 @@ export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
       if (updErr) throw updErr;
 
       setCrestUrl(`${url}?v=${Date.now()}`); // cache-bust
+      setExternalCrestUrl(""); // reset external link if a file is uploaded
       setOk("Escudo actualizado");
     } catch (e: any) {
       setErr(e?.message ?? "No se pudo subir el escudo");
@@ -104,6 +118,8 @@ export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
         alt_names: csvToArr(altNames),
         status,
         featured,
+        division_id: divisionId,
+        crest_url: externalCrestUrl.trim() ? externalCrestUrl.trim() : crestUrl,
       };
 
       const res = await fetch(`/api/admin/teams/${team.id}/update`, {
@@ -115,7 +131,7 @@ export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
       if (!res.ok) throw new Error(json?.error ?? "No se pudo actualizar el equipo.");
 
       setOk("Equipo actualizado");
-      onSaved?.({ ...team, ...json.data, crest_url: crestUrl });
+      onSaved?.({ ...team, ...json.data, crest_url: externalCrestUrl.trim() ? externalCrestUrl.trim() : crestUrl });
     } catch (e: any) {
       setErr(e.message ?? "Error inesperado");
     } finally {
@@ -127,7 +143,7 @@ export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
     <Card shadow="sm" radius="lg" className="bg-transparent ring-0 border-0">
       <CardHeader className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <TeamCrest src={crestUrl} size={40} />
+          <TeamCrest src={externalCrestUrl.trim() || crestUrl} size={40} />
           <div>
             <p className="font-semibold">{team.name}</p>
             <p className="text-xs text-neutral-500">
@@ -149,7 +165,31 @@ export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
             description="Vacío: se regenera automáticamente." />
           <Input size="sm" label="País" value={country} onChange={(e) => setCountry(e.target.value)} />
           <Input size="sm" label="Código país (ISO-2)" value={countryCode ?? ""} onChange={(e) => setCountryCode(e.target.value.toUpperCase())} placeholder="AR, ES, FI…" />
-          <Input size="sm" label="Categoría" value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Primera / Sub-20 / Amateur…" />
+          <Autocomplete 
+            size="sm" 
+            label="Categoría / División" 
+            placeholder="Primera / Sub-20 / Amateur…"
+            allowsCustomValue
+            defaultItems={filteredDivisions}
+            selectedKey={divisionId}
+            onSelectionChange={(key) => {
+              if (key) {
+                setDivisionId(key as string);
+                const div = filteredDivisions.find(d => d.id === key);
+                if (div) setCategory(div.name);
+              } else {
+                setDivisionId(null);
+              }
+            }}
+            onInputChange={(val) => {
+              setCategory(val);
+              const div = filteredDivisions.find(d => d.id === divisionId);
+              if (div && div.name !== val) setDivisionId(null);
+            }}
+            inputValue={category}
+          >
+            {(div: any) => <AutocompleteItem key={div.id}>{div.name}</AutocompleteItem>}
+          </Autocomplete>
           <Input size="sm" label="Transfermarkt (opcional)" value={tmUrl} onChange={(e) => setTmUrl(e.target.value)} placeholder="https://www.transfermarkt..." />
           <Textarea size="sm" label="Tags (coma)" minRows={2} value={tags} onChange={(e) => setTags(e.target.value)} />
           <Textarea size="sm" label="Otros nombres (coma)" minRows={2} value={altNames} onChange={(e) => setAltNames(e.target.value)} />
@@ -161,14 +201,28 @@ export default function TeamEditCard({ team, onSaved, onCancel }: Props) {
 
         {/* Acciones y subida de escudo — botones abajo a la derecha */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-center">
-          <div className="flex items-center gap-3">
-            <input
-              aria-label="Subir escudo"
-              type="file"
-              accept="image/png,image/svg+xml"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCrest(f); }}
-              className="text-sm"
-            />
+          <div className="flex flex-col gap-3 p-3 border border-default-200 rounded-medium bg-default-50/50">
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">Escudo del Equipo</span>
+              <input
+                aria-label="Subir escudo"
+                type="file"
+                accept="image/png,image/svg+xml"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadCrest(f); }}
+                className="text-sm"
+              />
+            </div>
+            
+            <div className="flex items-center w-full gap-2 opacity-50">
+              <hr className="flex-1 border-neutral-300" />
+              <span className="text-[10px] text-neutral-500 uppercase font-semibold">O pegar enlace</span>
+              <hr className="flex-1 border-neutral-300" />
+            </div>
+            
+            <div>
+              <Input type="url" size="sm" placeholder="https://wikipedia.org/.../logo.svg" value={externalCrestUrl} onChange={e => setExternalCrestUrl(e.target.value)} />
+              <p className="text-[10px] text-default-400 mt-1">El URL reemplazará el archivo al guardar los cambios.</p>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 sm:justify-end md:ml-auto">

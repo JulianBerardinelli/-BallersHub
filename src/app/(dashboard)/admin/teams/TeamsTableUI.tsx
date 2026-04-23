@@ -12,6 +12,8 @@ import TeamCrest from "@/components/teams/TeamCrest";
 
 import TeamAdminCard from "./team_admin_card";
 import TeamEditCard, { TeamEditableInput } from "./team_edit_card";
+import CsvImporter from "@/components/admin/CsvImporter";
+import { bulkUpsertTeams } from "./bulkActions";
 
 
 import { teamColumns } from "./columns";
@@ -22,6 +24,7 @@ import ClientDate from "@/components/common/ClientDate";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useAdminModalPreset } from "../ui/modalPresets";
 
+const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
 
 type SortDir = "ascending" | "descending";
 
@@ -31,7 +34,7 @@ const statusColorMap: Record<TeamRow["status"], "success" | "warning" | "danger"
   rejected: "danger",
 };
 
-export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[] }) {
+export default function TeamsTableUI({ items: initialItems, allDivisions }: { items: TeamRow[], allDivisions: any[] }) {
   const isMobile = useIsMobile();
   const modalPreset = useAdminModalPreset();
   const [items, setItems] = React.useState<TeamRow[]>(initialItems);
@@ -99,22 +102,34 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
         );
       }
 
-      case "country":
+      case "country": {
+        const ccode = t.country_code || undefined;
+        const countryName = ccode ? (dnEs.of(ccode) || ccode) : (t.country ?? "—");
         return (
           <span className="truncate block">
             <span className="inline-flex items-center gap-1">
               <CountryFlag
-                code={(t as any).country_code ?? undefined}
-                title={t.country ?? (t as any).country_code ?? undefined}
+                code={ccode}
+                title={countryName}
                 size={16}
               />
-              <span className="truncate">{t.country ?? "—"}</span>
+              <span className="truncate">{countryName}</span>
             </span>
           </span>
         );
+      }
 
       case "category":
-        return <span className="truncate block">{t.category ?? "—"}</span>;
+        return (
+          <div className="flex items-center gap-2 max-w-[200px]">
+            {t.division && t.division.crest_url && (
+              <img src={t.division.crest_url} alt="" className="w-5 h-5 object-contain shrink-0" />
+            )}
+            <span className="truncate block text-sm text-default-700">
+               {t.division ? t.division.name : (t.category ?? "—")}
+            </span>
+          </div>
+        );
 
       case "status":
         return <Chip size="sm" color={statusColorMap[t.status]} variant="flat" className="capitalize">{t.status}</Chip>;
@@ -185,6 +200,16 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
 
   return (
     <>
+      <div className="flex justify-end mb-4">
+        <CsvImporter 
+          buttonLabel="Importar CSV (Equipos)"
+          title="Importación Masiva de Equipos"
+          expectedColumns={["name", "slug", "country_code", "category", "division_slug", "crest_url", "transfermarkt_url"]}
+          onImport={bulkUpsertTeams}
+          onSuccess={() => window.location.reload()}
+        />
+      </div>
+      
       {/* Tabla DESKTOP */}
       <div className="hidden md:block">
         <Table
@@ -447,6 +472,7 @@ export default function TeamsTableUI({ items: initialItems }: { items: TeamRow[]
                 <ModalBody className={modalPreset.classNames?.body}>
                   <TeamEditCard
                     team={item}
+                    allDivisions={allDivisions}
                     onSaved={(updated) => {
                       setItems((prev) => prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)));
                       setModal({ kind: null, id: null });

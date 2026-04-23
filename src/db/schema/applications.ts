@@ -1,5 +1,5 @@
 // player_applications
-import { pgTable, uuid, text, timestamp, boolean, char } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, char, date, integer } from "drizzle-orm/pg-core";
 import { planEnum } from "./enums";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -9,6 +9,9 @@ export const playerApplications = pgTable("player_applications", {
   userId: uuid("user_id").notNull(),
   planRequested: planEnum("plan_requested").notNull().default("free"),
   fullName: text("full_name"),
+  birthDate: date("birth_date"),
+  heightCm: integer("height_cm"),
+  weightKg: integer("weight_kg"),
   nationality: text("nationality").array(),
   positions: text("positions").array(),
   currentClub: text("current_club"),

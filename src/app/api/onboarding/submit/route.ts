@@ -136,11 +136,24 @@ export async function POST(req: Request) {
     ui_version: "onboarding_v2",
   });
 
+  let formattedBirthDate = null;
+  if (typeof step1.birthDate === "string") {
+    formattedBirthDate = step1.birthDate;
+  } else if (step1.birthDate && typeof step1.birthDate === "object") {
+    const b: any = step1.birthDate;
+    if (b.year && b.month && b.day) {
+      formattedBirthDate = `${b.year}-${String(b.month).padStart(2, "0")}-${String(b.day).padStart(2, "0")}`;
+    }
+  }
+
   const payload = {
     user_id: user.id,
     plan_requested: "free" as const,
     status: "pending" as const,
     full_name: step1.fullName || null,
+    birth_date: formattedBirthDate,
+    height_cm: step1.heightCm ?? null,
+    weight_kg: step1.weightKg ?? null,
     nationality: nationalityNames as string[],
     positions: positions as string[],
     current_club,

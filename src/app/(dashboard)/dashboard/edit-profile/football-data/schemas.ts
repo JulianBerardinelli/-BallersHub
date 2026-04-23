@@ -4,6 +4,7 @@ export const LINK_KINDS = [
   "highlight",
   "transfermarkt",
   "besoccer",
+  "flashscore",
   "youtube",
   "instagram",
   "linkedin",
@@ -207,6 +208,7 @@ export const careerStageInputSchema = z.object({
       return trimmed.length === 0 ? null : trimmed;
     })
     .nullable(),
+  divisionId: optionalUuid("Seleccioná una división válida."),
   startYear: yearField,
   endYear: yearField,
   teamId: optionalUuid("Seleccioná un equipo válido."),

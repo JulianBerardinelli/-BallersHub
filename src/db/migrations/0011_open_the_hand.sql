@@ -1,0 +1,1 @@
+ALTER TABLE "divisions" ADD COLUMN "reference_url" text;

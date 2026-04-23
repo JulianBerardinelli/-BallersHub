@@ -1,6 +1,56 @@
 import { Resend } from "resend";
+import { getPlayerWelcomeEmail } from "./email-templates/player-welcome";
+import { getAgencyWelcomeEmail } from "./email-templates/agency-welcome";
 
 export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// ============================================
+// ONBOARDING / BIENVENIDAS
+// ============================================
+
+export const sendPlayerWelcomeEmail = async (email: string, playerName: string) => {
+  if (!resend) {
+    console.log("[Resend Mock] Envío ignorado: Welcome Player ->", email);
+    return;
+  }
+  
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ''}/dashboard`;
+
+  try {
+    await resend.emails.send({
+      from: "'Ballershub <no-reply@ballershub.co>",
+      to: [email],
+      subject: "Ponte en marcha en 'Ballershub",
+      html: getPlayerWelcomeEmail(playerName, dashboardUrl),
+    });
+  } catch (error) {
+    console.error("Error al enviar email de bienvenida a jugador:", error);
+  }
+};
+
+export const sendAgencyWelcomeEmail = async (email: string, managerName: string) => {
+  if (!resend) {
+    console.log("[Resend Mock] Envío ignorado: Welcome Agency ->", email);
+    return;
+  }
+
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ''}/dashboard`;
+  
+  try {
+    await resend.emails.send({
+      from: "'Ballershub <no-reply@ballershub.co>",
+      to: [email],
+      subject: "Construye tu Directorio de Talentos",
+      html: getAgencyWelcomeEmail(managerName, dashboardUrl),
+    });
+  } catch (error) {
+    console.error("Error al enviar email de bienvenida a agencia:", error);
+  }
+};
+
+// ============================================
+// AGENCIA & JUGADORES (NETWORKING)
+// ============================================
 
 export const sendAgencyStaffInviteEmail = async (
   email: string,
@@ -18,23 +68,22 @@ export const sendAgencyStaffInviteEmail = async (
 
   try {
     await resend.emails.send({
-      from: "BallersHub <no-reply@ballershub.co>",
+      from: "'Ballershub <no-reply@ballershub.co>",
       to: [email],
-      subject: `Invitación para unirte a ${agencyName} en BallersHub`,
+      subject: `Invitación para unirte a ${agencyName} en 'Ballershub`,
       html: `
         <div>
           <h2>¡Hola!</h2>
-          <p><strong>${managerName}</strong> te ha invitado a formar parte del staff de la agencia <strong>${agencyName}</strong> en BallersHub.</p>
+          <p><strong>${managerName}</strong> te ha invitado a formar parte del staff de la agencia <strong>${agencyName}</strong> en 'Ballershub.</p>
           <p>Para aceptar la invitación y unirte al equipo, haz clic en el siguiente enlace:</p>
           <a href="${inviteLink}" style="display:inline-block;padding:10px 20px;background-color:#000;color:#fff;text-decoration:none;border-radius:5px;margin:20px 0;">Aceptar Invitación</a>
           <p>Si ya posees una cuenta, te pediremos que inicies sesión. Si no, podrás registrarte rápidamente.</p>
-          <p>El equipo de BallersHub</p>
+          <p>El equipo de 'Ballershub</p>
         </div>
       `,
     });
   } catch (error) {
     console.error("Error al enviar email de invitación:", error);
-    // Silent fail for the user, but logged
   }
 };
 
@@ -55,18 +104,18 @@ export const sendPlayerAgencyInviteEmail = async (
 
   try {
     await resend.emails.send({
-      from: "BallersHub <no-reply@ballershub.co>",
+      from: "'Ballershub <no-reply@ballershub.co>",
       to: [email],
       subject: `${agencyName} ha solicitado sumarte a su cartera de jugadores`,
       html: `
         <div>
           <h2>¡Hola!</h2>
-          <p>La agencia <strong>${agencyName}</strong> (representada por ${managerName}) te ha invitado a formar parte de su cartera de futbolistas en BallersHub.</p>
+          <p>La agencia <strong>${agencyName}</strong> (representada por ${managerName}) te ha invitado a formar parte de su cartera de futbolistas en 'Ballershub.</p>
           <p>El vínculo de representación registrado en nuestra plataforma está vigente hasta el <strong>${contractEndDate}</strong>.</p>
           <p>Para aceptar la invitación y vincular tu perfil deportivo de forma oficial a ${agencyName}, haz clic en el siguiente enlace:</p>
           <a href="${inviteLink}" style="display:inline-block;padding:10px 20px;background-color:#000;color:#fff;text-decoration:none;border-radius:5px;margin:20px 0;">Vincularme a la Agencia</a>
-          <p>Si aún no tienes tu perfil de BallersHub configurado, te pediremos que lo completes al ingresar.</p>
-          <p>El equipo de BallersHub</p>
+          <p>Si aún no tienes tu perfil configurado, te pediremos que lo completes al ingresar.</p>
+          <p>El equipo de 'Ballershub</p>
         </div>
       `,
     });
@@ -82,22 +131,20 @@ export const sendPlayerDisconnectEmail = async (
 ) => {
   if (!resend) {
     console.log("[Resend Mock] Envío ignorado. Configura RESEND_API_KEY.");
-    console.log(`[Resend Mock] Email a ${agencyEmail}: ${playerName} se ha desvinculado de ${agencyName}`);
     return;
   }
 
   try {
     await resend.emails.send({
-      from: "BallersHub <no-reply@ballershub.co>",
+      from: "'Ballershub <no-reply@ballershub.co>",
       to: [agencyEmail],
       subject: `Notificación de desvinculación: ${playerName}`,
       html: `
         <div>
           <h2>Aviso de desvinculación</h2>
-          <p>La cuenta correspondiente a <strong>${playerName}</strong> ha cancelado unilateralmente su vinculación con la agencia <strong>${agencyName}</strong> en BallersHub.</p>
+          <p>La cuenta correspondiente a <strong>${playerName}</strong> ha cancelado unilateralmente su vinculación con la agencia <strong>${agencyName}</strong> en 'Ballershub.</p>
           <p>Este cambio ya tiene efecto inmediato en la plataforma, y el jugador ya no aparecerá en tu directorio de roster.</p>
-          <p>Si esto fue un error, puedes volver a enviarle una invitación desde tu panel de "Mis Jugadores".</p>
-          <p>El equipo de BallersHub</p>
+          <p>El equipo de 'Ballershub</p>
         </div>
       `,
     });

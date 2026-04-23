@@ -16,6 +16,7 @@ export const teams = pgTable("teams", {
   tags: text("tags").array(),                      // "xeneize", "sub-20"...
   crestUrl: text("crest_url").notNull().default("/images/team-default.svg"),
   category: text("category"),
+  divisionId: uuid("division_id"), // Reference to divisions.id, FK added in relations or mapped manually
   transfermarktUrl: text("transfermarkt_url"),
   // tracking
   requestedByUserId: uuid("requested_by_user_id"), // quien lo propuso

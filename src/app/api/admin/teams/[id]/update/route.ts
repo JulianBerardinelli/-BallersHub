@@ -78,6 +78,8 @@ async function doUpdate(req: Request, params: Params) {
     "status",
     "featured",
     "visibility",
+    "crest_url",
+    "division_id",
   ] as const;
 
   const update: Record<string, any> = {};

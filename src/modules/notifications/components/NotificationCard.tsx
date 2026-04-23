@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Avatar,
   Button,
@@ -85,8 +85,17 @@ export type NotificationCardProps = {
 
 export const NotificationCard = ({ notification, onDismiss }: NotificationCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const tone = toneStyles[notification.tone];
   const relativeTime = useMemo(() => formatRelativeTime(notification.createdAt), [notification.createdAt]);
+
+  useEffect(() => {
+    if (isHovered) return;
+    const timer = setTimeout(() => {
+      onDismiss(notification.id);
+    }, 10000);
+    return () => clearTimeout(timer);
+  }, [isHovered, notification.id, onDismiss]);
 
   const canExpand = Boolean(notification.details) && notification.expandable;
   const showDetails = Boolean(notification.details) && (expanded || !canExpand);
@@ -98,6 +107,8 @@ export const NotificationCard = ({ notification, onDismiss }: NotificationCardPr
       animate={{ opacity: 1, translateY: 0, scale: 1 }}
       exit={{ opacity: 0, translateY: 24, scale: 0.95 }}
       transition={{ type: "spring", stiffness: 320, damping: 30 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Card
         radius="lg"

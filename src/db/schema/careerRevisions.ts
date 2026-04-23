@@ -44,6 +44,7 @@ export const careerRevisionItems = pgTable("career_revision_items", {
   originalItemId: uuid("original_item_id").references(() => careerItems.id, { onDelete: "set null" }),
   club: text("club").notNull(),
   division: text("division"),
+  divisionId: uuid("division_id"), // Reference to divisions.id, FK mapped manually or in relations
   startYear: integer("start_year"),
   endYear: integer("end_year"),
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),

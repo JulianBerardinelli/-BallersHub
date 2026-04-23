@@ -1,0 +1,1 @@
+ALTER TABLE "divisions" ADD COLUMN "is_youth" boolean DEFAULT false NOT NULL;

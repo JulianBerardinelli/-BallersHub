@@ -32,6 +32,8 @@ export type RowDraft = {
   id: string;
   club: string;
   division?: string | null;
+  division_id?: string | null;
+  division_meta?: { crest_url?: string | null } | null;
   start_year?: number | null;
   end_year?: number | null;
   team_id?: string | null;
@@ -72,6 +74,31 @@ export default function CareerRowEditor({
   );
   const [selectedTeam, setSelectedTeam] = React.useState<TeamLite | null>(null);
   const selectedLabelRef = React.useRef<string | null>(value.club || null);
+
+  // --- Autocomplete Division ---
+  const [divQ, setDivQ] = React.useState(value.division ?? "");
+  const [divs, setDivs] = React.useState<any[]>([]);
+  const [divLoading, setDivLoading] = React.useState(false);
+  const [selectedDivKey, setSelectedDivKey] = React.useState<string | null>(
+    value.division_id ? value.division_id : null
+  );
+
+  React.useEffect(() => {
+    let cancelled = false;
+    async function loadDivs() {
+      setDivLoading(true);
+      let query = supabase.from("divisions").select("id, name, country_code, crest_url").eq("status", "approved");
+      const c = value.team_meta?.country_code || value.proposed?.country?.code;
+      if (c) query = query.eq("country_code", c);
+      
+      const { data } = await query.order("level", { ascending: true, nullsFirst: false });
+      if (cancelled) return;
+      setDivs(data || []);
+      setDivLoading(false);
+    }
+    loadDivs();
+    return () => { cancelled = true; };
+  }, [value.team_meta?.country_code, value.proposed?.country?.code]);
 
   // --- Años: strings locales para evitar “pelea” de inputs ---
   const [startStr, setStartStr] = React.useState<string>(value.start_year ? String(value.start_year) : "");
@@ -143,6 +170,15 @@ export default function CareerRowEditor({
       onPatch({ team_id: null, team_meta: null, proposed: null });
     }
     onPatch({ club: v });
+  }
+
+  function handleDivChange(v: string) {
+    setDivQ(v);
+    if (selectedDivKey && v !== divs.find((d) => d.id === selectedDivKey)?.name) {
+      setSelectedDivKey(null);
+      onPatch({ division_id: null, division_meta: null });
+    }
+    onPatch({ division: v });
   }
 
   function saveModal() {
@@ -249,14 +285,58 @@ export default function CareerRowEditor({
         </Autocomplete>
       </div>
 
-      <Input
+      <Autocomplete
         label="División/Categoría"
         labelPlacement="outside"
-        value={value.division ?? ""}
-        onChange={(e) => onPatch({ division: e.target.value })}
-        placeholder="Primera / Sub-20 / Amateur…"
-        classNames={{ label: "whitespace-nowrap" }}
-      />
+        menuTrigger="input"
+        inputValue={divQ}
+        onInputChange={handleDivChange}
+        isLoading={divLoading}
+        selectedKey={selectedDivKey ?? undefined}
+        onSelectionChange={(key) => {
+          const k = String(key || "");
+          if (!k) return;
+          const isNew = k.startsWith("new:");
+          if (isNew) {
+            setSelectedDivKey(k);
+            onPatch({ division_id: null, division: divQ, division_meta: null });
+          } else {
+            const d = divs.find((i) => i.id === k);
+            if (d) {
+              setSelectedDivKey(d.id);
+              setDivQ(d.name);
+              onPatch({ division: d.name, division_id: d.id, division_meta: { crest_url: d.crest_url } });
+            }
+          }
+        }}
+        items={[
+          ...(!divLoading && divQ.trim().length > 1 && !divs.some(d => d.name.toLowerCase() === divQ.toLowerCase())
+            ? ([{ id: `new:${divQ.trim()}`, name: divQ.trim() }] as any)
+            : []),
+          ...divs,
+        ]}
+        placeholder="Primera / Sub-20…"
+      >
+        {(item: any) => {
+          const isNew = String(item.id).startsWith("new:");
+          if (isNew) {
+            return (
+              <AutocompleteItem key={item.id} textValue={`Proponer ${item.name}`}>
+                <div className="flex flex-col">
+                  <span>“{item.name}” (Sugerir nueva liga)</span>
+                </div>
+              </AutocompleteItem>
+            );
+          }
+          return (
+            <AutocompleteItem key={item.id} textValue={item.name} startContent={
+                <img src={item.crest_url || "/images/team-default.svg"} className="h-4 w-4 object-contain" alt="" />
+            }>
+              {item.name}
+            </AutocompleteItem>
+          );
+        }}
+      </Autocomplete>
 
       <Input
         type="text"

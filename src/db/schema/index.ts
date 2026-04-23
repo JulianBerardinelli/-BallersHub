@@ -25,3 +25,4 @@ export * from "./profileChangeLogs";
 export * from "./relations";
 export * from "./profilePublishing";
 export * from "./careerRevisions";
+export * from "./divisions";

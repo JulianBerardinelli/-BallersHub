@@ -39,5 +39,17 @@ export async function POST(req: Request, ctx: { params: Params }) {
     
   if (e4) return NextResponse.json({ error: `mark rejected failed: ${e4.message}` }, { status: 400 });
 
+  // 4) reject any pending career_item_proposals associated with this application
+  await admin
+    .from("career_item_proposals")
+    .update({
+      status: "rejected",
+      reviewed_by_user_id: user.id,
+      reviewed_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("application_id", id)
+    .in("status", ["pending", "waiting"]);
+
   return NextResponse.json({ success: true, id });
 }

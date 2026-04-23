@@ -8,6 +8,12 @@ import { z } from "zod";
 import type { DashboardExternalLink } from "@/lib/dashboard/client/publishing-state";
 import { linkMutationSchema, LINK_KINDS, type LinkKind, type LinkMutationInput } from "../schemas";
 import { deletePlayerLink, upsertPlayerLink } from "../actions";
+import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
+import BeSoccerIcon from "@/components/icons/BeSoccerIcon";
+import FlashscoreIcon from "@/components/icons/FlashscoreIcon";
+import { YouTube } from "@/components/icons/YoutubeIcon";
+import { Instagram } from "@/components/icons/InstagramIcon";
+import { LinkedIn } from "@/components/icons/LinkedInIcon";
 
 type FormValues = {
   id?: string;
@@ -35,6 +41,38 @@ const defaultValues: FormValues = {
 
 const inputClassName =
   "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
+
+/** Returns an icon node for a given link kind, sized via className */
+function LinkKindIcon({ kind, className }: { kind: string; className?: string }) {
+  const cls = className ?? "h-4 w-4";
+  switch (kind) {
+    case "transfermarkt":
+      return <TransfermarktIcon className={cls} />;
+    case "besoccer":
+      return <BeSoccerIcon className={cls} />;
+    case "flashscore":
+      return <FlashscoreIcon className={cls} />;
+    case "youtube":
+      return <YouTube className={cls} />;
+    case "instagram":
+      return <Instagram className={cls} />;
+    case "linkedin":
+      return <LinkedIn className={cls} />;
+    case "highlight":
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+      );
+    default:
+      return (
+        <svg className={cls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </svg>
+      );
+  }
+}
 
 export default function ExternalLinksManager({ playerId, links, suggestions }: Props) {
   const router = useRouter();
@@ -64,12 +102,19 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
     [links],
   );
 
+  /** The set of kinds that already have at least one saved link */
+  const addedKinds = useMemo(() => new Set(links.map((l) => l.kind)), [links]);
+
+  /**
+   * Suggestions: only show entries that have a URL AND whose kind is not yet
+   * represented in the player's existing links.
+   */
   const availableSuggestions = useMemo(
     () =>
       Object.entries(suggestions)
-        .filter(([, url]) => typeof url === "string" && url.length > 0)
+        .filter(([kind, url]) => typeof url === "string" && url.length > 0 && !addedKinds.has(kind))
         .map(([kind, url]) => ({ kind: kind as LinkKind, url: url as string })),
-    [suggestions],
+    [suggestions, addedKinds],
   );
 
   const onSubmit = handleSubmit((values) => {
@@ -151,17 +196,22 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
               className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-wide text-neutral-500">{formatLinkKind(link.kind)}</p>
-                  <p className="text-sm font-semibold text-white">{link.label ?? formatLinkKind(link.kind)}</p>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="break-all text-xs text-primary underline"
-                  >
-                    {link.url}
-                  </a>
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-neutral-800 bg-neutral-900">
+                    <LinkKindIcon kind={link.kind} className="h-4 w-4" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xs uppercase tracking-wide text-neutral-500">{formatLinkKind(link.kind)}</p>
+                    <p className="text-sm font-semibold text-white">{link.label ?? formatLinkKind(link.kind)}</p>
+                    <a
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="break-all text-xs text-primary underline"
+                    >
+                      {link.url}
+                    </a>
+                  </div>
                 </div>
                 <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
                   {link.isPrimary ? (
@@ -273,19 +323,33 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
 
       {availableSuggestions.length > 0 ? (
         <div className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300">
-          <p className="mb-2 font-medium text-neutral-200">Sugerencias detectadas</p>
+          <p className="mb-3 font-medium text-neutral-200">Sugerencias detectadas</p>
           <div className="flex flex-wrap gap-2">
-            {availableSuggestions.map((suggestion) => (
-              <button
-                key={`${suggestion.kind}-${suggestion.url}`}
-                type="button"
-                className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-neutral-200 transition hover:border-primary/50 hover:text-primary"
-                onClick={() => applySuggestion(suggestion.kind, suggestion.url)}
-                disabled={pending}
-              >
-                {formatLinkKind(suggestion.kind)}
-              </button>
-            ))}
+            {availableSuggestions.map((suggestion) => {
+              const isPrimaryLink = links.some(
+                (l) => l.kind === suggestion.kind && l.isPrimary,
+              );
+              return (
+                <button
+                  key={`${suggestion.kind}-${suggestion.url}`}
+                  type="button"
+                  className={[
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition",
+                    isPrimaryLink
+                      ? "border-primary/50 bg-primary/10 text-primary"
+                      : "border-neutral-700 text-neutral-200 hover:border-primary/50 hover:text-primary",
+                  ].join(" ")}
+                  onClick={() => applySuggestion(suggestion.kind, suggestion.url)}
+                  disabled={pending}
+                >
+                  <LinkKindIcon kind={suggestion.kind} className="h-3.5 w-3.5" />
+                  {formatLinkKind(suggestion.kind)}
+                  {isPrimaryLink ? (
+                    <span className="ml-0.5 text-[10px] opacity-70">· Destacado</span>
+                  ) : null}
+                </button>
+              );
+            })}
           </div>
         </div>
       ) : null}
@@ -314,6 +378,7 @@ function formatLinkKind(kind: string): string {
     highlight: "Video destacado",
     transfermarkt: "Transfermarkt",
     besoccer: "BeSoccer",
+    flashscore: "Flashscore",
     youtube: "YouTube",
     instagram: "Instagram",
     linkedin: "LinkedIn",
@@ -327,6 +392,7 @@ function getLinkKindDescription(kind: string | undefined): string {
     highlight: "Link utilizado como carta de presentación principal.",
     transfermarkt: "Referencia oficial para valor de mercado y trayectoria.",
     besoccer: "Sincronización con estadísticas verificadas de BeSoccer.",
+    flashscore: "Perfil y resultados en tiempo real desde Flashscore.",
     youtube: "Canal o playlist con tus mejores jugadas.",
     instagram: "Perfil social para mostrar actualidad y backstage.",
     linkedin: "Perfil profesional orientado a clubes y agentes.",

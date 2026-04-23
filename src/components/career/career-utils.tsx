@@ -36,7 +36,7 @@ export function sortCareer<T extends { start_year?: Year; end_year?: Year }>(row
 }
 
 export const YEAR_MIN = 1950;
-export const YEAR_MAX = 2025;
+export const YEAR_MAX = new Date().getFullYear() + 1;
 
 export function validateYears(start?: Year, end?: Year) {
   const msgs: string[] = [];

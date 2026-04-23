@@ -1,38 +1,25 @@
-export type Task = {
-  label: string;
-  className: string; // Tailwind classes for faded chip colors
-};
-
-export type LinkInfo = { label: string; url: string };
-export type KycDoc = { label: string; url: string };
-
-export type ApplicationRow = {
+export type PlayerProfileRow = {
   id: string;
-  applicant: string | null;
+  user_id: string;
+  slug: string;
+  full_name: string;
   nationalities: { code: string | null; name: string }[];
-  positions: string[];
   birth_date: string | null;
   age: number | null;
-  height_cm: number | null;
-  weight_kg: number | null;
-  created_at: string;
-  status: "pending" | "approved" | "rejected";
-  plan: "free" | "pro" | "pro_plus";
   current_team_name: string | null;
   current_team_crest_url: string | null;
   current_team_country_code: string | null;
-  proposed_team_name: string | null;
-  proposed_team_country_code: string | null;
-  free_agent: boolean;
-  tasks: Task[];
-  personal_info_approved: boolean;
-  links: LinkInfo[];
-  kyc_docs: KycDoc[];
+  created_at: string;
+  status: "draft" | "pending_review" | "approved" | "rejected";
+  plan: "free" | "pro" | "pro_plus";
+  visibility: "public" | "private";
+  market_value_eur: number | null;
+  avatar_url: string;
 };
 
 export type ColumnDef = {
   name: string;
-  uid: keyof ApplicationRow | "actions" | "current_team" | "id";
+  uid: keyof PlayerProfileRow | "actions" | "current_team";
   sortable?: boolean;
   align?: "start" | "center" | "end";
   className?: string;

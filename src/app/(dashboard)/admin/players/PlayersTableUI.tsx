@@ -1,4 +1,3 @@
-// src/app/(dashboard)/admin/applications/ApplicationsTableUI.tsx
 "use client";
 
 import * as React from "react";
@@ -19,65 +18,45 @@ import {
   Checkbox,
   Select,
   SelectItem,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
+  User,
 } from "@heroui/react";
-import { Copy, Filter, UserCheck, Eye, Check } from "lucide-react";
-import ClientDate from "@/components/common/ClientDate";
+import { Copy, Filter, ExternalLink, Edit } from "lucide-react";
+import Link from "next/link";
 import TeamCrest from "@/components/teams/TeamCrest";
-import type { ApplicationRow } from "./types";
+import type { PlayerProfileRow } from "./types";
 import { columns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
-import { useAdminModalPreset } from "../ui/modalPresets";
-import TaskBadge from "./components/TaskBadge";
 import TeamNameTicker from "./components/TeamNameTicker";
-import ConfirmApplicationModal from "./components/ConfirmApplicationModal";
-import PersonalInfoModal, {
-  type PersonalInfoFormValues,
-} from "./components/PersonalInfoModal";
 
-const statusColors: Record<ApplicationRow["status"], "success" | "warning" | "danger"> = {
+const statusColors: Record<PlayerProfileRow["status"], "success" | "warning" | "danger" | "default"> = {
   approved: "success",
-  pending: "warning",
+  pending_review: "warning",
   rejected: "danger",
+  draft: "default",
 };
 
-const statusLabels: Record<ApplicationRow["status"], string> = {
+const statusLabels: Record<PlayerProfileRow["status"], string> = {
   approved: "Aprobado",
-  pending: "Pendiente",
+  pending_review: "Revisión",
   rejected: "Rechazado",
+  draft: "Borrador",
 };
 
-const planColors: Record<ApplicationRow["plan"], "default" | "primary" | "warning"> = {
+const planColors: Record<PlayerProfileRow["plan"], "default" | "primary" | "warning"> = {
   free: "default",
   pro: "primary",
   pro_plus: "warning",
 };
 
-const planLabels: Record<ApplicationRow["plan"], string> = {
+const planLabels: Record<PlayerProfileRow["plan"], string> = {
   free: "Básico",
   pro: "Pro",
   pro_plus: "Pro Plus",
 };
-import PlayersPanel from "./PlayersPanel";
 
 type SortDir = "ascending" | "descending";
 
-export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
-  const [filterValue, setFilterValue] = React.useState("");
-  const modalPreset = useAdminModalPreset();
-  const [modal, setModal] = React.useState<{
-    id: string;
-    mode: "detail" | "review" | "tasks" | "confirm";
-  } | null>(null);
-
-  const openItem = React.useMemo(
-    () => (modal ? items.find((i) => i.id === modal.id) ?? null : null),
-    [items, modal],
-  );
-
+export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] }) {
   const [sort, setSort] = React.useState<SortDescriptor>({
     column: "created_at" as Key,
     direction: "descending",
@@ -136,7 +115,7 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
 
   const sorted = React.useMemo(() => {
     const list = [...filtered];
-    const col = sort.column as keyof ApplicationRow | "actions" | "current_team";
+    const col = sort.column as keyof PlayerProfileRow | "actions" | "current_team";
     const direction = (sort.direction ?? "ascending") as SortDir;
     if (col === "actions" || col === "current_team") return list;
     list.sort((a, b) =>
@@ -151,8 +130,8 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
 
   const activeFilters = React.useMemo(() => {
     const arr: { type: keyof typeof filters; value: string; label: string }[] = [];
-    filters.status.forEach((v) => arr.push({ type: "status", value: v, label: `Estado: ${v}` }));
-    filters.plan.forEach((v) => arr.push({ type: "plan", value: v, label: `Plan: ${v}` }));
+    filters.status.forEach((v) => arr.push({ type: "status", value: v, label: `Estado: ${statusLabels[v as PlayerProfileRow["status"]] || v}` }));
+    filters.plan.forEach((v) => arr.push({ type: "plan", value: v, label: `Plan: ${planLabels[v as PlayerProfileRow["plan"]] || v}` }));
     filters.country.forEach((v) => arr.push({ type: "country", value: v, label: `País: ${v}` }));
     return arr;
   }, [filters]);
@@ -168,79 +147,21 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
     [],
   );
 
-  const handleApprovePersonalInfo = React.useCallback(
-    async (id: string) => {
-      const res = await fetch(`/api/admin/applications/${id}/personal-info/approve`, {
-        method: "POST",
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(body?.error ?? "No se pudo aprobar los datos personales.");
-      }
-      // Update the original items array, not a local state
-      // This assumes `items` is passed as a prop and we need to update it via a parent callback or similar
-      // For now, we'll simulate the update on the `items` prop if it were stateful
-      // If `items` is truly a prop, this `setItems` would need to be `onUpdateItem` or similar
-      // For this example, we'll assume `items` is effectively the source of truth for `openItem`
-      // and the parent component will re-render with updated `items` if needed.
-      // For now, we'll just close the modal.
-      setModal(null);
-    },
-    [setModal],
-  );
-
-  const handleSavePersonalInfo = React.useCallback(
-    async (id: string, values: PersonalInfoFormValues) => {
-      const res = await fetch(`/api/admin/applications/${id}/personal-info/update`, {
-        method: "PATCH",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          full_name: values.full_name,
-          birth_date: values.birth_date,
-          height_cm: values.height_cm,
-          weight_kg: values.weight_kg,
-          nationalities: values.nationalities,
-          position: values.position,
-        }),
-      });
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        throw new Error(body?.error ?? "No se pudieron guardar los datos.");
-      }
-      // Similar to handleApprovePersonalInfo, if `items` is a prop, this update logic
-      // would need to be handled by a parent component or a global state manager.
-      // For this example, we'll just assume the data is updated on the backend.
-    },
-    [],
-  );
-
   const renderCell = React.useCallback(
-    (a: ApplicationRow, columnKey: React.Key): React.ReactNode => {
+    (a: PlayerProfileRow, columnKey: React.Key): React.ReactNode => {
       switch (columnKey) {
-        case "id":
+        case "full_name":
           return (
-            <Tooltip content={copied === a.id ? "Copiado!" : "Copiar ID"}>
-              <Button
-                isIconOnly
-                size="sm"
-                color="primary"
-                variant="flat"
-                onPress={() => copyId(a.id)}
-              >
-                <Copy size={16} />
-              </Button>
-            </Tooltip>
-          );
-
-        case "applicant":
-          return (
-            <div className="min-w-0">
-              <div className="truncate font-medium">{a.applicant ?? "(sin nombre)"}</div>
-              {a.nationalities.length > 0 && (
-                <div className="text-xs text-neutral-500 truncate">
-                  {a.nationalities.map((n) => n.name).join(", ")}
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <User
+                avatarProps={{ radius: "lg", src: a.avatar_url, size: "sm" }}
+                description={
+                  a.nationalities.length > 0
+                    ? a.nationalities.map((n) => n.name).join(", ")
+                    : "Sin nacionalidad"
+                }
+                name={a.full_name}
+              />
             </div>
           );
 
@@ -258,8 +179,18 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
             </Chip>
           );
 
-        case "created_at":
-          return <ClientDate iso={a.created_at} />;
+        case "market_value_eur":
+          return a.market_value_eur ? (
+            <span className="font-medium text-success-500">
+              {new Intl.NumberFormat("es-ES", {
+                style: "currency",
+                currency: "EUR",
+                maximumFractionDigits: 0,
+              }).format(a.market_value_eur)}
+            </span>
+          ) : (
+            <span className="text-default-400">—</span>
+          );
 
         case "current_team": {
           if (a.current_team_name) {
@@ -275,64 +206,40 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
               </div>
             );
           }
-          if (a.free_agent) {
-            return <span className="text-default-500">Libre</span>;
-          }
-          if (a.proposed_team_name) {
-            return (
-              <span className="text-amber-400 truncate block">
-                Propuso: {a.proposed_team_name}
-              </span>
-            );
-          }
-          return <span>—</span>;
+          return <span className="text-default-500">Libre / Sin Equipo</span>;
         }
-
-        case "tasks":
-          return (
-            <TaskBadge
-              tasks={a.tasks}
-              onPress={() => setModal({ id: a.id, mode: "tasks" })}
-            />
-          );
 
         case "actions":
           return (
             <div className="flex justify-end gap-2">
-              <Tooltip content={a.personal_info_approved ? "Ver datos" : "Revisar datos"}>
+              <Tooltip content="Ver Perfil Público">
                 <Button
                   isIconOnly
                   size="sm"
                   variant="flat"
-                  onPress={() =>
-                    setModal({
-                      id: a.id,
-                      mode: a.personal_info_approved ? "detail" : "review",
-                    })
-                  }
+                  as={Link}
+                  href={`/player/${a.slug}`}
+                  target="_blank"
                 >
-                  {a.personal_info_approved ? <Eye size={16} /> : <UserCheck size={16} />}
+                  <ExternalLink size={16} />
                 </Button>
               </Tooltip>
-              {a.status === "pending" && (
-                <Tooltip content="Aceptar solicitud">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    color="success"
-                    isDisabled={a.tasks.length > 0}
-                    onPress={() => setModal({ id: a.id, mode: "confirm" })}
-                  >
-                    <Check size={16} />
-                  </Button>
-                </Tooltip>
-              )}
+              <Tooltip content={copied === a.id ? "Copiado!" : "Copiar ID"}>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="faded"
+                  onPress={() => copyId(a.id)}
+                >
+                  <Copy size={16} />
+                </Button>
+              </Tooltip>
             </div>
           );
 
         default:
           return (
-            (a as Record<string, unknown>)[columnKey as keyof ApplicationRow] ?? "—"
+            (a as Record<string, unknown>)[columnKey as string] ?? "—"
           ) as React.ReactNode;
       }
     },
@@ -343,11 +250,7 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
     return (
       <div className="flex items-center gap-3">
         <span className="text-default-400 text-small">Total {items.length} Jugadores</span>
-        <Chip
-          size="sm"
-          variant="flat"
-          color="primary"
-        >
+        <Chip size="sm" variant="flat" color="primary">
           {items.length} Jugadores
         </Chip>
       </div>
@@ -359,7 +262,9 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <Popover placement="bottom-start">
           <PopoverTrigger>
-            <Button variant="flat" startContent={<Filter size={16} />}>Filtros</Button>
+            <Button variant="flat" startContent={<Filter size={16} />}>
+              Filtros
+            </Button>
           </PopoverTrigger>
           <PopoverContent className="p-4 w-64">
             <div className="grid gap-4">
@@ -370,9 +275,9 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
                   setFilters((f) => ({ ...f, status: new Set(vals) }))
                 }
               >
-                <Checkbox value="pending">Pendiente</Checkbox>
                 <Checkbox value="approved">Aprobado</Checkbox>
-                <Checkbox value="rejected">Rechazado</Checkbox>
+                <Checkbox value="pending_review">Revisión</Checkbox>
+                <Checkbox value="draft">Borrador</Checkbox>
               </CheckboxGroup>
               <CheckboxGroup
                 label="Plan"
@@ -452,22 +357,19 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
         {sorted.map((a) => (
           <div key={a.id} className="rounded-lg border border-neutral-800 p-4 space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="truncate font-medium">{a.applicant ?? "(sin nombre)"}</div>
-                {a.nationalities.length > 0 && (
-                  <div className="text-xs text-neutral-500 truncate">
-                    {a.nationalities.map((n) => n.name).join(", ")}
-                  </div>
-                )}
-              </div>
+              <User
+                avatarProps={{ radius: "lg", src: a.avatar_url, size: "sm" }}
+                description={
+                  a.nationalities.length > 0
+                    ? a.nationalities.map((n) => n.name).join(", ")
+                    : "Sin nacionalidad"
+                }
+                name={a.full_name}
+              />
               <div className="flex items-center gap-2">
                 <Chip size="sm" variant="flat" color={statusColors[a.status]} className="capitalize">
                   {statusLabels[a.status]}
                 </Chip>
-                <TaskBadge
-                  tasks={a.tasks}
-                  onPress={() => setModal({ id: a.id, mode: "tasks" })}
-                />
               </div>
             </div>
             <div className="text-sm">
@@ -481,104 +383,27 @@ export default function PlayersTableUI({ items }: { items: ApplicationRow[] }) {
                     />
                   </div>
                 </div>
-              ) : a.free_agent ? (
-                <span>Libre</span>
-              ) : a.proposed_team_name ? (
-                <span className="text-amber-400">Propuso: {a.proposed_team_name}</span>
               ) : (
-                <span>—</span>
+                <span className="text-default-500">Libre / Sin Equipo</span>
               )}
             </div>
             <div className="flex justify-end gap-2">
-              <Tooltip content={a.personal_info_approved ? "Ver datos" : "Revisar datos"}>
+              <Tooltip content="Ver Perfil Público">
                 <Button
                   isIconOnly
                   size="sm"
                   variant="flat"
-                  onPress={() =>
-                    setModal({
-                      id: a.id,
-                      mode: a.personal_info_approved ? "detail" : "review",
-                    })
-                  }
+                  as={Link}
+                  href={`/player/${a.slug}`}
+                  target="_blank"
                 >
-                  {a.personal_info_approved ? <Eye size={16} /> : <UserCheck size={16} />}
+                  <ExternalLink size={16} />
                 </Button>
               </Tooltip>
-              {a.status === "pending" && (
-                <Tooltip content="Aceptar solicitud">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    color="success"
-                    isDisabled={a.tasks.length > 0}
-                    onPress={() => setModal({ id: a.id, mode: "confirm" })}
-                  >
-                    <Check size={16} />
-                  </Button>
-                </Tooltip>
-              )}
             </div>
           </div>
         ))}
       </div>
-
-      <Modal
-        isOpen={modal !== null && !!openItem && modal.mode !== "detail"}
-        onOpenChange={(open) => {
-          if (!open) setModal(null);
-        }}
-        {...modalPreset}
-      >
-        <ModalContent>
-          {(onClose: () => void) => {
-            if (!openItem || !modal) return null;
-            if (modal.mode === "tasks") {
-              return (
-                <>
-                  <ModalHeader className={modalPreset.classNames?.header}>
-                    <div>
-                      <h3 className="font-semibold">Tareas pendientes</h3>
-                      <p className="text-sm text-foreground-500">
-                        Resolvé estas tareas antes de aceptar.
-                      </p>
-                    </div>
-                  </ModalHeader>
-                  <ModalBody className={modalPreset.classNames?.body}>
-                    <div className="flex flex-wrap gap-2">
-                      {openItem.tasks.map((t, i) => (
-                        <Chip key={i} variant="faded" className={`border ${t.className}`}>
-                          {t.label}
-                        </Chip>
-                      ))}
-                    </div>
-                  </ModalBody>
-                </>
-              );
-            }
-
-            if (modal.mode === "confirm") {
-              return (
-                <ConfirmApplicationModal
-                  application={openItem}
-                  classNames={modalPreset.classNames}
-                  onClose={onClose}
-                />
-              );
-            }
-
-            return (
-              <PersonalInfoModal
-                application={openItem}
-                mode={modal.mode === "review" ? "review" : "detail"}
-                classNames={modalPreset.classNames}
-                onApprove={() => handleApprovePersonalInfo(openItem.id)}
-                onSave={(values) => handleSavePersonalInfo(openItem.id, values)}
-              />
-            );
-          }}
-        </ModalContent>
-      </Modal>
     </>
   );
 }

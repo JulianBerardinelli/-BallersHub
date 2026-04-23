@@ -355,9 +355,10 @@ export default async function DashboardPage() {
 
   const isManager = role === "manager" || !!managerApp;
 
-  if (role === "member" && !profile && !application && !managerApp) {
-    redirect("/onboarding/start");
-  }
+  // Removed forced redirect to allow empty state dashboard rendering
+  // if (role === "member" && !profile && !application && !managerApp) {
+  //   redirect("/onboarding/start");
+  // }
 
   if (isManager) {
     let agencyData = null;

@@ -50,6 +50,48 @@
       "when": 1775601860295,
       "tag": "0006_curved_bug",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1775774743241,
+      "tag": "0007_breezy_blockbuster",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776263913255,
+      "tag": "0008_clever_grey_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1776265040195,
+      "tag": "0009_bent_retro_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1776266583192,
+      "tag": "0010_dazzling_caretaker",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1776267626538,
+      "tag": "0011_open_the_hand",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1776971582789,
+      "tag": "0012_high_maelstrom",
+      "breakpoints": true
     }
   ]
 }

@@ -22,6 +22,13 @@ export const playerProfiles = pgTable("player_profiles", {
   currentTeamId: uuid("current_team_id").references(() => teams.id, { onDelete: "set null" }),
   agencyId: uuid("agency_id").references(() => agencyProfiles.id, { onDelete: "set null" }),
   careerObjectives: text("career_objectives"),
+  // 👇 nuevos: scouting / report analysis
+  topCharacteristics: text("top_characteristics").array(),
+  tacticsAnalysis: text("tactics_analysis"),
+  physicalAnalysis: text("physical_analysis"),
+  mentalAnalysis: text("mental_analysis"),
+  techniqueAnalysis: text("technique_analysis"),
+  analysisAuthor: text("analysis_author"),
   planPublic: planEnum("plan_public").notNull().default("free"),
   nationalityCodes: char("nationality_codes", { length: 2 }).array(),
   transfermarktUrl: text("transfermarkt_url"),

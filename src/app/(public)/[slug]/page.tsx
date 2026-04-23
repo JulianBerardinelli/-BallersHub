@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { playerMedia, careerItems } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
+import { playerMedia, careerItems, statsSeasons, playerHonours, teams } from "@/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
 import LayoutResolver from "./components/LayoutResolver";
 
-export const revalidate = 3600;
+export const revalidate = 0; // DEVELOPMENT CACHE DISABLED
 type Params = Promise<{ slug: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -54,8 +54,7 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
   const maxVideos = Number(limits?.max_videos ?? 100);
 
   // 3) Bandeja de Datos Públicos
-  const [career, rawMedia, theme, sections] = await Promise.all([
-     db.select().from(careerItems).where(eq(careerItems.playerId, player.id)),
+  const [rawMedia, theme, sections] = await Promise.all([
      db.select().from(playerMedia).where(and(eq(playerMedia.playerId, player.id), eq(playerMedia.isApproved, true))),
      db.query.profileThemeSettings.findFirst({ where: (t, { eq }) => eq(t.playerId, player.id) }),
      db.query.profileSectionsVisibility.findMany({ where: (s, { eq }) => eq(s.playerId, player.id) })
@@ -68,7 +67,7 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
 
   const publicData = {
     player,
-    career,
+    career: [],
     media,
     sections,
     theme: theme || { layout: "futuristic", primaryColor: "#171717", accentColor: "#3B82F6", typography: "syncopate" }

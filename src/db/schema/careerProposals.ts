@@ -9,6 +9,7 @@ export const careerItemProposals = pgTable("career_item_proposals", {
   applicationId: uuid("application_id").notNull().references(() => playerApplications.id, { onDelete: "cascade" }),
   club: text("club").notNull(),
   division: text("division"),
+  divisionId: uuid("division_id"),
   startYear: integer("start_year"),
   endYear: integer("end_year"),
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "cascade" }),
