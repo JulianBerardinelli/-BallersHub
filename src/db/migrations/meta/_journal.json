@@ -92,6 +92,41 @@
       "when": 1776971582789,
       "tag": "0012_high_maelstrom",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1776984104324,
+      "tag": "0013_fix_supabase_advisors",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1776984275237,
+      "tag": "0014_revert_views_security",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1776984695753,
+      "tag": "0015_fix_supabase_warnings",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1777301946981,
+      "tag": "0016_acoustic_night_thrasher",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1777315044456,
+      "tag": "0017_strange_solo",
+      "breakpoints": true
     }
   ]
 }

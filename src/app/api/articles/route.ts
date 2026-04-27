@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { title, url, publisher, publishedAt } = body;
+    const { title, url, imageUrl, publisher, publishedAt } = body;
 
     if (!title || !url) {
       return NextResponse.json({ error: "Title and URL are required" }, { status: 400 });
@@ -70,6 +70,7 @@ export async function POST(req: Request) {
         player_id: profile.id,
         title,
         url,
+        image_url: imageUrl || null,
         publisher: publisher || null,
         published_at: publishedAt || null,
       })

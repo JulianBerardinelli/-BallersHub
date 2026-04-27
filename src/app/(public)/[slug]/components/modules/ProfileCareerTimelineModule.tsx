@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, animate } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, animate, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
 import CountryFlag from "@/components/common/CountryFlag";
 import Image from "next/image";
@@ -19,10 +19,18 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
     return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
   });
 
+  const [selectedHonour, setSelectedHonour] = useState<any>(null);
+
   if (sortedCareer.length === 0) return null;
 
   return (
     <div className="w-full relative font-sans" id="career-timeline">
+      <AnimatePresence>
+        {selectedHonour && (
+          <HonourModal honour={selectedHonour} onClose={() => setSelectedHonour(null)} />
+        )}
+      </AnimatePresence>
+
       {/* MOBILE TIMELINE (Vertical Zig-Zag, visible only < lg) */}
       <div className="block lg:hidden w-full relative py-16 px-6">
         <motion.div 
@@ -57,7 +65,7 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
                        <div className="absolute left-[24px] w-4 h-4 rounded-full bg-[var(--theme-primary)] shadow-[0_0_15px_var(--theme-primary)] -translate-x-1/2 z-10">
                          <div className="absolute inset-[3px] rounded-full bg-black/50" />
                        </div>
-                       <MobileTimelineCard nodeData={nodeData} />
+                       <MobileTimelineCard nodeData={nodeData} onSelectHonour={setSelectedHonour} />
                     </motion.div>
                   );
               })}
@@ -67,12 +75,7 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
 
       {/* DESKTOP TIMELINE OPTION 2 (Nodes Centralized, visible >= lg) */}
       <div className="hidden lg:block w-full">
-         <DesktopNodesTimeline sortedCareer={sortedCareer} externalLinks={externalLinks} />
-      </div>
-
-      {/* DESKTOP TIMELINE (Cinematic Accordion, visible >= lg) */}
-      <div className="hidden lg:block w-full border-t border-white/5">
-         <DesktopCinematicAccordion sortedCareer={sortedCareer} />
+         <DesktopNodesTimeline sortedCareer={sortedCareer} externalLinks={externalLinks} onSelectHonour={setSelectedHonour} />
       </div>
     </div>
   );
@@ -82,7 +85,7 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
 // DESKTOP CINEMATIC ACCORDION
 // ------------------------------------------------------------
 
-function DesktopCinematicAccordion({ sortedCareer }: { sortedCareer: any[] }) {
+function DesktopCinematicAccordion({ sortedCareer, onSelectHonour }: { sortedCareer: any[], onSelectHonour: (h: any) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // Track scroll through the container height relative to the viewport
@@ -163,6 +166,7 @@ function DesktopCinematicAccordion({ sortedCareer }: { sortedCareer: any[] }) {
                    item={item} 
                    index={index} 
                    isActive={index === activeIndex} 
+                   onSelectHonour={onSelectHonour}
                  />
                ))}
             </div>
@@ -202,7 +206,7 @@ function DesktopCinematicAccordion({ sortedCareer }: { sortedCareer: any[] }) {
   );
 }
 
-function AccordionCard({ item, index, isActive }: { item: any, index: number, isActive: boolean }) {
+function AccordionCard({ item, index, isActive, onSelectHonour }: { item: any, index: number, isActive: boolean, onSelectHonour: (h: any) => void }) {
   const nodeData = prepareCardData(item, index);
 
   return (
@@ -265,7 +269,7 @@ function AccordionCard({ item, index, isActive }: { item: any, index: number, is
                 </h4>
                 <div className="flex items-center gap-2 mt-2">
                    {nodeData.team?.countryCode && <CountryFlag code={nodeData.team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
-                   {nodeData.divisionData?.crestUrl && <TeamCrest src={nodeData.divisionData.crestUrl} size={16} className="bg-white/10 rounded-full p-0.5" />}
+                   {nodeData.divisionData?.crestUrl && <TeamCrest src={nodeData.divisionData.crestUrl} size={28} className="drop-shadow-md" />}
                    <span className="text-white/60 font-bold uppercase tracking-widest text-xs">
                      {nodeData.divisionData?.name || nodeData.division || "División no especificada"}
                    </span>
@@ -283,18 +287,38 @@ function AccordionCard({ item, index, isActive }: { item: any, index: number, is
           <div className="flex-grow flex flex-col justify-center">
               {/* Stats Box */}
               {nodeData.hasStats && (
-                <div className="grid grid-cols-3 gap-0 bg-black/40 rounded-xl border border-white/5 overflow-hidden mb-6">
-                   <div className="flex flex-col items-center justify-center p-3">
-                     <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest text-center mb-1">Partidos</span>
-                     <span className="text-3xl text-white font-black leading-none">{nodeData.totals.matches}</span>
+                <div className="grid grid-cols-5 gap-0 bg-black/40 rounded-xl border border-white/5 overflow-hidden mb-6">
+                   <div className="flex flex-col items-center justify-center p-2">
+                     <span className="text-[8px] text-white/40 uppercase font-bold tracking-widest text-center mb-1">Partidos</span>
+                     <span className="text-xl text-white font-black leading-none">{nodeData.totals.matches}</span>
                    </div>
-                   <div className="flex flex-col items-center justify-center p-3 border-l border-white/5 bg-[var(--theme-accent)]/5">
-                     <span className="text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest text-center mb-1">Goles</span>
-                     <span className="text-3xl text-[var(--theme-accent)] font-black leading-none">{nodeData.totals.goals}</span>
+                   <div className="flex flex-col items-center justify-center p-2 border-l border-white/5">
+                     <span className="text-[8px] text-white/40 uppercase font-bold tracking-widest text-center mb-1">Titular</span>
+                     <div className="relative w-10 h-10 flex items-center justify-center mt-1">
+                        <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                          <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" className="text-white/10" />
+                          <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" 
+                            strokeDasharray="94.24" 
+                            strokeDashoffset={94.24 - ((nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0) / 100) * 94.24} 
+                            className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]" strokeLinecap="round" />
+                        </svg>
+                        <div className="flex flex-col items-center justify-center">
+                          <span className="text-[11px] font-black text-white leading-none">{nodeData.totals.startingMatches}</span>
+                          <span className="text-[6px] font-black text-[#10b981] mt-[1px]">{nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0}%</span>
+                        </div>
+                     </div>
                    </div>
-                   <div className="flex flex-col items-center justify-center p-3 border-l border-white/5 bg-[var(--theme-primary)]/5">
-                     <span className="text-[10px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest text-center mb-1">Asist.</span>
-                     <span className="text-3xl text-[var(--theme-primary)] font-black leading-none">{nodeData.totals.assists}</span>
+                   <div className="flex flex-col items-center justify-center p-2 border-l border-white/5">
+                     <span className="text-[8px] text-white/40 uppercase font-bold tracking-widest text-center mb-1">Minutos</span>
+                     <span className="text-xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-[10px] text-white/50 ml-0.5">'</span></span>
+                   </div>
+                   <div className="flex flex-col items-center justify-center p-2 border-l border-white/5 bg-[var(--theme-accent)]/5">
+                     <span className="text-[8px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest text-center mb-1">Goles</span>
+                     <span className="text-xl text-[var(--theme-accent)] font-black leading-none">{nodeData.totals.goals}</span>
+                   </div>
+                   <div className="flex flex-col items-center justify-center p-2 border-l border-white/5 bg-[var(--theme-primary)]/5">
+                     <span className="text-[8px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest text-center mb-1">Asist.</span>
+                     <span className="text-xl text-[var(--theme-primary)] font-black leading-none">{nodeData.totals.assists}</span>
                    </div>
                 </div>
               )}
@@ -302,17 +326,26 @@ function AccordionCard({ item, index, isActive }: { item: any, index: number, is
               {/* Achievements Scrollable Area */}
               {nodeData.itemHonours.length > 0 && (
                 <div className="flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto scrollbar-hide pr-2">
-                  {nodeData.itemHonours.map((p: any) => (
-                    <div key={p.id} className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg shrink-0">
+                  {nodeData.itemHonours.map((p: any) => {
+                    const isTrophy = isHonourTrophy(p.title);
+                    return (
+                    <div key={p.id} onClick={() => onSelectHonour(p)} className="group w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg shrink-0 cursor-pointer hover:bg-yellow-500/20 transition-colors">
                        <div className="flex flex-col truncate pr-4">
-                         <span className="text-yellow-500 font-extrabold text-[11px] uppercase tracking-wider truncate">{p.title}</span>
-                         {p.competition && <span className="text-white/40 text-[10px] font-medium truncate">{p.competition} {p.season && `• ${p.season}`}</span>}
+                         <span className="text-yellow-500 font-extrabold text-[11px] uppercase tracking-wider truncate group-hover:text-yellow-400 transition-colors">{p.title}</span>
+                         {p.competition && <span className="text-white/40 text-[10px] font-medium truncate group-hover:text-white/60 transition-colors">{p.competition} {p.season && `• ${p.season}`}</span>}
                        </div>
-                       <div className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px]">
-                         ★
+                       <div className="flex items-center gap-2">
+                         <div className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px]">
+                           {isTrophy ? (
+                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z" /><path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" /><path d="M11 17V20H8V22H16V20H13V17H11Z" /><path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" /><path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" /></svg>
+                           ) : (
+                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                           )}
+                         </div>
+                         <svg className="w-4 h-4 text-yellow-500/50 group-hover:text-yellow-500 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                        </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
 
@@ -330,7 +363,7 @@ function AccordionCard({ item, index, isActive }: { item: any, index: number, is
   );
 }
 
-function DesktopNodesTimeline({ sortedCareer, externalLinks }: { sortedCareer: any[]; externalLinks?: ExternalLinks }) {
+function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: { sortedCareer: any[]; externalLinks?: ExternalLinks; onSelectHonour: (h: any) => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
@@ -504,7 +537,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks }: { sortedCareer: a
                                 </h4>
                                 <div className="flex items-center gap-2 mt-2">
                                    {nodeData.team?.countryCode && <CountryFlag code={nodeData.team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
-                                   {nodeData.divisionData?.crestUrl && <TeamCrest src={nodeData.divisionData.crestUrl} size={16} className="bg-white/10 rounded-full p-0.5" />}
+                                   {nodeData.divisionData?.crestUrl && <TeamCrest src={nodeData.divisionData.crestUrl} size={28} className="drop-shadow-md" />}
                                    <span className="text-white/60 font-bold uppercase tracking-widest text-xs">
                                      {nodeData.divisionData?.name || nodeData.division || "División no especificada"}
                                    </span>
@@ -518,18 +551,38 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks }: { sortedCareer: a
 
                          {/* Stats Data Centralizd */}
                          {nodeData.hasStats && (
-                            <div className="grid grid-cols-3 gap-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-6">
-                               <div className="flex flex-col items-center justify-center p-4">
-                                 <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Partidos</span>
-                                 <span className="text-2xl lg:text-4xl text-white font-black leading-none">{nodeData.totals.matches}</span>
+                            <div className="grid grid-cols-5 gap-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-6">
+                               <div className="flex flex-col items-center justify-center p-3 lg:p-4">
+                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Partidos</span>
+                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.matches}</span>
                                </div>
-                               <div className="flex flex-col items-center justify-center p-4 border-l border-white/5 bg-[var(--theme-accent)]/5">
-                                 <span className="text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest mb-1">Goles</span>
-                                 <span className="text-2xl lg:text-4xl text-[var(--theme-accent)] font-black leading-none">{nodeData.totals.goals}</span>
+                               <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
+                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Titular</span>
+                                 <div className="relative w-12 h-12 lg:w-14 lg:h-14 flex items-center justify-center mt-1">
+                                    <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 48 48">
+                                      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3.5" fill="transparent" className="text-white/10" />
+                                      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3.5" fill="transparent" 
+                                        strokeDasharray="125.66" 
+                                        strokeDashoffset={125.66 - ((nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0) / 100) * 125.66} 
+                                        className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" strokeLinecap="round" />
+                                    </svg>
+                                    <div className="flex flex-col items-center justify-center">
+                                      <span className="text-lg lg:text-xl font-black text-white leading-none">{nodeData.totals.startingMatches}</span>
+                                      <span className="text-[8px] lg:text-[9px] font-black text-[#10b981] mt-[2px]">{nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0}%</span>
+                                    </div>
+                                 </div>
                                </div>
-                               <div className="flex flex-col items-center justify-center p-4 border-l border-white/5 bg-[var(--theme-primary)]/5">
-                                 <span className="text-[10px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest mb-1">Asistencias</span>
-                                 <span className="text-2xl lg:text-4xl text-[var(--theme-primary)] font-black leading-none">{nodeData.totals.assists}</span>
+                               <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
+                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Minutos</span>
+                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-sm lg:text-lg text-white/50 ml-0.5">'</span></span>
+                               </div>
+                               <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-accent)]/5">
+                                 <span className="text-[9px] lg:text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest mb-1">Goles</span>
+                                 <span className="text-xl lg:text-3xl text-[var(--theme-accent)] font-black leading-none">{nodeData.totals.goals}</span>
+                               </div>
+                               <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-primary)]/5">
+                                 <span className="text-[9px] lg:text-[10px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest mb-1">Asist.</span>
+                                 <span className="text-xl lg:text-3xl text-[var(--theme-primary)] font-black leading-none">{nodeData.totals.assists}</span>
                                </div>
                             </div>
                          )}
@@ -537,15 +590,26 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks }: { sortedCareer: a
                          {/* Achivements Grid */}
                          {nodeData.itemHonours.length > 0 && (
                             <div className="flex-1 grid grid-cols-2 gap-2 mt-2 max-h-[140px] overflow-y-auto scrollbar-hide pr-2">
-                               {nodeData.itemHonours.map((p: any) => (
-                                 <div key={p.id} className="w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg">
+                               {nodeData.itemHonours.map((p: any) => {
+                                 const isTrophy = isHonourTrophy(p.title);
+                                 return (
+                                 <div key={p.id} onClick={() => onSelectHonour(p)} className="group w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg cursor-pointer hover:bg-yellow-500/20 transition-colors">
                                     <div className="flex flex-col truncate pr-2">
-                                      <span className="text-yellow-500 font-extrabold text-[10px] uppercase tracking-wider truncate">{p.title}</span>
-                                      {p.competition && <span className="text-yellow-500/50 text-[9px] font-bold uppercase truncate">{p.competition}</span>}
+                                      <span className="text-yellow-500 font-extrabold text-[10px] uppercase tracking-wider truncate group-hover:text-yellow-400 transition-colors">{p.title}</span>
+                                      {p.competition && <span className="text-yellow-500/50 text-[9px] font-bold uppercase truncate group-hover:text-yellow-500/80 transition-colors">{p.competition} {p.season && `• ${p.season}`}</span>}
                                     </div>
-                                    ★
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px]">
+                                        {isTrophy ? (
+                                           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z" /><path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" /><path d="M11 17V20H8V22H16V20H13V17H11Z" /><path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" /><path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" /></svg>
+                                        ) : (
+                                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                        )}
+                                      </div>
+                                      <svg className="w-3.5 h-3.5 text-yellow-500/50 group-hover:text-yellow-500 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                    </div>
                                  </div>
-                               ))}
+                               )})}
                             </div>
                          )}
 
@@ -663,10 +727,12 @@ function prepareCardData(item: any, index: number) {
     acc.matches += s.matches || 0;
     acc.goals += s.goals || 0;
     acc.assists += s.assists || 0;
+    acc.minutesPlayed += s.minutes || 0;
+    acc.startingMatches += s.starts || 0;
     return acc;
-  }, { matches: 0, goals: 0, assists: 0 });
+  }, { matches: 0, goals: 0, assists: 0, minutesPlayed: 0, startingMatches: 0 });
 
-  const hasStats = totals.matches > 0 || totals.goals > 0 || totals.assists > 0;
+  const hasStats = totals.matches > 0 || totals.goals > 0 || totals.assists > 0 || totals.minutesPlayed > 0;
 
   return {
     ...item,
@@ -680,16 +746,18 @@ function prepareCardData(item: any, index: number) {
   };
 }
 
-function MobileTimelineCard({ nodeData }: { nodeData: any }) {
+function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSelectHonour: (h: any) => void }) {
   const { club, countryCode, division, divisionData, startYear, endYear, isCurrent, totals, hasStats, itemHonours, team } = nodeData;
 
   return (
-    <div className="w-full bg-neutral-900/80 backdrop-blur-3xl border border-white/5 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
-        <span className={`inline-block px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest mb-4 ${isCurrent ? 'bg-[var(--theme-primary)] text-white shadow-[0_0_10px_var(--theme-primary)]' : 'bg-white/5 text-white/50'}`}>
+    <div className="w-full bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden shadow-[inset_0_0_60px_rgba(255,255,255,0.03)]">
+        <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-[var(--theme-primary)] rounded-full blur-[80px] opacity-[0.1] pointer-events-none" />
+        
+        <span className={`inline-block px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest mb-4 relative z-10 ${isCurrent ? 'bg-[var(--theme-primary)] text-white shadow-[0_0_10px_var(--theme-primary)]' : 'bg-white/5 text-white/50'}`}>
            {startYear} - {endYear}
         </span>
 
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between relative z-10">
            <h4 className="text-2xl font-black text-white uppercase leading-[1.1] mb-1 pr-2 text-pretty">
               {club}
            </h4>
@@ -698,9 +766,9 @@ function MobileTimelineCard({ nodeData }: { nodeData: any }) {
            )}
         </div>
 
-        <div className="flex items-center gap-2 mt-2 border-b border-white/[0.05] pb-4">
+        <div className="flex items-center gap-2 mt-2 border-b border-white/[0.05] pb-4 relative z-10">
            {team?.countryCode && <CountryFlag code={team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
-           {divisionData?.crestUrl && <TeamCrest src={divisionData.crestUrl} size={14} className="bg-white/10 rounded-full p-0.5" />}
+           {divisionData?.crestUrl && <TeamCrest src={divisionData.crestUrl} size={28} className="drop-shadow-md" />}
            <span className="text-white/40 font-bold uppercase tracking-widest text-[10px] truncate">
              {divisionData?.name || division || "División no especificada"}
            </span>
@@ -708,17 +776,37 @@ function MobileTimelineCard({ nodeData }: { nodeData: any }) {
 
         {/* Stats */}
         {hasStats && (
-          <div className="mt-5 grid grid-cols-3 gap-2 bg-black/30 rounded-xl p-3 border border-white/[0.02]">
-             <div className="flex flex-col items-center justify-center">
-               <span className="text-[9px] text-white/30 uppercase font-black tracking-widest text-center mb-1">P.Jug</span>
+          <div className="mt-5 grid grid-cols-5 gap-1 bg-black/40 rounded-2xl p-2 border border-white/5 overflow-hidden relative z-10">
+             <div className="flex flex-col items-center justify-center p-1">
+               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Partidos</span>
                <span className="text-xl text-white font-black leading-none">{totals.matches}</span>
              </div>
-             <div className="flex flex-col items-center justify-center border-l border-white/5">
-               <span className="text-[9px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">Goles</span>
+             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
+               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Titular</span>
+               <div className="relative w-9 h-9 flex items-center justify-center mt-1">
+                  <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" className="text-white/10" />
+                    <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" 
+                      strokeDasharray="94.24" 
+                      strokeDashoffset={94.24 - ((totals.matches > 0 ? Math.round((totals.startingMatches / totals.matches) * 100) : 0) / 100) * 94.24} 
+                      className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]" strokeLinecap="round" />
+                  </svg>
+                  <div className="flex flex-col items-center justify-center">
+                    <span className="text-[10px] font-black text-white leading-none">{totals.startingMatches}</span>
+                    <span className="text-[5px] font-black text-[#10b981] mt-[1px]">{totals.matches > 0 ? Math.round((totals.startingMatches / totals.matches) * 100) : 0}%</span>
+                  </div>
+               </div>
+             </div>
+             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
+               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Minutos</span>
+               <span className="text-xl text-white font-black leading-none">{totals.minutesPlayed}<span className="text-[9px] text-white/50 ml-0.5">'</span></span>
+             </div>
+             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-accent)]/5">
+               <span className="text-[8px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">Goles</span>
                <span className="text-xl text-[var(--theme-accent)] font-black leading-none">{totals.goals}</span>
              </div>
-             <div className="flex flex-col items-center justify-center border-l border-white/5">
-               <span className="text-[9px] text-[var(--theme-primary)]/60 uppercase font-black tracking-widest text-center mb-1">Asist.</span>
+             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-primary)]/5">
+               <span className="text-[8px] text-[var(--theme-primary)]/60 uppercase font-black tracking-widest text-center mb-1">Asist.</span>
                <span className="text-xl text-[var(--theme-primary)] font-black leading-none">{totals.assists}</span>
              </div>
           </div>
@@ -726,18 +814,27 @@ function MobileTimelineCard({ nodeData }: { nodeData: any }) {
 
         {/* Achievements */}
         {itemHonours.length > 0 && (
-          <div className="mt-4 flex flex-col gap-1.5 max-h-[140px] overflow-y-auto scrollbar-hide">
-            {itemHonours.map((p: any) => (
-              <div key={p.id} className="w-full flex items-center justify-between px-3 py-2 bg-yellow-500/[0.03] border border-yellow-500/10 rounded-lg">
-                 <div className="flex flex-col truncate pr-2">
-                   <span className="text-yellow-500 font-extrabold text-[10px] uppercase tracking-wider truncate">{p.title}</span>
-                   {p.competition && <span className="text-yellow-500/50 text-[9px] font-bold uppercase truncate">{p.competition} {p.season && `• ${p.season}`}</span>}
-                 </div>
-                 <div className="flex items-center justify-center w-5 h-5 shrink-0 rounded-full bg-yellow-500/10 text-yellow-500 text-[9px] ml-1">
-                   ★
-                 </div>
-              </div>
-            ))}
+          <div className="mt-4 flex flex-col gap-1.5 max-h-[140px] overflow-y-auto scrollbar-hide relative z-10">
+            {itemHonours.map((p: any) => {
+               const isTrophy = isHonourTrophy(p.title);
+               return (
+               <div key={p.id} onClick={() => onSelectHonour(p)} className="group w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg cursor-pointer hover:bg-yellow-500/20 transition-colors">
+                  <div className="flex flex-col truncate pr-2">
+                    <span className="text-yellow-500 font-extrabold text-[10px] uppercase tracking-wider truncate group-hover:text-yellow-400 transition-colors">{p.title}</span>
+                    {p.competition && <span className="text-yellow-500/50 text-[9px] font-bold uppercase truncate group-hover:text-yellow-500/80 transition-colors">{p.competition} {p.season && `• ${p.season}`}</span>}
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px]">
+                      {isTrophy ? (
+                         <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z" /><path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" /><path d="M11 17V20H8V22H16V20H13V17H11Z" /><path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" /><path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" /></svg>
+                      ) : (
+                         <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                      )}
+                    </div>
+                    <svg className="w-3.5 h-3.5 text-yellow-500/50 group-hover:text-yellow-500 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                  </div>
+               </div>
+            )})}
           </div>
         )}
 
@@ -782,4 +879,69 @@ function MarqueeClubTitle({ text, isActive }: { text: string; isActive: boolean 
       </motion.span>
     </div>
   );
+}
+
+function HonourModal({ honour, onClose }: { honour: any, onClose: () => void }) {
+  const isTrophy = isHonourTrophy(honour.title);
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-neutral-900 border border-white/10 rounded-3xl p-6 relative shadow-2xl overflow-hidden"
+      >
+        <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-[var(--theme-primary)] rounded-full blur-[80px] opacity-20 pointer-events-none" />
+        
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+        <div className="flex items-center gap-4 mb-4 relative z-10">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500/20 to-yellow-500/5 flex items-center justify-center border border-yellow-500/20 text-yellow-500 shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.2)]">
+            {isTrophy ? (
+               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z" /><path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" /><path d="M11 17V20H8V22H16V20H13V17H11Z" /><path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" /><path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" /></svg>
+            ) : (
+               <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+            )}
+          </div>
+          <div className="flex-1 pr-4">
+            <h4 className="text-xl font-black text-white uppercase leading-tight text-pretty">{honour.title}</h4>
+            {(honour.competition || honour.season) && (
+              <span className="text-yellow-500/80 text-xs font-bold uppercase tracking-widest mt-1 block">
+                {honour.competition} {honour.season && `• ${honour.season}`}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {honour.description && (
+          <div className="mt-6 p-4 bg-white/5 rounded-xl border border-white/5 relative z-10">
+            <p className="text-sm text-white/70 leading-relaxed whitespace-pre-line">
+              {honour.description}
+            </p>
+          </div>
+        )}
+        
+        {honour.awardedOn && (
+           <div className="mt-4 text-xs text-white/40 font-medium tracking-widest uppercase relative z-10">
+              Otorgado: {new Date(honour.awardedOn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+           </div>
+        )}
+      </motion.div>
+    </motion.div>
+  );
+}
+
+function isHonourTrophy(title: string) {
+  const t = title.toLowerCase();
+  return t.includes('campeón') || t.includes('campeon') || t.includes('copa') || t.includes('oro') || t.includes('1er') || t.includes('primero') || t.includes('ganador') || t.includes('ascenso') || t.includes('trofeo') || t.includes('liga') || t.includes('champion') || t.includes('medalla');
 }

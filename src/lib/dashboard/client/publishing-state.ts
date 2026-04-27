@@ -275,6 +275,7 @@ type StatRow = {
   competition: string | null;
   team: string | null;
   matches: number | null;
+  starts: number | null;
   minutes: number | null;
   goals: number | null;
   assists: number | null;
@@ -315,7 +316,7 @@ async function fetchPublishingStateFromBaseTables(
     supabase
       .from("stats_seasons")
       .select(
-        "id, season, competition, team, matches, minutes, goals, assists, yellow_cards, red_cards, created_at, career_item_id",
+        "id, season, competition, team, matches, starts, minutes, goals, assists, yellow_cards, red_cards, created_at, career_item_id",
       )
       .eq("player_id", playerId)
       .order("season", { ascending: false })

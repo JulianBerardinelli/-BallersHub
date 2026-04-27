@@ -470,6 +470,7 @@ SELECT
           'competition', st.competition,
           'team', st.team,
           'matches', st.matches,
+          'starts', st.starts,
           'minutes', st.minutes,
           'goals', st.goals,
           'assists', st.assists,

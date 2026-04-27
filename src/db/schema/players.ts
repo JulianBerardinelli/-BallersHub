@@ -35,6 +35,8 @@ export const playerProfiles = pgTable("player_profiles", {
   beSoccerUrl: text("besoccer_url"),
   bio: text("bio"),
   heroUrl: text("hero_url"),
+  modelUrl1: text("model_url_1"),
+  modelUrl2: text("model_url_2"),
   avatarUrl: text("avatar_url").notNull().default("/images/player-default.jpg"),
   visibility: visibilityEnum("visibility").notNull().default("public"),
   status: playerStatusEnum("status").notNull().default("draft"),

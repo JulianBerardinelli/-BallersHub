@@ -142,11 +142,6 @@ export async function POST(req: Request, ctx: { params: Params }) {
     ? (await admin.from("teams").select("name").eq("id", app.current_team_id).maybeSingle()).data?.name ?? null
     : null;
 
-  // 3b) no permitir aprobar si personal_info no está completo
-  if (!app.personal_info_approved) {
-    return NextResponse.json({ error: "personal_info not approved yet" }, { status: 400 });
-  }
-
   // 4) slug único para el jugador
   const slug = await ensureUniqueSlug(slugify(app.full_name ?? "player"), admin);
 

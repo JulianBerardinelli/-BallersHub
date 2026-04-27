@@ -12,7 +12,7 @@ import {
 } from "@/lib/dashboard/client/task-context";
 import { evaluateDashboardTasks, orderTasksBySeverity } from "@/lib/dashboard/client/tasks";
 import LockedSection from "@/components/dashboard/client/LockedSection";
-import HeroAssetUploaderClient from "@/components/dashboard/client/media/HeroAssetUploaderClient";
+import ProAssetsUploaderClient from "@/components/dashboard/client/media/ProAssetsUploaderClient";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 
@@ -57,11 +57,16 @@ export default async function MultimediaPage() {
     );
   }
 
-  const { data: rawMediaItems } = await supabase
+  const { data: rawMediaItemsFromDB } = await supabase
     .from("player_media")
     .select("*")
     .eq("player_id", profile.id)
     .order("created_at", { ascending: false });
+
+  // Filter out Pro Assets so they don't show up in the public catalog gallery
+  const rawMediaItems = (rawMediaItemsFromDB || []).filter(
+    (item) => !item.provider?.startsWith("pro_asset_")
+  );
 
   const { data: rawArticles } = await supabase
     .from("player_articles")
@@ -69,13 +74,15 @@ export default async function MultimediaPage() {
     .eq("player_id", profile.id)
     .order("published_at", { ascending: false, nullsFirst: false });
 
-  // Fetch hero url explicitly because dashboard view might not have it yet
-  const { data: profileWithHero } = await supabase
+  // Fetch pro assets explicitly because dashboard view might not have it yet
+  const { data: profileWithProAssets } = await supabase
     .from("player_profiles")
-    .select("hero_url")
+    .select("hero_url, model_url_1, model_url_2")
     .eq("id", profile.id)
     .single();
-  const currentHeroUrl = profileWithHero?.hero_url ?? null;
+  const currentHeroUrl = profileWithProAssets?.hero_url ?? null;
+  const currentModelUrl1 = profileWithProAssets?.model_url_1 ?? null;
+  const currentModelUrl2 = profileWithProAssets?.model_url_2 ?? null;
 
   // Map Supabase snake_case back to Drizzle's camelCase PlayerMedia type
   const mediaItems = (rawMediaItems || []).map((item) => ({
@@ -132,7 +139,13 @@ export default async function MultimediaPage() {
 
       <TaskCalloutList tasks={taskCallouts} />
 
-      <HeroAssetUploaderClient currentHeroUrl={currentHeroUrl} playerId={profile.id} userId={user.id} />
+      <ProAssetsUploaderClient 
+        currentHeroUrl={currentHeroUrl} 
+        currentModelUrl1={currentModelUrl1}
+        currentModelUrl2={currentModelUrl2}
+        playerId={profile.id} 
+        userId={user.id} 
+      />
 
       <MultimediaManagerClient 
         media={mediaItems || []} 

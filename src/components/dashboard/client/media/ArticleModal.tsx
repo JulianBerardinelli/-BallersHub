@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 
@@ -8,6 +8,7 @@ export type Article = {
   id: string;
   title: string;
   url: string;
+  image_url: string | null;
   publisher: string | null;
   published_at: string | null;
   created_at: string;
@@ -16,17 +17,38 @@ export type Article = {
 interface ArticleModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  articleToEdit?: Article | null;
 }
 
-export default function ArticleModal({ isOpen, onOpenChange }: ArticleModalProps) {
+export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: ArticleModalProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     url: "",
+    imageUrl: "",
     publisher: "",
     publishedAt: "",
   });
+
+  // Populate form when modal opens with an article to edit
+  React.useEffect(() => {
+    if (isOpen) {
+      if (articleToEdit) {
+        setFormData({
+          title: articleToEdit.title || "",
+          url: articleToEdit.url || "",
+          imageUrl: articleToEdit.image_url || "",
+          publisher: articleToEdit.publisher || "",
+          publishedAt: articleToEdit.published_at 
+            ? new Date(articleToEdit.published_at).toISOString().split('T')[0] 
+            : "",
+        });
+      } else {
+        setFormData({ title: "", url: "", imageUrl: "", publisher: "", publishedAt: "" });
+      }
+    }
+  }, [isOpen, articleToEdit]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -40,22 +62,26 @@ export default function ArticleModal({ isOpen, onOpenChange }: ArticleModalProps
 
     try {
       setIsLoading(true);
-      const res = await fetch("/api/articles", {
-        method: "POST",
+      const isEdit = !!articleToEdit;
+      const apiUrl = isEdit ? `/api/articles/${articleToEdit.id}` : "/api/articles";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const res = await fetch(apiUrl, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (!res.ok) {
-        throw new Error("Failed to save article");
+        throw new Error(isEdit ? "Failed to update article" : "Failed to save article");
       }
 
-      setFormData({ title: "", url: "", publisher: "", publishedAt: "" });
+      setFormData({ title: "", url: "", imageUrl: "", publisher: "", publishedAt: "" });
       onClose();
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert("Hubo un error al guardar el artículo.");
+      alert(articleToEdit ? "Hubo un error al actualizar el artículo." : "Hubo un error al guardar el artículo.");
     } finally {
       setIsLoading(false);
     }
@@ -98,6 +124,16 @@ export default function ArticleModal({ isOpen, onOpenChange }: ArticleModalProps
                   value={formData.publisher}
                   onChange={handleChange}
                   classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
+                />
+                <Input
+                  label="URL de Imagen/Miniatura"
+                  name="imageUrl"
+                  placeholder="https://..."
+                  variant="bordered"
+                  value={formData.imageUrl}
+                  onChange={handleChange}
+                  classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
+                  description="Añadí el link directo a la foto o miniatura del medio."
                 />
                 <Input
                   label="Fecha de Publicación"

@@ -28,6 +28,7 @@ export const playerArticles = pgTable("player_articles", {
   playerId: uuid("player_id").notNull().references(() => playerProfiles.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   url: text("url").notNull(),
+  imageUrl: text("image_url"),
   publisher: text("publisher"),
   publishedAt: date("published_at"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

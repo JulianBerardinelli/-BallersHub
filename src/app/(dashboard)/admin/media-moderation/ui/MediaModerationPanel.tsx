@@ -103,6 +103,26 @@ export default function MediaModerationPanel({ initialMedia }: { initialMedia: P
         }
       }
 
+      // Si es un Pro Asset y se rechaza, limpiamos la columna correspondiente en player_profiles
+      if (action === "reject" && item.provider?.startsWith("pro_asset_")) {
+        const dbColMap: Record<string, string> = {
+          pro_asset_heroUrl: "hero_url",
+          pro_asset_modelUrl1: "model_url_1",
+          pro_asset_modelUrl2: "model_url_2"
+        };
+        const dbCol = dbColMap[item.provider];
+        if (dbCol) {
+          const { error: profileError } = await supabase
+            .from("player_profiles")
+            .update({ [dbCol]: null })
+            .eq("id", item.player_id);
+            
+          if (profileError) {
+            console.error("Error limpiando pro asset de player_profiles:", profileError);
+          }
+        }
+      }
+
       // Fallback local update to make UI reactive without waiting for router refresh
       setMedia((prev) => 
         prev.map((m) => 

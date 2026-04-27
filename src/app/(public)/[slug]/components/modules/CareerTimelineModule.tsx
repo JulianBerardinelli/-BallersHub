@@ -17,14 +17,18 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
     ? await db.select().from(teams).where(inArray(teams.id, teamIds))
     : [];
 
-  const divisionIds = Array.from(new Set(careerRecords.map(c => c.divisionId).filter(Boolean) as string[]));
+  const divisionIds = Array.from(new Set([
+    ...careerRecords.map(c => c.divisionId),
+    ...mappedTeams.map(t => t.divisionId)
+  ].filter(Boolean) as string[]));
   const mappedDivisions = divisionIds.length > 0
     ? await db.select().from(divisions).where(inArray(divisions.id, divisionIds))
     : [];
 
   const career = careerRecords.map(item => {
     const teamDb = mappedTeams.find(t => t.id === item.teamId);
-    const divisionDb = mappedDivisions.find(d => d.id === item.divisionId);
+    const effectiveDivisionId = item.divisionId || teamDb?.divisionId;
+    const divisionDb = mappedDivisions.find(d => d.id === effectiveDivisionId);
     return {
       ...item,
       stats: stats.filter(s => s.careerItemId === item.id),

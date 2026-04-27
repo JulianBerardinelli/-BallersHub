@@ -10,6 +10,7 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Seguro que deseas eliminar este artículo?")) return;
@@ -25,6 +26,16 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleEdit = (article: Article) => {
+    setArticleToEdit(article);
+    onOpen();
+  };
+
+  const handleAddNew = () => {
+    setArticleToEdit(null);
+    onOpen();
   };
 
   return (
@@ -54,22 +65,32 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
                     {item.published_at && <span>{new Date(item.published_at).toLocaleDateString()}</span>}
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="flat"
-                  color="danger"
-                  isLoading={deletingId === item.id}
-                  onPress={() => handleDelete(item.id)}
-                >
-                  Eliminar
-                </Button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="default"
+                    onPress={() => handleEdit(item)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="flat"
+                    color="danger"
+                    isLoading={deletingId === item.id}
+                    onPress={() => handleDelete(item.id)}
+                  >
+                    Eliminar
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
         )}
         
         <div>
-          <Button color="primary" variant="flat" onPress={onOpen} className="w-full sm:w-auto mt-2">
+          <Button color="primary" variant="flat" onPress={handleAddNew} className="w-full sm:w-auto mt-2">
             Añadir Artículo
           </Button>
         </div>
@@ -78,7 +99,7 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
         En esta sección podrás cargar notas vinculadas a tu presencia en medios deportivos.
       </p>
 
-      <ArticleModal isOpen={isOpen} onOpenChange={onOpenChange} />
+      <ArticleModal isOpen={isOpen} onOpenChange={onOpenChange} articleToEdit={articleToEdit} />
     </SectionCard>
   );
 }

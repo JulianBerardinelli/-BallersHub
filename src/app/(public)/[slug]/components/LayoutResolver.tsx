@@ -10,8 +10,8 @@ import SmoothScrollProvider from "./SmoothScrollProvider";
 import ProfileBioModule from "./modules/ProfileBioModule";
 import TacticsModule from "./modules/TacticsModule";
 import CareerTimelineModule from "./modules/CareerTimelineModule";
-import StatsAndMarketModule from "./modules/StatsAndMarketModule";
 import MediaGalleryModule from "./modules/MediaGalleryModule";
+import ProfilePressNotesModule from "./modules/ProfilePressNotesModule";
 
 export type PublicProfileData = {
   player: Record<string, unknown> & {
@@ -29,13 +29,14 @@ export type PublicProfileData = {
   };
   career: Array<Record<string, unknown> & { id: string; club: string; division?: string | null; startDate?: string | null; endDate?: string | null }>;
   media: Array<Record<string, unknown> & { id: string; url: string; type: string }>;
+  articles?: Array<Record<string, unknown> & { id: string; title: string; url: string; imageUrl?: string | null }>;
   sections: Array<{ section: string; visible: boolean }>;
   theme: Record<string, unknown> & { layout?: string | null; primaryColor?: string | null; accentColor?: string | null; typography?: string | null; };
   limits?: any; // Subscription limits
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
-  const { player, theme, limits } = data;
+  const { player, theme, limits, articles } = data;
   
   const layout = theme?.layout || "futuristic";
   const primaryColor = theme?.primaryColor || "#0a0a0a";
@@ -83,10 +84,9 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
                  <CareerTimelineModule playerId={player.id} />
                </Suspense>
-
-               <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando estadísticas...</div>}>
-                 <StatsAndMarketModule playerId={player.id} />
-               </Suspense>
+               
+               {/* Press & Notes Module (Client Side) */}
+               <ProfilePressNotesModule articles={articles as any} />
 
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
                  <MediaGalleryModule playerId={player.id} limits={limits} />

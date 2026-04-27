@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { playerMedia, careerItems, statsSeasons, playerHonours, teams } from "@/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { playerMedia, careerItems, statsSeasons, playerHonours, teams, playerArticles } from "@/db/schema";
+import { and, eq, inArray, desc } from "drizzle-orm";
 import LayoutResolver from "./components/LayoutResolver";
 
 export const revalidate = 0; // DEVELOPMENT CACHE DISABLED
@@ -54,10 +54,11 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
   const maxVideos = Number(limits?.max_videos ?? 100);
 
   // 3) Bandeja de Datos Públicos
-  const [rawMedia, theme, sections] = await Promise.all([
+  const [rawMedia, theme, sections, articles] = await Promise.all([
      db.select().from(playerMedia).where(and(eq(playerMedia.playerId, player.id), eq(playerMedia.isApproved, true))),
      db.query.profileThemeSettings.findFirst({ where: (t, { eq }) => eq(t.playerId, player.id) }),
-     db.query.profileSectionsVisibility.findMany({ where: (s, { eq }) => eq(s.playerId, player.id) })
+     db.query.profileSectionsVisibility.findMany({ where: (s, { eq }) => eq(s.playerId, player.id) }),
+     db.select().from(playerArticles).where(eq(playerArticles.playerId, player.id)).orderBy(desc(playerArticles.publishedAt))
   ]);
 
   const media = [
@@ -70,6 +71,7 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
     career: [],
     media,
     sections,
+    articles,
     theme: theme || { layout: "futuristic", primaryColor: "#171717", accentColor: "#3B82F6", typography: "syncopate" }
   };
 

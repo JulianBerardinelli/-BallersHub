@@ -20,6 +20,32 @@ export const POSITIONS_MAP: Record<string, { top: string; left: string; label: s
   "SD":  { top: "20%", left: "50%", label: "Segundo Delantero",  area: "Frontal de Área",          strengths: ["Asociación", "Desmarque", "Conducción Rápida"] },
 };
 
+export const ONBOARDING_TO_POS_CODE: Record<string, string> = {
+  "ARQUERO": "POR",
+  "CENTRAL": "DFC",
+  "LATERAL DERECHO": "LD",
+  "LATERAL IZQUIERDO": "LI",
+  "CARRILERO": "LI",
+  "MEDIOCENTRO": "MC",
+  "PIVOTE": "MCD",
+  "INTERIOR": "MC",
+  "VOLANTE DERECHO": "MD",
+  "VOLANTE IZQUIERDO": "MI",
+  "MEDIAPUNTA": "MCO",
+  "CENTRODELANTERO": "DEL",
+  "EXTREMO DERECHO": "ED",
+  "EXTREMO IZQUIERDO": "EI",
+  "SEGUNDO DELANTERO": "SD",
+};
+
+export function normalizePosition(p: string | null | undefined): string | null {
+  if (!p) return null;
+  const upper = p.toUpperCase().trim();
+  if (ONBOARDING_TO_POS_CODE[upper]) return ONBOARDING_TO_POS_CODE[upper];
+  if (POSITIONS_MAP[upper]) return upper;
+  return null;
+}
+
 export default function SoccerPitch3D({
   playerPositions = [],
   characteristics = [],
@@ -27,11 +53,17 @@ export default function SoccerPitch3D({
   playerPositions?: string[];
   characteristics?: string[];
 }) {
-  const [activePos, setActivePos] = useState<string | null>(
-    playerPositions.length > 0 ? playerPositions[0] : null
-  );
+  const validPositions = playerPositions
+    .filter(p => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
+    .map(p => normalizePosition(p))
+    .filter((p): p is string => p !== null);
 
-  const validPositions = playerPositions.filter((p) => POSITIONS_MAP[p.toUpperCase()]);
+  const PALETTES = [
+    "var(--theme-primary)",
+    "#f97316", // orange-500
+    "#8b5cf6", // violet-500
+    "#10b981", // emerald-500
+  ];
 
   return (
     /*
@@ -83,7 +115,7 @@ export default function SoccerPitch3D({
         {/* ── POSICIÓN MARKERS (billboarding) ─────────────── */}
         {validPositions.map((posCode, i) => {
           const config = POSITIONS_MAP[posCode.toUpperCase()];
-          const isActive = activePos === posCode;
+          const color = PALETTES[i % PALETTES.length];
 
           return (
             <React.Fragment key={posCode}>
@@ -95,88 +127,101 @@ export default function SoccerPitch3D({
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 ease-out"
                 style={{ top: config.top, left: config.left }}
               >
-                <button
-                  onClick={() => setActivePos(posCode)}
-                  className="relative group outline-none"
+                <div
+                  className="relative group outline-none pointer-events-none"
                   style={{ transform: "rotateZ(20deg) rotateX(-65deg)" }}
                 >
                   {/* Shadow / Glow floor */}
                   <motion.div
                     animate={{
-                      scale: isActive ? [1, 1.3, 1] : 1,
-                      opacity: isActive ? [0.6, 1, 0.6] : 0.2,
+                      scale: [1, 1.3, 1],
+                      opacity: [0.6, 1, 0.6],
                     }}
-                    transition={{ duration: 2, repeat: isActive ? Infinity : 0 }}
-                    className={`absolute top-0 left-0 w-10 h-10 -ml-5 -mt-5 rounded-full blur-[8px] mix-blend-screen transition-colors duration-300 ${
-                      isActive ? 'bg-[var(--theme-primary)]' : 'bg-white'
-                    }`}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.3 }}
+                    className="absolute top-0 left-0 w-10 h-10 -ml-5 -mt-5 rounded-full blur-[8px] mix-blend-screen transition-colors duration-300"
+                    style={{ backgroundColor: color }}
                   />
                   {/* Floating Node */}
                   <motion.div
-                    animate={{ y: isActive ? [0, -10, 0] : 0 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    className={`relative w-5 h-5 rounded-full border-2 cursor-pointer transition-colors duration-300 flex items-center justify-center z-10 ${
-                      isActive
-                        ? 'bg-white border-[var(--theme-primary)] shadow-[0_0_15px_var(--theme-primary)]'
-                        : 'bg-neutral-800 border-white/40 hover:bg-white hover:border-white'
-                    }`}
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: i * 0.3 }}
+                    className="relative w-4 h-4 rounded-full border-2 transition-colors duration-300 flex items-center justify-center z-10 bg-white"
+                    style={{ borderColor: color, boxShadow: `0 0 15px ${color}` }}
                   >
-                    {isActive && <div className="w-2 h-2 bg-[var(--theme-primary)] rounded-full" />}
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
                   </motion.div>
-                </button>
+                </div>
               </motion.div>
             </React.Fragment>
           );
         })}
       </motion.div>
 
-      {/* ── FLOATING INFO CARD ─────────────────────────────────
-          Mobile: centrada debajo del campo (bottom, centered)
-          lg+:    posicionada a la derecha del campo
-          
-          Se usa overflow: visible en el parent para evitar clip.
-      */}
+      {/* ── FLOATING INFO CARDS ───────────────────────────────── */}
       <AnimatePresence mode="wait">
-        {activePos && POSITIONS_MAP[activePos.toUpperCase()] && (
-          <motion.div
-            key={activePos}
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            className="
-              absolute z-20 pointer-events-none
-              bg-black/40 backdrop-blur-xl border-l-[3px] p-4 shadow-2xl
-              w-[260px]
-              top-[8%] right-[-5%]
-            "
-            style={{ borderColor: "color-mix(in srgb, var(--theme-primary) 100%, transparent)" }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-0.5">
-                  Posición
-                </span>
-                <h4 className="text-lg sm:text-xl font-black text-white uppercase leading-tight">
-                  {POSITIONS_MAP[activePos.toUpperCase()].label}
-                </h4>
-              </div>
-              <div className="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full font-black text-[var(--theme-primary)] text-sm">
-                {activePos.toUpperCase()}
-              </div>
-            </div>
+        {validPositions.map((posCode, i) => {
+          const config = POSITIONS_MAP[posCode.toUpperCase()];
+          const color = PALETTES[i % PALETTES.length];
 
-            <div>
-              <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-1">
-                Zona de Influencia
-              </span>
-              <p className="text-xs font-bold text-white/80 uppercase tracking-widest">
-                {POSITIONS_MAP[activePos.toUpperCase()].area}
-              </p>
-            </div>
-          </motion.div>
-        )}
+          const SLOTS = [
+            // 1. Top Right
+            { style: { top: "8%" }, className: "right-[0%] lg:right-[-5%] xl:right-[-10%]" },
+            // 2. Bottom Left
+            { style: { top: "70%" }, className: "left-[0%] lg:left-[-5%] xl:left-[-10%]" },
+            // 3. Bottom Right
+            { style: { top: "70%" }, className: "right-[0%] lg:right-[-5%] xl:right-[-10%]" },
+            // 4. Mid Left
+            { style: { top: "40%" }, className: "left-[0%] lg:left-[-5%] xl:left-[-10%]" },
+          ];
+
+          const slot = SLOTS[i % SLOTS.length];
+
+          return (
+            <motion.div
+              key={posCode}
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ delay: 1.2 + i * 0.2, type: "spring", stiffness: 300, damping: 20 }}
+              className={`
+                absolute z-20 pointer-events-none
+                bg-black/40 backdrop-blur-xl border-l-[3px] p-3 shadow-2xl
+                w-[220px] sm:w-[240px]
+                ${slot.className}
+              `}
+              style={{ ...slot.style, borderColor: color }}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-0.5">
+                    Posición
+                  </span>
+                  <h4 className="text-base sm:text-lg font-black text-white uppercase leading-tight">
+                    {config.label}
+                  </h4>
+                </div>
+                <div 
+                  className="w-9 h-9 flex items-center justify-center bg-white/5 rounded-full font-black text-sm"
+                  style={{ color: color }}
+                >
+                  {posCode.toUpperCase()}
+                </div>
+              </div>
+
+              <div>
+                <span className="block text-[9px] font-black uppercase tracking-[0.2em] mb-1 text-white/70">
+                  Zona de Influencia
+                </span>
+                <p className="text-xs font-bold text-white/80 uppercase tracking-widest">
+                  {config.area}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </AnimatePresence>
     </div>
   );
 }
+

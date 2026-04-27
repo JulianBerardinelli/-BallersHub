@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import type { PublicProfileData } from "./LayoutResolver";
 import MinimalistLayout from "./MinimalistLayout";
 import ProPlayerHeader from "./ProPlayerHeader";
-import { formatMarketValueEUR } from "@/lib/format";
+import { formatMarketValueEUR, formatPlayerPositions } from "@/lib/format";
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player, career, theme } = data;
@@ -117,7 +117,7 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
             transition={{ repeat: Infinity, ease: "linear", duration: 30 }}
           >
             {[...Array(4)].map((_, i) => (
-              <span key={i} className="text-[25vw] font-black uppercase mx-8 leading-none" style={{ WebkitTextStroke: "2px white", color: "transparent" }}>
+              <span key={i} className="text-[25vw] font-black uppercase mx-8 leading-none [-webkit-text-stroke:1px_white] md:[-webkit-text-stroke:2px_white] text-transparent">
                 {lastName} • {firstName} •
               </span>
             ))}
@@ -172,8 +172,8 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
               >
                 {player.positions && player.positions.length > 0 && (
                   <div className="text-white tracking-[0.1em] md:tracking-[0.2em] uppercase font-bold text-[10px] md:text-sm lg:text-base opacity-95 drop-shadow-md">
-                    {/* Toma el string más específico o el último */}
-                    {player.positions[player.positions.length - 1]}
+                    {/* Toma la última posición después de filtrarla */}
+                    {formatPlayerPositions(player.positions).split(" / ").pop()}
                   </div>
                 )}
                 
@@ -202,22 +202,22 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
 
         {/* LAYER 1 GHOST TRAILS: GUM EFFECT SCROLL DOWN (6 LAYERS) */}
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY6, opacity: 0.05 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `1px ${accentColor}` }}>{lastName}</h1>
+            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</h1>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY5, opacity: 0.1 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `1px ${accentColor}` }}>{lastName}</h1>
+            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</h1>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY4, opacity: 0.15 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `2px ${accentColor}` }}>{lastName}</h1>
+            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)]">{lastName}</h1>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY3, opacity: 0.2 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `3px ${accentColor}` }}>{lastName}</h1>
+            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:3px_var(--theme-accent)]">{lastName}</h1>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY2, opacity: 0.3 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `4px ${accentColor}` }}>{lastName}</h1>
+            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1.5px_var(--theme-accent)] md:[-webkit-text-stroke:4px_var(--theme-accent)]">{lastName}</h1>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY1, opacity: 0.4 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `5px ${accentColor}` }}>{lastName}</h1>
+            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)]">{lastName}</h1>
         </motion.div>
 
         {/* LAYER 1 NORMAL: TEXTO FRONT SOLIDO ESTÁTICO (Behind Player) */}
@@ -256,10 +256,8 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
         >
           <motion.h1 
             initial="hidden" animate="visible" variants={lastNameVariants}
-            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full"
+            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)] text-transparent"
             style={{ 
-              WebkitTextStroke: `2px ${accentColor}`, 
-              color: "transparent",
               filter: `drop-shadow(0px 0px 20px ${accentColor}30)`
             }}
           >

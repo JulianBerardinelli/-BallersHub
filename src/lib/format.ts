@@ -50,3 +50,15 @@ export function formatMarketValueEUR(
       : Math.trunc(rounded).toString();
   }
   
+  /**
+   * Formatea el array de posiciones del jugador, eliminando roles "padre" 
+   * (MID, DEL, ARQ, DEF) y uniendo las subposiciones finales.
+   */
+  export function formatPlayerPositions(positions: string[] | null | undefined): string {
+    if (!positions || positions.length === 0) return "N/A";
+    const allParts = positions.flatMap(p => p.split(/\s*[\/\-]\s*/));
+    const parentRoles = ["ARQ", "DEF", "MID", "DEL", "ARQUERO", "DEFENSOR", "MEDIOCAMPISTA", "DELANTERO"];
+    const filtered = allParts.filter(part => !parentRoles.includes(part.toUpperCase()) && !parentRoles.includes(part));
+    return filtered.length > 0 ? filtered.join(" / ") : (positions.join(" / ") || "N/A");
+  }
+  

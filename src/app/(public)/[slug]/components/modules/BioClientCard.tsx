@@ -10,6 +10,7 @@ import { LinkedIn } from "@/components/icons/LinkedInIcon";
 import { Youtube } from "lucide-react";
 import { BlockReveal } from "@/components/common/animations/BlockReveal";
 import { ScrambleText } from "@/components/common/animations/ScrambleText";
+import { formatPlayerPositions } from "@/lib/format";
 import { Variants } from "framer-motion";
 
 const itemVariant: Variants = {
@@ -79,8 +80,8 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
          }}
          className="lg:w-5/12 flex flex-col space-y-6 pt-4"
       >
-         <motion.div variants={itemVariant} className="flex items-center gap-6">
-            <div className="relative w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-white/10 shrink-0">
+         <motion.div variants={itemVariant} className="flex items-center gap-4 md:gap-6">
+            <div className="relative w-24 h-24 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-white/10 shrink-0">
                <Image 
                  src={player.avatarUrl || '/images/player-default.jpg'} 
                  alt={player.fullName || 'Player Avatar'} 
@@ -90,16 +91,16 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
             </div>
             <div>
                <BlockReveal blockColor="var(--theme-primary)" delay={0.1}>
-                 <h3 className="text-3xl md:text-5xl font-heading font-black leading-[0.9] uppercase text-white pb-1">
+                 <h3 className="text-2xl md:text-5xl font-heading font-black leading-[0.9] uppercase text-white pb-1">
                     {player.fullName?.replace(" ", "\n").split("\n").map((part: string, i: number) => (
                        <React.Fragment key={i}>{part}<br/></React.Fragment>
                     ))}
                  </h3>
                </BlockReveal>
                
-               <div className="flex items-center gap-3 mt-4">
-                 <span className="text-white/60 font-bold uppercase tracking-widest text-sm">
-                   <ScrambleText text={player.positions?.join(" / ") || "N/A"} delay={0.3} />
+               <div className="flex items-center gap-3 mt-3 md:mt-4">
+                 <span className="text-white/60 font-bold uppercase tracking-widest text-xs md:text-sm">
+                   <ScrambleText text={formatPlayerPositions(player.positions)} delay={0.3} />
                  </span>
                  {player.nationalityCodes?.length > 0 && (
                    <div className="flex items-center gap-2 border-l border-white/20 pl-3">
@@ -163,7 +164,7 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
          </motion.div>
 
          <motion.div variants={itemVariant}>
-           <p className="text-white/80 font-body text-base leading-relaxed mix-blend-lighten max-w-lg block">
+           <p className="text-white/80 font-body text-sm md:text-base leading-relaxed mix-blend-lighten max-w-lg block">
              {player.bio || "Buscando información biográfica confidencial..."}
            </p>
          </motion.div>
@@ -183,49 +184,49 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
             style={{ background: bgGradient }}
           />
 
-          <div className="relative z-20 p-8 md:p-14 h-full flex flex-col justify-between" style={{ transform: "translateZ(30px)" }}>             <div className="grid grid-cols-2 gap-x-8 gap-y-12">
+          <div className="relative z-20 p-6 md:p-14 h-full flex flex-col justify-between" style={{ transform: "translateZ(30px)" }}>             <div className="grid grid-cols-2 gap-x-6 md:gap-x-8 gap-y-8 md:gap-y-12">
                {/* Dato: Edad / Nacimiento */}
-               <div className="border-l-[3px] pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
-                 <span className="block text-[11px] tracking-[0.2em] font-black uppercase mb-2" style={{ color: 'var(--theme-accent)' }}>
+               <div className="border-l-[3px] pl-4 md:pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
+                 <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase mb-1 md:mb-2" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Edad" delay={0.1} />
                  </span>
-                 <span className="text-3xl md:text-4xl font-black text-white leading-none">
-                    <ScrambleText text={String(calculateAge(player.birthDate))} delay={0.2} /> <span className="text-xl text-white/30 uppercase"><ScrambleText text="Años" delay={0.25} /></span>
+                 <span className="text-2xl md:text-4xl font-black text-white leading-none">
+                    <ScrambleText text={String(calculateAge(player.birthDate))} delay={0.2} /> <span className="text-lg md:text-xl text-white/30 uppercase"><ScrambleText text="Años" delay={0.25} /></span>
                  </span>
-                 <span className="block text-white/60 mt-2 text-sm uppercase tracking-widest"><ScrambleText text={player.birthDate || '--'} delay={0.3} /></span>
+                 <span className="block text-white/60 mt-1 md:mt-2 text-xs md:text-sm uppercase tracking-widest"><ScrambleText text={player.birthDate || '--'} delay={0.3} /></span>
                </div>
 
                {/* Dato: Altura / Peso */}
-               <div className="border-l-[3px] pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
-                 <span className="block text-[11px] tracking-[0.2em] font-black uppercase mb-2" style={{ color: 'var(--theme-accent)' }}>
+               <div className="border-l-[3px] pl-4 md:pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
+                 <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase mb-1 md:mb-2" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Físico" delay={0.15} />
                  </span>
-                 <div className="flex gap-4">
-                    <span className="text-3xl md:text-4xl font-black text-white leading-none">
-                       <ScrambleText text={String(player.heightCm || '--')} delay={0.3} /><span className="text-xl text-white/30 uppercase"><ScrambleText text="cm" delay={0.35} /></span>
+                 <div className="flex gap-3 md:gap-4">
+                    <span className="text-2xl md:text-4xl font-black text-white leading-none">
+                       <ScrambleText text={String(player.heightCm || '--')} delay={0.3} /><span className="text-lg md:text-xl text-white/30 uppercase"><ScrambleText text="cm" delay={0.35} /></span>
                     </span>
-                    <span className="text-3xl md:text-4xl font-black text-white leading-none">
-                       <ScrambleText text={String(player.weightKg || '--')} delay={0.4} /><span className="text-xl text-white/30 uppercase"><ScrambleText text="kg" delay={0.45} /></span>
+                    <span className="text-2xl md:text-4xl font-black text-white leading-none">
+                       <ScrambleText text={String(player.weightKg || '--')} delay={0.4} /><span className="text-lg md:text-xl text-white/30 uppercase"><ScrambleText text="kg" delay={0.45} /></span>
                     </span>
                  </div>
-                 <span className="block text-white/60 mt-2 text-sm uppercase tracking-widest">
+                 <span className="block text-white/60 mt-1 md:mt-2 text-xs md:text-sm uppercase tracking-widest">
                    <ScrambleText text={player.foot ? `PIE ${player.foot}` : '--'} delay={0.5} />
                  </span>
                </div>
 
                {/* Dato: Club Actual (con logo y división) */}
-               <div className="border-l-[3px] pl-5 flex flex-col gap-2 transition-colors col-span-2 md:col-span-1" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
-                 <span className="block text-[11px] tracking-[0.2em] font-black uppercase" style={{ color: 'var(--theme-accent)' }}>
+               <div className="border-l-[3px] pl-4 md:pl-5 flex flex-col gap-1 md:gap-2 transition-colors col-span-2 md:col-span-1" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
+                 <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Club Actual" delay={0.2} />
                  </span>
-                 <div className="flex items-center gap-4 mt-2">
+                 <div className="flex items-center gap-3 md:gap-4 mt-1 md:mt-2">
                    {teamCrest && (
-                     <div className="relative w-10 h-10 md:w-12 md:h-12 shrink-0">
+                     <div className="relative w-8 h-8 md:w-12 md:h-12 shrink-0">
                         <Image src={teamCrest} alt="Team Logo" fill className="object-contain drop-shadow-xl" />
                      </div>
                    )}
                    <div className="flex flex-col justify-center">
-                     <span className="text-xl md:text-2xl font-bold text-white uppercase break-words block leading-tight">
+                     <span className="text-base md:text-2xl font-bold text-white uppercase break-words block leading-tight">
                        <ScrambleText text={player.currentClub || 'AGENTE LIBRE'} delay={0.5} />
                      </span>
                      <div className="flex items-center gap-2 mt-0.5">
@@ -243,19 +244,19 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
                </div>
 
                {/* Dato: Pasaporte / Ciudadano */}
-               <div className="border-l-[3px] pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
-                 <span className="block text-[11px] tracking-[0.2em] font-black uppercase mb-2" style={{ color: 'var(--theme-accent)' }}>
+               <div className="border-l-[3px] pl-4 md:pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
+                 <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase mb-1 md:mb-2" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Pasaporte" delay={0.25} />
                  </span>
                  <div className="flex flex-col">
-                   <div className="flex items-center gap-3">
-                     <span className="text-sm md:text-base font-bold text-white/80 uppercase tracking-widest">
+                   <div className="flex items-center gap-2 md:gap-3">
+                     <span className="text-xs md:text-base font-bold text-white/80 uppercase tracking-widest">
                        <ScrambleText text="Ciudadano" delay={0.35} />
                      </span>
-                     <div className="flex items-center gap-2 border-l-[2px] border-white/20 pl-3">
+                     <div className="flex items-center gap-2 border-l-[2px] border-white/20 pl-2 md:pl-3">
                        {player.nationalityCodes?.length > 0 ? (
                          player.nationalityCodes.map((code: string, i: number) => (
-                           <CountryFlag key={i} code={code} className="w-8 h-6 md:w-9 md:h-6 rounded-sm object-cover drop-shadow-md" />
+                           <CountryFlag key={i} code={code} className="w-6 h-4 md:w-9 md:h-6 rounded-sm object-cover drop-shadow-md" />
                          ))
                        ) : (
                          <span className="text-white/60">--</span>
@@ -274,21 +275,21 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
                </div>
 
                {/* Dato: Idiomas */}
-               <div className="border-l-[3px] pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
-                 <span className="block text-[11px] tracking-[0.2em] font-black uppercase mb-2" style={{ color: 'var(--theme-accent)' }}>
+               <div className="border-l-[3px] pl-4 md:pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
+                 <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase mb-1 md:mb-2" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Idiomas" delay={0.3} />
                  </span>
-                 <span className="text-lg md:text-xl font-bold text-white uppercase tracking-widest break-words leading-tight block">
+                 <span className="text-sm md:text-xl font-bold text-white uppercase tracking-widest break-words leading-tight block">
                    <ScrambleText text={data?.languages?.join(", ") || '--'} delay={0.6} />
                  </span>
                </div>
 
                {/* Dato: Formación / Estudios */}
-               <div className="border-l-[3px] pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
-                 <span className="block text-[11px] tracking-[0.2em] font-black uppercase mb-2" style={{ color: 'var(--theme-accent)' }}>
+               <div className="border-l-[3px] pl-4 md:pl-5 transition-colors" style={{ borderColor: 'color-mix(in srgb, var(--theme-secondary) 40%, transparent)' }}>
+                 <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase mb-1 md:mb-2" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Educación" delay={0.35} />
                  </span>
-                 <span className="text-lg md:text-xl font-bold text-white uppercase tracking-widest break-words leading-tight block">
+                 <span className="text-sm md:text-xl font-bold text-white uppercase tracking-widest break-words leading-tight block">
                    <ScrambleText text={data?.education || '--'} delay={0.7} />
                  </span>
                </div>

@@ -9,7 +9,7 @@ import {
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
-import SoccerPitch3D, { POSITIONS_MAP } from "@/components/common/animations/SoccerPitch3D";
+import SoccerPitch3D, { POSITIONS_MAP, normalizePosition } from "@/components/common/animations/SoccerPitch3D";
 import { IconSoccerField } from "@/components/icons/IconSoccerField";
 import { IconBrain } from "@/components/icons/IconBrain";
 import { IconActivity } from "@/components/icons/IconActivity";
@@ -107,6 +107,18 @@ function YoutubeClip({ video, className, animate = false }: { video: any; classN
 
 // ── 2D SOCCER PITCH (mobile-only, lightweight SVG) ────────────────────────────
 function SoccerPitch2D({ positions }: { positions: string[] }) {
+  const validPositions = positions
+    .filter(p => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
+    .map(p => normalizePosition(p))
+    .filter((p): p is string => p !== null);
+
+  const PALETTES = [
+    "var(--theme-primary)",
+    "#f97316", // orange-500
+    "#8b5cf6", // violet-500
+    "#10b981", // emerald-500
+  ];
+
   return (
     <svg
       viewBox="0 0 68 105"
@@ -139,30 +151,26 @@ function SoccerPitch2D({ positions }: { positions: string[] }) {
       <rect x="27.5" y="103" width="13" height="2" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.35)" strokeWidth="0.4" />
 
       {/* Position markers */}
-      {positions.map((posCode, i) => {
+      {validPositions.map((posCode, i) => {
         const cfg = POSITIONS_MAP[posCode.toUpperCase()];
         if (!cfg) return null;
         const x = (parseFloat(cfg.left) / 100) * 68;
         const y = (parseFloat(cfg.top) / 100) * 105;
-        const isPrimary = i === 0;
+        const color = PALETTES[i % PALETTES.length];
         return (
           <g key={posCode}>
-            {isPrimary && (
-              <>
-                <circle cx={x} cy={y} r="9" fill="var(--theme-primary)" opacity="0.12" />
-                <circle cx={x} cy={y} r="5.5" fill="var(--theme-primary)" opacity="0.2" />
-              </>
-            )}
+            <circle cx={x} cy={y} r="9" fill={color} opacity="0.12" />
+            <circle cx={x} cy={y} r="5.5" fill={color} opacity="0.2" />
             <circle
               cx={x} cy={y} r="3.2"
-              fill={isPrimary ? "var(--theme-primary)" : "rgba(255,255,255,0.35)"}
-              opacity={isPrimary ? 1 : 0.7}
+              fill={color}
+              opacity={1}
             />
             <text
               x={x} y={y + 8.5}
               textAnchor="middle"
               fontSize="4"
-              fill="rgba(255,255,255,0.65)"
+              fill="rgba(255,255,255,0.85)"
               fontFamily="monospace"
               fontWeight="bold"
             >
@@ -199,8 +207,8 @@ function ScrambleText({ text, active }: { text: string; active: boolean }) {
 }
 
 function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
-  const title = isScouting ? "Reporte" : "Análisis Táctico";
-  const subtitle = isScouting ? "Scouting" : "Análisis\nPosicional";
+  const title = isScouting ? "Perfil" : "Análisis Táctico";
+  const subtitle = isScouting ? "Características" : "Análisis\nPosicional";
   return (
     <div className="relative z-20 shrink-0 mb-2">
       <div className="flex items-center gap-3">
@@ -342,9 +350,26 @@ export default function ProfileTacticsModule({
     { border: "border-emerald-500/40",            text: "text-emerald-400",            dot: "bg-emerald-500" },
   ];
 
+  const PALETTES_COLORS = [
+    "var(--theme-primary)",
+    "#f97316", // orange-500
+    "#8b5cf6", // violet-500
+    "#10b981", // emerald-500
+  ];
+
   // Primary position info for mobile display
-  const primaryPos = (player.positions || ["DEL"])[0]?.toUpperCase();
-  const primaryPosCfg = POSITIONS_MAP[primaryPos] || null;
+  const rawPositions = player.positions || ["DEL"];
+  const validPositions = rawPositions
+    .filter((p: string) => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
+    .map((p: string) => normalizePosition(p))
+    .filter((p): p is string => p !== null);
+
+  const PALETTES = [
+    "var(--theme-primary)",
+    "#f97316", // orange-500
+    "#8b5cf6", // violet-500
+    "#10b981", // emerald-500
+  ];
 
   return (
     <section
@@ -394,60 +419,50 @@ export default function ProfileTacticsModule({
                     className="flex gap-3 min-h-0 items-start"
                   >
                     {/* Izquierda: position data */}
-                    <div className="flex flex-col justify-center gap-2.5 flex-1 min-w-0 pr-1">
-                      {primaryPosCfg ? (
-                        <>
-                          {/* Badge posicion */}
-                          <div className="flex items-center gap-2">
-                            <div
-                              className="w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0"
-                              style={{ borderColor: "var(--theme-primary)", background: "color-mix(in srgb, var(--theme-primary) 12%, transparent)" }}
-                            >
-                              <span className="text-[var(--theme-primary)] font-black text-xs">{primaryPos}</span>
-                            </div>
-                            <div>
-                              <p className="text-[8px] uppercase tracking-[0.2em] text-white/40 leading-none mb-0.5">Posición</p>
-                              <h4 className="text-sm font-black text-white uppercase leading-tight">
-                                {primaryPosCfg.label}
-                              </h4>
-                            </div>
-                          </div>
+                    <div className="flex flex-col gap-4 flex-1 min-w-0 pr-1 overflow-y-auto max-h-[50vh] pb-4 scrollbar-hide">
+                      {validPositions.length > 0 ? (
+                        validPositions.map((posCode: string, i: number) => {
+                          const cfg = POSITIONS_MAP[posCode.toUpperCase()];
+                          const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
+                          
+                          return (
+                            <div key={posCode} className="flex flex-col justify-center gap-2.5 border-b border-white/10 pb-3 last:border-0 last:pb-0">
+                              {/* Badge posicion */}
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0"
+                                  style={{ borderColor: color, background: `color-mix(in srgb, ${color} 12%, transparent)` }}
+                                >
+                                  <span className="font-black text-xs" style={{ color: color }}>{posCode.toUpperCase()}</span>
+                                </div>
+                                <div>
+                                  <p className="text-[8px] uppercase tracking-[0.2em] text-white/40 leading-none mb-0.5">Posición</p>
+                                  <h4 className="text-sm font-black text-white uppercase leading-tight">
+                                    {cfg.label}
+                                  </h4>
+                                </div>
+                              </div>
 
-                          {/* Zona de influencia */}
-                          <div>
-                            <p className="text-[8px] uppercase tracking-[0.15em] text-[var(--theme-accent)] mb-0.5">Zona de Influencia</p>
-                            <p className="text-[11px] font-bold text-white/70 leading-snug">{primaryPosCfg.area}</p>
-                          </div>
+                              {/* Zona de influencia */}
+                              <div>
+                                <p className="text-[8px] uppercase tracking-[0.15em] mb-0.5" style={{ color: color }}>Zona de Influencia</p>
+                                <p className="text-[11px] font-bold text-white/70 leading-snug">{cfg.area}</p>
+                              </div>
 
-                          {/* Strengths */}
-                          <div className="flex flex-wrap gap-1">
-                            {primaryPosCfg.strengths.map((s, i) => (
-                              <span
-                                key={i}
-                                className="text-[8px] px-2 py-0.5 rounded-full border border-white/10 text-white/50 uppercase tracking-wider"
-                              >
-                                {s}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Player positions list if multiple */}
-                          {(player.positions || []).length > 1 && (
-                            <div>
-                              <p className="text-[8px] uppercase tracking-[0.15em] text-white/30 mb-1">También juega de</p>
-                              <div className="flex gap-1 flex-wrap">
-                                {(player.positions as string[]).slice(1).map((p: string) => (
+                              {/* Strengths */}
+                              <div className="flex flex-wrap gap-1">
+                                {cfg.strengths.map((s, idx) => (
                                   <span
-                                    key={p}
-                                    className="text-[8px] px-2 py-0.5 rounded-full border border-white/10 text-white/40 font-bold uppercase"
+                                    key={idx}
+                                    className="text-[8px] px-2 py-0.5 rounded-full border border-white/10 text-white/50 uppercase tracking-wider"
                                   >
-                                    {p}
+                                    {s}
                                   </span>
                                 ))}
                               </div>
                             </div>
-                          )}
-                        </>
+                          );
+                        })
                       ) : (
                         <p className="text-white/30 text-xs">Sin posición registrada</p>
                       )}
@@ -519,7 +534,7 @@ export default function ProfileTacticsModule({
                   </motion.div>
 
                   {/* Lado der: video + highlights */}
-                  <div className="w-1/2 relative flex flex-col items-start pl-10 pb-0">
+                  <div className="w-1/2 relative flex flex-col items-end lg:pr-4 xl:pr-12 pb-0">
                     {videos[0] && (
                       <div className="relative w-full max-w-[550px] shrink-0 mb-8 mt-4 flex justify-center z-20">
                         <motion.div style={{ opacity: vid1Opac, y: vid1Y }} className="w-full">
@@ -581,12 +596,31 @@ export default function ProfileTacticsModule({
                 }`}
               >
                 {/* ▸ MOBILE layout (< lg): características + acordeones (sin fotos) */}
-                <div className="flex lg:hidden flex-col gap-2 h-full overflow-hidden">
+                <div className="flex lg:hidden flex-col gap-2 h-full relative">
+
+                  {/* MOBILE PNG Asset (Bottom Right, absolute, crisp right edge) */}
+                  {(player.modelUrl1 || player.modelUrl2) && (
+                    <motion.div
+                      style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
+                      className="absolute bottom-[-5%] right-0 w-[140%] max-w-[500px] pointer-events-none z-0 flex justify-end"
+                    >
+                       <img 
+                          src={player.modelUrl1 || player.modelUrl2} 
+                          alt="Player asset mobile"
+                          className="w-full h-auto object-contain object-bottom object-right max-h-[70vh]"
+                          style={{ 
+                              transformOrigin: "bottom right",
+                              WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 40%)",
+                              maskImage: "linear-gradient(to top, transparent 0%, black 40%)"
+                          }}
+                       />
+                    </motion.div>
+                  )}
 
                   {/* Avatar + Características principales */}
                   <motion.div
                     style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                    className="flex items-center gap-2.5 shrink-0 mb-0.5"
+                    className="flex items-center gap-2.5 shrink-0 mb-0.5 mt-5 relative z-10 w-[85%] max-w-[320px]"
                   >
                     {/* Avatar pequeño */}
                     <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 shrink-0 bg-neutral-800">
@@ -614,7 +648,7 @@ export default function ProfileTacticsModule({
                   </motion.div>
 
                   {/* Accordion analysis cards */}
-                  <div className="flex flex-col gap-1.5 overflow-hidden">
+                  <div className="flex flex-col gap-1.5 overflow-y-auto pb-8 relative z-10 custom-scrollbar w-[85%] max-w-[320px]">
                     <AccordionCard
                       label="Análisis Táctico"
                       content={tact}
@@ -657,7 +691,7 @@ export default function ProfileTacticsModule({
                   {author && author.trim() !== "" && (
                     <motion.div
                       style={{ opacity: scoutCharOpac, y: scoutCharY }}
-                      className="shrink-0 mt-auto flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/5 rounded-2xl p-2.5 hover:border-white/15 transition-colors"
+                      className="shrink-0 mt-auto relative z-10 flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/5 rounded-2xl p-2.5 hover:border-white/15 transition-colors"
                     >
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
                         <span className="text-[8px] text-white font-black">ST</span>
@@ -673,100 +707,189 @@ export default function ProfileTacticsModule({
                 {/* ▸ DESKTOP layout (lg+): fotos izq + grid cards der */}
                 <motion.div
                   style={{ opacity: scoutCharOpac, y: scoutCharY }}
-                  className="hidden lg:flex lg:w-3/12 flex-col gap-4"
+                  className="hidden lg:flex lg:w-3/12 flex-col justify-end relative h-full pb-0 z-0"
                 >
-                  {squarePhotos.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-2">
-                      {squarePhotos.map((photo, i) => (
-                        <div
-                          key={i}
-                          onClick={() => setLightboxImg(photo.url)}
-                          className={`w-full aspect-square relative rounded-2xl overflow-hidden border border-white/10 group shadow-2xl cursor-pointer ${i === 0 ? "col-span-2" : "col-span-1"}`}
-                        >
-                          <img src={photo.url} alt={`Scout ${i + 1}`} className="w-full h-full object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                  {(player.modelUrl1 || player.modelUrl2) ? (
+                    <div className="w-full relative flex flex-col items-center justify-end h-full">
+                      {/* Ground Shadow (Piso) - Very subtle for high-end look */}
+                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[50%] h-[15px] pointer-events-none z-0" style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)" }} />
+                      
+                      {/* Asset Pro PNG */}
+                      <img 
+                         src={player.modelUrl1 || player.modelUrl2} 
+                         alt="Player full body" 
+                         className="w-[130%] max-w-none -mr-8 h-auto object-contain object-bottom max-h-[75vh] relative z-10"
+                         style={{ 
+                            transformOrigin: "bottom",
+                            WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 40%)",
+                            maskImage: "linear-gradient(to top, transparent 0%, black 40%)"
+                         }}
+                      />
+                      
+                      {/* Evaluación Oficial flotante */}
+                      {author && author.trim() !== "" && (
+                        <div className="absolute top-10 left-0 right-0 mx-auto w-max z-20 flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl hover:border-white/25 transition-colors">
+                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-10 rounded-2xl pointer-events-none" />
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0 shadow-lg">
+                            <span className="text-[10px] text-white font-black">ST</span>
+                          </div>
+                          <div className="overflow-hidden">
+                            <p className="text-[8px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
+                            <p className="text-[11px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
+                          </div>
                         </div>
-                      ))}
+                      )}
                     </div>
                   ) : (
-                    <div className="w-full aspect-square bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center p-4 text-center">
-                      <span className="text-[10px] uppercase font-light text-white/30 tracking-widest">Sin fotos</span>
-                    </div>
-                  )}
-                  {author && author.trim() !== "" && (
-                    <div className="mt-auto relative flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 rounded-[1rem] p-3 hover:border-white/20 transition-colors">
-                      <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-[0.02] rounded-[1rem] pointer-events-none" />
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
-                        <span className="text-[9px] text-white font-black">ST</span>
-                      </div>
-                      <div className="overflow-hidden">
-                        <p className="text-[7px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                        <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                      </div>
+                    <div className="w-full h-full flex flex-col justify-end pb-10">
+                      {squarePhotos.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2 mt-auto">
+                          {squarePhotos.map((photo, i) => (
+                            <div
+                              key={i}
+                              onClick={() => setLightboxImg(photo.url)}
+                              className={`w-full aspect-square relative rounded-2xl overflow-hidden border border-white/10 group shadow-2xl cursor-pointer ${i === 0 ? "col-span-2" : "col-span-1"}`}
+                            >
+                              <img src={photo.url} alt={`Scout ${i + 1}`} className="w-full h-full object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 hover:scale-105" />
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="w-full aspect-square bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center p-4 text-center mt-auto mb-10">
+                          <span className="text-[10px] uppercase font-light text-white/30 tracking-widest">Sin fotos</span>
+                        </div>
+                      )}
+                      
+                      {author && author.trim() !== "" && (
+                        <div className="mt-4 relative flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 rounded-[1rem] p-3 hover:border-white/20 transition-colors">
+                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-[0.02] rounded-[1rem] pointer-events-none" />
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
+                            <span className="text-[9px] text-white font-black">ST</span>
+                          </div>
+                          <div className="overflow-hidden">
+                            <p className="text-[7px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
+                            <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </motion.div>
-
-                <div className="hidden lg:flex lg:w-9/12 flex-col gap-4">
+                
+                <div className="hidden lg:flex lg:w-9/12 flex-col gap-4 z-10">
                   {/* Avatar + Características principales (desktop) */}
                   {characteristics.length > 0 && (
                     <motion.div
                       style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                      className="w-full flex items-center gap-3 flex-wrap mb-0"
+                      className="w-full flex items-center gap-4 flex-wrap mb-2 bg-white/[0.02] border border-white/5 p-4 rounded-2xl backdrop-blur-sm"
                     >
                       {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 shrink-0 bg-neutral-800 shadow-lg">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white/20 shrink-0 bg-neutral-800 shadow-xl">
                         <img
                           src={player.avatarUrl || "/images/player-default.jpg"}
                           alt=""
                           className="w-full h-full object-cover"
                         />
                       </div>
+                      
                       {/* Label */}
-                      <span className="text-[10px] lg:text-xs uppercase font-black tracking-[0.2em] text-white/40 border-r border-white/15 pr-3 whitespace-nowrap">
-                        Características principales
-                      </span>
-                      {/* Chips — color neutro blanco/plata, distintos de las cards de análisis */}
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] lg:text-xs uppercase font-black tracking-[0.2em] text-[var(--theme-accent)]">
+                          Cualidades Destacadas
+                        </span>
+                        <span className="text-[9px] uppercase tracking-widest text-white/40">
+                          Principales fortalezas
+                        </span>
+                      </div>
+                      
+                      <div className="h-8 w-px bg-white/10 mx-2 hidden lg:block" />
+
+                      {/* Chips */}
+                      <div className="flex flex-wrap gap-2.5">
                         {characteristics.map((char: string, i: number) => (
                           <div
                             key={i}
-                            className="px-3.5 py-1.5 flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.04] shadow text-[10px] font-bold tracking-widest text-white/60 uppercase backdrop-blur-sm hover:bg-white/[0.08] hover:text-white/80 hover:border-white/25 transition-colors"
+                            className="px-4 py-2 flex items-center gap-2 rounded-xl border border-[var(--theme-primary)]/30 bg-[var(--theme-primary)]/10 shadow-sm text-[11px] font-bold tracking-widest text-white/90 uppercase backdrop-blur-md hover:bg-[var(--theme-primary)]/20 transition-colors"
                           >
-                            <span className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[var(--theme-primary)]" />
                             {char}
                           </div>
                         ))}
                       </div>
                     </motion.div>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch flex-grow pb-10">
-                    {[
+                  
+                  {/* Título de Reporte Scouting */}
+                  <motion.div style={{ opacity: scoutTacticOpac, y: scoutTacticY }} className="mt-2 mb-2 flex items-center gap-3">
+                    <h3 className="text-xl font-black uppercase tracking-[0.3em] text-white">Reporte Scouting</h3>
+                    <div className="flex-grow h-px bg-gradient-to-r from-white/20 to-transparent" />
+                  </motion.div>
+
+                  {(() => {
+                    const scoutingCards = [
                       { key: "tact", mo: { opacity: scoutTacticOpac, y: scoutTacticY }, accent: "var(--theme-accent)", accentBg: "bg-[var(--theme-primary)]", label: "Análisis Táctico", content: tact, Icon: IconSoccerField },
                       { key: "phys", mo: { opacity: scoutPhysOpac,   y: scoutPhysY   }, accent: "#fb923c",            accentBg: "bg-orange-500",            label: "Cualidades Físicas", content: phys, Icon: IconActivity },
                       { key: "ment", mo: { opacity: scoutMentOpac,   y: scoutMentY   }, accent: "#a78bfa",            accentBg: "bg-violet-500",            label: "Perfil Mental", content: ment, Icon: IconBrain },
                       { key: "tech", mo: { opacity: scoutTechOpac,   y: scoutTechY   }, accent: "#34d399",            accentBg: "bg-emerald-500",           label: "Virtud Técnica", content: tech, Icon: IconPlayFootball },
-                    ].map(({ key, mo, accent, accentBg, label, content, Icon }) => (
-                      <motion.div
-                        key={key}
-                        style={{ ...mo, border: "1px solid color-mix(in srgb, var(--theme-secondary) 40%, transparent)" }}
-                        className="bg-neutral-900/40 backdrop-blur-[20px] shadow-2xl rounded-2xl p-5 lg:p-6 group relative overflow-hidden flex flex-col min-h-[220px] lg:min-h-[260px] justify-between"
-                      >
-                        <div className={`absolute top-0 left-0 w-[4px] h-full ${accentBg} opacity-50 group-hover:opacity-100 transition-opacity z-10`} />
-                        <Icon size={100} stroke={0.7} className="absolute bottom-4 right-4 text-white opacity-20 pointer-events-none transition-transform group-hover:scale-110 duration-500" />
-                        <div className="relative z-10 mb-4">
-                          <h4 style={{ color: accent }} className="text-[10px] lg:text-[11px] uppercase font-black tracking-[0.25em] transition-transform group-hover:translate-x-1">{label}</h4>
-                        </div>
-                        <div className="relative z-10">
-                          {content ? (
-                            <p className="text-[12px] lg:text-[13px] text-neutral-300 leading-[1.6] font-light">{content}</p>
-                          ) : (
-                            <p className="text-xs text-neutral-600 font-medium italic">Sin reportar.</p>
-                          )}
+                    ];
+                    const currentKey = openCard || "tact";
+                    const activeCard = scoutingCards.find(c => c.key === currentKey)!;
+                    const inactiveCards = scoutingCards.filter(c => c.key !== currentKey);
+
+                    return (
+                      <motion.div style={{ opacity: scoutTacticOpac, y: scoutTacticY }} className="flex flex-row gap-4 flex-grow pb-4 h-[280px] xl:h-[320px]">
+                        {/* Panel Maestro (Activo) */}
+                        <motion.div 
+                          layoutId={`scout-card-${activeCard.key}`}
+                          style={{ border: "1px solid color-mix(in srgb, var(--theme-secondary) 40%, transparent)" }}
+                          className="w-[60%] xl:w-[65%] bg-neutral-900/60 backdrop-blur-[20px] shadow-2xl rounded-2xl p-6 lg:p-8 group relative overflow-hidden flex flex-col justify-start"
+                        >
+                          <div className={`absolute top-0 left-0 w-[4px] h-full ${activeCard.accentBg} opacity-100 z-10`} />
+                          <activeCard.Icon size={160} stroke={0.4} className="absolute -bottom-6 -right-6 text-white opacity-[0.06] pointer-events-none" />
+                          
+                          <div className="relative z-10 mb-6 flex items-center gap-3">
+                            <activeCard.Icon size={24} className="text-white/40" style={{ color: activeCard.accent }} />
+                            <h4 style={{ color: activeCard.accent }} className="text-sm lg:text-base uppercase font-black tracking-[0.25em]">
+                              {activeCard.label}
+                            </h4>
+                          </div>
+                          
+                          <div className="relative z-10 flex-grow overflow-y-auto pr-2 custom-scrollbar">
+                            {activeCard.content ? (
+                              <p className="text-[13px] xl:text-[14px] text-neutral-300 leading-[1.8] font-light">{activeCard.content}</p>
+                            ) : (
+                              <p className="text-sm text-neutral-600 font-medium italic">Sin reportar.</p>
+                            )}
+                          </div>
+                        </motion.div>
+
+                        {/* Panel Detalle (Comprimidas) */}
+                        <div className="w-[40%] xl:w-[35%] flex flex-col gap-3">
+                          {inactiveCards.map((card) => (
+                            <button
+                              key={card.key}
+                              onClick={() => setOpenCard(card.key)}
+                              className="flex-1 w-full flex items-center justify-between bg-neutral-900/30 backdrop-blur-md rounded-2xl p-5 hover:bg-neutral-800/60 transition-colors group relative overflow-hidden"
+                              style={{ border: "1px solid color-mix(in srgb, var(--theme-secondary) 20%, transparent)" }}
+                            >
+                              <div className={`absolute top-0 left-0 w-[3px] h-full ${card.accentBg} opacity-50 group-hover:opacity-100 transition-opacity z-10`} />
+                              
+                              <div className="flex items-center gap-4 relative z-10">
+                                <card.Icon size={22} className="text-white/30 group-hover:text-white/60 transition-colors" />
+                                <span className="text-[10px] xl:text-[11px] font-black uppercase tracking-[0.2em] text-white/70 group-hover:text-white transition-colors text-left leading-tight">
+                                  {card.label}
+                                </span>
+                              </div>
+                              <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                                <span className="text-white/40 group-hover:text-white/80">→</span>
+                              </div>
+                            </button>
+                          ))}
                         </div>
                       </motion.div>
-                    ))}
-                  </div>
+                    );
+                  })()}
                 </div>
               </div>
 
