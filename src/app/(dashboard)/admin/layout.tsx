@@ -89,38 +89,55 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   };
 
   return (
-    <div className="mx-auto max-w-7xl p-6 flex flex-col h-[calc(100vh-96px)]">
-      <header className="mb-6 space-y-1 shrink-0">
-        <h1 className="text-2xl font-semibold">Panel de administración</h1>
-        <p className="text-sm text-neutral-500">
-          Gestioná nuevas aplicaciones, actualizaciones de perfiles y el catálogo de equipos oficiales.
+    <div className="mx-auto w-full max-w-[1200px] px-6 py-7">
+      {/* Header — full width, scrolls with the page */}
+      <header className="mb-6 space-y-2">
+        <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
+          Admin
+        </span>
+        <h1 className="font-bh-display text-3xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
+          Panel de <span className="text-bh-lime">administración</span>
+        </h1>
+        <p className="text-sm leading-[1.55] text-bh-fg-3">
+          Gestioná nuevas aplicaciones, actualizaciones de perfiles y el
+          catálogo de equipos oficiales.
         </p>
       </header>
 
-      <div className="grid grid-cols-12 gap-6 flex-1 min-h-0">
-        <aside className="col-span-12 md:col-span-3 lg:col-span-2 overflow-y-auto pb-8 pr-2 custom-scrollbar">
-          <nav className="space-y-6">
-            {NAV_SECTIONS.map((section) => {
-              const visibleItems = section.items.filter((item) => item.roles.includes(userRole as string));
-              if (visibleItems.length === 0) return null;
+      {/* Floating sidebar + content */}
+      <div className="flex flex-col gap-6 md:flex-row">
+        <aside className="md:w-[240px] md:shrink-0">
+          <div className="sticky top-24 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-3">
+            <nav className="space-y-5">
+              {NAV_SECTIONS.map((section) => {
+                const visibleItems = section.items.filter((item) =>
+                  item.roles.includes(userRole as string),
+                );
+                if (visibleItems.length === 0) return null;
 
-              return (
-                <div key={section.title} className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
-                    {section.title}
-                  </p>
-                  <div className="space-y-1">
-                    {visibleItems.map((item) => (
-                      <AdminNavLink key={item.href} href={item.href} label={item.label} badgeCount={counts[item.href]} />
-                    ))}
+                return (
+                  <div key={section.title} className="space-y-1.5">
+                    <p className="px-2 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
+                      {section.title}
+                    </p>
+                    <div className="space-y-0.5">
+                      {visibleItems.map((item) => (
+                        <AdminNavLink
+                          key={item.href}
+                          href={item.href}
+                          label={item.label}
+                          badgeCount={counts[item.href]}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </nav>
+                );
+              })}
+            </nav>
+          </div>
         </aside>
 
-        <section className="col-span-12 md:col-span-9 lg:col-span-10 overflow-y-auto pb-12 pr-2 custom-scrollbar">{children}</section>
+        <section className="min-w-0 flex-1">{children}</section>
       </div>
     </div>
   );

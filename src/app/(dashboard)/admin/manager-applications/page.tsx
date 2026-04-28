@@ -1,9 +1,13 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { Inbox } from "lucide-react";
 import { db } from "@/lib/db";
 import { managerApplications } from "@/db/schema/managerApplications";
 import { eq } from "drizzle-orm";
 import { approveManagerApplication, rejectManagerApplication } from "@/app/actions/manager-applications";
+
+import BhEmptyState from "@/components/ui/BhEmptyState";
+import { bhButtonClass } from "@/components/ui/BhButton";
 
 export const metadata = {
   title: "Manager Onboarding (Pendientes) - Admin",
@@ -49,69 +53,165 @@ export default async function AdminManagerApplicationsPage() {
   }));
 
   if (appsWithUrls.length === 0) {
-    return <div className="p-6">No hay solicitudes de managers pendientes.</div>;
+    return (
+      <div className="space-y-6">
+        <header className="space-y-1">
+          <h2 className="font-bh-display text-xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 md:text-2xl">
+            Solicitudes de managers / agencias
+          </h2>
+          <p className="text-sm leading-[1.55] text-bh-fg-3">
+            Verificá la documentación y aprobá nuevos managers para la plataforma.
+          </p>
+        </header>
+        <BhEmptyState
+          icon={<Inbox className="h-5 w-5" />}
+          title="Bandeja vacía"
+          description="No hay solicitudes de managers pendientes."
+        />
+      </div>
+    );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Solicitudes de Managers / Agencias</h1>
+    <div className="space-y-6">
+      <header className="space-y-1">
+        <h2 className="font-bh-display text-xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 md:text-2xl">
+          Solicitudes de managers / agencias
+        </h2>
+        <p className="text-sm leading-[1.55] text-bh-fg-3">
+          Verificá la documentación y aprobá nuevos managers para la plataforma.
+        </p>
+      </header>
+
       <div className="flex flex-col gap-4">
-        {appsWithUrls.map(app => (
-          <div key={app.id} className="border border-neutral-800 rounded-md p-4 bg-neutral-900/50 flex flex-col md:flex-row gap-6">
-            <div className="flex-1 space-y-2 text-sm">
-              <p><strong>Manager:</strong> {app.fullName} ({app.contactEmail}) {app.contactPhone}</p>
-              <p><strong>Agencia:</strong> {app.agencyName}</p>
-              <p><strong>Web:</strong> {app.agencyWebsiteUrl ? <a href={app.agencyWebsiteUrl} target="_blank" className="text-blue-400">Ver Web</a> : "N/A"}</p>
-              <p><strong>Validación:</strong> <a href={app.verifiedLink ?? "#"} target="_blank" className="text-blue-400">Ver Validación</a></p>
-              <p><strong>Tipo Licencia:</strong> {app.agentLicenseType || "Ninguna"}</p>
-              {app.notes && <p><strong>Notas:</strong> {app.notes}</p>}
+        {appsWithUrls.map((app) => (
+          <article
+            key={app.id}
+            className="flex flex-col gap-6 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5 md:flex-row"
+          >
+            <div className="flex-1 space-y-2 text-sm text-bh-fg-2">
+              <p>
+                <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                  Manager
+                </span>
+                <br />
+                <span className="text-bh-fg-1">{app.fullName}</span>{" "}
+                <span className="text-bh-fg-4">
+                  ({app.contactEmail}) {app.contactPhone}
+                </span>
+              </p>
+              <p>
+                <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                  Agencia
+                </span>
+                <br />
+                <span className="text-bh-fg-1">{app.agencyName}</span>
+              </p>
+              <p>
+                <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                  Web
+                </span>
+                <br />
+                {app.agencyWebsiteUrl ? (
+                  <a
+                    href={app.agencyWebsiteUrl}
+                    target="_blank"
+                    className="text-bh-blue underline-offset-4 hover:underline"
+                  >
+                    Ver web
+                  </a>
+                ) : (
+                  <span className="text-bh-fg-4">N/A</span>
+                )}
+              </p>
+              <p>
+                <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                  Validación
+                </span>
+                <br />
+                <a
+                  href={app.verifiedLink ?? "#"}
+                  target="_blank"
+                  className="text-bh-blue underline-offset-4 hover:underline"
+                >
+                  Ver validación
+                </a>
+              </p>
+              <p>
+                <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                  Tipo licencia
+                </span>
+                <br />
+                <span className="text-bh-fg-2">{app.agentLicenseType || "Ninguna"}</span>
+              </p>
+              {app.notes && (
+                <p>
+                  <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                    Notas
+                  </span>
+                  <br />
+                  <span className="text-bh-fg-3">{app.notes}</span>
+                </p>
+              )}
             </div>
 
-            <div className="flex gap-4 items-center border-l border-neutral-800 pl-6">
+            <div className="flex items-center gap-3 border-t border-white/[0.06] pt-5 md:border-l md:border-t-0 md:pl-6 md:pt-0">
               {app.agentLicenseUrl && (
-                <a href={app.agentLicenseUrl} target="_blank" className="text-xs text-center">
-                  <div className="w-16 h-16 bg-neutral-800 rounded flex items-center justify-center mb-1">PDF/IMG</div>
-                  Licencia Oficial
+                <a href={app.agentLicenseUrl} target="_blank" className="text-center text-[11px] text-bh-fg-3">
+                  <div className="mb-1 flex h-16 w-16 items-center justify-center rounded-bh-md border border-white/[0.08] bg-bh-surface-2 font-bh-mono">
+                    PDF
+                  </div>
+                  Licencia
                 </a>
               )}
               {app.idDocUrl && (
-                <a href={app.idDocUrl} target="_blank" className="text-xs text-center">
-                  <div className="w-16 h-16 bg-neutral-800 rounded flex items-center justify-center overflow-hidden mb-1">
-                    <img src={app.idDocUrl} alt="ID" className="object-cover w-full h-full" />
+                <a href={app.idDocUrl} target="_blank" className="text-center text-[11px] text-bh-fg-3">
+                  <div className="mb-1 flex h-16 w-16 items-center justify-center overflow-hidden rounded-bh-md border border-white/[0.08] bg-bh-surface-2">
+                    <img src={app.idDocUrl} alt="ID" className="h-full w-full object-cover" />
                   </div>
-                  Documento ID
+                  Documento
                 </a>
               )}
               {app.selfieUrl && (
-                <a href={app.selfieUrl} target="_blank" className="text-xs text-center">
-                  <div className="w-16 h-16 bg-neutral-800 rounded flex items-center justify-center overflow-hidden mb-1">
-                    <img src={app.selfieUrl} alt="Selfie" className="object-cover w-full h-full" />
+                <a href={app.selfieUrl} target="_blank" className="text-center text-[11px] text-bh-fg-3">
+                  <div className="mb-1 flex h-16 w-16 items-center justify-center overflow-hidden rounded-bh-md border border-white/[0.08] bg-bh-surface-2">
+                    <img src={app.selfieUrl} alt="Selfie" className="h-full w-full object-cover" />
                   </div>
                   Selfie
                 </a>
               )}
             </div>
 
-            <div className="flex flex-col gap-2 justify-center border-l border-neutral-800 pl-6 min-w-[150px]">
-              <form action={async () => {
-                "use server";
-                await approveManagerApplication(app.id);
-              }}>
-                <button type="submit" className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-semibold text-sm">
+            <div className="flex min-w-[160px] flex-col justify-center gap-2 border-t border-white/[0.06] pt-5 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+              <form
+                action={async () => {
+                  "use server";
+                  await approveManagerApplication(app.id);
+                }}
+              >
+                <button
+                  type="submit"
+                  className={bhButtonClass({ variant: "lime", size: "sm", className: "w-full" })}
+                >
                   Aprobar
                 </button>
               </form>
 
-              <form action={async () => {
-                "use server";
-                await rejectManagerApplication(app.id);
-              }}>
-                <button type="submit" className="w-full bg-red-600/20 hover:bg-red-600/30 text-red-500 py-2 rounded-md font-semibold text-sm">
+              <form
+                action={async () => {
+                  "use server";
+                  await rejectManagerApplication(app.id);
+                }}
+              >
+                <button
+                  type="submit"
+                  className={bhButtonClass({ variant: "danger-soft", size: "sm", className: "w-full" })}
+                >
                   Rechazar
                 </button>
               </form>
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </div>

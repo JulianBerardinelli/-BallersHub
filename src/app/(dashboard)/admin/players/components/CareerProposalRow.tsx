@@ -1,9 +1,28 @@
 import * as React from "react";
-import { Button, Chip, Input, Select, SelectItem } from "@heroui/react";
+import { Button, Chip, Select, SelectItem } from "@heroui/react";
 import { Pencil, Check, X } from "lucide-react";
 import TeamCrest from "@/components/teams/TeamCrest";
 import CountryFlag from "@/components/common/CountryFlag";
 import { careerStatusMeta, teamStatusMeta } from "../utils";
+
+import FormField from "@/components/dashboard/client/FormField";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhChip, bhSelectClassNames } from "@/lib/ui/heroui-brand";
+
+type ChipTone = Parameters<typeof bhChip>[0];
+
+const CAREER_STATUS_TONE: Record<string, ChipTone> = {
+  pending: "warning",
+  accepted: "success",
+  rejected: "danger",
+  waiting: "neutral",
+};
+
+const TEAM_STATUS_TONE: Record<string, ChipTone> = {
+  approved: "success",
+  pending: "warning",
+  new: "blue",
+};
 
 type CareerItem = {
   id: string;
@@ -104,29 +123,38 @@ export default function CareerProposalRow({ item, onChange }: Props) {
           <TeamCrest src={item.crest_url || "/images/team-default.svg"} size={36} className="shrink-0" />
           <div className="min-w-0">
             <p className="font-medium truncate">{item.team_name}</p>
-            <div className="flex items-center gap-2 text-xs text-default-500">
+            <div className="flex items-center gap-2 text-xs text-bh-fg-3">
               <span className="truncate">{item.division ?? "Sin división"}</span>
               {item.country_code && <CountryFlag code={item.country_code} size={14} />}
             </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          <Chip size="sm" variant="flat">
+          <Chip size="sm" variant="flat" classNames={bhChip("neutral")}>
             {item.start_year ?? "¿?"} – {item.end_year ?? "Actual"}
           </Chip>
-          <Chip size="sm" variant="bordered" color={statusMeta.color}>
+          <Chip
+            size="sm"
+            variant="flat"
+            classNames={bhChip(CAREER_STATUS_TONE[item.status] ?? "neutral")}
+          >
             {statusMeta.label}
           </Chip>
           {teamMeta && (
-            <Chip size="sm" variant="bordered" color={teamMeta.color}>
+            <Chip
+              size="sm"
+              variant="flat"
+              classNames={bhChip(TEAM_STATUS_TONE[item.team_status ?? ""] ?? "outline")}
+            >
               {teamMeta.label}
             </Chip>
           )}
           <Button
             isIconOnly
             size="sm"
-            variant={editing ? "flat" : "light"}
+            variant="light"
             onPress={() => setEditing((prev) => !prev)}
+            className={bhButtonClass({ variant: "icon-ghost", size: "sm", iconOnly: true })}
           >
             {editing ? <X size={16} /> : <Pencil size={16} />}
           </Button>
@@ -134,64 +162,72 @@ export default function CareerProposalRow({ item, onChange }: Props) {
       </div>
 
       {editing && (
-        <div className="flex flex-wrap items-end gap-3 mt-2 border-t border-white/10 pt-3">
-          <Input
-            size="sm"
+        <div className="mt-3 grid gap-3 border-t border-white/[0.06] pt-3 sm:grid-cols-[1fr_auto_auto_auto]">
+          <FormField
+            id={`bh-cp-club-${item.id}`}
             label="Club propuesto"
             value={form.club}
             onChange={(event) => setForm((state) => ({ ...state, club: event.target.value }))}
-            className="w-full sm:w-auto flex-1"
           />
-          <Input
-            size="sm"
+          <FormField
+            id={`bh-cp-division-${item.id}`}
             label="División"
             value={form.division}
             onChange={(event) => setForm((state) => ({ ...state, division: event.target.value }))}
-            className="w-full sm:w-auto"
           />
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Input
+          <div className="flex gap-2">
+            <FormField
+              id={`bh-cp-start-${item.id}`}
               type="number"
-              size="sm"
               label="Inicio"
               value={form.startYear?.toString() ?? ""}
               onChange={(event) => {
                 const value = event.target.valueAsNumber;
                 setForm((state) => ({ ...state, startYear: Number.isNaN(value) ? undefined : value }));
               }}
-              className="w-20"
+              className="w-24"
             />
-            <Input
+            <FormField
+              id={`bh-cp-end-${item.id}`}
               type="number"
-              size="sm"
               label="Fin"
               value={form.endYear?.toString() ?? ""}
               onChange={(event) => {
                 const value = event.target.valueAsNumber;
                 setForm((state) => ({ ...state, endYear: Number.isNaN(value) ? undefined : value }));
               }}
-              className="w-20"
+              className="w-24"
             />
           </div>
-          <Select
-            size="sm"
-            label="Estado"
-            defaultSelectedKeys={[form.status]}
-            onChange={(e) => setForm((state) => ({ ...state, status: e.target.value }))}
-            className="w-full sm:w-32"
-          >
-            <SelectItem key="pending">Pendiente</SelectItem>
-            <SelectItem key="accepted">Aceptado</SelectItem>
-            <SelectItem key="rejected">Rechazado</SelectItem>
-            <SelectItem key="waiting">En espera</SelectItem>
-          </Select>
-          <Button color="primary" size="sm" onPress={save} isLoading={saving} startContent={<Check size={16} />}>
-            Guardar
-          </Button>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-2">
+            <Select
+              size="sm"
+              label="Estado"
+              defaultSelectedKeys={[form.status]}
+              onChange={(e) => setForm((state) => ({ ...state, status: e.target.value }))}
+              variant="flat"
+              classNames={bhSelectClassNames}
+              className="w-full sm:w-36"
+            >
+              <SelectItem key="pending">Pendiente</SelectItem>
+              <SelectItem key="accepted">Aceptado</SelectItem>
+              <SelectItem key="rejected">Rechazado</SelectItem>
+              <SelectItem key="waiting">En espera</SelectItem>
+            </Select>
+            <Button
+              size="sm"
+              onPress={save}
+              isLoading={saving}
+              startContent={<Check size={16} />}
+              className={bhButtonClass({ variant: "lime", size: "sm" })}
+            >
+              Guardar
+            </Button>
+          </div>
         </div>
       )}
 
-      {error && <p className="text-xs text-danger-500">{error}</p>}
+      {error && <p className="text-[11px] text-bh-danger">{error}</p>}
     </li>
   );
 }

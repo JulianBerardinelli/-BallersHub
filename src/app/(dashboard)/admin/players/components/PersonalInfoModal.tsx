@@ -7,7 +7,6 @@ import {
   ModalFooter,
   Button,
   Chip,
-  Input,
 } from "@heroui/react";
 import { Globe, Instagram, Link as LinkIcon, Pencil, FileText, Camera } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -19,6 +18,9 @@ import PositionPicker, {
 } from "@/components/common/PositionPicker";
 import type { ApplicationRow } from "../types";
 import { formatBirthDate } from "../utils";
+
+import FormField from "@/components/dashboard/client/FormField";
+import { bhButtonClass } from "@/components/ui/BhButton";
 
 export type PersonalInfoFormValues = {
   full_name: string;
@@ -174,7 +176,7 @@ export default function PersonalInfoModal({
                 n.code ? <CountryFlag key={`${n.code}-${index}`} code={n.code} size={14} /> : null,
               )}
             </div>
-            <span className="text-xs text-default-500">
+            <span className="text-xs text-bh-fg-3">
               {mode === "review" ? "Revisar datos personales" : "Detalle del jugador"}
             </span>
           </div>
@@ -185,13 +187,18 @@ export default function PersonalInfoModal({
               if (low.includes("instagram")) Icon = Instagram;
               else if (low.includes("transfermarkt") || low.includes("besoccer")) Icon = Globe;
               return (
-                <a key={i} href={link.url} target="_blank" className="text-default-500">
+                <a key={i} href={link.url} target="_blank" className="text-bh-fg-3">
                   <Icon size={16} />
                 </a>
               );
             })}
             {!editing && (
-              <Button size="sm" variant="flat" onPress={() => setEditing(true)}>
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={() => setEditing(true)}
+                className={bhButtonClass({ variant: "ghost", size: "sm" })}
+              >
                 <Pencil size={14} className="mr-2" /> Editar
               </Button>
             )}
@@ -201,7 +208,7 @@ export default function PersonalInfoModal({
       <ModalBody className={classNames?.body}>
         {editing ? (
           <div className="grid gap-4">
-            <Input
+            <FormField
               isRequired
               label="Nombre completo"
               value={form.full_name}
@@ -219,7 +226,7 @@ export default function PersonalInfoModal({
                 errorMessage="Seleccioná al menos una nacionalidad."
               />
             </div>
-            <Input
+            <FormField
               isRequired
               label="Fecha de nacimiento"
               type="date"
@@ -230,7 +237,7 @@ export default function PersonalInfoModal({
               errorMessage="Seleccioná la fecha de nacimiento."
             />
             <div className="flex flex-wrap gap-6">
-              <Input
+              <FormField
                 isRequired
                 label="Altura (cm)"
                 type="number"
@@ -244,9 +251,9 @@ export default function PersonalInfoModal({
                 onBlur={() => setTouched((t) => ({ ...t, height_cm: true }))}
                 isInvalid={heightInvalid}
                 errorMessage="Ingresá una altura válida (120–230 cm)."
-                endContent={<span className="text-xs text-foreground-500">cm</span>}
+                endContent={<span className="text-xs text-bh-fg-4">cm</span>}
               />
-              <Input
+              <FormField
                 isRequired
                 label="Peso (kg)"
                 type="number"
@@ -260,14 +267,16 @@ export default function PersonalInfoModal({
                 onBlur={() => setTouched((t) => ({ ...t, weight_kg: true }))}
                 isInvalid={weightInvalid}
                 errorMessage="Ingresá un peso válido (40–140 kg)."
-                endContent={<span className="text-xs text-foreground-500">kg</span>}
+                endContent={<span className="text-xs text-bh-fg-4">kg</span>}
               />
             </div>
             <div className="grid gap-2">
-              <span className="text-sm text-default-500">Posición</span>
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
+                Posición <span className="text-bh-danger">*</span>
+              </span>
               <div
-                className={`rounded-2xl border p-3 ${
-                  posInvalid ? "border-danger" : "border-default"
+                className={`rounded-bh-lg border p-3 transition-colors ${
+                  posInvalid ? "border-bh-danger" : "border-white/[0.08] hover:border-white/[0.18]"
                 }`}
                 onBlur={(e) => {
                   const next = e.relatedTarget as Node | null;
@@ -289,7 +298,7 @@ export default function PersonalInfoModal({
         ) : (
           <div className="grid gap-4 text-sm">
             <div>
-              <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Nacionalidades</p>
+              <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Nacionalidades</p>
               <div className="flex flex-wrap gap-2">
                 {application.nationalities.map((n, i) => (
                   <Chip
@@ -306,7 +315,7 @@ export default function PersonalInfoModal({
             </div>
             {application.positions.length > 0 && (
               <div>
-                <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Posiciones</p>
+                <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Posiciones</p>
                 <div className="flex flex-wrap gap-2">
                   {application.positions.map((p, i) => (
                     <Chip key={`${p}-${i}`} size="sm" variant="faded">
@@ -318,32 +327,32 @@ export default function PersonalInfoModal({
             )}
             <div className="flex flex-wrap gap-6">
               <div>
-                <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Fecha de nacimiento</p>
+                <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Fecha de nacimiento</p>
                 <p>{formatBirthDate(application.birth_date)}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Edad</p>
+                <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Edad</p>
                 <p>{application.age ?? "—"}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-6">
               <div>
-                <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Altura</p>
+                <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Altura</p>
                 <p>{application.height_cm ? `${application.height_cm} cm` : "—"}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Peso</p>
+                <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Peso</p>
                 <p>{application.weight_kg ? `${application.weight_kg} kg` : "—"}</p>
               </div>
             </div>
             {application.kyc_docs.length > 0 && (
               <div>
-                <p className="text-xs uppercase tracking-wide text-default-500 mb-1">Documentos KYC</p>
+                <p className="text-xs uppercase tracking-wide text-bh-fg-3 mb-1">Documentos KYC</p>
                 <div className="flex gap-2">
                   {application.kyc_docs.map((doc, i) => {
                     const Icon = doc.label === "Documento" ? FileText : Camera;
                     return (
-                      <a key={i} href={doc.url} target="_blank" className="text-default-500">
+                      <a key={i} href={doc.url} target="_blank" className="text-bh-fg-3">
                         <Icon size={16} />
                       </a>
                     );
@@ -353,20 +362,33 @@ export default function PersonalInfoModal({
             )}
           </div>
         )}
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p className="text-sm text-bh-danger">{error}</p>}
       </ModalBody>
       <ModalFooter className={classNames?.footer}>
         {editing ? (
           <>
-            <Button variant="flat" onPress={() => setEditing(false)} isDisabled={saving}>
+            <Button
+              variant="flat"
+              onPress={() => setEditing(false)}
+              isDisabled={saving}
+              className={bhButtonClass({ variant: "ghost", size: "sm" })}
+            >
               Cancelar
             </Button>
-            <Button color="primary" onPress={handleSave} isLoading={saving}>
+            <Button
+              onPress={handleSave}
+              isLoading={saving}
+              className={bhButtonClass({ variant: "lime", size: "sm" })}
+            >
               Guardar
             </Button>
           </>
         ) : mode === "review" ? (
-          <Button color="primary" className="ml-auto" onPress={handleApprove} isLoading={approving}>
+          <Button
+            onPress={handleApprove}
+            isLoading={approving}
+            className={bhButtonClass({ variant: "lime", size: "sm", className: "ml-auto" })}
+          >
             Aceptar datos
           </Button>
         ) : null}

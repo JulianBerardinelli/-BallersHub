@@ -79,13 +79,13 @@ function EditableNumericCell({
       case "red":
         return "bg-red-900/20 border-red-900/30 text-red-400 label-red-500";
       default:
-        return "bg-neutral-900/50 border-neutral-800 text-white label-neutral-500";
+        return "bg-bh-surface-1/60 border-white/[0.08] text-bh-fg-1 label-bh-fg-4";
     }
   };
 
   const colors = getColors();
   const baseClasses = `rounded py-1 border flex flex-col items-center justify-center ${colors.split(" label-")[0]}`;
-  const labelColor = colors.includes("label-") ? colors.split("label-")[1] : "text-neutral-500";
+  const labelColor = colors.includes("label-") ? colors.split("label-")[1] : "text-bh-fg-4";
 
   return (
     <div className={baseClasses}>
@@ -96,7 +96,7 @@ function EditableNumericCell({
         <input
           type="number"
           min={0}
-          className="w-full bg-transparent text-center font-medium outline-none placeholder:text-neutral-600 focus:bg-white/5 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          className="w-full bg-transparent text-center font-medium outline-none placeholder:text-bh-fg-4 focus:bg-white/5 disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
           value={value ?? ""}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             if (!onChange) return;
@@ -150,11 +150,11 @@ function RevisionStatRow({ item, editable, onCommit }: StatRowProps) {
             src={item.crestUrl || "/images/team-default.svg"}
             name={item.team ?? "Equipo"}
             size={32}
-            className="shrink-0 bg-neutral-900/60 p-0.5 rounded-md"
+            className="shrink-0 bg-bh-surface-1/60 p-0.5 rounded-md"
           />
           <div>
             <h4 className="font-semibold text-sm">{item.season}</h4>
-            <span className="text-xs text-neutral-400">{item.competition || "Sin competencia"} - {item.team || "Sin equipo"}</span>
+            <span className="text-xs text-bh-fg-3">{item.competition || "Sin competencia"} - {item.team || "Sin equipo"}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ function RevisionStatRow({ item, editable, onCommit }: StatRowProps) {
                 isIconOnly 
                 size="sm" 
                 variant="light" 
-                className="ml-2 text-default-400 hover:text-default-foreground" 
+                className="ml-2 text-bh-fg-4 hover:text-default-foreground" 
                 onPress={() => setIsEditing(true)}
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -304,7 +304,7 @@ function RequestCard({
                 </a>
               )}
             </div>
-            <p className="mt-0.5 text-xs text-default-500">
+            <p className="mt-0.5 text-xs text-bh-fg-3">
               Solicitada: {formatDate(request.submittedAt)}
               {request.submittedBy && typeof request.submittedBy.name === "string" ? ` por ${request.submittedBy.name}` : ""}
             </p>
@@ -326,7 +326,7 @@ function RequestCard({
             className="shrink-0"
           />
           <div className="text-right">
-            <p className="text-xs text-default-500">Club actual</p>
+            <p className="text-xs text-bh-fg-3">Club actual</p>
             <p className="max-w-[120px] truncate text-sm font-medium">
               {player.currentTeam.name ?? player.currentClub ?? "Libre"}
             </p>
@@ -344,7 +344,7 @@ function RequestCard({
         )}
 
         <div className="space-y-3">
-          <h4 className="text-sm font-semibold uppercase tracking-wider text-default-500">
+          <h4 className="text-sm font-semibold uppercase tracking-wider text-bh-fg-3">
             Estadísticas propuestas
             {pending && <span className="ml-2 text-primary lowercase font-normal">(Editables)</span>}
           </h4>
@@ -463,7 +463,7 @@ export default function StatsRevisionPanel({ initialRequests }: { initialRequest
     >
       {displayedRequests.length === 0 ? (
         <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-content3 bg-content2/30">
-          <p className="text-sm text-default-500">No hay solicitudes en esta categoría.</p>
+          <p className="text-sm text-bh-fg-3">No hay solicitudes en esta categoría.</p>
         </div>
       ) : (
         <div className="flex flex-col gap-6">

@@ -1,9 +1,11 @@
 "use client";
 
 import * as React from "react";
-import ApplicationCard from "./ApplicationCard";
+import { Inbox } from "lucide-react";
 
+import ApplicationCard from "./ApplicationCard";
 import AdminInboxLayout, { AdminInboxFilterProps } from "@/components/admin/AdminInboxLayout";
+import BhEmptyState from "@/components/ui/BhEmptyState";
 
 // Fallback type for the pending player application
 export type PlayerApplication = {
@@ -73,13 +75,15 @@ export default function ApplicationsPanel({
       onFilterChange={setStatusFilter}
     >
       {displayedItems.length === 0 ? (
-        <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed border-neutral-800 p-8 text-center text-neutral-400">
-          <p>
-            {activeTab === "pending"
+        <BhEmptyState
+          icon={<Inbox className="h-5 w-5" />}
+          title={activeTab === "pending" ? "Bandeja vacía" : "Sin historial"}
+          description={
+            activeTab === "pending"
               ? "No hay solicitudes pendientes."
-              : "No hay historial para mostrar."}
-          </p>
-        </div>
+              : "No hay historial para mostrar."
+          }
+        />
       ) : (
         <div className="grid gap-6">
           {displayedItems.map((app) => (

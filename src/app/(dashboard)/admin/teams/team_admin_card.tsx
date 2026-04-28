@@ -114,7 +114,7 @@ export default function TeamAdminCard({ team }: { team: TeamPending }) {
           <TeamCrest src={crestUrl} size={40} />
           <div>
             <p className="font-semibold">{team.name}</p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-bh-fg-4">
               Creado: <DateClient iso={team.created_at} />
             </p>
           </div>
@@ -137,7 +137,7 @@ export default function TeamAdminCard({ team }: { team: TeamPending }) {
           <Input size="sm" label="Otros nombres (coma)" value={altNames} onChange={(e) => setAltNames(e.target.value)} />
           <Input size="sm" label="Transfermarkt (opcional)" value={tmUrl} onChange={(e) => setTmUrl(e.target.value)} />
           {team.requested_in_application_id && (
-          <p className="text-xs ml-2 text-neutral-500">
+          <p className="text-xs ml-2 text-bh-fg-4">
             Solicitado en aplicación: {team.requested_in_application_id}
           </p>
         )}

@@ -23,12 +23,13 @@ import CountryFlag from "@/components/common/CountryFlag";
 import ClientDate from "@/components/common/ClientDate";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useAdminModalPreset } from "../ui/modalPresets";
+import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
 
 const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
 
 type SortDir = "ascending" | "descending";
 
-const statusColorMap: Record<TeamRow["status"], "success" | "warning" | "danger"> = {
+const statusChipTone: Record<TeamRow["status"], "success" | "warning" | "danger"> = {
   approved: "success",
   pending: "warning",
   rejected: "danger",
@@ -96,7 +97,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
             <TeamCrest src={crestSrc} size={28} />
             <div className="min-w-0">
               <div className="truncate font-medium">{t.name}</div>
-              <div className="text-xs text-neutral-500 truncate">{t.slug ?? "—"}</div>
+              <div className="text-[11px] text-bh-fg-4 truncate">{t.slug ?? "—"}</div>
             </div>
           </div>
         );
@@ -125,14 +126,14 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
             {t.division && t.division.crest_url && (
               <img src={t.division.crest_url} alt="" className="w-5 h-5 object-contain shrink-0" />
             )}
-            <span className="truncate block text-sm text-default-700">
+            <span className="truncate block text-sm text-bh-fg-2">
                {t.division ? t.division.name : (t.category ?? "—")}
             </span>
           </div>
         );
 
       case "status":
-        return <Chip size="sm" color={statusColorMap[t.status]} variant="flat" className="capitalize">{t.status}</Chip>;
+        return <Chip size="sm" variant="flat" classNames={bhChip(statusChipTone[t.status])} className="capitalize">{t.status}</Chip>;
 
       case "created_at":
         return <ClientDate iso={t.created_at} />;
@@ -216,8 +217,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
           aria-label="Equipos"
           sortDescriptor={sort}
           onSortChange={onSortChange}
-          removeWrapper
-          classNames={{ table: "table-fixed w-full" }}
+          classNames={{ ...bhTableClassNames, table: "table-fixed w-full" }}
         >
           <TableHeader columns={teamColumns}>
             {(column) => (
@@ -245,17 +245,17 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
       {/* MOBILE */}
       <div className="md:hidden grid gap-3">
         {sorted.map((t) => (
-          <div key={t.id} className="rounded-lg border border-neutral-800 p-4">
+          <div key={t.id} className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
             <div className="flex items-center gap-3">
               <TeamCrest src={t.crest_url || null} size={36} />
               <div className="min-w-0">
                 <div className="truncate font-medium">{t.name}</div>
-                <div className="text-xs text-neutral-500 truncate">
+                <div className="text-[11px] text-bh-fg-4 truncate">
                   {t.country ?? "—"}{t.category ? ` · ${t.category}` : ""}
                 </div>
               </div>
               <div className="ml-auto">
-                <Chip size="sm" variant="flat" color={statusColorMap[t.status]} className="capitalize">
+                <Chip size="sm" variant="flat" classNames={bhChip(statusChipTone[t.status])} className="capitalize">
                   {t.status}
                 </Chip>
               </div>
@@ -325,7 +325,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
                     />
                     <div className="min-w-0">
                       <div className="truncate font-semibold">{openItem?.name}</div>
-                      <div className="text-xs text-foreground-500">
+                      <div className="text-[11px] text-bh-fg-4">
                         Creado: {openItem ? new Date(openItem.created_at).toLocaleString("es-AR", { hour12: false }) : "—"}
                       </div>
                     </div>
@@ -339,7 +339,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
 
                 <ModalBody className={modalPreset.classNames?.body}>
                   {/* Tu card de administración; mejor sin borde doble adentro del modal */}
-                  <div className="rounded-xl bg-content2/60 ring-1 ring-white/10">
+                  <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">
                     <TeamAdminCard
                       team={{
                         id: openItem.id,
@@ -388,14 +388,14 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
                     <TeamCrest src={crestSrc} size={40} className="shrink-0" />
                     <div className="min-w-0">
                       <div className="font-medium truncate">{openItem.name}</div>
-                      <div className="text-xs text-default-500 truncate">
+                      <div className="text-xs text-bh-fg-3 truncate">
                         {openItem.slug ?? "—"}
                       </div>
                     </div>
                     <Chip
                       size="sm"
                       variant="flat"
-                      color={statusColorMap[openItem.status]}
+                      classNames={bhChip(statusChipTone[openItem.status])}
                       className="capitalize ml-auto"
                     >
                       {openItem.status}
@@ -404,37 +404,37 @@ export default function TeamsTableUI({ items: initialItems, allDivisions }: { it
                 </ModalHeader>
                 <ModalBody className={modalPreset.classNames?.body}>
                   <div className="grid gap-4 text-sm">
-                    <div className="rounded-xl bg-content2/60 p-4 ring-1 ring-white/10">
+                    <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
                       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div>
-                          <p className="text-xs text-default-500 mb-1">País</p>
-                          <p className="font-medium text-default-700">
+                          <p className="text-xs text-bh-fg-3 mb-1">País</p>
+                          <p className="font-medium text-bh-fg-2">
                             {openItem.country ?? "—"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-default-500 mb-1">División</p>
-                          <p className="font-medium text-default-700">
+                          <p className="text-xs text-bh-fg-3 mb-1">División</p>
+                          <p className="font-medium text-bh-fg-2">
                             {openItem.category ?? "—"}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-default-500 mb-1">Creado</p>
-                          <p className="font-medium text-default-700">
+                          <p className="text-xs text-bh-fg-3 mb-1">Creado</p>
+                          <p className="font-medium text-bh-fg-2">
                             <ClientDate iso={openItem.created_at} />
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-default-500 mb-1">Solicitud vinculada</p>
-                          <p className="font-medium text-default-700">
+                          <p className="text-xs text-bh-fg-3 mb-1">Solicitud vinculada</p>
+                          <p className="font-medium text-bh-fg-2">
                             {openItem.requested_in_application_id ? "Desde una aplicación" : "—"}
                           </p>
                         </div>
                       </div>
                     </div>
                     {openItem.transfermarkt_url && (
-                      <div className="rounded-xl bg-content2/60 p-4 ring-1 ring-white/10">
-                        <p className="text-xs text-default-500 mb-1">Transfermarkt</p>
+                      <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
+                        <p className="text-xs text-bh-fg-3 mb-1">Transfermarkt</p>
                         <a
                           href={openItem.transfermarkt_url}
                           target="_blank"
