@@ -19,29 +19,29 @@ export default function TaskCalloutList({ tasks }: { tasks: TaskCallout[] }) {
   if (!tasks.length) return null;
 
   return (
-    <div className="rounded-lg border border-neutral-800 bg-neutral-950/60 p-4 shadow-sm shadow-black/20">
+    <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-white">Tareas pendientes en esta sección</p>
-        <span className="text-xs text-neutral-500">{tasks.length} pendiente(s)</span>
+        <p className="text-[13px] font-semibold text-bh-fg-1">Tareas pendientes en esta sección</p>
+        <span className="text-[11px] text-bh-fg-4">{tasks.length} pendiente(s)</span>
       </div>
-      <ul className="space-y-3 text-sm text-neutral-200">
+      <ul className="space-y-3 text-sm text-bh-fg-2">
         {tasks.map((task) => {
           const showLink = task.href !== pathname;
 
           return (
             <li
               key={task.id}
-              className="rounded-lg border border-neutral-800 bg-neutral-950/50 p-3"
+              className="rounded-bh-md border border-white/[0.06] bg-bh-surface-1/60 p-3"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <TaskSeverityChip severity={task.severity} />
-                <span className="font-semibold text-white">{task.title}</span>
+                <span className="font-semibold text-bh-fg-1">{task.title}</span>
               </div>
-              <p className="mt-2 text-xs text-neutral-400">{task.description}</p>
+              <p className="mt-2 text-[11px] text-bh-fg-3">{task.description}</p>
               {showLink ? (
                 <Link
                   href={task.href}
-                  className="mt-2 inline-flex text-xs font-medium text-primary underline-offset-4 hover:underline"
+                  className="mt-2 inline-flex text-[11px] font-medium text-bh-lime underline-offset-4 hover:underline"
                 >
                   Ver detalle
                 </Link>

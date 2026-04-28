@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Textarea } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { updateManagerProfile } from "@/app/actions/manager-profiles";
 import type { ManagerProfile } from "@/db/schema/managerProfiles";
 import { useRouter } from "next/navigation";
+
+import FormField from "@/components/dashboard/client/FormField";
 
 export default function ManagerProfileForm({ profile }: { profile: ManagerProfile }) {
   const [formData, setFormData] = useState({
@@ -22,7 +24,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
     setIsSubmitting(true);
 
     const result = await updateManagerProfile(formData);
-    
+
     setIsSubmitting(false);
 
     if (result.error) {
@@ -33,93 +35,86 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
     }
   };
 
-  const handleAvatarUpdate = async (url: string) => {
-    setFormData((prev) => ({ ...prev, avatarUrl: url }));
-    // Auto-save the avatar directly 
-    await updateManagerProfile({ avatarUrl: url });
-    router.refresh();
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      
       {/* Avatar Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-xl border border-neutral-800 bg-neutral-900/40">
-        <div className="h-24 w-24 rounded-full bg-neutral-800 flex items-center justify-center text-neutral-500 overflow-hidden">
-           {formData.avatarUrl ? (
-             <img src={formData.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-           ) : (
-             <span className="text-sm">Sin Foto</span>
-           )}
+      <div className="flex flex-col items-center gap-6 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6 sm:flex-row">
+        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.08] bg-bh-surface-2 text-bh-fg-4">
+          {formData.avatarUrl ? (
+            <img src={formData.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-[11px]">Sin foto</span>
+          )}
         </div>
-        <div className="text-center sm:text-left space-y-2">
-          <h3 className="text-lg font-medium text-white">Tu foto de perfil</h3>
-          <p className="text-sm text-neutral-400 max-w-sm">
-            Será visible públicamente en el perfil de tu agencia y en las invitaciones de revisión.
-          </p>
-          <div className="pt-2">
-            <Input 
-              type="text" 
-              placeholder="https://... (URL de la imagen por ahora)" 
+        <div className="flex-1 space-y-3 text-center sm:text-left">
+          <div className="space-y-1">
+            <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+              Tu foto de perfil
+            </h3>
+            <p className="max-w-sm text-sm leading-[1.55] text-bh-fg-3">
+              Será visible públicamente en el perfil de tu agencia y en las
+              invitaciones de revisión.
+            </p>
+          </div>
+          <div className="max-w-md">
+            <FormField
+              id="bh-mp-avatar-url"
+              type="text"
+              label="URL de la imagen"
+              placeholder="https://..."
               value={formData.avatarUrl}
               onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
-              className="max-w-xs"
-              size="sm"
             />
           </div>
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Input
-          label="Nombre Completo"
-          labelPlacement="outside"
+      <div className="grid gap-5 sm:grid-cols-2">
+        <FormField
+          id="bh-mp-full-name"
+          label="Nombre completo"
           placeholder="Juan Pérez"
           value={formData.fullName}
           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-          classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
           isRequired
         />
 
-        <Input
-          label="Correo de Contacto"
-          labelPlacement="outside"
+        <FormField
+          id="bh-mp-email"
+          label="Correo de contacto"
           placeholder="correo@ejemplo.com"
           type="email"
           value={formData.contactEmail}
           onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
-          classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
           isRequired
         />
 
-        <Input
-          label="Teléfono Móvil"
-          labelPlacement="outside"
+        <FormField
+          id="bh-mp-phone"
+          label="Teléfono móvil"
           placeholder="+54 9 11 1234 5678"
           value={formData.contactPhone}
           onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
-          classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
         />
       </div>
 
-      <Textarea
-        label="Biografía Corta (Opcional)"
-        labelPlacement="outside"
-        placeholder="Breve descripción sobre ti, tu experiencia y lo que le ofreces a los jugadores."
-        classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
-        minRows={4}
+      <FormField
+        as="textarea"
+        id="bh-mp-bio"
+        label="Biografía corta (opcional)"
+        placeholder="Breve descripción sobre vos, tu experiencia y lo que le ofreces a los jugadores."
+        rows={4}
         value={formData.bio}
         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
       />
 
-      <div className="flex justify-end pt-4 border-t border-neutral-800">
-        <Button 
-          type="submit" 
-          color="primary" 
+      <div className="flex justify-end border-t border-white/[0.06] pt-5">
+        <Button
+          type="submit"
           isLoading={isSubmitting}
-          className="font-medium"
+          className="rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
         >
-          Guardar Cambios
+          Guardar cambios
         </Button>
       </div>
     </form>

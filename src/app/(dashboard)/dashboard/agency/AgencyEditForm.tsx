@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Textarea, Divider } from "@heroui/react";
+import { Button, Divider } from "@heroui/react";
+import FormField from "@/components/dashboard/client/FormField";
 import { Plus, Trash2 } from "lucide-react";
 import { updateAgencyProfile } from "@/app/actions/agencies";
 import AgencyLogoUploader from "@/components/dashboard/manager/AgencyLogoUploader";
@@ -111,8 +112,10 @@ export default function AgencyEditForm({ agency }: Props) {
     <form onSubmit={handleSubmit} className="space-y-10">
       {message.text && (
         <div
-          className={`p-4 rounded-md text-sm font-medium ${
-            message.type === "success" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-500"
+          className={`rounded-bh-md border p-3 text-sm ${
+            message.type === "success"
+              ? "border-[rgba(34,197,94,0.25)] bg-[rgba(34,197,94,0.08)] text-bh-success"
+              : "border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.08)] text-bh-danger"
           }`}
         >
           {message.text}
@@ -120,7 +123,7 @@ export default function AgencyEditForm({ agency }: Props) {
       )}
 
       {/* SECTION: Logo */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-xl border border-neutral-800 bg-neutral-900/40">
+      <div className="flex flex-col sm:flex-row items-center gap-6 p-6 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">
         <AgencyLogoUploader
           agencyId={agency.id}
           currentLogoUrl={agency.logoUrl}
@@ -134,8 +137,8 @@ export default function AgencyEditForm({ agency }: Props) {
           }}
         />
         <div className="text-center sm:text-left">
-          <h3 className="text-lg font-medium text-white">Logo institucional</h3>
-          <p className="text-sm text-neutral-400 mt-1 max-w-sm">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Logo institucional</h3>
+          <p className="text-sm text-bh-fg-3 mt-1 max-w-sm">
             Este será el distintivo principal de tu empresa en el perfil público.
           </p>
         </div>
@@ -144,59 +147,59 @@ export default function AgencyEditForm({ agency }: Props) {
       {/* SECTION: General Info */}
       <section className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Información General</h3>
-          <p className="text-sm text-neutral-400">Datos principales e identidad de la agencia.</p>
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Información General</h3>
+          <p className="text-sm text-bh-fg-3">Datos principales e identidad de la agencia.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
-          <Input
+          <FormField
             label="Nombre de la Agencia"
-            labelPlacement="outside"
+           
             placeholder="Nombre oficial"
             value={formData.name}
             onChange={(e) => handleChange("name", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
             isRequired
           />
 
-          <Input
+          <FormField
             label="URL Pública (Slug)"
-            labelPlacement="outside"
+           
             placeholder="mi-agencia-fc"
             value={formData.slug}
             onChange={(e) => handleChange("slug", e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
             description={`Visible en: ballershub.co/agency/${formData.slug || "..."}`}
             isRequired
           />
 
-          <Input
+          <FormField
             label="Sede Central (Headquarters)"
-            labelPlacement="outside"
+           
             placeholder="Ej: Madrid, España"
             value={formData.headquarters}
             onChange={(e) => handleChange("headquarters", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
 
-          <Input
+          <FormField
             label="Año de Fundación"
-            labelPlacement="outside"
+           
             placeholder="Ej: 2010"
             type="number"
             min={1800}
             max={new Date().getFullYear()}
             value={formData.foundationYear}
             onChange={(e) => handleChange("foundationYear", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
 
           <div className="sm:col-span-2">
-            <Textarea
+            <FormField as="textarea"
               label="Sobre la Agencia"
-              labelPlacement="outside"
+             
               placeholder="Escribe la historia o enfoque principal de tu agencia aquí..."
-              classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
-              minRows={4}
+             
+              rows={4}
               value={formData.description}
               onChange={(e) => handleChange("description", e.target.value)}
             />
@@ -204,13 +207,13 @@ export default function AgencyEditForm({ agency }: Props) {
         </div>
       </section>
 
-      <Divider className="bg-neutral-800" />
+      <Divider className="bg-white/[0.08]" />
 
       {/* SECTION: Operative & Licenses */}
       <section className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Operativa y Licencias</h3>
-          <p className="text-sm text-neutral-400">Alcance de representación y certificaciones formales.</p>
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Operativa y Licencias</h3>
+          <p className="text-sm text-bh-fg-3">Alcance de representación y certificaciones formales.</p>
         </div>
 
         <div className="mb-6">
@@ -219,14 +222,14 @@ export default function AgencyEditForm({ agency }: Props) {
             defaultValue={initialCountryPicks}
             onChange={(picks) => setOperativeCountries(picks.map((p) => p.code))}
           />
-          <p className="text-xs text-neutral-500 mt-2">
+          <p className="text-[11px] text-bh-fg-4 mt-2">
             Selecciona hasta 10 países donde la agencia tiene operaciones o representaciones activas.
           </p>
         </div>
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-medium text-neutral-300">Licencias de Representación</h4>
+            <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">Licencias de Representación</h4>
             <Button
               size="sm"
               variant="flat"
@@ -240,48 +243,48 @@ export default function AgencyEditForm({ agency }: Props) {
           </div>
 
           {licenses.length === 0 ? (
-            <div className="text-center py-6 bg-neutral-950/40 border border-dashed border-neutral-800 rounded-xl text-sm text-neutral-500">
+            <div className="text-center py-6 bg-bh-surface-1/40 border border-dashed border-white/[0.08] rounded-xl text-sm text-bh-fg-4">
               No tienes licencias registradas (ej: FIFA, RFEF, CBF).
             </div>
           ) : (
             <div className="space-y-4">
               {licenses.map((lic, index) => (
-                <div key={index} className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl border border-neutral-800 bg-neutral-900/30 items-start sm:items-end">
-                  <Input
+                <div key={index} className="flex flex-col sm:flex-row gap-4 p-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1/60 items-start sm:items-end">
+                  <FormField
                     label="Entidad / Tipo"
-                    labelPlacement="outside"
+                   
                     placeholder="Ej: Licencia FIFA"
-                    size="sm"
+
                     value={lic.type}
                     onChange={(e) => handleUpdateLicense(index, "type", e.target.value)}
-                    classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+                   
                     isRequired
                   />
-                  <Input
+                  <FormField
                     label="Número de Licencia"
-                    labelPlacement="outside"
+                   
                     placeholder="Ej: 2023000123"
-                    size="sm"
+
                     value={lic.number}
                     onChange={(e) => handleUpdateLicense(index, "number", e.target.value)}
-                    classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+                   
                     isRequired
                   />
-                  <Input
+                  <FormField
                     label="URL de Verificación (Opcional)"
-                    labelPlacement="outside"
+                   
                     placeholder="https://fifa.com/agent/..."
-                    size="sm"
+
                     type="url"
                     value={lic.url}
                     onChange={(e) => handleUpdateLicense(index, "url", e.target.value)}
-                    classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+                   
                   />
                   <Button
                     isIconOnly
                     variant="flat"
                     color="danger"
-                    size="sm"
+
                     className="mb-1"
                     onPress={() => handleRemoveLicense(index)}
                   >
@@ -294,78 +297,78 @@ export default function AgencyEditForm({ agency }: Props) {
         </div>
       </section>
 
-      <Divider className="bg-neutral-800" />
+      <Divider className="bg-white/[0.08]" />
 
       {/* SECTION: Contact & Social */}
       <section className="space-y-6">
         <div>
-          <h3 className="text-lg font-semibold text-white">Contacto y Redes Sociales</h3>
-          <p className="text-sm text-neutral-400">Vías de comunicación directas e institucionales.</p>
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Contacto y Redes Sociales</h3>
+          <p className="text-sm text-bh-fg-3">Vías de comunicación directas e institucionales.</p>
         </div>
         <div className="grid gap-6 sm:grid-cols-2">
-          <Input
+          <FormField
             label="Email Institucional"
-            labelPlacement="outside"
+           
             placeholder="agencia@ejemplo.com"
             type="email"
             value={formData.contactEmail}
             onChange={(e) => handleChange("contactEmail", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
 
-          <Input
+          <FormField
             label="Teléfono Comercial"
-            labelPlacement="outside"
+           
             placeholder="+54 9 11 1234 5678"
             type="tel"
             value={formData.contactPhone}
             onChange={(e) => handleChange("contactPhone", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
 
-          <Input
+          <FormField
             label="Sitio Web (Opcional)"
-            labelPlacement="outside"
+           
             placeholder="https://tu-agencia.com"
             type="url"
             value={formData.websiteUrl}
             onChange={(e) => handleChange("websiteUrl", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
           
-          <Input
+          <FormField
             label="Enlace Verificado (Transfermarkt, etc)"
-            labelPlacement="outside"
+           
             placeholder="https://transfermarkt..."
             type="url"
             value={formData.verifiedLink}
             onChange={(e) => handleChange("verifiedLink", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
 
-          <Input
+          <FormField
             label="Instagram"
-            labelPlacement="outside"
+           
             placeholder="https://instagram.com/tuagencia"
             type="url"
             value={formData.instagramUrl}
             onChange={(e) => handleChange("instagramUrl", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
 
-          <Input
+          <FormField
             label="LinkedIn"
-            labelPlacement="outside"
+           
             placeholder="https://linkedin.com/company/tuagencia"
             type="url"
             value={formData.linkedinUrl}
             onChange={(e) => handleChange("linkedinUrl", e.target.value)}
-            classNames={{ inputWrapper: "bg-neutral-950 border-neutral-800" }}
+           
           />
         </div>
       </section>
 
-      <div className="flex justify-end pt-4 border-t border-neutral-800">
+      <div className="flex justify-end pt-4 border-t border-white/[0.08]">
         <Button 
           type="submit" 
           color="primary" 

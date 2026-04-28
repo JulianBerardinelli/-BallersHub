@@ -16,9 +16,9 @@ export type DashboardProgressSection = {
 };
 
 const severityTextColor: Record<TaskSeverity, string> = {
-  danger: "text-red-400",
-  warning: "text-amber-300",
-  secondary: "text-neutral-400",
+  danger: "text-bh-danger",
+  warning: "text-bh-warning",
+  secondary: "text-bh-fg-3",
 };
 
 function getProgressColor(percentage: number): "primary" | "success" | "warning" {
@@ -39,13 +39,13 @@ export default function DashboardProgressList({ sections }: { sections: Dashboar
         return (
           <div
             key={section.id}
-            className="flex h-full flex-col gap-4 rounded-lg border border-neutral-900 bg-neutral-950/70 p-5"
+            className="flex h-full flex-col gap-4 rounded-lg border border-white/[0.08] bg-bh-surface-1 p-5"
           >
             <div className="space-y-1">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-white">{section.title}</p>
-                  <p className="text-xs text-neutral-400">{section.description}</p>
+                  <p className="text-xs text-bh-fg-3">{section.description}</p>
                 </div>
                 <Chip color={chipColor} variant="flat" size="sm" className="font-semibold uppercase tracking-wide">
                   {section.completed}/{section.total}
@@ -58,8 +58,13 @@ export default function DashboardProgressList({ sections }: { sections: Dashboar
               value={percentage}
               color={progressColor}
               classNames={{
-                indicator: "bg-gradient-to-r from-primary to-primary-500",
-                track: "bg-neutral-900",
+                indicator:
+                  percentage >= 100
+                    ? "bg-bh-success"
+                    : percentage >= 50
+                      ? "bg-bh-lime"
+                      : "bg-bh-blue",
+                track: "bg-white/[0.06]",
               }}
             />
 
