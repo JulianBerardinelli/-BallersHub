@@ -3,12 +3,13 @@
 import * as React from "react";
 import {
   Form,
-  Input,
   DatePicker,
   Button,
 } from "@heroui/react";
 import PositionPicker, { type PositionPickerValue } from "@/components/common/PositionPicker";
 import CountryMultiPicker, { type CountryPick } from "@/components/common/CountryMultiPicker";
+import FormField from "@/components/dashboard/client/FormField";
+import { bhDatePickerClassNames } from "@/lib/ui/heroui-brand";
 
 const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
 type AnyDateValue = any;
@@ -92,38 +93,37 @@ export default function Step1Personal({
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 rounded-xl border p-4 min-h-[560px]">
+      <div className="grid min-h-[560px] gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
         {/* email + nombre */}
         <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
-          <Input
+          <FormField
+            id="bh-email"
             label="Email de la cuenta"
-            labelPlacement="outside"
             value={userEmail ?? ""}
-            isDisabled
+            disabled
+            readOnly
             description="Este es tu email de acceso"
-            classNames={{ description: "text-foreground-500" }}
           />
-          <Input
+          <FormField
+            id="bh-full-name"
             isRequired
             label="Nombre completo"
-            labelPlacement="outside"
             placeholder="Ej: Lionel Messi"
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             isInvalid={nameInvalid}
             errorMessage="Ingresá al menos 3 caracteres."
-            classNames={{ description: "text-foreground-500" }}
             onBlur={() => setTouched((t) => ({ ...t, fullName: true }))}
           />
         </div>
 
         {/* nacionalidades + fecha */}
-        <div 
+        <div
             onBlurCapture={() => setTouched((t) => ({ ...t, nationalities: true }))}
             className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
           <CountryMultiPicker
             defaultValue={[]}
-            onChange={setNats} 
+            onChange={setNats}
             isInvalid={natInvalid}
             errorMessage="Seleccioná al menos una nacionalidad."
           />
@@ -139,52 +139,53 @@ export default function Step1Personal({
             }}
             isInvalid={dobInvalid}
             errorMessage="Seleccioná tu fecha de nacimiento."
-            classNames={{ description: "text-foreground-500" }}
+            variant="flat"
+            classNames={bhDatePickerClassNames}
           />
         </div>
 
         {/* medidas arriba de posición */}
         <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
-          <Input
+          <FormField
+            id="bh-height"
             isRequired
             type="number"
             label="Altura (cm)"
-            labelPlacement="outside"
             placeholder="ej: 178"
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
             onBlur={() => setTouched((t) => ({ ...t, height: true }))}
             isInvalid={heightInvalid}
             errorMessage="Ingresá una altura válida (120–230 cm)."
-            endContent={<span className="text-xs text-foreground-500">cm</span>}
-            classNames={{ description: "text-foreground-500" }}
+            endContent={<span className="text-xs">cm</span>}
           />
-          <Input
+          <FormField
+            id="bh-weight"
             isRequired
             type="number"
             label="Peso (kg)"
-            labelPlacement="outside"
             placeholder="ej: 72"
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
             onBlur={() => setTouched((t) => ({ ...t, weight: true }))}
             isInvalid={weightInvalid}
             errorMessage="Ingresá un peso válido (40–140 kg)."
-            endContent={<span className="text-xs text-foreground-500">kg</span>}
-            classNames={{ description: "text-foreground-500" }}
+            endContent={<span className="text-xs">kg</span>}
           />
         </div>
 
-        {/* posición: envolvemos el picker para mostrar error por fuera */}
+        {/* posición */}
         <div className="grid gap-2">
-          <label className="text-sm font-medium">
-            Posición <span className="text-danger">*</span>
+          <label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
+            Posición <span className="text-bh-danger">*</span>
           </label>
 
           <div
             className={[
-              "rounded-2xl border p-3",
-              posInvalid ? "border-danger" : "border-default",
+              "rounded-bh-lg border p-3 transition-colors",
+              posInvalid
+                ? "border-bh-danger"
+                : "border-white/[0.08] hover:border-white/[0.18]",
             ].join(" ")}
             onBlur={handlePosWrapperBlur}
           >
@@ -198,7 +199,7 @@ export default function Step1Personal({
           </div>
 
           {posInvalid && (
-            <p className="text-sm text-danger">
+            <p className="text-[11px] text-bh-danger">
               Elegí al menos una sub-posición.
             </p>
           )}
@@ -206,8 +207,19 @@ export default function Step1Personal({
       </div>
 
       <div className="flex justify-end gap-2">
-        {onBack && <Button variant="flat" onPress={onBack}>Volver</Button>}
-        <Button color="primary" onPress={handleNext}>
+        {onBack && (
+          <Button
+            variant="flat"
+            onPress={onBack}
+            className="rounded-bh-md border border-bh-fg-4 bg-transparent px-5 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
+          >
+            Volver
+          </Button>
+        )}
+        <Button
+          onPress={handleNext}
+          className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
+        >
           Continuar
         </Button>
       </div>
