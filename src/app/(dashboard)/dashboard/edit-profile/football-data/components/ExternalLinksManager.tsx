@@ -40,7 +40,7 @@ const defaultValues: FormValues = {
 };
 
 const inputClassName =
-  "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 disabled:cursor-not-allowed disabled:opacity-60";
 
 /** Returns an icon node for a given link kind, sized via className */
 function LinkKindIcon({ kind, className }: { kind: string; className?: string }) {
@@ -193,15 +193,15 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
           {orderedLinks.map((link) => (
             <li
               key={link.id}
-              className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
+              className="rounded-lg border border-white/[0.08] bg-bh-surface-1/40 p-4 text-sm text-bh-fg-2"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-neutral-800 bg-neutral-900">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-white/[0.08] bg-bh-surface-1">
                     <LinkKindIcon kind={link.kind} className="h-4 w-4" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-wide text-neutral-500">{formatLinkKind(link.kind)}</p>
+                    <p className="text-xs uppercase tracking-wide text-bh-fg-4">{formatLinkKind(link.kind)}</p>
                     <p className="text-sm font-semibold text-white">{link.label ?? formatLinkKind(link.kind)}</p>
                     <a
                       href={link.url}
@@ -213,7 +213,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                     </a>
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
+                <div className="flex flex-wrap gap-2 text-xs text-bh-fg-3">
                   {link.isPrimary ? (
                     <span className="inline-flex items-center rounded-full border border-primary/40 px-3 py-1 text-primary">
                       Principal
@@ -221,7 +221,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                   ) : null}
                   <button
                     type="button"
-                    className="rounded-md border border-neutral-800 px-3 py-1 font-medium text-neutral-300 transition hover:border-neutral-700 hover:text-white"
+                    className="rounded-md border border-white/[0.08] px-3 py-1 font-medium text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white"
                     onClick={() => startEditing(link)}
                     disabled={pending}
                   >
@@ -229,7 +229,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-red-400 transition hover:border-red-700 hover:text-red-300"
+                    className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-bh-danger transition hover:border-red-700 hover:text-red-300"
                     onClick={() => handleDelete(link)}
                     disabled={pending}
                   >
@@ -241,15 +241,15 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
           ))}
         </ul>
       ) : (
-        <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
+        <div className="rounded-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-6 text-sm text-bh-fg-3">
           Aún no cargaste enlaces externos. Podés agregar tus plataformas principales usando el formulario inferior.
         </div>
       )}
 
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Tipo de enlace</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Tipo de enlace</span>
             <select
               {...register("kind")}
               className={`${inputClassName} capitalize`}
@@ -264,8 +264,8 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
             <HelperText>{getLinkKindDescription(watchKind(watch("kind")))}</HelperText>
             {errors.kind ? <FieldError message={errors.kind.message} /> : null}
           </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Etiqueta</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Etiqueta</span>
             <input
               {...register("label")}
               type="text"
@@ -277,8 +277,8 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
             {errors.label ? <FieldError message={errors.label.message} /> : null}
           </label>
         </div>
-        <label className="space-y-1.5 text-sm text-neutral-300">
-          <span className="font-medium text-neutral-200">URL</span>
+        <label className="space-y-1.5 text-sm text-bh-fg-2">
+          <span className="font-medium text-bh-fg-1">URL</span>
           <input
             {...register("url")}
             type="url"
@@ -288,11 +288,11 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
           />
           {errors.url ? <FieldError message={errors.url.message} /> : null}
         </label>
-        <label className="flex items-center gap-2 text-sm text-neutral-300">
+        <label className="flex items-center gap-2 text-sm text-bh-fg-2">
           <input
             {...register("isPrimary")}
             type="checkbox"
-            className="h-4 w-4 rounded border-neutral-700 bg-neutral-950 text-primary focus:ring-primary"
+            className="h-4 w-4 rounded border-white/[0.12] bg-bh-black text-primary focus:ring-primary"
             disabled={pending}
           />
           <span>Mostrar como enlace principal en tu perfil público.</span>
@@ -312,7 +312,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
             <button
               type="button"
               onClick={cancelEditing}
-              className="inline-flex items-center rounded-md border border-neutral-800 px-4 py-2 text-sm font-semibold text-neutral-300 transition hover:border-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center rounded-md border border-white/[0.08] px-4 py-2 text-sm font-semibold text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending}
             >
               Cancelar edición
@@ -322,8 +322,8 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
       </form>
 
       {availableSuggestions.length > 0 ? (
-        <div className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300">
-          <p className="mb-3 font-medium text-neutral-200">Sugerencias detectadas</p>
+        <div className="rounded-lg border border-white/[0.08] bg-bh-surface-1/40 p-4 text-sm text-bh-fg-2">
+          <p className="mb-3 font-medium text-bh-fg-1">Sugerencias detectadas</p>
           <div className="flex flex-wrap gap-2">
             {availableSuggestions.map((suggestion) => {
               const isPrimaryLink = links.some(
@@ -337,7 +337,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                     "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition",
                     isPrimaryLink
                       ? "border-primary/50 bg-primary/10 text-primary"
-                      : "border-neutral-700 text-neutral-200 hover:border-primary/50 hover:text-primary",
+                      : "border-white/[0.12] text-bh-fg-1 hover:border-primary/50 hover:text-primary",
                   ].join(" ")}
                   onClick={() => applySuggestion(suggestion.kind, suggestion.url)}
                   disabled={pending}
@@ -403,7 +403,7 @@ function getLinkKindDescription(kind: string | undefined): string {
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="text-xs text-red-400">{message}</p>;
+  return <p className="text-xs text-bh-danger">{message}</p>;
 }
 
 function FormStatus({ status }: { status: StatusState }) {
@@ -419,7 +419,7 @@ function FormStatus({ status }: { status: StatusState }) {
 
 function HelperText({ children }: { children?: string }) {
   if (!children) return null;
-  return <p className="text-xs text-neutral-500">{children}</p>;
+  return <p className="text-xs text-bh-fg-4">{children}</p>;
 }
 
 function watchKind(current: unknown): LinkKind {

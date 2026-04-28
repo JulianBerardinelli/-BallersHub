@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
+import { bhButtonClass } from "@/components/ui/BhButton";
 import { useForm } from "react-hook-form";
 import { Pencil, X } from "lucide-react";
 
@@ -239,11 +240,11 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
         ) : null}
 
         {isEditing ? (
-          <div className="flex flex-col gap-3 border-t border-neutral-900 pt-4 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={handleCancel} isDisabled={isPending}>
               Cancelar
             </Button>
-            <Button color="primary" type="submit" isDisabled={isPending || !isDirty} isLoading={isPending}>
+            <Button type="submit" isDisabled={isPending || !isDirty} isLoading={isPending} className={bhButtonClass({ variant: "lime", size: "sm" })}>
               Guardar cambios
             </Button>
           </div>

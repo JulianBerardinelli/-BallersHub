@@ -10,7 +10,6 @@ import {
   ModalFooter,
   Button,
   Checkbox,
-  Input,
   Select,
   SelectItem,
   Tabs,
@@ -18,6 +17,9 @@ import {
 } from "@heroui/react";
 
 import { ProfileContext } from "./MultimediaManagerClient";
+import FormField from "@/components/dashboard/client/FormField";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhModalClassNames, bhSelectClassNames } from "@/lib/ui/heroui-brand";
 
 type MediaUploadModalProps = {
   isOpen: boolean;
@@ -188,27 +190,35 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
-      <ModalContent className="bg-neutral-900 text-white border border-neutral-800">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      size="2xl"
+      scrollBehavior="inside"
+      classNames={bhModalClassNames}
+    >
+      <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1 border-b border-neutral-800">
-              <h2 className="text-xl font-bold">Añadir Multimedia</h2>
-              <p className="text-sm font-normal text-neutral-400">
-                Sube fotos o videos para enriquecer tu perfil público.
+            <ModalHeader className="flex-col gap-1">
+              <h2 className="font-bh-display text-xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+                Añadir multimedia
+              </h2>
+              <p className="text-sm font-normal text-bh-fg-3">
+                Subí fotos o videos para enriquecer tu perfil público.
               </p>
             </ModalHeader>
-            <ModalBody className="py-6 space-y-6">
+            <ModalBody className="space-y-6 py-6">
               <Tabs
                 selectedKey={activeTab}
                 onSelectionChange={(k) => setActiveTab(k as "photo" | "video")}
-                color="primary"
                 variant="underlined"
                 classNames={{
-                  tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
-                  cursor: "w-full",
+                  tabList: "gap-6 w-full relative rounded-none p-0 border-b border-white/[0.06]",
+                  cursor: "w-full bg-bh-lime",
                   tab: "max-w-fit px-0 h-12",
-                  tabContent: "group-data-[selected=true]:text-primary"
+                  tabContent:
+                    "text-bh-fg-3 group-data-[selected=true]:text-bh-fg-1 font-medium",
                 }}
               >
                 <Tab key="photo" title="Fotografía" />
@@ -217,7 +227,7 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
 
               {/* Error Message */}
               {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-500 text-sm">
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-bh-danger text-sm">
                   {error}
                 </div>
               )}
@@ -225,15 +235,15 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
               {/* File Dropzone / URL Input */}
               {activeTab === "video" && !previewUrl && (
                 <div className="space-y-2">
-                  <Input
+                  <FormField
                     label="URL del Video (YouTube / Vimeo)"
                     placeholder="https://www.youtube.com/watch?v=..."
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
-                    variant="bordered"
-                    classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
+
+
                   />
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-bh-fg-4">
                     * La subida directa de archivos de video es exclusiva para planes Pro.
                   </p>
                 </div>
@@ -250,32 +260,32 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
 
               {!previewUrl && activeTab === "photo" && (
                 <div
-                  className="w-full h-48 border-2 border-dashed border-neutral-700 hover:border-primary rounded-xl flex flex-col items-center justify-center bg-neutral-950 transition-colors cursor-pointer"
+                  className="w-full h-48 border-2 border-dashed border-white/[0.12] hover:border-primary rounded-xl flex flex-col items-center justify-center bg-bh-black transition-colors cursor-pointer"
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  <div className="p-4 bg-neutral-800 rounded-full mb-3">
-                    <svg className="w-6 h-6 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="p-4 bg-bh-surface-2 rounded-full mb-3">
+                    <svg className="w-6 h-6 text-bh-fg-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                   </div>
-                  <p className="text-sm font-medium text-neutral-300">Haz clic para buscar o arrastra un archivo aquí</p>
-                  <p className="text-xs text-neutral-500 mt-1">
+                  <p className="text-sm font-medium text-bh-fg-2">Haz clic para buscar o arrastra un archivo aquí</p>
+                  <p className="text-xs text-bh-fg-4 mt-1">
                     JPG, PNG o WebP (Max 5MB)
                   </p>
                 </div>
               )}
 
               {previewUrl && (
-                <div className="relative w-full aspect-video min-h-[200px] bg-black rounded-xl overflow-hidden border border-neutral-800">
+                <div className="relative w-full aspect-video min-h-[200px] bg-black rounded-xl overflow-hidden border border-white/[0.08]">
                   {activeTab === "photo" ? (
                     <img src={previewUrl} alt="Preview" className="w-full h-full object-contain" />
                   ) : (
                     <video src={previewUrl} controls className="w-full h-full object-contain" />
                   )}
                   <button
-                    className="absolute top-2 right-2 bg-neutral-900/80 p-2 rounded-lg text-white hover:bg-red-500 transition-colors"
+                    className="absolute top-2 right-2 bg-bh-surface-1/80 p-2 rounded-lg text-white hover:bg-red-500 transition-colors"
                     onClick={() => {
                        setFile(null);
                        setPreviewUrl(null);
@@ -291,7 +301,7 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
               )}
 
               {/* Metadata & SEO Assistant */}
-              <div className="space-y-5 bg-neutral-900/50 p-5 rounded-xl border border-neutral-800">
+              <div className="space-y-5 bg-bh-surface-1/60 p-5 rounded-xl border border-white/[0.08]">
                 <div className="flex items-center gap-2 mb-2">
                   <svg className="w-5 h-5 drop-shadow-md" viewBox="0 0 24 24" fill="none">
                     <defs>
@@ -320,20 +330,20 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
                 </div>
                 
                 <div className="space-y-2">
-                  <Input
+                  <FormField
                     label="Título (Opcional)"
                     placeholder={activeTab === "photo" ? "Ej. Jugando la final contra..." : "Ej. Highlight Temporada 2024"}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    variant="bordered"
-                    classNames={{ inputWrapper: "border-neutral-700 bg-neutral-950" }}
+
+
                   />
                   <div className="flex flex-wrap gap-2">
                     {titleSuggestions.map((sug, i) => (
                       <button 
                         key={i} 
                         onClick={() => setTitle(sug)}
-                        className="text-[10px] bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-2 py-1 rounded-full transition-colors"
+                        className="text-[10px] bg-bh-surface-2 hover:bg-bh-surface-3 text-bh-fg-2 px-2 py-1 rounded-full transition-colors"
                       >
                         + {sug}
                       </button>
@@ -342,13 +352,13 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
                 </div>
 
                 <div className="space-y-2">
-                  <Input
+                  <FormField
                     label="Texto Alternativo (Alt Text)"
                     placeholder="Describe la imagen para que Google la encuentre..."
                     value={altText}
                     onChange={(e) => setAltText(e.target.value)}
-                    variant="bordered"
-                    classNames={{ inputWrapper: "border-neutral-700 bg-neutral-950" }}
+
+
                     description="Ayuda a los motores de búsqueda a entender de qué trata el contenido."
                   />
                    <div className="flex flex-wrap gap-2">
@@ -356,7 +366,7 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
                       <button 
                         key={i} 
                         onClick={() => setAltText(sug)}
-                        className="text-[10px] bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-2 py-1 rounded-full transition-colors"
+                        className="text-[10px] bg-bh-surface-2 hover:bg-bh-surface-3 text-bh-fg-2 px-2 py-1 rounded-full transition-colors"
                       >
                         + {sug}
                       </button>
@@ -365,18 +375,18 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
                 </div>
 
                 <div className="space-y-2">
-                  <Input
+                  <FormField
                     label="Etiquetas (Tags)"
                     placeholder="separadas por coma (ej: Delantero, Argentino, Jugador profesional)"
                     value={tags}
                     onChange={(e) => setTags(e.target.value)}
-                    variant="bordered"
-                    classNames={{ inputWrapper: "border-neutral-700 bg-neutral-950" }}
+
+
                     description="💡 Es clave incluir equipos de tu trayectoria, posiciones en el campo y palabras relacionadas a tu perfil como jugador para mejorar tu visibilidad web."
                   />
                   <button 
                     onClick={() => setTags(tagSuggestions)}
-                    className="text-[10px] bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-2 py-1 rounded-full transition-colors"
+                    className="text-[10px] bg-bh-surface-2 hover:bg-bh-surface-3 text-bh-fg-2 px-2 py-1 rounded-full transition-colors"
                   >
                     + Usar sugeridas ({tagSuggestions})
                   </button>
@@ -385,42 +395,61 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
                  {activeTab === "photo" && (
                   <Select
                     label="Uso de la imagen"
-                    placeholder="Galería General"
+                    placeholder="Galería general"
                     selectedKeys={isPrimary ? ["primary"] : ["gallery"]}
                     onChange={(e) => setIsPrimary(e.target.value === "primary")}
-                    variant="bordered"
-                    classNames={{ trigger: "border-neutral-700 bg-neutral-950" }}
+                    variant="flat"
+                    classNames={bhSelectClassNames}
                   >
-                    <SelectItem key="gallery">Galería General</SelectItem>
-                    <SelectItem key="primary">Foto de Perfil / Portada CV</SelectItem>
+                    <SelectItem key="gallery">Galería general</SelectItem>
+                    <SelectItem key="primary">Foto de perfil / portada CV</SelectItem>
                   </Select>
                 )}
               </div>
 
               {/* Legal Disclaimer */}
-              <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 flex gap-3 items-start">
+              <div className="flex items-start gap-3 rounded-bh-md border border-white/[0.08] bg-bh-surface-2/40 p-4">
                 <Checkbox
                   isSelected={acceptedPolicy}
                   onValueChange={setAcceptedPolicy}
-                  color="primary"
                   className="mt-1"
+                  classNames={{
+                    wrapper:
+                      "before:border-white/[0.18] after:bg-bh-lime group-data-[selected=true]:after:bg-bh-lime",
+                  }}
                 />
-                <div className="text-xs text-neutral-400">
-                  <p className="font-semibold text-neutral-300 mb-1">Políticas de Uso y Moderación</p>
+                <div className="text-[11px] leading-[1.55] text-bh-fg-3">
+                  <p className="mb-1 font-semibold text-bh-fg-2">
+                    Políticas de uso y moderación
+                  </p>
                   <p>
-                    Entiendo que el contenido subido estará visible públicamente en mi perfil de inmediato, 
-                    pero será auditado por el equipo de seguridad. <strong>Cualquier imagen o video con contenido explícito, 
-                    violento o inapropiado resultará en la eliminación permanente de la cuenta sin derecho a reclamo.</strong>
+                    Entiendo que el contenido subido estará visible
+                    públicamente en mi perfil de inmediato, pero será auditado
+                    por el equipo de seguridad.{" "}
+                    <strong className="text-bh-fg-2">
+                      Cualquier imagen o video con contenido explícito,
+                      violento o inapropiado resultará en la eliminación
+                      permanente de la cuenta sin derecho a reclamo.
+                    </strong>
                   </p>
                 </div>
               </div>
             </ModalBody>
-            <ModalFooter className="border-t border-neutral-800">
-              <Button variant="light" onPress={onClose} disabled={isUploading}>
+            <ModalFooter>
+              <Button
+                variant="light"
+                onPress={onClose}
+                disabled={isUploading}
+                className={bhButtonClass({ variant: "ghost", size: "sm" })}
+              >
                 Cancelar
               </Button>
-              <Button color="primary" onPress={handleUpload} isLoading={isUploading}>
-                Subir Archivo
+              <Button
+                onPress={handleUpload}
+                isLoading={isUploading}
+                className={bhButtonClass({ variant: "lime", size: "sm" })}
+              >
+                Subir archivo
               </Button>
             </ModalFooter>
           </>

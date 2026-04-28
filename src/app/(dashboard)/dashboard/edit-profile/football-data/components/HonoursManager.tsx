@@ -43,7 +43,7 @@ const defaultValues: FormValues = {
 };
 
 const inputClassName =
-  "w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60";
+  "w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 disabled:cursor-not-allowed disabled:opacity-60";
 
 export default function HonoursManager({ playerId, honours, careerOptions }: Props) {
   const router = useRouter();
@@ -194,26 +194,26 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
             return (
               <li
                 key={honour.id}
-                className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4 text-sm text-neutral-300"
+                className="rounded-lg border border-white/[0.08] bg-bh-surface-1/40 p-4 text-sm text-bh-fg-2"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-white">{honour.title}</p>
-                    <p className="text-xs text-neutral-400">
+                    <p className="text-xs text-bh-fg-3">
                       {honour.competition ?? "Competencia pendiente"} · {honour.season ?? "Temporada sin definir"}
                     </p>
                     {linkedStage ? (
-                      <p className="text-[11px] text-neutral-500">Vinculado a: {linkedStage.label}</p>
+                      <p className="text-[11px] text-bh-fg-4">Vinculado a: {linkedStage.label}</p>
                     ) : null}
-                    {honour.description ? <p className="text-xs text-neutral-400">{honour.description}</p> : null}
+                    {honour.description ? <p className="text-xs text-bh-fg-3">{honour.description}</p> : null}
                   </div>
-                <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
-                  <span className="rounded-full border border-neutral-800 px-3 py-1">
+                <div className="flex flex-wrap gap-2 text-xs text-bh-fg-3">
+                  <span className="rounded-full border border-white/[0.08] px-3 py-1">
                     {formatHonourDate(honour.awardedOn)}
                   </span>
                   <button
                     type="button"
-                    className="rounded-md border border-neutral-800 px-3 py-1 font-medium text-neutral-300 transition hover:border-neutral-700 hover:text-white"
+                    className="rounded-md border border-white/[0.08] px-3 py-1 font-medium text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white"
                     onClick={() => startEditing(honour)}
                     disabled={pending}
                   >
@@ -221,7 +221,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                   </button>
                   <button
                     type="button"
-                    className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-red-400 transition hover:border-red-700 hover:text-red-300"
+                    className="rounded-md border border-red-900/60 px-3 py-1 font-medium text-bh-danger transition hover:border-red-700 hover:text-red-300"
                     onClick={() => handleDelete(honour)}
                     disabled={pending}
                   >
@@ -234,14 +234,14 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
           })}
         </ul>
       ) : (
-        <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
+        <div className="rounded-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-6 text-sm text-bh-fg-3">
           Aquí podrás cargar logros, premios y hitos relevantes para potenciar tu CV deportivo.
         </div>
       )}
 
       <form className="grid gap-4" onSubmit={onSubmit}>
-        <label className="space-y-1.5 text-sm text-neutral-300">
-          <span className="font-medium text-neutral-200">Título</span>
+        <label className="space-y-1.5 text-sm text-bh-fg-2">
+          <span className="font-medium text-bh-fg-1">Título</span>
           <input
             {...register("title")}
             type="text"
@@ -252,8 +252,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
           {errors.title ? <FieldError message={errors.title.message} /> : null}
         </label>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Competencia</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Competencia</span>
             <input
               {...register("competition")}
               type="text"
@@ -263,8 +263,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
             />
             {errors.competition ? <FieldError message={errors.competition.message} /> : null}
           </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Etapa de trayectoria</span>
             <Controller
               control={control}
               name="careerItemId"
@@ -297,9 +297,9 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                   inputProps={{
                     classNames: {
                       inputWrapper:
-                        "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
+                        "rounded-md border border-white/[0.08] bg-bh-black px-0 data-[hover=true]:border-white/[0.12] transition focus-within:border-primary/40",
                       innerWrapper: "px-0",
-                      input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
+                      input: "px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4",
                       helperWrapper: "hidden",
                     },
                   }}
@@ -309,7 +309,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                         src={selectedStage.crestUrl}
                         name={selectedStage.club ?? "Club"}
                         size={24}
-                        className="rounded-sm bg-neutral-900/60"
+                        className="rounded-sm bg-bh-surface-1/60"
                       />
                     ) : null
                   }
@@ -324,13 +324,13 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                           src={item.crestUrl}
                           name={item.club ?? "Club"}
                           size={24}
-                          className="rounded-sm bg-neutral-900/60"
+                          className="rounded-sm bg-bh-surface-1/60"
                         />
                       }
                     >
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
-                        <span className="text-xs text-neutral-400">{item.period}</span>
+                        <span className="text-xs text-bh-fg-3">{item.period}</span>
                       </div>
                     </AutocompleteItem>
                   )}
@@ -341,8 +341,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
           </label>
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Temporada</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Temporada</span>
             <input
               {...register("season")}
               type="text"
@@ -352,8 +352,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
             />
             {errors.season ? <FieldError message={errors.season.message} /> : null}
           </label>
-          <label className="space-y-1.5 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Fecha</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Fecha</span>
             <input
               {...register("awardedOn")}
               type="date"
@@ -363,8 +363,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
             {errors.awardedOn ? <FieldError message={errors.awardedOn.message} /> : null}
           </label>
         </div>
-        <label className="space-y-1.5 text-sm text-neutral-300">
-          <span className="font-medium text-neutral-200">Descripción</span>
+        <label className="space-y-1.5 text-sm text-bh-fg-2">
+          <span className="font-medium text-bh-fg-1">Descripción</span>
           <textarea
             {...register("description")}
             rows={3}
@@ -389,7 +389,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
             <button
               type="button"
               onClick={cancelEditing}
-              className="inline-flex items-center rounded-md border border-neutral-800 px-4 py-2 text-sm font-semibold text-neutral-300 transition hover:border-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center rounded-md border border-white/[0.08] px-4 py-2 text-sm font-semibold text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending}
             >
               Cancelar edición
@@ -419,7 +419,7 @@ function reflectValidationErrors(
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="text-xs text-red-400">{message}</p>;
+  return <p className="text-xs text-bh-danger">{message}</p>;
 }
 
 function FormStatus({ status }: { status: StatusState }) {

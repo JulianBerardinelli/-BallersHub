@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, X, CheckCircle, Image as ImageIcon, ExternalLink, Info } from "lucide-react";
+import { Upload, X, CheckCircle, Image as ImageIcon, ExternalLink, Info, Sparkles } from "lucide-react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { updateProAssetAction } from "@/app/actions/pro-assets";
 import { announcementNotification, profileNotification, useNotificationContext } from "@/modules/notifications";
@@ -17,12 +17,12 @@ interface ProAssetsProps {
 
 type AssetType = "heroUrl" | "modelUrl1" | "modelUrl2";
 
-export default function ProAssetsUploaderClient({ 
-  currentHeroUrl, 
-  currentModelUrl1, 
+export default function ProAssetsUploaderClient({
+  currentHeroUrl,
+  currentModelUrl1,
   currentModelUrl2,
-  playerId, 
-  userId 
+  playerId,
+  userId,
 }: ProAssetsProps) {
   const [isUploading, setIsUploading] = useState<AssetType | null>(null);
   const [previews, setPreviews] = useState<Record<AssetType, string | null>>({
@@ -47,29 +47,28 @@ export default function ProAssetsUploaderClient({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("assetType", assetType);
-      
+
       const res = await updateProAssetAction(formData);
       if (!res.success) throw new Error(res.error);
 
-      setPreviews(prev => ({ ...prev, [assetType]: res.url as string }));
+      setPreviews((prev) => ({ ...prev, [assetType]: res.url as string }));
       router.refresh();
-      
-      const slotName = slots.find(s => s.type === assetType)?.title ?? "Asset PNG";
-      
+
+      const slotName = slots.find((s) => s.type === assetType)?.title ?? "Asset PNG";
+
       enqueue(
         profileNotification.updated({
           sectionLabel: "tu Portfolio Pro",
           changedFields: [slotName],
-        })
+        }),
       );
-      
     } catch (err: any) {
       console.error(err);
       enqueue(
         announcementNotification.general({
-          headline: "Error al subir la imagen ⚠️",
+          headline: "Error al subir la imagen",
           body: err.message || "Hubo un problema procesando tu imagen. Intenta de nuevo.",
-        })
+        }),
       );
     } finally {
       setIsUploading(null);
@@ -77,99 +76,129 @@ export default function ProAssetsUploaderClient({
   };
 
   const slots: { type: AssetType; title: string; desc: string }[] = [
-    { type: "heroUrl", title: "Hero Asset", desc: "Imagen principal gigante para la portada." },
+    { type: "heroUrl", title: "Hero asset", desc: "Imagen principal gigante para la portada." },
     { type: "modelUrl1", title: "Modelado 1", desc: "Imagen de cuerpo entero para acompañar estadísticas." },
     { type: "modelUrl2", title: "Modelado 2", desc: "Imagen secundaria para secciones interactivas." },
   ];
 
   return (
-    <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 shadow-md shadow-emerald-500/10 mb-8 p-6 space-y-6">
-      <div>
-        <h3 className="text-xl font-bold flex items-center gap-2 mb-2">
-           <ImageIcon className="w-5 h-5 text-emerald-500" />
-           Assets (Pro Layout)
-        </h3>
-        <p className="text-sm text-neutral-500">
-          Sube tus imágenes en formato <b>PNG (con fondo transparente)</b> para habilitar el modelo 3D y elementos dinámicos en tu portfolio Pro.
+    <div className="mb-8 space-y-6 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-[rgba(204,255,0,0.04)] p-6 shadow-[0_0_24px_rgba(204,255,0,0.06)]">
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-bh-md border border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.10)] text-bh-lime">
+            <Sparkles className="h-4 w-4" />
+          </span>
+          <div>
+            <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-lime">
+              Pro layout
+            </span>
+            <h3 className="font-bh-display text-xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+              Assets pro
+            </h3>
+          </div>
+        </div>
+        <p className="text-[13px] leading-[1.55] text-bh-fg-3">
+          Subí tus imágenes en formato{" "}
+          <strong className="text-bh-fg-1">PNG (con fondo transparente)</strong>{" "}
+          para habilitar el modelo 3D y los elementos dinámicos de tu portfolio Pro.
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-        <div className="flex gap-3 items-start">
-          <Info className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
+      <div className="flex flex-col items-start gap-4 rounded-bh-md border border-[rgba(204,255,0,0.18)] bg-[rgba(204,255,0,0.06)] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-start gap-3">
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-bh-lime" />
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-              Mejora la velocidad de tu perfil
+            <p className="text-[13px] font-semibold text-bh-fg-1">
+              Mejorá la velocidad de tu perfil
             </p>
-            <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-xl">
-              Recomendamos comprimir tus imágenes PNG antes de subirlas. Esto garantizará una carga rápida y fluida para quienes visiten tu perfil. Puedes usar herramientas gratuitas como Squoosh.
+            <p className="max-w-xl text-[12px] leading-[1.55] text-bh-fg-3">
+              Recomendamos comprimir tus imágenes PNG antes de subirlas. Esto
+              garantizará una carga rápida y fluida para quienes visiten tu
+              perfil. Podés usar herramientas gratuitas como Squoosh.
             </p>
           </div>
         </div>
-        <a 
-          href="https://squoosh.app/" 
-          target="_blank" 
+        <a
+          href="https://squoosh.app/"
+          target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex shrink-0 items-center gap-2 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-500/20 hover:bg-emerald-500/30 rounded-md transition-colors"
+          className="inline-flex shrink-0 items-center gap-2 rounded-bh-md border border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.10)] px-3 py-1.5 text-[12px] font-medium text-bh-lime transition-colors hover:bg-[rgba(204,255,0,0.16)]"
         >
           Ir a Squoosh.app
-          <ExternalLink className="w-3 h-3" />
+          <ExternalLink className="h-3 w-3" />
         </a>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         {slots.map((slot) => (
           <div key={slot.type} className="flex flex-col gap-3">
-             <div className="flex items-center gap-2">
-               <h4 className="font-semibold text-sm">{slot.title}</h4>
-             </div>
-             
-             {/* Preview Zone */}
-             <div className="w-full aspect-[4/5] bg-neutral-900 rounded-xl border border-neutral-700 overflow-hidden relative flex items-center justify-center group">
-               {previews[slot.type] ? (
-                 // eslint-disable-next-line @next/next/no-img-element
-                 <img src={previews[slot.type]!} alt={slot.title} className="w-full h-full object-cover select-none" />
-               ) : (
-                 <div className="text-center p-4 opacity-50 flex flex-col items-center">
-                   <ImageIcon className="w-8 h-8 mb-2" />
-                   <span className="text-xs">Sin imagen</span>
-                 </div>
-               )}
-               {isUploading === slot.type && (
-                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-sm z-10">
-                   <span className="animate-pulse text-sm font-bold text-white">Subiendo...</span>
-                 </div>
-               )}
-               
-               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                 <input 
-                    type="file" 
-                    accept="image/png" 
-                    id={`upload-${slot.type}`} 
-                    className="hidden" 
-                    onChange={(e) => handleFileChange(e, slot.type)} 
-                    disabled={isUploading !== null}
-                  />
-                  <label 
-                    htmlFor={`upload-${slot.type}`} 
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-emerald-500 disabled:pointer-events-none disabled:opacity-50 bg-emerald-600 text-white shadow hover:bg-emerald-700 h-9 px-4 py-2 cursor-pointer"
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    {previews[slot.type] ? "Reemplazar" : "Subir PNG"}
-                  </label>
-               </div>
-             </div>
-             <p className="text-xs text-neutral-500 text-center">{slot.desc}</p>
+            <div className="flex items-center gap-2">
+              <h4 className="font-bh-heading text-sm font-semibold text-bh-fg-1">
+                {slot.title}
+              </h4>
+            </div>
+
+            {/* Preview Zone */}
+            <div className="group relative flex aspect-[4/5] w-full items-center justify-center overflow-hidden rounded-bh-lg border border-white/[0.12] bg-bh-surface-1">
+              {previews[slot.type] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previews[slot.type]!}
+                  alt={slot.title}
+                  className="h-full w-full select-none object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center p-4 text-bh-fg-4">
+                  <ImageIcon className="mb-2 h-8 w-8" />
+                  <span className="text-[11px]">Sin imagen</span>
+                </div>
+              )}
+              {isUploading === slot.type && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                  <span className="animate-pulse font-bh-display text-sm font-bold uppercase tracking-[0.1em] text-bh-lime">
+                    Subiendo...
+                  </span>
+                </div>
+              )}
+
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100">
+                <input
+                  type="file"
+                  accept="image/png"
+                  id={`upload-${slot.type}`}
+                  className="hidden"
+                  onChange={(e) => handleFileChange(e, slot.type)}
+                  disabled={isUploading !== null}
+                />
+                <label
+                  htmlFor={`upload-${slot.type}`}
+                  className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-4 text-[12px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
+                >
+                  <Upload className="h-4 w-4" />
+                  {previews[slot.type] ? "Reemplazar" : "Subir PNG"}
+                </label>
+              </div>
+            </div>
+            <p className="text-center text-[11px] text-bh-fg-4">{slot.desc}</p>
           </div>
         ))}
       </div>
 
-      <div className="text-sm space-y-2 text-neutral-600 dark:text-neutral-400 bg-neutral-900/50 p-4 rounded-lg border border-neutral-800">
-        <p><CheckCircle className="w-4 h-4 inline-block mr-1 text-emerald-500" /> Resolución ideal: 1080x1350px.</p>
-        <p><CheckCircle className="w-4 h-4 inline-block mr-1 text-emerald-500" /> Formato `.png` para asegurar fondo transparente.</p>
-        <p><X className="w-4 h-4 inline-block mr-1 text-red-500" /> No subas fotos cuadradas con estadios de fondo, rompen el efecto 3D.</p>
+      <div className="space-y-2 rounded-bh-md border border-white/[0.08] bg-bh-surface-1/60 p-4 text-[12px] text-bh-fg-3">
+        <p>
+          <CheckCircle className="mr-1 inline-block h-4 w-4 text-bh-success" />
+          Resolución ideal: <span className="font-bh-mono">1080×1350px</span>.
+        </p>
+        <p>
+          <CheckCircle className="mr-1 inline-block h-4 w-4 text-bh-success" />
+          Formato <span className="font-bh-mono">.png</span> para asegurar
+          fondo transparente.
+        </p>
+        <p>
+          <X className="mr-1 inline-block h-4 w-4 text-bh-danger" />
+          No subas fotos cuadradas con estadios de fondo, rompen el efecto 3D.
+        </p>
       </div>
-
     </div>
   );
 }

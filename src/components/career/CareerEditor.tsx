@@ -3,9 +3,13 @@
 import * as React from "react";
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Plus } from "lucide-react";
 import CareerRowEditor, { type RowDraft } from "./CareerRowEditor";
 import CareerRowRead from "./CareerRowRead";
 import { rangesOverlap, sortCareer } from "./career-utils";
+
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhModalClassNames } from "@/lib/ui/heroui-brand";
 
 export type CareerItemInput = RowDraft & { confirmed?: boolean };
 
@@ -104,24 +108,40 @@ export default function CareerEditor({
 
   if (optional && skipped) {
     return (
-      <div className="rounded-xl border p-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-foreground-500">Dejaste la trayectoria para más adelante.</p>
-          <Button size="sm" variant="flat" onPress={() => setSkipped(false)}>Editar trayectoria</Button>
+      <div className="rounded-bh-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-4">
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm text-bh-fg-3">Dejaste la trayectoria para más adelante.</p>
+          <Button
+            size="sm"
+            variant="flat"
+            onPress={() => setSkipped(false)}
+            className={bhButtonClass({ variant: "outline", size: "sm" })}
+          >
+            Editar trayectoria
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="grid gap-3 rounded-xl border p-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-medium">Trayectoria</h3>
-          <p className="text-sm text-foreground-500">Agregá tus etapas por club, división y años.</p>
+    <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+      <div className="flex items-center justify-between gap-3">
+        <div className="space-y-1">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Trayectoria
+          </h3>
+          <p className="text-[12px] text-bh-fg-3">
+            Agregá tus etapas por club, división y años.
+          </p>
         </div>
         {optional && (
-          <Button size="sm" variant="flat" onPress={() => setSkipped(true)}>
+          <Button
+            size="sm"
+            variant="flat"
+            onPress={() => setSkipped(true)}
+            className={bhButtonClass({ variant: "ghost", size: "sm" })}
+          >
             Completar más adelante
           </Button>
         )}
@@ -176,23 +196,48 @@ export default function CareerEditor({
       </AnimatePresence>
 
       {readOnly ? null : (
-        <div className="flex justify-end">
-          <Button size="sm" onPress={addRow}>Agregar etapa</Button>
+        <div className="flex justify-end pt-1">
+          <Button
+            size="sm"
+            onPress={addRow}
+            startContent={<Plus className="h-4 w-4" />}
+            className={bhButtonClass({ variant: "lime", size: "sm" })}
+          >
+            Agregar etapa
+          </Button>
         </div>
       )}
 
-      {/* Modal confirmación para borrar etapa ligada al “Club actual” */}
-      <Modal isOpen={!readOnly && !!confirmId} onOpenChange={(o) => !o && setConfirmId(null)} size="sm">
+      {/* Modal confirmación para borrar etapa ligada al "Club actual" */}
+      <Modal
+        isOpen={!readOnly && !!confirmId}
+        onOpenChange={(o) => !o && setConfirmId(null)}
+        size="sm"
+        classNames={bhModalClassNames}
+      >
         <ModalContent>
           <ModalHeader>Eliminar etapa y club actual</ModalHeader>
           <ModalBody>
-            <p className="text-sm text-foreground-600">
-              Esta etapa está vinculada al <b>Club actual</b>. Si la eliminás, también se limpiará la selección de club actual.
+            <p className="text-sm leading-[1.55] text-bh-fg-3">
+              Esta etapa está vinculada al{" "}
+              <strong className="text-bh-fg-1">Club actual</strong>. Si la
+              eliminás, también se limpiará la selección de club actual.
             </p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setConfirmId(null)}>Cancelar</Button>
-            <Button color="danger" onPress={doConfirmDelete}>Eliminar</Button>
+            <Button
+              variant="flat"
+              onPress={() => setConfirmId(null)}
+              className={bhButtonClass({ variant: "ghost", size: "sm" })}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onPress={doConfirmDelete}
+              className={bhButtonClass({ variant: "danger", size: "sm" })}
+            >
+              Eliminar
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
