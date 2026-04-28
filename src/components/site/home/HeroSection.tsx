@@ -1,155 +1,135 @@
-'use client';
-
 import Link from "next/link";
-import { Button, CardBody, Chip, Divider } from "@heroui/react";
 import { ArrowRight, ShieldCheck, Users } from "lucide-react";
-import { m } from "framer-motion";
 
-import { AnimatedCard, AnimatedSection, FloatingShapes } from "@/components/site/ui/motion";
-
-const TEXT_VARIANTS = {
-  hidden: { opacity: 0, y: 28 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: "easeOut" as const,
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const ITEM_VARIANTS = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" as const } },
-};
-
-const STAT_ITEMS = [
+const STATS = [
   {
-    label: "Perfiles validados",
     value: "+1.2K",
+    label: "Perfiles validados",
     description: "Jugadores con identidad y trayectoria confirmada.",
+    accent: "lime" as const,
+    delay: "bh-animate-d1",
   },
   {
-    label: "Clubes activos",
     value: "86",
+    label: "Clubes activos",
     description: "Equipos que buscan talento en nuestra red.",
+    accent: "blue" as const,
+    delay: "bh-animate-d2",
   },
   {
-    label: "Referencias",
     value: "4.8/5",
+    label: "Referencias",
     description: "Promedio de reseñas verificadas por cuerpo técnico.",
+    accent: "blue" as const,
+    delay: "bh-animate-d3",
   },
 ];
 
 export default function HeroSection() {
   return (
-    <AnimatedSection
-      className="relative grid items-start gap-12 overflow-hidden rounded-3xl border border-white/10 bg-black/25 p-10 shadow-[0_0_60px_rgba(13,213,165,0.08)] backdrop-blur-xl lg:grid-cols-[minmax(0,1fr)_420px]"
-      initialY={48}
-    >
-      <FloatingShapes className="opacity-90" />
-
-      <m.div
-        className="relative z-10 space-y-8"
-        variants={TEXT_VARIANTS}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, margin: "-18% 0px -18% 0px" }}
-      >
-        <m.div variants={ITEM_VARIANTS}>
-          <Chip
-            color="success"
-            variant="flat"
-            className="w-fit border border-success-500/30 bg-success-500/10 uppercase tracking-[0.3em] text-xs text-success-200"
-          >
+    <section className="relative pt-6 md:pt-10">
+      <div className="grid items-start gap-12 md:grid-cols-[1.05fr_1fr]">
+        {/* Left — copy */}
+        <div>
+          <span className="bh-animate-in inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
             Beta abierta
-          </Chip>
-        </m.div>
+          </span>
 
-        <m.div className="space-y-4" variants={ITEM_VARIANTS}>
-          <h1 className="text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-[2.8rem]">
-            El Hub donde el Talento Futbolístico gana Visibilidad Real.
+          <h1 className="bh-animate-in bh-animate-d1 mt-5 font-bh-display text-4xl font-black uppercase leading-[0.95] tracking-[-0.01em] text-bh-fg-1 md:text-[3.25rem] lg:text-[3.5rem]">
+            El Hub donde el
+            <br />
+            <span className="text-bh-lime">Talento</span> Futbolístico
+            <br />
+            gana Visibilidad Real.
           </h1>
-          <p className="text-base text-neutral-300 sm:text-lg">
-            Centralizá tu perfil profesional, sumá reseñas verificadas y conectá con clubes que buscan potenciar su plantel.
-            Todo en un solo lugar con seguimiento humano y transparente.
+
+          <p className="bh-animate-in bh-animate-d2 mt-5 max-w-[460px] text-[15px] leading-[1.65] text-bh-fg-3">
+            Centralizá tu perfil profesional, sumá reseñas verificadas y
+            conectate con clubes que buscan potenciar su plantel. Todo en un
+            solo lugar con seguimiento humano y transparente.
           </p>
-        </m.div>
 
-        <m.div className="flex flex-wrap items-center gap-4" variants={ITEM_VARIANTS}>
-          <Button
-            as={Link}
-            href="/onboarding/start"
-            color="success"
-            size="lg"
-            endContent={<ArrowRight className="h-4 w-4" />}
-            className="font-semibold shadow-[0_18px_45px_rgba(13,213,165,0.25)]"
-          >
-            Crear mi perfil
-          </Button>
-          <Button
-            as={Link}
-            href="/auth/sign-in"
-            variant="bordered"
-            size="lg"
-            className="border-white/30 text-white backdrop-blur"
-            endContent={<ShieldCheck className="h-4 w-4" />}
-          >
-            Cómo validamos
-          </Button>
-        </m.div>
-
-        <m.div
-          className="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur"
-          variants={ITEM_VARIANTS}
-        >
-          <div className="flex items-center gap-3 text-sm uppercase tracking-wide text-neutral-400">
-            <Users className="h-4 w-4" />
-            <span>Lo que dicen los clubes</span>
+          <div className="bh-animate-in bh-animate-d3 mt-7 flex flex-wrap items-center gap-3">
+            <Link
+              href="/onboarding/start"
+              className="inline-flex items-center gap-2 rounded-bh-md bg-bh-lime px-6 py-3 text-sm font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
+            >
+              Crear mi perfil
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/auth/sign-in"
+              className="inline-flex items-center gap-2 rounded-bh-md border border-bh-fg-4 px-6 py-3 text-sm font-semibold text-bh-fg-1 transition-colors duration-150 hover:bg-white/[0.06]"
+            >
+              Cómo validamos
+              <ShieldCheck className="h-4 w-4" />
+            </Link>
           </div>
-          <p className="text-neutral-200">
-            “En BallersHub encontramos perfiles con historial comprobado y referencias confiables. Nos ahorra semanas de
-            scouting.”
-          </p>
-          <span className="text-sm text-neutral-500">Club Atlético Aurora · Dirección Deportiva</span>
-        </m.div>
-      </m.div>
 
-      <AnimatedCard
-        className="relative z-10 border-white/15 bg-black/40 backdrop-blur"
-        delay={0.2}
-        hoverElevation={18}
-      >
-        <CardBody className="space-y-6">
-          <div className="space-y-2 text-center">
-            <h2 className="text-xl font-semibold text-white">Tu trayectoria, sintetizada</h2>
-            <p className="text-sm text-neutral-400">
-              Subí certificados, videos destacados y referencias para fortalecer tu perfil profesional.
+          <figure className="bh-animate-in bh-animate-d4 bh-card-lift mt-9 max-w-[480px] rounded-bh-lg border border-white/[0.09] bg-white/[0.04] p-5 backdrop-blur-md">
+            <figcaption className="mb-2.5 inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
+              <Users className="h-3 w-3" />
+              Lo que dicen los clubes
+            </figcaption>
+            <blockquote className="text-[13px] italic leading-[1.6] text-bh-fg-2">
+              &ldquo;En &apos;BallersHub encontramos perfiles con historial
+              comprobado y referencias confiables. Nos ahorra semanas de
+              scouting.&rdquo;
+            </blockquote>
+            <p className="mt-2 text-[11px] text-bh-fg-3">
+              Club Atlético Aurora · Dirección Deportiva
             </p>
-          </div>
-          <Divider className="bg-white/10" />
-          <div className="grid gap-4">
-            {STAT_ITEMS.map((item, index) => (
-              <m.div
-                key={item.label}
-                className="rounded-xl border border-white/10 bg-white/5 p-4"
-                variants={ITEM_VARIANTS}
-                initial="hidden"
-                whileInView="show"
-                viewport={{ once: true, margin: "-20% 0px -20% 0px" }}
-                transition={{ delay: 0.15 * index, duration: 0.5, ease: "easeOut" }}
-              >
-                <p className="text-sm text-neutral-400">{item.label}</p>
-                <p className="text-3xl font-semibold text-white">{item.value}</p>
-                <p className="text-sm text-neutral-400">{item.description}</p>
-              </m.div>
+          </figure>
+        </div>
+
+        {/* Right — stats */}
+        <aside>
+          <h2 className="bh-animate-in bh-animate-d1 font-bh-display text-[1.4rem] font-bold uppercase leading-none text-bh-fg-1">
+            Tu trayectoria, sintetizada
+          </h2>
+          <p className="bh-animate-in bh-animate-d2 mt-1.5 text-xs leading-[1.5] text-bh-fg-3">
+            Subí certificados, videos y referencias para fortalecer tu perfil.
+          </p>
+
+          <div className="mt-5 flex flex-col gap-2.5">
+            {STATS.map((stat) => (
+              <StatCard key={stat.label} {...stat} />
             ))}
           </div>
-        </CardBody>
-      </AnimatedCard>
-    </AnimatedSection>
+        </aside>
+      </div>
+    </section>
+  );
+}
+
+function StatCard({
+  value,
+  label,
+  description,
+  accent,
+  delay,
+}: {
+  value: string;
+  label: string;
+  description: string;
+  accent: "lime" | "blue";
+  delay: string;
+}) {
+  const accentClass =
+    accent === "lime"
+      ? "border-[rgba(204,255,0,0.14)] bg-[rgba(204,255,0,0.05)] shadow-[0_0_20px_rgba(204,255,0,0.06)]"
+      : "border-[rgba(0,194,255,0.14)] bg-[rgba(0,194,255,0.05)] shadow-[0_0_20px_rgba(0,194,255,0.06)]";
+  const numberClass = accent === "lime" ? "text-bh-lime" : "text-bh-blue";
+
+  return (
+    <article
+      className={`bh-animate-in ${delay} bh-card-lift rounded-bh-lg border px-6 py-5 backdrop-blur-md ${accentClass}`}
+    >
+      <div className={`font-bh-display text-[2.5rem] font-black leading-none ${numberClass}`}>
+        {value}
+      </div>
+      <div className="mt-1 text-xs font-medium text-bh-fg-2">{label}</div>
+      <div className="mt-0.5 text-[11px] text-bh-fg-3">{description}</div>
+    </article>
   );
 }

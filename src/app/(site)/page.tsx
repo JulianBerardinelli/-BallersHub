@@ -4,7 +4,7 @@ import { CallToActionBanner, FeatureHighlights, HeroSection, TestimonialsPreview
 
 export default async function Home() {
   return (
-    <div className="space-y-20 px-4 pb-20">
+    <div className="space-y-24 pb-12">
       <HeroSection />
       <FeatureHighlights />
       <TestimonialsPreview />

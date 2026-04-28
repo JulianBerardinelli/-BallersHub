@@ -42,7 +42,14 @@ export default function ResultsTable({
     <Table
       removeWrapper
       aria-label="Search results"
-      classNames={{ table: "table-fixed w-full" }}
+      classNames={{
+        table: "table-fixed w-full",
+        thead:
+          "[&_th]:bg-transparent [&_th]:font-bh-display [&_th]:text-[10px] [&_th]:font-bold [&_th]:uppercase [&_th]:tracking-[0.1em] [&_th]:text-bh-fg-4 [&_th]:border-b [&_th]:border-white/[0.05]",
+        tr: "data-[hover=true]:bg-white/[0.04] border-b border-white/[0.04]",
+        td: "text-bh-fg-2",
+        emptyWrapper: "text-bh-fg-3",
+      }}
     >
       <TableHeader>
         <TableColumn className={COLS.player}>Player</TableColumn>

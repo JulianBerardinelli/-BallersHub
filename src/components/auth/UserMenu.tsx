@@ -65,16 +65,16 @@ export default function UserMenuHero({
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} classNames={{ base: "bg-neutral-950 border border-neutral-800" }}>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} classNames={{ base: "bg-bh-surface-1 border border-white/[0.08]" }}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-white">Cerrar Sesión</ModalHeader>
+              <ModalHeader className="font-bh-display uppercase tracking-[-0.005em] text-bh-fg-1">Cerrar sesión</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-neutral-400">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en &apos;BallersHub?</p>
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onClose} isDisabled={pending} className="text-neutral-400">
+                <Button variant="light" onPress={onClose} isDisabled={pending} className="text-bh-fg-3">
                   Cancelar
                 </Button>
                 <Button color="danger" isLoading={pending} onPress={handleSignOut}>
@@ -86,27 +86,53 @@ export default function UserMenuHero({
         </ModalContent>
       </Modal>
 
-      <Dropdown placement="bottom-end">
+      <Dropdown
+        placement="bottom-end"
+        classNames={{
+          content:
+            "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg min-w-[240px]",
+        }}
+      >
         <DropdownTrigger>
-          <button aria-label="Abrir menú de usuario">
+          <button aria-label="Abrir menú de usuario" className="rounded-bh-md transition-colors hover:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-bh-lime/40">
             <HeroUser
               as="div"
               name={displayName}
               description={handle ?? email}
-              className="cursor-pointer"
+              className="cursor-pointer px-2 py-1"
+              classNames={{
+                name: "text-[12px] font-medium text-bh-fg-1",
+                description: "text-[10px] text-bh-fg-3",
+              }}
               avatarProps={{
                 isBordered: true,
                 src: avatarUrl ?? undefined,
                 fallback: <Avatar name={displayName} />,
+                className: "ring-2 ring-[rgba(204,255,0,0.3)] w-8 h-8",
+                size: "sm",
               }}
             />
           </button>
         </DropdownTrigger>
 
-        <DropdownMenu aria-label="Acciones de usuario" variant="flat">
-          <DropdownItem key="signed-in" className="h-14 gap-2" isReadOnly>
-            <p className="font-semibold">Sesión iniciada como</p>
-            <p className="font-semibold truncate">{email}</p>
+        <DropdownMenu
+          aria-label="Acciones de usuario"
+          variant="flat"
+          itemClasses={{
+            base:
+              "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1 data-[selectable=true]:focus:bg-white/[0.05]",
+            title: "text-[13px]",
+          }}
+        >
+          <DropdownItem
+            key="signed-in"
+            className="h-14 gap-1 border-b border-white/[0.06] !rounded-none data-[hover=true]:!bg-transparent"
+            isReadOnly
+          >
+            <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+              Sesión iniciada como
+            </p>
+            <p className="truncate text-[12px] text-bh-fg-2">{email}</p>
           </DropdownItem>
 
           {role === "manager" ? (
@@ -177,7 +203,7 @@ export default function UserMenuHero({
           <DropdownItem
             key="logout"
             color="danger"
-            className="text-danger"
+            className="text-bh-danger data-[hover=true]:!bg-[rgba(239,68,68,0.08)] data-[hover=true]:!text-bh-danger border-t border-white/[0.06] !rounded-none mt-1"
             onPress={onOpen}
           >
             Cerrar sesión
