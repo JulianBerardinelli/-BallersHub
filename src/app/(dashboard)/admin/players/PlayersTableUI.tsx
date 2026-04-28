@@ -27,12 +27,15 @@ import type { PlayerProfileRow } from "./types";
 import { columns } from "./columns";
 import type { SortDescriptor, Key } from "@react-types/shared";
 import TeamNameTicker from "./components/TeamNameTicker";
+import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
 
-const statusColors: Record<PlayerProfileRow["status"], "success" | "warning" | "danger" | "default"> = {
+type ChipTone = Parameters<typeof bhChip>[0];
+
+const statusTones: Record<PlayerProfileRow["status"], ChipTone> = {
   approved: "success",
   pending_review: "warning",
   rejected: "danger",
-  draft: "default",
+  draft: "neutral",
 };
 
 const statusLabels: Record<PlayerProfileRow["status"], string> = {
@@ -42,9 +45,9 @@ const statusLabels: Record<PlayerProfileRow["status"], string> = {
   draft: "Borrador",
 };
 
-const planColors: Record<PlayerProfileRow["plan"], "default" | "primary" | "warning"> = {
-  free: "default",
-  pro: "primary",
+const planTones: Record<PlayerProfileRow["plan"], ChipTone> = {
+  free: "neutral",
+  pro: "blue",
   pro_plus: "warning",
 };
 
@@ -167,14 +170,14 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
 
         case "plan":
           return (
-            <Chip size="sm" variant="flat" color={planColors[a.plan]} className="capitalize">
+            <Chip size="sm" variant="flat" classNames={bhChip(planTones[a.plan])} className="capitalize">
               {planLabels[a.plan]}
             </Chip>
           );
 
         case "status":
           return (
-            <Chip size="sm" variant="flat" color={statusColors[a.status]} className="capitalize">
+            <Chip size="sm" variant="flat" classNames={bhChip(statusTones[a.status])} className="capitalize">
               {statusLabels[a.status]}
             </Chip>
           );
@@ -206,7 +209,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
               </div>
             );
           }
-          return <span className="text-default-500">Libre / Sin Equipo</span>;
+          return <span className="text-bh-fg-3">Libre / Sin Equipo</span>;
         }
 
         case "actions":
@@ -250,7 +253,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
     return (
       <div className="flex items-center gap-3">
         <span className="text-default-400 text-small">Total {items.length} Jugadores</span>
-        <Chip size="sm" variant="flat" color="primary">
+        <Chip size="sm" variant="flat" classNames={bhChip("blue")}>
           {items.length} Jugadores
         </Chip>
       </div>
@@ -326,8 +329,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
           aria-label="Directorio de jugadores"
           sortDescriptor={sort}
           onSortChange={setSort}
-          removeWrapper
-          classNames={{ table: "table-fixed w-full" }}
+          classNames={{ ...bhTableClassNames, table: "table-fixed w-full" }}
           topContent={topContent}
           topContentPlacement="outside"
         >
@@ -355,7 +357,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
 
       <div className="md:hidden grid gap-3">
         {sorted.map((a) => (
-          <div key={a.id} className="rounded-lg border border-neutral-800 p-4 space-y-2">
+          <div key={a.id} className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4 space-y-2">
             <div className="flex items-center justify-between gap-3">
               <User
                 avatarProps={{ radius: "lg", src: a.avatar_url, size: "sm" }}
@@ -367,7 +369,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
                 name={a.full_name}
               />
               <div className="flex items-center gap-2">
-                <Chip size="sm" variant="flat" color={statusColors[a.status]} className="capitalize">
+                <Chip size="sm" variant="flat" classNames={bhChip(statusTones[a.status])} className="capitalize">
                   {statusLabels[a.status]}
                 </Chip>
               </div>
@@ -384,7 +386,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
                   </div>
                 </div>
               ) : (
-                <span className="text-default-500">Libre / Sin Equipo</span>
+                <span className="text-bh-fg-3">Libre / Sin Equipo</span>
               )}
             </div>
             <div className="flex justify-end gap-2">

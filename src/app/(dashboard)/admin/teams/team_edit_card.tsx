@@ -146,7 +146,7 @@ export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: 
           <TeamCrest src={externalCrestUrl.trim() || crestUrl} size={40} />
           <div>
             <p className="font-semibold">{team.name}</p>
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-bh-fg-4">
               {team.created_at ? <>Creado: <DateClient iso={team.created_at} /></> : null}
             </p>
           </div>
@@ -214,14 +214,14 @@ export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: 
             </div>
             
             <div className="flex items-center w-full gap-2 opacity-50">
-              <hr className="flex-1 border-neutral-300" />
-              <span className="text-[10px] text-neutral-500 uppercase font-semibold">O pegar enlace</span>
-              <hr className="flex-1 border-neutral-300" />
+              <hr className="flex-1 border-white/[0.08]" />
+              <span className="text-[10px] text-bh-fg-4 uppercase font-semibold">O pegar enlace</span>
+              <hr className="flex-1 border-white/[0.08]" />
             </div>
             
             <div>
               <Input type="url" size="sm" placeholder="https://wikipedia.org/.../logo.svg" value={externalCrestUrl} onChange={e => setExternalCrestUrl(e.target.value)} />
-              <p className="text-[10px] text-default-400 mt-1">El URL reemplazará el archivo al guardar los cambios.</p>
+              <p className="text-[10px] text-bh-fg-4 mt-1">El URL reemplazará el archivo al guardar los cambios.</p>
             </div>
           </div>
 

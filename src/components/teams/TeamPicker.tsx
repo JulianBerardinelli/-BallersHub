@@ -3,7 +3,11 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { Input, Button, Chip, Spinner } from "@heroui/react";
+import { Button, Chip, Spinner } from "@heroui/react";
+
+import FormField from "@/components/dashboard/client/FormField";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhChip } from "@/lib/ui/heroui-brand";
 import CountryFlag from "@/components/common/CountryFlag";
 
 export type TeamLite = {
@@ -151,9 +155,10 @@ export default function TeamPicker({
 
   return (
     <div className="grid gap-3">
-      <div className="flex items-end gap-2">
-        <div className="flex-1">
-          <Input
+      <div className="flex flex-col items-end gap-2 sm:flex-row">
+        <div className="w-full flex-1">
+          <FormField
+            id="bh-tp-team"
             label="Equipo actual"
             description="Buscá tu equipo por nombre. Si no existe, podés proponerlo."
             value={q}
@@ -161,8 +166,9 @@ export default function TeamPicker({
             placeholder="Ej: Boca Juniors"
           />
         </div>
-        <div className="w-44">
-          <Input
+        <div className="w-full sm:w-44">
+          <FormField
+            id="bh-tp-country"
             label="País (nombre o ISO-2)"
             description="Ej: Argentina o AR"
             value={country}
@@ -172,34 +178,46 @@ export default function TeamPicker({
         </div>
       </div>
 
-      <div className="rounded-md border border-neutral-800 p-3">
+      <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-neutral-400">Resultados</p>
-          {loading && <Spinner size="sm" />}
+          <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
+            Resultados
+          </p>
+          {loading && <Spinner size="sm" color="default" />}
         </div>
 
         {!loading && hasMatches && (
-          <ul className="mt-2 grid gap-2">
+          <ul className="mt-3 grid gap-2">
             {results.map((t) => (
-              <li key={t.id} className="flex items-center justify-between rounded-md bg-neutral-900 p-2">
+              <li
+                key={t.id}
+                className="bh-card-lift flex items-center justify-between rounded-bh-md border border-white/[0.06] bg-bh-surface-1/60 p-2.5"
+              >
                 <div className="flex items-center gap-3">
-                  {/* crest con object-contain para no recortar */}
                   <img
                     src={t.crest_url || "/images/team-default.svg"}
                     alt=""
                     width={24}
                     height={24}
-                    className="h-6 w-6 rounded-[3px] object-contain bg-neutral-800"
+                    className="h-6 w-6 rounded-[3px] bg-bh-surface-2 object-contain"
                   />
                   <div>
-                    <p className="text-sm font-medium">{t.name}</p>
-                    <p className="text-xs text-neutral-500">
-                    <CountryFlag code={t.country_code ?? undefined} title={t.country ?? t.country_code ?? undefined} size={12} />
+                    <p className="text-[13px] font-medium text-bh-fg-1">{t.name}</p>
+                    <p className="flex items-center gap-1 text-[11px] text-bh-fg-4">
+                      <CountryFlag
+                        code={t.country_code ?? undefined}
+                        title={t.country ?? t.country_code ?? undefined}
+                        size={12}
+                      />
                       {t.country_code ? ` (${t.country_code})` : ""} · @{t.slug}
                     </p>
                   </div>
                 </div>
-                <Button size="sm" onPress={() => onPickApproved(t)}>
+                <Button
+                  size="sm"
+                  onPress={() => onPickApproved(t)}
+                  className={bhButtonClass({ variant: "lime", size: "sm" })}
+                >
                   Elegir
                 </Button>
               </li>
@@ -208,45 +226,54 @@ export default function TeamPicker({
         )}
 
         {!loading && !hasMatches && q.trim() && (
-          <p className="mt-2 text-sm text-neutral-500">
-            No encontramos equipos con “{q.trim()}”.
+          <p className="mt-2 text-[13px] text-bh-fg-4">
+            No encontramos equipos con &ldquo;{q.trim()}&rdquo;.
           </p>
         )}
 
         {showNewOption && (
-          <div className="mt-3">
-            <Button variant="flat" onPress={onPickNew}>
-              Proponer equipo nuevo: “{q.trim()}”
+          <div className="mt-3 flex flex-col gap-1">
+            <Button
+              variant="flat"
+              onPress={onPickNew}
+              className={bhButtonClass({ variant: "outline", size: "sm" })}
+            >
+              Proponer equipo nuevo: &ldquo;{q.trim()}&rdquo;
             </Button>
-            <p className="mt-1 text-xs text-neutral-500">
-              El equipo no está en nuestra base. Con tu solicitud lo crearemos y verificaremos.
+            <p className="text-[11px] text-bh-fg-4">
+              El equipo no está en nuestra base. Con tu solicitud lo crearemos
+              y verificaremos.
             </p>
           </div>
         )}
 
         <div className="mt-3">
-          <Button variant="bordered" onPress={onPickFree}>
+          <Button
+            variant="bordered"
+            onPress={onPickFree}
+            className={bhButtonClass({ variant: "ghost", size: "sm" })}
+          >
             Soy jugador libre (sin equipo)
           </Button>
         </div>
       </div>
 
       {picked?.mode === "approved" && (
-        <Chip color="success" variant="flat">
+        <Chip variant="flat" classNames={bhChip("success")}>
           Seleccionado: {picked.teamName}
           {picked.country ? ` · ${picked.country}` : ""}
           {picked.countryCode ? ` (${picked.countryCode})` : ""}
         </Chip>
       )}
       {picked?.mode === "new" && (
-        <Chip color="warning" variant="flat">
+        <Chip variant="flat" classNames={bhChip("warning")}>
           Equipo propuesto: {picked.name}
           {picked.country ? ` · ${picked.country}` : ""}
           {picked.countryCode ? ` (${picked.countryCode})` : ""}
         </Chip>
       )}
       {picked?.mode === "free" && (
-        <Chip color="default" variant="flat">
+        <Chip variant="flat" classNames={bhChip("neutral")}>
           Jugador libre
         </Chip>
       )}

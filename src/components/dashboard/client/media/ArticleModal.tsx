@@ -2,7 +2,11 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+
+import FormField from "@/components/dashboard/client/FormField";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhModalClassNames } from "@/lib/ui/heroui-brand";
 
 export type Article = {
   id: string;
@@ -88,69 +92,81 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center" backdrop="blur">
-      <ModalContent className="bg-neutral-900 border border-neutral-800 text-white">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      placement="center"
+      backdrop="blur"
+      classNames={bhModalClassNames}
+    >
+      <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1">Añadir Artículo o Nota de Prensa</ModalHeader>
+            <ModalHeader>
+              {articleToEdit ? "Editar artículo" : "Añadir artículo o nota de prensa"}
+            </ModalHeader>
             <ModalBody>
               <div className="flex flex-col gap-4">
-                <Input
+                <FormField
+                  id="bh-am-title"
                   autoFocus
                   isRequired
-                  label="Título de la Nota"
+                  label="Título de la nota"
                   name="title"
                   placeholder="Ej: Jugador revelación del torneo..."
-                  variant="bordered"
                   value={formData.title}
                   onChange={handleChange}
-                  classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
                 />
-                <Input
+                <FormField
+                  id="bh-am-url"
                   isRequired
                   label="Enlace (URL)"
                   name="url"
                   placeholder="https://..."
-                  variant="bordered"
                   value={formData.url}
                   onChange={handleChange}
-                  classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
                 />
-                <Input
-                  label="Medio de Comunicación"
+                <FormField
+                  id="bh-am-publisher"
+                  label="Medio de comunicación"
                   name="publisher"
                   placeholder="Ej: Diario Olé, Marca, ESPN..."
-                  variant="bordered"
                   value={formData.publisher}
                   onChange={handleChange}
-                  classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
                 />
-                <Input
-                  label="URL de Imagen/Miniatura"
+                <FormField
+                  id="bh-am-image"
+                  label="URL de imagen / miniatura"
                   name="imageUrl"
                   placeholder="https://..."
-                  variant="bordered"
                   value={formData.imageUrl}
                   onChange={handleChange}
-                  classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
                   description="Añadí el link directo a la foto o miniatura del medio."
                 />
-                <Input
-                  label="Fecha de Publicación"
+                <FormField
+                  id="bh-am-published"
+                  label="Fecha de publicación"
                   name="publishedAt"
                   type="date"
-                  variant="bordered"
                   value={formData.publishedAt}
                   onChange={handleChange}
-                  classNames={{ inputWrapper: "border-neutral-700 bg-neutral-900" }}
                 />
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button color="danger" variant="light" onPress={onClose} isDisabled={isLoading}>
+              <Button
+                variant="light"
+                onPress={onClose}
+                isDisabled={isLoading}
+                className={bhButtonClass({ variant: "ghost", size: "sm" })}
+              >
                 Cancelar
               </Button>
-              <Button color="primary" onPress={() => handleSubmit(onClose)} isLoading={isLoading}>
+              <Button
+                onPress={() => handleSubmit(onClose)}
+                isLoading={isLoading}
+                className={bhButtonClass({ variant: "lime", size: "sm" })}
+              >
                 Guardar
               </Button>
             </ModalFooter>

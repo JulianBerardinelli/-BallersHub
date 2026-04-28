@@ -6,6 +6,11 @@ import { submitManagerApplication } from "@/app/actions/manager-applications";
 import KycUploader from "../../KycUploader";
 import { supabase } from "@/lib/supabase/client";
 
+const INPUT_CLS =
+  "w-full rounded-bh-md border border-white/[0.08] bg-bh-surface-1 px-3 py-2 text-[13px] text-bh-fg-1 placeholder:text-bh-fg-4 transition-colors duration-150 hover:border-white/[0.18] focus:border-bh-lime focus:outline-none focus:ring-1 focus:ring-bh-lime/40";
+
+const LABEL_CLS = "mb-1.5 block text-xs font-medium text-bh-fg-2";
+
 export default function ManagerOnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
@@ -29,7 +34,9 @@ export default function ManagerOnboardingPage() {
   const handleNext = () => setStep(s => s + 1);
   const handlePrev = () => setStep(s => s - 1);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+  ) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -58,7 +65,7 @@ export default function ManagerOnboardingPage() {
     setError("");
     try {
       await submitManagerApplication(formData);
-      router.push("/onboarding/start"); // It will redirect to dashboard or show "in review" thanks to logic there
+      router.push("/onboarding/start");
     } catch (err: any) {
       setError(err.message || "Ocurrió un error");
     } finally {
@@ -67,50 +74,82 @@ export default function ManagerOnboardingPage() {
   };
 
   return (
-    <main className="mx-auto max-w-xl p-8 space-y-6">
-      <h1 className="text-2xl font-semibold">Registro de Manager / Agencia</h1>
-      <p className="text-neutral-400">Paso {step} de 3</p>
+    <main className="mx-auto max-w-xl space-y-6 p-8">
+      <div className="space-y-2">
+        <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
+          Manager · Paso {step} de 3
+        </span>
+        <h1 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
+          Registro de <span className="text-bh-blue">manager</span>
+        </h1>
+        <p className="text-sm leading-[1.6] text-bh-fg-3">
+          Validamos tu identidad y representación para mantener la integridad
+          de la plataforma.
+        </p>
+      </div>
 
-      {error && <div className="bg-red-500/10 text-red-500 p-3 rounded-md text-sm">{error}</div>}
+      {/* Step progress */}
+      <div className="flex items-center gap-2">
+        {[1, 2, 3].map(n => (
+          <div
+            key={n}
+            className={`h-1 flex-1 rounded-bh-pill transition-colors duration-300 ${
+              n <= step ? "bg-bh-lime" : "bg-white/[0.08]"
+            }`}
+          />
+        ))}
+      </div>
+
+      {error && (
+        <div className="rounded-bh-md border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.08)] p-3 text-sm text-bh-danger">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-4">
         {step === 1 && (
           <div className="grid gap-4 animate-in fade-in">
             <div>
-              <label className="block text-sm mb-1">Tu Nombre Completo *</label>
-              <input name="fullName" value={formData.fullName} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" required />
+              <label className={LABEL_CLS}>Tu nombre completo *</label>
+              <input name="fullName" value={formData.fullName} onChange={handleChange} className={INPUT_CLS} required />
             </div>
             <div>
-              <label className="block text-sm mb-1">Email de Contacto *</label>
-              <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" required />
+              <label className={LABEL_CLS}>Email de contacto *</label>
+              <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} className={INPUT_CLS} required />
             </div>
             <div>
-              <label className="block text-sm mb-1">Teléfono</label>
-              <input type="tel" name="contactPhone" value={formData.contactPhone} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" />
+              <label className={LABEL_CLS}>Teléfono</label>
+              <input type="tel" name="contactPhone" value={formData.contactPhone} onChange={handleChange} className={INPUT_CLS} />
             </div>
             <div>
-              <label className="block text-sm mb-1">Nombre de la Agencia *</label>
-              <input name="agencyName" value={formData.agencyName} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" required />
+              <label className={LABEL_CLS}>Nombre de la agencia *</label>
+              <input name="agencyName" value={formData.agencyName} onChange={handleChange} className={INPUT_CLS} required />
             </div>
             <div>
-              <label className="block text-sm mb-1">Sitio Web de la Agencia</label>
-              <input type="url" name="agencyWebsiteUrl" value={formData.agencyWebsiteUrl} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" />
+              <label className={LABEL_CLS}>Sitio web de la agencia</label>
+              <input type="url" name="agencyWebsiteUrl" value={formData.agencyWebsiteUrl} onChange={handleChange} className={INPUT_CLS} />
             </div>
             <div>
-              <label className="block text-sm mb-1">Enlace de Validación (Transfermarkt, IG, etc.) *</label>
-              <input type="url" name="verifiedLink" value={formData.verifiedLink} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" required placeholder="https://transfermarkt.com/..." />
+              <label className={LABEL_CLS}>Enlace de validación (Transfermarkt, IG, etc.) *</label>
+              <input type="url" name="verifiedLink" value={formData.verifiedLink} onChange={handleChange} className={INPUT_CLS} required placeholder="https://transfermarkt.com/..." />
             </div>
           </div>
         )}
 
         {step === 2 && (
           <div className="grid gap-4 animate-in fade-in">
-            <h3 className="font-medium">Certificación Oficial</h3>
-            <p className="text-sm text-neutral-400 mb-2">Sube o enlaza tu licencia FIFA, FIGC, RFEF u otra asociación.</p>
-            
+            <div className="space-y-1">
+              <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+                Certificación oficial
+              </h3>
+              <p className="text-sm text-bh-fg-3">
+                Subí o enlazá tu licencia FIFA, FIGC, RFEF u otra asociación.
+              </p>
+            </div>
+
             <div>
-              <label className="block text-sm mb-1">Tipo de Licencia</label>
-              <select name="agentLicenseType" value={formData.agentLicenseType} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2">
+              <label className={LABEL_CLS}>Tipo de licencia</label>
+              <select name="agentLicenseType" value={formData.agentLicenseType} onChange={handleChange} className={INPUT_CLS}>
                 <option value="">Ninguna / Otra</option>
                 <option value="FIFA">FIFA</option>
                 <option value="RFEF">RFEF (España)</option>
@@ -118,61 +157,82 @@ export default function ManagerOnboardingPage() {
                 <option value="AFA">AFA (Argentina)</option>
               </select>
             </div>
-            
+
             <div>
-              <label className="block text-sm mb-1">Documento de Licencia (PDF o Imagen)</label>
-              <input type="file" accept="image/*,application/pdf" onChange={uploadLicense} className="w-full text-sm" />
-              {formData.agentLicenseUrl && <p className="text-green-500 text-xs mt-1">✓ Licencia cargada</p>}
+              <label className={LABEL_CLS}>Documento de licencia (PDF o imagen)</label>
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={uploadLicense}
+                className="w-full text-sm text-bh-fg-3 file:mr-3 file:rounded-bh-md file:border file:border-white/[0.08] file:bg-white/[0.04] file:px-3 file:py-1.5 file:text-[12px] file:font-medium file:text-bh-fg-2 hover:file:bg-white/[0.08]"
+              />
+              {formData.agentLicenseUrl && (
+                <p className="mt-1 text-xs text-bh-success">✓ Licencia cargada</p>
+              )}
             </div>
           </div>
         )}
 
         {step === 3 && (
           <div className="grid gap-4 animate-in fade-in">
-            <h3 className="font-medium">Verificación de Identidad (KYC)</h3>
-            <p className="text-sm text-neutral-400 mb-2">Para proteger la integridad de la plataforma, necesitamos verificar tu identidad.</p>
-            
-            <KycUploader 
+            <div className="space-y-1">
+              <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+                Verificación de identidad (KYC)
+              </h3>
+              <p className="text-sm text-bh-fg-3">
+                Para proteger la integridad de la plataforma, necesitamos
+                verificar tu identidad.
+              </p>
+            </div>
+
+            <KycUploader
               onUploaded={({ idDocKey, selfieKey }) => {
                 if (idDocKey) setFormData(p => ({ ...p, idDocUrl: idDocKey }));
                 if (selfieKey) setFormData(p => ({ ...p, selfieUrl: selfieKey }));
-              }} 
+              }}
             />
-            <div className="flex gap-4 mt-2">
-              <div className="text-xs">{formData.idDocUrl ? '✅ DNI listo' : '❌ Falta DNI'}</div>
-              <div className="text-xs">{formData.selfieUrl ? '✅ Selfie lista' : '❌ Falta Selfie'}</div>
+            <div className="flex gap-4 text-xs">
+              <span className={formData.idDocUrl ? "text-bh-success" : "text-bh-fg-4"}>
+                {formData.idDocUrl ? "✓ DNI listo" : "○ Falta DNI"}
+              </span>
+              <span className={formData.selfieUrl ? "text-bh-success" : "text-bh-fg-4"}>
+                {formData.selfieUrl ? "✓ Selfie lista" : "○ Falta selfie"}
+              </span>
             </div>
-            
+
             <div>
-              <label className="block text-sm mb-1 mt-4">Notas Adicionales (Opcional)</label>
-              <textarea name="notes" value={formData.notes} onChange={handleChange} className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2" rows={3}></textarea>
+              <label className={`${LABEL_CLS} mt-2`}>Notas adicionales (opcional)</label>
+              <textarea name="notes" value={formData.notes} onChange={handleChange} className={INPUT_CLS} rows={3} />
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex justify-between pt-6 border-t border-neutral-800">
+      <div className="flex justify-between border-t border-white/[0.06] pt-6">
         {step > 1 ? (
-          <button onClick={handlePrev} className="px-4 py-2 border border-neutral-800 rounded-md text-sm hover:bg-neutral-900">
+          <button
+            onClick={handlePrev}
+            className="rounded-bh-md border border-bh-fg-4 px-4 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
+          >
             Atrás
           </button>
         ) : <div />}
 
         {step < 3 ? (
-          <button 
-            onClick={handleNext} 
+          <button
+            onClick={handleNext}
             disabled={step === 1 && (!formData.fullName || !formData.contactEmail || !formData.agencyName || !formData.verifiedLink)}
-            className="px-4 py-2 bg-primary text-white font-semibold rounded-md text-sm hover:opacity-90 disabled:opacity-50"
+            className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
           >
             Siguiente
           </button>
         ) : (
-          <button 
-            onClick={onSubmit} 
+          <button
+            onClick={onSubmit}
             disabled={loading || !formData.idDocUrl || !formData.selfieUrl}
-            className="px-4 py-2 bg-primary text-white font-semibold rounded-md text-sm hover:opacity-90 disabled:opacity-50"
+            className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
           >
-            {loading ? "Enviando..." : "Enviar Solicitud"}
+            {loading ? "Enviando..." : "Enviar solicitud"}
           </button>
         )}
       </div>

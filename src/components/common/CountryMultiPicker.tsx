@@ -109,12 +109,11 @@ React.useEffect(() => {
 
   return (
     <div className="grid gap-2">
-      {/* Autocomplete = combobox accesible con dropdown, foco permanece en el input */}
       <Autocomplete
         label="Nacionalidades"
         labelPlacement="outside"
-        menuTrigger="input"           // abrir cuando se escribe
-        allowsCustomValue={false}     // solo códigos válidos
+        menuTrigger="input"
+        allowsCustomValue={false}
         isDisabled={!hasRoom}
         inputValue={inputValue}
         onInputChange={setInputValue}
@@ -122,33 +121,60 @@ React.useEffect(() => {
         items={filteredItems}
         isInvalid={isInvalid}
         errorMessage={errorMessage}
-        // Bloquea selección de repetidos
         disabledKeys={disabledKeys as any}
         placeholder={placeholder}
-        description={hasRoom ? "Elegí hasta 3. Escribe para buscar." : "Ya alcanzaste el máximo."}
- 
-        // Popover y listbox vienen integrados por HeroUI; focus en el input ✅
+        description={hasRoom ? `Elegí hasta ${max}. Escribí para buscar.` : "Ya alcanzaste el máximo."}
+        classNames={{
+          base: "",
+        }}
+        inputProps={{
+          classNames: {
+            inputWrapper:
+              "bg-bh-surface-1 border border-white/[0.08] shadow-none transition-colors duration-150 hover:border-white/[0.18] data-[focus=true]:border-bh-lime data-[focus=true]:bg-bh-surface-1 data-[invalid=true]:border-bh-danger",
+            input: "text-[14px] text-bh-fg-1 placeholder:text-bh-fg-4",
+            label: "!text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2",
+            description: "text-[11px] text-bh-fg-4",
+            errorMessage: "text-[11px] text-bh-danger",
+          },
+        }}
+        listboxProps={{
+          itemClasses: {
+            base: "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1 data-[selectable=true]:focus:bg-white/[0.05] data-[focus=true]:bg-white/[0.05]",
+            title: "text-[13px]",
+          },
+        }}
+        popoverProps={{
+          classNames: {
+            content:
+              "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg",
+          },
+        }}
       >
         {(item) => (
           <AutocompleteItem
             key={item.code}
             textValue={`${item.name} ${item.code}`}
             startContent={<CountryFlag code={item.code} size={16} />}
-            description={<span className="text-foreground-500">{item.code}</span>}
+            description={<span className="text-bh-fg-4">{item.code}</span>}
           >
             {item.name}
           </AutocompleteItem>
         )}
       </Autocomplete>
 
-      {/* Chips debajo del input: layout estable */}
-      <div className="flex flex-wrap items-center gap-2 min-h-10">
+      {/* Chips de selección */}
+      <div className="flex min-h-10 flex-wrap items-center gap-2">
         {selected.map((s) => (
           <Chip
             key={s.code}
             variant="flat"
             startContent={<CountryFlag code={s.code} size={12} />}
             onClose={() => remove(s.code)}
+            classNames={{
+              base: "border border-white/[0.12] bg-white/[0.06] text-bh-fg-2",
+              content: "text-[12px]",
+              closeButton: "text-bh-fg-3 hover:text-bh-fg-1",
+            }}
           >
             {s.name}
           </Chip>

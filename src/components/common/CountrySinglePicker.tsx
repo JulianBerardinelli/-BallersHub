@@ -82,13 +82,34 @@ export default function CountrySinglePicker({
       isInvalid={isInvalid}
       errorMessage={errorMessage}
       allowsCustomValue={false}
+      inputProps={{
+        classNames: {
+          inputWrapper:
+            "bg-bh-surface-1 border border-white/[0.08] shadow-none transition-colors duration-150 hover:border-white/[0.18] data-[focus=true]:border-bh-lime data-[focus=true]:bg-bh-surface-1 data-[invalid=true]:border-bh-danger",
+          input: "text-[14px] text-bh-fg-1 placeholder:text-bh-fg-4",
+          label: "!text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2",
+          errorMessage: "text-[11px] text-bh-danger",
+        },
+      }}
+      listboxProps={{
+        itemClasses: {
+          base: "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1 data-[selectable=true]:focus:bg-white/[0.05] data-[focus=true]:bg-white/[0.05]",
+          title: "text-[13px]",
+        },
+      }}
+      popoverProps={{
+        classNames: {
+          content:
+            "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg",
+        },
+      }}
     >
       {(item) => (
         <AutocompleteItem
           key={item.code}
           textValue={`${item.name} ${item.code}`}
           startContent={<CountryFlag code={item.code} size={16} />}
-          description={<span className="text-foreground-500">{item.code}</span>}
+          description={<span className="text-bh-fg-4">{item.code}</span>}
         >
           {item.name}
         </AutocompleteItem>

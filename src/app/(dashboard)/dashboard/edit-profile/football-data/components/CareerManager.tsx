@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
+import { bhButtonClass } from "@/components/ui/BhButton";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, Info, XCircle } from "lucide-react";
 
@@ -24,10 +25,10 @@ const RESOLUTION_TONE_STYLES = {
     icon: "text-red-300",
   },
   default: {
-    container: "border-neutral-700 bg-neutral-900/60",
-    label: "text-neutral-200",
-    note: "text-neutral-300",
-    icon: "text-neutral-300",
+    container: "border-white/[0.12] bg-bh-surface-1/60",
+    label: "text-bh-fg-1",
+    note: "text-bh-fg-2",
+    icon: "text-bh-fg-2",
   },
 } as const;
 
@@ -535,7 +536,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-lg font-semibold text-white">Trayectoria profesional</h3>
-            <p className="text-sm text-neutral-400">
+            <p className="text-sm text-bh-fg-3">
               Editá tus etapas, proponé nuevos equipos y enviá la solicitud para que nuestro equipo la valide.
             </p>
           </div>
@@ -558,7 +559,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
           ) : null}
         </div>
         {latestRequest ? (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-bh-fg-4">
             Última actualización: {formatDate(latestRequest.reviewedAt ?? latestRequest.submittedAt)}
           </p>
         ) : null}
@@ -607,7 +608,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
             {pendingItems.map((stage) => (
               <li
                 key={stage.id}
-                className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-neutral-950/70 p-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-amber-500/30 bg-bh-black/70 p-3"
               >
                 <div className="flex min-w-0 items-center gap-3">
                   <img
@@ -636,7 +637,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
                         </Chip>
                       ) : null}
                     </div>
-                    <p className="truncate text-xs text-neutral-400">
+                    <p className="truncate text-xs text-bh-fg-3">
                       {(stage.division ?? "División sin definir") + " · "}
                       {formatStagePeriod(stage.startYear, stage.endYear)}
                     </p>
@@ -672,21 +673,21 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
       ) : null}
 
       {showActionPanel ? (
-        <div className="space-y-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
-          <label className="block space-y-2 text-sm text-neutral-300">
-            <span className="font-medium text-neutral-200">Nota para el equipo (opcional)</span>
+        <div className="space-y-4 rounded-lg border border-white/[0.08] bg-bh-surface-1/40 p-4">
+          <label className="block space-y-2 text-sm text-bh-fg-2">
+            <span className="font-medium text-bh-fg-1">Nota para el equipo (opcional)</span>
             <textarea
               value={note}
               onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setNote(event.target.value)}
               rows={3}
               placeholder="Contanos el contexto de los cambios o la temporada a destacar."
-              className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:opacity-60"
+              className="w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 disabled:opacity-60"
               disabled={pending || isLockedByRequest}
             />
           </label>
           {status ? (
             <p
-              className={`text-sm ${status.type === "error" ? "text-red-400" : "text-emerald-400"}`}
+              className={`text-sm ${status.type === "error" ? "text-bh-danger" : "text-bh-success"}`}
             >
               {status.message}
             </p>
@@ -701,11 +702,11 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
               Restablecer cambios
             </Button>
             <Button
-              color="primary"
               size="sm"
               onPress={handleSubmit}
               isLoading={pending}
               isDisabled={pending || isLockedByRequest}
+              className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
               {isLockedByRequest ? "Solicitud en revisión" : "Enviar solicitud"}
             </Button>

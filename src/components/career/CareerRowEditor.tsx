@@ -3,7 +3,6 @@
 import * as React from "react";
 import {
   Button,
-  Input,
   Autocomplete,
   AutocompleteItem,
   Chip,
@@ -18,6 +17,10 @@ import { supabase } from "@/lib/supabase/client";
 import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
 import CountryFlag from "@/components/common/CountryFlag";
 import { validateYears, YEAR_MIN, YEAR_MAX } from "./career-utils";
+
+import FormField from "@/components/dashboard/client/FormField";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhChip, bhModalClassNames, bhSwitchClassNames } from "@/lib/ui/heroui-brand";
 
 export type TeamLite = {
   id: string;
@@ -220,13 +223,37 @@ export default function CareerRowEditor({
     else setTriedConfirm(true);
   }
 
+  // shared brand classNames for both Autocompletes
+  const autocompleteBrandProps = {
+    inputProps: {
+      classNames: {
+        inputWrapper:
+          "bg-bh-surface-1 border border-white/[0.08] shadow-none transition-colors duration-150 hover:border-white/[0.18] data-[focus=true]:border-bh-lime data-[focus=true]:bg-bh-surface-1 data-[invalid=true]:border-bh-danger",
+        input: "text-[14px] text-bh-fg-1 placeholder:text-bh-fg-4",
+        label: "!text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2",
+      },
+    },
+    listboxProps: {
+      itemClasses: {
+        base: "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1 data-[selectable=true]:focus:bg-white/[0.05] data-[focus=true]:bg-white/[0.05]",
+        title: "text-[13px]",
+      },
+    },
+    popoverProps: {
+      classNames: {
+        content: "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg",
+      },
+    },
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-2 items-end rounded-lg border p-3">
+    <div className="grid grid-cols-1 items-end gap-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4 lg:grid-cols-5">
       <div className="lg:col-span-2">
         <Autocomplete
           label="Club"
           labelPlacement="outside"
           menuTrigger="input"
+          {...autocompleteBrandProps}
           inputValue={q}
           onInputChange={handleInputChange}
           isLoading={loading}
@@ -259,7 +286,7 @@ export default function CareerRowEditor({
                 <AutocompleteItem key={item.id} textValue={`Crear ${item.name}`}>
                   <div className="flex flex-col">
                     <span>“{item.name}” no está en la base</span>
-                    <span className="text-foreground-500 text-xs">Proponer nuevo equipo</span>
+                    <span className="text-bh-fg-4 text-xs">Proponer nuevo equipo</span>
                   </div>
                 </AutocompleteItem>
               );
@@ -272,7 +299,7 @@ export default function CareerRowEditor({
                   <img src={item.crest_url || "/images/team-default.svg"} width={18} height={18} className="h-5 w-5 object-contain" alt="" />
                 }
                 description={
-                  <div className="flex items-center gap-1 text-foreground-500">
+                  <div className="flex items-center gap-1 text-bh-fg-4">
                     {item.country_code && <CountryFlag code={item.country_code} size={12} />}
                     {item.country_code ? `(${item.country_code})` : null} · @{item.slug}
                   </div>
@@ -289,6 +316,7 @@ export default function CareerRowEditor({
         label="División/Categoría"
         labelPlacement="outside"
         menuTrigger="input"
+        {...autocompleteBrandProps}
         inputValue={divQ}
         onInputChange={handleDivChange}
         isLoading={divLoading}
@@ -338,48 +366,58 @@ export default function CareerRowEditor({
         }}
       </Autocomplete>
 
-      <Input
+      <FormField
         type="text"
         inputMode="numeric"
         pattern="\d*"
         label="Desde (año)"
-        labelPlacement="outside"
         placeholder="2019"
         value={startStr}
-        onValueChange={onStartChange}
+        onChange={(e) => onStartChange(e.target.value)}
         onBlur={() => setTouchedStart(true)}
         min={YEAR_MIN}
         max={YEAR_MAX}
         isInvalid={startInvalid}
       />
 
-      <Input
+      <FormField
         type="text"
         inputMode="numeric"
         pattern="\d*"
         label={value.lockEnd ? "Hasta (Actual)" : "Hasta (año)"}
-        labelPlacement="outside"
         placeholder={value.lockEnd ? "Actual" : "2024"}
         value={value.lockEnd ? "" : endStr}
-        onValueChange={onEndChange}
+        onChange={(e) => onEndChange(e.target.value)}
         onBlur={() => setTouchedEnd(true)}
         min={YEAR_MIN}
         max={YEAR_MAX}
-        isDisabled={!!value.lockEnd}
+        disabled={!!value.lockEnd}
         isInvalid={endInvalid}
       />
 
-      <div className="lg:col-span-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:col-span-5">
         <div className="flex flex-wrap items-center gap-2">
-          {value.team_id && <Chip color="success" variant="flat">Equipo verificado</Chip>}
+          {value.team_id && (
+            <Chip variant="flat" classNames={bhChip("success")}>Equipo verificado</Chip>
+          )}
           {!value.team_id && value.proposed?.country && (
-            <Chip variant="flat" startContent={<CountryFlag code={value.proposed.country.code} size={12} />}>
+            <Chip
+              variant="flat"
+              startContent={<CountryFlag code={value.proposed.country.code} size={12} />}
+              classNames={bhChip("neutral")}
+            >
               {value.proposed.country.name}
             </Chip>
           )}
-          {!value.team_id && value.proposed?.tmUrl && <Chip variant="flat">TM OK</Chip>}
-          {showErrors && yMsgs.length > 0 && <span className="text-danger text-sm">{yMsgs[0]}</span>}
-          {overlapError && <span className="text-danger text-sm">{overlapError}</span>}
+          {!value.team_id && value.proposed?.tmUrl && (
+            <Chip variant="flat" classNames={bhChip("blue")}>TM OK</Chip>
+          )}
+          {showErrors && yMsgs.length > 0 && (
+            <span className="text-[12px] text-bh-danger">{yMsgs[0]}</span>
+          )}
+          {overlapError && (
+            <span className="text-[12px] text-bh-danger">{overlapError}</span>
+          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
@@ -397,6 +435,7 @@ export default function CareerRowEditor({
                   onRequestCurrentChange?.(false);
                 }
               }}
+              classNames={bhSwitchClassNames}
             >
               Es mi equipo actual
             </Switch>
@@ -404,16 +443,41 @@ export default function CareerRowEditor({
 
           <div className="flex gap-2">
             {!value.team_id && (
-              <Button size="sm" variant="flat" onPress={() => setModalOpen(true)}>
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={() => setModalOpen(true)}
+                className={bhButtonClass({ variant: "outline", size: "sm" })}
+              >
                 {value.proposed?.country || value.proposed?.tmUrl ? "Editar detalles" : "Completar detalles"}
               </Button>
             )}
-            {!value.lockDelete && <Button size="sm" variant="light" onPress={onCancel}>Cancelar</Button>}
-            <Button size="sm" color="primary" onPress={handleConfirm}>
+            {!value.lockDelete && (
+              <Button
+                size="sm"
+                variant="light"
+                onPress={onCancel}
+                className={bhButtonClass({ variant: "ghost", size: "sm" })}
+              >
+                Cancelar
+              </Button>
+            )}
+            <Button
+              size="sm"
+              onPress={handleConfirm}
+              className={bhButtonClass({ variant: "lime", size: "sm" })}
+            >
               Confirmar etapa
             </Button>
             {!value.lockDelete && (
-              <Button size="sm" variant="light" color="danger" onPress={onRemove}>Eliminar</Button>
+              <Button
+                size="sm"
+                variant="light"
+                onPress={onRemove}
+                className={bhButtonClass({ variant: "icon-danger", size: "sm" })}
+              >
+                Eliminar
+              </Button>
             )}
           </div>
         </div>
@@ -425,9 +489,12 @@ export default function CareerRowEditor({
         size="md"
         backdrop="blur"
         scrollBehavior="inside"
+        classNames={bhModalClassNames}
       >
         <ModalContent>
-          <ModalHeader className="pr-12">Equipo propuesto: {value.club || "Nuevo equipo"}</ModalHeader>
+          <ModalHeader className="pr-12">
+            Equipo propuesto: {value.club || "Nuevo equipo"}
+          </ModalHeader>
           <ModalBody className="grid gap-3">
             <CountrySinglePicker
               label="País"
@@ -436,9 +503,8 @@ export default function CareerRowEditor({
               isInvalid={!!value.club && !tmpCountry}
               errorMessage="Elegí un país"
             />
-            <Input
+            <FormField
               label="Transfermarkt (opcional)"
-              labelPlacement="outside"
               value={tmpTm}
               onChange={(e) => setTmpTm(e.target.value)}
               isInvalid={!!tmpTm && !/^https?:\/\/[^ "]+$/i.test(tmpTm)}
@@ -447,8 +513,18 @@ export default function CareerRowEditor({
             />
           </ModalBody>
           <ModalFooter>
-            <Button variant="flat" onPress={() => setModalOpen(false)}>Cancelar</Button>
-            <Button color="primary" onPress={saveModal} isDisabled={!urlOk || !tmpCountry}>
+            <Button
+              variant="flat"
+              onPress={() => setModalOpen(false)}
+              className={bhButtonClass({ variant: "ghost", size: "sm" })}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onPress={saveModal}
+              isDisabled={!urlOk || !tmpCountry}
+              className={bhButtonClass({ variant: "lime", size: "sm" })}
+            >
               Guardar
             </Button>
           </ModalFooter>

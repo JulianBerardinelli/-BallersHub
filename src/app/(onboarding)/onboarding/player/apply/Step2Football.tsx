@@ -1,9 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Form, Input, Button } from "@heroui/react";
+import { Form, Button } from "@heroui/react";
 import TeamPickerCombo, { type TeamPickerValue } from "@/components/teams/TeamPickerCombo";
 import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEditor";
+import FormField from "@/components/dashboard/client/FormField";
 
 export type Step2Data = {
   freeAgent: boolean;
@@ -163,7 +164,7 @@ export default function Step2Football({
   return (
     <div className="space-y-6">
       <Form className="grid gap-6">
-        <div className="grid gap-4 rounded-xl border p-4">
+        <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
           <TeamPickerCombo
             applicationId={applicationId}
             defaultValue={team}
@@ -190,12 +191,14 @@ export default function Step2Football({
           showCurrentToggle={false}
         />
 
-        <div className="grid gap-3 rounded-xl border p-4">
-          <h3 className="text-base font-medium">Perfiles externos (opcional)</h3>
+        <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Perfiles externos <span className="text-bh-fg-4">(opcional)</span>
+          </h3>
           <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
-            <Input
+            <FormField
+              id="bh-tm"
               label="Transfermarkt"
-              labelPlacement="outside"
               placeholder="https://www.transfermarkt.com/..."
               value={tm}
               onChange={(e) => setTm(e.target.value)}
@@ -203,9 +206,9 @@ export default function Step2Football({
               isInvalid={tmInvalid}
               errorMessage="Ingresá una URL válida (https://...)."
             />
-            <Input
+            <FormField
+              id="bh-bs"
               label="BeSoccer"
-              labelPlacement="outside"
               placeholder="https://es.besoccer.com/..."
               value={bs}
               onChange={(e) => setBs(e.target.value)}
@@ -213,9 +216,9 @@ export default function Step2Football({
               isInvalid={bsInvalid}
               errorMessage="Ingresá una URL válida (https://...)."
             />
-            <Input
+            <FormField
+              id="bh-sc"
               label="Red social"
-              labelPlacement="outside"
               placeholder="https://www.instagram.com/tuusuario"
               value={sc}
               onChange={(e) => setSc(e.target.value)}
@@ -227,8 +230,19 @@ export default function Step2Football({
         </div>
 
         <div className="flex justify-between">
-          <Button variant="flat" onPress={onBack}>Volver</Button>
-          <Button color="primary" onPress={handleNext}>Ir a Verificación</Button>
+          <Button
+            variant="flat"
+            onPress={onBack}
+            className="rounded-bh-md border border-bh-fg-4 bg-transparent px-5 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
+          >
+            Volver
+          </Button>
+          <Button
+            onPress={handleNext}
+            className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
+          >
+            Ir a verificación
+          </Button>
         </div>
       </Form>
     </div>

@@ -57,16 +57,16 @@ export default function ClientDashboardSidebar({
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} classNames={{ base: "bg-neutral-950 border border-neutral-800" }}>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} classNames={{ base: "bg-bh-surface-1 border border-white/[0.08]" }}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-white">Cerrar Sesión</ModalHeader>
+              <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-neutral-400">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onClose} isDisabled={pending} className="text-neutral-400">
+                <Button variant="light" onPress={onClose} isDisabled={pending} className="text-bh-fg-3">
                   Cancelar
                 </Button>
                 <Button color="danger" isLoading={pending} onPress={handleSignOut}>
@@ -112,16 +112,16 @@ export function ClientDashboardSidebarMobile({
 
   return (
     <div className="lg:hidden">
-      <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange} classNames={{ base: "bg-neutral-950 border border-neutral-800" }}>
+      <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange} classNames={{ base: "bg-bh-surface-1 border border-white/[0.08]" }}>
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-white">Cerrar Sesión</ModalHeader>
+              <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-neutral-400">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
               </ModalBody>
               <ModalFooter>
-                <Button variant="light" onPress={onModalClose} isDisabled={pending} className="text-neutral-400">
+                <Button variant="light" onPress={onModalClose} isDisabled={pending} className="text-bh-fg-3">
                   Cancelar
                 </Button>
                 <Button color="danger" isLoading={pending} onPress={handleSignOut}>
@@ -137,7 +137,7 @@ export function ClientDashboardSidebarMobile({
         variant="flat"
         radius="sm"
         startContent={<Menu className="size-5" />}
-        className="w-full justify-start border border-neutral-800 bg-neutral-950/60 text-neutral-100"
+        className="w-full justify-start border border-white/[0.08] bg-bh-surface-1 text-bh-fg-1"
         onPress={onOpen}
       >
         Menú principal
@@ -148,14 +148,14 @@ export function ClientDashboardSidebarMobile({
         onOpenChange={onOpenChange}
         placement="left"
         classNames={{
-          base: "bg-neutral-950 text-neutral-100",
+          base: "bg-bh-black text-bh-fg-1",
           backdrop: "bg-black/60",
         }}
       >
         <DrawerContent>
           {(onClose) => (
             <>
-              <DrawerHeader className="border-b border-neutral-800 px-6 py-4 text-sm font-semibold uppercase tracking-wide text-neutral-400">
+              <DrawerHeader className="border-b border-white/[0.08] px-6 py-4 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
                 Navegación
               </DrawerHeader>
               <DrawerBody className="px-0">
@@ -196,13 +196,13 @@ function SidebarItem({
         type="button"
         onClick={onSignOut}
         disabled={pending}
-        className="w-full rounded-md border border-neutral-800 bg-neutral-950/40 px-3 py-2 text-left text-sm text-neutral-300 transition-colors hover:bg-neutral-900 focus:outline-none focus:ring-1 focus:ring-neutral-700 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-bh-md border border-transparent bg-transparent px-3 py-2 text-left text-sm text-bh-fg-3 transition-colors hover:border-[rgba(239,68,68,0.2)] hover:bg-[rgba(239,68,68,0.08)] hover:text-bh-danger focus:outline-none focus:ring-1 focus:ring-bh-danger/40 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        <div className="font-medium text-neutral-100 flex items-center justify-between">
+        <div className="flex items-center justify-between font-medium">
           <span>{item.title}</span>
         </div>
         {item.description ? (
-          <p className="text-xs text-neutral-500 mt-1">{item.description}</p>
+          <p className="mt-1 text-xs text-bh-fg-4">{item.description}</p>
         ) : null}
       </button>
     );
@@ -215,19 +215,21 @@ function SidebarItem({
     <Link
       href={linkItem.href}
       className={clsx(
-        "block rounded-md border px-3 py-2 text-sm transition-colors",
+        "block rounded-bh-md border px-3 py-2 text-sm transition-colors",
         active
-          ? "border-neutral-700 bg-neutral-900 text-neutral-100"
-          : "border-neutral-800 bg-neutral-950/40 text-neutral-300 hover:bg-neutral-900"
+          ? "border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.06)] text-bh-fg-1"
+          : "border-transparent bg-transparent text-bh-fg-2 hover:border-white/[0.08] hover:bg-white/[0.04] hover:text-bh-fg-1"
       )}
       data-active={active}
       onClick={onNavigate}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-medium text-neutral-100">{linkItem.title}</span>
+        <span className={clsx("font-medium", active ? "text-bh-lime" : "text-bh-fg-1")}>
+          {linkItem.title}
+        </span>
       </div>
       {linkItem.description ? (
-        <p className="mt-1 text-xs text-neutral-500">{linkItem.description}</p>
+        <p className="mt-1 text-xs text-bh-fg-4">{linkItem.description}</p>
       ) : null}
     </Link>
   );
@@ -283,7 +285,7 @@ function SidebarContent({
 }) {
   return sections.map((section) => (
     <div key={section.id} className="space-y-2">
-      <p className="text-xs font-semibold uppercase tracking-wide text-neutral-500">
+      <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
         {section.title}
       </p>
       <div className="space-y-1">

@@ -5,6 +5,7 @@ import { Controller, useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { Autocomplete, AutocompleteItem, Button } from "@heroui/react";
+import { bhButtonClass } from "@/components/ui/BhButton";
 import Image from "next/image";
 
 import type { DashboardSeasonStat } from "@/lib/dashboard/client/publishing-state";
@@ -424,8 +425,8 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
 
       {items.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-neutral-800 text-sm text-neutral-300">
-            <thead className="bg-neutral-950/60 text-xs uppercase tracking-wide text-neutral-500">
+          <table className="min-w-full divide-y divide-white/[0.06] text-sm text-bh-fg-2">
+            <thead className="bg-bh-surface-1/60 text-xs uppercase tracking-wide text-bh-fg-4">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-medium">
                   Temporada
@@ -462,7 +463,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-neutral-900">
+            <tbody className="divide-y divide-white/[0.04]">
               {items.map((stat) => {
                 const linkedStage = stat.careerItemId ? optionMap.get(stat.careerItemId) : null;
                 const crest = stat.crestUrl ?? linkedStage?.crestUrl ?? "/images/team-default.svg";
@@ -470,7 +471,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                 const isDraftRow = stat.isDraft;
 
                 return (
-                  <tr key={stat.id} className={`transition-colors ${isDraftRow ? "bg-emerald-950/20" : "bg-neutral-950/40"}`}>
+                  <tr key={stat.id} className={`transition-colors ${isDraftRow ? "bg-emerald-950/20" : "bg-bh-surface-1/40"}`}>
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex items-center gap-3">
                         <Image src={crest} alt="" className="h-7 w-7 shrink-0 object-contain" width={28} height={28} />
@@ -480,7 +481,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                             {isDraftRow && <span className="ml-2 text-[10px] uppercase tracking-wider text-emerald-500 font-bold bg-emerald-950 px-1.5 py-0.5 rounded">Nuevo</span>}
                           </span>
                           {linkedStage ? (
-                            <span className="block text-[11px] text-neutral-500 truncate">{linkedStage.label}</span>
+                            <span className="block text-[11px] text-bh-fg-4 truncate">{linkedStage.label}</span>
                           ) : null}
                         </div>
                       </div>
@@ -498,7 +499,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                       <div className="flex justify-end gap-2 text-xs">
                         <button
                           type="button"
-                          className="rounded-md border border-neutral-800 px-3 py-1 font-medium text-neutral-300 transition hover:border-neutral-700 hover:text-white"
+                          className="rounded-md border border-white/[0.08] px-3 py-1 font-medium text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white"
                           onClick={() => startEditing(stat)}
                           disabled={pending || !!hasPendingOverallParams}
                         >
@@ -508,8 +509,8 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                           type="button"
                           className={`rounded-md border px-3 py-1 font-medium transition ${
                             isDraftRow
-                              ? "border-emerald-900/60 text-emerald-400 hover:border-emerald-700 hover:text-emerald-300"
-                              : "border-red-900/60 text-red-400 hover:border-red-700 hover:text-red-300"
+                              ? "border-emerald-900/60 text-bh-success hover:border-emerald-700 hover:text-emerald-300"
+                              : "border-red-900/60 text-bh-danger hover:border-red-700 hover:text-red-300"
                           }`}
                           onClick={() => handleDelete(stat)}
                           disabled={pending || !!hasPendingOverallParams}
@@ -525,15 +526,15 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
           </table>
         </div>
       ) : (
-        <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-6 text-sm text-neutral-400">
+        <div className="rounded-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-6 text-sm text-bh-fg-3">
           Cargá tus estadísticas oficiales para potenciar el análisis deportivo. Podrás sincronizarlas con integraciones y reportes externos.
         </div>
       )}
 
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-3">
-          <label className="space-y-1.5 text-sm text-neutral-300 md:col-span-2">
-            <span className="font-medium text-neutral-200">Etapa de trayectoria</span>
+          <label className="space-y-1.5 text-sm text-bh-fg-2 md:col-span-2">
+            <span className="font-medium text-bh-fg-1">Etapa de trayectoria</span>
             <Controller
               control={control}
               name="careerItemId"
@@ -564,16 +565,16 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                   className="w-full text-sm"
                   classNames={{
                     base: "w-full",
-                    listbox: "bg-neutral-950 text-neutral-200",
-                    listboxWrapper: "bg-neutral-950 border border-neutral-800 rounded-md",
-                    popoverContent: "bg-neutral-950 border border-neutral-800 rounded-md",
+                    listbox: "bg-bh-black text-bh-fg-1",
+                    listboxWrapper: "bg-bh-black border border-white/[0.08] rounded-md",
+                    popoverContent: "bg-bh-black border border-white/[0.08] rounded-md",
                   }}
                   inputProps={{
                     classNames: {
                       inputWrapper:
-                        "rounded-md border border-neutral-800 bg-neutral-950 px-0 data-[hover=true]:border-neutral-700 transition focus-within:border-primary/40",
+                        "rounded-md border border-white/[0.08] bg-bh-black px-0 data-[hover=true]:border-white/[0.12] transition focus-within:border-primary/40",
                       innerWrapper: "px-0",
-                      input: "px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600",
+                      input: "px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4",
                       helperWrapper: "hidden",
                     },
                   }}
@@ -583,7 +584,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                         src={selectedStage.crestUrl}
                         name={selectedStage.club ?? "Club"}
                         size={24}
-                        className="rounded-sm bg-neutral-900/60"
+                        className="rounded-sm bg-bh-surface-1/60"
                       />
                     ) : null
                   }
@@ -598,14 +599,14 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                           src={item.crestUrl}
                           name={item.club ?? "Club"}
                           size={24}
-                          className="rounded-sm bg-neutral-900/60"
+                          className="rounded-sm bg-bh-surface-1/60"
                         />
                       }
                       className={item.hasExistingStats ? "opacity-50" : ""}
                     >
                       <div className="flex flex-col gap-1 py-1">
                         <span className="font-medium">{item.club ?? "Club sin definir"}</span>
-                        <span className="text-xs text-neutral-400">{item.period}</span>
+                        <span className="text-xs text-bh-fg-3">{item.period}</span>
                         {item.hasExistingStats && (
                           <span className="text-[10px] uppercase tracking-wider text-primary">
                             Ya tiene estadísticas
@@ -709,7 +710,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             <button
               type="button"
               onClick={cancelEditing}
-              className="inline-flex items-center rounded-md border border-neutral-800 px-4 py-2 text-sm font-semibold text-neutral-300 transition hover:border-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center rounded-md border border-white/[0.08] px-4 py-2 text-sm font-semibold text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending || !!hasPendingOverallParams}
             >
               Cancelar edición
@@ -719,14 +720,14 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
       </form>
 
       {draftsCount > 0 && !hasPendingOverallParams ? (
-        <div className="rounded-lg border border-primary/40 bg-neutral-900/40 p-5 mt-8 shadow-lg">
+        <div className="rounded-lg border border-primary/40 bg-bh-surface-1/40 p-5 mt-8 shadow-lg">
           <h3 className="text-lg font-semibold text-white mb-2">Enviar cambios a revisión</h3>
-          <p className="text-sm text-neutral-300 mb-4">
+          <p className="text-sm text-bh-fg-2 mb-4">
             Tenés {draftsCount} estadístic{draftsCount === 1 ? "a" : "as"} lista{draftsCount === 1 ? "s" : "s"} para enviar. 
             El equipo de Control de Calidad confirmará estos datos verificando las fuentes oficiales.
           </p>
           <textarea
-            className="w-full rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-sm text-neutral-200 placeholder:text-neutral-600 focus:outline-none focus:ring-1 focus:ring-neutral-700 mb-4"
+            className="w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 mb-4"
             rows={3}
             placeholder="Añadí información opcional sobre la fuente de las estadísticas (ej: Transfermarkt, BeSoccer)..."
             value={submissionNote}
@@ -735,11 +736,10 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
           />
           {submissionStatus ? <div className="mb-4"><FormStatus status={submissionStatus} /></div> : null}
           <Button
-            color="primary"
-            className="w-full font-bold"
             onPress={handleSubmitRevision}
             isLoading={pending}
             isDisabled={pending}
+            className={bhButtonClass({ variant: "lime", size: "md", className: "w-full" })}
           >
             {pending ? "Enviando..." : "Enviar a control de calidad"}
           </Button>
@@ -767,7 +767,7 @@ function reflectValidationErrors(
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
-  return <p className="text-xs text-red-400">{message}</p>;
+  return <p className="text-xs text-bh-danger">{message}</p>;
 }
 
 function FormStatus({ status }: { status: StatusState }) {

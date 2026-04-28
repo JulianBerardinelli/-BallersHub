@@ -8,11 +8,11 @@ import {
   Chip,
   Kbd,
   ScrollShadow,
-  Input,
 } from "@heroui/react";
 import { supabase } from "@/lib/supabase/client";
 import CountryFlag from "@/components/common/CountryFlag";
 import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
+import FormField from "@/components/dashboard/client/FormField";
 
 export type TeamLite = {
   id: string;
@@ -226,16 +226,48 @@ export default function TeamPickerCombo({
   return (
     <div className="grid gap-2">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium">Club actual</label>
+        <label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
+          Club actual
+        </label>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-foreground-500">Jugador libre</span>
-          <Switch isSelected={isFreeAgent} onValueChange={toggleFree} />
+          <span className="text-[12px] text-bh-fg-3">Jugador libre</span>
+          <Switch
+            isSelected={isFreeAgent}
+            onValueChange={toggleFree}
+            size="sm"
+            classNames={{
+              wrapper: "group-data-[selected=true]:bg-bh-lime",
+              thumb: "bg-bh-fg-1 group-data-[selected=true]:bg-bh-black",
+            }}
+          />
         </div>
       </div>
 
       <Autocomplete
         label=" "
         labelPlacement="outside"
+        classNames={{ base: "!mt-0" }}
+        inputProps={{
+          classNames: {
+            inputWrapper:
+              "bg-bh-surface-1 border border-white/[0.08] shadow-none transition-colors duration-150 hover:border-white/[0.18] data-[focus=true]:border-bh-lime data-[focus=true]:bg-bh-surface-1 data-[invalid=true]:border-bh-danger",
+            input: "text-[14px] text-bh-fg-1 placeholder:text-bh-fg-4",
+            description: "text-[11px] text-bh-fg-4",
+            errorMessage: "text-[11px] text-bh-danger",
+          },
+        }}
+        listboxProps={{
+          itemClasses: {
+            base: "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1 data-[selectable=true]:focus:bg-white/[0.05] data-[focus=true]:bg-white/[0.05]",
+            title: "text-[13px]",
+          },
+        }}
+        popoverProps={{
+          classNames: {
+            content:
+              "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg",
+          },
+        }}
         menuTrigger="input"
         allowsCustomValue={false}
         inputValue={inputValue}
@@ -370,9 +402,8 @@ export default function TeamPickerCombo({
       {!isFreeAgent && picked?.mode === "new" && (
         <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(240px,1fr))]">
           <CountrySinglePicker label="País del nuevo equipo" value={newCountry} onChange={setNewCountry} />
-          <Input
+          <FormField
             label="Transfermarkt del equipo (opcional)"
-            labelPlacement="outside"
             placeholder="https://www.transfermarkt.com/..."
             value={newTm}
             onChange={(e) => setNewTm(e.target.value)}
@@ -384,21 +415,52 @@ export default function TeamPickerCombo({
 
       {/* Selección actual (chips) */}
       <div className="min-h-9">
-        {picked?.mode === "approved" && <Chip color="success" variant="flat">Seleccionado: {picked.teamName}</Chip>}
+        {picked?.mode === "approved" && (
+          <Chip
+            variant="flat"
+            classNames={{
+              base: "border border-[rgba(34,197,94,0.25)] bg-[rgba(34,197,94,0.12)] text-bh-success",
+              content: "text-[12px]",
+            }}
+          >
+            Seleccionado: {picked.teamName}
+          </Chip>
+        )}
         {picked?.mode === "new" && (
-          <Chip color="warning" variant="flat" onClose={() => resetAll()}>
+          <Chip
+            variant="flat"
+            onClose={() => resetAll()}
+            classNames={{
+              base: "border border-[rgba(245,158,11,0.25)] bg-[rgba(245,158,11,0.12)] text-bh-warning",
+              content: "text-[12px]",
+              closeButton: "text-bh-warning hover:opacity-70",
+            }}
+          >
             Se propondrá: {picked.name}
           </Chip>
         )}
-        {picked?.mode === "free" && <Chip color="default" variant="flat">Jugador libre</Chip>}
+        {picked?.mode === "free" && (
+          <Chip
+            variant="flat"
+            classNames={{
+              base: "border border-white/[0.12] bg-white/[0.06] text-bh-fg-2",
+              content: "text-[12px]",
+            }}
+          >
+            Jugador libre
+          </Chip>
+        )}
       </div>
 
       {/* hint */}
-      <div className="flex items-center justify-between text-xs text-foreground-500">
+      <div className="flex items-center justify-between text-[11px] text-bh-fg-4">
         <span>
-          Usá Enter para elegir. <Kbd>Esc</Kbd> cierra.
+          Usá Enter para elegir.{" "}
+          <Kbd classNames={{ base: "bg-white/[0.06] border border-white/[0.1] text-bh-fg-3" }}>
+            Esc
+          </Kbd>{" "}
+          cierra.
         </span>
-        <ScrollShadow as="div" />
       </div>
     </div>
   );

@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+import { Wordmark } from "@/components/brand/Wordmark";
+
 type NavItem = { href: string; label: string };
 
 const NAV: NavItem[] = [
@@ -20,7 +22,7 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
     const onScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          setScrolled(window.scrollY > 8);
+          setScrolled(window.scrollY > 30);
           ticking = false;
         });
         ticking = true;
@@ -33,35 +35,35 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
 
   return (
     <header
-      className={[
-        "sticky top-0 z-50 transition-all",
+      className={`sticky top-0 z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.25,0,0,1)] ${
         scrolled
-          ? "backdrop-blur bg-[color:var(--heroui-colors-content1)]/70"
-          : "bg-transparent",
-      ].join(" ")}
+          ? "border-b border-white/[0.08] bg-bh-black/85 shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-xl backdrop-saturate-150"
+          : "border-b border-transparent"
+      }`}
     >
-      <div className="mx-auto flex h-24 max-w-7xl items-center gap-4 px-4">
-        {/* Logo / marca */}
-        <Link href="/(site)" className="font-semibold tracking-tight text-white">
-            <h1 className="text-2xl font-bold">'BallersHub</h1>
-        </Link>
+      <div className="mx-auto max-w-[1200px] px-4 md:px-6">
+        <div className="flex h-20 items-center gap-4">
+          {/* Logo */}
+          <Link href="/" className="flex shrink-0 items-center" aria-label="'BallersHub">
+            <Wordmark size="nav" />
+          </Link>
 
-        {/* Nav desplazado a la derecha del logo */}
-        <nav className="ml-10 md:ml-12 hidden md:block">
-          <ul className="flex items-center gap-6 text-sm text-neutral-300">
+          {/* Nav — centered */}
+          <nav className="hidden flex-1 items-center justify-center gap-7 md:flex">
             {NAV.map((i) => (
-              <li key={i.href}>
-                <Link href={i.href} className="hover:text-white">
-                  {i.label}
-                </Link>
-              </li>
+              <Link
+                key={i.href}
+                href={i.href}
+                className="text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:text-bh-lime"
+              >
+                {i.label}
+              </Link>
             ))}
-          </ul>
-        </nav>
+          </nav>
+          <div className="flex-1 md:hidden" />
 
-        {/* Right side */}
-        <div className="ml-auto flex items-center gap-4">
-          {authSlot}
+          {/* Right — search + auth */}
+          <div className="flex shrink-0 items-center gap-2">{authSlot}</div>
         </div>
       </div>
     </header>

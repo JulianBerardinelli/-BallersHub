@@ -1,9 +1,4 @@
-'use client';
-
-import { Avatar, CardBody } from "@heroui/react";
 import { Quote } from "lucide-react";
-
-import { AnimatedCard, AnimatedSection } from "@/components/site/ui/motion";
 
 const TESTIMONIALS = [
   {
@@ -22,37 +17,39 @@ const TESTIMONIALS = [
 
 export default function TestimonialsPreview() {
   return (
-    <AnimatedSection className="space-y-6" as="section" initialY={40}>
-      <div className="flex items-center gap-3">
-        <span className="rounded-full border border-success-500/40 bg-success-500/15 p-2">
-          <Quote className="h-5 w-5 text-success-300" />
+    <section className="space-y-8">
+      <header className="flex items-start gap-4">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-bh-md border border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.08)] text-bh-lime">
+          <Quote className="h-5 w-5" />
         </span>
-        <div>
-          <h2 className="text-3xl font-semibold text-white">Historias reales, impacto tangible</h2>
-          <p className="text-sm text-neutral-400">Una comunidad que crece con validación y acompañamiento constante.</p>
+        <div className="space-y-1">
+          <h2 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
+            Historias reales, impacto tangible
+          </h2>
+          <p className="text-sm text-bh-fg-3">
+            Una comunidad que crece con validación y acompañamiento constante.
+          </p>
         </div>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        {TESTIMONIALS.map(({ name, role, quote }, index) => (
-          <AnimatedCard
+      </header>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        {TESTIMONIALS.map(({ name, role, quote }) => (
+          <figure
             key={name}
-            className="h-full border-white/10 bg-black/35 backdrop-blur"
-            delay={0.14 * index}
-            hoverElevation={12}
+            className="bh-card-lift flex h-full flex-col justify-between gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6"
           >
-            <CardBody className="space-y-4">
-              <p className="text-neutral-200">“{quote}”</p>
-              <div className="flex items-center gap-3">
-                <Avatar name={name} className="bg-success-500 text-base font-semibold" />
-                <div>
-                  <p className="font-medium text-white">{name}</p>
-                  <p className="text-xs uppercase tracking-wide text-neutral-400">{role}</p>
-                </div>
+            <blockquote className="text-sm leading-[1.6] text-bh-fg-2">
+              &ldquo;{quote}&rdquo;
+            </blockquote>
+            <figcaption>
+              <div className="font-bh-heading text-base font-semibold text-bh-fg-1">
+                {name}
               </div>
-            </CardBody>
-          </AnimatedCard>
+              <div className="text-xs text-bh-fg-3">{role}</div>
+            </figcaption>
+          </figure>
         ))}
       </div>
-    </AnimatedSection>
+    </section>
   );
 }

@@ -152,15 +152,15 @@ export default function MediaModerationPanel({ initialMedia }: { initialMedia: P
       onFilterChange={setStatusFilter}
     >
       {displayedMedia.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-neutral-800 p-8 text-center">
-          <p className="text-neutral-400">Excelente, no hay contenido multimedia que mostrar aquí.</p>
+        <div className="rounded-lg border border-dashed border-white/[0.08] p-8 text-center">
+          <p className="text-bh-fg-3">Excelente, no hay contenido multimedia que mostrar aquí.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {displayedMedia.map((item) => (
             <div
               key={item.id}
-              className="overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900/50 flex flex-col"
+              className="overflow-hidden rounded-xl border border-white/[0.08] bg-bh-surface-1/50 flex flex-col"
             >
               {/* Media Preview Aspect Ratio Box */}
               <div className="relative h-64 w-full bg-black shrink-0 overflow-hidden">
@@ -192,7 +192,7 @@ export default function MediaModerationPanel({ initialMedia }: { initialMedia: P
                         className="flex flex-col items-center gap-2 text-primary hover:underline"
                       >
                         <span>Ver Video / Link</span>
-                        <span className="text-xs text-neutral-400 max-w-[200px] truncate">{item.url}</span>
+                        <span className="text-xs text-bh-fg-3 max-w-[200px] truncate">{item.url}</span>
                       </a>
                     )}
                   </div>
@@ -205,13 +205,13 @@ export default function MediaModerationPanel({ initialMedia }: { initialMedia: P
                     <Avatar
                       name={item.player?.full_name || "???"}
                       size="sm"
-                      className="bg-neutral-800 text-neutral-300"
+                      className="bg-bh-surface-2 text-bh-fg-2"
                     />
                     <div className="truncate">
                       <p className="text-sm font-medium text-white max-w-[200px] truncate">
                         {item.player?.full_name || "Sin nombre"}
                       </p>
-                      <p className="text-xs text-neutral-500">
+                      <p className="text-xs text-bh-fg-4">
                         Sube {item.type === "photo" ? "Foto" : "Video"} • {item.created_at.split('T')[0]}
                       </p>
                     </div>

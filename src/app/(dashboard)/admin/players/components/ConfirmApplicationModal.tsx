@@ -16,6 +16,8 @@ import {
   formatBirthDate,
 } from "../utils";
 
+import { bhButtonClass } from "@/components/ui/BhButton";
+
 type ModalClassNames = {
   header?: string;
   body?: string;
@@ -42,7 +44,7 @@ type ConfirmApplicationModalProps = {
 
 function SkeletonRow() {
   return (
-    <div className="rounded-2xl bg-content2/60 px-4 py-3 ring-1 ring-white/10">
+    <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1/60 px-4 py-3">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <Skeleton className="h-10 w-10 rounded-full" />
@@ -105,19 +107,19 @@ export default function ConfirmApplicationModal({
               n.code ? <CountryFlag key={`${n.code}-${index}`} code={n.code} size={16} /> : null,
             )}
           </div>
-          <div className="grid gap-2 text-sm text-default-500 sm:grid-cols-3">
+          <div className="grid gap-2 text-sm text-bh-fg-3 sm:grid-cols-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-default-400">Fecha de nacimiento</p>
+              <p className="text-xs uppercase tracking-wide text-bh-fg-4">Fecha de nacimiento</p>
               <p className="text-default-700">{formatBirthDate(application.birth_date)}</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-default-400">Altura</p>
+              <p className="text-xs uppercase tracking-wide text-bh-fg-4">Altura</p>
               <p className="text-default-700">
                 {application.height_cm ? `${application.height_cm} cm` : "—"}
               </p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wide text-default-400">Peso</p>
+              <p className="text-xs uppercase tracking-wide text-bh-fg-4">Peso</p>
               <p className="text-default-700">
                 {application.weight_kg ? `${application.weight_kg} kg` : "—"}
               </p>
@@ -128,8 +130,8 @@ export default function ConfirmApplicationModal({
       <ModalBody className={classNames?.body}>
         <div className="grid gap-5">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-default-600">Trayectoria aprobada</p>
-            <p className="text-xs text-default-500">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">Trayectoria aprobada</p>
+            <p className="text-xs text-bh-fg-3">
               Revisá los clubes confirmados antes de aceptar la solicitud.
             </p>
             {loading ? (
@@ -151,7 +153,7 @@ export default function ConfirmApplicationModal({
                 ))}
               </ul>
             ) : (
-              <div className="rounded-2xl bg-content2/60 px-4 py-4 text-sm text-default-500 ring-1 ring-white/10">
+              <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1/60 px-4 py-4 text-sm text-bh-fg-3">
                 {error || "Sin trayectoria aprobada todavía."}
               </div>
             )}
@@ -159,8 +161,8 @@ export default function ConfirmApplicationModal({
 
           {application.proposed_team_name && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-default-600">Equipo propuesto</p>
-              <div className="flex flex-col gap-3 rounded-2xl bg-content2/60 px-4 py-3 ring-1 ring-white/10 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">Equipo propuesto</p>
+              <div className="flex flex-col gap-3 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1/60 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3 min-w-0">
                   <TeamCrest src={null} size={36} className="shrink-0" />
                   <span className="font-medium truncate">{application.proposed_team_name}</span>
@@ -178,11 +180,18 @@ export default function ConfirmApplicationModal({
         </div>
       </ModalBody>
       <ModalFooter className={classNames?.footer}>
-        <Button variant="flat" onPress={onClose}>
+        <Button
+          variant="flat"
+          onPress={onClose}
+          className={bhButtonClass({ variant: "ghost", size: "sm" })}
+        >
           Cancelar
         </Button>
         <form action={`/api/admin/applications/${application.id}/approve`} method="post">
-          <Button color="success" type="submit">
+          <Button
+            type="submit"
+            className={bhButtonClass({ variant: "lime", size: "sm" })}
+          >
             Aceptar solicitud
           </Button>
         </form>

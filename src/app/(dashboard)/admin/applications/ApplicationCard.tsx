@@ -20,6 +20,8 @@ import {
 } from "@heroui/react";
 import type { PlayerApplication } from "./ApplicationsPanel";
 import CountryFlag from "@/components/common/CountryFlag";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhChip, bhModalClassNames } from "@/lib/ui/heroui-brand";
 
 export default function ApplicationCard({
   application,
@@ -151,21 +153,21 @@ export default function ApplicationCard({
         className={`relative flex flex-col sm:flex-row gap-6 rounded-xl border p-5 transition-colors duration-200 ${
           isEditing
             ? "border-primary/50 bg-primary/5 shadow-sm shadow-primary/20 ring-1 ring-primary/30"
-            : "border-neutral-800 bg-neutral-900"
+            : "border-white/[0.08] bg-bh-surface-1"
         }`}
       >
         {/* Encabezado / Identidad Visual Placeholder */}
         <div className="flex shrink-0 flex-col items-center gap-3 sm:w-48 sm:items-start">
-          <div className="flex size-20 items-center justify-center rounded-full bg-neutral-800 text-xl font-bold uppercase text-neutral-400">
+          <div className="flex size-20 items-center justify-center rounded-full bg-bh-surface-2 text-xl font-bold uppercase text-bh-fg-3">
             {draft.full_name ? draft.full_name.substring(0, 2) : "??"}
           </div>
           <div className="text-center sm:text-left mt-1 w-full space-y-2">
             <div>
-              <p className="text-[10px] text-neutral-500 font-mono flex items-center gap-1 justify-center sm:justify-start">
+              <p className="text-[10px] text-bh-fg-4 font-mono flex items-center gap-1 justify-center sm:justify-start">
                 APP ID: {application.id.slice(0, 8)}
                 <button
                   type="button"
-                  className="text-neutral-500 hover:text-white"
+                  className="text-bh-fg-4 hover:text-bh-fg-1"
                   onClick={() => navigator.clipboard.writeText(application.id)}
                   title="Copiar ID de Solicitud"
                 >
@@ -174,11 +176,11 @@ export default function ApplicationCard({
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 font-mono flex items-center gap-1 justify-center sm:justify-start">
+              <p className="text-[10px] text-bh-fg-4 font-mono flex items-center gap-1 justify-center sm:justify-start">
                 USER ID: {application.user_id?.slice(0, 8)}
                 <button
                   type="button"
-                  className="text-neutral-500 hover:text-white"
+                  className="text-bh-fg-4 hover:text-bh-fg-1"
                   onClick={() => navigator.clipboard.writeText(application.user_id)}
                   title="Copiar ID de Usuario"
                 >
@@ -186,7 +188,7 @@ export default function ApplicationCard({
                 </button>
               </p>
             </div>
-            <div className="mt-2 text-[10px] text-neutral-500">
+            <div className="mt-2 text-[10px] text-bh-fg-4">
               Creado el{" "}
               {new Date(application.created_at).toLocaleDateString("es-AR", {
                 day: "numeric",
@@ -218,7 +220,7 @@ export default function ApplicationCard({
                     isIconOnly
                     size="sm"
                     variant="light"
-                    className="text-neutral-500 hover:text-primary"
+                    className="text-bh-fg-4 hover:text-bh-lime"
                     onPress={() => setIsEditing(true)}
                   >
                     <Edit2 size={14} />
@@ -226,14 +228,14 @@ export default function ApplicationCard({
                 )}
                 {isEditing && application.status === "pending" && (
                   <div className="flex gap-1 ml-2">
-                     <Button size="sm" color="primary" variant="flat" onPress={() => setIsEditing(false)}>
+                     <Button size="sm" variant="flat" className={bhButtonClass({ variant: "lime", size: "sm" })} onPress={() => setIsEditing(false)}>
                         Listo
                      </Button>
                   </div>
                 )}
               </div>
 
-              <div className="flex flex-wrap gap-2 text-sm text-neutral-400 items-center">
+              <div className="flex flex-wrap gap-2 text-sm text-bh-fg-3 items-center">
                 <span>{application.current_club || "Sin Club"}</span>
                 <span>•</span>
                 {nats.length > 0 ? (
@@ -259,7 +261,7 @@ export default function ApplicationCard({
 
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <div>
-              <p className="mb-1 text-xs text-neutral-500">F. Nacimiento</p>
+              <p className="mb-1 text-xs text-bh-fg-4">F. Nacimiento</p>
               {isEditing ? (
                 <Input
                    size="sm"
@@ -273,7 +275,7 @@ export default function ApplicationCard({
               )}
             </div>
             <div>
-              <p className="mb-1 text-xs text-neutral-500">Estatura (cm)</p>
+              <p className="mb-1 text-xs text-bh-fg-4">Estatura (cm)</p>
               {isEditing ? (
                 <Input
                    size="sm"
@@ -287,7 +289,7 @@ export default function ApplicationCard({
               )}
             </div>
             <div>
-              <p className="mb-1 text-xs text-neutral-500">Peso (kg)</p>
+              <p className="mb-1 text-xs text-bh-fg-4">Peso (kg)</p>
               {isEditing ? (
                 <Input
                    size="sm"
@@ -300,16 +302,16 @@ export default function ApplicationCard({
                 <p className="text-sm font-medium">{draft.weight_kg ? `${draft.weight_kg} kg` : "—"}</p>
               )}
             </div>
-            <div className="col-span-2 lg:col-span-1 border-l border-neutral-800 pl-4">
-              <p className="mb-1 text-xs text-neutral-500">Plan</p>
-              <Chip size="sm" color="primary" variant="flat" className="capitalize">
+            <div className="col-span-2 lg:col-span-1 border-l border-white/[0.08] pl-4">
+              <p className="mb-1 text-xs text-bh-fg-4">Plan</p>
+              <Chip size="sm" variant="flat" classNames={bhChip("blue")} className="capitalize">
                 {application.plan_requested || "free"}
               </Chip>
             </div>
           </div>
 
           <div className="mt-2">
-            <p className="mb-1 text-xs text-neutral-500">Link Transfermarkt</p>
+            <p className="mb-1 text-xs text-bh-fg-4">Link Transfermarkt</p>
             {isEditing ? (
               <Input
                 size="sm"
@@ -317,7 +319,7 @@ export default function ApplicationCard({
                 value={draft.transfermarkt_url}
                 onChange={(e) => setDraft({ ...draft, transfermarkt_url: e.target.value })}
                 classNames={{ inputWrapper: "bg-background border-primary" }}
-                startContent={<LinkIcon size={14} className="text-neutral-500" />}
+                startContent={<LinkIcon size={14} className="text-bh-fg-4" />}
               />
             ) : draft.transfermarkt_url ? (
               <a
@@ -330,32 +332,32 @@ export default function ApplicationCard({
                 Abir enlace Transfermarkt
               </a>
             ) : (
-              <p className="text-sm text-neutral-600">—</p>
+              <p className="text-sm text-bh-fg-4">—</p>
             )}
           </div>
         </div>
 
         {/* Validaciones & Controles (Derecha) */}
-        <div className="flex sm:w-48 shrink-0 flex-col justify-between rounded-lg bg-neutral-900/50 p-4 border border-neutral-800">
+        <div className="flex sm:w-48 shrink-0 flex-col justify-between rounded-lg bg-bh-surface-1/60 p-4 border border-white/[0.08]">
           <div className="space-y-3">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-bh-fg-4">
               KYC & Documentos
             </h4>
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-neutral-400">Doc. Identidad</span>
+                <span className="text-bh-fg-3">Doc. Identidad</span>
                 {idDocUrl ? (
                   <a href={idDocUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">Ver</a>
                 ) : (
-                  <span className="text-neutral-600">Falta</span>
+                  <span className="text-bh-fg-4">Falta</span>
                 )}
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-neutral-400">Selfie / Evidencia</span>
+                <span className="text-bh-fg-3">Selfie / Evidencia</span>
                 {selfieUrl ? (
                   <a href={selfieUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">Ver</a>
                 ) : (
-                  <span className="text-neutral-600">Falta</span>
+                  <span className="text-bh-fg-4">Falta</span>
                 )}
               </div>
             </div>
@@ -365,29 +367,29 @@ export default function ApplicationCard({
             {application.status === "pending" ? (
               <>
                 <Button
-                  color="success"
                   variant="flat"
                   startContent={<Check size={16} />}
                   onPress={() => setConfirmModal("approve")}
                   isLoading={loadingAction === "approve"}
+                  className={bhButtonClass({ variant: "lime", size: "sm", className: "w-full" })}
                 >
                   Aprobar
                 </Button>
                 <Button
-                  color="danger"
                   variant="light"
                   startContent={<Trash2 size={16} />}
                   onPress={() => setConfirmModal("reject")}
                   isLoading={loadingAction === "reject"}
+                  className={bhButtonClass({ variant: "danger-soft", size: "sm", className: "w-full" })}
                 >
                   Rechazar
                 </Button>
               </>
             ) : (
-              <div className="flex justify-end mt-4">
+              <div className="mt-4 flex justify-end">
                 <Chip
-                  color={application.status === "approved" ? "success" : "danger"}
                   variant="flat"
+                  classNames={bhChip(application.status === "approved" ? "success" : "danger")}
                 >
                   {application.status === "approved" ? "Aprobada" : "Rechazada"}
                 </Chip>
@@ -397,56 +399,96 @@ export default function ApplicationCard({
         </div>
       </div>
 
-      <Modal isOpen={confirmModal === "approve"} onOpenChange={(open) => !open && setConfirmModal(null)}>
+      <Modal
+        isOpen={confirmModal === "approve"}
+        onOpenChange={(open) => !open && setConfirmModal(null)}
+        classNames={bhModalClassNames}
+      >
         <ModalContent>
-          {(onClose: () => void) => (
+          {() => (
             <>
-              <ModalHeader className="gap-2 shrink-0 flex-col">
-                 <div className="flex size-12 items-center justify-center rounded-full bg-success/10 text-success ring-8 ring-success/5 mb-2">
-                    <Check size={24} />
-                 </div>
-                 <h3>Aprobar Solicitud</h3>
+              <ModalHeader className="shrink-0 flex-col gap-2 !border-b-0">
+                <div className="mb-2 flex size-12 items-center justify-center rounded-full border border-[rgba(34,197,94,0.25)] bg-[rgba(34,197,94,0.10)] text-bh-success ring-8 ring-[rgba(34,197,94,0.05)]">
+                  <Check size={24} />
+                </div>
+                <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+                  Aprobar solicitud
+                </h3>
               </ModalHeader>
               <ModalBody>
-                <p className="text-neutral-400">
-                  ¿Estás seguro de que quieres aprobar la solicitud de <b>{draft.full_name}</b>?
+                <p className="text-sm leading-[1.55] text-bh-fg-3">
+                  ¿Estás seguro de que querés aprobar la solicitud de{" "}
+                  <strong className="text-bh-fg-1">{draft.full_name}</strong>?
                   Esto creará su perfil público en la plataforma.
                 </p>
                 {isEditing && (
-                  <div className="mt-2 rounded-md bg-warning/10 p-3 text-sm text-warning-500 flex items-center gap-2">
-                     <ShieldAlert size={16} />
-                     <span>Recuerda salir del modo edición o los cambios mostrados se guardarán como overrides.</span>
+                  <div className="mt-2 flex items-center gap-2 rounded-bh-md border border-[rgba(245,158,11,0.25)] bg-[rgba(245,158,11,0.10)] p-3 text-sm text-bh-warning">
+                    <ShieldAlert size={16} />
+                    <span>
+                      Recordá salir del modo edición o los cambios mostrados se guardarán como overrides.
+                    </span>
                   </div>
                 )}
               </ModalBody>
               <ModalFooter>
-                 <Button variant="light" onPress={() => setConfirmModal(null)}>Cancelar</Button>
-                 <Button color="success" onPress={handleApprove} isLoading={loadingAction === "approve"}>Confirmar Aprobación</Button>
+                <Button
+                  variant="light"
+                  onPress={() => setConfirmModal(null)}
+                  className={bhButtonClass({ variant: "ghost", size: "sm" })}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onPress={handleApprove}
+                  isLoading={loadingAction === "approve"}
+                  className={bhButtonClass({ variant: "lime", size: "sm" })}
+                >
+                  Confirmar aprobación
+                </Button>
               </ModalFooter>
             </>
           )}
         </ModalContent>
       </Modal>
 
-      <Modal isOpen={confirmModal === "reject"} onOpenChange={(open) => !open && setConfirmModal(null)}>
+      <Modal
+        isOpen={confirmModal === "reject"}
+        onOpenChange={(open) => !open && setConfirmModal(null)}
+        classNames={bhModalClassNames}
+      >
         <ModalContent>
-          {(onClose: () => void) => (
+          {() => (
             <>
-              <ModalHeader className="gap-2 shrink-0 flex-col">
-                 <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger ring-8 ring-danger/5 mb-2">
-                    <Trash2 size={24} />
-                 </div>
-                 <h3>Rechazar Solicitud</h3>
+              <ModalHeader className="shrink-0 flex-col gap-2 !border-b-0">
+                <div className="mb-2 flex size-12 items-center justify-center rounded-full border border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.10)] text-bh-danger ring-8 ring-[rgba(239,68,68,0.05)]">
+                  <Trash2 size={24} />
+                </div>
+                <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+                  Rechazar solicitud
+                </h3>
               </ModalHeader>
               <ModalBody>
-                <p className="text-neutral-400">
-                  ¿Estás seguro de que quieres rechazar y archivar la solicitud de <b>{draft.full_name}</b>?
+                <p className="text-sm leading-[1.55] text-bh-fg-3">
+                  ¿Estás seguro de que querés rechazar y archivar la solicitud
+                  de <strong className="text-bh-fg-1">{draft.full_name}</strong>?
                   Esta acción es irreversible y el perfil no se creará en el sistema.
                 </p>
               </ModalBody>
               <ModalFooter>
-                 <Button variant="light" onPress={() => setConfirmModal(null)}>Cancelar</Button>
-                 <Button color="danger" onPress={handleReject} isLoading={loadingAction === "reject"}>Archivar permanentemente</Button>
+                <Button
+                  variant="light"
+                  onPress={() => setConfirmModal(null)}
+                  className={bhButtonClass({ variant: "ghost", size: "sm" })}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onPress={handleReject}
+                  isLoading={loadingAction === "reject"}
+                  className={bhButtonClass({ variant: "danger", size: "sm" })}
+                >
+                  Archivar permanentemente
+                </Button>
               </ModalFooter>
             </>
           )}

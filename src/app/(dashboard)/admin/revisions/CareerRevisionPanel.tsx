@@ -145,7 +145,7 @@ function RevisionStageRow({ item, onChange, disabled = false }: StageRowProps) {
         <TeamCrest src={crest} name={displayName ?? "Equipo"} size={32} className="shrink-0" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-sm">{displayName ?? "Equipo sin nombre"}</p>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-default-500">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-bh-fg-3">
             <Chip size="sm" variant="flat">
               {formatPeriod(item.startYear, item.endYear)}
             </Chip>
@@ -301,7 +301,7 @@ export default function CareerRevisionPanel({ initialRequests }: Props) {
 
       {!displayedRequests.length ? (
         <div className="flex h-40 items-center justify-center rounded-lg border border-dashed border-content3 bg-content2/30">
-          <p className="text-sm text-default-500">No hay solicitudes en esta categoría.</p>
+          <p className="text-sm text-bh-fg-3">No hay solicitudes en esta categoría.</p>
         </div>
       ) : (
         <div className="grid gap-4">
@@ -318,7 +318,7 @@ export default function CareerRevisionPanel({ initialRequests }: Props) {
                   />
                   <div>
                     <p className="font-medium">{request.player.name ?? "Jugador sin nombre"}</p>
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-default-500">
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-bh-fg-3">
                       {request.player.nationalities.map((code) => (
                         <CountryFlag key={code} code={code} size={12} />
                       ))}

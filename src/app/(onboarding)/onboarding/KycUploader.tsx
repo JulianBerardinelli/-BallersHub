@@ -3,7 +3,13 @@
 import { supabase } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 
-type Props = { onUploaded: (p: { idDocKey?: string; selfieKey?: string }) => void; };
+type Props = { onUploaded: (p: { idDocKey?: string; selfieKey?: string }) => void };
+
+const FILE_INPUT_CLS =
+  "w-full text-sm text-bh-fg-3 file:mr-3 file:rounded-bh-md file:border file:border-white/[0.08] file:bg-white/[0.04] file:px-3 file:py-1.5 file:text-[12px] file:font-medium file:text-bh-fg-2 hover:file:bg-white/[0.08]";
+
+const LABEL_CLS =
+  "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2";
 
 export default function KycUploader({ onUploaded }: Props) {
   const [userId, setUserId] = useState<string | null>(null);
@@ -30,21 +36,44 @@ export default function KycUploader({ onUploaded }: Props) {
   }
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-4">
       <div>
-        <label className="text-sm block mb-1">Documento (frente o PDF)</label>
-        <input type="file" accept="image/jpeg,image/png,application/pdf"
-          onChange={e => { const f = e.target.files?.[0]; if (f) { setLoadingDoc(true); upload(f, "id").finally(()=>setLoadingDoc(false)); }}} />
-        {loadingDoc && <p className="text-xs text-neutral-500 mt-1">Subiendo documento...</p>}
+        <label className={LABEL_CLS}>Documento (frente o PDF)</label>
+        <input
+          type="file"
+          accept="image/jpeg,image/png,application/pdf"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              setLoadingDoc(true);
+              upload(f, "id").finally(() => setLoadingDoc(false));
+            }
+          }}
+          className={FILE_INPUT_CLS}
+        />
+        {loadingDoc && <p className="mt-1 text-[11px] text-bh-fg-4">Subiendo documento...</p>}
       </div>
       <div>
-        <label className="text-sm block mb-1">Selfie</label>
-        <input type="file" accept="image/jpeg,image/png"
-          onChange={e => { const f = e.target.files?.[0]; if (f) { setLoadingSelfie(true); upload(f, "selfie").finally(()=>setLoadingSelfie(false)); }}} />
-        {loadingSelfie && <p className="text-xs text-neutral-500 mt-1">Subiendo selfie...</p>}
+        <label className={LABEL_CLS}>Selfie</label>
+        <input
+          type="file"
+          accept="image/jpeg,image/png"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) {
+              setLoadingSelfie(true);
+              upload(f, "selfie").finally(() => setLoadingSelfie(false));
+            }
+          }}
+          className={FILE_INPUT_CLS}
+        />
+        {loadingSelfie && <p className="mt-1 text-[11px] text-bh-fg-4">Subiendo selfie...</p>}
       </div>
-      {error && <p className="text-sm text-red-500">{error}</p>}
-      <p className="text-xs text-neutral-500">Los archivos se guardan de forma privada y sólo los verá el equipo de verificación.</p>
+      {error && <p className="text-sm text-bh-danger">{error}</p>}
+      <p className="text-[11px] text-bh-fg-4">
+        Los archivos se guardan de forma privada y solo los verá el equipo de
+        verificación.
+      </p>
     </div>
   );
 }

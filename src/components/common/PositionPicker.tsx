@@ -48,31 +48,40 @@ export default function PositionPicker({
   const placeholders = Array.from({ length: Math.max(0, MAX_SUBS_COUNT - cfg.subs.length) });
 
   return (
-    <div className="grid gap-3">
+    <div className="grid gap-4">
       <Tabs
         aria-label="Posición"
         selectedKey={role}
         onSelectionChange={(k) => setRole(k as any)}
         variant="underlined"
-        classNames={{ tabContent: "text-sm font-medium" }}
+        classNames={{
+          tabList: "gap-6 p-0 border-b border-white/[0.06]",
+          tab: "px-0 h-9 data-[hover-unselected=true]:opacity-100",
+          tabContent:
+            "text-[12px] font-semibold uppercase tracking-[0.08em] text-bh-fg-3 group-data-[selected=true]:text-bh-fg-1",
+          cursor: "bg-bh-lime",
+        }}
       >
         {Object.entries(MAP).map(([k, v]) => <Tab key={k} title={v.label} />)}
       </Tabs>
 
-      {/* GRID ESTABLE: mismas columnas siempre + placeholders invisibles */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 min-h-[104px]">
+      {/* GRID ESTABLE */}
+      <div className="grid min-h-[104px] grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
         {cfg.subs.map((sub) => {
           const isActive = subs.includes(sub);
           return (
-            <Button
+            <button
               key={sub}
-              size="sm"
-              variant={isActive ? "solid" : "flat"}
-              color={isActive ? "primary" : "default"}
-              onPress={() => toggle(sub)}
+              type="button"
+              onClick={() => toggle(sub)}
+              className={
+                isActive
+                  ? "rounded-bh-md border border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.10)] px-3 py-2 text-[12px] font-medium text-bh-lime transition-colors"
+                  : "rounded-bh-md border border-white/[0.08] bg-bh-surface-1 px-3 py-2 text-[12px] font-medium text-bh-fg-2 transition-colors hover:border-white/[0.18] hover:bg-white/[0.04] hover:text-bh-fg-1"
+              }
             >
               {sub}
-            </Button>
+            </button>
           );
         })}
         {placeholders.map((_, i) => (
@@ -80,16 +89,25 @@ export default function PositionPicker({
         ))}
       </div>
 
-      {/* Chips con min-height para que no salte el layout */}
-      <div className="flex flex-wrap gap-2 min-h-10">
+      {/* Chips */}
+      <div className="flex min-h-10 flex-wrap gap-2">
         {subs.map((s) => (
-          <Chip key={s} variant="flat" color="primary" onClose={() => toggle(s)}>
+          <Chip
+            key={s}
+            variant="flat"
+            onClose={() => toggle(s)}
+            classNames={{
+              base: "border border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.10)] text-bh-lime",
+              content: "text-[12px]",
+              closeButton: "text-bh-lime hover:opacity-70",
+            }}
+          >
             {MAP[role].label}: {s}
           </Chip>
         ))}
         {subs.length === 0 && (
           <Tooltip content={`Elegí hasta ${maxSubs} subposiciones`}>
-            <span className="text-sm text-foreground-500">Sin subposiciones elegidas</span>
+            <span className="text-[12px] text-bh-fg-4">Sin subposiciones elegidas</span>
           </Tooltip>
         )}
       </div>

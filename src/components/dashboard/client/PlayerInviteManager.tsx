@@ -1,10 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Input, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
+import { Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 import { Mail, Loader2, Trash2, CalendarDays } from "lucide-react";
 import { invitePlayerToAgency, revokePlayerInvite } from "@/app/actions/player-invites";
 import { useRouter } from "next/navigation";
+
+import FormField from "@/components/dashboard/client/FormField";
+import BhEmptyState from "@/components/ui/BhEmptyState";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
 
 interface PlayerInvite {
   id: string;
@@ -60,68 +65,73 @@ export default function PlayerInviteManager({ pendingInvites }: { pendingInvites
   };
 
   return (
-    <div className="space-y-8 mt-6">
-      <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-6">
-        <h3 className="text-lg font-semibold text-white mb-2">Vincular un Jugador a la Agencia</h3>
-        <p className="text-sm text-neutral-400 mb-6 max-w-2xl">
-          Envía una invitación formal de representación a un jugador.
-          Al aceptar, su perfil quedará vinculado públicamente a la agencia hasta la fecha de caducidad del vínculo.
+    <div className="mt-6 space-y-8">
+      <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6">
+        <h3 className="mb-2 font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+          Vincular un jugador a la agencia
+        </h3>
+        <p className="mb-5 max-w-2xl text-sm leading-[1.55] text-bh-fg-3">
+          Enviá una invitación formal de representación a un jugador. Al
+          aceptar, su perfil quedará vinculado públicamente a la agencia hasta
+          la fecha de caducidad del vínculo.
         </p>
 
-        <form onSubmit={handleInvite} className="flex flex-col sm:flex-row gap-3 items-start">
-          <Input
-            type="email"
-            label="Correo del jugador"
-            placeholder="correo@ejemplo.com"
-            labelPlacement="outside"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={isSubmitting}
-            startContent={<Mail className="h-4 w-4 text-neutral-500" />}
-            classNames={{
-              label: "text-white font-medium",
-              inputWrapper: "bg-neutral-950 border-neutral-800",
-            }}
-            className="w-full sm:max-w-[280px]"
-          />
-          <Input
-            type="date"
-            label="Fin del Vínculo"
-            placeholder="Selecciona la caducidad"
-            labelPlacement="outside"
-            value={contractEndDate}
-            onChange={(e) => setContractEndDate(e.target.value)}
-            disabled={isSubmitting}
-            startContent={<CalendarDays className="h-4 w-4 text-neutral-500" />}
-            classNames={{
-              label: "text-white font-medium",
-              inputWrapper: "bg-neutral-950 border-neutral-800",
-            }}
-            className="w-full sm:max-w-[200px]"
-          />
-          <div className="flex h-full items-end pb-0 sm:pb-0 sm:pt-[24px]">
-            <Button 
-              type="submit" 
-              color="primary" 
-              isLoading={isSubmitting}
-              className="w-full sm:w-auto font-medium h-10"
-            >
-               Enviar invitación
-            </Button>
+        <form onSubmit={handleInvite} className="flex flex-col items-start gap-3 sm:flex-row sm:items-end">
+          <div className="w-full sm:max-w-[280px]">
+            <FormField
+              id="bh-pi-email"
+              type="email"
+              label="Correo del jugador"
+              placeholder="correo@ejemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
+              startContent={<Mail className="h-4 w-4" />}
+            />
           </div>
+          <div className="w-full sm:max-w-[200px]">
+            <FormField
+              id="bh-pi-end-date"
+              type="date"
+              label="Fin del vínculo"
+              value={contractEndDate}
+              onChange={(e) => setContractEndDate(e.target.value)}
+              disabled={isSubmitting}
+              startContent={<CalendarDays className="h-4 w-4" />}
+            />
+          </div>
+          <Button
+            type="submit"
+            isLoading={isSubmitting}
+            className={bhButtonClass({ variant: "lime", size: "md", className: "w-full sm:w-auto" })}
+          >
+            Enviar invitación
+          </Button>
         </form>
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-white mb-4">Invitaciones Pendientes ({pendingInvites.length})</h3>
-        
+        <div className="mb-4 flex items-baseline justify-between">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Invitaciones pendientes
+          </h3>
+          <span className="font-bh-mono text-[12px] text-bh-fg-4">
+            {pendingInvites.length}
+          </span>
+        </div>
+
         {pendingInvites.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-neutral-800 bg-neutral-900/30 py-12 text-center text-sm text-neutral-500">
-            No hay invitaciones de representación pendientes.
-          </div>
+          <BhEmptyState
+            title="Sin pendientes"
+            description="No hay invitaciones de representación pendientes."
+          />
         ) : (
-          <div className="overflow-hidden rounded-xl border border-neutral-800">
-            <Table aria-label="Invitaciones pendientes" removeWrapper className="bg-neutral-900/50">
+          <div className="overflow-hidden rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">
+            <Table
+              aria-label="Invitaciones pendientes"
+              removeWrapper
+              classNames={bhTableClassNames}
+            >
               <TableHeader>
                 <TableColumn>JUGADOR</TableColumn>
                 <TableColumn>CADUCIDAD VÍNCULO</TableColumn>
@@ -132,31 +142,35 @@ export default function PlayerInviteManager({ pendingInvites }: { pendingInvites
               <TableBody>
                 {pendingInvites.map((invite) => (
                   <TableRow key={invite.id}>
-                    <TableCell className="font-medium text-white">{invite.playerEmail}</TableCell>
-                    <TableCell className="text-neutral-400">
-                       {invite.contractEndDate ? new Date(invite.contractEndDate).toLocaleDateString("es-AR", { timeZone: "UTC" }) : "-"}
+                    <TableCell className="font-medium !text-bh-fg-1">{invite.playerEmail}</TableCell>
+                    <TableCell>
+                      <span className="font-bh-mono text-[12px] text-bh-fg-3">
+                        {invite.contractEndDate ? new Date(invite.contractEndDate).toLocaleDateString("es-AR", { timeZone: "UTC" }) : "—"}
+                      </span>
                     </TableCell>
                     <TableCell>
-                      <Chip size="sm" color="warning" variant="flat" className="capitalize">
+                      <Chip size="sm" variant="flat" classNames={bhChip("warning")}>
                         {invite.status === "pending" ? "Pendiente" : invite.status}
                       </Chip>
                     </TableCell>
-                    <TableCell className="text-neutral-400">
-                      {new Date(invite.createdAt).toLocaleDateString("es-AR")}
+                    <TableCell>
+                      <span className="font-bh-mono text-[12px] text-bh-fg-3">
+                        {new Date(invite.createdAt).toLocaleDateString("es-AR")}
+                      </span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex justify-end relative">
-                         <Button 
-                           isIconOnly
-                           size="sm"
-                           variant="light"
-                           color="danger"
-                           onClick={() => handleRevoke(invite.id)}
-                           isDisabled={revokingId === invite.id}
-                           title="Revocar invitación"
-                         >
-                           {revokingId === invite.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-                         </Button>
+                      <div className="relative flex justify-end">
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="light"
+                          onClick={() => handleRevoke(invite.id)}
+                          isDisabled={revokingId === invite.id}
+                          title="Revocar invitación"
+                          className={bhButtonClass({ variant: "icon-danger", size: "sm", iconOnly: true })}
+                        >
+                          {revokingId === invite.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>

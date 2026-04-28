@@ -3,7 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@heroui/react";
+import { ImageOff } from "lucide-react";
 import type { PlayerMedia } from "@/db/schema/media";
+
+import BhEmptyState from "@/components/ui/BhEmptyState";
+import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhChip } from "@/lib/ui/heroui-brand";
 
 export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
   const router = useRouter();
@@ -31,12 +36,11 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
 
   if (!items || items.length === 0) {
     return (
-      <div className="flex h-40 flex-col items-center justify-center rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 text-sm text-neutral-500">
-        <svg className="mb-2 h-8 w-8 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <p>No tienes archivos multimedia cargados todavía.</p>
-      </div>
+      <BhEmptyState
+        icon={<ImageOff className="h-5 w-5" />}
+        title="Sin archivos"
+        description="No tenés archivos multimedia cargados todavía."
+      />
     );
   }
 
@@ -54,10 +58,10 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
         return (
           <div
             key={item.id}
-            className={`group relative flex flex-col overflow-hidden rounded-xl border transition-colors ${
-               isFlagged
-                ? "border-red-900 bg-red-950/20"
-                : "border-neutral-800 bg-neutral-900/50 hover:bg-neutral-900/80"
+            className={`group relative flex flex-col overflow-hidden rounded-bh-lg border transition-colors ${
+              isFlagged
+                ? "border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.08)]"
+                : "border-white/[0.08] bg-bh-surface-1 hover:border-white/[0.18]"
             }`}
           >
             {/* Aspect Video Wrapper */}
@@ -90,18 +94,18 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
               {/* Status Badges Overlay */}
               <div className="absolute left-2 top-2 flex flex-col gap-1">
                 {isFlagged && (
-                  <Chip color="danger" size="sm" variant="flat">
-                    Inapropiado (Oculto)
+                  <Chip size="sm" variant="flat" classNames={bhChip("danger")}>
+                    Inapropiado (oculto)
                   </Chip>
                 )}
                 {isPending && (
-                  <Chip color="warning" size="sm" variant="flat">
-                    En Revisión
+                  <Chip size="sm" variant="flat" classNames={bhChip("warning")}>
+                    En revisión
                   </Chip>
                 )}
                 {item.isPrimary && !isFlagged && (
-                  <Chip color="primary" size="sm" variant="solid">
-                    Foto Principal / Portada
+                  <Chip size="sm" variant="flat" classNames={bhChip("lime")}>
+                    Foto principal
                   </Chip>
                 )}
               </div>
@@ -109,29 +113,31 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
 
             {/* Content & Actions */}
             <div className="flex flex-1 flex-col justify-between p-4">
-              <div className="mb-4">
-                <p className="font-semibold text-white truncate" title={item.title || "Sin título"}>
+              <div className="mb-3">
+                <p
+                  className="truncate font-bh-heading text-[14px] font-semibold text-bh-fg-1"
+                  title={item.title || "Sin título"}
+                >
                   {item.title || (item.type === "photo" ? "Fotografía sin título" : "Video sin título")}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="font-bh-mono text-[11px] text-bh-fg-4">
                   {new Date(item.createdAt).toLocaleDateString()}
                 </p>
                 {isFlagged && (
-                  <p className="mt-2 text-xs text-red-400">
-                    Este archivo incumple las normas de la comunidad y no es visible en el perfil público. 
-                    Por favor, elimínalo.
+                  <p className="mt-2 text-[11px] text-bh-danger">
+                    Este archivo incumple las normas de la comunidad y no es
+                    visible en el perfil público. Por favor, eliminalo.
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center gap-2 mt-auto pt-2 border-t border-neutral-800">
+              <div className="mt-auto flex items-center gap-2 border-t border-white/[0.06] pt-3">
                 <Button
                   size="sm"
-                  color="danger"
                   variant="flat"
-                  className="w-full flex-1"
                   onPress={() => handleDelete(item.id)}
                   isLoading={deletingId === item.id}
+                  className={bhButtonClass({ variant: "danger-soft", size: "sm", className: "w-full flex-1" })}
                 >
                   {deletingId === item.id ? "Borrando..." : "Eliminar"}
                 </Button>
