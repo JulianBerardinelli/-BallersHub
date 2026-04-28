@@ -5,6 +5,8 @@ import { updateSectionVisibilityAction } from "@/app/actions/template-settings";
 import { useNotificationContext, profileNotification } from "@/modules/notifications";
 import { Switch } from "@heroui/react";
 
+import { bhSwitchClassNames } from "@/lib/ui/heroui-brand";
+
 type OptimisticStructureBlock = {
   id: string;
   label: string;
@@ -48,23 +50,29 @@ export default function StructureManagerClient({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {blocks.map((block) => (
         <label
           key={block.id}
-          className="flex items-start justify-between gap-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-5 transition-colors hover:border-neutral-700 cursor-pointer"
+          className={`flex cursor-pointer items-start justify-between gap-4 rounded-bh-lg border p-5 transition-colors ${
+            block.enabled
+              ? "border-[rgba(204,255,0,0.18)] bg-[rgba(204,255,0,0.04)]"
+              : "border-white/[0.08] bg-bh-surface-1/40 hover:border-white/[0.18]"
+          }`}
         >
           <div>
-            <p className="text-sm font-semibold text-white">{block.label}</p>
-            <p className="text-xs text-neutral-400 mt-1 leading-relaxed">{block.description}</p>
+            <p className="text-[13px] font-semibold text-bh-fg-1">{block.label}</p>
+            <p className="mt-1 text-[12px] leading-[1.55] text-bh-fg-3">
+              {block.description}
+            </p>
           </div>
           <div className="pt-1">
             <Switch
               size="md"
               isSelected={block.enabled}
               onValueChange={(isSelected) => handleToggle(block.id, isSelected)}
-              color="primary"
               aria-label={block.label}
+              classNames={bhSwitchClassNames}
             />
           </div>
         </label>
