@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Maximize2 } from "lucide-react";
 import type { GalleryPhoto, PhotoSlot } from "./types";
 
@@ -21,7 +22,11 @@ export default function GalleryPhotoCard({ photo, slot, index, playerName, onOpe
     : `${playerName} · ${baseAlt}`;
 
   return (
-    <figure className={`relative ${slot.col} group`}>
+    <motion.figure
+      layout
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className={`relative ${slot.col} group`}
+    >
       <button
         type="button"
         onClick={() => onOpen(index)}
@@ -72,6 +77,6 @@ export default function GalleryPhotoCard({ photo, slot, index, playerName, onOpe
           </figcaption>
         )}
       </button>
-    </figure>
+    </motion.figure>
   );
 }
