@@ -2,6 +2,7 @@
 import Link from "next/link";
 
 import { Wordmark } from "@/components/brand/Wordmark";
+import SiteFooter from "@/components/layout/footer/SiteFooter";
 
 export default function OnboardingLayout({
   children,
@@ -42,13 +43,14 @@ export default function OnboardingLayout({
         />
       </div>
 
-      <div className="relative z-10">
-        <header className="mx-auto flex max-w-[1200px] items-center justify-between px-6 py-6">
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <header className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-6 py-6">
           <Link href="/" aria-label="'BallersHub" className="flex items-center">
             <Wordmark size="nav" />
           </Link>
         </header>
-        {children}
+        <div className="flex-1">{children}</div>
+        <SiteFooter />
       </div>
     </div>
   );

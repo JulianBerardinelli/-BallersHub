@@ -5,6 +5,7 @@ import VintageLayout from "./VintageLayout";
 import ProAthleteLayout from "./ProAthleteLayout";
 import { resolveTypographyClasses } from "./TypographyResolver";
 import SmoothScrollProvider from "./SmoothScrollProvider";
+import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 
 // SSR Modules for Streaming
 import ProfileBioModule from "./modules/ProfileBioModule";
@@ -37,15 +38,25 @@ export type PublicProfileData = {
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
   const { player, theme, limits, articles } = data;
-  
+
   const layout = theme?.layout || "futuristic";
   const primaryColor = theme?.primaryColor || "#0a0a0a";
   const accentColor = theme?.accentColor || "#10b981";
-  
+  const backgroundColor = (theme as Record<string, unknown>)?.backgroundColor as string | undefined;
+  const secondaryColor = (theme as Record<string, unknown>)?.secondaryColor as string | undefined;
+  const playerSlug = (player as Record<string, unknown>)?.slug as string | undefined;
+
+  // The pro layout's inner module wrapper paints its own `--theme-background`,
+  // which can differ from `--color-primary`. If we keep the body bg on
+  // `--color-primary`, the gap below the inner wrapper (and the outer pb-20)
+  // shows as a visible color band. Match the body bg to the pro background
+  // so the page ends in a single, consistent color.
+  const bodyBg = layout === "pro" && backgroundColor ? backgroundColor : primaryColor;
+
   const customStyles = {
     "--color-primary": primaryColor,
     "--color-accent": accentColor,
-    backgroundColor: "var(--color-primary)",
+    backgroundColor: bodyBg,
     color: "#ffffff"
   } as CSSProperties;
 
@@ -69,9 +80,9 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
            {layout === "vintage" && <VintageLayout data={data} />}
            {layout === "pro" && (
              <ProAthleteLayout data={data}>
-               {/* 
-                 Streaming Async Server Components: 
-                 These block load independently from the Hero, heavily improving TTFB 
+               {/*
+                 Streaming Async Server Components:
+                 These block load independently from the Hero, heavily improving TTFB
                */}
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
                  <ProfileBioModule playerId={player.id} />
@@ -84,17 +95,32 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
                  <CareerTimelineModule playerId={player.id} />
                </Suspense>
-               
+
                {/* Press & Notes Module (Client Side) */}
                <ProfilePressNotesModule articles={articles as any} />
 
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
-                 <MediaGalleryModule playerId={player.id} limits={limits} />
+                 <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
                </Suspense>
              </ProAthleteLayout>
            )}
         </div>
       </div>
+
+      {/*
+        Portfolio footer — sits below the themed wrapper so the layout's
+        pb-20 / parallax / mix-blend-mode cannot affect it. Background is
+        matched to bodyBg so there is no color seam.
+      */}
+      <PortfolioFooter
+        ownerKind="player"
+        ownerName={player.fullName}
+        ownerSlug={playerSlug}
+        backgroundColor={bodyBg}
+        primaryColor={accentColor}
+        secondaryColor={secondaryColor || primaryColor}
+        accentColor={accentColor}
+      />
     </SmoothScrollProvider>
   );
 }

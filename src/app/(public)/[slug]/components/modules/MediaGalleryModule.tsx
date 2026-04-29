@@ -1,27 +1,42 @@
 import { db } from "@/lib/db";
 import { playerMedia } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
-import MediaGalleryScrolljack from "./MediaGalleryScrolljack";
+import { and, asc, eq } from "drizzle-orm";
+import PortfolioGallery from "./gallery/PortfolioGallery";
 
-export default async function MediaGalleryModule({ playerId, limits }: { playerId: string, limits?: Record<string, unknown> }) {
-  // Fetch media asynchronously
-  const maxPhotos = Number(limits?.max_photos ?? 100);
-  const maxVideos = Number(limits?.max_videos ?? 100);
+const PRO_ASSET_PROVIDER_PREFIX = "pro_asset_";
 
-  const rawMedia = await db.select().from(playerMedia).where(and(eq(playerMedia.playerId, playerId), eq(playerMedia.isApproved, true)));
-  
-  const media = [
-     ...rawMedia.filter(m => m.type === "photo").slice(0, maxPhotos),
-     ...rawMedia.filter(m => m.type === "video").slice(0, maxVideos)
-  ].map(m => ({
-    id: m.id,
-    url: m.url,
-    title: m.title,
-    altText: m.altText,
-    type: m.type,
-  }));
+type Props = {
+  playerId: string;
+  playerName: string;
+  avatarUrl?: string | null;
+  limits?: Record<string, unknown>;
+};
 
-  if (media.length === 0) return null;
+export default async function MediaGalleryModule({ playerId, playerName, avatarUrl, limits }: Props) {
+  const maxPhotos = Number(limits?.max_photos ?? 5);
 
-  return <MediaGalleryScrolljack media={media} />;
+  const rows = await db
+    .select()
+    .from(playerMedia)
+    .where(and(eq(playerMedia.playerId, playerId), eq(playerMedia.isApproved, true)))
+    .orderBy(asc(playerMedia.createdAt));
+
+  const photos = rows
+    .filter(
+      (m) =>
+        m.type === "photo" &&
+        !(m.provider && m.provider.startsWith(PRO_ASSET_PROVIDER_PREFIX)) &&
+        !(avatarUrl && m.url === avatarUrl)
+    )
+    .slice(0, maxPhotos)
+    .map((m) => ({
+      id: m.id,
+      url: m.url,
+      title: m.title,
+      altText: m.altText,
+    }));
+
+  if (photos.length === 0) return null;
+
+  return <PortfolioGallery photos={photos} playerName={playerName} />;
 }
