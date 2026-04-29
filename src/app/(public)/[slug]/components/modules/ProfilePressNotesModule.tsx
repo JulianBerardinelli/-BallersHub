@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
 
 type Article = {
@@ -12,6 +12,61 @@ type Article = {
   publisher?: string | null;
   publishedAt?: string | null;
 };
+
+const NEWSPAPER_BASE_WIDTH = 760;
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+function ScalableNewspaper({ children }: { children: React.ReactNode }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [innerHeight, setInnerHeight] = useState<number | null>(null);
+
+  const update = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    const inner = innerRef.current;
+    if (!wrapper || !inner) return;
+    const available = wrapper.clientWidth;
+    if (available <= 0) return;
+    const nextScale = Math.min(1, available / NEWSPAPER_BASE_WIDTH);
+    setScale(nextScale);
+    setInnerHeight(inner.offsetHeight);
+  }, []);
+
+  useIsomorphicLayoutEffect(() => {
+    update();
+    const wrapper = wrapperRef.current;
+    const inner = innerRef.current;
+    if (!wrapper || !inner) return;
+    const ro = new ResizeObserver(update);
+    ro.observe(wrapper);
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, [update]);
+
+  return (
+    <div
+      ref={wrapperRef}
+      className="relative w-full"
+      style={{ height: innerHeight !== null ? innerHeight * scale : undefined }}
+    >
+      <div
+        ref={innerRef}
+        style={{
+          width: NEWSPAPER_BASE_WIDTH,
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          opacity: innerHeight === null ? 0 : 1,
+          transition: "opacity 200ms ease",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePressNotesModule({ articles }: { articles: Article[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -75,18 +130,19 @@ export default function ProfilePressNotesModule({ articles }: { articles: Articl
       </motion.div>
 
       {/* NEWSPAPER CAROUSEL */}
-      <div className={`w-full flex overflow-x-auto snap-x snap-mandatory gap-8 pb-12 px-4 md:px-12 scrollbar-hide ${chunkedArticles.length === 1 ? 'md:justify-center' : ''}`}>
+      <div className={`w-full flex overflow-x-auto snap-x snap-mandatory gap-8 pb-12 px-4 md:px-12 scrollbar-hide ${chunkedArticles.length === 1 ? 'justify-center' : ''}`}>
         {chunkedArticles.map((chunk, chunkIndex) => (
-          <motion.div 
+          <motion.div
             key={`newspaper-${chunkIndex}`}
             initial={{ opacity: 0, scale: 0.95, rotate: chunkIndex % 2 === 0 ? -2 : 1 }}
             whileInView={{ opacity: 1, scale: 1, rotate: chunkIndex % 2 === 0 ? 1 : -1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             viewport={{ once: true }}
-            className="w-[760px] min-w-[760px] max-w-[760px] shrink-0 relative shadow-[0_30px_60px_rgba(0,0,0,0.6)] snap-center"
+            className="w-full max-w-[760px] shrink-0 relative shadow-[0_30px_60px_rgba(0,0,0,0.6)] snap-center"
           >
+            <ScalableNewspaper>
             {/* Background Texture & Paper styling */}
-            <div 
+            <div
               className="w-full bg-[#f4f4f0] text-black p-6 md:p-10 relative overflow-hidden h-full"
               style={{
                 backgroundImage: "url('/images/pack/textures/paper_crumpled_1.jpg')",
@@ -202,6 +258,7 @@ export default function ProfilePressNotesModule({ articles }: { articles: Articl
 
               </div>
             </div>
+            </ScalableNewspaper>
           </motion.div>
         ))}
         </div>
