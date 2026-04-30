@@ -203,6 +203,8 @@ export default async function PersonalDataPage() {
     languages: languagesValue,
     documents: documentValue,
     documentCountry: documentCountryName,
+    whatsapp: personalDetails?.whatsapp ?? "",
+    showContactSection: Boolean(personalDetails?.show_contact_section),
   } as const;
 
   return (

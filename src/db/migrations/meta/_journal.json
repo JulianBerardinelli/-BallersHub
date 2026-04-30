@@ -127,6 +127,27 @@
       "when": 1777315044456,
       "tag": "0017_strange_solo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1777315200000,
+      "tag": "0018_portfolio_contact",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1777315260000,
+      "tag": "0019_fix_dashboard_view_transfermarkt",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1777315320000,
+      "tag": "0020_contact_simplify",
+      "breakpoints": true
     }
   ]
 }

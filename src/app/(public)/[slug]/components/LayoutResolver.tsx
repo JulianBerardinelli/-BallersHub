@@ -13,6 +13,7 @@ import TacticsModule from "./modules/TacticsModule";
 import CareerTimelineModule from "./modules/CareerTimelineModule";
 import MediaGalleryModule from "./modules/MediaGalleryModule";
 import ProfilePressNotesModule from "./modules/ProfilePressNotesModule";
+import ContactPortfolioModule from "./modules/ContactPortfolioModule";
 
 export type PublicProfileData = {
   player: Record<string, unknown> & {
@@ -101,6 +102,14 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
 
                <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
                  <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
+               </Suspense>
+
+               <Suspense fallback={null}>
+                 <ContactPortfolioModule
+                   playerId={player.id}
+                   playerSlug={(playerSlug ?? "") as string}
+                   playerName={player.fullName}
+                 />
                </Suspense>
              </ProAthleteLayout>
            )}

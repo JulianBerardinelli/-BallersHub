@@ -26,6 +26,8 @@ const contactInfoSchema = z.object({
   languages: z.string().trim().optional(),
   documents: z.string().trim().optional(),
   documentCountry: z.string().trim().optional(),
+  whatsapp: z.string().trim().optional(),
+  showContactSection: z.boolean().optional(),
 });
 
 type ActionSuccess<T> = { success: true; data: T; message?: string; updatedFields: string[] };
@@ -48,6 +50,8 @@ type ContactInfoResponse = {
   languages: string;
   documents: string;
   documentCountry: string;
+  whatsapp: string;
+  showContactSection: boolean;
 };
 
 type CountryRecord = { code: string | null; name_es: string | null; name_en: string | null };
@@ -546,6 +550,7 @@ export async function updateContactInformation(
         languages: fieldErrors.languages?.[0],
         documents: fieldErrors.documents?.[0],
         documentCountry: fieldErrors.documentCountry?.[0],
+        whatsapp: fieldErrors.whatsapp?.[0],
       },
     };
   }
@@ -564,6 +569,7 @@ export async function updateContactInformation(
   }
 
   const phone = sanitizeText(parsed.data.phone);
+  const whatsapp = sanitizeText(parsed.data.whatsapp);
 
   const languagesResult = parseLanguages(parsed.data.languages);
   const documentsResult = parseDocuments(parsed.data.documents);
@@ -580,7 +586,7 @@ export async function updateContactInformation(
   const { data: personalBefore } = await ownership.supabase
     .from("player_personal_details")
     .select(
-      "id, phone, languages, document_type, document_number, document_country, document_country_code",
+      "id, phone, languages, document_type, document_number, document_country, document_country_code, whatsapp, show_contact_section",
     )
     .eq("player_id", parsed.data.playerId)
     .maybeSingle<{
@@ -591,7 +597,11 @@ export async function updateContactInformation(
       document_number: string | null;
       document_country: string | null;
       document_country_code: string | null;
+      whatsapp: string | null;
+      show_contact_section: boolean | null;
     }>();
+
+  const showContactSection = parsed.data.showContactSection ?? personalBefore?.show_contact_section ?? false;
 
   const personalPayload = {
     player_id: parsed.data.playerId,
@@ -601,6 +611,8 @@ export async function updateContactInformation(
     document_number: documentsResult.number,
     document_country: documentCountryResult.display,
     document_country_code: documentCountryResult.info?.code ?? null,
+    whatsapp,
+    show_contact_section: showContactSection,
   };
 
   const { error: personalError } = await ownership.supabase
@@ -665,9 +677,23 @@ export async function updateContactInformation(
     updatedFields.add("Email principal");
   }
 
+  if ((personalBefore?.whatsapp ?? null) !== (whatsapp ?? null)) {
+    changes.push({ field: "whatsapp", oldValue: personalBefore?.whatsapp ?? null, newValue: whatsapp ?? null });
+    updatedFields.add("WhatsApp");
+  }
+  if ((personalBefore?.show_contact_section ?? false) !== showContactSection) {
+    changes.push({
+      field: "show_contact_section",
+      oldValue: personalBefore?.show_contact_section ?? false,
+      newValue: showContactSection,
+    });
+    updatedFields.add("Visibilidad pública");
+  }
+
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
 
   revalidatePath(DASHBOARD_ROUTE);
+  revalidatePath(`/${parsed.data.playerId}`);
 
   return {
     success: true,
@@ -678,6 +704,8 @@ export async function updateContactInformation(
       languages: languagesResult.display,
       documents: documentsResult.display,
       documentCountry: documentCountryResult.display ?? "",
+      whatsapp: whatsapp ?? "",
+      showContactSection,
     },
     updatedFields: Array.from(updatedFields),
   };
