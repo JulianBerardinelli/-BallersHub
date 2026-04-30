@@ -16,3 +16,13 @@ export { EmailParagraph } from "./components/EmailParagraph";
 export { EmailDivider } from "./components/EmailDivider";
 export { EmailCard } from "./components/EmailCard";
 export { EmailEyebrow } from "./components/EmailEyebrow";
+export { EmailStep } from "./components/EmailStep";
+export { EmailLinkInline } from "./components/EmailLinkInline";
+
+// Template registry (campaigns + transactional sends go through this).
+export {
+  renderTemplate,
+  TEMPLATE_DESCRIPTORS,
+  type TemplateKey,
+  type TemplatePropsMap,
+} from "./templates/_registry";
