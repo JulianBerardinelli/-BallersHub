@@ -12,6 +12,7 @@ import PlayerAgencyInviteEmail, {
   type PlayerAgencyInviteProps,
 } from "./player-agency-invite";
 import PlayerDisconnectEmail, { type PlayerDisconnectProps } from "./player-disconnect";
+import CustomBroadcastEmail, { type CustomBroadcastProps } from "./custom-broadcast";
 
 /**
  * Template registry — every email shipped from BallersHub goes through here.
@@ -39,7 +40,8 @@ export type TemplateKey =
   | "profile_completion"
   | "agency_staff_invite"
   | "player_agency_invite"
-  | "player_disconnect";
+  | "player_disconnect"
+  | "custom_broadcast";
 
 export type TemplateCategory = "marketing" | "transactional";
 
@@ -51,6 +53,7 @@ export type TemplatePropsMap = {
   agency_staff_invite: AgencyStaffInviteProps;
   player_agency_invite: PlayerAgencyInviteProps;
   player_disconnect: PlayerDisconnectProps;
+  custom_broadcast: CustomBroadcastProps;
 };
 
 const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactElement } = {
@@ -61,6 +64,7 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   agency_staff_invite: (props) => AgencyStaffInviteEmail(props),
   player_agency_invite: (props) => PlayerAgencyInviteEmail(props),
   player_disconnect: (props) => PlayerDisconnectEmail(props),
+  custom_broadcast: (props) => CustomBroadcastEmail(props),
 };
 
 /** Render a registered template to its final HTML string. */
@@ -123,5 +127,12 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     category: "transactional",
     label: "Notificación de desvinculación",
     description: "Notifica a la agencia que un jugador canceló la representación.",
+  },
+  {
+    key: "custom_broadcast",
+    category: "marketing",
+    label: "Broadcast genérico",
+    description:
+      "Para campañas ad-hoc: definí eyebrow, headline, cuerpo y CTA opcional sin escribir código.",
   },
 ];
