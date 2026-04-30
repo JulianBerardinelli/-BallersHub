@@ -78,7 +78,7 @@ export default function UnsubscribeView({ state }: { state: State }) {
         </h1>
         <p className="mt-3 text-sm leading-[1.6] text-bh-fg-2">
           Para cancelar, abrí el último email que te enviamos y hacé click en{" "}
-          <span className="font-semibold text-bh-fg-1">"desuscribite acá"</span> al pie.
+          <span className="font-semibold text-bh-fg-1">&quot;desuscribite acá&quot;</span> al pie.
           Ese enlace contiene un token único firmado para tu dirección.
         </p>
         <p className="mt-2 text-[12px] leading-[1.6] text-bh-fg-3">

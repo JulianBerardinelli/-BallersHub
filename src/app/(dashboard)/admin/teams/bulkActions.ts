@@ -35,7 +35,7 @@ export async function bulkUpsertTeams(rows: any[]) {
     // 1. Resolve Division Slugs to Division IDs
     const divisionSlugs = [...new Set(rows.map(r => r.division_slug).filter(Boolean))];
     
-    let divisionMap: Record<string, string> = {}; // { slug: id }
+    const divisionMap: Record<string, string> = {}; // { slug: id }
     if (divisionSlugs.length > 0) {
       const matchedDivisions = await db.query.divisions.findMany({
         where: inArray(schema.divisions.slug, divisionSlugs),
@@ -48,7 +48,7 @@ export async function bulkUpsertTeams(rows: any[]) {
 
     // 2. Resolve Existing Teams by Name to prevent duplicates when slug is not provided
     const teamNames = [...new Set(rows.map(r => r.name).filter(Boolean))];
-    let existingTeamsMap: Record<string, string> = {}; // { "name-countryCode": slug }
+    const existingTeamsMap: Record<string, string> = {}; // { "name-countryCode": slug }
     if (teamNames.length > 0) {
       const matchedTeams = await db.query.teams.findMany({
         where: inArray(schema.teams.name, teamNames),
