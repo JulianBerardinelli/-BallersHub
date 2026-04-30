@@ -42,7 +42,7 @@ export async function bulkUpsertTeams(rows: any[]) {
         columns: { id: true, slug: true }
       });
       for (const div of matchedDivisions) {
-        divisionMap[div.slug] = div.id;
+        if (div.slug) divisionMap[div.slug] = div.id;
       }
     }
 
