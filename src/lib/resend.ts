@@ -1,155 +1,198 @@
 import { Resend } from "resend";
-import { getPlayerWelcomeEmail } from "./email-templates/player-welcome";
-import { getAgencyWelcomeEmail } from "./email-templates/agency-welcome";
+import { renderTemplate } from "@/emails";
+import { senderFrom, siteUrl } from "@/emails/tokens";
+import { signUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
 
+/**
+ * Centralized Resend dispatch for transactional emails.
+ *
+ * All HTML is now rendered from the React Email template registry in
+ * `src/emails/templates/_registry.ts` so every send (welcome, invite,
+ * disconnect…) inherits the BallersHub design system automatically.
+ *
+ * Marketing campaigns DO NOT go through here — those are dispatched by
+ * `src/lib/marketing/dispatch.ts` (with batching, suppression, etc.).
+ */
 export const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// ============================================
-// ONBOARDING / BIENVENIDAS
-// ============================================
+const dashboardUrl = (path = "") =>
+  `${siteUrl.replace(/\/+$/, "")}/dashboard${path ? `/${path.replace(/^\/+/, "")}` : ""}`;
+const inviteUrl = (token: string) =>
+  `${siteUrl.replace(/\/+$/, "")}/onboarding/accept-invite?token=${encodeURIComponent(token)}`;
 
-export const sendPlayerWelcomeEmail = async (email: string, playerName: string) => {
+// ============================================================================
+// Welcomes
+// ============================================================================
+
+export async function sendPlayerWelcomeEmail(email: string, playerName: string) {
   if (!resend) {
-    console.log("[Resend Mock] Envío ignorado: Welcome Player ->", email);
+    console.log("[Resend Mock] Welcome Player →", email);
     return;
   }
-  
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ''}/dashboard`;
-
   try {
+    const html = await renderTemplate("welcome_player", {
+      playerName,
+      dashboardUrl: dashboardUrl(),
+      recipientEmail: email,
+      // Welcomes are transactional — not gated by marketing consent — but we
+      // still include an unsubscribe link in the footer for consistency. It
+      // suppresses *future marketing*, not transactional emails.
+      unsubscribeToken: signUnsubscribeToken(email),
+    });
     await resend.emails.send({
-      from: "'Ballershub <no-reply@ballershub.co>",
+      from: senderFrom,
       to: [email],
-      subject: "Ponte en marcha en 'Ballershub",
-      html: getPlayerWelcomeEmail(playerName, dashboardUrl),
+      subject: "Ponte en marcha en BallersHub",
+      html,
     });
   } catch (error) {
-    console.error("Error al enviar email de bienvenida a jugador:", error);
+    console.error("[resend] sendPlayerWelcomeEmail:", error);
   }
-};
+}
 
-export const sendAgencyWelcomeEmail = async (email: string, managerName: string) => {
+export async function sendAgencyWelcomeEmail(email: string, managerName: string) {
   if (!resend) {
-    console.log("[Resend Mock] Envío ignorado: Welcome Agency ->", email);
+    console.log("[Resend Mock] Welcome Agency →", email);
     return;
   }
-
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL || ''}/dashboard`;
-  
   try {
+    const html = await renderTemplate("welcome_agency", {
+      managerName,
+      dashboardUrl: dashboardUrl(),
+      recipientEmail: email,
+      unsubscribeToken: signUnsubscribeToken(email),
+    });
     await resend.emails.send({
-      from: "'Ballershub <no-reply@ballershub.co>",
+      from: senderFrom,
       to: [email],
-      subject: "Construye tu Directorio de Talentos",
-      html: getAgencyWelcomeEmail(managerName, dashboardUrl),
+      subject: "Construí tu directorio de talentos en BallersHub",
+      html,
     });
   } catch (error) {
-    console.error("Error al enviar email de bienvenida a agencia:", error);
+    console.error("[resend] sendAgencyWelcomeEmail:", error);
   }
-};
+}
 
-// ============================================
-// AGENCIA & JUGADORES (NETWORKING)
-// ============================================
+// ============================================================================
+// Lead capture (visitor left email on a public portfolio)
+// ============================================================================
 
-export const sendAgencyStaffInviteEmail = async (
-  email: string,
-  managerName: string,
-  agencyName: string,
-  inviteToken: string
-) => {
-  const inviteLink = `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/accept-invite?token=${inviteToken}`;
-  
+export async function sendLeadWelcomeEmail(opts: {
+  email: string;
+  playerName: string;
+  playerSlug: string;
+}) {
   if (!resend) {
-    console.log("[Resend Mock] Envío ignorado. Configura RESEND_API_KEY.");
-    console.log(`[Resend Mock] Link de invitación: ${inviteLink}`);
+    console.log("[Resend Mock] Lead Welcome →", opts.email);
     return;
   }
-
   try {
+    const portfolioUrl = `${siteUrl.replace(/\/+$/, "")}/${encodeURIComponent(opts.playerSlug)}`;
+    const signUpUrl = `${siteUrl.replace(/\/+$/, "")}/auth/sign-up?redirect=${encodeURIComponent(`/${opts.playerSlug}`)}`;
+    const html = await renderTemplate("lead_welcome", {
+      playerName: opts.playerName,
+      portfolioUrl,
+      signUpUrl,
+      recipientEmail: opts.email,
+      unsubscribeToken: signUnsubscribeToken(opts.email),
+    });
     await resend.emails.send({
-      from: "'Ballershub <no-reply@ballershub.co>",
-      to: [email],
-      subject: `Invitación para unirte a ${agencyName} en 'Ballershub`,
-      html: `
-        <div>
-          <h2>¡Hola!</h2>
-          <p><strong>${managerName}</strong> te ha invitado a formar parte del staff de la agencia <strong>${agencyName}</strong> en 'Ballershub.</p>
-          <p>Para aceptar la invitación y unirte al equipo, haz clic en el siguiente enlace:</p>
-          <a href="${inviteLink}" style="display:inline-block;padding:10px 20px;background-color:#000;color:#fff;text-decoration:none;border-radius:5px;margin:20px 0;">Aceptar Invitación</a>
-          <p>Si ya posees una cuenta, te pediremos que inicies sesión. Si no, podrás registrarte rápidamente.</p>
-          <p>El equipo de 'Ballershub</p>
-        </div>
-      `,
+      from: senderFrom,
+      to: [opts.email],
+      subject: `Acceso desbloqueado: contacto de ${opts.playerName}`,
+      html,
     });
   } catch (error) {
-    console.error("Error al enviar email de invitación:", error);
+    console.error("[resend] sendLeadWelcomeEmail:", error);
   }
-};
+}
 
-export const sendPlayerAgencyInviteEmail = async (
+// ============================================================================
+// Invitations & networking
+// ============================================================================
+
+export async function sendAgencyStaffInviteEmail(
   email: string,
   managerName: string,
   agencyName: string,
   inviteToken: string,
-  contractEndDate: string
-) => {
-  const inviteLink = `${process.env.NEXT_PUBLIC_SITE_URL}/onboarding/accept-invite?token=${inviteToken}`;
-  
+) {
+  const url = inviteUrl(inviteToken);
   if (!resend) {
-    console.log("[Resend Mock] Envío ignorado. Configura RESEND_API_KEY.");
-    console.log(`[Resend Mock] Link de invitación para JUGADOR: ${inviteLink}`);
+    console.log(`[Resend Mock] Staff invite link: ${url}`);
     return;
   }
-
   try {
+    const html = await renderTemplate("agency_staff_invite", {
+      managerName,
+      agencyName,
+      inviteUrl: url,
+      recipientEmail: email,
+    });
     await resend.emails.send({
-      from: "'Ballershub <no-reply@ballershub.co>",
+      from: senderFrom,
       to: [email],
-      subject: `${agencyName} ha solicitado sumarte a su cartera de jugadores`,
-      html: `
-        <div>
-          <h2>¡Hola!</h2>
-          <p>La agencia <strong>${agencyName}</strong> (representada por ${managerName}) te ha invitado a formar parte de su cartera de futbolistas en 'Ballershub.</p>
-          <p>El vínculo de representación registrado en nuestra plataforma está vigente hasta el <strong>${contractEndDate}</strong>.</p>
-          <p>Para aceptar la invitación y vincular tu perfil deportivo de forma oficial a ${agencyName}, haz clic en el siguiente enlace:</p>
-          <a href="${inviteLink}" style="display:inline-block;padding:10px 20px;background-color:#000;color:#fff;text-decoration:none;border-radius:5px;margin:20px 0;">Vincularme a la Agencia</a>
-          <p>Si aún no tienes tu perfil configurado, te pediremos que lo completes al ingresar.</p>
-          <p>El equipo de 'Ballershub</p>
-        </div>
-      `,
+      subject: `Invitación para unirte a ${agencyName} en BallersHub`,
+      html,
     });
   } catch (error) {
-    console.error("Error al enviar email de vinculación de jugador:", error);
+    console.error("[resend] sendAgencyStaffInviteEmail:", error);
   }
-};
+}
 
-export const sendPlayerDisconnectEmail = async (
+export async function sendPlayerAgencyInviteEmail(
+  email: string,
+  managerName: string,
+  agencyName: string,
+  inviteToken: string,
+  contractEndDate: string,
+) {
+  const url = inviteUrl(inviteToken);
+  if (!resend) {
+    console.log(`[Resend Mock] Player-agency invite link: ${url}`);
+    return;
+  }
+  try {
+    const html = await renderTemplate("player_agency_invite", {
+      managerName,
+      agencyName,
+      inviteUrl: url,
+      contractEndDate,
+      recipientEmail: email,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: [email],
+      subject: `${agencyName} solicitó representarte en BallersHub`,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendPlayerAgencyInviteEmail:", error);
+  }
+}
+
+export async function sendPlayerDisconnectEmail(
   agencyEmail: string,
   playerName: string,
   agencyName: string,
-) => {
+) {
   if (!resend) {
-    console.log("[Resend Mock] Envío ignorado. Configura RESEND_API_KEY.");
+    console.log("[Resend Mock] Player disconnect →", agencyEmail);
     return;
   }
-
   try {
+    const html = await renderTemplate("player_disconnect", {
+      playerName,
+      agencyName,
+      recipientEmail: agencyEmail,
+    });
     await resend.emails.send({
-      from: "'Ballershub <no-reply@ballershub.co>",
+      from: senderFrom,
       to: [agencyEmail],
       subject: `Notificación de desvinculación: ${playerName}`,
-      html: `
-        <div>
-          <h2>Aviso de desvinculación</h2>
-          <p>La cuenta correspondiente a <strong>${playerName}</strong> ha cancelado unilateralmente su vinculación con la agencia <strong>${agencyName}</strong> en 'Ballershub.</p>
-          <p>Este cambio ya tiene efecto inmediato en la plataforma, y el jugador ya no aparecerá en tu directorio de roster.</p>
-          <p>El equipo de 'Ballershub</p>
-        </div>
-      `,
+      html,
     });
   } catch (error) {
-    console.error("Error al enviar email de desvinculación de jugador:", error);
+    console.error("[resend] sendPlayerDisconnectEmail:", error);
   }
-};
-
+}
