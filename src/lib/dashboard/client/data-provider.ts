@@ -38,6 +38,8 @@ export type DashboardPersonalDetails = {
   residence_city: string | null;
   residence_country: string | null;
   residence_country_code: string | null;
+  whatsapp: string | null;
+  show_contact_section: boolean | null;
 };
 
 export type DashboardApplication = {
@@ -103,6 +105,8 @@ type DashboardStateRow = {
   personal_residence_city: string | null;
   personal_residence_country: string | null;
   personal_residence_country_code: string | null;
+  personal_whatsapp: string | null;
+  personal_show_contact_section: boolean | null;
   application_id: string | null;
   application_status: string | null;
   application_created_at: string | null;
@@ -153,6 +157,8 @@ const DASHBOARD_STATE_COLUMNS = [
   "personal_residence_city",
   "personal_residence_country",
   "personal_residence_country_code",
+  "personal_whatsapp",
+  "personal_show_contact_section",
   "application_id",
   "application_status",
   "application_created_at",
@@ -234,6 +240,8 @@ async function fetchDashboardStateFromBaseTables(
     residence_city: string | null;
     residence_country: string | null;
     residence_country_code: string | null;
+    whatsapp: string | null;
+    show_contact_section: boolean | null;
   };
 
   type ApplicationRow = {
@@ -311,6 +319,8 @@ async function fetchDashboardStateFromBaseTables(
               "residence_city",
               "residence_country",
               "residence_country_code",
+              "whatsapp",
+              "show_contact_section",
             ].join(", "),
           )
           .eq("player_id", profileRow.id)
@@ -415,6 +425,8 @@ async function fetchDashboardStateFromBaseTables(
           personal_residence_city: personalDetailsResult.data?.residence_city ?? null,
           personal_residence_country: personalDetailsResult.data?.residence_country ?? null,
           personal_residence_country_code: personalDetailsResult.data?.residence_country_code ?? null,
+          personal_whatsapp: personalDetailsResult.data?.whatsapp ?? null,
+          personal_show_contact_section: personalDetailsResult.data?.show_contact_section ?? null,
           application_id: applicationResult.data?.id ?? null,
           application_status: applicationResult.data?.status ?? null,
           application_created_at: applicationResult.data?.created_at ?? null,
@@ -486,6 +498,8 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
         residence_city: row.personal_residence_city,
         residence_country: row.personal_residence_country,
         residence_country_code: row.personal_residence_country_code,
+        whatsapp: row.personal_whatsapp,
+        show_contact_section: row.personal_show_contact_section,
       }
     : null;
 
