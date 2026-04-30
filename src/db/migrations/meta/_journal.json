@@ -162,6 +162,13 @@
       "when": 1777315500000,
       "tag": "0022_marketing_campaign_template_props",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1777315600000,
+      "tag": "0023_marketing_drips",
+      "breakpoints": true
     }
   ]
 }

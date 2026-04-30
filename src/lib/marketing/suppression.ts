@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { marketingUnsubscribes } from "@/db/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
+import { marketingDripEnrollments } from "@/db/schema";
 
 /**
  * Suppression list helpers. Every send must call `filterSuppressed`
@@ -26,6 +27,19 @@ export async function suppress(
       campaignId: campaignId ?? null,
     })
     .onConflictDoNothing({ target: marketingUnsubscribes.email });
+
+  // Also cancel any pending drip enrollments for this address — no
+  // point queueing emails we'll never send. Keeps the audit trail of
+  // already-sent rows intact.
+  await db
+    .update(marketingDripEnrollments)
+    .set({ status: "cancelled", error: `suppressed: ${reason}`, updatedAt: new Date() })
+    .where(
+      and(
+        eq(marketingDripEnrollments.email, normalized),
+        eq(marketingDripEnrollments.status, "pending"),
+      ),
+    );
 }
 
 /** Remove from suppression — used by re-opt-in flows. Use with care. */
