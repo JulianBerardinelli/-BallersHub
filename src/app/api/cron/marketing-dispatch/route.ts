@@ -4,6 +4,7 @@ import { timingSafeEqual } from "node:crypto";
 import { db } from "@/lib/db";
 import { marketingCampaigns } from "@/db/schema";
 import { processDueEnrollments } from "@/lib/marketing";
+import { cooldownDormantSubscribers } from "@/lib/marketing/engagement";
 import { dispatchCampaignNow } from "@/app/(dashboard)/admin/marketing/actions";
 
 /**
@@ -71,6 +72,12 @@ async function run(req: Request) {
   // 2) Process due drip enrollments
   const dripResult = await processDueEnrollments();
 
+  // 3) Cool down dormant subscribers (anyone with 6+ consecutive
+  //    skipped sends gets moved to the suppression list). The helper
+  //    only scans non-suppressed addresses and caps at 500 per tick,
+  //    so it's safe to run on every cron invocation.
+  const cooldownResult = await cooldownDormantSubscribers();
+
   return NextResponse.json({
     ok: true,
     elapsedMs: Date.now() - startedAt,
@@ -79,6 +86,7 @@ async function run(req: Request) {
       results: campaignResults,
     },
     drips: dripResult,
+    engagement: cooldownResult,
   });
 }
 

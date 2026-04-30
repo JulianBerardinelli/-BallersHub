@@ -40,6 +40,7 @@ export default function NewCampaignForm() {
     "" | "product" | "offers" | "pro_features"
   >("product");
   const [customEmailsText, setCustomEmailsText] = useState("");
+  const [excludeCold, setExcludeCold] = useState(true);
 
   // --- Template & content (custom_broadcast) ---
   const templateKey = "custom_broadcast";
@@ -75,8 +76,9 @@ export default function NewCampaignForm() {
         .map((e) => e.trim())
         .filter(Boolean);
     }
+    if (excludeCold) base.excludeCold = true;
     return base;
-  }, [segment, withinDays, requireConsent, customEmailsText]);
+  }, [segment, withinDays, requireConsent, customEmailsText, excludeCold]);
 
   // Build the template-specific props object.
   const templateProps = useMemo(
@@ -320,6 +322,25 @@ export default function NewCampaignForm() {
               />
             </Field>
           ) : null}
+
+          <label className="flex items-start gap-3 rounded-bh-md border border-white/[0.06] bg-bh-surface-1 p-3">
+            <input
+              type="checkbox"
+              checked={excludeCold}
+              onChange={(e) => setExcludeCold(e.target.checked)}
+              className="mt-0.5 size-4 cursor-pointer accent-bh-lime"
+            />
+            <div className="flex-1">
+              <div className="text-[13px] font-medium text-bh-fg-1">
+                Excluir suscriptores en estado <span className="text-bh-warning">cold</span>
+              </div>
+              <div className="text-[11px] text-bh-fg-4 leading-[1.5]">
+                Suscriptores que no abrieron 3+ emails seguidos. Recomendado dejarlo activo
+                para preservar tu reputación de envío. Los <span className="text-bh-danger">dormant</span>{" "}
+                (6+ skipped) se filtran siempre.
+              </div>
+            </div>
+          </label>
 
           <AudienceEstimateBox estimate={estimate} loading={_estimating} />
         </Section>

@@ -42,3 +42,17 @@ export {
 } from "./drips";
 
 export { resolveRecipientProps, evaluateExitCondition } from "./recipient-props";
+
+export {
+  tierFor,
+  ENGAGEMENT_THRESHOLDS,
+  recordDelivery,
+  recordEngagement,
+  cooldownDormantSubscribers,
+  fetchEngagementBreakdown,
+  type EngagementTier,
+  type EngagementBreakdown,
+  type CooldownResult,
+} from "./engagement";
+
+export { filterByEngagementTier } from "./audiences";

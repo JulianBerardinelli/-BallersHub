@@ -67,6 +67,7 @@ const audienceFilterSchema: z.ZodType<AudienceFilter> = z.object({
   withinDays: z.number().int().positive().optional(),
   requireConsent: z.enum(["product", "offers", "pro_features"]).optional(),
   emails: z.array(z.string().email()).optional(),
+  excludeCold: z.boolean().optional(),
 });
 
 export type AudienceEstimate = {
