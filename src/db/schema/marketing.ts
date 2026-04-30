@@ -38,9 +38,27 @@ export const marketingSubscriptions = pgTable(
     lastSentAt: timestamp("last_sent_at", { withTimezone: true }),
     lastOpenedAt: timestamp("last_opened_at", { withTimezone: true }),
     lastClickedAt: timestamp("last_clicked_at", { withTimezone: true }),
+    /** Last open OR click — feeds the engagement tier. */
+    lastEngagedAt: timestamp("last_engaged_at", { withTimezone: true }),
     totalSends: integer("total_sends").notNull().default(0),
     totalOpens: integer("total_opens").notNull().default(0),
     totalClicks: integer("total_clicks").notNull().default(0),
+
+    /**
+     * Consecutive deliveries WITHOUT an open or click.
+     * Reset to 0 by the webhook on `email.opened` / `email.clicked`.
+     * Incremented on `email.delivered`.
+     */
+    consecutiveSkippedSends: integer("consecutive_skipped_sends").notNull().default(0),
+
+    /**
+     * Computed tier driving audience filters and the daily cooldown cron:
+     *   - active   : 0 skipped (or fresh)
+     *   - warm     : 1-2 skipped
+     *   - cold     : 3-5 skipped (audience filter can opt out)
+     *   - dormant  : 6+ skipped (cron auto-suppresses)
+     */
+    engagementTier: text("engagement_tier").notNull().default("active"),
 
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -48,6 +66,8 @@ export const marketingSubscriptions = pgTable(
   (table) => ({
     bySource: index("marketing_subscriptions_source_idx").on(table.source),
     byUser: index("marketing_subscriptions_user_idx").on(table.userId),
+    byTier: index("marketing_subscriptions_tier_idx").on(table.engagementTier),
+    bySkip: index("marketing_subscriptions_skip_idx").on(table.consecutiveSkippedSends),
   }),
 );
 

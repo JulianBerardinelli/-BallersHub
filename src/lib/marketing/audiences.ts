@@ -30,11 +30,46 @@ export type AudienceFilter = {
   requireConsent?: "product" | "offers" | "pro_features";
   /** Custom override email list (only valid when segment === 'custom'). */
   emails?: string[];
+  /**
+   * If true, drop subscribers in the `cold` engagement tier (3-5 consecutive
+   * skipped sends). `dormant` (6+ skipped) is ALWAYS dropped — they should
+   * be in the suppression list anyway after the daily cooldown cron, but
+   * we filter defensively in case the cron hasn't run yet.
+   */
+  excludeCold?: boolean;
 };
 
 export async function resolveAudience(filter: AudienceFilter): Promise<string[]> {
   const candidates = await fetchCandidates(filter);
-  return filterSuppressed(candidates);
+  const afterSuppression = await filterSuppressed(candidates);
+  return filterByEngagementTier(afterSuppression, { excludeCold: Boolean(filter.excludeCold) });
+}
+
+/**
+ * Drop emails whose `engagement_tier` is dormant (always) or cold
+ * (when `excludeCold` is true). Subscribers without a row in
+ * `marketing_subscriptions` are kept — they haven't been classified
+ * yet, treat as active.
+ */
+export async function filterByEngagementTier(
+  emails: string[],
+  opts: { excludeCold: boolean },
+): Promise<string[]> {
+  if (emails.length === 0) return emails;
+
+  const droppedTiers = opts.excludeCold ? ["cold", "dormant"] : ["dormant"];
+  const rows = await db.execute<{ email: string }>(sql`
+    select email from marketing_subscriptions
+    where email = ANY(${emails})
+      and engagement_tier = ANY(${droppedTiers})
+  `);
+  const dropped = new Set(
+    ((rows as { rows?: Array<{ email: string }> }).rows ?? (rows as Array<{ email: string }>)).map(
+      (r) => r.email,
+    ),
+  );
+  if (dropped.size === 0) return emails;
+  return emails.filter((e) => !dropped.has(e));
 }
 
 async function fetchCandidates(filter: AudienceFilter): Promise<string[]> {

@@ -5,19 +5,22 @@ import { db } from "@/lib/db";
 import { marketingCampaigns } from "@/db/schema";
 import { fetchGlobalStats } from "./actions";
 import { TEMPLATE_DESCRIPTORS } from "@/emails";
+import { fetchEngagementBreakdown } from "@/lib/marketing/engagement";
 import CampaignDeleteButton from "./components/CampaignDeleteButton";
+import EngagementBreakdownBar from "./components/EngagementBreakdownBar";
 import StatusChip from "./components/StatusChip";
 
 export const dynamic = "force-dynamic";
 
 export default async function MarketingAdminPage() {
-  const [stats, campaigns] = await Promise.all([
+  const [stats, campaigns, engagement] = await Promise.all([
     fetchGlobalStats(),
     db
       .select()
       .from(marketingCampaigns)
       .orderBy(desc(marketingCampaigns.createdAt))
       .limit(50),
+    fetchEngagementBreakdown(),
   ]);
 
   const templateLabelByKey = new Map<string, string>(
@@ -79,6 +82,9 @@ export default async function MarketingAdminPage() {
           }
         />
       </div>
+
+      {/* Engagement breakdown bar */}
+      <EngagementBreakdownBar breakdown={engagement} />
 
       {/* Campaigns table */}
       <section className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">

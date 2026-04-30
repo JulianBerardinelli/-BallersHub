@@ -169,6 +169,13 @@
       "when": 1777315600000,
       "tag": "0023_marketing_drips",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1777315700000,
+      "tag": "0024_marketing_engagement",
+      "breakpoints": true
     }
   ]
 }

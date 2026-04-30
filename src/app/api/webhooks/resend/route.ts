@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { suppress } from "@/lib/marketing/suppression";
 import { verifyResendWebhook } from "@/lib/marketing/verify-resend-webhook";
+import { recordDelivery, recordEngagement } from "@/lib/marketing/engagement";
 
 /**
  * Resend webhook handler.
@@ -122,7 +123,7 @@ export async function POST(req: Request) {
     }
   }
 
-  // 3) Bump subscriber engagement metrics
+  // 3) Bump subscriber engagement metrics + tier
   if (recipient) {
     if (event.type === "email.opened") {
       await db
@@ -132,6 +133,8 @@ export async function POST(req: Request) {
           totalOpens: sql`${marketingSubscriptions.totalOpens} + 1`,
         })
         .where(eq(marketingSubscriptions.email, recipient));
+      // Reset skipped counter + promote tier to 'active' immediately.
+      await recordEngagement(recipient);
     } else if (event.type === "email.clicked") {
       await db
         .update(marketingSubscriptions)
@@ -140,6 +143,7 @@ export async function POST(req: Request) {
           totalClicks: sql`${marketingSubscriptions.totalClicks} + 1`,
         })
         .where(eq(marketingSubscriptions.email, recipient));
+      await recordEngagement(recipient);
     } else if (event.type === "email.delivered") {
       await db
         .update(marketingSubscriptions)
@@ -148,6 +152,8 @@ export async function POST(req: Request) {
           totalSends: sql`${marketingSubscriptions.totalSends} + 1`,
         })
         .where(eq(marketingSubscriptions.email, recipient));
+      // Increment skipped counter; tier recomputed inside the helper.
+      await recordDelivery(recipient);
     }
   }
 
