@@ -31,3 +31,14 @@ export {
 export { runCampaign, type DispatchInput, type DispatchResult } from "./dispatch";
 
 export { verifyResendWebhook } from "./verify-resend-webhook";
+
+export {
+  enrollUserInDrip,
+  enrollUserInTriggerEvent,
+  cancelEnrollmentsForEmail,
+  processDueEnrollments,
+  type EnrollmentInput,
+  type ProcessResult,
+} from "./drips";
+
+export { resolveRecipientProps, evaluateExitCondition } from "./recipient-props";
