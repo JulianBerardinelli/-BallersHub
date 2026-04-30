@@ -80,6 +80,10 @@ export const marketingCampaigns = pgTable(
     // Shape: { segment: 'pro_players' | 'leads' | 'registered' | 'custom', filters?: {...} }
     audienceFilter: jsonb("audience_filter").notNull(),
 
+    // Template-specific props (headline, body, CTA, etc.) — re-rendered
+    // at send time via the registry. Shape varies by `templateKey`.
+    templateProps: jsonb("template_props").notNull().default({}),
+
     status: text("status").notNull().default("draft"), // draft | scheduled | sending | sent | paused | failed
     scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
     startedAt: timestamp("started_at", { withTimezone: true }),
