@@ -5,8 +5,11 @@ import { getSupabaseEnv } from "./env";
 
 /** Server Components: no escribe cookies */
 export async function createSupabaseServerRSC() {
-  const { url: SUPABASE_URL, anon: SUPABASE_ANON_KEY } = getSupabaseEnv();
+  // Read cookies first so Next.js detects this as a dynamic API and skips
+  // static prerendering. If we throw on missing env before this, Next falls
+  // back to attempting a static export which crashes the build.
   const cookieStore = await cookies();
+  const { url: SUPABASE_URL, anon: SUPABASE_ANON_KEY } = getSupabaseEnv();
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
@@ -27,8 +30,8 @@ export async function createSupabaseServerRSC() {
 
 /** Route Handlers / Server Actions: puede escribir cookies */
 export async function createSupabaseServerRoute() {
-  const { url: SUPABASE_URL, anon: SUPABASE_ANON_KEY } = getSupabaseEnv();
   const cookieStore = await cookies();
+  const { url: SUPABASE_URL, anon: SUPABASE_ANON_KEY } = getSupabaseEnv();
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
