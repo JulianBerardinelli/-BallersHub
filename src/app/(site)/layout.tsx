@@ -6,7 +6,7 @@ import SiteAmbient from "@/components/site/ui/SiteAmbient";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative isolate min-h-screen bg-bh-black">
+    <div className="relative isolate min-h-screen overflow-x-clip bg-bh-black">
       <SiteAmbient />
       <div className="relative z-10 flex min-h-screen flex-col">
         <SiteHeader />
