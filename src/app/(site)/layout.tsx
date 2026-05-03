@@ -11,7 +11,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <div className="relative z-10 flex min-h-screen flex-col">
         <SiteHeader />
         <SiteMotionProvider>
-          <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 pb-24 pt-6">
+          <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 pb-24 pt-[6.5rem]">
             {children}
           </main>
         </SiteMotionProvider>

@@ -35,7 +35,7 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.25,0,0,1)] ${
+      className={`fixed inset-x-0 top-0 z-50 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.25,0,0,1)] ${
         scrolled
           ? "border-b border-white/[0.08] bg-bh-black/85 shadow-[0_4px_24px_rgba(0,0,0,0.4)] backdrop-blur-xl backdrop-saturate-150"
           : "border-b border-transparent"
