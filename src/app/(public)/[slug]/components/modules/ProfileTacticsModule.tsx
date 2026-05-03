@@ -362,7 +362,7 @@ export default function ProfileTacticsModule({
   const validPositions = rawPositions
     .filter((p: string) => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
     .map((p: string) => normalizePosition(p))
-    .filter((p): p is string => p !== null);
+    .filter((p: string | null): p is string => p !== null);
 
   const PALETTES = [
     "var(--theme-primary)",
@@ -846,7 +846,7 @@ export default function ProfileTacticsModule({
                           className="w-[60%] xl:w-[65%] bg-neutral-900/60 backdrop-blur-[20px] shadow-2xl rounded-2xl p-6 lg:p-8 group relative overflow-hidden flex flex-col justify-start"
                         >
                           <div className={`absolute top-0 left-0 w-[4px] h-full ${activeCard.accentBg} opacity-100 z-10`} />
-                          <activeCard.Icon size={160} stroke={0.4} className="absolute -bottom-6 -right-6 text-white opacity-[0.06] pointer-events-none" />
+                          <activeCard.Icon size={160} strokeWidth={0.4} className="absolute -bottom-6 -right-6 text-white opacity-[0.06] pointer-events-none" />
                           
                           <div className="relative z-10 mb-6 flex items-center gap-3">
                             <activeCard.Icon size={24} className="text-white/40" style={{ color: activeCard.accent }} />

@@ -110,7 +110,7 @@ export default function CsvImporter({
         {buttonLabel}
       </Button>
 
-      <Modal isOpen={isOpen} onOpenChange={setIsOpen} size="4xl" {...modalPreset}>
+      <Modal isOpen={isOpen} onOpenChange={setIsOpen} {...modalPreset}>
         <ModalContent>
           {(onClose) => (
             <>

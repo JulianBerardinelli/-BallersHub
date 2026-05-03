@@ -310,7 +310,7 @@ function AccordionCard({ item, index, isActive, onSelectHonour }: { item: any, i
                    </div>
                    <div className="flex flex-col items-center justify-center p-2 border-l border-white/5">
                      <span className="text-[8px] text-white/40 uppercase font-bold tracking-widest text-center mb-1">Minutos</span>
-                     <span className="text-xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-[10px] text-white/50 ml-0.5">'</span></span>
+                     <span className="text-xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-[10px] text-white/50 ml-0.5">&apos;</span></span>
                    </div>
                    <div className="flex flex-col items-center justify-center p-2 border-l border-white/5 bg-[var(--theme-accent)]/5">
                      <span className="text-[8px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest text-center mb-1">Goles</span>
@@ -574,7 +574,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
                                  <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Minutos</span>
-                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-sm lg:text-lg text-white/50 ml-0.5">'</span></span>
+                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-sm lg:text-lg text-white/50 ml-0.5">&apos;</span></span>
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-accent)]/5">
                                  <span className="text-[9px] lg:text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest mb-1">Goles</span>
@@ -799,7 +799,7 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
              </div>
              <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
                <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Minutos</span>
-               <span className="text-xl text-white font-black leading-none">{totals.minutesPlayed}<span className="text-[9px] text-white/50 ml-0.5">'</span></span>
+               <span className="text-xl text-white font-black leading-none">{totals.minutesPlayed}<span className="text-[9px] text-white/50 ml-0.5">&apos;</span></span>
              </div>
              <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-accent)]/5">
                <span className="text-[8px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">Goles</span>

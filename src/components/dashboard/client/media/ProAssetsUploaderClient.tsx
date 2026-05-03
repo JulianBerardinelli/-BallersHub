@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, X, CheckCircle, Image as ImageIcon, ExternalLink, Info, Sparkles } from "lucide-react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabase/client";
 import { updateProAssetAction } from "@/app/actions/pro-assets";
 import { announcementNotification, profileNotification, useNotificationContext } from "@/modules/notifications";
 
@@ -31,7 +31,6 @@ export default function ProAssetsUploaderClient({
     modelUrl2: currentModelUrl2,
   });
   const router = useRouter();
-  const supabase = createClientComponentClient();
   const { enqueue } = useNotificationContext();
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, assetType: AssetType) => {

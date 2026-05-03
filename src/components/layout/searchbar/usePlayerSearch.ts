@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { supabase } from "@/lib/supabase/client";
 
 export type PlayerHit = {
   id: string;
@@ -37,7 +37,6 @@ type Row = {
 };
 
 export function usePlayerSearch(q: string) {
-  const supabase = React.useMemo(() => createClientComponentClient(), []);
   const [results, setResults] = React.useState<PlayerHit[]>([]);
   const [loading, setLoading] = React.useState(false);
 
