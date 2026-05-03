@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { agencyProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 import { 
   ArrowLeft, 
   ExternalLink, 
@@ -69,6 +70,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
   const licenses = (agency.licenses as Array<{type: string, number: string, url: string}>) || [];
 
   return (
+    <>
     <main className="mx-auto max-w-5xl px-4 py-8 space-y-8">
       <Link href="/" className="inline-flex items-center text-sm font-medium text-neutral-400 hover:text-white mb-4">
         <ArrowLeft className="mr-2 h-4 w-4" />
@@ -266,5 +268,12 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
         )}
       </section>
     </main>
+    <PortfolioFooter
+      ownerKind="agency"
+      ownerName={agency.name}
+      ownerSlug={agency.slug}
+      backgroundColor="#0A0A0A"
+    />
+    </>
   );
 }

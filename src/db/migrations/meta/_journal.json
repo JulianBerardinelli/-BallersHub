@@ -127,6 +127,48 @@
       "when": 1777315044456,
       "tag": "0017_strange_solo",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1777315200000,
+      "tag": "0018_portfolio_contact",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1777315260000,
+      "tag": "0019_fix_dashboard_view_transfermarkt",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1777315320000,
+      "tag": "0020_contact_simplify",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1777315400000,
+      "tag": "0021_marketing_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1777315500000,
+      "tag": "0022_marketing_campaign_template_props",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1777315600000,
+      "tag": "0023_marketing_drips",
+      "breakpoints": true
     }
   ]
 }

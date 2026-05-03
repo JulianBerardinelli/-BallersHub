@@ -66,6 +66,7 @@ type SportProfileResponse = {
 
 type MarketProjectionResponse = {
   marketValue: string;
+  careerObjectives: string;
 };
 
 type ScoutingAnalysisResponse = {

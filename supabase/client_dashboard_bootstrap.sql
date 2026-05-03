@@ -126,6 +126,8 @@ ALTER TABLE public.player_personal_details
   ADD COLUMN IF NOT EXISTS residence_city text,
   ADD COLUMN IF NOT EXISTS residence_country text,
   ADD COLUMN IF NOT EXISTS residence_country_code char(2),
+  ADD COLUMN IF NOT EXISTS whatsapp text,
+  ADD COLUMN IF NOT EXISTS show_contact_section boolean NOT NULL DEFAULT false,
   ADD COLUMN IF NOT EXISTS created_at timestamptz NOT NULL DEFAULT now(),
   ADD COLUMN IF NOT EXISTS updated_at timestamptz NOT NULL DEFAULT now();
 
@@ -382,6 +384,7 @@ SELECT
   p.plan_public AS profile_plan_public,
   p.market_value_eur AS profile_market_value_eur,
   p.career_objectives AS profile_career_objectives,
+  p.transfermarkt_url AS profile_transfermarkt_url,
   ppd.id AS personal_details_id,
   ppd.document_type AS personal_document_type,
   ppd.document_number AS personal_document_number,
@@ -392,6 +395,8 @@ SELECT
   ppd.residence_city AS personal_residence_city,
   ppd.residence_country AS personal_residence_country,
   ppd.residence_country_code AS personal_residence_country_code,
+  ppd.whatsapp AS personal_whatsapp,
+  ppd.show_contact_section AS personal_show_contact_section,
   app.id AS application_id,
   app.status AS application_status,
   app.created_at AS application_created_at,

@@ -24,3 +24,23 @@ export type ColumnDef = {
   align?: "start" | "center" | "end";
   className?: string;
 };
+
+export type ApplicationRow = {
+  id: string;
+  applicant: string | null;
+  nationalities: { code: string | null; name: string }[];
+  birth_date: string | null;
+  age: number | null;
+  height_cm: number | null;
+  weight_kg: number | null;
+  positions: string[];
+  links: { url: string }[];
+  kyc_docs: { label: string; url: string }[];
+  proposed_team_name: string | null;
+  proposed_team_country_code: string | null;
+};
+
+export type Task = {
+  label: string;
+  className: string;
+};

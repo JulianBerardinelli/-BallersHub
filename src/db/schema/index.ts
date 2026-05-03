@@ -26,3 +26,6 @@ export * from "./relations";
 export * from "./profilePublishing";
 export * from "./careerRevisions";
 export * from "./divisions";
+export * from "./portfolioLeads";
+export * from "./marketing";
+export * from "./marketingDrips";

@@ -36,10 +36,10 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
     );
   }
 
-  const primaryColor = theme?.primaryColor || "#10b981";
-  const secondaryColor = theme?.secondaryColor || "#2A2A2A";
-  const accentColor = theme?.accentColor || "#34d399";
-  const backgroundColor = theme?.backgroundColor || "#050505";
+  const primaryColor = (theme?.primaryColor as string | null | undefined) || "#10b981";
+  const secondaryColor = (theme?.secondaryColor as string | null | undefined) || "#2A2A2A";
+  const accentColor = (theme?.accentColor as string | null | undefined) || "#34d399";
+  const backgroundColor = (theme?.backgroundColor as string | null | undefined) || "#050505";
 
   const firstName = player.fullName.split(" ")[0] || "";
   const lastName = player.fullName.split(" ").slice(1).join(" ") || player.fullName;

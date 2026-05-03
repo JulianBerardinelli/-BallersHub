@@ -32,6 +32,13 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/media-moderation", label: "Moderación multimedia", roles: ["admin", "moderator"] },
     ],
   },
+  {
+    title: "Marketing",
+    items: [
+      { href: "/admin/marketing", label: "Campañas", roles: ["admin"] },
+      { href: "/admin/marketing/drips", label: "Drips automatizados", roles: ["admin"] },
+    ],
+  },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

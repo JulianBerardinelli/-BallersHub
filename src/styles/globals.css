@@ -158,6 +158,44 @@ html, body { min-height: 100%; }
   .bh-card-lift { animation: none !important; transition: none !important; }
 }
 
+/* ============================================================
+   Hero display — shimmer (Claude Design · type-display.html)
+   Texto con gradiente animado lime ↔ lime-soft ↔ blue.
+   Uso reservado a hero/display tipográficos: pesados, uppercase.
+   ------------------------------------------------------------
+   Spec original:
+     gradient   90deg  #CCFF00 0% / #EAFF82 20% / #00C2FF 50% /
+                       #CCFF00 70% / #EAFF82 100%
+     bg-size    200% auto
+     animation  shimmerTxt 4s linear infinite (0% → 200% center)
+   ============================================================ */
+@keyframes bh-shimmer-txt {
+  from { background-position:   0% center; }
+  to   { background-position: 200% center; }
+}
+
+.bh-shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--bh-lime-200)  0%,
+    var(--bh-lime-100) 20%,
+    var(--bh-blue-200) 50%,
+    var(--bh-lime-200) 70%,
+    var(--bh-lime-100) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: bh-shimmer-txt 4s linear infinite;
+  will-change: background-position;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-shimmer-text { animation: none !important; }
+}
+
 /* Utilidad para ocultar la barra de scroll en contenedores horizontales */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -182,6 +220,32 @@ html, body { min-height: 100%; }
   animation: bh-marquee-slide 9s ease-in-out infinite;
   will-change: transform;
 }
+
+/* ============================================================
+   Marquee de loop infinito (típico patrón "trusted by …").
+   Requiere replicar el contenido en el DOM N veces (con aria-hidden
+   en las copias decorativas) y aplicar la clase al wrapper con
+   `width: max-content`.
+
+   Para que el loop sea seamless el desplazamiento al final del
+   ciclo debe ser exactamente 1 set / N copias. Se controla con
+   `--marquee-shift`:
+     - 2 copias →  -50%
+     - 3 copias →  -33.333%
+     - 4 copias →  -25%
+   Default: -50% (2 copias).
+   ============================================================ */
+@keyframes bh-marquee-loop {
+  from { transform: translateX(0); }
+  to   { transform: translateX(var(--marquee-shift, -50%)); }
+}
+
+.bh-marquee-loop {
+  animation: bh-marquee-loop var(--marquee-duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+.bh-marquee-pause:hover { animation-play-state: paused; }
 
 /* ============================================================
    BallersHub — Display effects (opt-in).
@@ -335,7 +399,11 @@ html, body { min-height: 100%; }
     linear-gradient(180deg, var(--bh-dark) 0%, var(--bh-black) 100%);
 }
 
+/* Single reduced-motion override covering both the marquee additions
+   from `dev` and the pricing display effects from this branch. */
 @media (prefers-reduced-motion: reduce) {
+  .bh-marquee,
+  .bh-marquee-loop,
   .bh-text-shimmer,
   .bh-text-shimmer-blue,
   .bh-glow-border::before { animation: none !important; }
