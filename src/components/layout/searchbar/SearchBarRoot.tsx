@@ -4,10 +4,17 @@ import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
 import SearchTrigger from "./Trigger";            // desktop
 import TriggerMobile from "./mobile/TriggerMobile";      // mobile
-import SearchModal from "./SearchModal";          // desktop modal (ya lo tienes)
-import MobileModal from "./mobile/MobileModal";          // nuevo
-import { usePlayerSearch } from "./usePlayerSearch";
+import SearchModal from "./SearchModal";          // desktop modal
+import MobileModal from "./mobile/MobileModal";          // mobile modal
+import { usePlayerSearch, type SearchHit } from "./usePlayerSearch";
 import FullScreenLoader from "@/components/ui/FullScreenLoader";
+
+function pathFor(hit: SearchHit): string | null {
+  if (hit.kind === "player") return `/${hit.slug}`;
+  if (hit.kind === "agency") return `/agency/${hit.slug}`;
+  if (hit.kind === "manager" && hit.agencySlug) return `/agency/${hit.agencySlug}`;
+  return null;
+}
 
 export default function SearchBar() {
   const [isOpenDesktop, setOpenDesktop] = React.useState(false);
@@ -22,8 +29,9 @@ export default function SearchBar() {
   const [showGlobalLoader, setShowGlobalLoader] = React.useState(false);
   const [isPending, startTransition] = React.useTransition();
 
-  function handleSelect(hit: { slug: string }) {
-    const next = `/${hit.slug}`;
+  function handleSelect(hit: SearchHit) {
+    const next = pathFor(hit);
+    if (!next) return;
     setTargetPath(next);
     setShowGlobalLoader(true);
     setOpenDesktop(false);
@@ -38,8 +46,9 @@ export default function SearchBar() {
     }
   }, [pathname, targetPath]);
 
-  function handleHoverSlug(slug: string) {
-    router.prefetch(`/${slug}`);
+  function handleHoverHit(hit: SearchHit) {
+    const next = pathFor(hit);
+    if (next) router.prefetch(next);
   }
 
   return (
@@ -61,7 +70,7 @@ export default function SearchBar() {
         results={results}
         loading={loading}
         onSelect={handleSelect}
-        onHoverSlug={handleHoverSlug}
+        onHoverHit={handleHoverHit}
       />
 
       {/* Mobile modal */}
@@ -73,11 +82,11 @@ export default function SearchBar() {
         results={results}
         loading={loading}
         onSelect={handleSelect}
-        onHoverSlug={handleHoverSlug}
+        onHoverHit={handleHoverHit}
       />
 
       {/* Global transition loader */}
-      <FullScreenLoader show={showGlobalLoader || isPending} text="Loading player profile…" />
+      <FullScreenLoader show={showGlobalLoader || isPending} text="Loading…" />
     </>
   );
 }

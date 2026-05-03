@@ -3,23 +3,25 @@
 import { Modal, ModalContent, ModalBody, Input, ScrollShadow } from "@heroui/react";
 import { Search } from "lucide-react";
 import ResultsTable from "./ResultsTable";
-import type { PlayerHit } from "./usePlayerSearch";
+import type { SearchHit, SearchResults } from "./usePlayerSearch";
 
 export default function SearchModal(props: {
   isOpen: boolean;
   onClose: () => void;
   q: string;
   setQ: (v: string) => void;
-  results: PlayerHit[];
+  results: SearchResults;
   loading: boolean;
-  onSelect: (hit: PlayerHit) => void;
-  onHoverSlug?: (slug: string) => void;
+  onSelect: (hit: SearchHit) => void;
+  onHoverHit?: (hit: SearchHit) => void;
 }) {
-  const { isOpen, onClose, q, setQ, results, loading, onSelect, onHoverSlug } = props;
+  const { isOpen, onClose, q, setQ, results, loading, onSelect, onHoverHit } = props;
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (results.length > 0) onSelect(results[0]);
+    const first =
+      results.players[0] ?? results.agencies[0] ?? results.managers[0] ?? null;
+    if (first) onSelect(first);
   }
 
   return (
@@ -38,22 +40,25 @@ export default function SearchModal(props: {
       <ModalContent>
         {() => (
           <ModalBody className="px-0 py-0">
-            <div className="border-b border-white/[0.06] p-4">
+            <div className="border-b border-white/[0.06] px-4 py-3">
               <form onSubmit={onSubmit}>
                 <Input
-                  aria-label="Buscar jugadores"
-                  placeholder="Buscar jugadores, agencias..."
+                  aria-label="Buscar jugadores y agencias"
+                  placeholder="Buscar jugadores, agencias, agentes..."
                   value={q}
                   onValueChange={setQ}
                   autoFocus
-                  variant="bordered"
+                  variant="flat"
                   size="lg"
                   startContent={<Search className="size-4 text-bh-fg-3" />}
                   isClearable
                   onClear={() => setQ("")}
                   classNames={{
                     inputWrapper:
-                      "border-white/[0.1] bg-transparent hover:border-white/[0.18] data-[focus=true]:border-bh-lime data-[focus=true]:bg-transparent shadow-none",
+                      "border-0 bg-transparent shadow-none ring-0 outline-none " +
+                      "hover:bg-transparent data-[hover=true]:bg-transparent " +
+                      "group-data-[focus=true]:bg-transparent data-[focus=true]:bg-transparent " +
+                      "focus-within:bg-transparent",
                     input:
                       "text-[15px] text-bh-fg-1 placeholder:text-bh-fg-3",
                   }}
@@ -68,7 +73,7 @@ export default function SearchModal(props: {
                   query={q}
                   loading={loading}
                   onSelect={onSelect}
-                  onHoverSlug={onHoverSlug}
+                  onHoverHit={onHoverHit}
                 />
               </ScrollShadow>
             </div>
