@@ -300,11 +300,15 @@ html, body { min-height: 100%; }
 }
 
 /* Glassmorphism surface — semi-transparent panel with backdrop blur.
-   Pair with .bh-card-lift for the hover micro-interaction. */
+   Pair with .bh-card-lift for the hover micro-interaction.
+   NOTE: do NOT write `-webkit-backdrop-filter` here. When both prefixed and
+   unprefixed versions are present in source, Lightning CSS (Tailwind v4)
+   sometimes dedupes to the prefixed one only — leaving Chrome/Firefox
+   without backdrop blur. Lightning CSS already adds the `-webkit-` prefix
+   automatically for older Safari targets. */
 .bh-glass {
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px) saturate(140%);
-  -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
@@ -313,7 +317,6 @@ html, body { min-height: 100%; }
 .bh-glass-strong {
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.10);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.08),
@@ -376,27 +379,32 @@ html, body { min-height: 100%; }
 
 /* Mesh texture for "expanded panel" surfaces.
    Distinct from the app ambient (orbs + axis-aligned grid) by using a
-   135° hairline lattice + wider vertical guides + dual accent radials. */
+   135° hairline lattice + wider vertical guides + dual accent radials.
+   Base sits one shade darker than the app background (#050507 vs --bh-black
+   #080808) so the panel reads as a recessed, distinct space. */
 .bh-tex-mesh {
-  background-color: var(--bh-dark);
+  background-color: #050507;
   background-image:
     radial-gradient(ellipse 70% 55% at 0% 0%,
-      rgba(204, 255, 0, 0.08) 0%,
+      rgba(204, 255, 0, 0.14) 0%,
       transparent 60%),
     radial-gradient(ellipse 70% 55% at 100% 100%,
-      rgba(0, 194, 255, 0.07) 0%,
+      rgba(0, 194, 255, 0.12) 0%,
       transparent 60%),
     repeating-linear-gradient(135deg,
-      rgba(255, 255, 255, 0.022) 0px,
-      rgba(255, 255, 255, 0.022) 1px,
+      rgba(255, 255, 255, 0.045) 0px,
+      rgba(255, 255, 255, 0.045) 1px,
       transparent 1px,
       transparent 14px),
     repeating-linear-gradient(90deg,
-      rgba(255, 255, 255, 0.014) 0px,
-      rgba(255, 255, 255, 0.014) 1px,
+      rgba(255, 255, 255, 0.028) 0px,
+      rgba(255, 255, 255, 0.028) 1px,
       transparent 1px,
       transparent 80px),
-    linear-gradient(180deg, var(--bh-dark) 0%, var(--bh-black) 100%);
+    linear-gradient(180deg, #0a0a0c 0%, #050507 50%, #0a0a0c 100%);
+  box-shadow:
+    inset 0 24px 48px -24px rgba(0, 0, 0, 0.6),
+    inset 0 -24px 48px -24px rgba(0, 0, 0, 0.6);
 }
 
 /* Single reduced-motion override covering both the marquee additions
