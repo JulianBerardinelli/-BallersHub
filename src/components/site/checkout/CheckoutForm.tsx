@@ -1,11 +1,22 @@
 "use client";
 
-// Single-step billing form. On submit it calls the server action,
-// which creates the local checkout_session row + the processor session
-// (Stripe / MP) and returns a URL we redirect the browser to.
+// Single-step billing + payment-method form. Visual matches the Claude
+// Design checkout handoff (flat dark cards, lime accents, Barlow display
+// titles). Submit calls the server action which inserts the local row +
+// creates the processor session, then redirects.
 
 import { useState, useTransition } from "react";
-import { ArrowRight, ChevronDown, Loader2, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  Lock,
+  Mail,
+  Shield,
+  User,
+} from "lucide-react";
+import Link from "next/link";
+
 import {
   createCheckoutAction,
   type CreateCheckoutActionInput,
@@ -19,14 +30,19 @@ import { COUNTRIES, type CountryOption } from "./data";
 
 type FormValues = CreateCheckoutActionInput;
 
-const FIELD_BASE =
-  "w-full rounded-bh-md border border-white/[0.10] bg-white/[0.02] px-4 py-2.5 text-[13.5px] text-bh-fg-1 placeholder:text-bh-fg-4 focus:border-bh-lime/40 focus:bg-white/[0.04] focus:outline-none";
+// Flat dark inputs matching the design. Focus state lights up with lime.
+const INPUT_BASE =
+  "w-full rounded-[9px] border border-white/[0.12] bg-[#141414] px-3.5 py-3 text-[13px] text-white placeholder:text-bh-fg-4 transition-colors focus:border-bh-lime focus:bg-bh-surface-1 focus:outline-none focus:ring-2 focus:ring-bh-lime/20";
+const SELECT_BASE =
+  "appearance-none cursor-pointer pr-9 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.5)%22 stroke-width=%222%22><polyline points=%226 9 12 15 18 9%22/></svg>')] bg-no-repeat bg-[right_12px_center]";
 
 export type CheckoutFormProps = {
   planId: CheckoutPlanId;
   currency: CheckoutCurrency;
   defaultEmail: string | null;
   defaultCountry: string;
+  /** Server-side processor readiness. Used to lock the submit + show banner. */
+  disabled?: boolean;
 };
 
 export default function CheckoutForm(props: CheckoutFormProps) {
@@ -36,6 +52,12 @@ export default function CheckoutForm(props: CheckoutFormProps) {
 
   const [country, setCountry] = useState<string>(props.defaultCountry);
   const countryMeta = COUNTRIES.find((c) => c.code === country) ?? null;
+
+  // Currency drives the actual processor server-side, but the picker UI
+  // matches the design — both options visible, the routed one selected.
+  const [selectedMethod, setSelectedMethod] = useState<"stripe" | "mp">(
+    props.currency === "ARS" ? "mp" : "stripe",
+  );
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -69,65 +91,89 @@ export default function CheckoutForm(props: CheckoutFormProps) {
         if (res.fieldErrors) setFieldErrors(res.fieldErrors);
         return;
       }
-      // Redirect to processor (Stripe Checkout / MP Checkout Pro).
       window.location.href = res.redirectUrl;
     });
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="bh-glass relative flex flex-col gap-7 rounded-bh-xl p-6 md:p-7"
-      noValidate
-    >
-      {/* Step 1 — Account / contact */}
-      <Section
-        eyebrow="Paso 1 · Contacto"
-        title="¿Dónde te enviamos la factura?"
-        description="Usamos este email para mandarte el recibo y los recordatorios del trial."
-      >
-        <Field label="Email" name="email" required errors={fieldErrors.email}>
-          <input
-            type="email"
-            name="email"
-            autoComplete="email"
-            placeholder="tu@email.com"
-            defaultValue={props.defaultEmail ?? ""}
-            required
-            className={FIELD_BASE}
-          />
-        </Field>
-        <Field
-          label="Nombre completo"
-          name="fullName"
-          required
-          errors={fieldErrors["billingAddress.fullName"]}
-        >
-          <input
-            type="text"
-            name="fullName"
-            autoComplete="name"
-            required
-            placeholder="Juan Pérez"
-            className={FIELD_BASE}
-          />
-        </Field>
-      </Section>
+    <form onSubmit={onSubmit} noValidate className="space-y-4">
+      {/* Eyebrow + title */}
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3">
+          Paso 2 de 3
+        </p>
+        <h1 className="mt-2.5 font-bh-display text-[2.5rem] font-extrabold uppercase leading-none text-bh-fg-1 md:text-[2.75rem]">
+          Finalizá tu suscripción
+        </h1>
+        <p className="mt-2 text-sm text-bh-fg-2">
+          Completá tus datos y elegí cómo querés pagar. Podés cancelar en
+          cualquier momento.
+        </p>
+      </div>
 
-      {/* Step 2 — Billing address */}
-      <Section
-        eyebrow="Paso 2 · Dirección de facturación"
-        title="Datos para la factura"
-        description="Necesario para procesar el pago en algunos países."
-      >
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+      {/* Card · Datos de contacto */}
+      <Card title="Datos de contacto">
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field
+            label="Email de la cuenta"
+            name="email"
+            required
+            errors={fieldErrors.email}
+          >
+            <InputWithIcon icon={<Mail className="h-3.5 w-3.5" />}>
+              <input
+                type="email"
+                name="email"
+                autoComplete="email"
+                required
+                placeholder="tu@email.com"
+                defaultValue={props.defaultEmail ?? ""}
+                className={`${INPUT_BASE} pl-9`}
+              />
+            </InputWithIcon>
+          </Field>
+          <Field
+            label="Nombre completo"
+            name="fullName"
+            required
+            errors={fieldErrors["billingAddress.fullName"]}
+          >
+            <InputWithIcon icon={<User className="h-3.5 w-3.5" />}>
+              <input
+                type="text"
+                name="fullName"
+                autoComplete="name"
+                required
+                placeholder="Juan Pérez"
+                className={`${INPUT_BASE} pl-9`}
+              />
+            </InputWithIcon>
+          </Field>
+        </div>
+      </Card>
+
+      {/* Card · Datos de facturación */}
+      <Card title="Datos de facturación">
+        <div className="grid gap-3 md:grid-cols-2">
           <Field
             label="País"
             name="countryCode"
             required
             errors={fieldErrors["billingAddress.countryCode"]}
           >
-            <CountrySelect value={country} onChange={setCountry} />
+            <select
+              name="countryCode"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
+              className={`${INPUT_BASE} ${SELECT_BASE}`}
+            >
+              {COUNTRIES.map((c: CountryOption) => (
+                <option key={c.code} value={c.code} className="bg-[#141414]">
+                  {c.name}
+                </option>
+              ))}
+            </select>
           </Field>
           {countryMeta?.taxIdLabel && (
             <Field
@@ -136,7 +182,14 @@ export default function CheckoutForm(props: CheckoutFormProps) {
               hint="Opcional"
               errors={fieldErrors["billingAddress.taxId"]}
             >
-              <input type="text" name="taxId" className={FIELD_BASE} />
+              <input
+                type="text"
+                name="taxId"
+                placeholder={
+                  countryMeta.taxIdType === "dni" ? "40.123.456" : ""
+                }
+                className={`${INPUT_BASE} font-bh-mono tracking-[0.04em]`}
+              />
             </Field>
           )}
         </div>
@@ -153,7 +206,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
             autoComplete="address-line1"
             required
             placeholder="Calle y número"
-            className={FIELD_BASE}
+            className={INPUT_BASE}
           />
         </Field>
         <Field
@@ -166,11 +219,11 @@ export default function CheckoutForm(props: CheckoutFormProps) {
             type="text"
             name="streetLine2"
             autoComplete="address-line2"
-            className={FIELD_BASE}
+            className={INPUT_BASE}
           />
         </Field>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <Field
             label="Ciudad"
             name="city"
@@ -182,7 +235,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
               name="city"
               autoComplete="address-level2"
               required
-              className={FIELD_BASE}
+              className={INPUT_BASE}
             />
           </Field>
           <Field
@@ -194,7 +247,7 @@ export default function CheckoutForm(props: CheckoutFormProps) {
               type="text"
               name="state"
               autoComplete="address-level1"
-              className={FIELD_BASE}
+              className={INPUT_BASE}
             />
           </Field>
           <Field
@@ -208,7 +261,8 @@ export default function CheckoutForm(props: CheckoutFormProps) {
               name="postalCode"
               autoComplete="postal-code"
               required
-              className={FIELD_BASE}
+              placeholder="C1425"
+              className={`${INPUT_BASE} font-bh-mono tracking-[0.04em]`}
             />
           </Field>
         </div>
@@ -216,35 +270,91 @@ export default function CheckoutForm(props: CheckoutFormProps) {
         <Field
           label="Teléfono"
           name="phone"
-          hint="Opcional. Solo lo usamos si hay un problema con el pago."
+          hint="Opcional"
           errors={fieldErrors["billingAddress.phone"]}
         >
           <input
             type="tel"
             name="phone"
             autoComplete="tel"
-            className={FIELD_BASE}
+            className={INPUT_BASE}
           />
         </Field>
-      </Section>
+      </Card>
+
+      {/* Card · Método de pago */}
+      <Card
+        title="Método de pago"
+        right={
+          <span className="inline-flex items-center gap-1.5 text-[11px] text-bh-fg-3">
+            <Lock className="h-3 w-3 text-bh-lime" />
+            Encriptado · PCI DSS
+          </span>
+        }
+      >
+        <div className="flex flex-col gap-2.5">
+          <MethodOption
+            id="stripe"
+            selected={selectedMethod === "stripe"}
+            disabled={props.currency === "ARS"}
+            onClick={() => setSelectedMethod("stripe")}
+            title="Tarjeta de crédito o débito"
+            desc="Visa · Mastercard · American Express · 1-clic checkout"
+            tags={["VISA", "MC", "AMEX"]}
+            logo={<StripeLogo />}
+          />
+          <MethodOption
+            id="mp"
+            selected={selectedMethod === "mp"}
+            disabled={props.currency !== "ARS"}
+            onClick={() => setSelectedMethod("mp")}
+            title="Mercado Pago"
+            desc="Hasta 12 cuotas · Tarjetas locales · Dinero en cuenta"
+            tags={["12x", "ARS"]}
+            logo={<MpLogo />}
+          />
+        </div>
+
+        <div className="mt-4 flex gap-2.5 rounded-[9px] border border-bh-blue/[0.18] bg-bh-blue/[0.05] px-3.5 py-3 text-[12px] leading-[1.5] text-bh-fg-2">
+          <Shield className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bh-blue" />
+          <span>
+            Tus datos de pago se procesan directamente en{" "}
+            <strong className="text-bh-fg-1">
+              {selectedMethod === "stripe" ? "Stripe" : "Mercado Pago"}
+            </strong>
+            . &apos;BallersHub nunca almacena información sensible de tu
+            tarjeta.
+          </span>
+        </div>
+      </Card>
 
       {serverError && (
-        <div className="rounded-bh-md border border-bh-danger/30 bg-bh-danger/10 px-4 py-3 text-[12.5px] text-bh-danger">
+        <div className="rounded-[9px] border border-bh-danger/30 bg-bh-danger/10 px-4 py-3 text-[12.5px] text-bh-danger">
           {serverError}
         </div>
       )}
 
-      <div className="flex flex-col gap-3">
+      {/* Bottom action row: Cambiar plan + Continuar al pago */}
+      <div className="flex flex-col-reverse items-stretch gap-3 pt-4 md:flex-row md:items-center md:justify-between">
+        <Link
+          href="/pricing"
+          className="inline-flex items-center justify-center gap-2 rounded-[9px] px-3 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors hover:bg-white/[0.04] hover:text-bh-fg-1"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Cambiar plan
+        </Link>
         <button
           type="submit"
-          disabled={isPending}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-6 py-3.5 text-[14px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] disabled:opacity-60"
+          disabled={isPending || props.disabled}
+          className="inline-flex items-center justify-center gap-2 rounded-[10px] bg-bh-lime px-7 py-3.5 font-bh-display text-[16px] font-extrabold uppercase tracking-[0.05em] text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.25)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_4px_22px_rgba(204,255,0,0.45)] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:translate-y-0"
         >
           {isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Procesando…
             </>
+          ) : props.disabled ? (
+            <>Procesador no disponible</>
           ) : (
             <>
               Continuar al pago
@@ -252,10 +362,6 @@ export default function CheckoutForm(props: CheckoutFormProps) {
             </>
           )}
         </button>
-        <p className="flex items-center justify-center gap-1.5 text-[11px] text-bh-fg-3">
-          <ShieldCheck className="h-3 w-3" />
-          Te redirigimos al procesador de pagos seguro
-        </p>
       </div>
     </form>
   );
@@ -265,32 +371,25 @@ export default function CheckoutForm(props: CheckoutFormProps) {
 // Subcomponents
 // ---------------------------------------------------------------
 
-function Section({
-  eyebrow,
+function Card({
   title,
-  description,
+  right,
   children,
 }: {
-  eyebrow: string;
   title: string;
-  description?: string;
+  right?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
-    <fieldset className="space-y-3">
-      <legend className="space-y-1">
-        <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-bh-fg-4">
-          {eyebrow}
-        </span>
-        <span className="block font-bh-heading text-base font-bold text-bh-fg-1">
+    <div className="rounded-xl border border-white/[0.06] bg-bh-surface-1 p-5 md:p-6">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h3 className="font-bh-display text-[18px] font-bold uppercase tracking-[0.04em] text-bh-fg-1">
           {title}
-        </span>
-        {description && (
-          <span className="block text-[12px] text-bh-fg-3">{description}</span>
-        )}
-      </legend>
+        </h3>
+        {right}
+      </div>
       <div className="space-y-3">{children}</div>
-    </fieldset>
+    </div>
   );
 }
 
@@ -312,7 +411,7 @@ function Field({
   const hasError = !!errors && errors.length > 0;
   return (
     <label htmlFor={name} className="block space-y-1.5">
-      <span className="flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.10em] text-bh-fg-3">
+      <span className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-[0.02em] text-bh-fg-3">
         <span>
           {label}
           {required && <span className="ml-0.5 text-bh-danger">*</span>}
@@ -331,30 +430,102 @@ function Field({
   );
 }
 
-function CountrySelect({
-  value,
-  onChange,
+function InputWithIcon({
+  icon,
+  children,
 }: {
-  value: string;
-  onChange: (v: string) => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <div className="relative">
-      <select
-        name="countryCode"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required
-        className={`${FIELD_BASE} appearance-none pr-10`}
-      >
-        {COUNTRIES.map((c: CountryOption) => (
-          <option key={c.code} value={c.code} className="bg-bh-black">
-            {c.name}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-bh-fg-3" />
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-bh-fg-3">
+        {icon}
+      </span>
+      {children}
     </div>
+  );
+}
+
+function MethodOption({
+  selected,
+  disabled,
+  onClick,
+  title,
+  desc,
+  tags,
+  logo,
+}: {
+  id: string;
+  selected: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  title: string;
+  desc: string;
+  tags: string[];
+  logo: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={disabled ? undefined : onClick}
+      aria-pressed={selected}
+      disabled={disabled}
+      className={`flex items-center gap-3.5 rounded-[10px] border bg-bh-surface-1 p-4 text-left transition-all duration-200 ease-[cubic-bezier(0.25,0,0,1)] ${
+        selected
+          ? "border-bh-lime bg-gradient-to-b from-bh-lime/[0.05] to-transparent shadow-[0_0_0_1px_rgba(204,255,0,1),_0_0_24px_rgba(204,255,0,0.08)]"
+          : disabled
+            ? "cursor-not-allowed border-white/[0.06] opacity-50"
+            : "border-white/[0.12] hover:-translate-y-px hover:border-white/[0.22]"
+      }`}
+    >
+      <span
+        className={`grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full border ${
+          selected
+            ? "border-bh-lime"
+            : "border-white/[0.22]"
+        }`}
+      >
+        {selected && (
+          <span className="h-2.5 w-2.5 rounded-full bg-bh-lime" />
+        )}
+      </span>
+      <span className="grid h-9 w-12 shrink-0 place-items-center overflow-hidden rounded-md">
+        {logo}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-bh-display text-[15px] font-bold uppercase tracking-[0.04em] text-bh-fg-1">
+          {title}
+        </span>
+        <span className="mt-0.5 block text-[12px] text-bh-fg-3">{desc}</span>
+      </span>
+      <span className="hidden shrink-0 gap-1.5 md:flex">
+        {tags.map((t) => (
+          <span
+            key={t}
+            className="inline-flex items-center rounded-[4px] border border-white/[0.06] bg-bh-surface-2 px-1.5 py-0.5 font-bh-mono text-[10px] text-bh-fg-2"
+          >
+            {t}
+          </span>
+        ))}
+      </span>
+    </button>
+  );
+}
+
+function StripeLogo() {
+  return (
+    <span className="flex h-full w-full items-center justify-center bg-[#635BFF] font-bh-display text-[11px] font-extrabold tracking-[0.02em] text-white">
+      stripe
+    </span>
+  );
+}
+
+function MpLogo() {
+  return (
+    <span className="flex h-full w-full items-center justify-center bg-gradient-to-b from-[#00B1EA] to-[#009EE3] font-bh-display text-[10px] font-extrabold text-white">
+      MP
+    </span>
   );
 }
 

@@ -14,11 +14,18 @@ export default function CheckoutLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative isolate min-h-screen overflow-x-clip bg-bh-black">
+    <div
+      className="relative isolate min-h-screen overflow-x-clip bg-bh-black"
+      style={{
+        // Subtle ambient washes matching the Claude Design checkout shell.
+        backgroundImage:
+          "radial-gradient(1200px 700px at 80% -20%, rgba(204,255,0,0.06), transparent 60%), radial-gradient(900px 600px at 0% 110%, rgba(0,194,255,0.04), transparent 60%)",
+      }}
+    >
       <div className="relative z-10 flex min-h-screen flex-col">
         <CheckoutTopbar />
         <SiteMotionProvider>
-          <main className="mx-auto w-full max-w-[1200px] flex-1 px-4 pb-16 pt-10 md:px-6 md:pt-12">
+          <main className="mx-auto w-full max-w-[1280px] flex-1 px-6 pb-16 pt-7 md:px-12 md:pt-9">
             {children}
           </main>
         </SiteMotionProvider>

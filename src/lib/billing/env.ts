@@ -48,3 +48,17 @@ export const billingEnv = {
     return optional("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000";
   },
 };
+
+/**
+ * Boolean check used by the /checkout page to decide whether to render the
+ * form or a "this processor is not configured yet" banner. Doesn't throw,
+ * unlike the accessors above — calling code can branch instead of failing.
+ */
+export function isProcessorConfigured(
+  processor: "stripe" | "mercado_pago",
+): boolean {
+  if (processor === "stripe") {
+    return !!optional("STRIPE_SECRET_KEY");
+  }
+  return !!optional("MP_ACCESS_TOKEN");
+}

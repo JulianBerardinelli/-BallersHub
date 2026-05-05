@@ -17,7 +17,7 @@ import {
   TRIAL_DAYS,
 } from "./plans";
 import { getStripe } from "./stripe";
-import { getMpPreference } from "./mercadopago";
+import { getMpPreApproval } from "./mercadopago";
 import { billingEnv } from "./env";
 
 export type BillingAddressInput = {
@@ -219,7 +219,16 @@ async function createStripeCheckout(args: {
 }
 
 // ---------------------------------------------------------------
-// Mercado Pago Checkout Pro — redirect-based
+// Mercado Pago — Subscriptions API (preapproval)
+//
+// Uses MP's recurring billing API instead of one-time Checkout Pro. This
+// gives us native annual recurrence + 7-day free trial without needing a
+// cron job to re-create preferences each year. The user authorises the
+// subscription once via the redirect URL; MP charges automatically at
+// each interval and emits `subscription.*` / `invoice.*` webhooks we
+// handle in `lib/billing/handlers/mercadopago.ts`.
+//
+// Reference: skills/mp-subscriptions/SKILL.md
 // ---------------------------------------------------------------
 
 async function createMpCheckout(args: {
@@ -229,44 +238,39 @@ async function createMpCheckout(args: {
   email: string;
   price: ReturnType<typeof getPlanPrice>;
 }): Promise<CreateCheckoutResult> {
-  const preference = getMpPreference();
+  const preapproval = getMpPreApproval();
   const baseUrl = billingEnv.appUrl();
 
-  const result = await preference.create({
+  // Annual recurrence expressed as 12-month frequency. MP's
+  // `frequency_type` only supports `days` and `months` — there is no
+  // `years` value (per skill reference table).
+  const result = await preapproval.create({
     body: {
-      items: [
-        {
-          id: args.planId,
-          title: planLabel(args.planId),
-          description: planDescription(args.planId),
-          quantity: 1,
-          unit_price: args.price.amount,
-          currency_id: "ARS",
-        },
-      ],
-      payer: { email: args.email },
-      back_urls: {
-        // Same rationale as Stripe: route through /processing so the page
-        // can wait on the MP webhook before showing success.
-        success: `${baseUrl}/checkout/processing?internal=${args.internalSessionId}`,
-        failure: `${baseUrl}/checkout/failure?internal=${args.internalSessionId}`,
-        pending: `${baseUrl}/checkout/pending?internal=${args.internalSessionId}`,
-      },
-      auto_return: "approved",
-      notification_url: `${baseUrl}/api/webhooks/mercadopago`,
+      reason: planLabel(args.planId),
       external_reference: args.internalSessionId,
-      statement_descriptor: "BALLERSHUB",
-      metadata: {
-        plan_id: args.planId,
-        internal_session_id: args.internalSessionId,
+      payer_email: args.email,
+      back_url: `${baseUrl}/checkout/processing?internal=${args.internalSessionId}`,
+      auto_recurring: {
+        frequency: 12,
+        frequency_type: "months",
+        transaction_amount: args.price.amount,
+        currency_id: "ARS",
+        // Note: at the time of writing, free_trial isn't typed on the
+        // SDK's auto_recurring shape but the API accepts it. We cast to
+        // make TS happy without losing the field server-side.
+        ...({
+          free_trial: { frequency: TRIAL_DAYS, frequency_type: "days" },
+        } as Record<string, unknown>),
       },
+      // status: 'pending' until the user authorizes via init_point.
+      status: "pending",
     },
   });
 
-  const url = result.init_point ?? result.sandbox_init_point;
+  const url = result.init_point;
   if (!url || !result.id) {
     throw new Error(
-      "[createCheckout] Mercado Pago did not return a preference URL",
+      "[createCheckout] Mercado Pago did not return a preapproval URL",
     );
   }
 

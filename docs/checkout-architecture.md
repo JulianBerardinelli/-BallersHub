@@ -22,8 +22,12 @@
 
 ## 2. Modelo de plan
 
-- **Cadencia única anual** (no mensual). En Stripe, esto es un `Price` con `recurring.interval: 'year'`. En MP, es un cobro único por preference (la renovación se gestiona programáticamente al cumplirse el año vía webhook + creación de nueva preferencia o vía MP Subscriptions API).
-- **Trial de 7 días** sólo aplica en Stripe (`subscription_data.trial_period_days: 7`). MP no tiene trial nativo en Checkout Pro — para Argentina simulamos el trial creando la suscripción interna pero retrasando el primer cobro 7 días con un cron job, o usando la API de Subscriptions de MP cuando esté soportada.
+- **Cadencia única anual** (no mensual).
+  - **Stripe**: `Price` con `recurring.interval: 'year'`. Provisionados via Stripe MCP — pinneados en `STRIPE_PRICE_*` env vars.
+  - **MP**: `preapproval` (Subscriptions API) con `auto_recurring.frequency: 12, frequency_type: 'months'`. MP cobra automáticamente cada 12 meses + emite webhooks `subscription.*` / `invoice.*` que actualizan el estado en `subscriptions`.
+- **Trial de 7 días** nativo en ambos procesadores:
+  - **Stripe**: `subscription_data.trial_period_days: 7`.
+  - **MP**: `auto_recurring.free_trial: { frequency: 7, frequency_type: 'days' }`.
 - **Refund window**: 3 días post-cobro anual. En Stripe se hace via Customer Portal (configurado en dashboard) o vía API. En MP es manual desde el dashboard del comerciante.
 
 ## 3. Estado y persistencia
@@ -313,4 +317,5 @@ El handoff de Claude Design (`tmp/bh-design/.../checkout/`) define un flow más 
 
 ## 9. Changelog
 
+- **2026-05-05 (v2)** — Stripe Phase 3 funcionalmente completo: 4 productos×prices provisionados en test mode via Stripe MCP, env vars pinneadas (`STRIPE_PRICE_*`), webhook secret obtenido via `stripe listen`. MP migrado de Checkout Pro (one-time + cron renewal hack) a **Subscriptions API (preapproval)**: recurrence anual nativa via `auto_recurring.frequency: 12, frequency_type: 'months'`, trial 7d nativo via `auto_recurring.free_trial`. Webhook handler MP rewriteado para `subscription_preapproval` / `subscription_authorized_payment` topics. Mantenemos `Payment` resource lookup como fallback para refunds/chargebacks.
 - **2026-05-04 (v1)** — Draft inicial. Routing por moneda, modelo de subscriptions, schema de DB propuesto, phase rollout en 6 etapas.

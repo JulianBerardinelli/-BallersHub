@@ -1,8 +1,11 @@
 // /checkout/[planId]?currency=USD|ARS|EUR — Step 2 (Pago).
 // Lives in the (checkout) route group so it gets the dedicated topbar
-// instead of SiteHeader.
+// instead of SiteHeader. Layout matches the Claude Design handoff:
+// stepper centered, then 2-col main + 420px summary.
 
 import { redirect, notFound } from "next/navigation";
+import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import {
@@ -11,13 +14,13 @@ import {
   isCheckoutPlanId,
   isCheckoutCurrency,
   getPlanPrice,
+  processorFor,
   TRIAL_DAYS,
 } from "@/lib/billing/plans";
-import { CURRENCY_GLYPH } from "@/components/site/pricing/data";
+import { isProcessorConfigured } from "@/lib/billing/env";
 import CheckoutForm from "@/components/site/checkout/CheckoutForm";
 import CheckoutOrderSummary from "@/components/site/checkout/CheckoutOrderSummary";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
-import PaymentMethodCard from "@/components/site/checkout/PaymentMethodCard";
 
 export const metadata = {
   title: "Checkout · 'BallersHub",
@@ -52,25 +55,15 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
     redirect(`/auth/sign-up?redirectTo=${back}`);
   }
 
-  const defaultCountry = currency === "ARS" ? "AR" : currency === "EUR" ? "ES" : "US";
+  const defaultCountry =
+    currency === "ARS" ? "AR" : currency === "EUR" ? "ES" : "US";
+
+  const processor = processorFor(currency);
+  const processorReady = isProcessorConfigured(processor);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-9">
       <CheckoutStepper current="payment" />
-
-      <section className="mx-auto max-w-2xl space-y-3 text-center">
-        <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 bg-white/[0.03] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3 backdrop-blur-md">
-          Activar suscripción
-        </span>
-        <h1 className="font-bh-display text-3xl font-black uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          Estás a un paso de tu plan{" "}
-          <span className="bh-text-shimmer">Pro</span>
-        </h1>
-        <p className="text-[13px] leading-[1.6] text-bh-fg-3">
-          Cargá tus datos de facturación y te llevamos al procesador para
-          confirmar la suscripción.
-        </p>
-      </section>
 
       {canceled === "1" && (
         <div className="mx-auto max-w-2xl rounded-bh-lg border border-bh-warning/30 bg-bh-warning/10 px-4 py-3 text-center text-[12.5px] text-bh-warning">
@@ -79,19 +72,21 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
         </div>
       )}
 
-      <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
-        <div className="space-y-6">
-          <CheckoutForm
-            planId={planId}
-            currency={currency}
-            defaultEmail={user.email ?? null}
-            defaultCountry={defaultCountry}
-          />
-          <div className="bh-glass rounded-bh-xl p-6 md:p-7">
-            <PaymentMethodCard currency={currency} />
-          </div>
-        </div>
+      {!processorReady && (
+        <ProcessorNotReadyBanner currency={currency} planId={planId} />
+      )}
 
+      {/* `items-start` is required so the aside is its natural height
+          (not stretched to match the form). Without it, `position: sticky`
+          on the summary does nothing because the cell already fills the row. */}
+      <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-12">
+        <CheckoutForm
+          planId={planId}
+          currency={currency}
+          defaultEmail={user.email ?? null}
+          defaultCountry={defaultCountry}
+          disabled={!processorReady}
+        />
         <CheckoutOrderSummary
           planId={planId}
           currency={currency}
@@ -99,11 +94,51 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           trialDays={TRIAL_DAYS}
         />
       </div>
+    </div>
+  );
+}
 
-      <p className="text-center text-[11px] uppercase tracking-[0.14em] text-bh-fg-4">
-        Cobro anual · Cancelable sin cargo dentro de los 3 días posteriores al
-        fin del trial · {CURRENCY_GLYPH[currency]} {price.amount} {currency} / año
-      </p>
+function ProcessorNotReadyBanner({
+  currency,
+  planId,
+}: {
+  currency: CheckoutCurrency;
+  planId: CheckoutPlanId;
+}) {
+  const isMp = currency === "ARS";
+  const altCurrency: CheckoutCurrency = isMp ? "USD" : "ARS";
+  const altLabel = isMp ? "USD (Stripe)" : "ARS (Mercado Pago)";
+
+  return (
+    <div className="mx-auto max-w-2xl rounded-bh-lg border border-bh-warning/30 bg-bh-warning/10 p-4">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-bh-warning" />
+        <div className="flex-1 space-y-2 text-[12.5px]">
+          <p className="font-semibold text-bh-warning">
+            {isMp
+              ? "Mercado Pago todavía no está configurado en este entorno."
+              : "Stripe todavía no está configurado en este entorno."}
+          </p>
+          <p className="text-bh-fg-2">
+            Estamos terminando de conectar este método de pago. Mientras tanto
+            podés probar con{" "}
+            <Link
+              href={`/checkout/${planId}?currency=${altCurrency}`}
+              className="font-semibold text-bh-lime underline-offset-4 hover:underline"
+            >
+              {altLabel}
+            </Link>
+            , o escribirnos a{" "}
+            <Link
+              href="mailto:soporte@ballershub.app"
+              className="font-semibold text-bh-fg-1 underline-offset-4 hover:underline"
+            >
+              soporte@ballershub.app
+            </Link>{" "}
+            para que te avisemos cuando esté listo.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

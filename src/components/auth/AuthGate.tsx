@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
@@ -6,11 +7,32 @@ import InOutButtons from "./InOutButtons";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { db } from "@/lib/db";
 
-export default async function AuthGate() {
-  const supabase = await createSupabaseServerRSC();
+// AuthGate renders inside the (site) layout shell on every request. We
+// MUST NOT 500 the whole layout when the auth backend or DB is briefly
+// unreachable (Supabase paused, pooler outage, network blip) — that would
+// take down /pricing, /about, /checkout, etc. with it.
+//
+// Two layers of defence:
+//   1. Wrap the auth check itself. If `supabase.auth.getUser()` throws
+//      (rare, but observed during pooler resets), treat as anonymous.
+//   2. Wrap the post-auth fetches. If any of them throw, render a minimal
+//      UserMenu using only the data we already have on `user`.
+//
+// The success path is unchanged.
 
-  // Sesión
-  const { data: { user } } = await supabase.auth.getUser();
+export default async function AuthGate() {
+  let user: User | null = null;
+  try {
+    const supabase = await createSupabaseServerRSC();
+    const { data } = await supabase.auth.getUser();
+    user = data.user ?? null;
+  } catch (err) {
+    console.warn(
+      "[AuthGate] auth check failed, treating as anonymous:",
+      err instanceof Error ? err.message : err,
+    );
+    user = null;
+  }
 
   if (!user) {
     return (
@@ -20,12 +42,8 @@ export default async function AuthGate() {
     );
   }
 
-  // Defensive: any of the post-auth fetches below can fail when the DB
-  // backend is unreachable (Supabase paused, network blip, pooler outage).
-  // We don't want a transient backend issue to 500 the entire site shell —
-  // marketing pages would become unreachable. On failure we degrade to a
-  // minimal UserMenu using only data we already have from the auth session.
   try {
+    const supabase = await createSupabaseServerRSC();
     const dashboardState = await fetchDashboardState(supabase, user.id);
     const profile = dashboardState.profile;
     const application = dashboardState.application;
@@ -53,7 +71,6 @@ export default async function AuthGate() {
       user.email?.split("@")[0] ??
       "Mi cuenta";
 
-    // Si tenés un handle (@slug) lo mostramos, si no el email
     const handle = isManager && up?.agency?.slug
       ? `@${up.agency.slug}`
       : profile?.slug ? `@${profile.slug}` : null;
@@ -67,22 +84,19 @@ export default async function AuthGate() {
         email={user.email ?? ""}
         handle={handle}
         avatarUrl={isManager && up?.agency?.logoUrl ? up.agency.logoUrl : (profile?.avatar_url ?? dashboardState.primaryPhotoUrl ?? null)}
-
         role={isManager ? "manager" : "player"}
         agencySlug={up?.agency?.slug}
         managerApplicationStatus={managerApp?.status}
-
         hasPlayerProfile={hasPublicProfile}
         playerSlug={profile?.slug ?? null}
         applicationStatus={application?.status ?? null}
-
         onSignOut={signOutAction}
       />
     );
   } catch (err) {
     console.warn(
       "[AuthGate] post-auth data fetch failed, falling back to minimal menu:",
-      err,
+      err instanceof Error ? err.message : err,
     );
 
     const fallbackName =
