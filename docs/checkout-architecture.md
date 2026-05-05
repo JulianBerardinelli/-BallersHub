@@ -263,12 +263,26 @@ NEXT_PUBLIC_APP_URL=https://app.ballershub.app  # base para back_urls/success_ur
 - [ ] Done pages (success / failure / pending)
 - [ ] CTAs de PricingPlans wired a `/checkout/[planId]`
 
+### Phase 2.5 — Visual upgrade matching Claude Design handoff
+
+El handoff de Claude Design (`tmp/bh-design/.../checkout/`) define un flow más rico que el shell actual. Cuando lo adoptemos, agregar:
+
+- **Stepper component** de 3 pasos visibles arriba del form (Plan / Pago / Confirmación). Numbered + check-on-done + line separator.
+- **Topbar dedicada** del checkout con logo BallersHub a la izquierda + pill "Pago 100% seguro · SSL 256-bit" + link a Soporte. Es un layout DISTINTO al `(site)` (sin SiteHeader/SiteFooter normales) — pensar en dejarlo en una route group propia o pasar prop al layout.
+- **Toggle "Necesito factura A (CUIT)"** en la card de billing. Switchea el label DNI ↔ CUIT y el placeholder. Cuando está ON, agrega un campo extra "Razón social".
+- **Card "Método de pago"** con 2 opciones grandes (Stripe / MP), cada una con logo + descripción + tag pills (VISA/MC/AMEX para Stripe, 12x/ARS para MP). Lock icon "PCI DSS" en el header del card.
+- **Coupon code** input en el order summary con un código demo `BH20` que aplica 20%. Implica `coupons` table + integración con Stripe Coupons / MP descuentos.
+- **Pantallas adicionales**:
+  - `processing.tsx` — loader animado + "Procesando pago" mientras esperamos confirmación (no redirect inmediato a éxito).
+  - `email.tsx` — preview del recibo enviado por email, con botón a descargar PDF.
+
 ### Phase 3 — Stripe end-to-end (test mode)
 - [ ] Crear products + prices en Stripe via MCP
 - [ ] Conectar `STRIPE_PRICE_*` en `.env.local`
 - [ ] Webhook handlers funcionales (`checkout.session.completed`, `customer.subscription.updated`, `invoice.paid`, `invoice.payment_failed`)
 - [ ] Estado real de subscriptions persistido
 - [ ] Trigger de email de bienvenida via Resend
+- [ ] **Decidir hosted vs embedded**: el shell de Phase 1-2 usa hosted redirect (Stripe Checkout / MP Checkout Pro). El handoff de Claude Design prevé embedded UI (Stripe Elements / MP Payment Brick). Embedded = más conversion + más complejidad. Empezamos hosted, evaluamos embedded en Phase 3.5 si las métricas lo justifican.
 
 ### Phase 4 — Mercado Pago end-to-end (test mode)
 - [ ] Crear access token de test user
