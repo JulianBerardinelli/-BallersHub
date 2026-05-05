@@ -85,7 +85,7 @@ export default function PricingPlans() {
         {activePlan && (
           <PricingDetailPanel
             key={activePlan.id}
-            plan={planToDetailPlan(activePlan, accent)}
+            plan={planToDetailPlan(activePlan, accent, currency)}
             activeIdx={Math.max(0, activePlanIdx)}
           />
         )}
@@ -99,7 +99,20 @@ export default function PricingPlans() {
   );
 }
 
-function planToDetailPlan(plan: Plan, accent: AccentColor): DetailPanelPlan {
+/** Pro tier always goes to the checkout flow with the active currency.
+ *  Free stays on the existing sign-up href so users can self-onboard. */
+function resolveCtaHref(plan: Plan, currency: Currency): string {
+  if (plan.tier === "pro") {
+    return `/checkout/${plan.id}?currency=${currency}`;
+  }
+  return plan.ctaHref;
+}
+
+function planToDetailPlan(
+  plan: Plan,
+  accent: AccentColor,
+  currency: Currency,
+): DetailPanelPlan {
   return {
     id: plan.id,
     audience: plan.audience,
@@ -108,7 +121,7 @@ function planToDetailPlan(plan: Plan, accent: AccentColor): DetailPanelPlan {
     tagline: plan.tagline,
     accent: plan.tier === "pro" ? accent : "neutral",
     ctaLabel: plan.ctaLabel,
-    ctaHref: plan.ctaHref,
+    ctaHref: resolveCtaHref(plan, currency),
   };
 }
 
@@ -226,7 +239,7 @@ function PlanCard({
 
       <div className="mt-auto flex flex-col gap-2 pt-6">
         <Link
-          href={plan.ctaHref}
+          href={resolveCtaHref(plan, currency)}
           className={`inline-flex w-full items-center justify-center gap-2 rounded-bh-md px-5 py-2.5 text-sm font-semibold transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] ${cta}`}
         >
           {plan.ctaLabel}
