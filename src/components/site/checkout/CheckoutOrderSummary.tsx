@@ -1,9 +1,13 @@
-// Right-side order summary card. Server component — purely presentational.
-// Uses the same design tokens as PricingPlans (bh-glass, bh-text-shimmer,
-// the lime/blue accents) so the checkout feels like a continuation of the
-// pricing page, not a different surface.
+"use client";
 
-import { Check, Receipt, ShieldCheck, Sparkles } from "lucide-react";
+// Order summary with embedded coupon input. Client component because it
+// owns the coupon state + re-renders the price block when a code applies.
+//
+// `BH20` is a hardcoded demo coupon (20% off). Real coupon redemption
+// (Stripe Coupons API + MP discounts + DB table) lands in Phase 3.
+
+import { useMemo, useState } from "react";
+import { Check, Receipt, ShieldCheck, Sparkles, Tag, X } from "lucide-react";
 import type { CheckoutPlanId, CheckoutCurrency } from "@/lib/billing/plans";
 import { CURRENCY_GLYPH } from "@/components/site/pricing/data";
 import { PLAN_COPY } from "./data";
@@ -28,11 +32,16 @@ const ACCENT_BORDER = {
   blue: "border-[rgba(0,194,255,0.22)] bg-[rgba(0,194,255,0.08)]",
 } as const;
 
+// Demo-only coupon table. Replace with a real lookup in Phase 3.
+const DEMO_COUPONS: Record<string, { percent: number; label: string }> = {
+  BH20: { percent: 20, label: "Lanzamiento BallersHub — 20% de descuento" },
+};
+
 export type CheckoutOrderSummaryProps = {
   planId: CheckoutPlanId;
   currency: CheckoutCurrency;
-  perMonthDisplay: string;
-  annualDisplay: string;
+  /** Base annual amount in major units (USD/EUR/ARS). Used for discount math. */
+  annualAmount: number;
   trialDays: number;
 };
 
@@ -40,6 +49,38 @@ export default function CheckoutOrderSummary(props: CheckoutOrderSummaryProps) {
   const accent = ACCENT_BY_PLAN[props.planId];
   const copy = PLAN_COPY[props.planId];
   const glyph = CURRENCY_GLYPH[props.currency];
+
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
+  const discount = useMemo(() => {
+    if (!appliedCoupon) return null;
+    const def = DEMO_COUPONS[appliedCoupon];
+    if (!def) return null;
+    const off = Math.round(props.annualAmount * (def.percent / 100));
+    return { code: appliedCoupon, percent: def.percent, label: def.label, off };
+  }, [appliedCoupon, props.annualAmount]);
+
+  const finalAnnual = props.annualAmount - (discount?.off ?? 0);
+  const finalPerMonth = finalAnnual / 12;
+
+  const applyCoupon = () => {
+    setCouponError(null);
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
+    if (DEMO_COUPONS[code]) {
+      setAppliedCoupon(code);
+      setCouponInput("");
+      return;
+    }
+    setCouponError("Código no válido. Probá con BH20.");
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+  };
 
   return (
     <aside className="bh-glass-strong bh-noise relative overflow-hidden rounded-bh-xl p-6 md:p-7">
@@ -60,6 +101,7 @@ export default function CheckoutOrderSummary(props: CheckoutOrderSummaryProps) {
         </span>
       </header>
 
+      {/* Price block — re-renders when a coupon applies */}
       <div className="mt-5">
         <div className="flex items-end gap-2">
           <span
@@ -68,7 +110,7 @@ export default function CheckoutOrderSummary(props: CheckoutOrderSummaryProps) {
             <span className="mr-0.5 align-top text-[1.5rem] text-bh-fg-3">
               {glyph}
             </span>
-            {props.perMonthDisplay}
+            {formatPerMonth(finalPerMonth, props.currency)}
           </span>
           <span className="pb-1.5 font-bh-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3">
             {props.currency}
@@ -77,13 +119,42 @@ export default function CheckoutOrderSummary(props: CheckoutOrderSummaryProps) {
         </div>
         <p className="mt-2 text-[12px] text-bh-fg-3">
           Facturado anualmente ·{" "}
-          <span className="font-semibold text-bh-fg-2">
-            {glyph}
-            {props.annualDisplay} {props.currency}
-          </span>{" "}
-          / año
+          {discount ? (
+            <>
+              <span className="line-through decoration-white/30">
+                {glyph}
+                {formatAnnual(props.annualAmount, props.currency)}
+              </span>{" "}
+              <span className={`font-semibold ${ACCENT_TEXT[accent]}`}>
+                {glyph}
+                {formatAnnual(finalAnnual, props.currency)} {props.currency}
+              </span>{" "}
+              / año
+            </>
+          ) : (
+            <span className="font-semibold text-bh-fg-2">
+              {glyph}
+              {formatAnnual(props.annualAmount, props.currency)} {props.currency} / año
+            </span>
+          )}
         </p>
       </div>
+
+      <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+
+      {/* Coupon input */}
+      <CouponBlock
+        accent={accent}
+        couponInput={couponInput}
+        setCouponInput={setCouponInput}
+        appliedCoupon={appliedCoupon}
+        discount={discount}
+        couponError={couponError}
+        applyCoupon={applyCoupon}
+        removeCoupon={removeCoupon}
+        glyph={glyph}
+        currency={props.currency}
+      />
 
       <div className="my-6 h-px w-full bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
 
@@ -132,4 +203,117 @@ export default function CheckoutOrderSummary(props: CheckoutOrderSummaryProps) {
       </div>
     </aside>
   );
+}
+
+// ---------------------------------------------------------------
+// Coupon UI
+// ---------------------------------------------------------------
+
+function CouponBlock(props: {
+  accent: "lime" | "blue";
+  couponInput: string;
+  setCouponInput: (v: string) => void;
+  appliedCoupon: string | null;
+  discount: { code: string; percent: number; label: string; off: number } | null;
+  couponError: string | null;
+  applyCoupon: () => void;
+  removeCoupon: () => void;
+  glyph: string;
+  currency: CheckoutCurrency;
+}) {
+  if (props.discount && props.appliedCoupon) {
+    return (
+      <div
+        className={`flex items-start gap-3 rounded-bh-lg border ${ACCENT_BORDER[props.accent]} p-3.5`}
+      >
+        <span
+          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border ${ACCENT_BORDER[props.accent]} ${ACCENT_TEXT[props.accent]}`}
+        >
+          <Tag className="h-3 w-3" />
+        </span>
+        <div className="flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <span
+              className={`font-bh-mono text-[12px] font-bold ${ACCENT_TEXT[props.accent]}`}
+            >
+              {props.discount.code}
+            </span>
+            <button
+              type="button"
+              onClick={props.removeCoupon}
+              className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-4 transition-colors hover:text-bh-danger"
+            >
+              <X className="h-3 w-3" />
+              Quitar
+            </button>
+          </div>
+          <p className="mt-1 text-[11.5px] leading-[1.4] text-bh-fg-3">
+            {props.discount.label}
+          </p>
+          <p
+            className={`mt-1.5 text-[11.5px] font-semibold ${ACCENT_TEXT[props.accent]}`}
+          >
+            −{props.discount.percent}% · ahorrás {props.glyph}
+            {formatAnnual(props.discount.off, props.currency)}{" "}
+            {props.currency} / año
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      <label className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-4">
+        <Tag className="h-3 w-3" />
+        ¿Tenés un código?
+      </label>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={props.couponInput}
+          onChange={(e) => props.setCouponInput(e.target.value.toUpperCase())}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              props.applyCoupon();
+            }
+          }}
+          placeholder="BH20"
+          className="w-full rounded-bh-md border border-white/[0.10] bg-white/[0.02] px-3 py-2 font-bh-mono text-[12px] tracking-[0.06em] text-bh-fg-1 placeholder:text-bh-fg-4 focus:border-bh-lime/40 focus:outline-none"
+        />
+        <button
+          type="button"
+          onClick={props.applyCoupon}
+          disabled={props.couponInput.trim().length === 0}
+          className="rounded-bh-md border border-white/[0.12] bg-white/[0.04] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.12em] text-bh-fg-2 transition-colors hover:border-bh-lime/30 hover:bg-bh-lime/[0.06] hover:text-bh-lime disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Aplicar
+        </button>
+      </div>
+      {props.couponError && (
+        <p className="text-[11px] text-bh-danger">{props.couponError}</p>
+      )}
+    </div>
+  );
+}
+
+function formatPerMonth(amount: number, currency: CheckoutCurrency): string {
+  if (currency === "ARS") {
+    return new Intl.NumberFormat("es-AR").format(Math.round(amount));
+  }
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+function formatAnnual(amount: number, currency: CheckoutCurrency): string {
+  if (currency === "ARS") {
+    return new Intl.NumberFormat("es-AR").format(amount);
+  }
+  if (currency === "EUR") {
+    return new Intl.NumberFormat("de-DE").format(amount);
+  }
+  return String(amount);
 }

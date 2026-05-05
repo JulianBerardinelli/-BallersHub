@@ -175,8 +175,12 @@ async function createStripeCheckout(args: {
     line_items: [lineItem],
     customer_email: args.email,
     client_reference_id: args.internalSessionId,
-    success_url: `${baseUrl}/checkout/success?cs_id={CHECKOUT_SESSION_ID}&internal=${args.internalSessionId}`,
-    cancel_url: `${baseUrl}/checkout/${args.planId}/details?canceled=1&internal=${args.internalSessionId}`,
+    // Land on /processing first; that page polls our DB and forwards to
+    // /success once the webhook has flipped checkout_sessions.status to
+    // 'completed'. Avoids the awkward "is it done yet?" flash when the
+    // webhook hasn't arrived by the time the user is redirected back.
+    success_url: `${baseUrl}/checkout/processing?internal=${args.internalSessionId}&cs_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${baseUrl}/checkout/${args.planId}?currency=${args.currency}&canceled=1&internal=${args.internalSessionId}`,
     subscription_data: {
       trial_period_days: TRIAL_DAYS,
       metadata: {
@@ -242,7 +246,9 @@ async function createMpCheckout(args: {
       ],
       payer: { email: args.email },
       back_urls: {
-        success: `${baseUrl}/checkout/success?internal=${args.internalSessionId}`,
+        // Same rationale as Stripe: route through /processing so the page
+        // can wait on the MP webhook before showing success.
+        success: `${baseUrl}/checkout/processing?internal=${args.internalSessionId}`,
         failure: `${baseUrl}/checkout/failure?internal=${args.internalSessionId}`,
         pending: `${baseUrl}/checkout/pending?internal=${args.internalSessionId}`,
       },
