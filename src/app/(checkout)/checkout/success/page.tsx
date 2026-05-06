@@ -6,6 +6,7 @@
 // and offers a link to the receipt + dashboard.
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   ArrowRight,
   CheckCircle2,
@@ -42,6 +43,22 @@ type PageProps = {
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   const { internal } = await searchParams;
   const session = internal ? await loadSession(internal) : null;
+
+  // Status guard: this page is the *confirmation* surface — only render
+  // it when the session is actually completed. Otherwise:
+  //  - pending / redirected → bounce to /processing (which polls + reconciles)
+  //  - failed / expired → bounce to /failure
+  //  - no session at all → render the generic confirmation (legacy bookmark
+  //    case). The user gets a neutral "gracias por suscribirte" without
+  //    any false claims about plan activation.
+  if (session) {
+    if (session.status === "pending" || session.status === "redirected") {
+      redirect(`/checkout/processing?internal=${internal}`);
+    }
+    if (session.status === "failed" || session.status === "expired") {
+      redirect(`/checkout/failure?internal=${internal}`);
+    }
+  }
 
   const planCopy =
     session && isCheckoutPlanId(session.planId) ? PLAN_COPY[session.planId] : null;

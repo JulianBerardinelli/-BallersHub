@@ -55,15 +55,17 @@ export async function POST(req: NextRequest) {
   }
 
   // Persist first; we want a paper trail even if processing fails.
-  const { eventRowId, isFirst } = await recordEvent({
+  const { eventRowId, isFirst, needsReprocess } = await recordEvent({
     processor: "stripe",
     processorEventId: event.id,
     eventType: event.type,
     payload: event,
   });
 
-  // Already processed this event id — return 200 so Stripe stops retrying.
-  if (!isFirst) {
+  // Already processed AND committed successfully → ack with 200 so Stripe
+  // stops retrying. If `needsReprocess` is true, the prior attempt failed
+  // (handler threw / DB blip), so let it fall through and re-dispatch.
+  if (!isFirst && !needsReprocess) {
     return NextResponse.json({ received: true, replay: true });
   }
 
@@ -78,5 +80,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json({ received: true, replay: !isFirst });
 }

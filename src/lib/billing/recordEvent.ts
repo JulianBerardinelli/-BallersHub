@@ -21,6 +21,13 @@ export type RecordEventResult = {
   eventRowId: string;
   /** false when the event was already recorded (replay / retry) */
   isFirst: boolean;
+  /**
+   * True when the row exists but no prior attempt finished successfully
+   * (`processed = false`). Callers should re-run the handler in this
+   * case — otherwise transient failures (DB pool drop, handler throw)
+   * leave the event ack'd to the processor with no state mutation.
+   */
+  needsReprocess: boolean;
 };
 
 export async function recordEvent(
@@ -39,7 +46,11 @@ export async function recordEvent(
     .limit(1);
 
   if (existing.length > 0) {
-    return { eventRowId: existing[0].id, isFirst: false };
+    return {
+      eventRowId: existing[0].id,
+      isFirst: false,
+      needsReprocess: !existing[0].processed,
+    };
   }
 
   const [row] = await db
@@ -55,7 +66,7 @@ export async function recordEvent(
     })
     .returning({ id: paymentEvents.id });
 
-  return { eventRowId: row.id, isFirst: true };
+  return { eventRowId: row.id, isFirst: true, needsReprocess: false };
 }
 
 export async function markEventProcessed(

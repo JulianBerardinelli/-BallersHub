@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, XCircle } from "lucide-react";
+import { eq } from "drizzle-orm";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
+import { db } from "@/lib/db";
+import { checkoutSessions } from "@/db/schema";
+import {
+  isCheckoutCurrency,
+  isCheckoutPlanId,
+} from "@/lib/billing/plans";
 
 export const metadata = {
   title: "Pago rechazado · 'BallersHub",
@@ -14,7 +21,7 @@ type PageProps = {
 export default async function CheckoutFailurePage({ searchParams }: PageProps) {
   const { internal, reason } = await searchParams;
   const retryHref = internal
-    ? `/checkout/pro-player?retry=${internal}`
+    ? await buildRetryHref(internal)
     : "/pricing";
 
   return (
@@ -58,6 +65,28 @@ export default async function CheckoutFailurePage({ searchParams }: PageProps) {
       </section>
     </div>
   );
+}
+
+async function buildRetryHref(internalId: string): Promise<string> {
+  // Look up the original session so the retry CTA preserves the user's
+  // chosen plan + currency. Without this, a `pro-agency` failure would
+  // silently retry as `pro-player` (Codex P2 — PR #42).
+  try {
+    const [row] = await db
+      .select({
+        planId: checkoutSessions.planId,
+        currency: checkoutSessions.currency,
+      })
+      .from(checkoutSessions)
+      .where(eq(checkoutSessions.id, internalId))
+      .limit(1);
+    if (row && isCheckoutPlanId(row.planId) && isCheckoutCurrency(row.currency)) {
+      return `/checkout/${row.planId}?currency=${row.currency}&retry=${internalId}`;
+    }
+  } catch {
+    // Fall through to the generic pricing redirect on any DB hiccup.
+  }
+  return "/pricing";
 }
 
 function reasonCopy(reason: string | undefined): React.ReactNode {

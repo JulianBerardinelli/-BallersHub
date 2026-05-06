@@ -66,14 +66,16 @@ export async function POST(req: NextRequest) {
   const eventType =
     body.type ?? body.topic ?? params.get("type") ?? params.get("topic") ?? "unknown";
 
-  const { eventRowId, isFirst } = await recordEvent({
+  const { eventRowId, isFirst, needsReprocess } = await recordEvent({
     processor: "mercado_pago",
     processorEventId: eventId,
     eventType,
     payload: { body, query: Object.fromEntries(params.entries()) },
   });
 
-  if (!isFirst) {
+  // Already seen AND committed → 200 so MP stops retrying. If the prior
+  // attempt failed (`needsReprocess`), fall through and re-dispatch.
+  if (!isFirst && !needsReprocess) {
     return NextResponse.json({ received: true, replay: true });
   }
 
@@ -87,5 +89,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 
-  return NextResponse.json({ received: true });
+  return NextResponse.json({ received: true, replay: !isFirst });
 }
