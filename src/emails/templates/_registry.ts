@@ -13,6 +13,10 @@ import PlayerAgencyInviteEmail, {
 } from "./player-agency-invite";
 import PlayerDisconnectEmail, { type PlayerDisconnectProps } from "./player-disconnect";
 import CustomBroadcastEmail, { type CustomBroadcastProps } from "./custom-broadcast";
+import SubscriptionWelcomeEmail, {
+  type SubscriptionWelcomeProps,
+} from "./subscription-welcome";
+import PaymentFailedEmail, { type PaymentFailedProps } from "./payment-failed";
 
 /**
  * Template registry — every email shipped from BallersHub goes through here.
@@ -41,7 +45,9 @@ export type TemplateKey =
   | "agency_staff_invite"
   | "player_agency_invite"
   | "player_disconnect"
-  | "custom_broadcast";
+  | "custom_broadcast"
+  | "subscription_welcome"
+  | "payment_failed";
 
 export type TemplateCategory = "marketing" | "transactional";
 
@@ -54,6 +60,8 @@ export type TemplatePropsMap = {
   player_agency_invite: PlayerAgencyInviteProps;
   player_disconnect: PlayerDisconnectProps;
   custom_broadcast: CustomBroadcastProps;
+  subscription_welcome: SubscriptionWelcomeProps;
+  payment_failed: PaymentFailedProps;
 };
 
 const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactElement } = {
@@ -65,6 +73,8 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   player_agency_invite: (props) => PlayerAgencyInviteEmail(props),
   player_disconnect: (props) => PlayerDisconnectEmail(props),
   custom_broadcast: (props) => CustomBroadcastEmail(props),
+  subscription_welcome: (props) => SubscriptionWelcomeEmail(props),
+  payment_failed: (props) => PaymentFailedEmail(props),
 };
 
 /** Render a registered template to its final HTML string. */
@@ -134,5 +144,19 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     label: "Broadcast genérico",
     description:
       "Para campañas ad-hoc: definí eyebrow, headline, cuerpo y CTA opcional sin escribir código.",
+  },
+  {
+    key: "subscription_welcome",
+    category: "transactional",
+    label: "Suscripción confirmada",
+    description:
+      "Disparado tras el primer checkout exitoso (Stripe o MP). Confirma trial, monto y próxima fecha de cobro.",
+  },
+  {
+    key: "payment_failed",
+    category: "transactional",
+    label: "Cobro fallido",
+    description:
+      "Disparado cuando una factura de renovación no se pudo cobrar. Llama al usuario a actualizar el método de pago.",
   },
 ];

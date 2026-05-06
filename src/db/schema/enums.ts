@@ -16,5 +16,42 @@ export const teamKindEnum = pgEnum("team_kind", ["club","national","academy","am
 export type TeamStatus = (typeof teamStatusEnum.enumValues)[number];
 export type TeamKind = (typeof teamKindEnum.enumValues)[number];
 
+// --------------------------------------------------------------
+// Checkout / billing enums
+// --------------------------------------------------------------
+
+export const checkoutCurrencyEnum = pgEnum("checkout_currency", ["USD", "ARS", "EUR"]);
+export const checkoutProcessorEnum = pgEnum("checkout_processor", ["stripe", "mercado_pago"]);
+export const checkoutSessionStatusEnum = pgEnum("checkout_session_status", [
+  "pending",
+  "redirected",
+  "completed",
+  "expired",
+  "failed",
+]);
+export const subscriptionStatusV2Enum = pgEnum("subscription_status_v2", [
+  "incomplete",
+  "trialing",
+  "active",
+  "past_due",
+  "canceled",
+  "paused",
+]);
+export const taxIdTypeEnum = pgEnum("tax_id_type", [
+  "dni",
+  "cuit",
+  "cuil",
+  "nie",
+  "nif",
+  "vat",
+  "other",
+]);
+
+export type CheckoutCurrency = (typeof checkoutCurrencyEnum.enumValues)[number];
+export type CheckoutProcessor = (typeof checkoutProcessorEnum.enumValues)[number];
+export type CheckoutSessionStatus = (typeof checkoutSessionStatusEnum.enumValues)[number];
+export type SubscriptionStatusV2 = (typeof subscriptionStatusV2Enum.enumValues)[number];
+export type TaxIdType = (typeof taxIdTypeEnum.enumValues)[number];
+
 export type Visibility = (typeof visibilityEnum.enumValues)[number];
 export type PlayerStatus = (typeof playerStatusEnum.enumValues)[number];

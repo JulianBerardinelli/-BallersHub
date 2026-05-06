@@ -196,3 +196,74 @@ export async function sendPlayerDisconnectEmail(
     console.error("[resend] sendPlayerDisconnectEmail:", error);
   }
 }
+
+// ============================================================================
+// Billing transactionals
+// ============================================================================
+
+export async function sendSubscriptionWelcomeEmail(opts: {
+  email: string;
+  displayName: string;
+  planId: "pro-player" | "pro-agency";
+  formattedAmount: string;
+  trialEndsAt: string | null;
+  nextChargeAt: string | null;
+}) {
+  if (!resend) {
+    console.log("[Resend Mock] Subscription welcome →", opts.email, opts.planId);
+    return;
+  }
+  try {
+    const html = await renderTemplate("subscription_welcome", {
+      displayName: opts.displayName,
+      planId: opts.planId,
+      formattedAmount: opts.formattedAmount,
+      trialEndsAt: opts.trialEndsAt,
+      nextChargeAt: opts.nextChargeAt,
+      dashboardUrl: dashboardUrl(),
+      manageSubscriptionUrl: dashboardUrl("settings/subscription"),
+      recipientEmail: opts.email,
+    });
+    const subjectPlan =
+      opts.planId === "pro-agency" ? "Pro Agency" : "Pro Player";
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject: `Tu plan ${subjectPlan} está activo`,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendSubscriptionWelcomeEmail:", error);
+  }
+}
+
+export async function sendPaymentFailedEmail(opts: {
+  email: string;
+  displayName: string;
+  planId: "pro-player" | "pro-agency";
+  formattedAmount: string;
+  nextRetryAt: string | null;
+}) {
+  if (!resend) {
+    console.log("[Resend Mock] Payment failed →", opts.email, opts.planId);
+    return;
+  }
+  try {
+    const html = await renderTemplate("payment_failed", {
+      displayName: opts.displayName,
+      planId: opts.planId,
+      formattedAmount: opts.formattedAmount,
+      nextRetryAt: opts.nextRetryAt,
+      updatePaymentUrl: dashboardUrl("settings/subscription"),
+      recipientEmail: opts.email,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject: "No pudimos cobrar tu suscripción",
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendPaymentFailedEmail:", error);
+  }
+}
