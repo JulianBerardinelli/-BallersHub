@@ -21,7 +21,7 @@ export default function NewCampaignPage() {
         </h2>
         <p className="text-sm leading-[1.55] text-bh-fg-3">
           Configurá la audiencia, el template y el contenido. El preview se actualiza en vivo —
-          el envío real solo dispara cuando hagas click en "Enviar ahora".
+          el envío real solo dispara cuando hagas click en &ldquo;Enviar ahora&rdquo;.
         </p>
       </header>
 

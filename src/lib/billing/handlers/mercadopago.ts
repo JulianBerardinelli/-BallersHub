@@ -18,7 +18,18 @@ import { db } from "@/lib/db";
 import { checkoutSessions, subscriptions } from "@/db/schema";
 import type { SubscriptionStatusV2 } from "@/db/schema";
 import { getMpPreApproval, getMpPayment } from "../mercadopago";
-import { TRIAL_DAYS } from "../plans";
+import {
+  TRIAL_DAYS,
+  formatPlanAmount,
+  getPlanPrice,
+  isCheckoutCurrency,
+  isCheckoutPlanId,
+  type CheckoutPlanId,
+} from "../plans";
+import {
+  sendPaymentFailedEmail,
+  sendSubscriptionWelcomeEmail,
+} from "@/lib/resend";
 
 export type MpWebhookBody = {
   type?: string;
@@ -162,6 +173,14 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
       plan: status === "active" || status === "trialing" ? "pro" : "free",
       status: status === "active" ? "active" : status,
     });
+
+    if (status === "trialing" || status === "active") {
+      await maybeSendMpWelcome({
+        session,
+        trialEndsAt,
+        nextChargeAt: periodEnd,
+      });
+    }
     return;
   }
 
@@ -184,16 +203,121 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
 // ---------------------------------------------------------------
 
 async function onAuthorizedPayment(authorizedPaymentId: string): Promise<void> {
-  // The authorized_payment object lives at /authorized_payments/{id}. The
-  // SDK doesn't expose a typed wrapper at v2.12 — use the underlying http
-  // client directly via PreApproval which shares config.
-  // For now we treat any authorized payment notification as a signal to
-  // re-fetch the parent preapproval and update its state. This keeps
-  // logic in one place (onPreApproval) and avoids two divergent paths.
-  //
-  // We fall back to a no-op if we can't resolve the parent preapproval —
-  // the event is still recorded in payment_events for audit.
-  void authorizedPaymentId;
+  // The authorized_payment object lives at /authorized_payments/{id} —
+  // the SDK doesn't expose a typed wrapper at v2.12 so we hit the REST
+  // endpoint directly using the configured access token.
+  const authorized = await fetchAuthorizedPayment(authorizedPaymentId);
+  if (!authorized) return;
+
+  // Two outcomes matter to us:
+  //   - approved/accredited: payment cleared → re-sync the parent
+  //     preapproval (its status/period roll forward).
+  //   - rejected/cancelled: payment failed → flip subscription to
+  //     past_due and email the user.
+  if (authorized.preapproval_id) {
+    await onPreApproval(authorized.preapproval_id);
+  }
+
+  const status = authorized.status ?? null;
+  if (status === "rejected" || status === "cancelled") {
+    await markSubscriptionPastDue({
+      preapprovalId: authorized.preapproval_id,
+      nextRetryAt: authorized.next_retry_date ?? null,
+    });
+  }
+}
+
+type MpAuthorizedPayment = {
+  id?: string;
+  preapproval_id?: string | null;
+  status?:
+    | "scheduled"
+    | "processed"
+    | "recycling"
+    | "rejected"
+    | "cancelled"
+    | "approved"
+    | "accredited";
+  payment_id?: string | number | null;
+  /** ISO. Set by MP when a retry is scheduled after a rejection. */
+  next_retry_date?: string | null;
+  external_reference?: string | null;
+};
+
+async function fetchAuthorizedPayment(
+  authorizedPaymentId: string,
+): Promise<MpAuthorizedPayment | null> {
+  try {
+    const { billingEnv } = await import("../env");
+    const token = billingEnv.mpAccessToken();
+    const res = await fetch(
+      `https://api.mercadopago.com/authorized_payments/${encodeURIComponent(
+        authorizedPaymentId,
+      )}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      },
+    );
+    if (!res.ok) {
+      console.warn(
+        "[mp.onAuthorizedPayment] fetch failed:",
+        res.status,
+        res.statusText,
+      );
+      return null;
+    }
+    return (await res.json()) as MpAuthorizedPayment;
+  } catch (err) {
+    console.warn(
+      "[mp.fetchAuthorizedPayment] error (non-fatal):",
+      err instanceof Error ? err.message : err,
+    );
+    return null;
+  }
+}
+
+async function markSubscriptionPastDue(args: {
+  preapprovalId?: string | null;
+  nextRetryAt: string | null;
+}): Promise<void> {
+  if (!args.preapprovalId) return;
+
+  const [sub] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.processorSubscriptionId, args.preapprovalId))
+    .limit(1);
+  if (!sub) return;
+
+  await db
+    .update(subscriptions)
+    .set({
+      statusV2: "past_due",
+      status: "past_due",
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.id, sub.id));
+
+  try {
+    const email = await resolveEmailForUser(sub.userId);
+    if (!email) return;
+    const planId = normalizeMpPlanId(sub.planId);
+    if (!planId || !sub.currency || !isCheckoutCurrency(sub.currency)) return;
+    const price = getPlanPrice(planId, sub.currency);
+    await sendPaymentFailedEmail({
+      email,
+      displayName: email.split("@")[0],
+      planId,
+      formattedAmount: formatPlanAmount(price),
+      nextRetryAt: args.nextRetryAt,
+    });
+  } catch (err) {
+    console.warn(
+      "[mp.markSubscriptionPastDue] email failed (non-fatal):",
+      err instanceof Error ? err.message : err,
+    );
+  }
 }
 
 // ---------------------------------------------------------------
@@ -230,5 +354,59 @@ function mapPreApprovalStatus(
     case "pending":
     default:
       return "incomplete";
+  }
+}
+
+// ---------------------------------------------------------------
+// Welcome email + email lookup helpers
+// ---------------------------------------------------------------
+
+async function maybeSendMpWelcome(args: {
+  session: typeof checkoutSessions.$inferSelect;
+  trialEndsAt: Date | null;
+  nextChargeAt: Date | null;
+}): Promise<void> {
+  try {
+    const meta = (args.session.metadata ?? {}) as Record<string, unknown>;
+    const email =
+      (typeof meta.email === "string" ? meta.email : null) ??
+      (await resolveEmailForUser(args.session.userId));
+    if (!email) return;
+
+    const planId = normalizeMpPlanId(args.session.planId);
+    if (!planId) return;
+    if (!args.session.currency || !isCheckoutCurrency(args.session.currency))
+      return;
+
+    const price = getPlanPrice(planId, args.session.currency);
+    await sendSubscriptionWelcomeEmail({
+      email,
+      displayName: email.split("@")[0],
+      planId,
+      formattedAmount: formatPlanAmount(price),
+      trialEndsAt: args.trialEndsAt?.toISOString() ?? null,
+      nextChargeAt: args.nextChargeAt?.toISOString() ?? null,
+    });
+  } catch (err) {
+    console.warn(
+      "[mp.maybeSendMpWelcome] failed (non-fatal):",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
+
+function normalizeMpPlanId(value: string | null | undefined): CheckoutPlanId | null {
+  return value && isCheckoutPlanId(value) ? value : null;
+}
+
+async function resolveEmailForUser(userId: string | null): Promise<string | null> {
+  if (!userId) return null;
+  try {
+    const { createSupabaseAdmin } = await import("@/lib/supabase/admin");
+    const admin = createSupabaseAdmin();
+    const { data } = await admin.auth.admin.getUserById(userId);
+    return data?.user?.email ?? null;
+  } catch {
+    return null;
   }
 }

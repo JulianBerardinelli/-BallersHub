@@ -6,8 +6,11 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { db } from "@/lib/db";
+import { subscriptions } from "@/db/schema";
 import {
   type CheckoutPlanId,
   type CheckoutCurrency,
@@ -53,6 +56,37 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
   if (!user) {
     const back = encodeURIComponent(`/checkout/${planId}?currency=${currency}`);
     redirect(`/auth/sign-up?redirectTo=${back}`);
+  }
+
+  // Multi-subscription guard: if the user already has a live (trialing /
+  // active / past_due) subscription, send them to settings instead of
+  // letting them double-pay. We tolerate DB hiccups by swallowing errors
+  // — worst case the user reaches checkout and Stripe/MP would reject a
+  // duplicate via processor-side dedupe.
+  try {
+    const [existing] = await db
+      .select({
+        id: subscriptions.id,
+        planId: subscriptions.planId,
+        statusV2: subscriptions.statusV2,
+      })
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, user.id),
+          inArray(subscriptions.statusV2, ["trialing", "active", "past_due"]),
+        ),
+      )
+      .limit(1);
+    if (existing) {
+      redirect(
+        `/dashboard/settings/subscription?already_subscribed=1&plan=${encodeURIComponent(
+          existing.planId ?? "pro",
+        )}`,
+      );
+    }
+  } catch {
+    // Non-fatal — proceed to checkout.
   }
 
   const defaultCountry =

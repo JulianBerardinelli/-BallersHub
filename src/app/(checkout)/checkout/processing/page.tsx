@@ -7,7 +7,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
@@ -25,6 +25,16 @@ type SessionStatus =
 type StatusResponse = { status: SessionStatus | "unknown" };
 
 export default function CheckoutProcessingPage() {
+  // useSearchParams forces this page out of static generation. Wrapping
+  // in Suspense satisfies Next's CSR-bailout requirement at build time.
+  return (
+    <Suspense fallback={<ProcessingShell statusLabel="Confirmando con el procesador…" elapsed={0} />}>
+      <ProcessingInner />
+    </Suspense>
+  );
+}
+
+function ProcessingInner() {
   const router = useRouter();
   const params = useSearchParams();
   const internal = params.get("internal");
@@ -66,8 +76,35 @@ export default function CheckoutProcessingPage() {
       const total = Date.now() - startedAt;
       setElapsed(total);
       if (total >= MAX_WAIT_MS) {
-        // Long-running confirmation — likely a non-card method (cash /
-        // transfer). Bounce to the pending page where we explain.
+        // Webhook didn't update us in time. Try to self-heal by pulling
+        // the latest state directly from the processor before bouncing
+        // the user to /pending (which is really only meaningful for MP
+        // cash / offline methods that take minutes).
+        cancelled = true;
+        setStatusLabel("Verificando con el procesador…");
+        try {
+          const reconcileRes = await fetch(
+            `/api/billing/reconcile-checkout?internal=${encodeURIComponent(
+              internal,
+            )}`,
+            { method: "POST", cache: "no-store" },
+          );
+          if (reconcileRes.ok) {
+            const data = (await reconcileRes.json()) as {
+              status: SessionStatus | "unknown";
+            };
+            if (data.status === "completed") {
+              router.replace(`/checkout/success?internal=${internal}`);
+              return;
+            }
+            if (data.status === "failed" || data.status === "expired") {
+              router.replace(`/checkout/failure?internal=${internal}`);
+              return;
+            }
+          }
+        } catch {
+          // Reconcile itself failed — fall through to /pending.
+        }
         router.replace(`/checkout/pending?internal=${internal}`);
         return;
       }
@@ -84,6 +121,16 @@ export default function CheckoutProcessingPage() {
     };
   }, [internal, router]);
 
+  return <ProcessingShell statusLabel={statusLabel} elapsed={elapsed} />;
+}
+
+function ProcessingShell({
+  statusLabel,
+  elapsed,
+}: {
+  statusLabel: string;
+  elapsed: number;
+}) {
   return (
     <div className="space-y-10">
       <CheckoutStepper current="confirmation" />

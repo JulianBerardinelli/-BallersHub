@@ -13,6 +13,7 @@ import {
   Mail,
   Receipt as ReceiptIcon,
   Sparkles,
+  UserPlus,
 } from "lucide-react";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
@@ -26,6 +27,8 @@ import {
   getPlanPrice,
   TRIAL_DAYS,
 } from "@/lib/billing/plans";
+import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 
 export const metadata = {
   title: "Pago confirmado · 'BallersHub",
@@ -55,6 +58,15 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
     month: "long",
     year: "numeric",
   });
+
+  // Decide where to send the user next:
+  //  - If they already have a player profile (or manager profile) → dashboard
+  //  - Otherwise → /onboarding/start (which routes them to the right
+  //    onboarding flow: player apply, manager info, agency invite, etc.)
+  // We swallow auth errors here on purpose: the success page should never
+  // fail if Supabase is hiccuping — worst case the user lands on /dashboard
+  // and sees the layout's degraded fallback.
+  const nextStep = await resolveNextStep();
 
   return (
     <div className="space-y-10">
@@ -129,11 +141,20 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
 
         <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link
-            href="/dashboard"
+            href={nextStep.href}
             className="inline-flex items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-6 py-3 text-sm font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
           >
-            Ir a mi dashboard
-            <ArrowRight className="h-4 w-4" />
+            {nextStep.kind === "onboarding" ? (
+              <>
+                <UserPlus className="h-4 w-4" />
+                {nextStep.label}
+              </>
+            ) : (
+              <>
+                {nextStep.label}
+                <ArrowRight className="h-4 w-4" />
+              </>
+            )}
           </Link>
           {session && (
             <Link
@@ -146,6 +167,13 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
             </Link>
           )}
         </div>
+
+        {nextStep.kind === "onboarding" && (
+          <p className="mx-auto max-w-md text-[12.5px] text-bh-fg-3">
+            Tu suscripción quedó activa. Para usarla necesitamos un par de
+            datos más sobre vos — toma 2-3 minutos.
+          </p>
+        )}
       </section>
     </div>
   );
@@ -160,6 +188,54 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
       <span>{children}</span>
     </div>
   );
+}
+
+type NextStep =
+  | { kind: "dashboard"; href: "/dashboard"; label: "Ir a mi dashboard" }
+  | { kind: "onboarding"; href: "/onboarding/start"; label: "Completar mi perfil" };
+
+async function resolveNextStep(): Promise<NextStep> {
+  const dashboardLink: NextStep = {
+    kind: "dashboard",
+    href: "/dashboard",
+    label: "Ir a mi dashboard",
+  };
+  const onboardingLink: NextStep = {
+    kind: "onboarding",
+    href: "/onboarding/start",
+    label: "Completar mi perfil",
+  };
+
+  try {
+    const supabase = await createSupabaseServerRSC();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return dashboardLink;
+
+    // Player profile or in-progress application → dashboard.
+    const dashboardState = await fetchDashboardState(supabase, user.id);
+    if (dashboardState.profile || dashboardState.application) {
+      return dashboardLink;
+    }
+
+    // Manager profile (agency owner) → dashboard.
+    const { db: drizzle } = await import("@/lib/db");
+    const up = await drizzle.query.userProfiles.findFirst({
+      where: (profiles, { eq }) => eq(profiles.userId, user.id),
+      with: { agency: true },
+    });
+    if (up?.role === "manager" || up?.agency) {
+      return dashboardLink;
+    }
+
+    // Brand-new user (no profile, no application, no agency) → onboarding.
+    return onboardingLink;
+  } catch {
+    // Any DB / auth hiccup: default to dashboard. The dashboard layout has
+    // its own degraded fallback, so the user still sees something useful.
+    return dashboardLink;
+  }
 }
 
 async function loadSession(internalId: string) {

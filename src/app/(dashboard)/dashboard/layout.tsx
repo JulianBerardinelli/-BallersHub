@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
@@ -35,70 +36,35 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard");
 
-  const dashboardState = await fetchDashboardState(supabase, user.id);
+  // Defensive: dashboard data fetch (Supabase + Drizzle) can fail when the
+  // pooler hiccups or the project is paused. We wrap the whole data layer
+  // in a try/catch so we render a degraded "data unavailable" shell instead
+  // of crashing the entire dashboard layout — and locking the user out of
+  // sign-out, settings, and any child page that doesn't itself need DB.
+  let layoutData: DashboardLayoutData;
+  try {
+    layoutData = await loadDashboardLayoutData(supabase, user);
+  } catch (err) {
+    console.warn(
+      "[DashboardLayout] data fetch failed, rendering fallback:",
+      err instanceof Error ? err.message : err,
+    );
+    return <DashboardDegradedFallback userEmail={user.email ?? null} />;
+  }
 
-  const { db } = await import("@/lib/db");
-  const up = await db.query.userProfiles.findFirst({
-    where: (profiles, { eq }) => eq(profiles.userId, user.id),
-    with: { agency: true },
-  });
-  const role = up?.role || "member";
-
-  const { data: managerApp } = await supabase
-    .from("manager_applications")
-    .select("status, agency_name")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const isManager = role === "manager" || !!managerApp;
-
-  // Check for pending staff invites
-  const pendingStaffInvites = user.email ? await db.query.agencyInvites.findMany({
-    where: (invites, { eq, and }) => and(
-      eq(invites.email, user.email!),
-      eq(invites.status, "pending")
-    ),
-    with: {
-      agency: true
-    }
-  }) : [];
-
-  const formattedInvites = pendingStaffInvites.map(inv => ({
-    id: inv.id,
-    agencyName: inv.agency?.name || "Agencia"
-  }));
-
-  // Check for pending player representation invites
-  const pendingPlayerInvites = user.email && !isManager ? await db.query.playerInvites.findMany({
-    where: (invites, { eq, and }) => and(
-      eq(invites.playerEmail, user.email!),
-      eq(invites.status, "pending")
-    ),
-    with: {
-      agency: true
-    }
-  }) : [];
-
-  const formattedPlayerInvites = pendingPlayerInvites.map(inv => ({
-    id: inv.id,
-    agencyName: inv.agency?.name || "Agencia",
-    contractEndDate: inv.contractEndDate ? String(inv.contractEndDate) : null
-  }));
-
-  const profile = dashboardState.profile;
-  const application = dashboardState.application;
-  const subscription = dashboardState.subscription;
-  const normalizedApplicationStatus = normalizeApplicationStatus(application?.status ?? null);
-
-  const metrics = profile
-    ? await fetchPlayerTaskMetrics(supabase, profile.id)
-    : {
-        careerItems: 0,
-        media: { total: 0, photos: 0, videos: 0, docs: 0 },
-        contactReferences: 0,
-      };
+  const {
+    up,
+    managerApp,
+    isManager,
+    formattedInvites,
+    formattedPlayerInvites,
+    profile,
+    application,
+    subscription,
+    normalizedApplicationStatus,
+    metrics,
+    dashboardState,
+  } = layoutData;
 
   const normalizedProfile = profile
     ? {
@@ -289,6 +255,150 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
       </div>
     </>
+  );
+}
+
+// ---------------------------------------------------------------
+// Data layer + degraded fallback
+// ---------------------------------------------------------------
+
+type DashboardUser = { id: string; email?: string | null };
+
+type DashboardLayoutData = Awaited<ReturnType<typeof loadDashboardLayoutData>>;
+
+async function loadDashboardLayoutData(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRSC>>,
+  user: DashboardUser,
+) {
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+
+  const { db } = await import("@/lib/db");
+  const up = await db.query.userProfiles.findFirst({
+    where: (profiles, { eq }) => eq(profiles.userId, user.id),
+    with: { agency: true },
+  });
+  const role = up?.role || "member";
+
+  const { data: managerApp } = await supabase
+    .from("manager_applications")
+    .select("status, agency_name")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const isManager = role === "manager" || !!managerApp;
+
+  const pendingStaffInvites = user.email
+    ? await db.query.agencyInvites.findMany({
+        where: (invites, { eq, and }) =>
+          and(eq(invites.email, user.email!), eq(invites.status, "pending")),
+        with: { agency: true },
+      })
+    : [];
+
+  const formattedInvites = pendingStaffInvites.map((inv) => ({
+    id: inv.id,
+    agencyName: inv.agency?.name || "Agencia",
+  }));
+
+  const pendingPlayerInvites =
+    user.email && !isManager
+      ? await db.query.playerInvites.findMany({
+          where: (invites, { eq, and }) =>
+            and(
+              eq(invites.playerEmail, user.email!),
+              eq(invites.status, "pending"),
+            ),
+          with: { agency: true },
+        })
+      : [];
+
+  const formattedPlayerInvites = pendingPlayerInvites.map((inv) => ({
+    id: inv.id,
+    agencyName: inv.agency?.name || "Agencia",
+    contractEndDate: inv.contractEndDate ? String(inv.contractEndDate) : null,
+  }));
+
+  const profile = dashboardState.profile;
+  const application = dashboardState.application;
+  const subscription = dashboardState.subscription;
+  const normalizedApplicationStatus = normalizeApplicationStatus(
+    application?.status ?? null,
+  );
+
+  const metrics = profile
+    ? await fetchPlayerTaskMetrics(supabase, profile.id)
+    : {
+        careerItems: 0,
+        media: { total: 0, photos: 0, videos: 0, docs: 0 },
+        contactReferences: 0,
+      };
+
+  return {
+    up,
+    managerApp,
+    isManager,
+    formattedInvites,
+    formattedPlayerInvites,
+    profile,
+    application,
+    subscription,
+    normalizedApplicationStatus,
+    metrics,
+    dashboardState,
+  };
+}
+
+function DashboardDegradedFallback({
+  userEmail,
+}: {
+  userEmail: string | null;
+}) {
+  return (
+    <div className="mx-auto w-full max-w-2xl px-6 py-16">
+      <div className="space-y-5 rounded-bh-lg border border-bh-warning/25 bg-bh-warning/5 p-6">
+        <div className="space-y-2">
+          <span className="inline-flex items-center rounded-bh-pill border border-bh-warning/30 bg-bh-warning/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-warning">
+            Dashboard temporalmente no disponible
+          </span>
+          <h1 className="font-bh-display text-2xl font-bold uppercase leading-tight tracking-[-0.005em] text-bh-fg-1 md:text-3xl">
+            No pudimos cargar tu información
+          </h1>
+          <p className="text-[13.5px] leading-[1.6] text-bh-fg-2">
+            Estamos teniendo problemas para conectarnos con la base de datos.
+            Suele resolverse en unos segundos. Si persiste, escribinos a{" "}
+            <a
+              href="mailto:soporte@ballershub.app"
+              className="text-bh-lime underline-offset-4 hover:underline"
+            >
+              soporte@ballershub.app
+            </a>
+            .
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2 text-[12px] text-bh-fg-3">
+          <span>Sesión activa:</span>
+          <span className="font-bh-mono text-bh-fg-2">
+            {userEmail ?? "—"}
+          </span>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-5 py-2.5 text-sm font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 hover:-translate-y-px hover:bg-[#d8ff26]"
+          >
+            Reintentar
+          </Link>
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center gap-2 rounded-bh-md border border-white/[0.12] px-5 py-2.5 text-[13px] font-semibold text-bh-fg-2 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1"
+          >
+            Volver al inicio
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
 

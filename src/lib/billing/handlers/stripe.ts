@@ -12,6 +12,17 @@ import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { checkoutSessions, subscriptions } from "@/db/schema";
 import { getStripe } from "../stripe";
+import {
+  formatPlanAmount,
+  getPlanPrice,
+  isCheckoutCurrency,
+  isCheckoutPlanId,
+  type CheckoutPlanId,
+} from "../plans";
+import {
+  sendPaymentFailedEmail,
+  sendSubscriptionWelcomeEmail,
+} from "@/lib/resend";
 
 export async function handleStripeEvent(
   event: Stripe.Event,
@@ -29,9 +40,14 @@ export async function handleStripeEvent(
       break;
 
     case "invoice.paid":
+      // First successful charge after trial → status will already be
+      // 'active' via subscription.updated, so we don't need to mutate
+      // anything here. We could send a receipt email, but Stripe sends
+      // its own (better-formatted) receipt for hosted Checkout.
+      break;
+
     case "invoice.payment_failed":
-      // Phase 1: just log. Phase 3 will email the user and update past_due
-      // / active state more precisely.
+      await onInvoicePaymentFailed(event.data.object as Stripe.Invoice);
       break;
 
     default:
@@ -104,6 +120,16 @@ async function onSubscriptionChange(sub: Stripe.Subscription): Promise<void> {
       plan: status === "trialing" || status === "active" ? "pro" : "free",
       status: status === "active" ? "active" : status,
     });
+
+    // First time we see this subscription — send the welcome receipt.
+    if (status === "trialing" || status === "active") {
+      await maybeSendWelcome({
+        checkout,
+        planId: (planId ?? checkout.planId) as string | null,
+        trialEndsAt,
+        nextChargeAt: periodEnd,
+      });
+    }
   } else {
     await db
       .update(subscriptions)
@@ -168,4 +194,130 @@ function readPeriodEnd(sub: Stripe.Subscription): Date | null {
   const s = sub as unknown as PeriodAccessor;
   const ts = s.current_period_end ?? s.items?.data?.[0]?.current_period_end ?? null;
   return ts ? new Date(ts * 1000) : null;
+}
+
+// ---------------------------------------------------------------
+// Dunning — invoice.payment_failed
+// ---------------------------------------------------------------
+
+async function onInvoicePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
+  // Stripe nests the parent subscription under `parent.subscription_details`
+  // in v2025-04-30. Fall back to top-level `subscription` for older webhook
+  // snapshots so we don't drop events during the migration window.
+  const inv = invoice as unknown as {
+    subscription?: string | { id?: string } | null;
+    parent?: {
+      subscription_details?: { subscription?: string | { id?: string } | null };
+    } | null;
+    next_payment_attempt?: number | null;
+  };
+  const ref =
+    inv.subscription ??
+    inv.parent?.subscription_details?.subscription ??
+    null;
+  const stripeSubId =
+    typeof ref === "string" ? ref : ref?.id ?? null;
+  if (!stripeSubId) return;
+
+  const [sub] = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.processorSubscriptionId, stripeSubId))
+    .limit(1);
+  if (!sub) return;
+
+  await db
+    .update(subscriptions)
+    .set({
+      statusV2: "past_due",
+      status: "past_due",
+      updatedAt: new Date(),
+    })
+    .where(eq(subscriptions.id, sub.id));
+
+  // Notify the user. We tolerate any failure to look up the email — it's
+  // better to mark the row past_due silently than to throw and lose the
+  // status update.
+  try {
+    const email = await resolveEmailForUser(sub.userId);
+    if (!email) return;
+    const planId = normalizePlanId(sub.planId);
+    if (!planId || !sub.currency || !isCheckoutCurrency(sub.currency)) return;
+    const price = getPlanPrice(planId, sub.currency);
+    const formatted = formatPlanAmount(price);
+    const nextRetryAt = inv.next_payment_attempt
+      ? new Date(inv.next_payment_attempt * 1000).toISOString()
+      : null;
+    await sendPaymentFailedEmail({
+      email,
+      displayName: email.split("@")[0],
+      planId,
+      formattedAmount: formatted,
+      nextRetryAt,
+    });
+  } catch (err) {
+    console.warn(
+      "[stripe.onInvoicePaymentFailed] email send failed (non-fatal):",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
+
+// ---------------------------------------------------------------
+// Welcome email — fired once per new subscription
+// ---------------------------------------------------------------
+
+async function maybeSendWelcome(args: {
+  checkout: typeof checkoutSessions.$inferSelect;
+  planId: string | null;
+  trialEndsAt: Date | null;
+  nextChargeAt: Date | null;
+}): Promise<void> {
+  try {
+    const meta = (args.checkout.metadata ?? {}) as Record<string, unknown>;
+    const email =
+      (typeof meta.email === "string" ? meta.email : null) ??
+      (await resolveEmailForUser(args.checkout.userId));
+    if (!email) return;
+
+    const planId = normalizePlanId(args.planId);
+    if (!planId) return;
+    if (!args.checkout.currency || !isCheckoutCurrency(args.checkout.currency))
+      return;
+
+    const price = getPlanPrice(planId, args.checkout.currency);
+    await sendSubscriptionWelcomeEmail({
+      email,
+      displayName: email.split("@")[0],
+      planId,
+      formattedAmount: formatPlanAmount(price),
+      trialEndsAt: args.trialEndsAt?.toISOString() ?? null,
+      nextChargeAt: args.nextChargeAt?.toISOString() ?? null,
+    });
+  } catch (err) {
+    console.warn(
+      "[stripe.maybeSendWelcome] failed (non-fatal):",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
+
+function normalizePlanId(value: string | null | undefined): CheckoutPlanId | null {
+  return value && isCheckoutPlanId(value) ? value : null;
+}
+
+async function resolveEmailForUser(userId: string | null): Promise<string | null> {
+  if (!userId) return null;
+  // Webhook handlers run outside an HTTP request context, so the cookie-
+  // backed Supabase clients won't have a session. Use the service-role
+  // admin client instead. Soft import keeps this lazy in case the module
+  // isn't available at boot.
+  try {
+    const { createSupabaseAdmin } = await import("@/lib/supabase/admin");
+    const admin = createSupabaseAdmin();
+    const { data } = await admin.auth.admin.getUserById(userId);
+    return data?.user?.email ?? null;
+  } catch {
+    return null;
+  }
 }

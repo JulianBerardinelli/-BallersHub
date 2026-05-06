@@ -227,6 +227,26 @@ function buildSampleProps(
         ctaUrl: `${siteUrl}/`,
         ...overrides,
       };
+    case "subscription_welcome":
+      return {
+        displayName: "Lautaro Sample",
+        planId: "pro-player",
+        formattedAmount: "USD 85",
+        trialEndsAt: new Date(Date.now() + 7 * 86_400_000).toISOString(),
+        nextChargeAt: new Date(Date.now() + 365 * 86_400_000).toISOString(),
+        dashboardUrl,
+        manageSubscriptionUrl: `${siteUrl}/dashboard/settings/subscription`,
+        ...overrides,
+      };
+    case "payment_failed":
+      return {
+        displayName: "Lautaro Sample",
+        planId: "pro-player",
+        formattedAmount: "USD 85",
+        nextRetryAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+        updatePaymentUrl: `${siteUrl}/dashboard/settings/subscription`,
+        ...overrides,
+      };
     default: {
       const _exhaustive: never = key;
       return _exhaustive;
