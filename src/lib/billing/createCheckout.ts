@@ -256,13 +256,22 @@ async function createMpCheckout(args: {
   //   - Long-term: migrate to `/preapproval_plan` ids per (planId × ARS),
   //     pin in env vars (mirror Stripe Prices). See docs §6.
   //
-  // Test-mode payer override: with a TEST access token MP rejects real
-  // user emails as `payer_email`. We allow `MP_TEST_BUYER_EMAIL` to
-  // override the buyer in test environments (set to the test user's
-  // email, e.g. `test_user_<id>@testuser.com`).
-  const isMpTest = (process.env.MP_ACCESS_TOKEN ?? "").startsWith("TEST-");
+  // Test-mode payer override: MP rejects `payer_email` values that
+  // don't match a registered test buyer (the error is non-descriptive
+  // — known footgun, see goncy/next-mercadopago README). Set
+  // MP_TEST_BUYER_EMAIL to the *exact* email of your MP test buyer
+  // account (find it inside that test buyer's profile after logging in
+  // at mercadopago.com.ar in incognito).
+  //
+  // Credential format note: `MP_ACCESS_TOKEN` must be the `APP_USR-*`
+  // PRODUCTION credential of an application owned by a TEST SELLER
+  // account. MP deprecated the legacy `TEST-*` sandbox tokens for
+  // Subscriptions; using one returns a generic 400 / 401 here.
+  const tokenIsLegacyTest = (process.env.MP_ACCESS_TOKEN ?? "").startsWith(
+    "TEST-",
+  );
   const testBuyerEmail = process.env.MP_TEST_BUYER_EMAIL?.trim();
-  const payerEmail = isMpTest && testBuyerEmail ? testBuyerEmail : args.email;
+  const payerEmail = testBuyerEmail || args.email;
 
   const result = await preapproval.create({
     body: {
@@ -276,10 +285,22 @@ async function createMpCheckout(args: {
         transaction_amount: args.price.amount,
         currency_id: "ARS",
       },
-      // No `status` field on create — that defaults to the redirect flow
-      // (`init_point` URL). Sending `status: "pending"` without a
-      // `card_token_id` returns 400 from the API.
+      // status: "pending" is required for the redirect flow (no card
+      // token capture). Confirmed against goncy/next-mercadopago which
+      // is a known-working reference for MP Subscriptions.
+      status: "pending",
     },
+  }).catch((err: unknown) => {
+    // Re-throw with a richer message so the action layer can log the
+    // MP API body (signal, message, error). Plain `throw err` loses
+    // the MP-specific detail because the SDK doesn't always serialize
+    // its error payload via `Error#message`.
+    if (tokenIsLegacyTest) {
+      console.warn(
+        "[mp-create] Hint: MP_ACCESS_TOKEN starts with `TEST-` (deprecated sandbox format). Subscriptions require an APP_USR-* token from a test seller account.",
+      );
+    }
+    throw err;
   });
 
   const url = result.init_point;
