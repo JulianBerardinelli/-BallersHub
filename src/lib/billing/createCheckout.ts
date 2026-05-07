@@ -245,34 +245,40 @@ async function createMpCheckout(args: {
   // `frequency_type` only supports `days` and `months` — there is no
   // `years` value (per skill reference table).
   //
-  // Trial handling: MP only supports `free_trial` on `/preapproval_plan`
-  // (abstract plans), NOT on `/preapproval` direct creation. Sending it
-  // inline returns 400 "Error desconocido al crear el checkout".
-  // Workaround: postpone the first charge with `start_date = now + 7d`,
-  // which is functionally equivalent — the user authorizes immediately
-  // and MP's first debit happens at that future date.
-  // Long-term: migrate to preapproval_plan ids pinned in env vars (mirror
-  // of the Stripe Price approach). See docs/checkout-handoff.md §6.
-  const trialStart = new Date(Date.now() + TRIAL_DAYS * 24 * 3600 * 1000);
+  // Trial caveats (known limitations with `/preapproval` direct creation):
+  //   - `free_trial` is only valid on `/preapproval_plan` (abstract plans).
+  //   - `start_date` is silently ignored / rejected without `card_token_id`
+  //     in the redirect flow. We don't pass it.
+  //   - Net effect: in test mode there is no native MP-side trial. The
+  //     first cycle charges immediately on authorization. We compensate
+  //     in the handler by tagging the local subscription as `trialing`
+  //     for the first TRIAL_DAYS regardless.
+  //   - Long-term: migrate to `/preapproval_plan` ids per (planId × ARS),
+  //     pin in env vars (mirror Stripe Prices). See docs §6.
+  //
+  // Test-mode payer override: with a TEST access token MP rejects real
+  // user emails as `payer_email`. We allow `MP_TEST_BUYER_EMAIL` to
+  // override the buyer in test environments (set to the test user's
+  // email, e.g. `test_user_<id>@testuser.com`).
+  const isMpTest = (process.env.MP_ACCESS_TOKEN ?? "").startsWith("TEST-");
+  const testBuyerEmail = process.env.MP_TEST_BUYER_EMAIL?.trim();
+  const payerEmail = isMpTest && testBuyerEmail ? testBuyerEmail : args.email;
 
   const result = await preapproval.create({
     body: {
       reason: planLabel(args.planId),
       external_reference: args.internalSessionId,
-      payer_email: args.email,
+      payer_email: payerEmail,
       back_url: `${baseUrl}/checkout/processing?internal=${args.internalSessionId}`,
       auto_recurring: {
         frequency: 12,
         frequency_type: "months",
         transaction_amount: args.price.amount,
         currency_id: "ARS",
-        // start_date is when the first cycle begins. End is 12 months
-        // later — leave undefined so MP defaults to "no end" (open-ended
-        // recurrence, which is what we want for a yearly subscription).
-        start_date: trialStart.toISOString(),
       },
-      // status: 'pending' until the user authorizes via init_point.
-      status: "pending",
+      // No `status` field on create — that defaults to the redirect flow
+      // (`init_point` URL). Sending `status: "pending"` without a
+      // `card_token_id` returns 400 from the API.
     },
   });
 
