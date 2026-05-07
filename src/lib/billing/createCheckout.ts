@@ -244,6 +244,17 @@ async function createMpCheckout(args: {
   // Annual recurrence expressed as 12-month frequency. MP's
   // `frequency_type` only supports `days` and `months` — there is no
   // `years` value (per skill reference table).
+  //
+  // Trial handling: MP only supports `free_trial` on `/preapproval_plan`
+  // (abstract plans), NOT on `/preapproval` direct creation. Sending it
+  // inline returns 400 "Error desconocido al crear el checkout".
+  // Workaround: postpone the first charge with `start_date = now + 7d`,
+  // which is functionally equivalent — the user authorizes immediately
+  // and MP's first debit happens at that future date.
+  // Long-term: migrate to preapproval_plan ids pinned in env vars (mirror
+  // of the Stripe Price approach). See docs/checkout-handoff.md §6.
+  const trialStart = new Date(Date.now() + TRIAL_DAYS * 24 * 3600 * 1000);
+
   const result = await preapproval.create({
     body: {
       reason: planLabel(args.planId),
@@ -255,12 +266,10 @@ async function createMpCheckout(args: {
         frequency_type: "months",
         transaction_amount: args.price.amount,
         currency_id: "ARS",
-        // Note: at the time of writing, free_trial isn't typed on the
-        // SDK's auto_recurring shape but the API accepts it. We cast to
-        // make TS happy without losing the field server-side.
-        ...({
-          free_trial: { frequency: TRIAL_DAYS, frequency_type: "days" },
-        } as Record<string, unknown>),
+        // start_date is when the first cycle begins. End is 12 months
+        // later — leave undefined so MP defaults to "no end" (open-ended
+        // recurrence, which is what we want for a yearly subscription).
+        start_date: trialStart.toISOString(),
       },
       // status: 'pending' until the user authorizes via init_point.
       status: "pending",
