@@ -107,42 +107,73 @@ export async function createCheckoutAction(
       processor: result.processor,
     };
   } catch (err) {
-    // Surface as much detail as possible — Stripe / MP SDKs sometimes
-    // throw rich error objects with `cause`, `response`, or `body` that
-    // get dropped if you only stringify the top-level Error. Log all of
-    // them so the next runtime-logs pull tells us why MP rejected.
-    const detail = serializeError(err);
+    // Stripe / MP SDKs throw rich error objects but only `message`
+    // shows up if you log the Error directly. Vercel runtime logs
+    // (and the MCP we use to fetch them) render each console line on
+    // its own row and TRUNCATE long messages, so we split into many
+    // short lines — one per useful field — to make sure each fits in
+    // the visible window.
+    const e = err as
+      | (Error & {
+          cause?: unknown;
+          response?: unknown;
+          body?: unknown;
+          status?: unknown;
+          error?: unknown;
+        })
+      | unknown;
+    const isErr = e instanceof Error;
+    console.error("[checkout/createCheckoutAction] FAILED");
+    console.error("  name:", isErr ? (e as Error).name : typeof e);
     console.error(
-      "[checkout/createCheckoutAction] failed",
-      JSON.stringify(detail, null, 2),
+      "  message:",
+      isErr ? (e as Error).message : String(e).slice(0, 300),
     );
+    if (isErr) {
+      const x = e as Error & {
+        cause?: unknown;
+        response?: unknown;
+        body?: unknown;
+        status?: unknown;
+        error?: unknown;
+      };
+      if (x.status !== undefined) {
+        console.error("  status:", String(x.status));
+      }
+      if (x.cause !== undefined) {
+        console.error("  cause:", String(x.cause).slice(0, 500));
+      }
+      if (x.body !== undefined) {
+        try {
+          console.error(
+            "  body:",
+            JSON.stringify(x.body).slice(0, 800),
+          );
+        } catch {
+          console.error("  body (toString):", String(x.body).slice(0, 500));
+        }
+      }
+      if (x.response !== undefined) {
+        try {
+          console.error(
+            "  response:",
+            JSON.stringify(x.response).slice(0, 800),
+          );
+        } catch {
+          console.error("  response (toString):", String(x.response).slice(0, 500));
+        }
+      }
+      if (x.error !== undefined) {
+        console.error("  error.field:", String(x.error).slice(0, 300));
+      }
+    }
+
     const message =
       err instanceof Error && err.message
         ? err.message
         : "Error desconocido al crear el checkout";
     return { ok: false, error: message };
   }
-}
-
-function serializeError(err: unknown): Record<string, unknown> {
-  if (!(err instanceof Error)) {
-    return { value: String(err) };
-  }
-  const e = err as Error & {
-    cause?: unknown;
-    response?: unknown;
-    body?: unknown;
-    status?: unknown;
-  };
-  return {
-    name: e.name,
-    message: e.message,
-    cause: e.cause ? String(e.cause) : undefined,
-    body: e.body,
-    response: e.response,
-    status: e.status,
-    stack: e.stack?.split("\n").slice(0, 5).join("\n"),
-  };
 }
 
 function emptyToNull(v: string | undefined | null): string | null {
