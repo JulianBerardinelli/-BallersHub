@@ -135,19 +135,38 @@ async function reconcileMercadoPago(
     const sub = await getMpPreApproval().get({ id: session.processorSessionId! });
     if (!sub) return { ok: false, error: "MP preapproval not found" };
 
+    // MP `/preapproval` enum: pending | authorized | paused | cancelled |
+    // finished. There is NO `active` value — that was a stale check.
     const status = (sub as { status?: string }).status;
-    if (status === "authorized" || status === "active") {
+    if (status === "authorized") {
       await db
         .update(checkoutSessions)
         .set({ status: "completed", completedAt: new Date() })
         .where(eq(checkoutSessions.id, session.id));
-      // The MP webhook handler also creates the subscriptions row — for
-      // simplicity we let the next preapproval webhook do that, since MP
-      // emits one shortly after authorization. Reconcile only marks the
-      // session as completed so the UI moves on.
+      // Eagerly upsert the subscriptions row from this same payload so
+      // the user gets `pro` access immediately even if the webhook is
+      // delayed. Falling back to "wait for the webhook" used to leave
+      // checkouts in a half-done state when the webhook was lost.
+      try {
+        const { handleMercadoPagoEvent } = await import(
+          "./handlers/mercadopago"
+        );
+        await handleMercadoPagoEvent(
+          {
+            type: "subscription_preapproval",
+            data: { id: session.processorSessionId! },
+          },
+          new URLSearchParams(),
+        );
+      } catch (err) {
+        console.warn(
+          "[reconcileMP] handler upsert failed (non-fatal):",
+          err instanceof Error ? err.message : err,
+        );
+      }
       return { ok: true, status: "completed", refreshed: true };
     }
-    if (status === "cancelled") {
+    if (status === "cancelled" || status === "finished") {
       await db
         .update(checkoutSessions)
         .set({ status: "failed" })

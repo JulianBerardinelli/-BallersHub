@@ -25,7 +25,6 @@ export async function POST(req: NextRequest) {
 
   const sigHeader = req.headers.get("x-signature");
   const reqIdHeader = req.headers.get("x-request-id");
-  const resourceId = params.get("data.id") ?? params.get("id");
 
   let body: MpWebhookBody = {};
   let rawBody = "";
@@ -35,6 +34,18 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
+
+  // Resolve the resource id. MP usually puts it on the URL as
+  // `?data.id=...` but for `subscription_preapproval` events it ships
+  // it only inside the JSON body. Check both so signature verification
+  // doesn't reject a real notification.
+  const resourceId =
+    params.get("data.id") ??
+    params.get("id") ??
+    body.data?.id ??
+    (typeof body.id === "string" || typeof body.id === "number"
+      ? String(body.id)
+      : null);
 
   // Verify signature unless we're explicitly running in a dev env without
   // a configured secret. In that case, log a loud warning but proceed —

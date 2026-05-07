@@ -42,9 +42,12 @@ export type MpWebhookBody = {
 
 // MercadoPago doesn't strongly type webhook payloads. We capture the
 // shape we read with a structural type instead of `any`.
+//
+// Status enum per MP /preapproval reference:
+//   pending | authorized | paused | cancelled | finished
 type MpPreApproval = {
   id?: string;
-  status?: "pending" | "authorized" | "paused" | "cancelled";
+  status?: "pending" | "authorized" | "paused" | "cancelled" | "finished";
   payer_id?: string | number;
   payer_email?: string;
   external_reference?: string;
@@ -138,20 +141,25 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
       .where(eq(checkoutSessions.id, internalSessionId));
   }
 
-  // Period accounting: trialing extends 7d from creation, active period
-  // is 12 months from the last cycle. We persist what we can; webhooks
-  // for invoices will refine these later.
+  // Period accounting:
+  //   - trialEndsAt: anchored to the preapproval's `date_created` plus
+  //     TRIAL_DAYS so we DON'T slide the window forward on every webhook
+  //     (MP fires `subscription_preapproval` multiple times during the
+  //     lifecycle — recomputing from `Date.now()` would reset trial).
+  //   - periodStart: only set on initial insert (mp_handler:onPreApproval
+  //     is idempotent for everything else).
+  //   - periodEnd: prefer MP's `next_payment_date`; fall back to +365d.
+  const referenceDate = sub.date_created ? new Date(sub.date_created) : new Date();
   const trialEndsAt =
     sub.status === "authorized" || sub.status === "pending"
-      ? new Date(Date.now() + TRIAL_DAYS * 24 * 3600 * 1000)
+      ? new Date(referenceDate.getTime() + TRIAL_DAYS * 24 * 3600 * 1000)
       : null;
-  const periodStart = sub.date_created ? new Date(sub.date_created) : new Date();
   const periodEnd = sub.next_payment_date
     ? new Date(sub.next_payment_date)
-    : new Date(Date.now() + 365 * 24 * 3600 * 1000);
+    : new Date(referenceDate.getTime() + 365 * 24 * 3600 * 1000);
 
   const existing = await db
-    .select({ id: subscriptions.id })
+    .select({ id: subscriptions.id, trialEndsAt: subscriptions.trialEndsAt })
     .from(subscriptions)
     .where(eq(subscriptions.processorSubscriptionId, preapprovalId))
     .limit(1);
@@ -165,13 +173,15 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
       processorSubscriptionId: preapprovalId,
       processorCustomerId: sub.payer_id ? String(sub.payer_id) : null,
       trialEndsAt,
-      currentPeriodStartsAt: periodStart,
+      currentPeriodStartsAt: referenceDate,
       currentPeriodEnd: periodEnd,
       cancelAtPeriodEnd: false,
       billingAddressId: session.billingAddressId,
       statusV2: status,
       plan: status === "active" || status === "trialing" ? "pro" : "free",
-      status: status === "active" ? "active" : status,
+      // Legacy text `status` column: keep enum values that match what
+      // the rest of the app expects. Don't write the v2 enum directly.
+      status: status === "active" ? "active" : "trialing",
     });
 
     if (status === "trialing" || status === "active") {
@@ -184,11 +194,13 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
     return;
   }
 
+  // Update path: preserve existing trialEndsAt rather than overwriting it
+  // every time MP re-fires the webhook.
   await db
     .update(subscriptions)
     .set({
       statusV2: status,
-      trialEndsAt,
+      trialEndsAt: existing[0].trialEndsAt ?? trialEndsAt,
       currentPeriodEnd: periodEnd,
       canceledAt: status === "canceled" ? new Date() : null,
       updatedAt: new Date(),
@@ -350,6 +362,10 @@ function mapPreApprovalStatus(
     case "paused":
       return "paused";
     case "cancelled":
+      return "canceled";
+    case "finished":
+      // Subscription ran out (no more cycles) — treat as canceled for
+      // access-control purposes. The user might re-subscribe later.
       return "canceled";
     case "pending":
     default:
