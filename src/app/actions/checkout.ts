@@ -107,11 +107,42 @@ export async function createCheckoutAction(
       processor: result.processor,
     };
   } catch (err) {
-    console.error("[checkout/createCheckoutAction] failed", err);
+    // Surface as much detail as possible — Stripe / MP SDKs sometimes
+    // throw rich error objects with `cause`, `response`, or `body` that
+    // get dropped if you only stringify the top-level Error. Log all of
+    // them so the next runtime-logs pull tells us why MP rejected.
+    const detail = serializeError(err);
+    console.error(
+      "[checkout/createCheckoutAction] failed",
+      JSON.stringify(detail, null, 2),
+    );
     const message =
-      err instanceof Error ? err.message : "Error desconocido al crear el checkout";
+      err instanceof Error && err.message
+        ? err.message
+        : "Error desconocido al crear el checkout";
     return { ok: false, error: message };
   }
+}
+
+function serializeError(err: unknown): Record<string, unknown> {
+  if (!(err instanceof Error)) {
+    return { value: String(err) };
+  }
+  const e = err as Error & {
+    cause?: unknown;
+    response?: unknown;
+    body?: unknown;
+    status?: unknown;
+  };
+  return {
+    name: e.name,
+    message: e.message,
+    cause: e.cause ? String(e.cause) : undefined,
+    body: e.body,
+    response: e.response,
+    status: e.status,
+    stack: e.stack?.split("\n").slice(0, 5).join("\n"),
+  };
 }
 
 function emptyToNull(v: string | undefined | null): string | null {
