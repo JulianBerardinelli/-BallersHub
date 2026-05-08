@@ -209,7 +209,14 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 type NextStep =
   | { kind: "dashboard"; href: "/dashboard"; label: "Ir a mi dashboard" }
-  | { kind: "onboarding"; href: "/onboarding/start"; label: "Completar mi perfil" };
+  | {
+      kind: "onboarding";
+      href:
+        | "/onboarding/player/apply"
+        | "/onboarding/manager/info"
+        | "/onboarding/start";
+      label: "Completar mi perfil";
+    };
 
 async function resolveNextStep(): Promise<NextStep> {
   const dashboardLink: NextStep = {
@@ -217,7 +224,11 @@ async function resolveNextStep(): Promise<NextStep> {
     href: "/dashboard",
     label: "Ir a mi dashboard",
   };
-  const onboardingLink: NextStep = {
+  // Default onboarding fallback when we can't determine the role from
+  // a subscription. The /onboarding/start page itself also reads the
+  // active subscription on load and skips the role chooser when it
+  // can — so this is mostly a safety net.
+  const startOnboarding: NextStep = {
     kind: "onboarding",
     href: "/onboarding/start",
     label: "Completar mi perfil",
@@ -246,8 +257,44 @@ async function resolveNextStep(): Promise<NextStep> {
       return dashboardLink;
     }
 
+    // No profile / application / agency yet, but the user just paid for
+    // a subscription. Use the planId to skip the role chooser and route
+    // straight to the relevant onboarding flow.
+    const { subscriptions } = await import("@/db/schema");
+    const { and, desc, eq: dEq, inArray } = await import("drizzle-orm");
+    const [activeSub] = await drizzle
+      .select({ planId: subscriptions.planId })
+      .from(subscriptions)
+      .where(
+        and(
+          dEq(subscriptions.userId, user.id),
+          inArray(subscriptions.statusV2, [
+            "trialing",
+            "active",
+            "past_due",
+          ]),
+        ),
+      )
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1);
+
+    if (activeSub?.planId === "pro-player") {
+      return {
+        kind: "onboarding",
+        href: "/onboarding/player/apply",
+        label: "Completar mi perfil",
+      };
+    }
+    if (activeSub?.planId === "pro-agency") {
+      return {
+        kind: "onboarding",
+        href: "/onboarding/manager/info",
+        label: "Completar mi perfil",
+      };
+    }
+
     // Brand-new user (no profile, no application, no agency) → onboarding.
-    return onboardingLink;
+    return startOnboarding;
   } catch {
     // Any DB / auth hiccup: default to dashboard. The dashboard layout has
     // its own degraded fallback, so the user still sees something useful.
