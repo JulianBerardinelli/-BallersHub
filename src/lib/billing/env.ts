@@ -43,11 +43,39 @@ export const billingEnv = {
 
   // ----- Generic -----
   appUrl: (): string => {
-    // Used to build success_url / cancel_url / back_urls.
-    // Falls back to localhost during local dev.
-    return optional("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000";
+    // Used to build success_url / cancel_url / back_urls. MP rejects
+    // localhost / non-HTTPS URLs, so we walk through every plausible
+    // env source the deploy might have, in priority order:
+    //
+    //   1. NEXT_PUBLIC_APP_URL — explicit canonical setting (preferred).
+    //   2. NEXT_PUBLIC_SITE_URL — legacy alias used by emails/marketing
+    //      modules; common to have only this set in older repos.
+    //   3. VERCEL_URL — auto-injected on every Vercel deploy
+    //      (`<project>-<branch>-<hash>.vercel.app`, no protocol).
+    //   4. localhost — last resort for `npm run dev` without env file.
+    //
+    // Whatever we resolve gets normalized to drop trailing slashes and
+    // gain `https://` if it's missing the protocol.
+    const candidates = [
+      optional("NEXT_PUBLIC_APP_URL"),
+      optional("NEXT_PUBLIC_SITE_URL"),
+      optional("VERCEL_URL"),
+    ];
+    const raw = candidates.find((v) => v && v.length > 0);
+    const base = raw ? normalizePublicUrl(raw) : "http://localhost:3000";
+    return base;
   },
 };
+
+function normalizePublicUrl(input: string): string {
+  let v = input.trim().replace(/\/+$/, "");
+  if (!/^https?:\/\//i.test(v)) {
+    // VERCEL_URL ships as `host` without protocol — assume HTTPS
+    // (every Vercel deploy serves over HTTPS).
+    v = `https://${v}`;
+  }
+  return v;
+}
 
 /**
  * Boolean check used by the /checkout page to decide whether to render the
