@@ -12,8 +12,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
 
-const POLL_INTERVAL_MS = 2500;
-const MAX_WAIT_MS = 60_000;
+// MP doesn't reliably fire `subscription_preapproval` webhooks at the
+// authorization step (specially in test mode), so the local-DB poll
+// almost always times out and we converge via reconcile (which hits
+// the MP API directly). Keep the poll window short so the user isn't
+// staring at a spinner for a minute.
+const POLL_INTERVAL_MS = 1500;
+const MAX_WAIT_MS = 12_000;
 
 type SessionStatus =
   | "pending"

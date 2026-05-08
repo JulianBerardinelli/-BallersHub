@@ -159,10 +159,26 @@ async function reconcileMercadoPago(
           new URLSearchParams(),
         );
       } catch (err) {
+        // Multi-line log so Vercel's runtime-log viewer doesn't truncate
+        // the diagnostic detail (each console.* call is a separate row).
+        console.warn("[reconcileMP] handler upsert FAILED (non-fatal)");
         console.warn(
-          "[reconcileMP] handler upsert failed (non-fatal):",
-          err instanceof Error ? err.message : err,
+          "  message:",
+          err instanceof Error ? err.message : String(err).slice(0, 600),
         );
+        if (err && typeof err === "object") {
+          const e = err as Record<string, unknown>;
+          if (e.code !== undefined) console.warn("  code:", String(e.code));
+          if (e.cause !== undefined)
+            console.warn("  cause:", String(e.cause).slice(0, 400));
+          try {
+            const dump = JSON.stringify(err);
+            if (dump && dump !== "{}")
+              console.warn("  raw:", dump.slice(0, 800));
+          } catch {
+            /* skip */
+          }
+        }
       }
       return { ok: true, status: "completed", refreshed: true };
     }
