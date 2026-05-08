@@ -35,12 +35,31 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: resolveMetadataBase(),
   title: { default: "'BallersHub", template: "%s • 'BallersHub" },
   description: "Perfiles profesionales de futbolistas.",
   openGraph: { siteName: "BallersHub", type: "website" },
   twitter: { card: "summary_large_image" },
 };
+
+/**
+ * Resolve the metadataBase URL defensively. `??` doesn't fall back on
+ * empty strings or malformed values (no protocol, trailing whitespace),
+ * which used to crash the production build with `TypeError: Invalid URL`
+ * when the Vercel env var was misconfigured. We try the env var first;
+ * any failure falls through to localhost so the build can complete.
+ */
+function resolveMetadataBase(): URL {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  if (raw) {
+    try {
+      return new URL(raw);
+    } catch {
+      // Malformed env value (missing protocol, etc.) — fall through.
+    }
+  }
+  return new URL("http://localhost:3000");
+}
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
