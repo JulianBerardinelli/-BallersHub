@@ -37,16 +37,64 @@ export default function CheckoutProcessingPage() {
 function ProcessingInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const internal = params.get("internal");
 
+  // Resolve the internal session id from URL params. There are 3 cases:
+  //  1. Clean: `?internal=<uuid>` (Stripe + new MP back_url path)
+  //  2. Malformed legacy MP: `?internal=<uuid>?preapproval_id=<id>`
+  //     where MP appended `?` to a URL that already had `?`. The browser
+  //     parses `internal` as the literal string `<uuid>?preapproval_id=<id>`.
+  //  3. Pure MP redirect: `?preapproval_id=<id>` (no internal). We resolve
+  //     the internal id via `/api/billing/resolve-checkout` first.
+  const rawInternal = params.get("internal");
+  // Strip anything after the first `?` to defend against case (2).
+  const internalFromUrl = rawInternal ? rawInternal.split("?")[0] : null;
+  const preapprovalIdFromUrl =
+    params.get("preapproval_id") ??
+    extractFromMalformedInternal(rawInternal, "preapproval_id");
+  const stripeSessionIdFromUrl = params.get("cs_id");
+
+  const [internal, setInternal] = useState<string | null>(internalFromUrl);
   const [elapsed, setElapsed] = useState(0);
   const [statusLabel, setStatusLabel] = useState("Confirmando con el procesador…");
 
+  // If we don't have an `internal` directly but have a processor id,
+  // resolve it server-side before starting to poll.
   useEffect(() => {
-    if (!internal) {
+    if (internal) return;
+    const processorId = preapprovalIdFromUrl ?? stripeSessionIdFromUrl;
+    if (!processorId) {
       router.replace("/pricing");
       return;
     }
+    let cancelled = false;
+    (async () => {
+      try {
+        const qs = preapprovalIdFromUrl
+          ? `preapproval_id=${encodeURIComponent(preapprovalIdFromUrl)}`
+          : `cs_id=${encodeURIComponent(stripeSessionIdFromUrl!)}`;
+        const res = await fetch(`/api/billing/resolve-checkout?${qs}`, {
+          cache: "no-store",
+        });
+        if (cancelled) return;
+        if (res.ok) {
+          const data = (await res.json()) as { internal?: string };
+          if (data.internal) {
+            setInternal(data.internal);
+            return;
+          }
+        }
+        router.replace("/pricing");
+      } catch {
+        if (!cancelled) router.replace("/pricing");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [internal, preapprovalIdFromUrl, stripeSessionIdFromUrl, router]);
+
+  useEffect(() => {
+    if (!internal) return;
 
     let cancelled = false;
     const startedAt = Date.now();
@@ -122,6 +170,24 @@ function ProcessingInner() {
   }, [internal, router]);
 
   return <ProcessingShell statusLabel={statusLabel} elapsed={elapsed} />;
+}
+
+/**
+ * Defensive parser for the legacy malformed back_url case where MP
+ * appends `?preapproval_id=<id>` to a URL that already had `?internal=<id>`.
+ * The browser parses `internal` as the literal string
+ * `<uuid>?preapproval_id=<id>`. We split that string to recover the
+ * processor id so the resolver can use it.
+ */
+function extractFromMalformedInternal(
+  raw: string | null,
+  paramName: string,
+): string | null {
+  if (!raw || !raw.includes("?")) return null;
+  const tail = raw.split("?", 2)[1];
+  if (!tail) return null;
+  const match = new URLSearchParams(tail).get(paramName);
+  return match || null;
 }
 
 function ProcessingShell({
