@@ -1,9 +1,19 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
-import { playerMedia, careerItems, statsSeasons, playerHonours, teams, playerArticles } from "@/db/schema";
-import { and, eq, inArray, desc } from "drizzle-orm";
+import {
+  playerMedia,
+  careerItems,
+  statsSeasons,
+  playerArticles,
+  playerPersonalDetails,
+} from "@/db/schema";
+import { and, eq, desc } from "drizzle-orm";
 import LayoutResolver from "./components/LayoutResolver";
+import type {
+  FreeLayoutCareerRow,
+  FreeLayoutPersonal,
+} from "./components/free/FreeLayout";
 
 export const revalidate = 0; // DEVELOPMENT CACHE DISABLED
 type Params = Promise<{ slug: string }>;
@@ -49,22 +59,110 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
     where: (s, { eq }) => eq(s.userId, player.userId),
     columns: { plan: true, limitsJson: true }
   });
-  const limits = (sub?.limitsJson ?? {}) as any;
+  const limits = (sub?.limitsJson ?? {}) as Record<string, unknown>;
   const maxPhotos = Number(limits?.max_photos ?? 100);
   const maxVideos = Number(limits?.max_videos ?? 100);
 
+  const plan = (sub?.plan ?? "free") as "free" | "pro" | "pro_plus";
+  const isFree = plan === "free";
+
   // 3) Bandeja de Datos Públicos
-  const [rawMedia, theme, sections, articles] = await Promise.all([
-     db.select().from(playerMedia).where(and(eq(playerMedia.playerId, player.id), eq(playerMedia.isApproved, true))),
-     db.query.profileThemeSettings.findFirst({ where: (t, { eq }) => eq(t.playerId, player.id) }),
-     db.query.profileSectionsVisibility.findMany({ where: (s, { eq }) => eq(s.playerId, player.id) }),
-     db.select().from(playerArticles).where(eq(playerArticles.playerId, player.id)).orderBy(desc(playerArticles.publishedAt))
-  ]);
+  const [rawMedia, theme, sections, articles, personalRow, careerRows, statsRows] =
+    await Promise.all([
+      db
+        .select()
+        .from(playerMedia)
+        .where(
+          and(
+            eq(playerMedia.playerId, player.id),
+            eq(playerMedia.isApproved, true),
+          ),
+        ),
+      db.query.profileThemeSettings.findFirst({
+        where: (t, { eq }) => eq(t.playerId, player.id),
+      }),
+      db.query.profileSectionsVisibility.findMany({
+        where: (s, { eq }) => eq(s.playerId, player.id),
+      }),
+      db
+        .select()
+        .from(playerArticles)
+        .where(eq(playerArticles.playerId, player.id))
+        .orderBy(desc(playerArticles.publishedAt)),
+      // Free layout needs personal + career + stats. Cheaper to fetch them
+      // unconditionally than to gate behind `isFree` and refetch later if
+      // the plan check resolves differently.
+      db.query.playerPersonalDetails.findFirst({
+        where: (p, { eq }) => eq(p.playerId, player.id),
+      }),
+      db
+        .select()
+        .from(careerItems)
+        .where(eq(careerItems.playerId, player.id))
+        .orderBy(desc(careerItems.startDate)),
+      db
+        .select()
+        .from(statsSeasons)
+        .where(eq(statsSeasons.playerId, player.id)),
+    ]);
 
   const media = [
-     ...rawMedia.filter(m => m.type === "photo").slice(0, maxPhotos),
-     ...rawMedia.filter(m => m.type === "video").slice(0, maxVideos)
+    ...rawMedia.filter((m) => m.type === "photo").slice(0, maxPhotos),
+    ...rawMedia.filter((m) => m.type === "video").slice(0, maxVideos),
   ];
+
+  // Aggregate per-career stats so the free layout can render the
+  // PJ/TIT/MIN/G/A row per club. statsSeasons rows can be many per
+  // career_item — sum across rows that share a career_item_id.
+  const statsByCareerId = new Map<
+    string,
+    { matches: number; starts: number; minutes: number; goals: number; assists: number }
+  >();
+  for (const s of statsRows) {
+    if (!s.careerItemId) continue;
+    const acc =
+      statsByCareerId.get(s.careerItemId) ?? {
+        matches: 0,
+        starts: 0,
+        minutes: 0,
+        goals: 0,
+        assists: 0,
+      };
+    acc.matches += s.matches ?? 0;
+    acc.starts += s.starts ?? 0;
+    acc.minutes += s.minutes ?? 0;
+    acc.goals += s.goals ?? 0;
+    acc.assists += s.assists ?? 0;
+    statsByCareerId.set(s.careerItemId, acc);
+  }
+
+  const freeCareer: FreeLayoutCareerRow[] = careerRows.map((c) => {
+    const startYear = c.startDate ? new Date(c.startDate).getFullYear() : null;
+    const endYear = c.endDate ? new Date(c.endDate).getFullYear() : null;
+    return {
+      id: c.id,
+      club: c.club,
+      countryCode: null, // we don't yet store club country; the row
+                         // gracefully renders without a flag.
+      divisionName: c.division ?? null,
+      startYear,
+      endYear,
+      isCurrent: !c.endDate,
+      stats: statsByCareerId.get(c.id) ?? null,
+    };
+  });
+
+  const freePersonal: FreeLayoutPersonal = personalRow
+    ? {
+        languages: personalRow.languages ?? null,
+        education: personalRow.education ?? null,
+        residenceCity: personalRow.residenceCity ?? null,
+        residenceCountry: personalRow.residenceCountry ?? null,
+        residenceCountryCode: personalRow.residenceCountryCode ?? null,
+        whatsapp: personalRow.whatsapp ?? null,
+        showContactSection: personalRow.showContactSection ?? false,
+      }
+    : null;
 
   const publicData = {
     player,
@@ -72,7 +170,17 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
     media,
     sections,
     articles,
-    theme: theme || { layout: "futuristic", primaryColor: "#171717", accentColor: "#3B82F6", typography: "syncopate" }
+    theme:
+      theme || {
+        layout: "futuristic",
+        primaryColor: "#171717",
+        accentColor: "#3B82F6",
+        typography: "syncopate",
+      },
+    plan,
+    freeData: isFree
+      ? { personal: freePersonal, career: freeCareer }
+      : null,
   };
 
   return <LayoutResolver data={publicData} />;
