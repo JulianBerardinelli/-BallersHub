@@ -273,12 +273,18 @@ async function createMpCheckout(args: {
   const testBuyerEmail = process.env.MP_TEST_BUYER_EMAIL?.trim();
   const payerEmail = testBuyerEmail || args.email;
 
+  // back_url MUST NOT carry a query string. MP appends `?preapproval_id=...`
+  // by literally pasting `?...` even when the URL already has a `?` — the
+  // result is `?internal=<x>?preapproval_id=<y>` which the browser parses
+  // as a single `internal` value containing the rest. The /processing page
+  // resolves the internal id from the MP-appended preapproval_id instead
+  // (via /api/billing/resolve-checkout).
   const result = await preapproval.create({
     body: {
       reason: planLabel(args.planId),
       external_reference: args.internalSessionId,
       payer_email: payerEmail,
-      back_url: `${baseUrl}/checkout/processing?internal=${args.internalSessionId}`,
+      back_url: `${baseUrl}/checkout/processing`,
       auto_recurring: {
         frequency: 12,
         frequency_type: "months",
