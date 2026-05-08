@@ -107,72 +107,86 @@ export async function createCheckoutAction(
       processor: result.processor,
     };
   } catch (err) {
-    // Stripe / MP SDKs throw rich error objects but only `message`
-    // shows up if you log the Error directly. Vercel runtime logs
-    // (and the MCP we use to fetch them) render each console line on
-    // its own row and TRUNCATE long messages, so we split into many
-    // short lines — one per useful field — to make sure each fits in
-    // the visible window.
-    const e = err as
-      | (Error & {
-          cause?: unknown;
-          response?: unknown;
-          body?: unknown;
-          status?: unknown;
-          error?: unknown;
-        })
-      | unknown;
-    const isErr = e instanceof Error;
-    console.error("[checkout/createCheckoutAction] FAILED");
-    console.error("  name:", isErr ? (e as Error).name : typeof e);
-    console.error(
-      "  message:",
-      isErr ? (e as Error).message : String(e).slice(0, 300),
-    );
-    if (isErr) {
-      const x = e as Error & {
-        cause?: unknown;
-        response?: unknown;
-        body?: unknown;
-        status?: unknown;
-        error?: unknown;
-      };
-      if (x.status !== undefined) {
-        console.error("  status:", String(x.status));
-      }
-      if (x.cause !== undefined) {
-        console.error("  cause:", String(x.cause).slice(0, 500));
-      }
-      if (x.body !== undefined) {
-        try {
-          console.error(
-            "  body:",
-            JSON.stringify(x.body).slice(0, 800),
-          );
-        } catch {
-          console.error("  body (toString):", String(x.body).slice(0, 500));
-        }
-      }
-      if (x.response !== undefined) {
-        try {
-          console.error(
-            "  response:",
-            JSON.stringify(x.response).slice(0, 800),
-          );
-        } catch {
-          console.error("  response (toString):", String(x.response).slice(0, 500));
-        }
-      }
-      if (x.error !== undefined) {
-        console.error("  error.field:", String(x.error).slice(0, 300));
+    // Multi-line logger that survives Vercel/MCP truncation. Both Error
+    // instances and plain objects (which the MP SDK throws) get the
+    // same treatment: read every interesting top-level field and log
+    // it on its own console.error line, capped at 800 chars so it fits
+    // in the runtime-logs viewer.
+    logCheckoutError(err);
+
+    const fallback = "Error desconocido al crear el checkout";
+    let message = fallback;
+    if (err instanceof Error && err.message) {
+      message = err.message;
+    } else if (
+      err &&
+      typeof err === "object" &&
+      "message" in err &&
+      typeof (err as { message: unknown }).message === "string"
+    ) {
+      message = (err as { message: string }).message;
+    }
+    return { ok: false, error: message };
+  }
+}
+
+function logCheckoutError(err: unknown): void {
+  console.error("[checkout/createCheckoutAction] FAILED");
+  console.error("  typeof:", typeof err);
+
+  if (err === null || err === undefined) {
+    console.error("  value:", String(err));
+    return;
+  }
+
+  // Plain primitives — log directly.
+  if (typeof err !== "object") {
+    console.error("  value:", String(err).slice(0, 800));
+    return;
+  }
+
+  const e = err as Record<string, unknown> & { stack?: string };
+
+  // Common diagnostic fields. Order matches what the MP/Stripe SDKs
+  // typically populate, most-useful first.
+  for (const field of [
+    "name",
+    "status",
+    "statusCode",
+    "message",
+    "error",
+    "code",
+    "cause",
+    "body",
+    "response",
+    "data",
+  ] as const) {
+    if (e[field] === undefined) continue;
+    const value = e[field];
+    if (typeof value === "string" || typeof value === "number") {
+      console.error(`  ${field}:`, String(value).slice(0, 800));
+    } else {
+      try {
+        console.error(`  ${field}:`, JSON.stringify(value).slice(0, 800));
+      } catch {
+        console.error(`  ${field} (toString):`, String(value).slice(0, 800));
       }
     }
+  }
 
-    const message =
-      err instanceof Error && err.message
-        ? err.message
-        : "Error desconocido al crear el checkout";
-    return { ok: false, error: message };
+  // Whole-object dump as a last resort — captures fields we didn't
+  // enumerate above. Capped to keep the log line readable.
+  try {
+    const fullDump = JSON.stringify(e);
+    if (fullDump && fullDump !== "{}") {
+      console.error("  raw:", fullDump.slice(0, 1500));
+    }
+  } catch {
+    // Circular reference, function values, etc. — skip whole-object dump.
+  }
+
+  if (typeof e.stack === "string") {
+    console.error("  stack:", e.stack.split("\n").slice(0, 5).join(" | "));
   }
 }
 
