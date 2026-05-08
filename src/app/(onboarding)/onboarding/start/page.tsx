@@ -10,8 +10,13 @@ import {
 } from "@/lib/dashboard/client/application-status";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { db } from "@/lib/db";
-import { agencyInvites, userProfiles, managerProfiles } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  agencyInvites,
+  userProfiles,
+  managerProfiles,
+  subscriptions,
+} from "@/db/schema";
+import { and, eq, inArray, desc } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +24,37 @@ export default async function StartPage() {
   const supabase = await createSupabaseServerRSC();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/onboarding/start");
+
+  // Active subscription shortcut: if the user already paid (via /pricing
+  // → /checkout), the planId tells us their intended role. Skip the
+  // role chooser entirely and route to the specific onboarding flow.
+  // Trade-off: the user can no longer change their mind here. They'd
+  // need to cancel the subscription from settings first.
+  try {
+    const [activeSub] = await db
+      .select({
+        planId: subscriptions.planId,
+        statusV2: subscriptions.statusV2,
+      })
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.userId, user.id),
+          inArray(subscriptions.statusV2, ["trialing", "active", "past_due"]),
+        ),
+      )
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1);
+
+    if (activeSub?.planId === "pro-player") {
+      redirect("/onboarding/player/apply");
+    }
+    if (activeSub?.planId === "pro-agency") {
+      redirect("/onboarding/manager/info");
+    }
+  } catch {
+    // Non-fatal — fall through to the regular onboarding chooser.
+  }
 
   // Check for pending multi-manager agency invites
   if (user.email) {
