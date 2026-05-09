@@ -22,7 +22,7 @@
 // touched by these actions — see `assertNotPaidSubscription` below.
 
 import { z } from "zod";
-import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
@@ -108,24 +108,21 @@ function isCompProcessorSubscriptionId(value: string | null | undefined): boolea
   return typeof value === "string" && value.startsWith(COMP_GRANT_PREFIX);
 }
 
-async function findActiveSubscription(userId: string) {
-  const rows = await db
-    .select()
-    .from(subscriptions)
-    .where(
-      and(
-        eq(subscriptions.userId, userId),
-        inArray(subscriptions.statusV2, ["trialing", "active", "past_due"]),
-      ),
-    )
-    .orderBy(desc(subscriptions.createdAt))
-    .limit(1);
-  return rows[0] ?? null;
-}
-
-// `subscriptions.user_id` is UNIQUE in the DB, so a user can only ever
-// have one row. Pull whatever exists (regardless of status) so the
-// grant flow can decide between INSERT (no row) and UPDATE (any row).
+// `subscriptions.user_id` is UNIQUE in the DB (constraint
+// `subscriptions_user_id_key`), so a user can only ever have one row.
+// Pull whatever row exists — regardless of status_v2, plan, or
+// processor — so the grant flow can decide between INSERT (no row)
+// and UPDATE (any row).
+//
+// IMPORTANT: do NOT filter by `status_v2 IN ('trialing','active',...)`
+// here. Common cases that filter would miss:
+//   1. A free user signed up via /onboarding/player/apply → their row
+//      is created with `status='active'` but `status_v2 = NULL` (the
+//      v2 enum was added later and old paths haven't been backfilled).
+//   2. A previously-revoked comp → row has `status_v2='canceled'`.
+// Both cases would still hit the UNIQUE(user_id) constraint on INSERT,
+// so we MUST find them and UPDATE in-place. The grant flow then
+// rejects only true-active paid subs and true-active stacked comps.
 async function findAnySubscription(userId: string) {
   const rows = await db
     .select()
