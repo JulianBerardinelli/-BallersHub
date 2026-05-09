@@ -398,11 +398,12 @@ export default function CompAccountsClient({ initial }: Props) {
                         {formatDate(row.grantedAt)}
                       </td>
                       <td className="px-4 py-3 text-bh-fg-3">
-                        {row.currentPeriodEnd
-                          ? formatDate(row.currentPeriodEnd)
-                          : "—"}
-                        {!row.currentPeriodEnd && !isCanceled && (
-                          <span className="ml-1 inline-flex items-center gap-1 rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.1em] text-bh-lime">
+                        {row.currentPeriodEnd ? (
+                          formatDate(row.currentPeriodEnd)
+                        ) : isCanceled ? (
+                          "—"
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-bh-lime">
                             <InfinityIcon className="h-3 w-3" />
                             Permanente
                           </span>
