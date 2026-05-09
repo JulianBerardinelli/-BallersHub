@@ -36,8 +36,15 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   };
 }
 
-export default async function PlayerPublicPage({ params }: { params: Params }) {
+export default async function PlayerPublicPage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams?: Promise<{ force_free?: string }>;
+}) {
   const { slug } = await params;
+  const sp = (await searchParams) ?? {};
 
   // 1) Jugador público
   const player = await db.query.playerProfiles.findFirst({
@@ -49,7 +56,7 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
       ),
     with: {
       agency: true,
-    }
+    },
   });
 
   if (!player) return notFound();
@@ -63,7 +70,15 @@ export default async function PlayerPublicPage({ params }: { params: Params }) {
   const maxPhotos = Number(limits?.max_photos ?? 100);
   const maxVideos = Number(limits?.max_videos ?? 100);
 
-  const plan = (sub?.plan ?? "free") as "free" | "pro" | "pro_plus";
+  // DEV-ONLY override so we can preview the Free layout on any /[slug]
+  // without flipping subscriptions in the DB. Trips on `?force_free=1`
+  // and only when NODE_ENV !== 'production'. Strips itself in prod.
+  const devForceFree =
+    process.env.NODE_ENV !== "production" && sp.force_free === "1";
+
+  const plan = devForceFree
+    ? ("free" as const)
+    : ((sub?.plan ?? "free") as "free" | "pro" | "pro_plus");
   const isFree = plan === "free";
 
   // 3) Bandeja de Datos Públicos
