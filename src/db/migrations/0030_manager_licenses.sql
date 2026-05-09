@@ -9,6 +9,12 @@ ALTER TABLE "manager_profiles"
 -- manager linked to that agency, so no data is lost in dev databases.
 -- Wrapped in a DO block so the migration is idempotent — if the legacy
 -- agency_profiles.licenses column is already gone, we simply skip this step.
+--
+-- Important: `manager_profiles.user_id` references `user_profiles.id`, NOT
+-- `user_profiles.user_id` (the auth UUID). We project `u.id` so the join
+-- below actually matches; the previous version used `u.user_id` and the
+-- backfill silently no-op'd, dropping legacy license data on the next
+-- DROP COLUMN.
 DO $migration$
 BEGIN
   IF EXISTS (
@@ -24,14 +30,14 @@ BEGIN
           SELECT DISTINCT ON (a.id)
                  a.id  AS agency_id,
                  a.licenses AS licenses,
-                 u.user_id AS user_id
+                 u.id AS user_profile_id
             FROM "agency_profiles" a
             JOIN "user_profiles" u ON u.agency_id = a.id AND u.role = 'manager'
            WHERE a.licenses IS NOT NULL
              AND jsonb_array_length(a.licenses) > 0
            ORDER BY a.id, u.created_at ASC
         ) seed
-       WHERE m.user_id = seed.user_id
+       WHERE m.user_id = seed.user_profile_id
          AND (m.licenses IS NULL OR jsonb_array_length(m.licenses) = 0);
     $sql$;
   END IF;

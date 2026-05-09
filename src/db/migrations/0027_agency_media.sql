@@ -27,8 +27,12 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('agency-media', 'agency-media', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Anyone can read; only authenticated users can write/delete (server actions
--- enforce ownership against agency_profiles via user_profiles.agency_id).
+-- Anyone can read (public bucket); writes/updates/deletes are restricted to
+-- the manager whose agency owns the object. Path convention is
+--   gallery/{agency_id}-{timestamp}.{ext}
+-- so we match on the bytes that follow `gallery/`. Without this, any
+-- authenticated user could remove or overwrite another agency's gallery
+-- asset by calling Storage directly with a known path.
 DROP POLICY IF EXISTS "agency_media_storage_select" ON storage.objects;
 CREATE POLICY "agency_media_storage_select"
   ON storage.objects FOR SELECT
@@ -38,16 +42,57 @@ DROP POLICY IF EXISTS "agency_media_storage_insert" ON storage.objects;
 CREATE POLICY "agency_media_storage_insert"
   ON storage.objects FOR INSERT
   TO authenticated
-  WITH CHECK (bucket_id = 'agency-media');
+  WITH CHECK (
+    bucket_id = 'agency-media'
+    AND EXISTS (
+      SELECT 1
+        FROM public.user_profiles up
+       WHERE up.user_id = auth.uid()
+         AND up.role = 'manager'
+         AND up.agency_id IS NOT NULL
+         AND objects.name LIKE 'gallery/' || up.agency_id::text || '-%'
+    )
+  );
 
 DROP POLICY IF EXISTS "agency_media_storage_update" ON storage.objects;
 CREATE POLICY "agency_media_storage_update"
   ON storage.objects FOR UPDATE
   TO authenticated
-  USING (bucket_id = 'agency-media');
+  USING (
+    bucket_id = 'agency-media'
+    AND EXISTS (
+      SELECT 1
+        FROM public.user_profiles up
+       WHERE up.user_id = auth.uid()
+         AND up.role = 'manager'
+         AND up.agency_id IS NOT NULL
+         AND objects.name LIKE 'gallery/' || up.agency_id::text || '-%'
+    )
+  )
+  WITH CHECK (
+    bucket_id = 'agency-media'
+    AND EXISTS (
+      SELECT 1
+        FROM public.user_profiles up
+       WHERE up.user_id = auth.uid()
+         AND up.role = 'manager'
+         AND up.agency_id IS NOT NULL
+         AND objects.name LIKE 'gallery/' || up.agency_id::text || '-%'
+    )
+  );
 
 DROP POLICY IF EXISTS "agency_media_storage_delete" ON storage.objects;
 CREATE POLICY "agency_media_storage_delete"
   ON storage.objects FOR DELETE
   TO authenticated
-  USING (bucket_id = 'agency-media');
+  USING (
+    bucket_id = 'agency-media'
+    AND EXISTS (
+      SELECT 1
+        FROM public.user_profiles up
+       WHERE up.user_id = auth.uid()
+         AND up.role = 'manager'
+         AND up.agency_id IS NOT NULL
+         AND objects.name LIKE 'gallery/' || up.agency_id::text || '-%'
+    )
+  );
