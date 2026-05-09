@@ -40,6 +40,12 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/marketing/drips", label: "Drips automatizados", roles: ["admin"] },
     ],
   },
+  {
+    title: "Billing",
+    items: [
+      { href: "/admin/comp-accounts", label: "Cuentas de cortesía", roles: ["admin"] },
+    ],
+  },
 ];
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
