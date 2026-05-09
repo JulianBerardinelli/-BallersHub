@@ -123,6 +123,18 @@ async function findActiveSubscription(userId: string) {
   return rows[0] ?? null;
 }
 
+// `subscriptions.user_id` is UNIQUE in the DB, so a user can only ever
+// have one row. Pull whatever exists (regardless of status) so the
+// grant flow can decide between INSERT (no row) and UPDATE (any row).
+async function findAnySubscription(userId: string) {
+  const rows = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .limit(1);
+  return rows[0] ?? null;
+}
+
 // ---------------------------------------------------------------
 // Grant Pro (idempotent)
 // ---------------------------------------------------------------
@@ -146,28 +158,39 @@ export async function grantProAccess(
   }
   const { targetUserId, planId, durationMonths, reason } = parsed.data;
 
-  const existing = await findActiveSubscription(targetUserId);
-  if (existing) {
-    if (existing.processor !== null) {
-      // Real paying user — refuse to overwrite. Admin should revoke
-      // their paid sub via Stripe/MP first if they really want to swap.
-      return {
-        ok: false,
-        error:
-          "El usuario ya tiene una suscripción paga activa (Stripe o Mercado Pago). No es posible otorgar comp encima.",
-      };
-    }
-    if (isCompProcessorSubscriptionId(existing.processorSubscriptionId)) {
-      // Already has comp — extend or update instead of creating a duplicate.
-      return {
-        ok: false,
-        error:
-          "Este usuario ya tiene una cuenta de cortesía activa. Usá 'Extender' o 'Modificar' en lugar de otorgar otra.",
-      };
-    }
+  // `subscriptions.user_id` is UNIQUE — every user has at most one row.
+  // We need to look at ALL subs (not just active ones) because the row
+  // for a user that's never paid might exist with a "free / canceled"
+  // status that our active-only filter misses, but the UNIQUE constraint
+  // would still reject a fresh INSERT.
+  const anyExisting = await findAnySubscription(targetUserId);
+
+  // Refuse to touch real paying users (live Stripe/MP). Admin should
+  // revoke via the processor first if they really want to swap.
+  if (
+    anyExisting?.processor !== null &&
+    anyExisting?.processor !== undefined &&
+    anyExisting?.statusV2 &&
+    ["trialing", "active", "past_due"].includes(anyExisting.statusV2)
+  ) {
     return {
       ok: false,
-      error: "El usuario ya tiene una suscripción activa de tipo desconocido.",
+      error:
+        "El usuario ya tiene una suscripción paga activa (Stripe o Mercado Pago). No es posible otorgar comp encima.",
+    };
+  }
+
+  // Refuse stacking: if there's already an ACTIVE comp, force the admin
+  // to use the extend/modify flow instead of creating a "second" one.
+  if (
+    anyExisting?.processor === null &&
+    isCompProcessorSubscriptionId(anyExisting?.processorSubscriptionId) &&
+    anyExisting?.statusV2 === "active"
+  ) {
+    return {
+      ok: false,
+      error:
+        "Este usuario ya tiene una cuenta de cortesía activa. Usá 'Extender' o 'Modificar' en lugar de otorgar otra.",
     };
   }
 
@@ -176,23 +199,46 @@ export async function grantProAccess(
       ? null
       : new Date(Date.now() + durationMonths * 30 * 24 * 3600 * 1000);
 
-  const [row] = await db
-    .insert(subscriptions)
-    .values({
-      userId: targetUserId,
-      plan: "pro",
-      status: "active",
-      statusV2: "active",
-      planId,
-      processor: null,
-      processorSubscriptionId: `${COMP_GRANT_PREFIX}${auth.actorId}`,
-      processorCustomerId: null,
-      currentPeriodStartsAt: new Date(),
-      currentPeriodEnd: periodEnd,
-      cancelAtPeriodEnd: false,
-      trialEndsAt: null,
-    })
-    .returning({ id: subscriptions.id });
+  const compFields = {
+    plan: "pro" as const,
+    status: "active" as const,
+    statusV2: "active" as const,
+    planId,
+    processor: null,
+    processorSubscriptionId: `${COMP_GRANT_PREFIX}${auth.actorId}`,
+    processorCustomerId: null,
+    currency: null,
+    currentPeriodStartsAt: new Date(),
+    currentPeriodEnd: periodEnd,
+    cancelAtPeriodEnd: false,
+    trialEndsAt: null,
+    canceledAt: null,
+    billingAddressId: null,
+    updatedAt: new Date(),
+  };
+
+  let subscriptionId: string;
+  if (anyExisting) {
+    // UPDATE in-place: covers free→comp upgrade and reactivating a
+    // previously-revoked comp. The UNIQUE(user_id) constraint forces
+    // this path; otherwise we'd 23505.
+    await db
+      .update(subscriptions)
+      .set(compFields)
+      .where(eq(subscriptions.id, anyExisting.id));
+    subscriptionId = anyExisting.id;
+  } else {
+    // No prior row — clean INSERT.
+    const [inserted] = await db
+      .insert(subscriptions)
+      .values({
+        userId: targetUserId,
+        ...compFields,
+      })
+      .returning({ id: subscriptions.id });
+    subscriptionId = inserted.id;
+  }
+  const row = { id: subscriptionId };
 
   await logAudit({
     actorId: auth.actorId,
