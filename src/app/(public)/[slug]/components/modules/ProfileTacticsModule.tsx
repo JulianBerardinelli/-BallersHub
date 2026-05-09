@@ -321,16 +321,18 @@ export default function ProfileTacticsModule({
   const highY        = useTransform(scrollYProgress, [0.15, 0.50], [0, 20]);
 
   // ── ENTER ANIMATIONS (Layer 2) ───────────────────────────────────────────
-  const scoutCharOpac   = useTransform(scrollYProgress, [0.25, 0.50], [0, 1]);
-  const scoutCharY      = useTransform(scrollYProgress, [0.25, 0.50], [30, 0]);
-  const scoutTacticOpac = useTransform(scrollYProgress, [0.30, 0.55], [0, 1]);
-  const scoutTacticY    = useTransform(scrollYProgress, [0.30, 0.55], [30, 0]);
-  const scoutPhysOpac   = useTransform(scrollYProgress, [0.35, 0.60], [0, 1]);
-  const scoutPhysY      = useTransform(scrollYProgress, [0.35, 0.60], [30, 0]);
-  const scoutMentOpac   = useTransform(scrollYProgress, [0.40, 0.65], [0, 1]);
-  const scoutMentY      = useTransform(scrollYProgress, [0.40, 0.65], [30, 0]);
-  const scoutTechOpac   = useTransform(scrollYProgress, [0.45, 0.70], [0, 1]);
-  const scoutTechY      = useTransform(scrollYProgress, [0.45, 0.70], [30, 0]);
+  // Tightened ranges so Layer 2 is fully visible shortly after the title flip
+  // at 0.35 — keeps the staggered cascade but everything resolves by ~0.55
+  const scoutCharOpac   = useTransform(scrollYProgress, [0.30, 0.42], [0, 1]);
+  const scoutCharY      = useTransform(scrollYProgress, [0.30, 0.42], [30, 0]);
+  const scoutTacticOpac = useTransform(scrollYProgress, [0.32, 0.45], [0, 1]);
+  const scoutTacticY    = useTransform(scrollYProgress, [0.32, 0.45], [30, 0]);
+  const scoutPhysOpac   = useTransform(scrollYProgress, [0.35, 0.48], [0, 1]);
+  const scoutPhysY      = useTransform(scrollYProgress, [0.35, 0.48], [30, 0]);
+  const scoutMentOpac   = useTransform(scrollYProgress, [0.38, 0.51], [0, 1]);
+  const scoutMentY      = useTransform(scrollYProgress, [0.38, 0.51], [30, 0]);
+  const scoutTechOpac   = useTransform(scrollYProgress, [0.41, 0.54], [0, 1]);
+  const scoutTechY      = useTransform(scrollYProgress, [0.41, 0.54], [30, 0]);
 
   // ── DATA ────────────────────────────────────────────────────────────────
   const characteristics = (player.topCharacteristics || player.top_characteristics || []) as string[];
@@ -837,25 +839,40 @@ export default function ProfileTacticsModule({
                     const activeCard = scoutingCards.find(c => c.key === currentKey)!;
                     const inactiveCards = scoutingCards.filter(c => c.key !== currentKey);
 
+                    // flex-grow + min-h-0 lets the row expand to fill the
+                    // remaining vertical space inside the parent flex-col,
+                    // and the active card's inner overflow-y-auto handles
+                    // long content without clipping the row visually.
                     return (
-                      <motion.div style={{ opacity: scoutTacticOpac, y: scoutTacticY }} className="flex flex-row gap-4 flex-grow pb-4 h-[280px] xl:h-[320px]">
-                        {/* Panel Maestro (Activo) */}
-                        <motion.div 
+                      <motion.div style={{ opacity: scoutTacticOpac, y: scoutTacticY }} className="flex flex-row gap-4 flex-grow min-h-0 pb-4">
+                        {/* Panel Maestro (Activo) — izquierda 60-65% */}
+                        <motion.div
                           layoutId={`scout-card-${activeCard.key}`}
                           style={{ border: "1px solid color-mix(in srgb, var(--theme-secondary) 40%, transparent)" }}
-                          className="w-[60%] xl:w-[65%] bg-neutral-900/60 backdrop-blur-[20px] shadow-2xl rounded-2xl p-6 lg:p-8 group relative overflow-hidden flex flex-col justify-start"
+                          className="w-[60%] xl:w-[65%] bg-neutral-900/60 backdrop-blur-[20px] shadow-2xl rounded-2xl p-6 lg:p-8 group relative overflow-hidden flex flex-col justify-start min-h-0"
                         >
                           <div className={`absolute top-0 left-0 w-[4px] h-full ${activeCard.accentBg} opacity-100 z-10`} />
-                          <activeCard.Icon size={160} strokeWidth={0.4} className="absolute -bottom-6 -right-6 text-white opacity-[0.06] pointer-events-none" />
-                          
+                          {/* Watermark icon — anchored bottom-right but pulled
+                              inward and bigger so it reads as a decorative
+                              background instead of a clipped corner element. */}
+                          <activeCard.Icon size={220} strokeWidth={0.35} className="absolute -bottom-8 right-4 text-white opacity-[0.07] pointer-events-none" />
+
                           <div className="relative z-10 mb-6 flex items-center gap-3">
-                            <activeCard.Icon size={24} className="text-white/40" style={{ color: activeCard.accent }} />
+                            {/* Title icon — sits inside an accent-tinted square
+                                so it reads as a real header element instead of
+                                a small decoration next to the text. */}
+                            <div
+                              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                              style={{ background: `color-mix(in srgb, ${activeCard.accent} 14%, transparent)`, border: `1px solid color-mix(in srgb, ${activeCard.accent} 30%, transparent)` }}
+                            >
+                              <activeCard.Icon size={20} style={{ color: activeCard.accent }} />
+                            </div>
                             <h4 style={{ color: activeCard.accent }} className="text-sm lg:text-base uppercase font-black tracking-[0.25em]">
                               {activeCard.label}
                             </h4>
                           </div>
-                          
-                          <div className="relative z-10 flex-grow overflow-y-auto pr-2 custom-scrollbar">
+
+                          <div className="relative z-10 flex-grow min-h-0 overflow-y-auto pr-2 custom-scrollbar">
                             {activeCard.content ? (
                               <p className="text-[13px] xl:text-[14px] text-neutral-300 leading-[1.8] font-light">{activeCard.content}</p>
                             ) : (
@@ -864,8 +881,8 @@ export default function ProfileTacticsModule({
                           </div>
                         </motion.div>
 
-                        {/* Panel Detalle (Comprimidas) */}
-                        <div className="w-[40%] xl:w-[35%] flex flex-col gap-3">
+                        {/* Panel Detalle (Comprimidas) — derecha 40-35% */}
+                        <div className="w-[40%] xl:w-[35%] flex flex-col gap-3 min-h-0">
                           {inactiveCards.map((card) => (
                             <button
                               key={card.key}
@@ -874,9 +891,14 @@ export default function ProfileTacticsModule({
                               style={{ border: "1px solid color-mix(in srgb, var(--theme-secondary) 20%, transparent)" }}
                             >
                               <div className={`absolute top-0 left-0 w-[3px] h-full ${card.accentBg} opacity-50 group-hover:opacity-100 transition-opacity z-10`} />
-                              
-                              <div className="flex items-center gap-4 relative z-10">
-                                <card.Icon size={22} className="text-white/30 group-hover:text-white/60 transition-colors" />
+
+                              <div className="flex items-center gap-3 relative z-10 min-w-0">
+                                <div
+                                  className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-colors"
+                                  style={{ background: `color-mix(in srgb, ${card.accent} 10%, transparent)`, border: `1px solid color-mix(in srgb, ${card.accent} 22%, transparent)` }}
+                                >
+                                  <card.Icon size={18} style={{ color: card.accent }} />
+                                </div>
                                 <span className="text-[10px] xl:text-[11px] font-black uppercase tracking-[0.2em] text-white/70 group-hover:text-white transition-colors text-left leading-tight">
                                   {card.label}
                                 </span>
