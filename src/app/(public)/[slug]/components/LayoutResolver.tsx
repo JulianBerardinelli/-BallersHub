@@ -3,6 +3,11 @@ import FuturisticLayout from "./FuturisticLayout";
 import MinimalistLayout from "./MinimalistLayout";
 import VintageLayout from "./VintageLayout";
 import ProAthleteLayout from "./ProAthleteLayout";
+import FreeLayout, {
+  type FreeLayoutCareerRow,
+  type FreeLayoutPersonal,
+  type FreeLayoutPlayer,
+} from "./free/FreeLayout";
 import { resolveTypographyClasses } from "./TypographyResolver";
 import SmoothScrollProvider from "./SmoothScrollProvider";
 import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
@@ -35,10 +40,74 @@ export type PublicProfileData = {
   sections: Array<{ section: string; visible: boolean }>;
   theme: Record<string, unknown> & { layout?: string | null; primaryColor?: string | null; accentColor?: string | null; typography?: string | null; };
   limits?: any; // Subscription limits
+  /**
+   * Subscription tier from `subscriptions.plan`. When `'free'` (or
+   * undefined), the resolver picks the editorial-dossier FreeLayout
+   * regardless of `theme.layout`. Pro variants only render for paying
+   * users.
+   */
+  plan?: "free" | "pro" | "pro_plus" | null;
+  /**
+   * Pre-fetched data needed by the Free layout. Only populated when
+   * `plan === 'free'` in `page.tsx`. The Pro layout's modules fetch
+   * their own data lazily via Suspense, so they don't use this.
+   */
+  freeData?: {
+    personal: FreeLayoutPersonal;
+    career: FreeLayoutCareerRow[];
+  } | null;
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
-  const { player, theme, limits, articles } = data;
+  const { player, theme, limits, articles, plan, freeData } = data;
+
+  // Free-tier players ALWAYS get the editorial dossier, regardless of
+  // whatever `theme.layout` they had selected. The pro variants are
+  // gated behind the subscription.
+  const isFree = !plan || plan === "free";
+  if (isFree) {
+    const freePlayer: FreeLayoutPlayer = {
+      id: player.id,
+      slug: (player as { slug?: string }).slug ?? "",
+      fullName: player.fullName,
+      bio: player.bio ?? null,
+      avatarUrl: player.avatarUrl ?? null,
+      birthDate:
+        ((player as { birthDate?: string | null }).birthDate as string | null) ??
+        null,
+      heightCm:
+        ((player as { heightCm?: number | null }).heightCm as number | null) ??
+        null,
+      weightKg:
+        ((player as { weightKg?: number | null }).weightKg as number | null) ??
+        null,
+      foot: player.foot ?? null,
+      positions: player.positions ?? null,
+      nationality: player.nationality ?? null,
+      nationalityCodes:
+        ((player as { nationalityCodes?: string[] | null }).nationalityCodes as
+          | string[]
+          | null) ?? null,
+      currentClub: player.currentClub ?? null,
+      transfermarktUrl:
+        ((player as { transfermarktUrl?: string | null }).transfermarktUrl as
+          | string
+          | null) ?? null,
+      beSoccerUrl:
+        ((player as { beSoccerUrl?: string | null }).beSoccerUrl as
+          | string
+          | null) ?? null,
+    };
+    return (
+      <FreeLayout
+        data={{
+          player: freePlayer,
+          personal: freeData?.personal ?? null,
+          career: freeData?.career ?? [],
+        }}
+      />
+    );
+  }
 
   const layout = theme?.layout || "futuristic";
   const primaryColor = theme?.primaryColor || "#0a0a0a";
