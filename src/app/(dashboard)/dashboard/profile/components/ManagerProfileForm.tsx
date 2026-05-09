@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { Button } from "@heroui/react";
-import { updateManagerProfile } from "@/app/actions/manager-profiles";
-import type { ManagerProfile } from "@/db/schema/managerProfiles";
 import { useRouter } from "next/navigation";
 
+import { updateManagerProfile } from "@/app/actions/manager-profiles";
+import type { ManagerProfile } from "@/db/schema/managerProfiles";
 import FormField from "@/components/dashboard/client/FormField";
+import BhImageUploader from "@/components/ui/BhImageUploader";
+import { bhButtonClass } from "@/components/ui/bh-button-class";
 
 export default function ManagerProfileForm({ profile }: { profile: ManagerProfile }) {
   const [formData, setFormData] = useState({
@@ -17,20 +19,44 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
     contactPhone: profile.contactPhone || "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setFeedback(null);
 
     const result = await updateManagerProfile(formData);
 
     setIsSubmitting(false);
 
     if (result.error) {
-      alert(result.error);
+      setFeedback({ type: "error", message: result.error });
     } else {
-      alert("Perfil actualizado correctamente");
+      setFeedback({ type: "success", message: "Perfil actualizado correctamente." });
+      router.refresh();
+    }
+  };
+
+  const handleAvatarUpload = async (publicUrl: string) => {
+    setFormData((curr) => ({ ...curr, avatarUrl: publicUrl }));
+    const result = await updateManagerProfile({ ...formData, avatarUrl: publicUrl });
+    if (result.error) {
+      setFeedback({ type: "error", message: result.error });
+    } else {
+      setFeedback({ type: "success", message: "Foto actualizada." });
+      router.refresh();
+    }
+  };
+
+  const handleAvatarRemove = async () => {
+    setFormData((curr) => ({ ...curr, avatarUrl: "" }));
+    const result = await updateManagerProfile({ ...formData, avatarUrl: "" });
+    if (result.error) {
+      setFeedback({ type: "error", message: result.error });
+    } else {
+      setFeedback({ type: "success", message: "Foto eliminada." });
       router.refresh();
     }
   };
@@ -38,36 +64,43 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Avatar Section */}
-      <div className="flex flex-col items-center gap-6 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6 sm:flex-row">
-        <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/[0.08] bg-bh-surface-2 text-bh-fg-4">
-          {formData.avatarUrl ? (
-            <img src={formData.avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-[11px]">Sin foto</span>
-          )}
+      <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6">
+        <div className="mb-5 space-y-1">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Tu foto de perfil
+          </h3>
+          <p className="max-w-xl text-sm leading-[1.55] text-bh-fg-3">
+            Será visible en el portfolio de tu agencia y en las invitaciones a jugadores. Cuadrada y centrada en la cara funciona mejor.
+          </p>
         </div>
-        <div className="flex-1 space-y-3 text-center sm:text-left">
-          <div className="space-y-1">
-            <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-              Tu foto de perfil
-            </h3>
-            <p className="max-w-sm text-sm leading-[1.55] text-bh-fg-3">
-              Será visible públicamente en el perfil de tu agencia y en las
-              invitaciones de revisión.
-            </p>
-          </div>
-          <div className="max-w-md">
-            <FormField
-              id="bh-mp-avatar-url"
-              type="text"
-              label="URL de la imagen"
-              placeholder="https://..."
-              value={formData.avatarUrl}
-              onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
-            />
-          </div>
-        </div>
+
+        <BhImageUploader
+          bucket="manager-avatars"
+          pathFor={(file) => {
+            const ext = file.name.split(".").pop() || "jpg";
+            return `${profile.userId}/${profile.id}-${Date.now()}.${ext}`;
+          }}
+          currentUrl={formData.avatarUrl || null}
+          onUploaded={handleAvatarUpload}
+          onRemove={handleAvatarRemove}
+          maxBytes={1.5 * 1024 * 1024}
+          shape="circle"
+          size={96}
+          emptyLabel="Sin foto"
+        />
       </div>
+
+      {feedback && (
+        <div
+          className={`rounded-bh-md border p-3 text-sm ${
+            feedback.type === "success"
+              ? "border-[rgba(34,197,94,0.25)] bg-[rgba(34,197,94,0.08)] text-bh-success"
+              : "border-[rgba(239,68,68,0.25)] bg-[rgba(239,68,68,0.08)] text-bh-danger"
+          }`}
+        >
+          {feedback.message}
+        </div>
+      )}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
@@ -112,7 +145,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
         <Button
           type="submit"
           isLoading={isSubmitting}
-          className="rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
+          className={bhButtonClass({ variant: "lime", size: "sm" })}
         >
           Guardar cambios
         </Button>

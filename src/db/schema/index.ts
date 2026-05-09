@@ -32,3 +32,6 @@ export * from "./marketingDrips";
 export * from "./billingAddresses";
 export * from "./checkoutSessions";
 export * from "./paymentEvents";
+export * from "./agencyPublishing";
+export * from "./agencyMedia";
+export * from "./agencyTeamRelations";

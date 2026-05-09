@@ -164,6 +164,26 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
     ],
   },
   {
+    id: "agency-template",
+    title: "Editar plantilla",
+    items: [
+      {
+        kind: "link",
+        id: "agency-template-styles",
+        title: "Estilos",
+        href: "/dashboard/agency/edit-template/styles",
+        description: "Plantilla, paleta y tipografía del portfolio público.",
+      },
+      {
+        kind: "link",
+        id: "agency-template-structure",
+        title: "Estructura",
+        href: "/dashboard/agency/edit-template/structure",
+        description: "Activa o desactiva bloques de contenido.",
+      },
+    ],
+  },
+  {
     id: "settings",
     title: "Configuración",
     items: [

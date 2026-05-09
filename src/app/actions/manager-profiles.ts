@@ -73,6 +73,17 @@ export async function updateManagerProfile(data: Partial<typeof managerProfiles.
       .where(eq(managerProfiles.userId, up.id));
 
     revalidatePath("/dashboard/profile");
+
+    // Manager metadata (avatar, bio, licenses) shows on the agency portfolio,
+    // so we revalidate that too if the manager belongs to an agency.
+    if (up.agencyId) {
+      const agency = await db.query.agencyProfiles.findFirst({
+        where: (a, { eq }) => eq(a.id, up.agencyId!),
+        columns: { slug: true },
+      });
+      if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Error updating manager profile:", error);

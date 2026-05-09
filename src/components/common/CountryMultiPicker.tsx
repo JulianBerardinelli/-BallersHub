@@ -45,14 +45,17 @@ export default function CountryMultiPicker({
     max = 3,
     defaultValue = [],
     onChange,
-    isInvalid,   
+    isInvalid,
     errorMessage,
+    label = "Nacionalidades",
   }: {
     max?: number;
     defaultValue?: CountryPick[];
     onChange: (vals: CountryPick[]) => void;
     isInvalid?: boolean;
     errorMessage?: React.ReactNode;
+    /** Override the internal label, or pass null to render no label. */
+    label?: string | null;
 }) {
   const [selected, setSelected] = React.useState<CountryPick[]>(defaultValue);
   const [items, setItems] = React.useState<CountryPick[]>([]);
@@ -110,7 +113,8 @@ React.useEffect(() => {
   return (
     <div className="grid gap-2">
       <Autocomplete
-        label="Nacionalidades"
+        label={label ?? undefined}
+        aria-label={label ?? "Nacionalidades"}
         labelPlacement="outside"
         menuTrigger="input"
         allowsCustomValue={false}

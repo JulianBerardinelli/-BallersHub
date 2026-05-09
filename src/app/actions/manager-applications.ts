@@ -81,8 +81,6 @@ export async function approveManagerApplication(applicationId: string) {
       contactPhone: application.contactPhone,
       websiteUrl: application.agencyWebsiteUrl,
       verifiedLink: application.verifiedLink,
-      agentLicenseUrl: application.agentLicenseUrl,
-      agentLicenseType: application.agentLicenseType,
       isApproved: true,
     })
     .returning();
@@ -96,12 +94,25 @@ export async function approveManagerApplication(applicationId: string) {
     })
     .where(eq(userProfiles.userId, application.userId));
 
-  // 4. Crear el perfil personal del manager con los datos de contacto que proveyó
+  // 4. Crear el perfil personal del manager con los datos de contacto que proveyó.
+  // La licencia que cargó en el onboarding se asocia al manager (no a la agencia)
+  // ya que las licencias FIFA pertenecen al agente, con la firma de la empresa.
+  const seedLicenses = application.agentLicenseType
+    ? [
+        {
+          type: application.agentLicenseType,
+          number: "—",
+          ...(application.agentLicenseUrl ? { url: application.agentLicenseUrl } : {}),
+        },
+      ]
+    : null;
+
   await db.insert(managerProfiles).values({
     userId: application.userId,
     fullName: application.fullName,
     contactEmail: application.contactEmail,
     contactPhone: application.contactPhone,
+    licenses: seedLicenses,
   });
 
   revalidatePath("/admin/manager-applications");
