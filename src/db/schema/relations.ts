@@ -79,9 +79,39 @@ export const managerProfilesRelations = relations(managerProfiles, ({ one }) => 
   }),
 }));
 
-export const agencyProfilesRelations = relations(agencyProfiles, ({ many }) => ({
+import { agencyThemeSettings, agencySectionsVisibility } from "./agencyPublishing";
+import { agencyMedia } from "./agencyMedia";
+
+export const agencyProfilesRelations = relations(agencyProfiles, ({ one, many }) => ({
   players: many(playerProfiles),
   invites: many(agencyInvites),
+  themeSettings: one(agencyThemeSettings, {
+    fields: [agencyProfiles.id],
+    references: [agencyThemeSettings.agencyId],
+  }),
+  sectionsVisibility: many(agencySectionsVisibility),
+  media: many(agencyMedia),
+}));
+
+export const agencyMediaRelations = relations(agencyMedia, ({ one }) => ({
+  agency: one(agencyProfiles, {
+    fields: [agencyMedia.agencyId],
+    references: [agencyProfiles.id],
+  }),
+}));
+
+export const agencyThemeSettingsRelations = relations(agencyThemeSettings, ({ one }) => ({
+  agency: one(agencyProfiles, {
+    fields: [agencyThemeSettings.agencyId],
+    references: [agencyProfiles.id],
+  }),
+}));
+
+export const agencySectionsVisibilityRelations = relations(agencySectionsVisibility, ({ one }) => ({
+  agency: one(agencyProfiles, {
+    fields: [agencySectionsVisibility.agencyId],
+    references: [agencyProfiles.id],
+  }),
 }));
 
 export const managerApplicationsRelations = relations(managerApplications, ({ one }) => ({

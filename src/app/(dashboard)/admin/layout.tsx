@@ -22,6 +22,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/applications", label: "Solicitudes de Jugadores", roles: ["admin"] },
       { href: "/admin/manager-applications", label: "Verificación Managers", roles: ["admin"] },
       { href: "/admin/career", label: "Trayectorias pendientes", roles: ["admin", "analyst"] },
+      { href: "/admin/agency-team-proposals", label: "Equipos de Agencias", roles: ["admin", "analyst"] },
     ],
   },
   {

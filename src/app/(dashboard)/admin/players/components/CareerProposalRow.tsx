@@ -6,7 +6,7 @@ import CountryFlag from "@/components/common/CountryFlag";
 import { careerStatusMeta, teamStatusMeta } from "../utils";
 
 import FormField from "@/components/dashboard/client/FormField";
-import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhButtonClass } from "@/components/ui/bh-button-class";
 import { bhChip, bhSelectClassNames } from "@/lib/ui/heroui-brand";
 
 type ChipTone = Parameters<typeof bhChip>[0];

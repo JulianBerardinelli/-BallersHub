@@ -39,25 +39,40 @@ const updateAgencySchema = z.object({
   name: z.string().min(2).max(100).optional(),
   slug: z.string().min(2).max(100).optional(),
   logoUrl: z.string().nullable().optional(),
-  description: z.string().max(2000).nullable().optional(),
+  tagline: z.string().max(120).nullable().optional(),
+  description: z.string().max(4000).nullable().optional(),
   contactEmail: z.string().nullable().optional(),
   contactPhone: z.string().max(50).nullable().optional(),
   websiteUrl: z.string().nullable().optional(),
   verifiedLink: z.string().nullable().optional(),
-  agentLicenseUrl: z.string().nullable().optional(),
-  agentLicenseType: z.string().max(100).nullable().optional(),
-  licenses: z.array(z.object({
-    type: z.string().min(1).max(50),
-    number: z.string().min(1).max(100),
-    url: z.string().optional()
-  })).max(10).nullable().optional(),
   operativeCountries: z.array(z.string().length(2)).max(15).nullable().optional(),
   headquarters: z.string().max(100).nullable().optional(),
   foundationYear: z.number().int().min(1800).max(new Date().getFullYear()).nullable().optional(),
   instagramUrl: z.string().nullable().optional(),
   twitterUrl: z.string().nullable().optional(),
   linkedinUrl: z.string().nullable().optional(),
-  services: z.array(z.string().max(60)).max(20).nullable().optional(),
+  services: z
+    .array(
+      z.object({
+        title: z.string().min(1).max(60),
+        icon: z.string().min(1).max(40),
+        color: z
+          .string()
+          .max(20)
+          .nullable()
+          .optional()
+          .transform((v) => v ?? null),
+        description: z
+          .string()
+          .max(280)
+          .nullable()
+          .optional()
+          .transform((v) => v ?? null),
+      }),
+    )
+    .max(12)
+    .nullable()
+    .optional(),
 });
 
 export async function updateAgencyProfile(agencyId: string, data: Partial<typeof agencyProfiles.$inferInsert>) {
@@ -84,6 +99,14 @@ export async function updateAgencyProfile(agencyId: string, data: Partial<typeof
     })
     .where(eq(agencyProfiles.id, agencyId));
 
+  // Revalidate the public portfolio so edits show up immediately. Slug may
+  // have changed — revalidate both the new and the old.
+  const updated = await db.query.agencyProfiles.findFirst({
+    where: eq(agencyProfiles.id, agencyId),
+    columns: { slug: true },
+  });
+
   revalidatePath("/dashboard/agency");
   revalidatePath("/dashboard");
+  if (updated?.slug) revalidatePath(`/agency/${updated.slug}`);
 }

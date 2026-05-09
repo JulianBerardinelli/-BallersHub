@@ -179,13 +179,13 @@ export function ClientDashboardSidebarMobile({
 
 function SidebarItem({
   item,
-  currentPath,
+  active,
   pending,
   onSignOut,
   onNavigate,
 }: {
   item: ClientDashboardNavItem;
-  currentPath: string;
+  active: boolean;
   pending: boolean;
   onSignOut: () => void;
   onNavigate?: () => void;
@@ -209,7 +209,6 @@ function SidebarItem({
   }
 
   const linkItem = item as Extract<ClientDashboardNavItem, { kind: "link" }>;
-  const active = isActive(currentPath, linkItem.href);
 
   const link = (
     <Link
@@ -256,11 +255,27 @@ function SidebarItem({
   );
 }
 
-function isActive(pathname: string, href: string) {
-  if (href === "/dashboard") {
-    return pathname === href;
+function resolveActiveHref(
+  pathname: string,
+  sections: ClientDashboardNavSection[],
+): string | null {
+  // Prefer exact match. Otherwise pick the longest href that is a prefix of
+  // the current path so `/dashboard/agency/staff` does NOT also light up
+  // `/dashboard/agency`.
+  let best: { href: string; length: number } | null = null;
+  for (const section of sections) {
+    for (const item of section.items) {
+      if (item.kind !== "link") continue;
+      const href = item.href;
+      if (pathname === href) return href;
+      if (href !== "/dashboard" && pathname.startsWith(`${href}/`)) {
+        if (!best || href.length > best.length) {
+          best = { href, length: href.length };
+        }
+      }
+    }
   }
-  return pathname === href || pathname.startsWith(`${href}/`);
+  return best?.href ?? null;
 }
 
 function formatBadgeCount(count: number): string {
@@ -283,6 +298,7 @@ function SidebarContent({
   onSignOut: () => void;
   onNavigate?: () => void;
 }) {
+  const activeHref = resolveActiveHref(pathname, sections);
   return sections.map((section) => (
     <div key={section.id} className="space-y-2">
       <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
@@ -293,7 +309,7 @@ function SidebarContent({
           <SidebarItem
             key={item.id}
             item={item}
-            currentPath={pathname}
+            active={item.kind === "link" && item.href === activeHref}
             pending={pending}
             onSignOut={onSignOut}
             onNavigate={onNavigate}

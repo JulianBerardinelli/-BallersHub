@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { approveManagerApplication, rejectManagerApplication } from "@/app/actions/manager-applications";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
-import { bhButtonClass } from "@/components/ui/BhButton";
+import { bhButtonClass } from "@/components/ui/bh-button-class";
 
 export const metadata = {
   title: "Manager Onboarding (Pendientes) - Admin",

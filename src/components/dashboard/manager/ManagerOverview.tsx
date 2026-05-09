@@ -25,6 +25,12 @@ const QUICK_ACTIONS = [
     href: "/dashboard/agency",
   },
   {
+    id: "template-styles",
+    title: "Plantilla del Portfolio",
+    description: "Elegí Pro o Clásica, paleta de marca y tipografía.",
+    href: "/dashboard/agency/edit-template/styles",
+  },
+  {
     id: "players",
     title: "Cartera de Jugadores",
     description: "Administra tu roster y asigna tareas pendientes.",
@@ -35,12 +41,6 @@ const QUICK_ACTIONS = [
     title: "Equipo Staff",
     description: "Invita colegas y visualiza miembros activos.",
     href: "/dashboard/agency/staff",
-  },
-  {
-    id: "profile",
-    title: "Mi Perfil Personal",
-    description: "Actualiza tu foto, biografía y datos como mánager.",
-    href: "/dashboard/profile",
   },
 ];
 
