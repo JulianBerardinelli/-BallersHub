@@ -1,5 +1,5 @@
 // src/db/schema/agencies.ts
-import { pgTable, uuid, timestamp, text, boolean, jsonb, integer } from "drizzle-orm/pg-core";
+import { pgTable, uuid, timestamp, text, boolean, integer, jsonb } from "drizzle-orm/pg-core";
 
 export const agencyProfiles = pgTable("agency_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -11,20 +11,23 @@ export const agencyProfiles = pgTable("agency_profiles", {
   contactPhone: text("contact_phone"),
   websiteUrl: text("website_url"),
   verifiedLink: text("verified_link"),
-  
-  // Legacy fields (kept for backward compatibility, will be migrated out or ignored)
-  agentLicenseUrl: text("agent_license_url"),
-  agentLicenseType: text("agent_license_type"),
-  
-  // New Extended Fields
-  licenses: jsonb("licenses").$type<{ type: string; number: string; url?: string }[]>(),
+
+  // Licenses now live on manager_profiles (one set per agent). The agency
+  // portfolio aggregates licenses across staff at render time.
   operativeCountries: text("operative_countries").array(),
   headquarters: text("headquarters"),
   foundationYear: integer("foundation_year"),
   instagramUrl: text("instagram_url"),
   twitterUrl: text("twitter_url"),
   linkedinUrl: text("linkedin_url"),
-  services: text("services").array(),
+  services: jsonb("services").$type<{
+    title: string;
+    icon: string;
+    color: string | null;
+    description: string | null;
+  }[]>(),
+  // Optional one-line tagline shown under the agency identity in the portfolio.
+  tagline: text("tagline"),
   isApproved: boolean("is_approved").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),

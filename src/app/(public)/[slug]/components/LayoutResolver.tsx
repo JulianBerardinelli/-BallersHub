@@ -32,7 +32,7 @@ export type PublicProfileData = {
     nationality?: string[] | null;
     marketValueEur?: number | null;
     foot?: string | null;
-    agency?: { slug: string; name: string; agentLicenseType?: string | null } | null;
+    agency?: { slug: string; name: string } | null;
   };
   career: Array<Record<string, unknown> & { id: string; club: string; division?: string | null; startDate?: string | null; endDate?: string | null }>;
   media: Array<Record<string, unknown> & { id: string; url: string; type: string }>;

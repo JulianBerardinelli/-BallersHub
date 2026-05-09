@@ -1,5 +1,5 @@
 // manager_profiles
-import { pgTable, uuid, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, jsonb } from "drizzle-orm/pg-core";
 import { userProfiles } from "./users";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -11,6 +11,9 @@ export const managerProfiles = pgTable("manager_profiles", {
   bio: text("bio"),
   contactEmail: text("contact_email"),
   contactPhone: text("contact_phone"),
+  // Personal representation licenses for this agent. The agent's licenses
+  // belong to them as an individual; the agency aggregates across staff.
+  licenses: jsonb("licenses").$type<{ type: string; number: string; url?: string }[]>(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

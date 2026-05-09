@@ -150,9 +150,6 @@ export default function FuturisticLayout({ data }: { data: PublicProfileData }) 
              </div>
              <div>
                <h3 className="font-heading text-xl text-white group-hover:text-[var(--color-accent)] transition-colors">{player.agency.name}</h3>
-               {player.agency.agentLicenseType && (
-                 <p className="text-sm text-neutral-400 mt-1">Licencia: {player.agency.agentLicenseType}</p>
-               )}
              </div>
            </Link>
         </section>
