@@ -41,9 +41,13 @@ const PLAYER_GROUPS: FeatureGroup[] = [
   {
     title: "Multimedia y links",
     rows: [
-      { label: "Videos de YouTube", values: ["2", "Ilimitados"] },
+      { label: "Videos de catálogo (player_media)", values: ["2", "Ilimitados"] },
       { label: "Redes sociales", values: ["3", "Ilimitadas"] },
-      { label: "Links a noticias / prensa", values: ["3", "Ilimitados"] },
+      { label: "Notas de prensa", values: ["3", "Ilimitadas"] },
+      {
+        label: "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)",
+        values: ["Sin cap", "Sin cap"],
+      },
     ],
   },
   {
@@ -51,8 +55,13 @@ const PLAYER_GROUPS: FeatureGroup[] = [
     rows: [
       { label: "Datos básicos (posición, club, edad)", values: [true, true] },
       { label: "Trayectoria / clubes", values: [true, true] },
-      { label: "Valores de mercado", values: [false, true] },
-      { label: "Valoraciones y logros", values: [false, true] },
+      { label: "Estadísticas por temporada (PJ/G/A)", values: [true, true] },
+      { label: "Valor de mercado", values: [false, true] },
+      { label: "Palmarés / reconocimientos", values: [false, true] },
+      {
+        label: "Análisis de scouting (táctico, físico, mental, técnico)",
+        values: [false, true],
+      },
       { label: "Descripciones por etapa de carrera", values: [false, true] },
     ],
   },
@@ -102,17 +111,22 @@ const AGENCY_GROUPS: FeatureGroup[] = [
   {
     title: "Multimedia y links",
     rows: [
-      { label: "Videos de YouTube", values: ["2", "Ilimitados"] },
+      { label: "Videos de catálogo (player_media)", values: ["2", "Ilimitados"] },
       { label: "Redes sociales", values: ["3", "Ilimitadas"] },
-      { label: "Links a noticias / prensa", values: ["3", "Ilimitados"] },
+      { label: "Notas de prensa", values: ["3", "Ilimitadas"] },
+      {
+        label: "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)",
+        values: ["Sin cap", "Sin cap"],
+      },
     ],
   },
   {
     title: "Información profesional",
     rows: [
       { label: "Datos básicos de la agencia", values: [true, true] },
+      { label: "Servicios y alcance operativo", values: [true, true] },
       { label: "Valores de mercado de jugadores", values: [false, true] },
-      { label: "Valoraciones y logros", values: [false, true] },
+      { label: "Palmarés / reconocimientos", values: [false, true] },
     ],
   },
   {

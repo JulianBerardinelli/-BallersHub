@@ -43,11 +43,11 @@ const PRICING_DETAIL: Record<PlanId, Detail> = {
   // ----------------- PLAYER -----------------
   "free-player": {
     pitch:
-      "Lo necesario para presentarte profesionalmente. URL pública, datos básicos y compartido en un toque — en cualquier dispositivo.",
+      "Lo necesario para presentarte profesionalmente. URL pública, datos básicos, trayectoria y estadísticas por temporada — en cualquier dispositivo.",
     benefits: [
       "URL pública personalizable",
-      "Datos básicos curados",
-      "Hasta 3 redes y 3 noticias",
+      "Trayectoria + estadísticas por temporada",
+      "2 videos · 3 redes · 3 notas de prensa",
       "Compartilo por WhatsApp en un toque",
     ],
     scenes: [
@@ -83,14 +83,14 @@ const PRICING_DETAIL: Record<PlanId, Detail> = {
 
   "pro-player": {
     pitch:
-      "El plan que usa la mayoría: plantilla pro, métricas reales, valores de mercado y soporte humano. Pensado para impulsar tu próxima transferencia.",
+      "El plan que usa la mayoría: plantilla pro, valor de mercado, palmarés, scouting analítico y soporte humano. Pensado para impulsar tu próxima transferencia.",
     benefits: [
-      "Plantilla Pro Portfolio con motions",
-      "Multimedia ilimitada y 5 imágenes en galería",
-      "Valores de mercado, valoraciones y logros visibles",
+      "Plantilla Pro Portfolio con motions y assets",
+      "Multimedia ilimitada y galería de 5 imágenes",
+      "Valor de mercado y palmarés visibles",
+      "Análisis de scouting (táctico, físico, mental, técnico)",
       "Reviews con invitación + contactos de referencia",
-      "5 solicitudes de corrección/semana por rubro",
-      "Soporte humano prioritario · SEO Pro",
+      "5 solicitudes de corrección/semana · soporte humano · SEO Pro",
     ],
     scenes: [
       {
@@ -131,7 +131,7 @@ const PRICING_DETAIL: Record<PlanId, Detail> = {
       "URL pública personalizable",
       "Hasta 2 members del equipo",
       "Cartera de hasta 5 jugadores",
-      "Hasta 3 redes y 3 noticias",
+      "2 videos · 3 redes · 3 notas de prensa",
     ],
     scenes: [
       {
@@ -172,6 +172,7 @@ const PRICING_DETAIL: Record<PlanId, Detail> = {
       "Members ilimitados con roles",
       "Cartera ilimitada de jugadores",
       "5 slots de Pro Player otorgables",
+      "Multimedia y notas de prensa ilimitadas",
       "Reviews con invitación + contactos de referencia",
       "SEO Pro · soporte humano prioritario",
     ],
