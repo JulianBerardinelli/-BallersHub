@@ -30,6 +30,11 @@ export default async function StartPage() {
   // role chooser entirely and route to the specific onboarding flow.
   // Trade-off: the user can no longer change their mind here. They'd
   // need to cancel the subscription from settings first.
+  //
+  // IMPORTANT: `redirect()` throws `NEXT_REDIRECT` as control-flow. We do
+  // the lookup inside the try/catch (so a DB hiccup doesn't crash the
+  // page) but the redirects must run AFTER, in normal flow.
+  let activeSubPlanId: string | null = null;
   try {
     const [activeSub] = await db
       .select({
@@ -45,15 +50,16 @@ export default async function StartPage() {
       )
       .orderBy(desc(subscriptions.createdAt))
       .limit(1);
-
-    if (activeSub?.planId === "pro-player") {
-      redirect("/onboarding/player/apply");
-    }
-    if (activeSub?.planId === "pro-agency") {
-      redirect("/onboarding/manager/info");
-    }
+    activeSubPlanId = activeSub?.planId ?? null;
   } catch {
     // Non-fatal — fall through to the regular onboarding chooser.
+  }
+
+  if (activeSubPlanId === "pro-player") {
+    redirect("/onboarding/player/apply");
+  }
+  if (activeSubPlanId === "pro-agency") {
+    redirect("/onboarding/manager/info");
   }
 
   // Check for pending multi-manager agency invites

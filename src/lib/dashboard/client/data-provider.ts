@@ -59,6 +59,14 @@ export type DashboardApplication = {
 export type DashboardSubscription = {
   plan: string | null;
   status: string | null;
+  statusV2: string | null;
+  planId: string | null;
+  processor: string | null;
+  processorSubscriptionId: string | null;
+  currentPeriodEnd: string | null;
+  trialEndsAt: string | null;
+  cancelAtPeriodEnd: boolean | null;
+  canceledAt: string | null;
 };
 
 export type DashboardState = {
@@ -179,21 +187,94 @@ export async function fetchDashboardState(
   supabase: AnySupabaseClient,
   userId: string,
 ): Promise<DashboardState> {
-  const { data, error } = await supabase
-    .from("player_dashboard_state")
-    .select(DASHBOARD_STATE_COLUMNS.join(", "))
-    .eq("user_id", userId)
-    .maybeSingle<DashboardStateRow>();
+  const [stateResult, subResult] = await Promise.all([
+    supabase
+      .from("player_dashboard_state")
+      .select(DASHBOARD_STATE_COLUMNS.join(", "))
+      .eq("user_id", userId)
+      .maybeSingle<DashboardStateRow>(),
+    fetchSubscriptionDetails(supabase, userId),
+  ]);
 
-  if (error) {
-    if (isMissingSchemaEntity(error)) {
-      return fetchDashboardStateFromBaseTables(supabase, userId);
+  if (stateResult.error) {
+    if (isMissingSchemaEntity(stateResult.error)) {
+      return fetchDashboardStateFromBaseTables(supabase, userId, subResult);
     }
 
-    throw error;
+    throw stateResult.error;
   }
 
-  return mapDashboardStateRow(userId, data ?? null);
+  return mapDashboardStateRow(userId, stateResult.data ?? null, subResult);
+}
+
+type SubscriptionDetails = {
+  plan: string | null;
+  status: string | null;
+  statusV2: string | null;
+  planId: string | null;
+  processor: string | null;
+  processorSubscriptionId: string | null;
+  currentPeriodEnd: string | null;
+  trialEndsAt: string | null;
+  cancelAtPeriodEnd: boolean | null;
+  canceledAt: string | null;
+};
+
+async function fetchSubscriptionDetails(
+  supabase: AnySupabaseClient,
+  userId: string,
+): Promise<SubscriptionDetails | null> {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select(
+      [
+        "plan",
+        "status",
+        "status_v2",
+        "plan_id",
+        "processor",
+        "processor_subscription_id",
+        "current_period_end",
+        "trial_ends_at",
+        "cancel_at_period_end",
+        "canceled_at",
+      ].join(", "),
+    )
+    .eq("user_id", userId)
+    .limit(1)
+    .maybeSingle<{
+      plan: string | null;
+      status: string | null;
+      status_v2: string | null;
+      plan_id: string | null;
+      processor: string | null;
+      processor_subscription_id: string | null;
+      current_period_end: string | null;
+      trial_ends_at: string | null;
+      cancel_at_period_end: boolean | null;
+      canceled_at: string | null;
+    }>();
+
+  if (error) {
+    // Don't crash the whole dashboard if subscription fetch fails — just
+    // fall back to the legacy plan/status from the view.
+    return null;
+  }
+
+  if (!data) return null;
+
+  return {
+    plan: data.plan,
+    status: data.status,
+    statusV2: data.status_v2,
+    planId: data.plan_id,
+    processor: data.processor,
+    processorSubscriptionId: data.processor_subscription_id,
+    currentPeriodEnd: data.current_period_end,
+    trialEndsAt: data.trial_ends_at,
+    cancelAtPeriodEnd: data.cancel_at_period_end,
+    canceledAt: data.canceled_at,
+  };
 }
 
 function isMissingSchemaEntity(error: PostgrestError | null): boolean {
@@ -204,6 +285,7 @@ function isMissingSchemaEntity(error: PostgrestError | null): boolean {
 async function fetchDashboardStateFromBaseTables(
   supabase: AnySupabaseClient,
   userId: string,
+  subscriptionDetails: SubscriptionDetails | null,
 ): Promise<DashboardState> {
   type ProfileRow = {
     id: string;
@@ -374,22 +456,15 @@ async function fetchDashboardStateFromBaseTables(
     throw applicationResult.error;
   }
 
-  const subscriptionResult = await supabase
-    .from("subscriptions")
-    .select(["plan", "status"].join(", "))
-    .eq("user_id", userId)
-    .limit(1)
-    .maybeSingle<SubscriptionRow>();
-
-  if (subscriptionResult.error) {
-    throw subscriptionResult.error;
-  }
+  const subscriptionLegacy: SubscriptionRow | null = subscriptionDetails
+    ? { plan: subscriptionDetails.plan, status: subscriptionDetails.status }
+    : null;
 
   const row: DashboardStateRow | null =
     profileRow ||
     personalDetailsResult.data ||
     applicationResult.data ||
-    subscriptionResult.data ||
+    subscriptionLegacy ||
     primaryPhotoResult.data
       ? {
           user_id: userId,
@@ -438,16 +513,20 @@ async function fetchDashboardStateFromBaseTables(
           application_notes: applicationResult.data?.notes ?? null,
           application_transfermarkt_url: applicationResult.data?.transfermarkt_url ?? null,
           application_external_profile_url: applicationResult.data?.external_profile_url ?? null,
-          subscription_plan: subscriptionResult.data?.plan ?? null,
-          subscription_status: subscriptionResult.data?.status ?? null,
+          subscription_plan: subscriptionLegacy?.plan ?? null,
+          subscription_status: subscriptionLegacy?.status ?? null,
           primary_photo_url: primaryPhotoResult.data?.url ?? null,
         }
       : null;
 
-  return mapDashboardStateRow(userId, row);
+  return mapDashboardStateRow(userId, row, subscriptionDetails);
 }
 
-function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): DashboardState {
+function mapDashboardStateRow(
+  userId: string,
+  row: DashboardStateRow | null,
+  subscriptionDetails: SubscriptionDetails | null,
+): DashboardState {
   if (!row) {
     return {
       userId,
@@ -455,7 +534,7 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
       profile: null,
       personalDetails: null,
       application: null,
-      subscription: null,
+      subscription: subscriptionDetails ? buildSubscription(subscriptionDetails) : null,
       primaryPhotoUrl: null,
     };
   }
@@ -519,12 +598,22 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
       }
     : null;
 
-  const subscription: DashboardSubscription | null = row.subscription_plan || row.subscription_status
-    ? {
-        plan: row.subscription_plan,
-        status: row.subscription_status,
-      }
-    : null;
+  const subscription: DashboardSubscription | null = subscriptionDetails
+    ? buildSubscription(subscriptionDetails)
+    : row.subscription_plan || row.subscription_status
+      ? {
+          plan: row.subscription_plan,
+          status: row.subscription_status,
+          statusV2: null,
+          planId: null,
+          processor: null,
+          processorSubscriptionId: null,
+          currentPeriodEnd: null,
+          trialEndsAt: null,
+          cancelAtPeriodEnd: null,
+          canceledAt: null,
+        }
+      : null;
 
   return {
     userId: row.user_id ?? userId,
@@ -534,5 +623,20 @@ function mapDashboardStateRow(userId: string, row: DashboardStateRow | null): Da
     application,
     subscription,
     primaryPhotoUrl: row.primary_photo_url,
+  };
+}
+
+function buildSubscription(details: SubscriptionDetails): DashboardSubscription {
+  return {
+    plan: details.plan,
+    status: details.status,
+    statusV2: details.statusV2,
+    planId: details.planId,
+    processor: details.processor,
+    processorSubscriptionId: details.processorSubscriptionId,
+    currentPeriodEnd: details.currentPeriodEnd,
+    trialEndsAt: details.trialEndsAt,
+    cancelAtPeriodEnd: details.cancelAtPeriodEnd,
+    canceledAt: details.canceledAt,
   };
 }

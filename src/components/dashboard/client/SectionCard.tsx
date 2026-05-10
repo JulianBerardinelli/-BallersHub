@@ -7,8 +7,8 @@ export default function SectionCard({
   footer,
   actions,
 }: {
-  title?: string;
-  description?: string;
+  title?: ReactNode;
+  description?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   actions?: ReactNode;

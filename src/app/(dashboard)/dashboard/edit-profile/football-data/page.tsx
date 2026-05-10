@@ -33,6 +33,8 @@ import CareerManager, {
   type CareerRequestStage,
 } from "./components/CareerManager";
 import type { LinkKind } from "./schemas";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { Lock } from "lucide-react";
 
 type CareerItem = {
   id: string;
@@ -382,6 +384,8 @@ export default async function FootballDataPage() {
       })
     : null;
 
+  const planAccess = resolvePlanAccess(dashboardState.subscription);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -416,6 +420,18 @@ export default async function FootballDataPage() {
       </SectionCard>
 
       <SectionCard
+        title="Estadísticas por temporada"
+        description="Seguimiento agregado de tus números oficiales para compartir con clubes y representantes."
+      >
+        <SeasonStatsManager
+          playerId={profileData.id}
+          stats={publishingState.stats}
+          careerOptions={careerSeasonOptions}
+          latestRequest={latestRevision}
+        />
+      </SectionCard>
+
+      <SectionCard
         title="Referencias y enlaces"
         description="Conectá tu perfil con plataformas externas para validar tu experiencia."
       >
@@ -427,8 +443,21 @@ export default async function FootballDataPage() {
       </SectionCard>
 
       <SectionCard
-        title="Palmarés y reconocimientos"
-        description="Documentá títulos, premios individuales y estadísticas destacadas."
+        title={
+          <span className="inline-flex items-center gap-2">
+            Palmarés y reconocimientos
+            {!planAccess.isPro && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-bh-lime">
+                <Lock size={9} /> Pro
+              </span>
+            )}
+          </span>
+        }
+        description={
+          planAccess.isPro
+            ? "Documentá títulos, premios individuales y estadísticas destacadas."
+            : "Cargá títulos y premios. Para guardarlos en tu perfil necesitás Pro."
+        }
       >
         <HonoursManager
           playerId={profileData.id}
@@ -440,18 +469,6 @@ export default async function FootballDataPage() {
           <span className="rounded-full border border-neutral-800 px-3 py-1">⭐ Premios individuales</span>
           <span className="rounded-full border border-neutral-800 px-3 py-1">📈 Estadísticas clave</span>
         </div>
-      </SectionCard>
-
-      <SectionCard
-        title="Estadísticas por temporada"
-        description="Seguimiento agregado de tus números oficiales para compartir con clubes y representantes."
-      >
-        <SeasonStatsManager
-          playerId={profileData.id}
-          stats={publishingState.stats}
-          careerOptions={careerSeasonOptions}
-          latestRequest={latestRevision}
-        />
       </SectionCard>
 
       <ScoutingAnalysisSection

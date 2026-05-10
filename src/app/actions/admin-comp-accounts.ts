@@ -29,6 +29,7 @@ import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { subscriptions, auditLogs } from "@/db/schema";
 import { isAdmin } from "@/lib/admin/auth";
+import { runSubscriptionSideEffects } from "@/lib/billing/subscriptionSideEffects";
 
 const COMP_GRANT_PREFIX = "admin_grant:";
 
@@ -251,6 +252,13 @@ export async function grantProAccess(
     },
   });
 
+  await runSubscriptionSideEffects({
+    userId: targetUserId,
+    previousPlan: anyExisting?.plan ?? null,
+    nextPlan: "pro",
+    source: "admin_grant",
+  });
+
   revalidatePath("/admin/comp-accounts");
   return { ok: true, data: { subscriptionId: row.id } };
 }
@@ -387,6 +395,13 @@ export async function revokeProAccess(
     action: "admin.revoke_pro",
     subjectId: subscriptionId,
     meta: { reason: reason ?? null },
+  });
+
+  await runSubscriptionSideEffects({
+    userId: guard.data.userId,
+    previousPlan: guard.data.plan ?? null,
+    nextPlan: "free",
+    source: "admin_revoke",
   });
 
   revalidatePath("/admin/comp-accounts");

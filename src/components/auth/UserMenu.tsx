@@ -34,6 +34,7 @@ export default function UserMenuHero({
   role = "player",
   agencySlug,
   managerApplicationStatus,
+  onboardingHref = "/onboarding/start",
   onSignOut,
 }: {
   displayName: string;
@@ -46,6 +47,7 @@ export default function UserMenuHero({
   role?: "player" | "manager" | "admin" | "member";
   agencySlug?: string | null;
   managerApplicationStatus?: string | null;
+  onboardingHref?: string;
   onSignOut: () => Promise<void>;
 }) {
   const [pending, startTransition] = useTransition();
@@ -154,7 +156,7 @@ export default function UserMenuHero({
               Continuar solicitud
             </DropdownItem>
           ) : (
-            <DropdownItem key="apply" as={Link} href="/onboarding/start" color="primary">
+            <DropdownItem key="apply" as={Link} href={onboardingHref} color="primary">
               Solicitar cuenta de profesional
             </DropdownItem>
           )}

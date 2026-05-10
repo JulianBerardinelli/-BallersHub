@@ -5,6 +5,7 @@ import { signOutAction } from "@/app/actions/auth";
 import UserMenu from "./UserMenu";
 import InOutButtons from "./InOutButtons";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveOnboardingHref } from "@/lib/dashboard/onboarding-href";
 import { db } from "@/lib/db";
 
 // AuthGate renders inside the (site) layout shell on every request. We
@@ -90,6 +91,7 @@ export default async function AuthGate() {
         hasPlayerProfile={hasPublicProfile}
         playerSlug={profile?.slug ?? null}
         applicationStatus={application?.status ?? null}
+        onboardingHref={resolveOnboardingHref(dashboardState.subscription?.planId ?? null)}
         onSignOut={signOutAction}
       />
     );
@@ -116,6 +118,7 @@ export default async function AuthGate() {
         hasPlayerProfile={false}
         playerSlug={null}
         applicationStatus={null}
+        onboardingHref="/onboarding/start"
         onSignOut={signOutAction}
       />
     );

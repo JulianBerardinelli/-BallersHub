@@ -14,6 +14,39 @@ import FlashscoreIcon from "@/components/icons/FlashscoreIcon";
 import { YouTube } from "@/components/icons/YoutubeIcon";
 import { Instagram } from "@/components/icons/InstagramIcon";
 import { LinkedIn } from "@/components/icons/LinkedInIcon";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
+import type { FeatureId } from "@/lib/dashboard/feature-gates";
+
+// Bucket each link kind into its pricing-matrix category. Caps (Free):
+//   youtube         → cap 2  (matrix §B "Videos de YouTube")
+//   instagram/li    → cap 3  (matrix §B "Redes sociales")
+//   highlight/cust  → cap 3  (matrix §B "Links a noticias / prensa")
+//   transfermarkt/besoccer/flashscore → no cap (perfiles externos profesionales)
+const LINK_BUCKET: Record<LinkKind, "youtube" | "social" | "press" | "external"> = {
+  youtube: "youtube",
+  instagram: "social",
+  linkedin: "social",
+  highlight: "press",
+  custom: "press",
+  transfermarkt: "external",
+  besoccer: "external",
+  flashscore: "external",
+};
+
+const FREE_CAPS: Record<"youtube" | "social" | "press" | "external", number | null> = {
+  youtube: 2,
+  social: 3,
+  press: 3,
+  external: null,
+};
+
+const BUCKET_FEATURE: Record<"youtube" | "social" | "press" | "external", FeatureId | null> = {
+  youtube: "youtubeLinks",
+  social: "socialLinks",
+  press: "pressLinks",
+  external: null,
+};
 
 type FormValues = {
   id?: string;
@@ -79,6 +112,8 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const { access } = usePlanAccess();
+  const upgradeModal = useUpgradeModal();
 
   const {
     register,
@@ -126,6 +161,21 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
     if (!parsed.success) {
       reflectValidationErrors(parsed.error, setError, setStatus);
       return;
+    }
+
+    // Hard-cap gate (Free): refuse new links that exceed the bucket cap.
+    // Edits don't bump the bucket count, so we only check on creation.
+    if (!values.id && !access.isPro) {
+      const bucket = LINK_BUCKET[values.kind];
+      const cap = FREE_CAPS[bucket];
+      if (cap !== null) {
+        const bucketCount = links.filter((l) => LINK_BUCKET[l.kind as LinkKind] === bucket).length;
+        if (bucketCount >= cap) {
+          const featureId = BUCKET_FEATURE[bucket];
+          if (featureId) upgradeModal.open(featureId);
+          return;
+        }
+      }
     }
 
     startTransition(async () => {
@@ -353,6 +403,8 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
           </div>
         </div>
       ) : null}
+
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </div>
   );
 }

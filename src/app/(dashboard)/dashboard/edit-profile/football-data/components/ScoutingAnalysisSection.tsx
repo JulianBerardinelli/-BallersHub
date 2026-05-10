@@ -4,11 +4,13 @@ import { useEffect, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { useForm } from "react-hook-form";
-import { Pencil, X } from "lucide-react";
+import { Lock, Pencil, X } from "lucide-react";
 
 import FormField from "@/components/dashboard/client/FormField";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
 
 import { updateScoutingAnalysis } from "../actions";
 
@@ -34,6 +36,8 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
   const [status, setStatus] = useState<StatusState>(null);
   const [isPending, startTransition] = useTransition();
   const { enqueue } = useNotificationContext();
+  const { access } = usePlanAccess();
+  const upgradeModal = useUpgradeModal();
 
   const {
     register,
@@ -73,6 +77,11 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
   }
 
   const onSubmit = handleSubmit((values) => {
+    if (!access.isPro) {
+      upgradeModal.open("advancedStats");
+      return;
+    }
+
     startTransition(async () => {
       setStatus(null);
       clearErrors();
@@ -135,8 +144,21 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
 
   return (
     <SectionCard
-      title="Reporte de Scouting Analítico"
-      description="Sumá información detallada provista por Scouts externos sobre tu estilo de juego."
+      title={
+        <span className="inline-flex items-center gap-2">
+          Reporte de Scouting Analítico
+          {!access.isPro && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-bh-lime">
+              <Lock size={9} /> Pro
+            </span>
+          )}
+        </span>
+      }
+      description={
+        access.isPro
+          ? "Sumá información detallada provista por Scouts externos sobre tu estilo de juego."
+          : "Cargá análisis táctico, físico, mental y técnico. Para guardar el reporte necesitás Pro."
+      }
       actions={
         <Button
           size="sm"
@@ -250,6 +272,8 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
           </div>
         ) : null}
       </form>
+
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </SectionCard>
   );
 }

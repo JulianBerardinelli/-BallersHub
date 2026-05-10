@@ -1,14 +1,10 @@
 import { CSSProperties, Suspense } from "react";
-import FuturisticLayout from "./FuturisticLayout";
-import MinimalistLayout from "./MinimalistLayout";
-import VintageLayout from "./VintageLayout";
 import ProAthleteLayout from "./ProAthleteLayout";
 import FreeLayout, {
   type FreeLayoutCareerRow,
   type FreeLayoutPersonal,
   type FreeLayoutPlayer,
 } from "./free/FreeLayout";
-import { resolveTypographyClasses } from "./TypographyResolver";
 import SmoothScrollProvider from "./SmoothScrollProvider";
 import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 
@@ -109,7 +105,10 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
     );
   }
 
-  const layout = theme?.layout || "futuristic";
+  // Pro tier always renders the Pro Athlete layout. Legacy `theme.layout`
+  // values (`futuristic`, `minimalist`, `vintage`) are ignored — the column
+  // is preserved in DB but no longer respected (see
+  // `project_dashboard_plan_gating.md`).
   const primaryColor = theme?.primaryColor || "#0a0a0a";
   const accentColor = theme?.accentColor || "#10b981";
   const backgroundColor = (theme as Record<string, unknown>)?.backgroundColor as string | undefined;
@@ -117,11 +116,9 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
   const playerSlug = (player as Record<string, unknown>)?.slug as string | undefined;
 
   // The pro layout's inner module wrapper paints its own `--theme-background`,
-  // which can differ from `--color-primary`. If we keep the body bg on
-  // `--color-primary`, the gap below the inner wrapper (and the outer pb-20)
-  // shows as a visible color band. Match the body bg to the pro background
-  // so the page ends in a single, consistent color.
-  const bodyBg = layout === "pro" && backgroundColor ? backgroundColor : primaryColor;
+  // which can differ from `--color-primary`. Match the body bg to the pro
+  // background so the page ends in a single, consistent color.
+  const bodyBg = backgroundColor ?? primaryColor;
 
   const customStyles = {
     "--color-primary": primaryColor,
@@ -130,58 +127,42 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
     color: "#ffffff"
   } as CSSProperties;
 
-  const fontClasses = resolveTypographyClasses(theme?.typography as string | null);
-
   return (
     <SmoothScrollProvider>
-      <div style={customStyles} className={`min-h-screen w-full relative ${fontClasses} font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black`}>
-        {/* Background glow base */}
-        {layout === "futuristic" && (
-          <div className="fixed inset-0 pointer-events-none opacity-20">
-             <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] bg-[var(--color-accent)] blur-[150px] rounded-full mix-blend-screen" />
-             <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] bg-[var(--color-accent)] blur-[250px] rounded-full mix-blend-screen opacity-50" />
-          </div>
-        )}
-        
-        {/* Layout Switcher */}
+      <div style={customStyles} className="min-h-screen w-full relative font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black">
         <div className="relative z-10 w-full">
-           {layout === "futuristic" && <FuturisticLayout data={data} />}
-           {layout === "minimalist" && <MinimalistLayout data={data} />}
-           {layout === "vintage" && <VintageLayout data={data} />}
-           {layout === "pro" && (
-             <ProAthleteLayout data={data}>
-               {/*
-                 Streaming Async Server Components:
-                 These block load independently from the Hero, heavily improving TTFB
-               */}
-               <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
-                 <ProfileBioModule playerId={player.id} />
-               </Suspense>
+          <ProAthleteLayout data={data}>
+            {/*
+              Streaming Async Server Components:
+              These block load independently from the Hero, heavily improving TTFB
+            */}
+            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
+              <ProfileBioModule playerId={player.id} />
+            </Suspense>
 
-               <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando Tácticas...</div>}>
-                 <TacticsModule playerId={player.id} />
-               </Suspense>
+            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando Tácticas...</div>}>
+              <TacticsModule playerId={player.id} />
+            </Suspense>
 
-               <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
-                 <CareerTimelineModule playerId={player.id} />
-               </Suspense>
+            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
+              <CareerTimelineModule playerId={player.id} />
+            </Suspense>
 
-               {/* Press & Notes Module (Client Side) */}
-               <ProfilePressNotesModule articles={articles as any} />
+            {/* Press & Notes Module (Client Side) */}
+            <ProfilePressNotesModule articles={articles as any} />
 
-               <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
-                 <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
-               </Suspense>
+            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
+              <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
+            </Suspense>
 
-               <Suspense fallback={null}>
-                 <ContactPortfolioModule
-                   playerId={player.id}
-                   playerSlug={(playerSlug ?? "") as string}
-                   playerName={player.fullName}
-                 />
-               </Suspense>
-             </ProAthleteLayout>
-           )}
+            <Suspense fallback={null}>
+              <ContactPortfolioModule
+                playerId={player.id}
+                playerSlug={(playerSlug ?? "") as string}
+                playerName={player.fullName}
+              />
+            </Suspense>
+          </ProAthleteLayout>
         </div>
       </div>
 

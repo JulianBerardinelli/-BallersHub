@@ -130,11 +130,13 @@ Facturado anualmente · USD 79 / año
 |---|---|---|
 | Datos básicos (nombre, posición, club, edad) | ✓ | ✓ |
 | Trayectoria | ✓ | ✓ |
+| **Estadísticas por temporada** (PJ/G/A por torneo) | ✓ | ✓ |
 | **Valores de mercado** | 🔒 gated | ✓ |
-| **Valoraciones y logros** | 🔒 gated | ✓ |
+| **Valoraciones / palmarés** | 🔒 gated | ✓ |
+| **Análisis de scouting** (táctico, físico, mental, técnico) | 🔒 gated | ✓ |
 | **Descripciones por etapa de carrera** | 🔒 gated | ✓ |
 
-> Comportamiento `🔒 gated` definido en sección 4.
+> Comportamiento `🔒 gated` definido en sección 4. Las estadísticas básicas por temporada **están disponibles en ambos planes** — diferencian del análisis avanzado de scouting (xG, valoraciones cualitativas) que sí es Pro-only.
 
 ### D · Soporte y solicitudes
 
@@ -331,6 +333,7 @@ La pricing page tiene **dos** toggles. El toggle viejo de `Mensual / Anual` se e
 
 ## 9. Changelog
 
+- **2026-05-09 (v4)** — Sección C corregida: las **estadísticas por temporada** (PJ/G/A por torneo) ahora son ✓ ✓ (ambos planes). Antes estaban implícitamente gated junto con "advanced stats / scouting". Ahora se distinguen: stats por temporada = libre, análisis cualitativo de scouting = Pro. Implementación dashboard ya alineada (gating quitado de `SeasonStatsManager`, mantenido en `ScoutingAnalysisSection`).
 - **2026-05-03 (v3)** — Precios Player concretados (USD 85, ARS 131.999, EUR 73). Refund policy definida (3 días post-trial = 10 días total). Política trimestral de revisión ARS confirmada. Procesadores asignados (Mercado Pago para ARS, Stripe para USD/EUR). "Listado de profesionales recomendados" renombrado a **"Contactos de referencia"** y se aclaró el módulo (info de contacto unilateral, no requiere acción del referente). Pro Agency queda con precios estimados proporcionales pendientes de confirmación.
 - **2026-05-03 (v2)** — Pricing model simplificado. Sólo cobro anual (eliminado mensual). Precios USD definidos: Pro Player USD 79/año, Pro Agency USD 169/año. Display "/mes" calculado. Localización por moneda (ARS Argentina, EUR España, USD resto). Toggle de moneda agregado a la pricing page. Open questions actualizadas (cerradas las de cadencia/descuento, abiertas las de precios locales y procesador de pagos).
 - **2026-05-03 (v1)** — Draft inicial consolidado a partir de notas-sketch del owner. 10 decisiones tomadas, 8 open questions pendientes.

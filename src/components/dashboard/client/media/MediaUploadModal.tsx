@@ -11,9 +11,11 @@ type MediaUploadModalProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   profileContext?: ProfileContext;
+  /** When true, the modal disables photo uploads (Free plan). */
+  videoOnly?: boolean;
 };
 
-export default function MediaUploadModal({ isOpen, onOpenChange, profileContext }: MediaUploadModalProps) {
+export default function MediaUploadModal({ isOpen, onOpenChange, profileContext, videoOnly = false }: MediaUploadModalProps) {
   const router = useRouter();
 
   const playerName = profileContext?.fullName || "Jugador";
@@ -63,9 +65,13 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext 
     <MediaCatalogModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle="Añadir multimedia"
-      modalSubtitle="Subí fotos o videos para enriquecer tu perfil público."
-      features={{ videos: true, tags: true, isPrimary: true }}
+      modalTitle={videoOnly ? "Subir video" : "Añadir multimedia"}
+      modalSubtitle={
+        videoOnly
+          ? "Cargá videos y highlights. Las fotos de catálogo son una feature Pro."
+          : "Subí fotos o videos para enriquecer tu perfil público."
+      }
+      features={{ videos: true, photos: !videoOnly, tags: true, isPrimary: !videoOnly }}
       seo={seo}
       onSubmit={async ({ type, file, videoUrl, title, altText, tags, isPrimary, provider }) => {
         const formData = new FormData();
