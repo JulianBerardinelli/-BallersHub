@@ -14,6 +14,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/players", label: "Jugadores", roles: ["admin", "moderator"] },
       { href: "/admin/teams", label: "Equipos", roles: ["admin", "moderator"] },
       { href: "/admin/divisions", label: "Divisiones", roles: ["admin", "moderator"] },
+      { href: "/admin/agencies", label: "Agencias", roles: ["admin", "moderator"] },
     ],
   },
   {
@@ -70,7 +71,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { data: revisionsData },
     { count: mediaCount },
     { count: teamsCount },
-    { count: divisionsCount }
+    { count: divisionsCount },
+    { count: agenciesPendingCount }
   ] = await Promise.all([
     supabase.from("player_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("manager_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
@@ -79,6 +81,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     supabase.from("player_media").select("id", { count: "exact", head: true }).is("reviewed_by", null),
     supabase.from("teams").select("id", { count: "exact", head: true }).eq("status", "pending"),
     supabase.from("divisions").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("agency_profiles").select("id", { count: "exact", head: true }).eq("is_approved", false),
   ]);
 
   let careerRevisionsCount = 0;
@@ -100,6 +103,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     "/admin/media-moderation": mediaCount || 0,
     "/admin/teams": teamsCount || 0,
     "/admin/divisions": divisionsCount || 0,
+    "/admin/agencies": agenciesPendingCount || 0,
   };
 
   return (
