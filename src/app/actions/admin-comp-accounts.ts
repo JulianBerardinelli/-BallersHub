@@ -30,6 +30,23 @@ import { db } from "@/lib/db";
 import { subscriptions, auditLogs } from "@/db/schema";
 import { isAdmin } from "@/lib/admin/auth";
 import { runSubscriptionSideEffects } from "@/lib/billing/subscriptionSideEffects";
+import { sendCompGrantWelcomeEmail } from "@/lib/resend";
+
+async function resolveTargetUserEmail(userId: string): Promise<{ email: string | null; displayName: string }> {
+  try {
+    const { createSupabaseAdmin } = await import("@/lib/supabase/admin");
+    const admin = createSupabaseAdmin();
+    const { data } = await admin.auth.admin.getUserById(userId);
+    const email = data?.user?.email ?? null;
+    const meta = data?.user?.user_metadata ?? {};
+    const displayName =
+      (typeof meta.full_name === "string" ? meta.full_name : null) ??
+      (email ? email.split("@")[0] : "Equipo");
+    return { email, displayName };
+  } catch {
+    return { email: null, displayName: "Equipo" };
+  }
+}
 
 const COMP_GRANT_PREFIX = "admin_grant:";
 
@@ -259,6 +276,18 @@ export async function grantProAccess(
     source: "admin_grant",
   });
 
+  // Welcome email — non-fatal if it fails, the grant is already persisted.
+  const { email, displayName } = await resolveTargetUserEmail(targetUserId);
+  if (email) {
+    await sendCompGrantWelcomeEmail({
+      email,
+      displayName,
+      planId,
+      expiresAt: periodEnd?.toISOString() ?? null,
+      variant: "grant",
+    });
+  }
+
   revalidatePath("/admin/comp-accounts");
   return { ok: true, data: { subscriptionId: row.id } };
 }
@@ -317,6 +346,18 @@ export async function extendProAccess(
       newPeriodEnd: newEnd.toISOString(),
     },
   });
+
+  // Welcome email (extend variant) — non-fatal.
+  const { email, displayName } = await resolveTargetUserEmail(sub.userId);
+  if (email && (sub.planId === "pro-player" || sub.planId === "pro-agency")) {
+    await sendCompGrantWelcomeEmail({
+      email,
+      displayName,
+      planId: sub.planId,
+      expiresAt: newEnd.toISOString(),
+      variant: "extend",
+    });
+  }
 
   revalidatePath("/admin/comp-accounts");
   return { ok: true, data: { newPeriodEnd: newEnd.toISOString() } };

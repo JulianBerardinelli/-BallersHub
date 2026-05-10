@@ -9,12 +9,23 @@ import SectionCard from "@/components/dashboard/client/SectionCard";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
 import { bhButtonClass } from "@/components/ui/BhButton";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import UpgradeCta from "@/components/dashboard/plan/UpgradeCta";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
+
+const FREE_ARTICLE_CAP = 3;
 
 export default function ArticlesManager({ articles }: { articles: Article[] }) {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
+  const { access } = usePlanAccess();
+  const upgradeModal = useUpgradeModal();
+
+  // Free hard-cap: 3 articles (matrix §B "Links a noticias / prensa" =
+  // player_articles entity). Editing existing rows is always allowed.
+  const articlesAtCap = !access.isPro && articles.length >= FREE_ARTICLE_CAP;
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Seguro que deseas eliminar este artículo?")) return;
@@ -38,6 +49,10 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
   };
 
   const handleAddNew = () => {
+    if (articlesAtCap) {
+      upgradeModal.open("pressArticles");
+      return;
+    }
     setArticleToEdit(null);
     onOpen();
   };
@@ -45,7 +60,11 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
   return (
     <SectionCard
       title="Notas de prensa y artículos"
-      description="Mantené actualizado tu repositorio de noticias, entrevistas y apariciones en medios."
+      description={
+        access.isPro
+          ? "Mantené actualizado tu repositorio de noticias, entrevistas y apariciones en medios."
+          : `Plan Free permite hasta ${FREE_ARTICLE_CAP} notas de prensa. Activá Pro para sumar más.`
+      }
     >
       <div className="flex flex-col gap-4">
         {articles.length === 0 ? (
@@ -104,7 +123,7 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
           </div>
         )}
 
-        <div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <Button
             onPress={handleAddNew}
             startContent={<Plus className="h-4 w-4" />}
@@ -112,7 +131,21 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
           >
             Añadir artículo
           </Button>
+          {!access.isPro && (
+            <span className="text-[11px] text-bh-fg-4">
+              {articles.length}/{FREE_ARTICLE_CAP} usadas en plan Free
+            </span>
+          )}
         </div>
+
+        {articlesAtCap && (
+          <div className="flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
+            <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
+              Llegaste al límite del plan Free. Activá Pro para cargar todas las notas que quieras.
+            </p>
+            <UpgradeCta feature="pressArticles" size="sm" />
+          </div>
+        )}
       </div>
       <p className="mt-4 text-[11px] text-bh-fg-4">
         En esta sección podés cargar notas vinculadas a tu presencia en medios
@@ -120,6 +153,7 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
       </p>
 
       <ArticleModal isOpen={isOpen} onOpenChange={onOpenChange} articleToEdit={articleToEdit} />
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </SectionCard>
   );
 }

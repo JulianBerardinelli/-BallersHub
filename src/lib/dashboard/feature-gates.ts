@@ -133,17 +133,17 @@ export const FEATURE_GATES = {
   },
 
   // -------------------------------------------------------------------
-  // Multimedia (both audiences, same caps from pricing-matrix §B)
+  // Multimedia + external links (both audiences, caps from pricing-matrix §B)
   // -------------------------------------------------------------------
-  youtubeLinks: {
-    id: "youtubeLinks",
+  catalogVideos: {
+    id: "catalogVideos",
     audience: "both",
     behavior: "hard-cap",
     cap: 2,
-    utmCampaign: "youtube-links",
+    utmCampaign: "catalog-videos",
     copy: {
       title: "Más videos de YouTube",
-      body: "Plan Free permite hasta 2 videos. Activá Pro para sumar todos los que quieras.",
+      body: "Plan Free permite hasta 2 videos en tu catálogo. Activá Pro para sumar todos los que quieras.",
     },
   },
   socialLinks: {
@@ -157,15 +157,15 @@ export const FEATURE_GATES = {
       body: "Plan Free permite hasta 3 redes. Pro las habilita ilimitadas.",
     },
   },
-  pressLinks: {
-    id: "pressLinks",
+  pressArticles: {
+    id: "pressArticles",
     audience: "both",
     behavior: "hard-cap",
     cap: 3,
-    utmCampaign: "press-links",
+    utmCampaign: "press-articles",
     copy: {
       title: "Más notas de prensa",
-      body: "Plan Free permite hasta 3 enlaces a prensa. Activá Pro para sumar más.",
+      body: "Plan Free permite hasta 3 notas. Activá Pro para sumar todas las que quieras.",
     },
   },
   catalogGallery: {

@@ -237,6 +237,49 @@ export async function sendSubscriptionWelcomeEmail(opts: {
   }
 }
 
+export async function sendCompGrantWelcomeEmail(opts: {
+  email: string;
+  displayName: string;
+  planId: "pro-player" | "pro-agency";
+  expiresAt: string | null;
+  variant: "grant" | "extend";
+}) {
+  if (!resend) {
+    console.log(
+      "[Resend Mock] Comp grant welcome →",
+      opts.email,
+      opts.planId,
+      opts.variant,
+    );
+    return;
+  }
+  try {
+    const html = await renderTemplate("comp_grant_welcome", {
+      displayName: opts.displayName,
+      planId: opts.planId,
+      expiresAt: opts.expiresAt,
+      variant: opts.variant,
+      dashboardUrl: dashboardUrl(),
+      manageSubscriptionUrl: dashboardUrl("settings/subscription"),
+      recipientEmail: opts.email,
+    });
+    const subjectPlan =
+      opts.planId === "pro-agency" ? "Pro Agency" : "Pro Player";
+    const subject =
+      opts.variant === "extend"
+        ? `Extendimos tu cuenta de cortesía ${subjectPlan}`
+        : `Tu cuenta de cortesía ${subjectPlan} está activa`;
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendCompGrantWelcomeEmail:", error);
+  }
+}
+
 export async function sendPaymentFailedEmail(opts: {
   email: string;
   displayName: string;
