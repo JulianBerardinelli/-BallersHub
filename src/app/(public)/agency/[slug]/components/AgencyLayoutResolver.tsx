@@ -1,7 +1,6 @@
 import { CSSProperties, Suspense } from "react";
 import ClassicAgencyLayout from "./ClassicAgencyLayout";
 import ProAgencyLayout from "./ProAgencyLayout";
-import { resolveTypographyClasses } from "../../../[slug]/components/TypographyResolver";
 import SmoothScrollProvider from "../../../[slug]/components/SmoothScrollProvider";
 import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 
@@ -91,7 +90,10 @@ export type AgencyPublicData = {
 export default function AgencyLayoutResolver({ data }: { data: AgencyPublicData }) {
   const { agency, theme } = data;
 
-  const layout = theme?.layout || "classic";
+  // Two layouts kept: `classic` (Free Agency) and `pro` (Pro Agency).
+  // Legacy values default to `classic`. Typography is no longer respected
+  // (column preserved in DB, ignored at render).
+  const layout = theme?.layout === "pro" ? "pro" : "classic";
   const primaryColor = theme?.primaryColor || "#0a0a0a";
   const accentColor = theme?.accentColor || "#10b981";
   const secondaryColor = theme?.secondaryColor || "#2A2A2A";
@@ -106,13 +108,11 @@ export default function AgencyLayoutResolver({ data }: { data: AgencyPublicData 
     color: "#ffffff",
   } as CSSProperties;
 
-  const fontClasses = resolveTypographyClasses(theme?.typography ?? null);
-
   return (
     <SmoothScrollProvider>
       <div
         style={customStyles}
-        className={`min-h-screen w-full relative ${fontClasses} font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black`}
+        className="min-h-screen w-full relative font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black"
       >
         <div className="relative z-10 w-full">
           {layout === "classic" && <ClassicAgencyLayout data={data} />}

@@ -11,6 +11,8 @@ import type { DashboardHonour } from "@/lib/dashboard/client/publishing-state";
 import { honourMutationSchema, type HonourMutationInput } from "../schemas";
 import { deletePlayerHonour, upsertPlayerHonour } from "../actions";
 import TeamCrest from "@/components/teams/TeamCrest";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
 
 type FormValues = {
   id?: string;
@@ -54,6 +56,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
   const lastSelectedStageIdRef = useRef<string | null>(null);
   const skipStageAutofillRef = useRef(false);
   const [careerInputValue, setCareerInputValue] = useState("");
+  const { access } = usePlanAccess();
+  const upgradeModal = useUpgradeModal();
 
   const {
     control,
@@ -105,6 +109,13 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
   }, [getValues, optionMap, setValue, watchCareerItemId]);
 
   const onSubmit = handleSubmit((values) => {
+    if (!access.isPro) {
+      // Soft-save gate: free users can fill in the form, but at submit
+      // we surface the upgrade modal and discard.
+      upgradeModal.open("honoursValuation");
+      return;
+    }
+
     const parsed = honourMutationSchema.safeParse({
       ...values,
       playerId,
@@ -397,6 +408,8 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
           ) : null}
         </div>
       </form>
+
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </div>
   );
 }

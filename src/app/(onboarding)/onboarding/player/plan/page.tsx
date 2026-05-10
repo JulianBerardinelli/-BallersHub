@@ -26,6 +26,10 @@ export default async function PlayerPlanPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/pricing");
 
+  // IMPORTANT: keep the lookup inside try/catch (DB hiccup tolerance) but
+  // run the redirects AFTER — `redirect()` throws `NEXT_REDIRECT` as
+  // control-flow and a generic catch would swallow it, breaking the skip.
+  let activeSubPlanId: string | null = null;
   try {
     const [activeSub] = await db
       .select({ planId: subscriptions.planId })
@@ -38,15 +42,16 @@ export default async function PlayerPlanPage() {
       )
       .orderBy(desc(subscriptions.createdAt))
       .limit(1);
-
-    if (activeSub?.planId === "pro-player") {
-      redirect("/onboarding/player/apply");
-    }
-    if (activeSub?.planId === "pro-agency") {
-      redirect("/onboarding/manager/info");
-    }
+    activeSubPlanId = activeSub?.planId ?? null;
   } catch {
     // Non-fatal: fall through to /pricing.
+  }
+
+  if (activeSubPlanId === "pro-player") {
+    redirect("/onboarding/player/apply");
+  }
+  if (activeSubPlanId === "pro-agency") {
+    redirect("/onboarding/manager/info");
   }
 
   redirect("/pricing");

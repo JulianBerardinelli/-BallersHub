@@ -5,6 +5,8 @@ import { type PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import {
   linkMutationSchema,
   honourMutationSchema,
@@ -326,8 +328,20 @@ export async function updateMarketProjection(
   }
 
   const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
-  if (ownership.error) {
-    return { success: false, message: ownership.error };
+  if (ownership.error || !ownership.userId) {
+    return { success: false, message: ownership.error ?? "No se pudo validar la sesión." };
+  }
+
+  // Server-side plan gate: defense in depth. The UI also intercepts free
+  // users via UpgradeModal, but if someone bypasses the client we refuse
+  // here.
+  const dashboardState = await fetchDashboardState(ownership.supabase, ownership.userId);
+  const planAccess = resolvePlanAccess(dashboardState.subscription);
+  if (!planAccess.isPro) {
+    return {
+      success: false,
+      message: "El valor de mercado y los objetivos de carrera son parte del plan Pro.",
+    };
   }
 
   const { data: profileBefore, error: fetchError } = await ownership.supabase
@@ -443,8 +457,18 @@ export async function updateScoutingAnalysis(
   }
 
   const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
-  if (ownership.error) {
-    return { success: false, message: ownership.error };
+  if (ownership.error || !ownership.userId) {
+    return { success: false, message: ownership.error ?? "No se pudo validar la sesión." };
+  }
+
+  // Server-side plan gate.
+  const dashboardStateForScouting = await fetchDashboardState(ownership.supabase, ownership.userId);
+  const planAccessForScouting = resolvePlanAccess(dashboardStateForScouting.subscription);
+  if (!planAccessForScouting.isPro) {
+    return {
+      success: false,
+      message: "El análisis de scouting (táctico, físico, mental, técnico) es parte del plan Pro.",
+    };
   }
 
   const { data: profileBefore, error: fetchError } = await ownership.supabase

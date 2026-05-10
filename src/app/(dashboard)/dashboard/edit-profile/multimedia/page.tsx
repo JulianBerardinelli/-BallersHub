@@ -15,6 +15,8 @@ import LockedSection from "@/components/dashboard/client/LockedSection";
 import ProAssetsUploaderClient from "@/components/dashboard/client/media/ProAssetsUploaderClient";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import PlanGate from "@/components/dashboard/plan/PlanGate";
 
 export default async function MultimediaPage() {
   const supabase = await createSupabaseServerRSC();
@@ -130,6 +132,8 @@ export default async function MultimediaPage() {
     href: task.href,
   }));
 
+  const planAccess = resolvePlanAccess(dashboardState.subscription);
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -139,21 +143,24 @@ export default async function MultimediaPage() {
 
       <TaskCalloutList tasks={taskCallouts} />
 
-      <ProAssetsUploaderClient 
-        currentHeroUrl={currentHeroUrl} 
-        currentModelUrl1={currentModelUrl1}
-        currentModelUrl2={currentModelUrl2}
-        playerId={profile.id} 
-        userId={user.id} 
-      />
+      <PlanGate feature="proAssets">
+        <ProAssetsUploaderClient
+          currentHeroUrl={currentHeroUrl}
+          currentModelUrl1={currentModelUrl1}
+          currentModelUrl2={currentModelUrl2}
+          playerId={profile.id}
+          userId={user.id}
+        />
+      </PlanGate>
 
-      <MultimediaManagerClient 
-        media={mediaItems || []} 
+      <MultimediaManagerClient
+        media={mediaItems || []}
+        isPro={planAccess.isPro}
         profileContext={{
           fullName: profile.full_name,
           currentClub: profile.current_club,
-          nationality: Array.isArray(profile.nationality) 
-            ? profile.nationality[0] 
+          nationality: Array.isArray(profile.nationality)
+            ? profile.nationality[0]
             : profile.nationality,
         }}
       />

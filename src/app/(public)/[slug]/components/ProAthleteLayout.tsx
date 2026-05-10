@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import type { PublicProfileData } from "./LayoutResolver";
-import MinimalistLayout from "./MinimalistLayout";
 import ProPlayerHeader from "./ProPlayerHeader";
 import { formatMarketValueEUR, formatPlayerPositions } from "@/lib/format";
 
@@ -27,12 +26,20 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
 
   if (!player.heroUrl) {
     return (
-      <>
-        <div className="w-full bg-red-500/10 text-red-500 text-center py-2 text-sm font-bold absolute top-0 z-50">
-          [PRO LAYOUT]: Falta el Asset PNG (Cutout) de la portada. Mostrando Layout Minimalista.
+      <div className="flex min-h-[60vh] items-center justify-center px-6">
+        <div className="max-w-md space-y-4 rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur">
+          <div className="font-bh-display text-xs font-bold uppercase tracking-[0.18em] text-bh-fg-3">
+            Hero asset pendiente
+          </div>
+          <h2 className="font-bh-display text-2xl font-black uppercase leading-tight text-bh-fg-1">
+            Subí tu recorte para activar la plantilla Pro
+          </h2>
+          <p className="text-sm leading-[1.6] text-bh-fg-3">
+            La plantilla Pro Athlete necesita un PNG con tu silueta recortada. Cargalo desde el dashboard
+            en <span className="text-bh-fg-1">Multimedia</span> y tu perfil público se actualizará al instante.
+          </p>
         </div>
-        <MinimalistLayout data={data} />
-      </>
+      </div>
     );
   }
 

@@ -182,11 +182,6 @@ export default async function TemplateStructurePage() {
               <p>
                 <span className="text-neutral-500">Modo de portada:</span> {formatCoverModeLabel(theme.coverMode)}
               </p>
-              {theme.typography ? (
-                <p>
-                  <span className="text-neutral-500">Tipografía:</span> {theme.typography}
-                </p>
-              ) : null}
               <p className="text-xs text-neutral-500">
                 Última actualización: {formatUpdatedAt(theme.updatedAt ?? theme.createdAt)}
               </p>
@@ -247,9 +242,8 @@ export default async function TemplateStructurePage() {
 }
 
 const LAYOUT_LABELS: Record<string, string> = {
-  classic: "Clásico",
-  modern: "Moderno",
-  spotlight: "Destacado",
+  free: "Free Editorial",
+  pro: "Pro Athlete (3D)",
 };
 
 const COVER_MODE_LABELS: Record<string, string> = {

@@ -28,15 +28,12 @@ export default function SubscriptionActions({
         body: JSON.stringify({ return_url: "/dashboard/settings/subscription" }),
       });
       if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as
-          | { error?: string }
-          | null;
-        throw new Error(body?.error ?? `Stripe portal request failed: ${res.status}`);
+        throw new Error(await readErrorMessage(res, "Stripe portal request failed"));
       }
       const { url } = (await res.json()) as { url: string };
       window.location.href = url;
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(toErrorString(err));
     }
   }
 
@@ -45,10 +42,7 @@ export default function SubscriptionActions({
     try {
       const res = await fetch("/api/billing/cancel", { method: "POST" });
       if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as
-          | { error?: string }
-          | null;
-        throw new Error(body?.error ?? `Cancel request failed: ${res.status}`);
+        throw new Error(await readErrorMessage(res, "Cancel request failed"));
       }
       setConfirming(false);
       startTransition(() => {
@@ -56,7 +50,7 @@ export default function SubscriptionActions({
         router.refresh();
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
+      setError(toErrorString(err));
     }
   }
 
@@ -139,4 +133,40 @@ export default function SubscriptionActions({
       {error && <p className="text-[12.5px] text-bh-danger">{error}</p>}
     </div>
   );
+}
+
+/**
+ * Read an error response and produce a human-readable string. Falls back
+ * to the HTTP status when the body shape is unexpected — never returns
+ * "[object Object]".
+ */
+async function readErrorMessage(res: Response, fallback: string): Promise<string> {
+  let body: unknown;
+  try {
+    body = await res.json();
+  } catch {
+    return `${fallback}: ${res.status}`;
+  }
+  if (body && typeof body === "object") {
+    const errVal = (body as Record<string, unknown>).error;
+    if (typeof errVal === "string") return errVal;
+    if (errVal && typeof errVal === "object" && typeof (errVal as Record<string, unknown>).message === "string") {
+      return (errVal as Record<string, unknown>).message as string;
+    }
+  }
+  return `${fallback}: ${res.status}`;
+}
+
+function toErrorString(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const o = err as Record<string, unknown>;
+    if (typeof o.message === "string") return o.message;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return "Error desconocido.";
+    }
+  }
+  return String(err);
 }

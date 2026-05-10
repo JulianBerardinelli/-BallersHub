@@ -27,6 +27,9 @@ import {
 } from "@/lib/dashboard/client/application-status";
 import PendingInvitesModal from "@/components/dashboard/client/PendingInvitesModal";
 import PlayerPendingInvitesModal from "@/components/dashboard/client/PlayerPendingInvitesModal";
+import { PlanAccessProvider } from "@/components/dashboard/plan/PlanAccessProvider";
+import SubscriptionStateBanner from "@/components/dashboard/plan/SubscriptionStateBanner";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -103,8 +106,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     user.email ??
     null;
 
+  const planAccess = resolvePlanAccess(subscription ?? null);
+  const audience = isManager ? "agency" : "player";
+
   return (
-    <>
+    <PlanAccessProvider value={{ access: planAccess, audience }}>
       <PendingInvitesModal invites={formattedInvites} />
       <PlayerPendingInvitesModal invites={formattedPlayerInvites} />
       <NotificationBootstrap
@@ -239,6 +245,22 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           </div>
         </header>
 
+        {/* Subscription state — trial countdown, past_due, expired, etc */}
+        <div className="mt-5 space-y-3">
+          <SubscriptionStateBanner
+            access={planAccess}
+            rawSubscription={
+              subscription
+                ? {
+                    plan: subscription.plan,
+                    statusV2: subscription.statusV2,
+                    currentPeriodEnd: subscription.currentPeriodEnd,
+                  }
+                : null
+            }
+          />
+        </div>
+
         {/* Mobile drawer */}
         <div className="mt-6 lg:hidden">
           <ClientDashboardSidebarMobile sections={navigation} onSignOut={signOutAction} />
@@ -254,7 +276,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <section className="min-w-0 flex-1 space-y-6">{children}</section>
         </div>
       </div>
-    </>
+    </PlanAccessProvider>
   );
 }
 

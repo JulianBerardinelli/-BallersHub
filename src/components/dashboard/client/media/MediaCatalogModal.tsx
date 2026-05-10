@@ -51,9 +51,12 @@ export type MediaCatalogModalProps = {
   /** Header copy. */
   modalTitle: string;
   modalSubtitle?: string;
-  /** Hide tabs and lock to "photo" if videos are not allowed. */
+  /** Hide tabs and lock to "photo" if videos are not allowed.
+   *  Set `photos: false` to lock the modal to video-only (used for Free
+   *  users where the photo catalog is gated to Pro). */
   features?: {
     videos?: boolean;
+    photos?: boolean;
     tags?: boolean;
     isPrimary?: boolean;
   };
@@ -67,7 +70,7 @@ export type MediaCatalogModalProps = {
   onSuccess?: () => void;
 };
 
-const DEFAULT_FEATURES = { videos: false, tags: false, isPrimary: false };
+const DEFAULT_FEATURES = { videos: false, photos: true, tags: false, isPrimary: false };
 
 export default function MediaCatalogModal({
   isOpen,
@@ -82,7 +85,11 @@ export default function MediaCatalogModal({
 }: MediaCatalogModalProps) {
   const f = { ...DEFAULT_FEATURES, ...(features ?? {}) };
 
-  const [activeTab, setActiveTab] = useState<MediaCatalogTab>("photo");
+  // When photos are gated (Free user), force the modal to start on the
+  // video tab. Otherwise default to photo as before.
+  const initialTab: MediaCatalogTab =
+    features?.photos === false ? "video" : "photo";
+  const [activeTab, setActiveTab] = useState<MediaCatalogTab>(initialTab);
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState("");
@@ -201,7 +208,7 @@ export default function MediaCatalogModal({
             </ModalHeader>
 
             <ModalBody className="space-y-4 py-4">
-              {f.videos ? (
+              {f.videos && f.photos ? (
                 <Tabs
                   selectedKey={activeTab}
                   onSelectionChange={(k) => setActiveTab(k as MediaCatalogTab)}

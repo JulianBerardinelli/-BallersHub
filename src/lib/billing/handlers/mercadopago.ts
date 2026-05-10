@@ -26,6 +26,7 @@ import {
   isCheckoutPlanId,
   type CheckoutPlanId,
 } from "../plans";
+import { runSubscriptionSideEffects } from "../subscriptionSideEffects";
 import {
   sendPaymentFailedEmail,
   sendSubscriptionWelcomeEmail,
@@ -158,11 +159,38 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
     ? new Date(sub.next_payment_date)
     : new Date(referenceDate.getTime() + 365 * 24 * 3600 * 1000);
 
-  const existing = await db
-    .select({ id: subscriptions.id, trialEndsAt: subscriptions.trialEndsAt })
+  // Two-phase lookup: first by processor_subscription_id (the row we
+  // own), then by user_id (an auto-created free row that we need to
+  // overwrite). The UNIQUE(user_id) constraint forces this — a blind
+  // INSERT path would 23505 when there's already a free row for the user.
+  let existing = await db
+    .select({
+      id: subscriptions.id,
+      trialEndsAt: subscriptions.trialEndsAt,
+      plan: subscriptions.plan,
+      userId: subscriptions.userId,
+    })
     .from(subscriptions)
     .where(eq(subscriptions.processorSubscriptionId, preapprovalId))
     .limit(1);
+
+  if (existing.length === 0 && session.userId) {
+    existing = await db
+      .select({
+        id: subscriptions.id,
+        trialEndsAt: subscriptions.trialEndsAt,
+        plan: subscriptions.plan,
+        userId: subscriptions.userId,
+      })
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, session.userId))
+      .limit(1);
+  }
+
+  const nextPlan = status === "active" || status === "trialing" ? "pro" : "free";
+  const userId = existing[0]?.userId ?? session.userId ?? null;
+  const previousPlan = existing[0]?.plan ?? null;
+  const isFirstWelcome = existing.length === 0;
 
   if (existing.length === 0) {
     await db.insert(subscriptions).values({
@@ -178,36 +206,54 @@ async function onPreApproval(preapprovalId: string): Promise<void> {
       cancelAtPeriodEnd: false,
       billingAddressId: session.billingAddressId,
       statusV2: status,
-      plan: status === "active" || status === "trialing" ? "pro" : "free",
+      plan: nextPlan,
       // Legacy text `status` column: keep enum values that match what
       // the rest of the app expects. Don't write the v2 enum directly.
       status: status === "active" ? "active" : "trialing",
     });
-
-    if (status === "trialing" || status === "active") {
-      await maybeSendMpWelcome({
-        session,
-        trialEndsAt,
-        nextChargeAt: periodEnd,
-      });
-    }
-    return;
+  } else {
+    // Update path: preserve existing trialEndsAt rather than overwriting it
+    // every time MP re-fires the webhook. We ALSO refresh the processor
+    // metadata here because we may be upgrading a pre-existing free row
+    // (no processor_subscription_id) into a paid row.
+    await db
+      .update(subscriptions)
+      .set({
+        planId: session.planId,
+        currency: session.currency,
+        processor: "mercado_pago",
+        processorSubscriptionId: preapprovalId,
+        processorCustomerId: sub.payer_id ? String(sub.payer_id) : null,
+        statusV2: status,
+        trialEndsAt: existing[0].trialEndsAt ?? trialEndsAt,
+        currentPeriodStartsAt: referenceDate,
+        currentPeriodEnd: periodEnd,
+        cancelAtPeriodEnd: false,
+        billingAddressId: session.billingAddressId,
+        canceledAt: status === "canceled" ? new Date() : null,
+        updatedAt: new Date(),
+        plan: nextPlan,
+        status: status === "active" ? "active" : status,
+      })
+      .where(eq(subscriptions.id, existing[0].id));
   }
 
-  // Update path: preserve existing trialEndsAt rather than overwriting it
-  // every time MP re-fires the webhook.
-  await db
-    .update(subscriptions)
-    .set({
-      statusV2: status,
-      trialEndsAt: existing[0].trialEndsAt ?? trialEndsAt,
-      currentPeriodEnd: periodEnd,
-      canceledAt: status === "canceled" ? new Date() : null,
-      updatedAt: new Date(),
-      plan: status === "active" || status === "trialing" ? "pro" : "free",
-      status: status === "active" ? "active" : status,
-    })
-    .where(eq(subscriptions.id, existing[0].id));
+  if (isFirstWelcome && (status === "trialing" || status === "active")) {
+    await maybeSendMpWelcome({
+      session,
+      trialEndsAt,
+      nextChargeAt: periodEnd,
+    });
+  }
+
+  if (userId) {
+    await runSubscriptionSideEffects({
+      userId,
+      previousPlan,
+      nextPlan,
+      source: "mp",
+    });
+  }
 }
 
 // ---------------------------------------------------------------

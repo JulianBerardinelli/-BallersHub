@@ -113,13 +113,43 @@ export async function POST(_req: NextRequest) {
       { status: 422 },
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
+    const message = extractErrorMessage(err);
     console.error("[billing/cancel] failed", {
       userId: user.id,
       subId: sub.id,
       processor: sub.processor,
       message,
+      raw: err,
     });
     return NextResponse.json({ error: message }, { status: 500 });
   }
+}
+
+/**
+ * Extract a human-readable message from anything thrown. Stripe / MP SDKs
+ * and `fetch` failures sometimes throw plain objects with a `message` or
+ * nested `cause.message`; we walk those paths instead of falling through
+ * to `String(err)` which yields the dreaded "[object Object]".
+ */
+function extractErrorMessage(err: unknown): string {
+  if (err instanceof Error) return err.message;
+  if (err && typeof err === "object") {
+    const o = err as Record<string, unknown>;
+    if (typeof o.message === "string") return o.message;
+    if (typeof o.error === "string") return o.error;
+    if (
+      o.error &&
+      typeof o.error === "object" &&
+      typeof (o.error as Record<string, unknown>).message === "string"
+    ) {
+      return (o.error as Record<string, unknown>).message as string;
+    }
+    if (o.cause && o.cause instanceof Error) return o.cause.message;
+    try {
+      return JSON.stringify(err);
+    } catch {
+      return "Error desconocido en la cancelación.";
+    }
+  }
+  return String(err);
 }

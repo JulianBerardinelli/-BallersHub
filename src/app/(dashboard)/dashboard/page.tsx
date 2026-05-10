@@ -25,6 +25,7 @@ import {
 } from "@/lib/dashboard/client/task-context";
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolveOnboardingHref } from "@/lib/dashboard/onboarding-href";
 import ManagerOverview from "@/components/dashboard/manager/ManagerOverview";
 
 type PlayerOverview = TaskProfileSnapshot & { updated_at: string | null };
@@ -134,6 +135,7 @@ const APPLICATION_STATUS_META: Record<
 function getProfileSummary(
   profile: PlayerOverview | null,
   application: ApplicationOverview | null,
+  onboardingHref: string,
 ): DashboardStatusSummaryProps {
   const statusKey = profile ? profile.status : "missing";
   const statusMeta = PROFILE_STATUS_META[statusKey] ?? PROFILE_STATUS_META.missing;
@@ -150,7 +152,7 @@ function getProfileSummary(
     ? new Intl.DateTimeFormat("es-AR", { dateStyle: "medium" }).format(new Date(application.created_at))
     : null;
 
-  const cta = getPrimaryCta(profile, application);
+  const cta = getPrimaryCta(profile, application, onboardingHref);
 
   return {
     profileStatus: {
@@ -177,6 +179,7 @@ function getProfileSummary(
 function getPrimaryCta(
   profile: PlayerOverview | null,
   application: ApplicationOverview | null,
+  onboardingHref: string,
 ): DashboardStatusSummaryProps["cta"] {
   if (!profile) {
     if (application?.status === "pending") {
@@ -191,7 +194,7 @@ function getPrimaryCta(
     if (application?.status === "rejected") {
       return {
         label: "Reabrir onboarding",
-        href: "/onboarding/start",
+        href: onboardingHref,
         variant: "solid",
         color: "warning",
       };
@@ -208,7 +211,7 @@ function getPrimaryCta(
 
     return {
       label: "Crear solicitud",
-      href: "/onboarding/start",
+      href: onboardingHref,
       variant: "solid",
       color: "primary",
     };
@@ -247,7 +250,7 @@ function getPrimaryCta(
     case "rejected":
       return {
         label: "Reabrir onboarding",
-        href: "/onboarding/start",
+        href: onboardingHref,
         variant: "solid",
         color: "warning",
       };
@@ -410,7 +413,8 @@ export default async function DashboardPage() {
   const taskContext = buildTaskContext(hydratedProfile ?? normalizedProfile, metrics);
   const taskEvaluation = evaluateDashboardTasks(taskContext);
 
-  const statusSummary = getProfileSummary(profile, application);
+  const onboardingHref = resolveOnboardingHref(dashboardState.subscription?.planId ?? null);
+  const statusSummary = getProfileSummary(profile, application, onboardingHref);
   const progressSections = buildProgressSectionsFromTasks(taskEvaluation);
   const nextSteps = selectNextSteps(taskEvaluation);
 

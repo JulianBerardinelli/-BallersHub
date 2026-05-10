@@ -23,6 +23,7 @@ import {
   sendPaymentFailedEmail,
   sendSubscriptionWelcomeEmail,
 } from "@/lib/resend";
+import { runSubscriptionSideEffects } from "../subscriptionSideEffects";
 
 export async function handleStripeEvent(
   event: Stripe.Event,
@@ -94,12 +95,28 @@ async function onSubscriptionChange(sub: Stripe.Subscription): Promise<void> {
   const periodStart = readPeriodStart(sub);
   const periodEnd = readPeriodEnd(sub);
 
-  // We may already have a row for this checkout (e.g. on subsequent updates).
-  const existing = await db
-    .select({ id: subscriptions.id })
+  // Two-phase lookup: first by processor_subscription_id (the row we
+  // own), then by user_id (an auto-created free row that we need to
+  // overwrite). The UNIQUE(user_id) constraint forces this — a blind
+  // INSERT path would 23505 when there's already a free row for the user.
+  let existing = await db
+    .select({ id: subscriptions.id, plan: subscriptions.plan, userId: subscriptions.userId })
     .from(subscriptions)
     .where(eq(subscriptions.processorSubscriptionId, sub.id))
     .limit(1);
+
+  if (existing.length === 0 && checkout.userId) {
+    existing = await db
+      .select({ id: subscriptions.id, plan: subscriptions.plan, userId: subscriptions.userId })
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, checkout.userId))
+      .limit(1);
+  }
+
+  const nextPlan = status === "trialing" || status === "active" ? "pro" : "free";
+  const userId = existing[0]?.userId ?? checkout.userId ?? null;
+  const previousPlan = existing[0]?.plan ?? null;
+  const isFirstWelcome = existing.length === 0;
 
   if (existing.length === 0) {
     await db.insert(subscriptions).values({
@@ -117,34 +134,52 @@ async function onSubscriptionChange(sub: Stripe.Subscription): Promise<void> {
       billingAddressId: checkout.billingAddressId,
       statusV2: status,
       // Mirror to legacy fields the rest of the app reads.
-      plan: status === "trialing" || status === "active" ? "pro" : "free",
+      plan: nextPlan,
       status: status === "active" ? "active" : status,
     });
-
-    // First time we see this subscription — send the welcome receipt.
-    if (status === "trialing" || status === "active") {
-      await maybeSendWelcome({
-        checkout,
-        planId: (planId ?? checkout.planId) as string | null,
-        trialEndsAt,
-        nextChargeAt: periodEnd,
-      });
-    }
   } else {
     await db
       .update(subscriptions)
       .set({
+        // Refresh ALL processor metadata. We may be upgrading a
+        // pre-existing free row (no processor_subscription_id) into a
+        // paid row.
+        planId: planId ?? checkout.planId,
+        currency: checkout.currency,
+        processor: "stripe",
+        processorSubscriptionId: sub.id,
+        processorCustomerId:
+          typeof sub.customer === "string" ? sub.customer : sub.customer?.id,
         statusV2: status,
         trialEndsAt,
         currentPeriodStartsAt: periodStart,
         currentPeriodEnd: periodEnd,
         cancelAtPeriodEnd: sub.cancel_at_period_end,
+        billingAddressId: checkout.billingAddressId,
         canceledAt: sub.canceled_at ? new Date(sub.canceled_at * 1000) : null,
         updatedAt: new Date(),
-        plan: status === "trialing" || status === "active" ? "pro" : "free",
+        plan: nextPlan,
         status: status === "active" ? "active" : status,
       })
-      .where(eq(subscriptions.processorSubscriptionId, sub.id));
+      .where(eq(subscriptions.id, existing[0].id));
+  }
+
+  if (isFirstWelcome && (status === "trialing" || status === "active")) {
+    await maybeSendWelcome({
+      checkout,
+      planId: (planId ?? checkout.planId) as string | null,
+      trialEndsAt,
+      nextChargeAt: periodEnd,
+    });
+  }
+
+  if (userId) {
+    await runSubscriptionSideEffects({
+      userId,
+      previousPlan,
+      nextPlan,
+      source: "stripe",
+    });
   }
 
   // Touch Stripe just to make sure we have the latest billing details
