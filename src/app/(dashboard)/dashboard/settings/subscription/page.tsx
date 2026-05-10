@@ -27,6 +27,7 @@ import {
   isCheckoutPlanId,
 } from "@/lib/billing/plans";
 import SubscriptionActions from "./components/SubscriptionActions";
+import { Gift } from "lucide-react";
 
 type PageProps = {
   searchParams: Promise<{
@@ -86,6 +87,14 @@ export default async function SubscriptionSettingsPage({
     .where(and(eq(subscriptions.userId, user.id)))
     .orderBy(desc(subscriptions.createdAt))
     .limit(1);
+
+  // Detect admin-granted comp accounts (no processor + admin_grant: prefix).
+  // These users don't have a self-service portal — the team manages them.
+  const isCompGrant =
+    !!sub &&
+    sub.processor === null &&
+    typeof sub.processorSubscriptionId === "string" &&
+    sub.processorSubscriptionId.startsWith("admin_grant:");
 
   const statusKey = sub?.statusV2 ?? sub?.status ?? "inactive";
   const statusConfig = STATUS_COPY[statusKey] ?? STATUS_COPY.inactive;
@@ -153,9 +162,13 @@ export default async function SubscriptionSettingsPage({
         <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-2 p-5 text-sm text-bh-fg-2 sm:grid-cols-3">
           <Field label="Plan">
             <p className="text-base font-semibold text-bh-fg-1">{planLabel}</p>
-            {formattedAmount && (
+            {isCompGrant ? (
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-lime">
+                <Gift size={10} /> Cortesía
+              </span>
+            ) : formattedAmount ? (
               <p className="text-[12px] text-bh-fg-3">{formattedAmount} / año</p>
-            )}
+            ) : null}
           </Field>
           <Field label="Estado">
             <StatusPill tone={statusConfig.tone}>
@@ -200,19 +213,43 @@ export default async function SubscriptionSettingsPage({
       </SectionCard>
 
       {sub && sub.statusV2 && sub.statusV2 !== "canceled" && (
-        <SectionCard
-          title="Acciones sobre la suscripción"
-          description={
-            sub.processor === "stripe"
-              ? "Stripe gestiona el portal de facturación: actualizá tarjeta, descargá facturas o cancelá desde un único lugar."
-              : "Mercado Pago no expone un portal autoservicio. Desde acá cancelás directamente — el acceso se cierra al instante."
-          }
-        >
-          <SubscriptionActions
-            processor={sub.processor ?? "stripe"}
-            cancelAtPeriodEnd={sub.cancelAtPeriodEnd ?? false}
-          />
-        </SectionCard>
+        isCompGrant ? (
+          <SectionCard
+            title="Cuenta de cortesía"
+            description="Tu acceso Pro fue activado por el equipo de BallersHub — no hay cobros asociados."
+          >
+            <div className="rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 p-4 text-[13px] text-bh-fg-2">
+              <p className="flex items-start gap-2">
+                <Gift className="mt-0.5 size-4 shrink-0 text-bh-lime" />
+                <span>
+                  Esta suscripción está gestionada directamente por el equipo de BallersHub.
+                  Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a{" "}
+                  <Link
+                    href="mailto:billing@ballershub.app"
+                    className="font-semibold text-bh-lime underline-offset-4 hover:underline"
+                  >
+                    billing@ballershub.app
+                  </Link>
+                  .
+                </span>
+              </p>
+            </div>
+          </SectionCard>
+        ) : (
+          <SectionCard
+            title="Acciones sobre la suscripción"
+            description={
+              sub.processor === "stripe"
+                ? "Stripe gestiona el portal de facturación: actualizá tarjeta, descargá facturas o cancelá desde un único lugar."
+                : "Mercado Pago no expone un portal autoservicio. Desde acá cancelás directamente — el acceso se cierra al instante."
+            }
+          >
+            <SubscriptionActions
+              processor={sub.processor ?? "stripe"}
+              cancelAtPeriodEnd={sub.cancelAtPeriodEnd ?? false}
+            />
+          </SectionCard>
+        )
       )}
 
       <SectionCard

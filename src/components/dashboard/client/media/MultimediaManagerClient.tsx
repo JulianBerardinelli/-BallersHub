@@ -9,12 +9,15 @@ import type { PlayerMedia } from "@/db/schema/media";
 
 import { bhButtonClass } from "@/components/ui/BhButton";
 import UpgradeCta from "@/components/dashboard/plan/UpgradeCta";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
 
 export type ProfileContext = {
   fullName: string | null;
   currentClub: string | null;
   nationality: string | null;
 };
+
+const FREE_VIDEO_CAP = 2;
 
 export default function MultimediaManagerClient({
   media,
@@ -26,9 +29,22 @@ export default function MultimediaManagerClient({
   isPro: boolean;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const upgradeModal = useUpgradeModal();
 
   const photos = media.filter((m) => m.type === "photo");
   const videos = media.filter((m) => m.type === "video");
+
+  // Free hard-cap: 2 videos in the catalog (matrix §B "Videos de YouTube"
+  // is counted as `player_media` rows of type='video'). Pro is unlimited.
+  const videosAtCap = !isPro && videos.length >= FREE_VIDEO_CAP;
+
+  const handleOpenUpload = () => {
+    if (videosAtCap) {
+      upgradeModal.open("catalogVideos");
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -40,11 +56,11 @@ export default function MultimediaManagerClient({
           <p className="text-[13px] text-bh-fg-3">
             {isPro
               ? "Añadí fotos y videos para mejorar tus chances de ser contactado."
-              : "Cargá videos y highlights. Las fotos de catálogo son una feature Pro."}
+              : `Cargá hasta ${FREE_VIDEO_CAP} videos. Las fotos de catálogo y los videos extra son Pro.`}
           </p>
         </div>
         <Button
-          onPress={() => setIsModalOpen(true)}
+          onPress={handleOpenUpload}
           startContent={<Plus className="h-4 w-4" />}
           className={bhButtonClass({ variant: "lime", size: "sm", className: "shrink-0" })}
         >
@@ -105,13 +121,30 @@ export default function MultimediaManagerClient({
               )}
             </div>
           </Tab>
-          <Tab key="videos" title={`Videos & Highlights (${videos.length})`}>
+          <Tab
+            key="videos"
+            title={
+              <span className="inline-flex items-center gap-1.5">
+                Videos & Highlights ({videos.length}{!isPro ? `/${FREE_VIDEO_CAP}` : ""})
+              </span>
+            }
+          >
             <div className="pt-4">
               <MediaGalleryGrid items={videos} />
+              {!isPro && videosAtCap && (
+                <div className="mt-4 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
+                  <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
+                    Llegaste al límite de {FREE_VIDEO_CAP} videos del plan Free. Activá Pro para sumar todos los que quieras.
+                  </p>
+                  <UpgradeCta feature="catalogVideos" size="sm" />
+                </div>
+              )}
             </div>
           </Tab>
         </Tabs>
       </div>
+
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </div>
   );
 }

@@ -18,34 +18,38 @@ import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
 import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
 import type { FeatureId } from "@/lib/dashboard/feature-gates";
 
-// Bucket each link kind into its pricing-matrix category. Caps (Free):
-//   youtube         → cap 2  (matrix §B "Videos de YouTube")
-//   instagram/li    → cap 3  (matrix §B "Redes sociales")
-//   highlight/cust  → cap 3  (matrix §B "Links a noticias / prensa")
-//   transfermarkt/besoccer/flashscore → no cap (perfiles externos profesionales)
-const LINK_BUCKET: Record<LinkKind, "youtube" | "social" | "press" | "external"> = {
-  youtube: "youtube",
+// Bucket each link kind for the Free hard-caps (pricing matrix §B v5):
+//   instagram / linkedin              → cap 3 ("Redes sociales")
+//   transfermarkt / besoccer /
+//   flashscore / youtube /            → no cap
+//   highlight / custom                  (perfiles externos / kinds genéricos)
+//
+// Notes:
+// - "Videos de YouTube" cap 2 lives now in MultimediaManagerClient
+//   (counts `player_media` rows with type='video'), NOT in this manager.
+// - "Links a noticias / prensa" cap 3 lives in ArticlesManager
+//   (counts `player_articles`), NOT in this manager.
+// - `youtube` link kind here just means a YouTube URL stored as a link;
+//   not the video-catalog item. We don't cap it.
+const LINK_BUCKET: Record<LinkKind, "social" | "uncapped"> = {
   instagram: "social",
   linkedin: "social",
-  highlight: "press",
-  custom: "press",
-  transfermarkt: "external",
-  besoccer: "external",
-  flashscore: "external",
+  youtube: "uncapped",
+  highlight: "uncapped",
+  custom: "uncapped",
+  transfermarkt: "uncapped",
+  besoccer: "uncapped",
+  flashscore: "uncapped",
 };
 
-const FREE_CAPS: Record<"youtube" | "social" | "press" | "external", number | null> = {
-  youtube: 2,
+const FREE_CAPS: Record<"social" | "uncapped", number | null> = {
   social: 3,
-  press: 3,
-  external: null,
+  uncapped: null,
 };
 
-const BUCKET_FEATURE: Record<"youtube" | "social" | "press" | "external", FeatureId | null> = {
-  youtube: "youtubeLinks",
+const BUCKET_FEATURE: Record<"social" | "uncapped", FeatureId | null> = {
   social: "socialLinks",
-  press: "pressLinks",
-  external: null,
+  uncapped: null,
 };
 
 type FormValues = {

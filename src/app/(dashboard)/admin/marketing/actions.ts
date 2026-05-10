@@ -238,6 +238,16 @@ function buildSampleProps(
         manageSubscriptionUrl: `${siteUrl}/dashboard/settings/subscription`,
         ...overrides,
       };
+    case "comp_grant_welcome":
+      return {
+        displayName: "Lautaro Sample",
+        planId: "pro-player",
+        expiresAt: new Date(Date.now() + 90 * 86_400_000).toISOString(),
+        variant: "grant",
+        dashboardUrl,
+        manageSubscriptionUrl: `${siteUrl}/dashboard/settings/subscription`,
+        ...overrides,
+      };
     case "payment_failed":
       return {
         displayName: "Lautaro Sample",

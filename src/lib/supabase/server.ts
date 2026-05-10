@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { getSupabaseEnv } from "./env";
 
+type CookieToSet = { name: string; value: string; options: CookieOptions };
+
 /** Server Components: no escribe cookies */
 export async function createSupabaseServerRSC() {
   // Read cookies first so Next.js detects this as a dynamic API and skips
@@ -13,16 +15,13 @@ export async function createSupabaseServerRSC() {
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
-        return cookieStore.getAll()
+        return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
-        // En server components ignoramos los sets ya que no se pueden modificar headers
-        try {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // Ignorado intencionalmente
-          })
-        } catch {
-        }
+      // En server components no podemos modificar headers — ignoramos los
+      // sets a propósito. El parámetro está tipado para que TS no marque
+      // implicit any.
+      setAll(_cookiesToSet: CookieToSet[]) {
+        // intentionally noop
       },
     },
   });
@@ -35,15 +34,15 @@ export async function createSupabaseServerRoute() {
   return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
-        return cookieStore.getAll()
+        return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: CookieToSet[]) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options)
-          })
+            cookieStore.set(name, value, options);
+          });
         } catch {
-          // Ignorado preventivo
+          // Ignorado preventivo: en algunos contextos no se pueden escribir.
         }
       },
     },

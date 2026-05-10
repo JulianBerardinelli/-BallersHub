@@ -16,6 +16,9 @@ import CustomBroadcastEmail, { type CustomBroadcastProps } from "./custom-broadc
 import SubscriptionWelcomeEmail, {
   type SubscriptionWelcomeProps,
 } from "./subscription-welcome";
+import CompGrantWelcomeEmail, {
+  type CompGrantWelcomeProps,
+} from "./comp-grant-welcome";
 import PaymentFailedEmail, { type PaymentFailedProps } from "./payment-failed";
 
 /**
@@ -47,6 +50,7 @@ export type TemplateKey =
   | "player_disconnect"
   | "custom_broadcast"
   | "subscription_welcome"
+  | "comp_grant_welcome"
   | "payment_failed";
 
 export type TemplateCategory = "marketing" | "transactional";
@@ -61,6 +65,7 @@ export type TemplatePropsMap = {
   player_disconnect: PlayerDisconnectProps;
   custom_broadcast: CustomBroadcastProps;
   subscription_welcome: SubscriptionWelcomeProps;
+  comp_grant_welcome: CompGrantWelcomeProps;
   payment_failed: PaymentFailedProps;
 };
 
@@ -74,6 +79,7 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   player_disconnect: (props) => PlayerDisconnectEmail(props),
   custom_broadcast: (props) => CustomBroadcastEmail(props),
   subscription_welcome: (props) => SubscriptionWelcomeEmail(props),
+  comp_grant_welcome: (props) => CompGrantWelcomeEmail(props),
   payment_failed: (props) => PaymentFailedEmail(props),
 };
 
@@ -151,6 +157,13 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     label: "Suscripción confirmada",
     description:
       "Disparado tras el primer checkout exitoso (Stripe o MP). Confirma trial, monto y próxima fecha de cobro.",
+  },
+  {
+    key: "comp_grant_welcome",
+    category: "transactional",
+    label: "Cuenta de cortesía activada",
+    description:
+      "Disparado cuando un admin otorga o extiende una cuenta Pro de cortesía (sin cobro). Comunica acceso y vencimiento.",
   },
   {
     key: "payment_failed",
