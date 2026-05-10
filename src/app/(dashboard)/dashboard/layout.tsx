@@ -30,6 +30,9 @@ import PlayerPendingInvitesModal from "@/components/dashboard/client/PlayerPendi
 import { PlanAccessProvider } from "@/components/dashboard/plan/PlanAccessProvider";
 import SubscriptionStateBanner from "@/components/dashboard/plan/SubscriptionStateBanner";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { TutorialProvider } from "@/components/tutorial/TutorialProvider";
+import TutorialDock from "@/components/tutorial/TutorialDock";
+import { bootstrapTutorialState } from "@/lib/tutorial/bootstrap";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -109,8 +112,24 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const planAccess = resolvePlanAccess(subscription ?? null);
   const audience = isManager ? "agency" : "player";
 
+  // Tutorial bootstrap. Non-fatal: if it fails we just don't render the dock.
+  let tutorialState = null;
+  try {
+    tutorialState = await bootstrapTutorialState({
+      userId: user.id,
+      audience,
+      tier: planAccess.isPro ? "pro" : "free",
+    });
+  } catch (err) {
+    console.warn(
+      "[DashboardLayout] tutorial bootstrap failed (non-fatal):",
+      err instanceof Error ? err.message : err,
+    );
+  }
+
   return (
     <PlanAccessProvider value={{ access: planAccess, audience }}>
+      <TutorialProvider state={tutorialState}>
       <PendingInvitesModal invites={formattedInvites} />
       <PlayerPendingInvitesModal invites={formattedPlayerInvites} />
       <NotificationBootstrap
@@ -276,6 +295,9 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <section className="min-w-0 flex-1 space-y-6">{children}</section>
         </div>
       </div>
+
+      <TutorialDock />
+      </TutorialProvider>
     </PlanAccessProvider>
   );
 }

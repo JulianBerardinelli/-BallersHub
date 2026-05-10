@@ -35,3 +35,4 @@ export * from "./paymentEvents";
 export * from "./agencyPublishing";
 export * from "./agencyMedia";
 export * from "./agencyTeamRelations";
+export * from "./tutorialProgress";
