@@ -288,8 +288,104 @@ export default function FooterMarkup({
   showTopBorder = false,
 }: FooterProps) {
   const newsletterColor = newsletterAccent || theme.accent2;
+  const megaCols = `minmax(0, 1.4fr) ${"minmax(0, 1fr) ".repeat(linkColumns.length)}minmax(0, 1fr)`;
 
   return (
+    <>
+      <style>{`
+        .bh-fmark-hero { padding: 56px 0; }
+        .bh-fmark-hero-inner {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 40px;
+          display: grid;
+          grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+          gap: 48px;
+          align-items: center;
+        }
+        .bh-fmark-hero-eyebrow { white-space: nowrap; }
+        .bh-fmark-hero-headline { font-size: 38px; }
+        .bh-fmark-cta-btn { padding: 16px 24px; font-size: 16px; }
+        .bh-fmark-stats-inner {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 40px;
+          display: grid;
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+        .bh-fmark-stats-cell { border-right: 1px solid var(--bh-fmark-border1); }
+        .bh-fmark-stats-cell:nth-child(4n) { border-right: none; }
+        .bh-fmark-mega {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 56px 40px;
+        }
+        .bh-fmark-mega-grid {
+          display: grid;
+          grid-template-columns: var(--bh-fmark-mega-cols);
+          gap: 40px;
+        }
+        .bh-fmark-bottom {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 22px 40px 28px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 16px;
+        }
+        .bh-fmark-bottom-legal {
+          flex-wrap: wrap;
+          align-items: center;
+        }
+        .bh-fmark-bottom-links { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+
+        /* Tablet — 1024px and below */
+        @media (max-width: 1024px) {
+          .bh-fmark-mega { padding: 44px 28px; }
+          .bh-fmark-mega-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 32px 28px;
+          }
+          .bh-fmark-mega-grid > :first-child { grid-column: 1 / -1; }
+          .bh-fmark-mega-grid > :last-child { grid-column: 1 / -1; }
+        }
+
+        /* Mobile — 768px and below */
+        @media (max-width: 768px) {
+          .bh-fmark-hero { padding: 40px 0; }
+          .bh-fmark-hero-inner {
+            grid-template-columns: 1fr;
+            gap: 28px;
+            padding: 0 20px;
+          }
+          .bh-fmark-hero-eyebrow { white-space: normal; }
+          .bh-fmark-hero-headline { font-size: 30px; }
+          .bh-fmark-cta-btn { padding: 14px 18px; font-size: 14px; }
+          .bh-fmark-stats-inner { padding: 0 20px; }
+          .bh-fmark-mega { padding: 40px 20px; }
+          .bh-fmark-mega-grid {
+            grid-template-columns: 1fr;
+            gap: 32px;
+          }
+          .bh-fmark-bottom {
+            padding: 20px 20px 24px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 14px;
+          }
+          .bh-fmark-bottom-links { gap: 16px; }
+        }
+
+        /* Small mobile — 640px and below: stats become 2x2 */
+        @media (max-width: 640px) {
+          .bh-fmark-stats-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+          .bh-fmark-stats-cell:nth-child(4n) { border-right: 1px solid var(--bh-fmark-border1); }
+          .bh-fmark-stats-cell:nth-child(2n) { border-right: none; }
+          .bh-fmark-stats-cell:nth-child(-n+2) { border-bottom: 1px solid var(--bh-fmark-border1); }
+        }
+      `}</style>
     <footer
       style={{
         background: theme.bg,
@@ -306,26 +402,17 @@ export default function FooterMarkup({
     >
       {/* Hero CTA strip with stadium stripes */}
       <div
+        className="bh-fmark-hero"
         style={{
           position: "relative",
-          padding: "56px 0",
           borderBottom: `1px solid ${theme.border1}`,
           backgroundImage: `repeating-linear-gradient(90deg, ${hexToRgba(theme.accent, 0.025)} 0 2px, transparent 2px 60px)`,
         }}
       >
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "0 40px",
-            display: "grid",
-            gridTemplateColumns: "minmax(0,1.3fr) minmax(0,1fr)",
-            gap: 48,
-            alignItems: "center",
-          }}
-        >
+        <div className="bh-fmark-hero-inner">
           <div>
             <div
+              className="bh-fmark-hero-eyebrow"
               style={{
                 fontFamily: theme.displayFont,
                 fontSize: 12,
@@ -337,7 +424,6 @@ export default function FooterMarkup({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 8,
-                whiteSpace: "nowrap",
               }}
             >
               <span
@@ -353,9 +439,9 @@ export default function FooterMarkup({
               {eyebrow}
             </div>
             <h2
+              className="bh-fmark-hero-headline"
               style={{
                 fontFamily: theme.displayFont,
-                fontSize: 38,
                 fontWeight: 900,
                 lineHeight: 1.05,
                 textTransform: "uppercase",
@@ -388,14 +474,13 @@ export default function FooterMarkup({
                   <Link
                     key={`${cta.label}-${cta.href}`}
                     href={cta.href}
+                    className="bh-fmark-cta-btn"
                     style={{
                       background: primary ? theme.accent : "transparent",
                       color: primary ? theme.accentFg : theme.fg1,
                       border: primary ? "0" : `1px solid ${theme.border3}`,
                       borderRadius: 10,
-                      padding: "16px 24px",
                       fontFamily: theme.displayFont,
-                      fontSize: 16,
                       fontWeight: primary ? 800 : 700,
                       cursor: "pointer",
                       textTransform: "uppercase",
@@ -422,21 +507,11 @@ export default function FooterMarkup({
       {/* Stats strip */}
       <div style={{ borderBottom: `1px solid ${theme.border1}` }}>
         <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "0 40px",
-            display: "grid",
-            gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          }}
+          className="bh-fmark-stats-inner"
+          style={{ ["--bh-fmark-border1" as string]: theme.border1 } as React.CSSProperties}
         >
-          {stats.slice(0, 4).map((s, i, arr) => (
-            <div
-              key={`${s.label}-${i}`}
-              style={{
-                borderRight: i < arr.length - 1 ? `1px solid ${theme.border1}` : "none",
-              }}
-            >
+          {stats.slice(0, 4).map((s, i) => (
+            <div key={`${s.label}-${i}`} className="bh-fmark-stats-cell">
               <AnimatedStat
                 value={s.value}
                 label={s.label}
@@ -454,17 +529,10 @@ export default function FooterMarkup({
       </div>
 
       {/* Mega columns */}
-      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "56px 40px 56px" }}>
+      <div className="bh-fmark-mega">
         <div
-          style={{
-            display: "grid",
-            // Brand block + N link columns + newsletter. Link columns are
-            // 1fr each so they always fit within the 1280px cap.
-            gridTemplateColumns: `minmax(0, 1.4fr) ${"minmax(0, 1fr) ".repeat(
-              linkColumns.length,
-            )}minmax(0, 1fr)`,
-            gap: 40,
-          }}
+          className="bh-fmark-mega-grid"
+          style={{ ["--bh-fmark-mega-cols" as string]: megaCols } as React.CSSProperties}
         >
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
@@ -561,27 +629,15 @@ export default function FooterMarkup({
 
       {/* Full-width divider — line spans the viewport, content stays capped. */}
       <div style={{ borderTop: `1px solid ${theme.border1}` }}>
-        <div
-          style={{
-            maxWidth: 1280,
-            margin: "0 auto",
-            padding: "22px 40px 28px",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
+        <div className="bh-fmark-bottom">
           <div
+            className="bh-fmark-bottom-legal"
             style={{
               fontFamily: theme.monoFont,
               fontSize: 11,
               color: theme.fg3,
               display: "flex",
-              alignItems: "center",
               gap: 8,
-              flexWrap: "wrap",
             }}
           >
             <span>© {new Date().getFullYear()} BallersHub S.A. · Made in Buenos Aires</span>
@@ -615,7 +671,7 @@ export default function FooterMarkup({
               </>
             )}
           </div>
-          <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+          <div className="bh-fmark-bottom-links">
             {[
               { label: "Términos", href: "/legal/terms" },
               { label: "Privacidad", href: "/legal/privacy" },
@@ -657,5 +713,6 @@ export default function FooterMarkup({
         </div>
       </div>
     </footer>
+    </>
   );
 }
