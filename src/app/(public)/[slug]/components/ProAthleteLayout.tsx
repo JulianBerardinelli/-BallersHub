@@ -200,43 +200,69 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
               </motion.div>
             </div>
 
-            {/* APELLIDO INVISIBLE (solo existe para expandir el flex al ancho milimétrico del apellido) */}
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter opacity-0 pointer-events-none select-none">
+            {/*
+              APELLIDO INVISIBLE — width spacer only. Was previously an
+              <h1>, which caused multiple H1s on the page (the layer
+              below also renders one). Changed to a <span> with
+              role="presentation" so it stays out of the accessibility
+              tree and the semantic outline.
+            */}
+            <span
+              role="presentation"
+              aria-hidden="true"
+              className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter opacity-0 pointer-events-none select-none"
+            >
               {lastName}
-            </h1>
+            </span>
           </div>
         </motion.div>
 
-        {/* LAYER 1 GHOST TRAILS: GUM EFFECT SCROLL DOWN (6 LAYERS) */}
+        {/*
+          LAYER 1 GHOST TRAILS — purely decorative. These were originally
+          six <h1> elements which counted as H1 spam to crawlers (one
+          page should have a single H1). Changed to aria-hidden spans
+          rendered as blocks so the parallax animation is preserved
+          visually but the semantic outline stays clean.
+        */}
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY6, opacity: 0.05 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</h1>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</span>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY5, opacity: 0.1 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</h1>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</span>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY4, opacity: 0.15 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)]">{lastName}</h1>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)]">{lastName}</span>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY3, opacity: 0.2 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:3px_var(--theme-accent)]">{lastName}</h1>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:3px_var(--theme-accent)]">{lastName}</span>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY2, opacity: 0.3 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1.5px_var(--theme-accent)] md:[-webkit-text-stroke:4px_var(--theme-accent)]">{lastName}</h1>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1.5px_var(--theme-accent)] md:[-webkit-text-stroke:4px_var(--theme-accent)]">{lastName}</span>
         </motion.div>
         <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY1, opacity: 0.4 }}>
-            <h1 className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)]">{lastName}</h1>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)]">{lastName}</span>
         </motion.div>
 
-        {/* LAYER 1 NORMAL: TEXTO FRONT SOLIDO ESTÁTICO (Behind Player) */}
-        <motion.div 
+        {/*
+          LAYER 1 NORMAL — the page's single canonical <h1>.
+
+          Crawlers read `${firstName} ${lastName}` (full name) via the
+          .sr-only span; users see only `${lastName}` rendered huge.
+          `aria-label` makes screen readers announce the full name in
+          one phrase rather than splitting it across the visually-
+          hidden span and visible span.
+        */}
+        <motion.div
           className="absolute z-20 w-full flex flex-col justify-center items-center pointer-events-none select-none"
           style={{ y: textY }}
         >
-          <motion.h1 
+          <motion.h1
             initial="hidden" animate="visible" variants={lastNameVariants}
+            aria-label={player.fullName}
             className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center w-fit mx-auto"
           >
-            {lastName}
+            <span className="sr-only">{firstName} </span>
+            <span aria-hidden="true">{lastName}</span>
           </motion.h1>
         </motion.div>
 
@@ -256,20 +282,25 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
           />
         </motion.div>
 
-        {/* LAYER 3: OUTLINE TEXT LAYER (In front of Player) */}
-        <motion.div 
+        {/*
+          LAYER 3: OUTLINE TEXT — decorative overlay in front of the
+          player image. Used to be an <h1>; demoted to aria-hidden span
+          since the canonical H1 already lives in LAYER 1 NORMAL above.
+        */}
+        <motion.div
           className="absolute z-40 w-full flex flex-col justify-center items-center pointer-events-none select-none"
           style={{ y: textY }}
         >
-          <motion.h1 
+          <motion.span
             initial="hidden" animate="visible" variants={lastNameVariants}
-            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)] text-transparent"
-            style={{ 
+            aria-hidden="true"
+            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)] text-transparent"
+            style={{
               filter: `drop-shadow(0px 0px 20px ${accentColor}30)`
             }}
           >
             {lastName}
-          </motion.h1>
+          </motion.span>
         </motion.div>
 
         {/* Bottom Fade Gradient for smooth transition to sections */}

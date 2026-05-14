@@ -1,5 +1,32 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
+
+/**
+ * Compose a meaningful default alt-text for a media item when the
+ * uploader didn't supply one. Pricing matrix §E item #5 — Pro pages
+ * need optimized alt-tags on every image for accessibility + Google
+ * Images SEO, but we can't gate on the player remembering to fill it.
+ *
+ * Pattern: `{Player full name} — {positions joined} · {current club}`.
+ * Falls back to just `{fullName}` when fields are missing. Always
+ * returns a non-empty string so the column never holds an empty alt.
+ */
+function buildDefaultAltText(profile: {
+  full_name: string | null;
+  positions: string[] | null;
+  current_club: string | null;
+}): string {
+  const name = profile.full_name?.trim() || "Futbolista";
+  const segments: string[] = [name];
+  if (profile.positions && profile.positions.length > 0) {
+    segments.push(profile.positions.slice(0, 2).join(" / "));
+  }
+  if (profile.current_club && profile.current_club.trim().length > 0) {
+    segments.push(profile.current_club.trim());
+  }
+  return segments.join(" — ");
+}
 
 export async function POST(req: Request) {
   try {
@@ -12,12 +39,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get Player Profile ID
+    // Get Player Profile (id + slug + alt-text composition fields).
+    // We pull `slug` so we can revalidate the public page after the
+    // upload lands, and `full_name`/`positions`/`current_club` so the
+    // server can compose a default alt-text when the form didn't
+    // supply one.
     const { data: profile } = await supabase
       .from("player_profiles")
-      .select("id")
+      .select("id, slug, full_name, positions, current_club")
       .eq("user_id", user.id)
-      .single();
+      .single<{
+        id: string;
+        slug: string | null;
+        full_name: string | null;
+        positions: string[] | null;
+        current_club: string | null;
+      }>();
 
     if (!profile) {
       return NextResponse.json({ error: "Player profile not found" }, { status: 404 });
@@ -30,8 +67,17 @@ export async function POST(req: Request) {
     const title = formData.get("title") as string | null;
     const provider = formData.get("provider") as string | null;
     const isPrimary = formData.get("isPrimary") === "true";
-    const altText = formData.get("altText") as string | null;
+    const rawAltText = formData.get("altText") as string | null;
     const tagsString = formData.get("tags") as string | null;
+
+    // Server-default alt-text: when the form omits/empties altText,
+    // synthesize one from the player's name + position + current club.
+    // This satisfies pricing matrix §E #5 (optimized alt-tags on
+    // multimedia) without requiring the player to fill the field.
+    const altText =
+      rawAltText && rawAltText.trim().length > 0
+        ? rawAltText.trim()
+        : buildDefaultAltText(profile);
     
     // Parse tags array
     let tags: string[] | null = null;
@@ -107,6 +153,12 @@ export async function POST(req: Request) {
       console.error("Database insert error:", insertError);
       return NextResponse.json({ error: "Failed to save media record in database" }, { status: 500 });
     }
+
+    // New approved media means the public gallery and OG image
+    // (which can use the new avatar / hero) must re-render. Bust the
+    // 1h ISR window so the player sees their upload immediately on
+    // their public profile.
+    revalidatePlayerPublicProfile(profile.slug ?? null);
 
     return NextResponse.json({ success: true, data: mediaRecord });
   } catch (error: any) {

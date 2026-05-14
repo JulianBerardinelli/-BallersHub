@@ -14,25 +14,112 @@ import type {
   FreeLayoutCareerRow,
   FreeLayoutPersonal,
 } from "./components/free/FreeLayout";
+import { PersonJsonLd } from "@/lib/seo/personJsonLd";
+import { formatPlayerPositions } from "@/lib/format";
 
-export const revalidate = 0; // DEVELOPMENT CACHE DISABLED
+// Public portfolios are cached for an hour. Crawlers hit these
+// frequently and we don't need second-by-second freshness — the
+// player's own dashboard mutations should `revalidatePath('/<slug>')`
+// on save (TODO once the edit flow is wired up to do so).
+//
+// The previous `revalidate = 0` flag was a dev convenience that leaked
+// into the repo and was forcing the SSR path to skip caching entirely,
+// re-querying Postgres on every bot hit.
+export const revalidate = 3600;
+
 type Params = Promise<{ slug: string }>;
+
+/**
+ * Build a SEO-rich title + description from the player's public data.
+ *
+ * Strategy:
+ *   • Title pattern: `Julian Berardinelli — Mediocampista · Boca Juniors`
+ *     (name first, then position, then current club). Long-tail
+ *     queries like "Julian Berardinelli mediocampista" match.
+ *   • Description: use full bio when present (capped at 158 chars
+ *     ending at a word boundary, not mid-word). Falls back to a
+ *     composed sentence using whatever fields exist.
+ */
+function buildSeoTitle(p: {
+  fullName: string;
+  positions: string[] | null;
+  currentClub: string | null;
+}): string {
+  const parts: string[] = [p.fullName];
+  const pos = p.positions && p.positions.length > 0 ? formatPlayerPositions(p.positions) : null;
+  if (pos) parts.push(pos);
+  if (p.currentClub) parts.push(p.currentClub);
+  return parts.join(" — ");
+}
+
+function buildSeoDescription(p: {
+  fullName: string;
+  bio: string | null;
+  positions: string[] | null;
+  currentClub: string | null;
+  nationality: string[] | null;
+}): string {
+  if (p.bio && p.bio.trim().length > 0) {
+    const clean = p.bio.replace(/\s+/g, " ").trim();
+    if (clean.length <= 158) return clean;
+    // Trim at last word boundary before 158 chars.
+    const cut = clean.slice(0, 158);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${cut.slice(0, lastSpace > 0 ? lastSpace : 158)}…`;
+  }
+  const segments: string[] = [`Perfil profesional de ${p.fullName}`];
+  if (p.positions && p.positions.length > 0) segments.push(formatPlayerPositions(p.positions));
+  if (p.currentClub) segments.push(p.currentClub);
+  if (p.nationality && p.nationality.length > 0) segments.push(p.nationality.join(" / "));
+  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en BallersHub.`;
+}
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
   const player = await db.query.playerProfiles.findFirst({
-    where: (p, { and, eq }) => and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
-    columns: { fullName: true, bio: true, positions: true, avatarUrl: true, },
+    where: (p, { and, eq }) =>
+      and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
+    columns: {
+      fullName: true,
+      bio: true,
+      positions: true,
+      avatarUrl: true,
+      currentClub: true,
+      nationality: true,
+    },
   });
-  if (!player) return { title: "Jugador no encontrado" };
+  if (!player) {
+    return {
+      title: "Jugador no encontrado",
+      robots: { index: false, follow: false },
+    };
+  }
 
-  const title = player.fullName;
-  const description = player.bio?.slice(0, 160) ?? `Perfil de ${player.fullName}${player.positions?.length ? ` — ${player.positions.join(", ")}` : ""}`;
+  const title = buildSeoTitle(player);
+  const description = buildSeoDescription(player);
+  const canonical = `/${slug}`;
+
   return {
     title,
     description,
-    openGraph: { title, description, url: `/${slug}`, type: "profile" },
-    twitter: { card: "summary_large_image", title, description },
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "profile",
+      siteName: "BallersHub",
+      locale: "es_AR",
+      images: player.avatarUrl
+        ? [{ url: player.avatarUrl, alt: player.fullName }]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: player.avatarUrl ? [player.avatarUrl] : undefined,
+    },
   };
 }
 
@@ -198,5 +285,36 @@ export default async function PlayerPublicPage({
       : null,
   };
 
-  return <LayoutResolver data={publicData} />;
+  return (
+    <>
+      {/*
+        JSON-LD Person/Athlete schema. Streamed in the initial HTML
+        response so crawlers see the entity graph immediately. The
+        component itself decides shape (lean Person vs full @graph
+        with team + agency + breadcrumb) based on the player's plan.
+      */}
+      <PersonJsonLd
+        plan={plan}
+        player={{
+          slug: player.slug,
+          fullName: player.fullName,
+          bio: player.bio ?? null,
+          avatarUrl: player.avatarUrl ?? null,
+          birthDate: player.birthDate ?? null,
+          nationality: player.nationality ?? null,
+          nationalityCodes: player.nationalityCodes ?? null,
+          heightCm: player.heightCm ?? null,
+          weightKg: player.weightKg ?? null,
+          positions: player.positions ?? null,
+          currentClub: player.currentClub ?? null,
+          transfermarktUrl: player.transfermarktUrl ?? null,
+          beSoccerUrl: player.beSoccerUrl ?? null,
+          agency: player.agency
+            ? { name: player.agency.name, slug: player.agency.slug }
+            : null,
+        }}
+      />
+      <LayoutResolver data={publicData} />
+    </>
+  );
 }

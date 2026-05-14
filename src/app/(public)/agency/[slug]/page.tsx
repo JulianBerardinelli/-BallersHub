@@ -14,30 +14,75 @@ import {
 } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import AgencyLayoutResolver, { type AgencyPublicData } from "./components/AgencyLayoutResolver";
+import { AgencyJsonLd } from "@/lib/seo/agencyJsonLd";
 
-export const revalidate = 0; // DEVELOPMENT CACHE DISABLED
+// Public agency portfolios cache for an hour. See the matching note in
+// `[slug]/page.tsx` — the previous `revalidate = 0` was a dev hack.
+export const revalidate = 3600;
+
 type Params = Promise<{ slug: string }>;
+
+function buildAgencyDescription(agency: {
+  name: string;
+  description: string | null;
+}): string {
+  if (agency.description && agency.description.trim().length > 0) {
+    const clean = agency.description.replace(/\s+/g, " ").trim();
+    if (clean.length <= 158) return clean;
+    const cut = clean.slice(0, 158);
+    const lastSpace = cut.lastIndexOf(" ");
+    return `${cut.slice(0, lastSpace > 0 ? lastSpace : 158)}…`;
+  }
+  return `Perfil oficial de ${agency.name} en BallersHub — cartera de jugadores representados, staff, países operativos y contacto verificado.`;
+}
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
 
-  if (!slug) return { title: "Agencia no encontrada" };
+  if (!slug) {
+    return {
+      title: "Agencia no encontrada",
+      robots: { index: false, follow: false },
+    };
+  }
 
   const agency = await db.query.agencyProfiles.findFirst({
     where: eq(agencyProfiles.slug, slug),
-    columns: { name: true, description: true },
+    columns: { name: true, description: true, logoUrl: true },
   });
 
-  if (!agency) return { title: "Agencia no encontrada" };
+  if (!agency) {
+    return {
+      title: "Agencia no encontrada",
+      robots: { index: false, follow: false },
+    };
+  }
 
-  const title = `Agencia ${agency.name} | BallersHub`;
-  const description = agency.description?.slice(0, 160) ?? `Perfil oficial de la agencia de representación ${agency.name} en BallersHub`;
+  const title = `${agency.name} — Agencia de representación`;
+  const description = buildAgencyDescription(agency);
+  const canonical = `/agency/${slug}`;
 
   return {
     title,
     description,
-    openGraph: { title, description, url: `/agency/${slug}`, type: "website" },
-    twitter: { card: "summary_large_image", title, description },
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+      siteName: "BallersHub",
+      locale: "es_AR",
+      images: agency.logoUrl
+        ? [{ url: agency.logoUrl, alt: agency.name }]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: agency.logoUrl ? [agency.logoUrl] : undefined,
+    },
   };
 }
 
@@ -203,5 +248,30 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
         },
   };
 
-  return <AgencyLayoutResolver data={data} />;
+  return (
+    <>
+      {/*
+        SportsOrganization JSON-LD. Closes the `worksFor` cross-reference
+        that Pro player @graphs emit pointing back at this agency. See
+        `src/lib/seo/agencyJsonLd.tsx` for the full shape.
+      */}
+      <AgencyJsonLd
+        agency={{
+          slug: agency.slug,
+          name: agency.name,
+          description: agency.description ?? null,
+          logoUrl: agency.logoUrl ?? null,
+          websiteUrl: agency.websiteUrl ?? null,
+          instagramUrl: agency.instagramUrl ?? null,
+          linkedinUrl: agency.linkedinUrl ?? null,
+          twitterUrl: agency.twitterUrl ?? null,
+          operativeCountries: agency.operativeCountries ?? null,
+          foundationYear: agency.foundationYear ?? null,
+          contactEmail: agency.contactEmail ?? null,
+          players: players.map((p) => ({ slug: p.slug, fullName: p.fullName })),
+        }}
+      />
+      <AgencyLayoutResolver data={data} />
+    </>
+  );
 }

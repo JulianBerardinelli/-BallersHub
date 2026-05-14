@@ -7,6 +7,7 @@ import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { revalidatePlayerPublicProfileById } from "@/lib/seo/revalidate";
 import {
   linkMutationSchema,
   honourMutationSchema,
@@ -296,6 +297,10 @@ export async function updateSportProfile(
 
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
   revalidatePath(DASHBOARD_ROUTE);
+  // foot / contract / agency feed the public Pro JSON-LD and the
+  // player↔agency edge — bust the 1h ISR window so SERPs see the
+  // change on the next crawl.
+  await revalidatePlayerPublicProfileById(ownership.supabase, parsed.data.playerId);
 
   return {
     success: true,
@@ -424,6 +429,9 @@ export async function updateMarketProjection(
 
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
   revalidatePath(DASHBOARD_ROUTE);
+  // marketValue + careerObjectives flow into the public bio + OG; bust
+  // the 1h ISR window so visitors don't see stale stats.
+  await revalidatePlayerPublicProfileById(ownership.supabase, parsed.data.playerId);
 
   return {
     success: true,
@@ -559,6 +567,10 @@ export async function updateScoutingAnalysis(
 
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
   revalidatePath(DASHBOARD_ROUTE);
+  // Scouting analysis (top characteristics, tactics/physical/mental/
+  // technique notes) is rendered in the Pro layout and contributes to
+  // the public bio surface area. Invalidate the public cache too.
+  await revalidatePlayerPublicProfileById(ownership.supabase, parsed.data.playerId);
 
   return {
     success: true,
@@ -615,6 +627,7 @@ export async function upsertPlayerLink(input: LinkMutationInput): Promise<Action
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
   return { success: true };
 }
 
@@ -635,6 +648,7 @@ export async function deletePlayerLink(input: { id: string; playerId: string }):
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, input.playerId);
   return { success: true };
 }
 
@@ -679,6 +693,7 @@ export async function upsertPlayerHonour(input: HonourMutationInput): Promise<Ac
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
   return { success: true };
 }
 
@@ -699,6 +714,7 @@ export async function deletePlayerHonour(input: { id: string; playerId: string }
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, input.playerId);
   return { success: true };
 }
 
@@ -772,6 +788,7 @@ export async function upsertSeasonStat(input: SeasonStatMutationInput): Promise<
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
   return { success: true };
 }
 
@@ -792,6 +809,7 @@ export async function deleteSeasonStat(input: { id: string; playerId: string }):
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, input.playerId);
   return { success: true };
 }
 
@@ -1007,5 +1025,6 @@ export async function submitCareerRevision(
   }
 
   revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
   return { success: true, requestId };
 }
