@@ -102,7 +102,10 @@ export default async function AgencyPlayersPage() {
           </div>
         )}
 
-        <PlayerInviteManager pendingInvites={pendingInvites} />
+        <PlayerInviteManager
+          pendingInvites={pendingInvites}
+          currentPlayersCount={players.length}
+        />
       </SectionCard>
     </div>
   );

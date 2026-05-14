@@ -62,7 +62,10 @@ export default async function AgencyStaffPage() {
         title="Invitaciones"
         description="Administra quién tiene acceso al dashboard y jugadores de tu agencia."
       >
-        <AgencyStaffManager pendingInvites={invites} />
+        <AgencyStaffManager
+          pendingInvites={invites}
+          currentStaffCount={staffMembers.length}
+        />
       </SectionCard>
     </div>
   );

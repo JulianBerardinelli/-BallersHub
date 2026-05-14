@@ -248,6 +248,70 @@ html, body { min-height: 100%; }
 .bh-marquee-pause:hover { animation-play-state: paused; }
 
 /* ============================================================
+   Animated dual-accent border (lime ↔ blue).
+   Uses mask-composite so the gradient lives ONLY on the border
+   ring — the host element keeps its own background (works on top
+   of `backdrop-blur` cards, translucent surfaces, etc).
+
+   Apply to a relative element with a `border-radius`. Two variants:
+   - bh-border-flow-lime → lime-leading (player accent)
+   - bh-border-flow-blue → blue-leading (agency accent)
+   ============================================================ */
+@keyframes bh-border-flow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.bh-border-flow-lime,
+.bh-border-flow-blue {
+  position: relative;
+}
+
+.bh-border-flow-lime::before,
+.bh-border-flow-blue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background-size: 200% 100%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: bh-border-flow 4.5s linear infinite;
+  pointer-events: none;
+}
+
+.bh-border-flow-lime::before {
+  background-image: linear-gradient(
+    90deg,
+    var(--bh-lime-200) 0%,
+    var(--bh-blue-200) 25%,
+    var(--bh-lime-200) 50%,
+    var(--bh-blue-200) 75%,
+    var(--bh-lime-200) 100%
+  );
+}
+
+.bh-border-flow-blue::before {
+  background-image: linear-gradient(
+    90deg,
+    var(--bh-blue-200) 0%,
+    var(--bh-lime-200) 25%,
+    var(--bh-blue-200) 50%,
+    var(--bh-lime-200) 75%,
+    var(--bh-blue-200) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-border-flow-lime::before,
+  .bh-border-flow-blue::before { animation: none; }
+}
+
+/* ============================================================
    BallersHub — Display effects (opt-in).
    Used by the marketing/pricing surfaces. Class-scoped.
    ============================================================ */
