@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
-import { Mail, Loader2, Trash2, CalendarDays } from "lucide-react";
+import { Mail, Loader2, Trash2, CalendarDays, Lock } from "lucide-react";
 import { invitePlayerToAgency, revokePlayerInvite } from "@/app/actions/player-invites";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,11 @@ import FormField from "@/components/dashboard/client/FormField";
 import BhEmptyState from "@/components/ui/BhEmptyState";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import UpgradeCta from "@/components/dashboard/plan/UpgradeCta";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
+
+const FREE_PLAYER_CAP = 5;
 
 interface PlayerInvite {
   id: string;
@@ -19,12 +24,25 @@ interface PlayerInvite {
   createdAt: string | Date;
 }
 
-export default function PlayerInviteManager({ pendingInvites }: { pendingInvites: PlayerInvite[] }) {
+export default function PlayerInviteManager({
+  pendingInvites,
+  currentPlayersCount,
+}: {
+  pendingInvites: PlayerInvite[];
+  currentPlayersCount: number;
+}) {
   const [email, setEmail] = useState("");
   const [contractEndDate, setContractEndDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const router = useRouter();
+  const { access } = usePlanAccess();
+  const upgradeModal = useUpgradeModal();
+
+  // Free Agency cap: 5 jugadores totales (cartera activa + invitaciones pendientes).
+  // Pro Agency es ilimitado.
+  const totalSlotsUsed = currentPlayersCount + pendingInvites.length;
+  const atCap = !access.isPro && totalSlotsUsed >= FREE_PLAYER_CAP;
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,6 +52,12 @@ export default function PlayerInviteManager({ pendingInvites }: { pendingInvites
     }
     if (!contractEndDate) {
       alert("Ingresa una fecha de fin del vínculo de representación.");
+      return;
+    }
+
+    // Hard-cap gate (Free): block before hitting the server.
+    if (atCap) {
+      upgradeModal.open("agencyPlayerSlots");
       return;
     }
 
@@ -67,14 +91,30 @@ export default function PlayerInviteManager({ pendingInvites }: { pendingInvites
   return (
     <div className="mt-6 space-y-8">
       <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6">
-        <h3 className="mb-2 font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-          Vincular un jugador a la agencia
-        </h3>
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Vincular un jugador a la agencia
+          </h3>
+          {!access.isPro && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-lime">
+              <Lock size={9} /> {totalSlotsUsed}/{FREE_PLAYER_CAP} usados
+            </span>
+          )}
+        </div>
         <p className="mb-5 max-w-2xl text-sm leading-[1.55] text-bh-fg-3">
-          Enviá una invitación formal de representación a un jugador. Al
-          aceptar, su perfil quedará vinculado públicamente a la agencia hasta
-          la fecha de caducidad del vínculo.
+          {access.isPro
+            ? "Enviá una invitación formal de representación a un jugador. Al aceptar, su perfil quedará vinculado públicamente a la agencia hasta la fecha de caducidad del vínculo."
+            : `Plan Free permite hasta ${FREE_PLAYER_CAP} jugadores en cartera (activos + invitaciones pendientes). Activá Pro Agency para sumar ilimitados.`}
         </p>
+
+        {atCap && (
+          <div className="mb-5 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
+            <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
+              Llegaste al límite del plan Free Agency. Activá Pro para sumar más representados.
+            </p>
+            <UpgradeCta feature="agencyPlayerSlots" size="sm" />
+          </div>
+        )}
 
         <form onSubmit={handleInvite} className="flex flex-col items-start gap-3 sm:flex-row sm:items-end">
           <div className="w-full sm:max-w-[280px]">
@@ -180,6 +220,8 @@ export default function PlayerInviteManager({ pendingInvites }: { pendingInvites
           </div>
         )}
       </div>
+
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </div>
   );
 }

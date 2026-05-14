@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
-import { Mail, Loader2, Trash2 } from "lucide-react";
+import { Mail, Loader2, Trash2, Lock } from "lucide-react";
 import { inviteAgencyStaff, revokeInvite } from "@/app/actions/agency-invites";
 import { useRouter } from "next/navigation";
 
 import FormField from "@/components/dashboard/client/FormField";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import UpgradeCta from "@/components/dashboard/plan/UpgradeCta";
+import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
+
+const FREE_STAFF_CAP = 2;
 
 interface Invite {
   id: string;
@@ -15,16 +20,35 @@ interface Invite {
   createdAt: string | Date;
 }
 
-export default function AgencyStaffManager({ pendingInvites }: { pendingInvites: Invite[] }) {
+export default function AgencyStaffManager({
+  pendingInvites,
+  currentStaffCount,
+}: {
+  pendingInvites: Invite[];
+  currentStaffCount: number;
+}) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
   const router = useRouter();
+  const { access } = usePlanAccess();
+  const upgradeModal = useUpgradeModal();
+
+  // Free Agency cap: 2 members totales (owner + invitados activos + pendientes).
+  // El owner ya cuenta dentro de currentStaffCount (userProfiles linked to the agencyId).
+  const totalSlotsUsed = currentStaffCount + pendingInvites.length;
+  const atCap = !access.isPro && totalSlotsUsed >= FREE_STAFF_CAP;
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
       alert("Ingresá un correo electrónico válido");
+      return;
+    }
+
+    // Hard-cap gate (Free): block before hitting the server.
+    if (atCap) {
+      upgradeModal.open("agencyStaffSlots");
       return;
     }
 
@@ -58,15 +82,30 @@ export default function AgencyStaffManager({ pendingInvites }: { pendingInvites:
     <div className="space-y-8">
       {/* Invite Form */}
       <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6">
-        <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1 mb-2">
-          Invitar a un nuevo colega
-        </h3>
+        <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Invitar a un nuevo colega
+          </h3>
+          {!access.isPro && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-lime">
+              <Lock size={9} /> {totalSlotsUsed}/{FREE_STAFF_CAP} usados
+            </span>
+          )}
+        </div>
         <p className="mb-5 max-w-2xl text-sm leading-[1.55] text-bh-fg-3">
-          Enviá una invitación a otros managers para que se unan a esta
-          agencia. Al aceptar, podrán ver a todos los jugadores representados y
-          editar el perfil de la agencia. Si ya tienen cuenta en
-          &apos;BallersHub su acceso será automático.
+          {access.isPro
+            ? "Enviá una invitación a otros managers para que se unan a esta agencia. Al aceptar, podrán ver a todos los jugadores representados y editar el perfil de la agencia."
+            : `Plan Free permite hasta ${FREE_STAFF_CAP} members (owner + colegas + invitaciones). Activá Pro Agency para sumar ilimitados.`}
         </p>
+
+        {atCap && (
+          <div className="mb-5 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
+            <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
+              Llegaste al límite del plan Free Agency. Activá Pro para sumar más colegas.
+            </p>
+            <UpgradeCta feature="agencyStaffSlots" size="sm" />
+          </div>
+        )}
 
         <form onSubmit={handleInvite} className="flex flex-col items-start gap-3 sm:flex-row sm:items-end">
           <div className="w-full sm:max-w-md">
@@ -172,6 +211,8 @@ export default function AgencyStaffManager({ pendingInvites }: { pendingInvites:
           </div>
         )}
       </div>
+
+      <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </div>
   );
 }

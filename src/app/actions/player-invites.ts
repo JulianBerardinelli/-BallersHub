@@ -4,8 +4,12 @@ import crypto from "crypto";
 import { sendPlayerAgencyInviteEmail } from "@/lib/resend";
 import { eq, and, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { playerInvites, userProfiles } from "@/db/schema";
+import { playerInvites, userProfiles, playerProfiles } from "@/db/schema";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+
+const FREE_PLAYER_CAP = 5;
 
 export async function invitePlayerToAgency(email: string, contractEndDate: string) {
   const supabase = await createSupabaseServerRSC();
@@ -22,6 +26,36 @@ export async function invitePlayerToAgency(email: string, contractEndDate: strin
 
   if (!userProfile?.agencyId || userProfile.role !== "manager" || !userProfile.agency) {
     return { error: "No tienes permisos para gestionar personal de esta agencia" };
+  }
+
+  // Plan cap guard (Free Agency: 5 players incl. pending invites).
+  // Defense in depth — the client also blocks but we refuse here for
+  // bypassed requests.
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const planAccess = resolvePlanAccess(dashboardState.subscription);
+  if (!planAccess.isPro) {
+    const [playersResult, pendingInvitesResult] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(playerProfiles)
+        .where(eq(playerProfiles.agencyId, userProfile.agencyId)),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(playerInvites)
+        .where(
+          and(
+            eq(playerInvites.agencyId, userProfile.agencyId),
+            eq(playerInvites.status, "pending"),
+          ),
+        ),
+    ]);
+    const totalSlots =
+      (playersResult[0]?.count ?? 0) + (pendingInvitesResult[0]?.count ?? 0);
+    if (totalSlots >= FREE_PLAYER_CAP) {
+      return {
+        error: `Llegaste al límite de ${FREE_PLAYER_CAP} jugadores del plan Free Agency. Activá Pro para sumar más.`,
+      };
+    }
   }
 
   const normalizedEmail = email.toLowerCase().trim();

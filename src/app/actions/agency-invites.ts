@@ -6,6 +6,10 @@ import { eq, and, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { agencyInvites, userProfiles } from "@/db/schema";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+
+const FREE_STAFF_CAP = 2;
 
 export async function inviteAgencyStaff(email: string) {
   const supabase = await createSupabaseServerRSC();
@@ -22,6 +26,36 @@ export async function inviteAgencyStaff(email: string) {
 
   if (!userProfile?.agencyId || userProfile.role !== "manager" || !userProfile.agency) {
     return { error: "No tienes permisos para gestionar personal de esta agencia" };
+  }
+
+  // Plan cap guard (Free Agency: 2 members incl. owner + pending invites).
+  // Defense in depth — the client also blocks but we refuse here for
+  // bypassed requests.
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const planAccess = resolvePlanAccess(dashboardState.subscription);
+  if (!planAccess.isPro) {
+    const [staffResult, pendingInvitesResult] = await Promise.all([
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(userProfiles)
+        .where(eq(userProfiles.agencyId, userProfile.agencyId)),
+      db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(agencyInvites)
+        .where(
+          and(
+            eq(agencyInvites.agencyId, userProfile.agencyId),
+            eq(agencyInvites.status, "pending"),
+          ),
+        ),
+    ]);
+    const totalSlots =
+      (staffResult[0]?.count ?? 0) + (pendingInvitesResult[0]?.count ?? 0);
+    if (totalSlots >= FREE_STAFF_CAP) {
+      return {
+        error: `Llegaste al límite de ${FREE_STAFF_CAP} members del plan Free Agency. Activá Pro para sumar más.`,
+      };
+    }
   }
 
   const normalizedEmail = email.toLowerCase().trim();
