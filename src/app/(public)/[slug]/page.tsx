@@ -7,12 +7,17 @@ import {
   statsSeasons,
   playerArticles,
   playerPersonalDetails,
+  playerLinks,
+  teams,
+  divisions,
 } from "@/db/schema";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, desc, inArray } from "drizzle-orm";
 import LayoutResolver from "./components/LayoutResolver";
 import type {
   FreeLayoutCareerRow,
+  FreeLayoutLink,
   FreeLayoutPersonal,
+  FreeLayoutVideo,
 } from "./components/free/FreeLayout";
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
 import { formatPlayerPositions } from "@/lib/format";
@@ -169,8 +174,16 @@ export default async function PlayerPublicPage({
   const isFree = plan === "free";
 
   // 3) Bandeja de Datos Públicos
-  const [rawMedia, theme, sections, articles, personalRow, careerRows, statsRows] =
-    await Promise.all([
+  const [
+    rawMedia,
+    theme,
+    sections,
+    articles,
+    personalRow,
+    careerRows,
+    statsRows,
+    rawLinks,
+  ] = await Promise.all([
       db
         .select()
         .from(playerMedia)
@@ -191,9 +204,9 @@ export default async function PlayerPublicPage({
         .from(playerArticles)
         .where(eq(playerArticles.playerId, player.id))
         .orderBy(desc(playerArticles.publishedAt)),
-      // Free layout needs personal + career + stats. Cheaper to fetch them
-      // unconditionally than to gate behind `isFree` and refetch later if
-      // the plan check resolves differently.
+      // Free layout needs personal + career + stats + links. Cheaper to
+      // fetch them unconditionally than to gate behind `isFree` and
+      // refetch later if the plan check resolves differently.
       db.query.playerPersonalDetails.findFirst({
         where: (p, { eq }) => eq(p.playerId, player.id),
       }),
@@ -206,7 +219,34 @@ export default async function PlayerPublicPage({
         .select()
         .from(statsSeasons)
         .where(eq(statsSeasons.playerId, player.id)),
+      db
+        .select()
+        .from(playerLinks)
+        .where(eq(playerLinks.playerId, player.id)),
     ]);
+
+  // Resolve teams + divisions for career rows (and the player's current
+  // club) in one shot so the Free layout can show real crests/flags.
+  const teamIdSet = new Set<string>();
+  for (const c of careerRows) if (c.teamId) teamIdSet.add(c.teamId);
+  if (player.currentTeamId) teamIdSet.add(player.currentTeamId);
+
+  const teamRows = teamIdSet.size
+    ? await db.select().from(teams).where(inArray(teams.id, Array.from(teamIdSet)))
+    : [];
+  const teamById = new Map(teamRows.map((t) => [t.id, t]));
+
+  const divisionIdSet = new Set<string>();
+  for (const c of careerRows) if (c.divisionId) divisionIdSet.add(c.divisionId);
+  for (const t of teamRows) if (t.divisionId) divisionIdSet.add(t.divisionId);
+
+  const divisionRows = divisionIdSet.size
+    ? await db
+        .select()
+        .from(divisions)
+        .where(inArray(divisions.id, Array.from(divisionIdSet)))
+    : [];
+  const divisionById = new Map(divisionRows.map((d) => [d.id, d]));
 
   const media = [
     ...rawMedia.filter((m) => m.type === "photo").slice(0, maxPhotos),
@@ -241,18 +281,66 @@ export default async function PlayerPublicPage({
   const freeCareer: FreeLayoutCareerRow[] = careerRows.map((c) => {
     const startYear = c.startDate ? new Date(c.startDate).getFullYear() : null;
     const endYear = c.endDate ? new Date(c.endDate).getFullYear() : null;
+    const team = c.teamId ? teamById.get(c.teamId) : null;
+    const divisionId = c.divisionId ?? team?.divisionId ?? null;
+    const division = divisionId ? divisionById.get(divisionId) : null;
     return {
       id: c.id,
-      club: c.club,
-      countryCode: null, // we don't yet store club country; the row
-                         // gracefully renders without a flag.
-      divisionName: c.division ?? null,
+      club: team?.name ?? c.club,
+      countryCode: team?.countryCode ?? null,
+      divisionName: division?.name ?? c.division ?? null,
+      divisionCrestUrl: division?.crestUrl ?? null,
+      teamCrestUrl: team?.crestUrl ?? null,
       startYear,
       endYear,
       isCurrent: !c.endDate,
       stats: statsByCareerId.get(c.id) ?? null,
     };
   });
+
+  const currentTeam = player.currentTeamId
+    ? teamById.get(player.currentTeamId) ?? null
+    : null;
+  const currentDivision = currentTeam?.divisionId
+    ? divisionById.get(currentTeam.divisionId) ?? null
+    : null;
+
+  const freeLinks: FreeLayoutLink[] = rawLinks
+    .filter((l) => !!l.url)
+    .map((l) => ({
+      kind: l.kind,
+      url: l.url,
+      label: l.label ?? null,
+    }));
+
+  // Free plan = 1 video. Prefer the approved isPrimary video, fall back to
+  // the most recently uploaded approved video. If the player has no video
+  // in player_media, fall back to a `kind=highlight` URL from player_links.
+  const videos = rawMedia.filter((m) => m.type === "video" && m.isApproved);
+  videos.sort((a, b) => {
+    if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+    const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return bd - ad;
+  });
+  const primaryVideo = videos[0] ?? null;
+  const highlightLink = rawLinks.find(
+    (l) => l.kind?.toLowerCase() === "highlight" && !!l.url,
+  );
+
+  const freeVideo: FreeLayoutVideo | null = primaryVideo
+    ? {
+        url: primaryVideo.url,
+        title: primaryVideo.title ?? null,
+        provider: primaryVideo.provider ?? null,
+      }
+    : highlightLink
+      ? {
+          url: highlightLink.url,
+          title: highlightLink.label ?? null,
+          provider: null,
+        }
+      : null;
 
   const freePersonal: FreeLayoutPersonal = personalRow
     ? {
@@ -281,7 +369,16 @@ export default async function PlayerPublicPage({
       },
     plan,
     freeData: isFree
-      ? { personal: freePersonal, career: freeCareer }
+      ? {
+          personal: freePersonal,
+          career: freeCareer,
+          links: freeLinks,
+          video: freeVideo,
+          currentTeamCrestUrl: currentTeam?.crestUrl ?? null,
+          currentTeamCountryCode: currentTeam?.countryCode ?? null,
+          currentDivisionName: currentDivision?.name ?? null,
+          currentDivisionCrestUrl: currentDivision?.crestUrl ?? null,
+        }
       : null,
   };
 

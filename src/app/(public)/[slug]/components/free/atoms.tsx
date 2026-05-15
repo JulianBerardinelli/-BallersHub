@@ -5,73 +5,60 @@
 import type { ReactNode } from "react";
 
 // ---------------------------------------------------------------
-// Flag — minimal SVG flags for the most common nationalities.
-// Falls back to a grey square for unknown codes so the layout
-// doesn't break on countries we haven't drawn yet.
+// Flag — uses the `flag-icons` CSS package (already imported globally
+// via src/styles/globals.css). The .fi class scales with font-size
+// and renders the official SVG flag. Falls back to a neutral block
+// for invalid codes so the layout never breaks.
 // ---------------------------------------------------------------
-
-type FlagDef = { stripes: string[]; dir: "row" | "col" };
-
-const FLAGS: Record<string, FlagDef> = {
-  ar: { stripes: ["#74ACDF", "#FFFFFF", "#74ACDF"], dir: "row" },
-  it: { stripes: ["#008C45", "#F4F5F0", "#CD212A"], dir: "col" },
-  es: { stripes: ["#AA151B", "#F1BF00", "#F1BF00", "#AA151B"], dir: "row" },
-  br: { stripes: ["#009C3B"], dir: "row" },
-  uy: { stripes: ["#FFFFFF", "#0038A8"], dir: "row" },
-  cl: { stripes: ["#FFFFFF", "#D52B1E"], dir: "row" },
-  co: { stripes: ["#FCD116", "#003893", "#CE1126"], dir: "row" },
-  pe: { stripes: ["#D91023", "#FFFFFF", "#D91023"], dir: "col" },
-  mx: { stripes: ["#006847", "#FFFFFF", "#CE1126"], dir: "col" },
-  fr: { stripes: ["#0055A4", "#FFFFFF", "#EF4135"], dir: "col" },
-  pt: { stripes: ["#006600", "#FF0000"], dir: "col" },
-  de: { stripes: ["#000000", "#DD0000", "#FFCE00"], dir: "row" },
-  gb: { stripes: ["#012169"], dir: "row" }, // simplified
-  us: { stripes: ["#B22234", "#FFFFFF"], dir: "row" }, // simplified
-};
 
 export function Flag({
   code,
-  w = 16,
+  w,
   h = 12,
-  className,
+  className = "",
+  rounded = true,
 }: {
   code: string;
+  /** Optional explicit width override; flag-icons defaults to 4:3 from height. */
   w?: number;
   h?: number;
   className?: string;
+  rounded?: boolean;
 }) {
-  const c = (code || "").toLowerCase();
-  const f = FLAGS[c] || { stripes: ["#444"], dir: "row" as const };
-  const isCol = f.dir === "col";
+  const cc = (code || "").toLowerCase();
+  const valid = /^[a-z]{2}$/.test(cc);
+  const radius = rounded ? "rounded-[2px]" : "";
+
+  if (!valid) {
+    return (
+      <span
+        aria-label="no-flag"
+        className={`inline-block align-middle bg-white/[0.10] ${radius} ${className}`}
+        style={{ width: w ?? Math.round(h * 1.333), height: h }}
+      />
+    );
+  }
+
   return (
     <span
-      aria-label={c}
-      className={className}
+      aria-label={cc}
+      title={cc.toUpperCase()}
+      className={`fi fi-${cc} inline-block align-middle ${radius} ${className}`}
       style={{
-        display: "inline-flex",
-        flexDirection: isCol ? "row" : "column",
-        width: w,
-        height: h,
-        borderRadius: 2,
-        overflow: "hidden",
-        boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.18)",
-        verticalAlign: "middle",
-        flexShrink: 0,
+        fontSize: `${h}px`,
+        width: w ?? undefined,
+        height: w ? h : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
-    >
-      {f.stripes.map((color, i) => (
-        <span
-          key={i}
-          style={{ flex: 1, background: color, display: "block" }}
-        />
-      ))}
-    </span>
+    />
   );
 }
 
 // ---------------------------------------------------------------
-// Crest — generated club shield with monogram fallback.
-// Real club crests can replace this later by overriding by club name.
+// Crest — renders an actual crest image when a URL is provided
+// (teams.crestUrl / divisions.crestUrl) and falls back to a generated
+// shield with a monogram. Default sizing is 32px square.
 // ---------------------------------------------------------------
 
 const CREST_THEMES: Record<string, { bg: string; fg: string; mono: string }> = {
@@ -80,7 +67,37 @@ const CREST_THEMES: Record<string, { bg: string; fg: string; mono: string }> = {
   "Selección Argentina Sub-20": { bg: "#74ACDF", fg: "#0E2E5C", mono: "AR" },
 };
 
-export function Crest({ club, size = 32 }: { club: string; size?: number }) {
+export function Crest({
+  club,
+  size = 32,
+  url,
+  rounded = false,
+}: {
+  club: string;
+  size?: number;
+  url?: string | null;
+  rounded?: boolean;
+}) {
+  if (url && /^https?:\/\//i.test(url)) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img
+        src={url}
+        alt=""
+        width={size}
+        height={size}
+        loading="lazy"
+        className={rounded ? "rounded-full" : ""}
+        style={{
+          width: size,
+          height: size,
+          objectFit: "contain",
+          flexShrink: 0,
+        }}
+      />
+    );
+  }
+
   const theme =
     CREST_THEMES[club] ?? {
       bg: "#2C2C2C",
