@@ -28,9 +28,9 @@ function makeDb() {
     // in prod). Postgres aborts the query → postgres-js throws → caller
     // sees a normal error instead of a frozen connection.
     connection: {
-      statement_timeout: "8000", // 8s (under Vercel Hobby 10s limit)
-      idle_in_transaction_session_timeout: "10000", // 10s
-    },
+      statement_timeout: 8000, // 8s (under Vercel Hobby 10s limit)
+      idle_in_transaction_session_timeout: 10000, // 10s
+    } as Record<string, number>,
   });
 
   if (process.env.NODE_ENV !== "production") {
