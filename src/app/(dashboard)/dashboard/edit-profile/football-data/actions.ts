@@ -1,0 +1,1030 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { type PostgrestError } from "@supabase/supabase-js";
+import { z } from "zod";
+
+import { createSupabaseServerRoute } from "@/lib/supabase/server";
+import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { revalidatePlayerPublicProfileById } from "@/lib/seo/revalidate";
+import {
+  linkMutationSchema,
+  honourMutationSchema,
+  seasonStatMutationSchema,
+  careerRevisionSubmissionSchema,
+  type LinkMutationInput,
+  type HonourMutationInput,
+  type SeasonStatMutationInput,
+  type CareerRevisionSubmissionInput,
+  type CareerStageInput,
+} from "./schemas";
+
+const DASHBOARD_ROUTE = "/dashboard/edit-profile/football-data";
+const RUN_CAREER_SCRIPT_MESSAGE =
+  "Actualizá tu base ejecutando docs/db/client-dashboard-career-requests.sql antes de continuar.";
+
+const sportProfileSchema = z.object({
+  playerId: z.string().uuid(),
+  foot: z.string().trim().max(50, "Ingresá un perfil válido.").optional(),
+  contractStatus: z.string().trim().max(120, "La situación contractual es muy extensa.").optional(),
+  agencyId: z.string().trim().nullable().optional(),
+});
+
+const marketProjectionSchema = z.object({
+  playerId: z.string().uuid(),
+  marketValue: z
+    .string()
+    .trim()
+    .max(32, "El valor de mercado es demasiado largo.")
+    .optional(),
+  careerObjectives: z
+    .string()
+    .trim()
+    .max(600, "Los objetivos deben tener menos de 600 caracteres.")
+    .optional(),
+});
+
+const scoutingAnalysisSchema = z.object({
+  playerId: z.string().uuid(),
+  topCharacteristics: z.string().trim().max(300).optional(),
+  tacticsAnalysis: z.string().trim().max(1000).optional(),
+  physicalAnalysis: z.string().trim().max(1000).optional(),
+  mentalAnalysis: z.string().trim().max(1000).optional(),
+  techniqueAnalysis: z.string().trim().max(1000).optional(),
+  analysisAuthor: z.string().trim().max(120).optional(),
+});
+
+type FormActionSuccess<T> = { success: true; data: T; message?: string; updatedFields: string[] };
+type FormActionFailure = { success: false; message: string; fieldErrors?: Record<string, string | undefined> };
+type FormActionResult<T> = FormActionSuccess<T> | FormActionFailure;
+
+type SportProfileResponse = {
+  positions: string;
+  foot: string;
+  currentClub: string;
+  contractStatus: string;
+  agencyId: string | null;
+};
+
+type MarketProjectionResponse = {
+  marketValue: string;
+  careerObjectives: string;
+};
+
+type ScoutingAnalysisResponse = {
+  topCharacteristics: string;
+  tacticsAnalysis: string;
+  physicalAnalysis: string;
+  mentalAnalysis: string;
+  techniqueAnalysis: string;
+  analysisAuthor: string;
+};
+
+type ActionResult =
+  | { success: true; requestId?: string }
+  | { success: false; message: string };
+
+type ChangeLogEntry = { field: string; oldValue: unknown; newValue: unknown };
+
+function sanitizeText(value: string | null | undefined): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length === 0 ? null : trimmed;
+}
+
+function formatPositions(positions: string[] | null | undefined): string {
+  if (!Array.isArray(positions) || positions.length === 0) return "";
+  return positions
+    .map((position) => sanitizeText(position) ?? null)
+    .filter((position): position is string => Boolean(position))
+    .join(", ");
+}
+
+function parseMarketValue(
+  value: string | null | undefined,
+): { dbValue: string | null; display: string; error?: string } {
+  const sanitized = sanitizeText(value);
+  if (!sanitized) {
+    return { dbValue: null, display: "" };
+  }
+
+  const stripped = sanitized.replace(/[^0-9.,]/g, "").replace(/\s+/g, "");
+  if (!stripped) {
+    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
+  }
+
+  const lastComma = stripped.lastIndexOf(",");
+  const lastDot = stripped.lastIndexOf(".");
+  let normalized = stripped;
+
+  if (lastComma > lastDot) {
+    const integerPart = stripped.slice(0, lastComma).replace(/[^0-9]/g, "");
+    const decimalPart = stripped.slice(lastComma + 1).replace(/[^0-9]/g, "");
+    normalized = decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : integerPart;
+  } else if (lastDot > lastComma) {
+    const integerPart = stripped.slice(0, lastDot).replace(/[^0-9]/g, "");
+    const decimalPart = stripped.slice(lastDot + 1).replace(/[^0-9]/g, "");
+    normalized = decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : integerPart;
+  } else {
+    normalized = stripped.replace(/[^0-9]/g, "");
+  }
+
+  if (!normalized) {
+    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
+  }
+
+  const numeric = Number(normalized);
+  if (!Number.isFinite(numeric)) {
+    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
+  }
+
+  if (numeric < 0) {
+    return { dbValue: null, display: "", error: "El valor no puede ser negativo." };
+  }
+
+  const dbValue = numeric.toFixed(2);
+  const display = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(numeric);
+  return { dbValue, display };
+}
+
+async function recordChanges(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>,
+  playerId: string,
+  userId: string | undefined,
+  changes: ChangeLogEntry[],
+) {
+  if (!userId || changes.length === 0) return;
+  await supabase.from("profile_change_logs").insert(
+    changes.map((change) => ({
+      player_id: playerId,
+      user_id: userId,
+      field: change.field,
+      old_value: change.oldValue ?? null,
+      new_value: change.newValue ?? null,
+    })),
+  );
+}
+
+function mapPostgrestError(error: PostgrestError | null): string {
+  if (!error) return "Error desconocido";
+  if (error.code === "42501") {
+    return "No tenés permisos para modificar este perfil.";
+  }
+  return error.message ?? "No fue posible completar la operación.";
+}
+
+async function ensureAuthenticatedPlayer(playerId: string) {
+  const supabase = await createSupabaseServerRoute();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) {
+    return { supabase, error: authError.message ?? "No fue posible validar la sesión." } as const;
+  }
+
+  if (!user) {
+    return { supabase, error: "Debés iniciar sesión para continuar." } as const;
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("player_profiles")
+    .select("id, user_id")
+    .eq("id", playerId)
+    .maybeSingle<{ id: string; user_id: string }>();
+
+  if (profileError) {
+    return { supabase, error: mapPostgrestError(profileError) } as const;
+  }
+
+  if (!profile) {
+    return { supabase, error: "No encontramos el perfil indicado." } as const;
+  }
+
+  if (profile.user_id !== user.id) {
+    return { supabase, error: "No tenés permisos para modificar este perfil." } as const;
+  }
+
+  return { supabase, error: null, userId: user.id } as const;
+}
+
+function isMissingCareerSchema(error: PostgrestError | null) {
+  return error?.code === "42P01";
+}
+
+export async function updateSportProfile(
+  input: z.infer<typeof sportProfileSchema>,
+): Promise<FormActionResult<SportProfileResponse>> {
+  const parsed = sportProfileSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      message: "Revisá los datos ingresados e intentá nuevamente.",
+      fieldErrors: {
+        foot: errors.foot?.[0],
+        contractStatus: errors.contractStatus?.[0],
+      },
+    };
+  }
+
+  const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (ownership.error) {
+    return { success: false, message: ownership.error };
+  }
+
+  const { data: profileBefore, error: fetchError } = await ownership.supabase
+    .from("player_profiles")
+    .select("positions, current_club, foot, contract_status, agency_id")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{
+      positions: string[] | null;
+      current_club: string | null;
+      foot: string | null;
+      contract_status: string | null;
+      agency_id: string | null;
+    }>();
+
+  if (fetchError) {
+    return { success: false, message: mapPostgrestError(fetchError) };
+  }
+
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
+  const foot = sanitizeText(parsed.data.foot);
+  const contractStatus = sanitizeText(parsed.data.contractStatus);
+  const rawAgencyId = parsed.data.agencyId === undefined ? profileBefore.agency_id : parsed.data.agencyId;
+  const agencyId = rawAgencyId === "" ? null : rawAgencyId; // Treat empty string as "no agency"
+
+  const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
+
+  if ((profileBefore.foot ?? null) !== (foot ?? null)) {
+    changes.push({ field: "foot", oldValue: profileBefore.foot, newValue: foot });
+    updatedFields.add("Perfil dominante");
+  }
+
+  if ((profileBefore.contract_status ?? null) !== (contractStatus ?? null)) {
+    changes.push({
+      field: "contract_status",
+      oldValue: profileBefore.contract_status,
+      newValue: contractStatus,
+    });
+    updatedFields.add("Situación contractual");
+  }
+  
+  if (profileBefore.agency_id !== agencyId) {
+    changes.push({ field: "agency_id", oldValue: profileBefore.agency_id, newValue: agencyId });
+    updatedFields.add("Agencia representante");
+  }
+
+  const { error: updateError } = await ownership.supabase
+    .from("player_profiles")
+    .update({ 
+      foot, 
+      contract_status: contractStatus,
+      agency_id: agencyId
+    })
+    .eq("id", parsed.data.playerId);
+
+  if (updateError) {
+    return { success: false, message: mapPostgrestError(updateError) };
+  }
+
+  await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
+  revalidatePath(DASHBOARD_ROUTE);
+  // foot / contract / agency feed the public Pro JSON-LD and the
+  // player↔agency edge — bust the 1h ISR window so SERPs see the
+  // change on the next crawl.
+  await revalidatePlayerPublicProfileById(ownership.supabase, parsed.data.playerId);
+
+  return {
+    success: true,
+    data: {
+      positions: formatPositions(profileBefore.positions),
+      foot: foot ?? "",
+      currentClub: sanitizeText(profileBefore.current_club) ?? "",
+      contractStatus: contractStatus ?? "",
+      agencyId: agencyId,
+    },
+    message: "Perfil deportivo actualizado correctamente.",
+    updatedFields: Array.from(updatedFields),
+  };
+}
+
+export async function updateMarketProjection(
+  input: z.infer<typeof marketProjectionSchema>,
+): Promise<FormActionResult<MarketProjectionResponse>> {
+  const parsed = marketProjectionSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      message: "Revisá los datos ingresados e intentá nuevamente.",
+      fieldErrors: {
+        marketValue: errors.marketValue?.[0],
+        careerObjectives: errors.careerObjectives?.[0],
+      },
+    };
+  }
+
+  const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (ownership.error || !ownership.userId) {
+    return { success: false, message: ownership.error ?? "No se pudo validar la sesión." };
+  }
+
+  // Server-side plan gate: defense in depth. The UI also intercepts free
+  // users via UpgradeModal, but if someone bypasses the client we refuse
+  // here.
+  const dashboardState = await fetchDashboardState(ownership.supabase, ownership.userId);
+  const planAccess = resolvePlanAccess(dashboardState.subscription);
+  if (!planAccess.isPro) {
+    return {
+      success: false,
+      message: "El valor de mercado y los objetivos de carrera son parte del plan Pro.",
+    };
+  }
+
+  const { data: profileBefore, error: fetchError } = await ownership.supabase
+    .from("player_profiles")
+    .select("market_value_eur, career_objectives")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{ market_value_eur: string | number | null; career_objectives: string | null }>();
+
+  if (fetchError) {
+    if (isMissingCareerSchema(fetchError)) {
+      return {
+        success: false,
+        message: RUN_CAREER_SCRIPT_MESSAGE,
+      };
+    }
+
+    return { success: false, message: mapPostgrestError(fetchError) };
+  }
+
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
+  const parsedMarketValue = parseMarketValue(parsed.data.marketValue ?? null);
+  if (parsedMarketValue.error) {
+    return {
+      success: false,
+      message: parsedMarketValue.error,
+      fieldErrors: { marketValue: parsedMarketValue.error },
+    };
+  }
+
+  const careerObjectives = sanitizeText(parsed.data.careerObjectives);
+
+  const previousMarketValue =
+    profileBefore.market_value_eur === null || profileBefore.market_value_eur === undefined
+      ? null
+      : Number(profileBefore.market_value_eur);
+  const nextMarketValue = parsedMarketValue.dbValue === null ? null : Number(parsedMarketValue.dbValue);
+
+  const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
+
+  if (previousMarketValue !== nextMarketValue) {
+    changes.push({
+      field: "market_value_eur",
+      oldValue: profileBefore.market_value_eur,
+      newValue: parsedMarketValue.dbValue,
+    });
+    updatedFields.add("Valor de mercado");
+  }
+
+  if ((profileBefore.career_objectives ?? null) !== (careerObjectives ?? null)) {
+    changes.push({
+      field: "career_objectives",
+      oldValue: profileBefore.career_objectives,
+      newValue: careerObjectives,
+    });
+    updatedFields.add("Objetivos de carrera");
+  }
+
+  const { error: updateError } = await ownership.supabase
+    .from("player_profiles")
+    .update({
+      market_value_eur: parsedMarketValue.dbValue,
+      career_objectives: careerObjectives,
+    })
+    .eq("id", parsed.data.playerId);
+
+  if (updateError) {
+    if (isMissingCareerSchema(updateError)) {
+      return {
+        success: false,
+        message: RUN_CAREER_SCRIPT_MESSAGE,
+      };
+    }
+
+    return { success: false, message: mapPostgrestError(updateError) };
+  }
+
+  await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
+  revalidatePath(DASHBOARD_ROUTE);
+  // marketValue + careerObjectives flow into the public bio + OG; bust
+  // the 1h ISR window so visitors don't see stale stats.
+  await revalidatePlayerPublicProfileById(ownership.supabase, parsed.data.playerId);
+
+  return {
+    success: true,
+    data: {
+      marketValue: parsedMarketValue.display,
+      careerObjectives: careerObjectives ?? "",
+    },
+    message: "Valor de mercado actualizado correctamente.",
+    updatedFields: Array.from(updatedFields),
+  };
+}
+
+export async function updateScoutingAnalysis(
+  input: z.infer<typeof scoutingAnalysisSchema>
+): Promise<FormActionResult<ScoutingAnalysisResponse>> {
+  const parsed = scoutingAnalysisSchema.safeParse(input);
+  if (!parsed.success) {
+    const errors = parsed.error.flatten().fieldErrors;
+    return {
+      success: false,
+      message: "Revisá los datos ingresados e intentá nuevamente.",
+      fieldErrors: {
+        topCharacteristics: errors.topCharacteristics?.[0],
+        tacticsAnalysis: errors.tacticsAnalysis?.[0],
+        physicalAnalysis: errors.physicalAnalysis?.[0],
+        mentalAnalysis: errors.mentalAnalysis?.[0],
+        techniqueAnalysis: errors.techniqueAnalysis?.[0],
+        analysisAuthor: errors.analysisAuthor?.[0],
+      },
+    };
+  }
+
+  const ownership = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (ownership.error || !ownership.userId) {
+    return { success: false, message: ownership.error ?? "No se pudo validar la sesión." };
+  }
+
+  // Server-side plan gate.
+  const dashboardStateForScouting = await fetchDashboardState(ownership.supabase, ownership.userId);
+  const planAccessForScouting = resolvePlanAccess(dashboardStateForScouting.subscription);
+  if (!planAccessForScouting.isPro) {
+    return {
+      success: false,
+      message: "El análisis de scouting (táctico, físico, mental, técnico) es parte del plan Pro.",
+    };
+  }
+
+  const { data: profileBefore, error: fetchError } = await ownership.supabase
+    .from("player_profiles")
+    .select("top_characteristics, tactics_analysis, physical_analysis, mental_analysis, technique_analysis, analysis_author")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{
+      top_characteristics: string[] | null;
+      tactics_analysis: string | null;
+      physical_analysis: string | null;
+      mental_analysis: string | null;
+      technique_analysis: string | null;
+      analysis_author: string | null;
+    }>();
+
+  if (fetchError) {
+    return { success: false, message: mapPostgrestError(fetchError) };
+  }
+  if (!profileBefore) {
+    return { success: false, message: "No encontramos el perfil indicado." };
+  }
+
+  const parseCharacteristics = (value: string | null | undefined): string[] => {
+    if (!value?.trim()) return [];
+    return value.split(",").map(v => v.trim()).filter(Boolean);
+  };
+  const stringifyCharacteristics = (arr: string[] | null | undefined): string => {
+    if (!Array.isArray(arr) || arr.length === 0) return "";
+    return arr.join(", ");
+  };
+
+  const topCharacteristicsDb = parseCharacteristics(parsed.data.topCharacteristics);
+  const tacticsAnalysis = sanitizeText(parsed.data.tacticsAnalysis);
+  const physicalAnalysis = sanitizeText(parsed.data.physicalAnalysis);
+  const mentalAnalysis = sanitizeText(parsed.data.mentalAnalysis);
+  const techniqueAnalysis = sanitizeText(parsed.data.techniqueAnalysis);
+  const analysisAuthor = sanitizeText(parsed.data.analysisAuthor);
+
+  const changes: ChangeLogEntry[] = [];
+  const updatedFields = new Set<string>();
+
+  const arraysEqual = (a: string[] | null, b: string[]) => {
+    if (!a) return b.length === 0;
+    if (a.length !== b.length) return false;
+    return a.every((val, index) => val === b[index]);
+  };
+
+  if (!arraysEqual(profileBefore.top_characteristics, topCharacteristicsDb)) {
+    changes.push({ field: "top_characteristics", oldValue: profileBefore.top_characteristics, newValue: topCharacteristicsDb });
+    updatedFields.add("Características principales");
+  }
+  if ((profileBefore.tactics_analysis ?? null) !== (tacticsAnalysis ?? null)) {
+    changes.push({ field: "tactics_analysis", oldValue: profileBefore.tactics_analysis, newValue: tacticsAnalysis });
+    updatedFields.add("Análisis táctico");
+  }
+  if ((profileBefore.physical_analysis ?? null) !== (physicalAnalysis ?? null)) {
+    changes.push({ field: "physical_analysis", oldValue: profileBefore.physical_analysis, newValue: physicalAnalysis });
+    updatedFields.add("Análisis físico");
+  }
+  if ((profileBefore.mental_analysis ?? null) !== (mentalAnalysis ?? null)) {
+    changes.push({ field: "mental_analysis", oldValue: profileBefore.mental_analysis, newValue: mentalAnalysis });
+    updatedFields.add("Análisis mental");
+  }
+  if ((profileBefore.technique_analysis ?? null) !== (techniqueAnalysis ?? null)) {
+    changes.push({ field: "technique_analysis", oldValue: profileBefore.technique_analysis, newValue: techniqueAnalysis });
+    updatedFields.add("Análisis técnico");
+  }
+  if ((profileBefore.analysis_author ?? null) !== (analysisAuthor ?? null)) {
+    changes.push({ field: "analysis_author", oldValue: profileBefore.analysis_author, newValue: analysisAuthor });
+    updatedFields.add("Autor del análisis");
+  }
+
+  const { error: updateError } = await ownership.supabase
+    .from("player_profiles")
+    .update({
+      top_characteristics: topCharacteristicsDb.length ? topCharacteristicsDb : null,
+      tactics_analysis: tacticsAnalysis,
+      physical_analysis: physicalAnalysis,
+      mental_analysis: mentalAnalysis,
+      technique_analysis: techniqueAnalysis,
+      analysis_author: analysisAuthor,
+    })
+    .eq("id", parsed.data.playerId);
+
+  if (updateError) {
+    return { success: false, message: mapPostgrestError(updateError) };
+  }
+
+  await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
+  revalidatePath(DASHBOARD_ROUTE);
+  // Scouting analysis (top characteristics, tactics/physical/mental/
+  // technique notes) is rendered in the Pro layout and contributes to
+  // the public bio surface area. Invalidate the public cache too.
+  await revalidatePlayerPublicProfileById(ownership.supabase, parsed.data.playerId);
+
+  return {
+    success: true,
+    data: {
+      topCharacteristics: stringifyCharacteristics(topCharacteristicsDb),
+      tacticsAnalysis: tacticsAnalysis ?? "",
+      physicalAnalysis: physicalAnalysis ?? "",
+      mentalAnalysis: mentalAnalysis ?? "",
+      techniqueAnalysis: techniqueAnalysis ?? "",
+      analysisAuthor: analysisAuthor ?? "",
+    },
+    message: "Reporte de Scouting actualizado correctamente.",
+    updatedFields: Array.from(updatedFields),
+  };
+}
+
+export async function upsertPlayerLink(input: LinkMutationInput): Promise<ActionResult> {
+  const parsed = linkMutationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Revisá los datos del enlace e intentá nuevamente." };
+  }
+
+  const { supabase, error } = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (error) {
+    return { success: false, message: error };
+  }
+
+  const payload = {
+    label: parsed.data.label,
+    url: parsed.data.url,
+    kind: parsed.data.kind,
+    is_primary: parsed.data.isPrimary ?? false,
+    metadata: parsed.data.metadata ?? null,
+  };
+
+  let mutationError: PostgrestError | null = null;
+
+  if (parsed.data.id) {
+    const { error: updateError } = await supabase
+      .from("player_links")
+      .update(payload)
+      .eq("id", parsed.data.id)
+      .eq("player_id", parsed.data.playerId);
+    mutationError = updateError;
+  } else {
+    const { error: insertError } = await supabase
+      .from("player_links")
+      .insert({ ...payload, player_id: parsed.data.playerId });
+    mutationError = insertError;
+  }
+
+  if (mutationError) {
+    return { success: false, message: mapPostgrestError(mutationError) };
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
+  return { success: true };
+}
+
+export async function deletePlayerLink(input: { id: string; playerId: string }): Promise<ActionResult> {
+  const { supabase, error } = await ensureAuthenticatedPlayer(input.playerId);
+  if (error) {
+    return { success: false, message: error };
+  }
+
+  const { error: deleteError } = await supabase
+    .from("player_links")
+    .delete()
+    .eq("id", input.id)
+    .eq("player_id", input.playerId);
+
+  if (deleteError) {
+    return { success: false, message: mapPostgrestError(deleteError) };
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, input.playerId);
+  return { success: true };
+}
+
+export async function upsertPlayerHonour(input: HonourMutationInput): Promise<ActionResult> {
+  const parsed = honourMutationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Revisá los datos del logro e intentá nuevamente." };
+  }
+
+  const { supabase, error } = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (error) {
+    return { success: false, message: error };
+  }
+
+  const payload = {
+    title: parsed.data.title,
+    competition: parsed.data.competition,
+    season: parsed.data.season,
+    awarded_on: parsed.data.awardedOn,
+    description: parsed.data.description,
+    career_item_id: parsed.data.careerItemId,
+  };
+
+  let mutationError: PostgrestError | null = null;
+
+  if (parsed.data.id) {
+    const { error: updateError } = await supabase
+      .from("player_honours")
+      .update(payload)
+      .eq("id", parsed.data.id)
+      .eq("player_id", parsed.data.playerId);
+    mutationError = updateError;
+  } else {
+    const { error: insertError } = await supabase
+      .from("player_honours")
+      .insert({ ...payload, player_id: parsed.data.playerId });
+    mutationError = insertError;
+  }
+
+  if (mutationError) {
+    return { success: false, message: mapPostgrestError(mutationError) };
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
+  return { success: true };
+}
+
+export async function deletePlayerHonour(input: { id: string; playerId: string }): Promise<ActionResult> {
+  const { supabase, error } = await ensureAuthenticatedPlayer(input.playerId);
+  if (error) {
+    return { success: false, message: error };
+  }
+
+  const { error: deleteError } = await supabase
+    .from("player_honours")
+    .delete()
+    .eq("id", input.id)
+    .eq("player_id", input.playerId);
+
+  if (deleteError) {
+    return { success: false, message: mapPostgrestError(deleteError) };
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, input.playerId);
+  return { success: true };
+}
+
+export async function upsertSeasonStat(input: SeasonStatMutationInput): Promise<ActionResult> {
+  const parsed = seasonStatMutationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Revisá los datos estadísticos e intentá nuevamente." };
+  }
+
+  const { supabase, error } = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (error) {
+    return { success: false, message: error };
+  }
+
+  let duplicateCheck = supabase
+    .from("stats_seasons")
+    .select("id")
+    .eq("player_id", parsed.data.playerId)
+    .eq("season", parsed.data.season)
+    .limit(1);
+
+  if (parsed.data.id) {
+    duplicateCheck = duplicateCheck.neq("id", parsed.data.id);
+  }
+
+  const { data: duplicateRows, error: duplicateError } = await duplicateCheck;
+
+  if (duplicateError) {
+    return { success: false, message: mapPostgrestError(duplicateError) };
+  }
+
+  if (duplicateRows && duplicateRows.length > 0) {
+    return {
+      success: false,
+      message: "Ya cargaste estadísticas para esa temporada. Editá la fila existente o eliminála antes de crear otra.",
+    };
+  }
+
+  const payload = {
+    season: parsed.data.season,
+    competition: parsed.data.competition,
+    team: parsed.data.team,
+    matches: parsed.data.matches,
+    starts: parsed.data.starts,
+    minutes: parsed.data.minutes,
+    goals: parsed.data.goals,
+    assists: parsed.data.assists,
+    yellow_cards: parsed.data.yellowCards,
+    red_cards: parsed.data.redCards,
+    career_item_id: parsed.data.careerItemId,
+  };
+
+  let mutationError: PostgrestError | null = null;
+
+  if (parsed.data.id) {
+    const { error: updateError } = await supabase
+      .from("stats_seasons")
+      .update(payload)
+      .eq("id", parsed.data.id)
+      .eq("player_id", parsed.data.playerId);
+    mutationError = updateError;
+  } else {
+    const { error: insertError } = await supabase
+      .from("stats_seasons")
+      .insert({ ...payload, player_id: parsed.data.playerId });
+    mutationError = insertError;
+  }
+
+  if (mutationError) {
+    return { success: false, message: mapPostgrestError(mutationError) };
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
+  return { success: true };
+}
+
+export async function deleteSeasonStat(input: { id: string; playerId: string }): Promise<ActionResult> {
+  const { supabase, error } = await ensureAuthenticatedPlayer(input.playerId);
+  if (error) {
+    return { success: false, message: error };
+  }
+
+  const { error: deleteError } = await supabase
+    .from("stats_seasons")
+    .delete()
+    .eq("id", input.id)
+    .eq("player_id", input.playerId);
+
+  if (deleteError) {
+    return { success: false, message: mapPostgrestError(deleteError) };
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, input.playerId);
+  return { success: true };
+}
+
+type NormalizedStage = {
+  club: string;
+  division: string | null;
+  division_id: string | null;
+  start_year: number | null;
+  end_year: number | null;
+  team_id: string | null;
+  proposed_team: CareerStageInput["proposedTeam"];
+  original_item_id: string | null;
+};
+
+function normalizeStage(input: CareerStageInput & { divisionId?: string | null }): NormalizedStage {
+  return {
+    club: input.club,
+    division: input.division ?? null,
+    division_id: input.divisionId ?? null,
+    start_year: input.startYear ?? null,
+    end_year: input.endYear ?? null,
+    team_id: input.teamId ?? null,
+    proposed_team: input.proposedTeam ?? null,
+    original_item_id: input.originalId ?? null,
+  };
+}
+
+export async function submitCareerRevision(
+  input: CareerRevisionSubmissionInput,
+): Promise<ActionResult> {
+  const parsed = careerRevisionSubmissionSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Revisá las etapas confirmadas e intentá nuevamente." };
+  }
+
+  const { supabase, error, userId } = await ensureAuthenticatedPlayer(parsed.data.playerId);
+  if (error || !userId) {
+    return { success: false, message: error ?? "No fue posible validar la sesión." };
+  }
+
+  const { data: pendingRequest, error: pendingError } = await supabase
+    .from("career_revision_requests")
+    .select("id, status")
+    .eq("player_id", parsed.data.playerId)
+    .eq("submitted_by_user_id", userId)
+    .eq("status", "pending")
+    .limit(1)
+    .maybeSingle<{ id: string; status: string }>();
+
+  if (pendingError) {
+    if (isMissingCareerSchema(pendingError)) {
+      return { success: false, message: RUN_CAREER_SCRIPT_MESSAGE };
+    }
+    return { success: false, message: mapPostgrestError(pendingError) };
+  }
+
+  if (pendingRequest) {
+    return { success: false, message: "Ya tenés una solicitud pendiente de revisión." };
+  }
+
+  let snapshot: unknown[] = [];
+  const { data: snapshotData, error: snapshotError } = await supabase
+    .from("career_items")
+    .select("id, club, division, start_date, end_date, team_id")
+    .eq("player_id", parsed.data.playerId)
+    .order("start_date", { ascending: false });
+
+  if (snapshotError) {
+    return { success: false, message: mapPostgrestError(snapshotError) };
+  }
+
+  snapshot = snapshotData ?? [];
+
+  const { data: requestRow, error: requestError } = await supabase
+    .from("career_revision_requests")
+    .insert({
+      player_id: parsed.data.playerId,
+      submitted_by_user_id: userId,
+      current_snapshot: snapshot,
+      change_summary: parsed.data.note,
+    })
+    .select("id")
+    .maybeSingle<{ id: string }>();
+
+  if (requestError) {
+    if (isMissingCareerSchema(requestError)) {
+      return { success: false, message: RUN_CAREER_SCRIPT_MESSAGE };
+    }
+    return { success: false, message: mapPostgrestError(requestError) };
+  }
+
+  if (!requestRow) {
+    return { success: false, message: "No fue posible registrar la solicitud." };
+  }
+
+  const requestId = requestRow.id;
+
+  const cleanup = async () => {
+    await supabase.from("career_revision_requests").delete().eq("id", requestId);
+  };
+
+  for (const [index, stageInput] of parsed.data.items.entries()) {
+    const stage = normalizeStage(stageInput);
+    let proposedTeamId: string | null = null;
+
+    if (stage.proposed_team) {
+      const { data: proposedRow, error: proposedError } = await supabase
+        .from("career_revision_proposed_teams")
+        .insert({
+          request_id: requestId,
+          name: stage.proposed_team.name,
+          country_code: stage.proposed_team.countryCode,
+          country_name: stage.proposed_team.countryName,
+          transfermarkt_url: stage.proposed_team.transfermarktUrl,
+        })
+        .select("id")
+        .maybeSingle<{ id: string }>();
+
+      if (proposedError) {
+        if (isMissingCareerSchema(proposedError)) {
+          await cleanup();
+          return { success: false, message: RUN_CAREER_SCRIPT_MESSAGE };
+        }
+        await cleanup();
+        return { success: false, message: mapPostgrestError(proposedError) };
+      }
+
+      proposedTeamId = proposedRow?.id ?? null;
+    }
+
+    let finalDivisionId = stage.division_id;
+
+    if (finalDivisionId?.startsWith("new:")) {
+      const parts = finalDivisionId.replace("new:", "").split("|");
+      const tmpDivName = parts[0];
+      const tmpCountryCode = parts[1] || stage.proposed_team?.countryCode || "";
+      
+      const slug = tmpDivName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + tmpCountryCode.toLowerCase();
+
+      const { data: divRow, error: divErr } = await supabase
+        .from("divisions")
+        .upsert({
+          name: tmpDivName,
+          country_code: tmpCountryCode.toUpperCase(),
+          slug,
+          status: "pending"
+        }, { onConflict: "slug" })
+        .select("id")
+        .maybeSingle<{id: string}>();
+
+      if (!divErr && divRow) {
+        finalDivisionId = divRow.id;
+      } else {
+        finalDivisionId = null; 
+      }
+    }
+
+    const { error: itemError } = await supabase
+      .from("career_revision_items")
+      .insert({
+        request_id: requestId,
+        original_item_id: stage.original_item_id,
+        club: stage.club,
+        division: stage.division,
+        division_id: finalDivisionId,
+        start_year: stage.start_year,
+        end_year: stage.end_year,
+        team_id: stage.team_id,
+        proposed_team_id: proposedTeamId,
+        order_index: index,
+      });
+
+    if (itemError) {
+      if (isMissingCareerSchema(itemError)) {
+        await cleanup();
+        return { success: false, message: RUN_CAREER_SCRIPT_MESSAGE };
+      }
+      await cleanup();
+      return { success: false, message: mapPostgrestError(itemError) };
+    }
+  }
+
+  if (parsed.data.stats && parsed.data.stats.length > 0) {
+    for (const [index, statInput] of parsed.data.stats.entries()) {
+      const { error: statError } = await supabase
+        .from("stats_revision_items")
+        .insert({
+          request_id: requestId,
+          original_stat_id: statInput.id ?? null,
+          season: statInput.season,
+          matches: statInput.matches,
+          starts: statInput.starts,
+          goals: statInput.goals,
+          assists: statInput.assists,
+          minutes: statInput.minutes,
+          yellow_cards: statInput.yellowCards,
+          red_cards: statInput.redCards,
+          competition: statInput.competition,
+          team: statInput.team,
+          career_item_id: statInput.careerItemId,
+          order_index: index,
+        });
+
+      if (statError) {
+        if (isMissingCareerSchema(statError)) {
+          await cleanup();
+          return { success: false, message: RUN_CAREER_SCRIPT_MESSAGE };
+        }
+        await cleanup();
+        return { success: false, message: mapPostgrestError(statError) };
+      }
+    }
+  }
+
+  revalidatePath(DASHBOARD_ROUTE);
+  await revalidatePlayerPublicProfileById(supabase, parsed.data.playerId);
+  return { success: true, requestId };
+}

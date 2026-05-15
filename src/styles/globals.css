@@ -1,0 +1,483 @@
+/* src/styles/globals.css */
+@import "tailwindcss";
+@import "flag-icons/css/flag-icons.min.css";
+
+
+
+/* Registra el plugin del tema (el archivo de arriba) */
+@plugin "../app/hero.ts";
+
+
+/* Fuente de estilos de los componentes HeroUI */
+@source "../../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}";
+
+/* Utilidades/tokens propios opcionales */
+@theme inline {
+  --font-sans: var(--font-geist-sans); /* cargadas via next/font en layout */
+  --font-mono: var(--font-geist-mono);
+  --font-zuume: var(--font-zuume);
+
+  /* BallersHub Design System v1 — opt-in tokens.
+     Estos no afectan al pro template del slug a menos que
+     se usen explícitamente con clases tipo bg-bh-black. */
+  --color-bh-black:      var(--bh-black);
+  --color-bh-dark:       var(--bh-dark);
+  --color-bh-surface-1:  var(--bh-surface-1);
+  --color-bh-surface-2:  var(--bh-surface-2);
+  --color-bh-surface-3:  var(--bh-surface-3);
+
+  --color-bh-lime:       var(--bh-lime-200);
+  --color-bh-lime-soft:  var(--bh-lime-100);
+  --color-bh-lime-dim:   var(--bh-lime-dim);
+  --color-bh-blue:       var(--bh-blue-200);
+  --color-bh-blue-soft:  var(--bh-blue-100);
+  --color-bh-blue-dim:   var(--bh-blue-dim);
+
+  --color-bh-fg-1: var(--bh-fg-1);
+  --color-bh-fg-2: var(--bh-fg-2);
+  --color-bh-fg-3: var(--bh-fg-3);
+  --color-bh-fg-4: var(--bh-fg-4);
+
+  --color-bh-success: var(--bh-success);
+  --color-bh-warning: var(--bh-warning);
+  --color-bh-danger:  var(--bh-danger);
+
+  /* Namespaced para no colisionar con `font-heading` que usa el pro template de [slug]. */
+  --font-bh-display: var(--font-barlow-condensed);
+  --font-bh-heading: var(--font-barlow);
+  --font-bh-body:    var(--font-dm-sans);
+  --font-bh-mono:    var(--font-dm-mono);
+
+  --radius-bh-sm:   4px;
+  --radius-bh-md:   8px;
+  --radius-bh-lg:   12px;
+  --radius-bh-xl:   16px;
+  --radius-bh-pill: 999px;
+}
+
+/* Siempre dark + color-scheme coherente */
+:root { color-scheme: dark; }
+html, body { min-height: 100%; }
+
+/* ============================================================
+   BallersHub — Color & Motion Primitives (opt-in).
+   No afectan al pro template porque todo lo de aquí o vive
+   bajo namespace --bh-* / .bh-* / clases utilitarias bh-*,
+   o son keyframes que solo corren si se aplican explícitamente.
+   ============================================================ */
+:root {
+  /* Surfaces */
+  --bh-black:      #080808;
+  --bh-dark:       #111111;
+  --bh-surface-1:  #181818;
+  --bh-surface-2:  #212121;
+  --bh-surface-3:  #2C2C2C;
+
+  /* Borders */
+  --bh-border-subtle:  rgba(255, 255, 255, 0.06);
+  --bh-border-default: rgba(255, 255, 255, 0.12);
+  --bh-border-strong:  rgba(255, 255, 255, 0.22);
+
+  /* Electric Lime — action / player */
+  --bh-lime-50:  #F4FFB8;
+  --bh-lime-100: #EAFF82;
+  --bh-lime-200: #CCFF00;
+  --bh-lime-300: #AADE00;
+  --bh-lime-400: #88B200;
+  --bh-lime-dim:  rgba(204, 255, 0, 0.10);
+  --bh-lime-glow: rgba(204, 255, 0, 0.20);
+
+  /* Electric Blue — data / scouting */
+  --bh-blue-50:  #E0F7FF;
+  --bh-blue-100: #7FDDFF;
+  --bh-blue-200: #00C2FF;
+  --bh-blue-300: #009ACC;
+  --bh-blue-400: #006E96;
+  --bh-blue-dim:  rgba(0, 194, 255, 0.10);
+  --bh-blue-glow: rgba(0, 194, 255, 0.20);
+
+  /* Foreground */
+  --bh-fg-1: #FFFFFF;
+  --bh-fg-2: rgba(255, 255, 255, 0.70);
+  --bh-fg-3: rgba(255, 255, 255, 0.40);
+  --bh-fg-4: rgba(255, 255, 255, 0.20);
+
+  /* Semantic */
+  --bh-success: #22C55E;
+  --bh-warning: #F59E0B;
+  --bh-danger:  #EF4444;
+  --bh-info:    #3B82F6;
+
+  /* Motion */
+  --bh-ease-snappy: cubic-bezier(0.25, 0, 0, 1);
+  --bh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --bh-dur-fast: 120ms;
+  --bh-dur-base: 200ms;
+  --bh-dur-slow: 350ms;
+}
+
+@keyframes bh-fade-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bh-orb-1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(60px, -40px) scale(1.1); }
+  66%      { transform: translate(-30px, 50px) scale(0.9); }
+}
+@keyframes bh-orb-2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(-80px, 30px) scale(1.15); }
+  66%      { transform: translate(40px, -60px) scale(0.85); }
+}
+@keyframes bh-orb-3 {
+  0%, 100% { transform: translate(0, 0); }
+  50%      { transform: translate(50px, 50px); }
+}
+
+.bh-animate-in { animation: bh-fade-slide-up 400ms var(--bh-ease-snappy) both; }
+.bh-animate-d1 { animation-delay:  60ms; }
+.bh-animate-d2 { animation-delay: 120ms; }
+.bh-animate-d3 { animation-delay: 180ms; }
+.bh-animate-d4 { animation-delay: 240ms; }
+
+.bh-card-lift {
+  transition:
+    transform var(--bh-dur-base) var(--bh-ease-snappy),
+    border-color var(--bh-dur-base) var(--bh-ease-snappy),
+    box-shadow var(--bh-dur-base) var(--bh-ease-snappy);
+}
+.bh-card-lift:hover {
+  transform: translateY(-2px);
+  border-color: var(--bh-border-strong);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-animate-in,
+  .bh-card-lift { animation: none !important; transition: none !important; }
+}
+
+/* ============================================================
+   Hero display — shimmer (Claude Design · type-display.html)
+   Texto con gradiente animado lime ↔ lime-soft ↔ blue.
+   Uso reservado a hero/display tipográficos: pesados, uppercase.
+   ------------------------------------------------------------
+   Spec original:
+     gradient   90deg  #CCFF00 0% / #EAFF82 20% / #00C2FF 50% /
+                       #CCFF00 70% / #EAFF82 100%
+     bg-size    200% auto
+     animation  shimmerTxt 4s linear infinite (0% → 200% center)
+   ============================================================ */
+@keyframes bh-shimmer-txt {
+  from { background-position:   0% center; }
+  to   { background-position: 200% center; }
+}
+
+.bh-shimmer-text {
+  background-image: linear-gradient(
+    90deg,
+    var(--bh-lime-200)  0%,
+    var(--bh-lime-100) 20%,
+    var(--bh-blue-200) 50%,
+    var(--bh-lime-200) 70%,
+    var(--bh-lime-100) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: bh-shimmer-txt 4s linear infinite;
+  will-change: background-position;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-shimmer-text { animation: none !important; }
+}
+
+/* Utilidad para ocultar la barra de scroll en contenedores horizontales */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes bh-marquee-slide {
+  0%,
+  10% {
+    transform: translateX(0);
+  }
+  45%,
+  55% {
+    transform: translateX(calc(-1 * var(--marquee-distance, 0px)));
+  }
+  90%,
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.bh-marquee {
+  --marquee-distance: 0px;
+  animation: bh-marquee-slide 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ============================================================
+   Marquee de loop infinito (típico patrón "trusted by …").
+   Requiere replicar el contenido en el DOM N veces (con aria-hidden
+   en las copias decorativas) y aplicar la clase al wrapper con
+   `width: max-content`.
+
+   Para que el loop sea seamless el desplazamiento al final del
+   ciclo debe ser exactamente 1 set / N copias. Se controla con
+   `--marquee-shift`:
+     - 2 copias →  -50%
+     - 3 copias →  -33.333%
+     - 4 copias →  -25%
+   Default: -50% (2 copias).
+   ============================================================ */
+@keyframes bh-marquee-loop {
+  from { transform: translateX(0); }
+  to   { transform: translateX(var(--marquee-shift, -50%)); }
+}
+
+.bh-marquee-loop {
+  animation: bh-marquee-loop var(--marquee-duration, 30s) linear infinite;
+  will-change: transform;
+}
+
+.bh-marquee-pause:hover { animation-play-state: paused; }
+
+/* ============================================================
+   Animated dual-accent border (lime ↔ blue).
+   Uses mask-composite so the gradient lives ONLY on the border
+   ring — the host element keeps its own background (works on top
+   of `backdrop-blur` cards, translucent surfaces, etc).
+
+   Apply to a relative element with a `border-radius`. Two variants:
+   - bh-border-flow-lime → lime-leading (player accent)
+   - bh-border-flow-blue → blue-leading (agency accent)
+   ============================================================ */
+@keyframes bh-border-flow {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.bh-border-flow-lime,
+.bh-border-flow-blue {
+  position: relative;
+}
+
+.bh-border-flow-lime::before,
+.bh-border-flow-blue::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background-size: 200% 100%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: bh-border-flow 4.5s linear infinite;
+  pointer-events: none;
+}
+
+.bh-border-flow-lime::before {
+  background-image: linear-gradient(
+    90deg,
+    var(--bh-lime-200) 0%,
+    var(--bh-blue-200) 25%,
+    var(--bh-lime-200) 50%,
+    var(--bh-blue-200) 75%,
+    var(--bh-lime-200) 100%
+  );
+}
+
+.bh-border-flow-blue::before {
+  background-image: linear-gradient(
+    90deg,
+    var(--bh-blue-200) 0%,
+    var(--bh-lime-200) 25%,
+    var(--bh-blue-200) 50%,
+    var(--bh-lime-200) 75%,
+    var(--bh-blue-200) 100%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-border-flow-lime::before,
+  .bh-border-flow-blue::before { animation: none; }
+}
+
+/* ============================================================
+   BallersHub — Display effects (opt-in).
+   Used by the marketing/pricing surfaces. Class-scoped.
+   ============================================================ */
+
+@keyframes bh-text-shimmer {
+  0%   { background-position: -150% 0; }
+  100% { background-position: 250% 0; }
+}
+
+/* Dual-accent shimmer — sweeps lime then blue across the text in a single pass.
+   Used for high-emphasis display headlines and key inline phrases. */
+.bh-text-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.92) 18%,
+    var(--bh-lime-200) 34%,
+    rgba(255, 255, 255, 1) 50%,
+    var(--bh-blue-200) 66%,
+    rgba(255, 255, 255, 0.92) 82%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: bh-text-shimmer 5s linear infinite;
+}
+
+/* Inverted shimmer — blue first, lime second. Used for sections that need
+   the colors to feel rebalanced (e.g. paired hero/CTA blocks). */
+.bh-text-shimmer-blue {
+  background-image: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.92) 18%,
+    var(--bh-blue-200) 34%,
+    rgba(255, 255, 255, 1) 50%,
+    var(--bh-lime-200) 66%,
+    rgba(255, 255, 255, 0.92) 82%,
+    rgba(255, 255, 255, 0.92) 100%
+  );
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: bh-text-shimmer 5s linear infinite;
+}
+
+/* Glassmorphism surface — semi-transparent panel with backdrop blur.
+   Pair with .bh-card-lift for the hover micro-interaction.
+   NOTE: do NOT write `-webkit-backdrop-filter` here. When both prefixed and
+   unprefixed versions are present in source, Lightning CSS (Tailwind v4)
+   sometimes dedupes to the prefixed one only — leaving Chrome/Firefox
+   without backdrop blur. Lightning CSS already adds the `-webkit-` prefix
+   automatically for older Safari targets. */
+.bh-glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 0 rgba(0, 0, 0, 0.2);
+}
+.bh-glass-strong {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(22px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+@property --bh-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes bh-border-rotate {
+  to { --bh-angle: 360deg; }
+}
+
+.bh-glow-border { position: relative; isolation: isolate; }
+.bh-glow-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--bh-angle),
+    rgba(204, 255, 0, 0.85) 0%,
+    rgba(0, 194, 255, 0.65) 25%,
+    rgba(255, 255, 255, 0.04) 45%,
+    rgba(255, 255, 255, 0.04) 75%,
+    rgba(204, 255, 0, 0.85) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: bh-border-rotate 6s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.bh-noise { position: relative; }
+.bh-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.18 0'/></filter><rect width='220' height='220' filter='url(%23n)' opacity='0.6'/></svg>");
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  border-radius: inherit;
+}
+
+.bh-grid-faint {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Mesh texture for "expanded panel" surfaces.
+   Distinct from the app ambient (orbs + axis-aligned grid) by using a
+   135° hairline lattice + wider vertical guides + dual accent radials.
+   Base sits one shade darker than the app background (#050507 vs --bh-black
+   #080808) so the panel reads as a recessed, distinct space. */
+.bh-tex-mesh {
+  background-color: #050507;
+  background-image:
+    radial-gradient(ellipse 70% 55% at 0% 0%,
+      rgba(204, 255, 0, 0.14) 0%,
+      transparent 60%),
+    radial-gradient(ellipse 70% 55% at 100% 100%,
+      rgba(0, 194, 255, 0.12) 0%,
+      transparent 60%),
+    repeating-linear-gradient(135deg,
+      rgba(255, 255, 255, 0.045) 0px,
+      rgba(255, 255, 255, 0.045) 1px,
+      transparent 1px,
+      transparent 14px),
+    repeating-linear-gradient(90deg,
+      rgba(255, 255, 255, 0.028) 0px,
+      rgba(255, 255, 255, 0.028) 1px,
+      transparent 1px,
+      transparent 80px),
+    linear-gradient(180deg, #0a0a0c 0%, #050507 50%, #0a0a0c 100%);
+  box-shadow:
+    inset 0 24px 48px -24px rgba(0, 0, 0, 0.6),
+    inset 0 -24px 48px -24px rgba(0, 0, 0, 0.6);
+}
+
+/* Single reduced-motion override covering both the marquee additions
+   from `dev` and the pricing display effects from this branch. */
+@media (prefers-reduced-motion: reduce) {
+  .bh-marquee,
+  .bh-marquee-loop,
+  .bh-text-shimmer,
+  .bh-text-shimmer-blue,
+  .bh-glow-border::before { animation: none !important; }
+}
+

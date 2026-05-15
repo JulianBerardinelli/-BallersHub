@@ -1,0 +1,99 @@
+"use client";
+
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
+import { Button, Chip, Progress } from "@heroui/react";
+import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
+
+export type DashboardProgressSection = {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
+  completed: number;
+  total: number;
+  missing: { label: string; severity: TaskSeverity }[];
+};
+
+const severityTextColor: Record<TaskSeverity, string> = {
+  danger: "text-bh-danger",
+  warning: "text-bh-warning",
+  secondary: "text-bh-fg-3",
+};
+
+function getProgressColor(percentage: number): "primary" | "success" | "warning" {
+  if (percentage >= 100) return "success";
+  if (percentage >= 50) return "primary";
+  return "warning";
+}
+
+export default function DashboardProgressList({ sections }: { sections: DashboardProgressSection[] }) {
+  return (
+    <div className="grid gap-4 lg:grid-cols-3">
+      {sections.map((section) => {
+        const percentage = section.total > 0 ? Math.round((section.completed / section.total) * 100) : 0;
+        const pending = Math.max(section.total - section.completed, 0);
+        const progressColor = getProgressColor(percentage);
+        const chipColor = pending === 0 ? "success" : "warning";
+
+        return (
+          <div
+            key={section.id}
+            className="flex h-full flex-col gap-4 rounded-lg border border-white/[0.08] bg-bh-surface-1 p-5"
+          >
+            <div className="space-y-1">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-white">{section.title}</p>
+                  <p className="text-xs text-bh-fg-3">{section.description}</p>
+                </div>
+                <Chip color={chipColor} variant="flat" size="sm" className="font-semibold uppercase tracking-wide">
+                  {section.completed}/{section.total}
+                </Chip>
+              </div>
+            </div>
+
+            <Progress
+              aria-label={`Progreso ${section.title}`}
+              value={percentage}
+              color={progressColor}
+              classNames={{
+                indicator:
+                  percentage >= 100
+                    ? "bg-bh-success"
+                    : percentage >= 50
+                      ? "bg-bh-lime"
+                      : "bg-bh-blue",
+                track: "bg-white/[0.06]",
+              }}
+            />
+
+            {pending > 0 ? (
+              <ul className="list-disc space-y-1 pl-4 text-xs">
+                {section.missing.map((item) => (
+                  <li key={item.label} className={severityTextColor[item.severity]}>
+                    {item.label}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs text-emerald-300">¡Todo listo! Seguimos actualizando tu perfil en esta sección.</p>
+            )}
+
+            <Button
+              as={Link}
+              href={section.href}
+              variant="light"
+              color="primary"
+              size="sm"
+              className="self-start"
+              endContent={<ArrowUpRight size={16} />}
+            >
+              Abrir sección
+            </Button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}

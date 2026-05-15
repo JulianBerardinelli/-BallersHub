@@ -1,0 +1,25 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/marketing-dispatch",
+      "schedule": "0 8 * * *"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "(?<host>.*\\.vercel\\.app)"
+        }
+      ],
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    }
+  ]
+}
