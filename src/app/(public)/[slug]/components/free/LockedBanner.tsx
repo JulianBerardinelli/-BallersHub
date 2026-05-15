@@ -37,8 +37,8 @@ export default function LockedBanner({
   const previewOrder = side === "left" ? "md:order-1" : "md:order-2";
 
   return (
-    <section className="border-t border-white/[0.10] px-5 py-7 md:px-14 md:py-12">
-      <div className="grid grid-cols-1 items-center gap-5 md:grid-cols-2 md:gap-9">
+    <section className="border-t border-white/[0.10] px-5 py-7 md:px-10 md:py-12">
+      <div className="mx-auto grid w-full max-w-[1180px] grid-cols-1 items-center gap-5 md:grid-cols-2 md:gap-9">
         <div className={`space-y-3.5 ${textOrder}`}>
           <div className="inline-flex items-center gap-1.5 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2.5 py-1 font-body text-[10px] font-bold uppercase tracking-[0.14em] text-bh-lime">
             <LockIcon size={10} /> {eyebrow}

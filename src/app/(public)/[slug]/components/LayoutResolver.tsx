@@ -2,8 +2,10 @@ import { CSSProperties, Suspense } from "react";
 import ProAthleteLayout from "./ProAthleteLayout";
 import FreeLayout, {
   type FreeLayoutCareerRow,
+  type FreeLayoutLink,
   type FreeLayoutPersonal,
   type FreeLayoutPlayer,
+  type FreeLayoutVideo,
 } from "./free/FreeLayout";
 import SmoothScrollProvider from "./SmoothScrollProvider";
 import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
@@ -51,6 +53,12 @@ export type PublicProfileData = {
   freeData?: {
     personal: FreeLayoutPersonal;
     career: FreeLayoutCareerRow[];
+    links: FreeLayoutLink[];
+    video: FreeLayoutVideo | null;
+    currentTeamCrestUrl: string | null;
+    currentTeamCountryCode: string | null;
+    currentDivisionName: string | null;
+    currentDivisionCrestUrl: string | null;
   } | null;
 };
 
@@ -85,6 +93,10 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
           | string[]
           | null) ?? null,
       currentClub: player.currentClub ?? null,
+      currentTeamCrestUrl: freeData?.currentTeamCrestUrl ?? null,
+      currentTeamCountryCode: freeData?.currentTeamCountryCode ?? null,
+      currentDivisionName: freeData?.currentDivisionName ?? null,
+      currentDivisionCrestUrl: freeData?.currentDivisionCrestUrl ?? null,
       transfermarktUrl:
         ((player as { transfermarktUrl?: string | null }).transfermarktUrl as
           | string
@@ -93,6 +105,7 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
         ((player as { beSoccerUrl?: string | null }).beSoccerUrl as
           | string
           | null) ?? null,
+      links: freeData?.links ?? [],
     };
     return (
       <FreeLayout
@@ -100,6 +113,7 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
           player: freePlayer,
           personal: freeData?.personal ?? null,
           career: freeData?.career ?? [],
+          video: freeData?.video ?? null,
         }}
       />
     );
