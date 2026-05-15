@@ -3,6 +3,8 @@ import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed, DM_Mono, DM_Sans, Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import { zuume } from "@/lib/fonts";
+import { getSiteBaseUrlObject } from "@/lib/seo/baseUrl";
+import { OrganizationJsonLd } from "@/lib/seo/organizationJsonLd";
 import "@/styles/globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -35,31 +37,46 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: resolveMetadataBase(),
-  title: { default: "'BallersHub", template: "%s • 'BallersHub" },
-  description: "Perfiles profesionales de futbolistas.",
-  openGraph: { siteName: "BallersHub", type: "website" },
-  twitter: { card: "summary_large_image" },
+  metadataBase: getSiteBaseUrlObject(),
+  title: {
+    default: "BallersHub — Perfiles profesionales de futbolistas",
+    template: "%s · BallersHub",
+  },
+  description:
+    "BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
+  applicationName: "BallersHub",
+  keywords: [
+    "futbolistas",
+    "perfil de jugador",
+    "scouting",
+    "agencias de representación",
+    "portfolio de futbolista",
+    "BallersHub",
+  ],
+  authors: [{ name: "BallersHub" }],
+  creator: "BallersHub",
+  publisher: "BallersHub",
+  openGraph: {
+    siteName: "BallersHub",
+    type: "website",
+    locale: "es_AR",
+  },
+  twitter: { card: "summary_large_image", site: "@ballershub_" },
+  // Default robots policy — public-by-default. Pages that must not be
+  // indexed (checkout, dashboard, admin) override this in their own
+  // `generateMetadata` with `robots: { index: false, follow: false }`.
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
-
-/**
- * Resolve the metadataBase URL defensively. `??` doesn't fall back on
- * empty strings or malformed values (no protocol, trailing whitespace),
- * which used to crash the production build with `TypeError: Invalid URL`
- * when the Vercel env var was misconfigured. We try the env var first;
- * any failure falls through to localhost so the build can complete.
- */
-function resolveMetadataBase(): URL {
-  const raw = process.env.NEXT_PUBLIC_SITE_URL?.trim();
-  if (raw) {
-    try {
-      return new URL(raw);
-    } catch {
-      // Malformed env value (missing protocol, etc.) — fall through.
-    }
-  }
-  return new URL("http://localhost:3000");
-}
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
@@ -67,8 +84,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es-AR" className="dark">
       <body className={`relative min-h-screen overflow-x-hidden overflow-y-scroll bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
+        {/*
+          Sitewide structured data: Organization + WebSite (with
+          SearchAction). Rendered server-side so crawlers receive it
+          on the first byte. See `src/lib/seo/organizationJsonLd.tsx`.
+        */}
+        <OrganizationJsonLd />
+
         <div
           aria-hidden
           className="pointer-events-none fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(125%_125%_at_50%_10%,#001915_40%,#0dd5a5_100%)]"

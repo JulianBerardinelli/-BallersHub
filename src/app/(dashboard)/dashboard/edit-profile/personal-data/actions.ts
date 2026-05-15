@@ -5,6 +5,7 @@ import { type PostgrestError } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
+import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
 
 const DASHBOARD_ROUTE = "/dashboard/edit-profile/personal-data";
 
@@ -409,9 +410,10 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
 
   const { data: profileBefore } = await ownership.supabase
     .from("player_profiles")
-    .select("full_name, birth_date, nationality, nationality_codes, height_cm, weight_kg, bio")
+    .select("slug, full_name, birth_date, nationality, nationality_codes, height_cm, weight_kg, bio")
     .eq("id", parsed.data.playerId)
     .maybeSingle<{
+      slug: string | null;
       full_name: string | null;
       birth_date: string | null;
       nationality: string[] | null;
@@ -514,6 +516,10 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
 
   revalidatePath(DASHBOARD_ROUTE);
+  // Public portfolio depends on bio / height / weight / birth date —
+  // bust the 1h ISR window so the player's edit is reflected
+  // immediately on `/<slug>` (and re-stamps sitemap + llms.txt).
+  revalidatePlayerPublicProfile(profileBefore.slug ?? null);
 
   return {
     success: true,
@@ -693,7 +699,15 @@ export async function updateContactInformation(
   await recordChanges(ownership.supabase, parsed.data.playerId, ownership.userId, changes);
 
   revalidatePath(DASHBOARD_ROUTE);
-  revalidatePath(`/${parsed.data.playerId}`);
+  // Fix: previous call passed `playerId` (UUID), which doesn't match
+  // the `/<slug>` route. Resolve the slug from the player row so the
+  // helper invalidates the correct path.
+  const { data: slugRow } = await ownership.supabase
+    .from("player_profiles")
+    .select("slug")
+    .eq("id", parsed.data.playerId)
+    .maybeSingle<{ slug: string | null }>();
+  revalidatePlayerPublicProfile(slugRow?.slug ?? null);
 
   return {
     success: true,
