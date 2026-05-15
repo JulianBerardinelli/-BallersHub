@@ -16,20 +16,23 @@ function makeDb() {
   const client = globalForPostgres.postgresClient ?? postgres(process.env.DATABASE_URL, {
     prepare: false,
     max: 1, // Cap connection pool per worker to prevent MaxClientsInSessionMode in dev
-    // Vercel lambdas can sit idle between invocations; Supabase pooler drops
-    // idle connections after ~10 min. Without these timeouts a stale socket
-    // can hang the next request until the Vercel function timeout fires.
-    idle_timeout: 20, // recycle connections idle >20s
-    connect_timeout: 10, // bail out new connection attempts after 10s
-    max_lifetime: 60 * 30, // hard cap connection age at 30 min
-    // Defense in depth: cap server-side execution AND idle-in-transaction
-    // time so a hanging query never holds the pooler slot long enough to
-    // block subsequent requests (the postgres-js ClientRead hang we saw
-    // in prod). Postgres aborts the query → postgres-js throws → caller
-    // sees a normal error instead of a frozen connection.
+    // Aggressive recycling — when Vercel kills a lambda mid-query the
+    // pooler slot gets stuck in `wait_event=ClientRead`. statement_timeout
+    // does NOT cover that state (the query is "done" from PG's POV, just
+    // waiting on a dead client). The real fix is server-side connection
+    // health checks + tight max_lifetime so a poisoned slot cannot
+    // outlive a single function invocation by much.
+    idle_timeout: 5, // close idle conns after 5s
+    connect_timeout: 10,
+    max_lifetime: 60, // recycle every minute — caps damage from a stuck slot
     connection: {
       statement_timeout: 8000, // 8s (under Vercel Hobby 10s limit)
       idle_in_transaction_session_timeout: 10000, // 10s
+      // Postgres 14+: server pings TCP every 5s and closes if the client
+      // is gone. This is what actually frees a `ClientRead` zombie after
+      // Vercel kills the owning lambda — without it the slot stays held
+      // until max_lifetime expires.
+      client_connection_check_interval: 5000,
     } as Record<string, number>,
   });
 
