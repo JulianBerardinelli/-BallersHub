@@ -22,6 +22,15 @@ function makeDb() {
     idle_timeout: 20, // recycle connections idle >20s
     connect_timeout: 10, // bail out new connection attempts after 10s
     max_lifetime: 60 * 30, // hard cap connection age at 30 min
+    // Defense in depth: cap server-side execution AND idle-in-transaction
+    // time so a hanging query never holds the pooler slot long enough to
+    // block subsequent requests (the postgres-js ClientRead hang we saw
+    // in prod). Postgres aborts the query → postgres-js throws → caller
+    // sees a normal error instead of a frozen connection.
+    connection: {
+      statement_timeout: "8000", // 8s (under Vercel Hobby 10s limit)
+      idle_in_transaction_session_timeout: "10000", // 10s
+    },
   });
 
   if (process.env.NODE_ENV !== "production") {
