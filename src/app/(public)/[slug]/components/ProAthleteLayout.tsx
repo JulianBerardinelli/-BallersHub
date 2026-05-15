@@ -244,6 +244,31 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
         </motion.div>
 
         {/*
+          LAYER 1 STATIC OUTLINE — solid accent-colored outline that sits
+          DIRECTLY BEHIND the white solid title (one z-index below). The
+          white fill of Layer 1 NORMAL covers the inner contours of each
+          letter (the strokes of `B`, `A`, `N`, etc.), so only the outer
+          silhouette of this outline is visible — exactly the "white
+          letter with magenta border" effect, without the interior cuts
+          that `-webkit-text-stroke` produces when painted in front.
+        */}
+        <motion.div
+          className="absolute z-[19] w-full flex flex-col justify-center items-center pointer-events-none select-none"
+          style={{ y: textY }}
+        >
+          <motion.span
+            initial="hidden" animate="visible" variants={lastNameVariants}
+            aria-hidden="true"
+            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)] text-transparent"
+            style={{
+              filter: `drop-shadow(0px 0px 20px ${accentColor}40)`,
+            }}
+          >
+            {lastName}
+          </motion.span>
+        </motion.div>
+
+        {/*
           LAYER 1 NORMAL — the page's single canonical <h1>.
 
           Crawlers read `${firstName} ${lastName}` (full name) via the
@@ -267,7 +292,7 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
         </motion.div>
 
         {/* LAYER 2: CUTOUT PLAYER (PNG transparent) */}
-        <motion.div 
+        <motion.div
           style={{ y: playerY }}
           initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
@@ -275,32 +300,11 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
           className="absolute z-30 bottom-[-5vh] md:bottom-0 top-[15vh] w-full max-w-[1200px] flex justify-center items-end"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img 
-            src={player.heroUrl || undefined} 
-            alt={player.fullName} 
+          <img
+            src={player.heroUrl || undefined}
+            alt={player.fullName}
             className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125"
           />
-        </motion.div>
-
-        {/*
-          LAYER 3: OUTLINE TEXT — decorative overlay in front of the
-          player image. Used to be an <h1>; demoted to aria-hidden span
-          since the canonical H1 already lives in LAYER 1 NORMAL above.
-        */}
-        <motion.div
-          className="absolute z-40 w-full flex flex-col justify-center items-center pointer-events-none select-none"
-          style={{ y: textY }}
-        >
-          <motion.span
-            initial="hidden" animate="visible" variants={lastNameVariants}
-            aria-hidden="true"
-            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)] text-transparent"
-            style={{
-              filter: `drop-shadow(0px 0px 20px ${accentColor}30)`
-            }}
-          >
-            {lastName}
-          </motion.span>
         </motion.div>
 
         {/* Bottom Fade Gradient for smooth transition to sections */}

@@ -8,6 +8,7 @@ import FreeLayout, {
   type FreeLayoutVideo,
 } from "./free/FreeLayout";
 import SmoothScrollProvider from "./SmoothScrollProvider";
+import SuspenseResizeNudge from "./SuspenseResizeNudge";
 import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 
 // SSR Modules for Streaming
@@ -150,7 +151,28 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
               Streaming Async Server Components:
               These block load independently from the Hero, heavily improving TTFB
             */}
-            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
+            {/*
+              SuspenseResizeNudge — workaround for a framer-motion
+              `useScroll` measurement bug. See the component file for
+              the full explanation. TL;DR: streaming SSR resolves each
+              Suspense at a different moment, shifting siblings' offsets
+              after TacticsModule has already calibrated `useScroll`.
+              This nudges window resize at staggered intervals so all
+              `useScroll` instances re-measure after every likely stream.
+            */}
+            <SuspenseResizeNudge />
+
+            {/*
+              All Suspense fallbacks below are pinned to `min-h-` values
+              that approximate the typical resolved content size. The
+              goal is to make the layout stable across the stream so
+              `useScroll`-based animations (Tactics scroll-jack, Career
+              timeline pin) don't lose their offset calibration when
+              siblings grow. The `min-h` floor still allows the real
+              content to expand if it's taller; the resize nudge above
+              catches whatever delta remains.
+            */}
+            <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
               <ProfileBioModule playerId={player.id} />
             </Suspense>
 
@@ -175,14 +197,14 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
               <TacticsModule playerId={player.id} />
             </Suspense>
 
-            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
+            <Suspense fallback={<div className="min-h-[800px] flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
               <CareerTimelineModule playerId={player.id} />
             </Suspense>
 
             {/* Press & Notes Module (Client Side) */}
             <ProfilePressNotesModule articles={articles as any} />
 
-            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
+            <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
               <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
             </Suspense>
 
