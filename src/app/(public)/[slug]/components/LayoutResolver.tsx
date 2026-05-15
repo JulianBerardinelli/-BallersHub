@@ -154,7 +154,24 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
               <ProfileBioModule playerId={player.id} />
             </Suspense>
 
-            <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando Tácticas...</div>}>
+            {/*
+              The TacticsModule renders an `h-[200vh]` scroll-jacked section
+              (ProfileTacticsModule). When Suspense streams the content in,
+              the section's height changes from the fallback's `h-40` to
+              `h-[200vh]` AFTER framer-motion's `useScroll` has measured
+              offsets — leaving `scrollYProgress` calibrated against the
+              short fallback, which causes the Layer 1 → Layer 2 transition
+              to never reach its trigger ranges in production builds.
+              Keeping the fallback at `h-[200vh]` so the layout is stable
+              before and after streaming.
+            */}
+            <Suspense fallback={
+              <div className="h-[200vh] relative w-full">
+                <div className="sticky top-0 w-full flex items-center justify-center text-white/30 animate-pulse" style={{ height: "100dvh" }}>
+                  Cargando Tácticas...
+                </div>
+              </div>
+            }>
               <TacticsModule playerId={player.id} />
             </Suspense>
 
