@@ -16,6 +16,12 @@ function makeDb() {
   const client = globalForPostgres.postgresClient ?? postgres(process.env.DATABASE_URL, {
     prepare: false,
     max: 1, // Cap connection pool per worker to prevent MaxClientsInSessionMode in dev
+    // Vercel lambdas can sit idle between invocations; Supabase pooler drops
+    // idle connections after ~10 min. Without these timeouts a stale socket
+    // can hang the next request until the Vercel function timeout fires.
+    idle_timeout: 20, // recycle connections idle >20s
+    connect_timeout: 10, // bail out new connection attempts after 10s
+    max_lifetime: 60 * 30, // hard cap connection age at 30 min
   });
 
   if (process.env.NODE_ENV !== "production") {
