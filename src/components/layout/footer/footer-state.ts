@@ -1,4 +1,3 @@
-import { db } from "@/lib/db";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 
 import type { FooterLinkColumn } from "./FooterMarkup";
@@ -10,6 +9,12 @@ export type FooterCTAState =
   | { kind: "manager"; agencySlug: string | null }
   | { kind: "member" };
 
+// Footer state used to call `db.query.*` via postgres-js. Under load on
+// Vercel that driver occasionally left the pooler slot in a `ClientRead`
+// wait state, blocking every subsequent request on the same lambda
+// (admin pages started 504-ing because of this). All footer reads go
+// through Supabase REST now — same project, different connection path,
+// same RLS, no postgres-js bug.
 export async function resolveFooterCTAState(): Promise<FooterCTAState> {
   try {
     const supabase = await createSupabaseServerRSC();
@@ -18,13 +23,20 @@ export async function resolveFooterCTAState(): Promise<FooterCTAState> {
     } = await supabase.auth.getUser();
     if (!user) return { kind: "anonymous" };
 
-    const profile = await db.query.userProfiles.findFirst({
-      where: (p, { eq }) => eq(p.userId, user.id),
-      with: { agency: true },
-    });
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("role, agency:agency_profiles(slug)")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    type AgencyRef = { slug: string | null } | { slug: string | null }[] | null;
+    const agencyRef = (profile?.agency ?? null) as AgencyRef;
+    const agencySlug = Array.isArray(agencyRef)
+      ? agencyRef[0]?.slug ?? null
+      : agencyRef?.slug ?? null;
 
     if (profile?.role === "manager") {
-      return { kind: "manager", agencySlug: profile.agency?.slug ?? null };
+      return { kind: "manager", agencySlug };
     }
 
     const { data: managerApp } = await supabase
@@ -35,13 +47,14 @@ export async function resolveFooterCTAState(): Promise<FooterCTAState> {
       .limit(1)
       .maybeSingle();
     if (managerApp) {
-      return { kind: "manager", agencySlug: profile?.agency?.slug ?? null };
+      return { kind: "manager", agencySlug };
     }
 
-    const player = await db.query.playerProfiles.findFirst({
-      where: (p, { eq }) => eq(p.userId, user.id),
-      columns: { slug: true, status: true, visibility: true },
-    });
+    const { data: player } = await supabase
+      .from("player_profiles")
+      .select("slug, status, visibility")
+      .eq("user_id", user.id)
+      .maybeSingle();
     if (player && player.status === "approved" && player.visibility === "public") {
       return { kind: "player", slug: player.slug ?? null };
     }
