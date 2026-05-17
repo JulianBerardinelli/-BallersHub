@@ -68,6 +68,8 @@ const PLAYER_AVATAR: StepDefinition = {
   href: "/dashboard/edit-profile/personal-data",
   isCompleted: (s) =>
     !!s.avatarUrl &&
+    s.avatarUrl !== "/images/player-default.jpg" &&
+    !s.avatarUrl.endsWith("/player-default.jpg") &&
     s.avatarUrl !== "/images/player-default.png" &&
     !s.avatarUrl.endsWith("/player-default.png"),
 };

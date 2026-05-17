@@ -89,7 +89,11 @@ export default function DashboardStatusSummary({
             </p>
           ) : null}
 
-          {updatedCopy ? <p className="text-xs text-bh-fg-4">{updatedCopy}</p> : null}
+          {updatedCopy ? (
+            <p className="text-xs text-bh-fg-4" suppressHydrationWarning>
+              {updatedCopy}
+            </p>
+          ) : null}
         </div>
 
         {cta ? (
