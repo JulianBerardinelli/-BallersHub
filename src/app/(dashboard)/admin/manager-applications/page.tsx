@@ -1,9 +1,7 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
 import { Inbox } from "lucide-react";
-import { db } from "@/lib/db";
-import { managerApplications } from "@/db/schema/managerApplications";
-import { eq } from "drizzle-orm";
 import { approveManagerApplication, rejectManagerApplication } from "@/app/actions/manager-applications";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
@@ -11,6 +9,23 @@ import { bhButtonClass } from "@/components/ui/bh-button-class";
 
 export const metadata = {
   title: "Manager Onboarding (Pendientes) - Admin",
+};
+
+// Mapped from snake_case Supabase REST to the camelCase the JSX
+// below already uses (this used to come from a Drizzle select).
+type ApplicationRow = {
+  id: string;
+  fullName: string;
+  contactEmail: string;
+  contactPhone: string | null;
+  agencyName: string;
+  agencyWebsiteUrl: string | null;
+  verifiedLink: string | null;
+  agentLicenseUrl: string | null;
+  agentLicenseType: string | null;
+  idDocUrl: string | null;
+  selfieUrl: string | null;
+  notes: string | null;
 };
 
 export default async function AdminManagerApplicationsPage() {
@@ -21,11 +36,34 @@ export default async function AdminManagerApplicationsPage() {
   const { data: up } = await supa.from("user_profiles").select("role").eq("user_id", user.id).maybeSingle();
   if (up?.role !== "admin") redirect("/dashboard");
 
-  // Fetch pending applications
-  const pendingApps = await db.query.managerApplications.findMany({
-    where: eq(managerApplications.status, "pending"),
-    orderBy: (ma, { desc }) => [desc(ma.createdAt)],
-  });
+  // Migrated from Drizzle/postgres-js → Supabase REST (service role).
+  // See PERFORMANCE_PLAN.md — this is one of the routes that
+  // intermittently 504s in production.
+  const admin = createSupabaseAdmin();
+  const pendingRes = await admin
+    .from("manager_applications")
+    .select(
+      "id, full_name, contact_email, contact_phone, agency_name, agency_website_url, verified_link, agent_license_url, agent_license_type, id_doc_url, selfie_url, notes",
+    )
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  const pendingApps: ApplicationRow[] = ((pendingRes.data ?? []) as Array<
+    Record<string, unknown>
+  >).map((row) => ({
+    id: row.id as string,
+    fullName: row.full_name as string,
+    contactEmail: row.contact_email as string,
+    contactPhone: (row.contact_phone as string | null) ?? null,
+    agencyName: row.agency_name as string,
+    agencyWebsiteUrl: (row.agency_website_url as string | null) ?? null,
+    verifiedLink: (row.verified_link as string | null) ?? null,
+    agentLicenseUrl: (row.agent_license_url as string | null) ?? null,
+    agentLicenseType: (row.agent_license_type as string | null) ?? null,
+    idDocUrl: (row.id_doc_url as string | null) ?? null,
+    selfieUrl: (row.selfie_url as string | null) ?? null,
+    notes: (row.notes as string | null) ?? null,
+  }));
 
   const kycStorage = supa.storage.from("kyc");
   const appsWithUrls = await Promise.all(pendingApps.map(async (app) => {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminCounters } from "@/lib/admin/counters";
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
@@ -288,6 +289,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
   // Using "layout" scope invalidates /dashboard and every nested route.
   revalidatePath("/dashboard", "layout");
   revalidatePath("/admin/career-revisions");
+  revalidateAdminCounters();
 
   return NextResponse.json({ ok: true });
 }

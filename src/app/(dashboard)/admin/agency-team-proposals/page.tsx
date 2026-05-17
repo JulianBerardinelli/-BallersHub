@@ -1,14 +1,7 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
-import {
-  agencyTeamRelationSubmissions,
-  agencyTeamRelationProposals,
-  agencyProfiles,
-  teams,
-} from "@/db/schema";
-import { eq, desc, inArray } from "drizzle-orm";
 
 import AgencyTeamProposalsClient from "./components/AgencyTeamProposalsClient";
 
@@ -16,65 +9,141 @@ export const metadata = {
   title: "Solicitudes de equipos · Admin",
 };
 
+// Render-time shape (camelCase) — matches what AgencyTeamProposalsClient
+// already expects, mapped from Supabase REST snake_case.
+type Submission = {
+  id: string;
+  agency_id: string;
+  note: string | null;
+  submitted_at: string;
+};
+
+type Proposal = {
+  id: string;
+  submission_id: string;
+  team_id: string | null;
+  proposed_team_name: string | null;
+  proposed_team_country: string | null;
+  proposed_team_country_code: string | null;
+  proposed_team_division: string | null;
+  proposed_team_transfermarkt_url: string | null;
+  relation_kind: string;
+  description: string | null;
+};
+
+type AgencyRef = {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+};
+
+type TeamRef = {
+  id: string;
+  name: string;
+  country: string | null;
+  country_code: string | null;
+  slug: string;
+};
+
 export default async function AgencyTeamProposalsAdminPage() {
   noStore();
 
   const supabase = await createSupabaseServerRSC();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/auth/sign-in?redirect=/admin/agency-team-proposals");
 
-  const submissions = await db.query.agencyTeamRelationSubmissions.findMany({
-    where: eq(agencyTeamRelationSubmissions.status, "pending"),
-    orderBy: desc(agencyTeamRelationSubmissions.submittedAt),
-  });
+  // Migrated to Supabase REST (service role). The 3 db.query.* calls
+  // here used to envenom the pooler under load. See PERFORMANCE_PLAN.md.
+  const admin = createSupabaseAdmin();
 
+  const submissionsRes = await admin
+    .from("agency_team_relation_submissions")
+    .select("id, agency_id, note, submitted_at")
+    .eq("status", "pending")
+    .order("submitted_at", { ascending: false });
+
+  const submissions = (submissionsRes.data ?? []) as Submission[];
   const submissionIds = submissions.map((s) => s.id);
-  const items = submissionIds.length
-    ? await db.query.agencyTeamRelationProposals.findMany({
-        where: inArray(agencyTeamRelationProposals.submissionId, submissionIds),
-      })
-    : [];
 
-  const agencyIds = Array.from(new Set(submissions.map((s) => s.agencyId)));
-  const agencies = agencyIds.length
-    ? await db.query.agencyProfiles.findMany({
-        where: inArray(agencyProfiles.id, agencyIds),
-        columns: { id: true, name: true, slug: true, logoUrl: true },
-      })
-    : [];
-  const agencyMap = new Map(agencies.map((a) => [a.id, a]));
+  const [itemsRes, agenciesRes] = await Promise.all([
+    submissionIds.length
+      ? admin
+          .from("agency_team_relation_proposals")
+          .select(
+            "id, submission_id, team_id, proposed_team_name, proposed_team_country, proposed_team_country_code, proposed_team_division, proposed_team_transfermarkt_url, relation_kind, description",
+          )
+          .in("submission_id", submissionIds)
+      : Promise.resolve({ data: [] as Proposal[] }),
+    submissions.length
+      ? admin
+          .from("agency_profiles")
+          .select("id, name, slug, logo_url")
+          .in(
+            "id",
+            Array.from(new Set(submissions.map((s) => s.agency_id))),
+          )
+      : Promise.resolve({ data: [] as AgencyRef[] }),
+  ]);
+
+  const items = (itemsRes.data ?? []) as Proposal[];
+  const agencyMap = new Map<string, AgencyRef>(
+    ((agenciesRes.data ?? []) as AgencyRef[]).map((a) => [a.id, a]),
+  );
 
   const teamIds = items
-    .map((i) => i.teamId)
+    .map((i) => i.team_id)
     .filter((id): id is string => !!id);
-  const refTeams = teamIds.length
-    ? await db.query.teams.findMany({
-        where: inArray(teams.id, teamIds),
-        columns: { id: true, name: true, country: true, countryCode: true, slug: true },
-      })
-    : [];
-  const teamMap = new Map(refTeams.map((t) => [t.id, t]));
+
+  const teamsRes = teamIds.length
+    ? await admin
+        .from("teams")
+        .select("id, name, country, country_code, slug")
+        .in("id", teamIds)
+    : { data: [] as TeamRef[] };
+  const teamMap = new Map<string, TeamRef>(
+    ((teamsRes.data ?? []) as TeamRef[]).map((t) => [t.id, t]),
+  );
 
   const data = submissions.map((s) => ({
     submission: {
       id: s.id,
       note: s.note,
-      submittedAt: s.submittedAt.toISOString(),
+      submittedAt: s.submitted_at,
     },
-    agency: agencyMap.get(s.agencyId) ?? null,
+    agency: agencyMap.get(s.agency_id)
+      ? {
+          id: agencyMap.get(s.agency_id)!.id,
+          name: agencyMap.get(s.agency_id)!.name,
+          slug: agencyMap.get(s.agency_id)!.slug,
+          logoUrl: agencyMap.get(s.agency_id)!.logo_url,
+        }
+      : null,
     items: items
-      .filter((it) => it.submissionId === s.id)
+      .filter((it) => it.submission_id === s.id)
       .map((it) => ({
         id: it.id,
-        teamId: it.teamId,
-        proposedTeamName: it.proposedTeamName,
-        proposedTeamCountry: it.proposedTeamCountry,
-        proposedTeamCountryCode: it.proposedTeamCountryCode,
-        proposedTeamDivision: it.proposedTeamDivision,
-        proposedTeamTransfermarktUrl: it.proposedTeamTransfermarktUrl,
-        relationKind: it.relationKind,
+        teamId: it.team_id,
+        proposedTeamName: it.proposed_team_name,
+        proposedTeamCountry: it.proposed_team_country,
+        proposedTeamCountryCode: it.proposed_team_country_code,
+        proposedTeamDivision: it.proposed_team_division,
+        proposedTeamTransfermarktUrl: it.proposed_team_transfermarkt_url,
+        relationKind: it.relation_kind,
         description: it.description,
-        team: it.teamId ? teamMap.get(it.teamId) ?? null : null,
+        team: it.team_id
+          ? teamMap.get(it.team_id)
+            ? {
+                id: teamMap.get(it.team_id)!.id,
+                name: teamMap.get(it.team_id)!.name,
+                country: teamMap.get(it.team_id)!.country,
+                countryCode: teamMap.get(it.team_id)!.country_code,
+                slug: teamMap.get(it.team_id)!.slug,
+              }
+            : null
+          : null,
       })),
   }));
 

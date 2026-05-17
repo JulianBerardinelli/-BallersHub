@@ -6,6 +6,7 @@ import postgres from "postgres";
 import * as schema from "@/db/schema/index";
 import { sql, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminCounters } from "@/lib/admin/counters";
 
 const connection = postgres(process.env.DATABASE_URL!);
 const db = drizzle(connection, { schema });
@@ -112,6 +113,7 @@ export async function bulkUpsertTeams(rows: any[]) {
     }
 
     revalidatePath("/admin/teams");
+    revalidateAdminCounters();
     return { success: successCount, errors: errorCount, message: `Se insertaron/actualizaron ${successCount} equipos.` };
   } catch (error: any) {
     throw new Error(error.message || "Error procesando el Bulk Upsert de Equipos.");
