@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
@@ -200,6 +201,12 @@ export async function POST(req: Request, ctx: { params: Params }) {
   if (updateRequestError) {
     return NextResponse.json({ error: updateRequestError.message }, { status: 400 });
   }
+
+  // Invalidate caches: player dashboard tree (so the user sees new stats +
+  // resolution note in any subroute) and admin lists.
+  // Using "layout" scope invalidates /dashboard and every nested route.
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/admin/stats-revisions");
 
   return NextResponse.json({ ok: true });
 }
