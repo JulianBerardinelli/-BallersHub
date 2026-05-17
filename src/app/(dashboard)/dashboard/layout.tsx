@@ -113,18 +113,29 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const audience = isManager ? "agency" : "player";
 
   // Tutorial bootstrap. Non-fatal: if it fails we just don't render the dock.
+  //
+  // Gate: only show the tutorial to users with a *professional account*
+  // already created — player_profile (application approved) OR confirmed
+  // manager. A brand-new signup with no application yet (or one still
+  // pending review) should NOT see player/agency tasks: their role hasn't
+  // been decided yet, so we have nothing to guide them on. The onboarding
+  // flow drives those users instead.
+  const hasProfessionalAccount = Boolean(profile) || isManager;
+
   let tutorialState = null;
-  try {
-    tutorialState = await bootstrapTutorialState({
-      userId: user.id,
-      audience,
-      tier: planAccess.isPro ? "pro" : "free",
-    });
-  } catch (err) {
-    console.warn(
-      "[DashboardLayout] tutorial bootstrap failed (non-fatal):",
-      err instanceof Error ? err.message : err,
-    );
+  if (hasProfessionalAccount) {
+    try {
+      tutorialState = await bootstrapTutorialState({
+        userId: user.id,
+        audience,
+        tier: planAccess.isPro ? "pro" : "free",
+      });
+    } catch (err) {
+      console.warn(
+        "[DashboardLayout] tutorial bootstrap failed (non-fatal):",
+        err instanceof Error ? err.message : err,
+      );
+    }
   }
 
   return (
