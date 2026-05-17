@@ -102,6 +102,7 @@ type CareerRevisionRequestRow = {
   change_summary: string | null;
   resolution_note: string | null;
   items: CareerRevisionItemRow[] | null;
+  stats_items: { id: string }[] | null;
 };
 
 export default async function FootballDataPage() {
@@ -182,12 +183,13 @@ export default async function FootballDataPage() {
              country_code,
              country_name
            )
-         )`
+         ),
+         stats_items:stats_revision_items ( id )`
       )
       .eq("player_id", profileData.id)
       .order("submitted_at", { ascending: false })
-      .limit(1)
-      .maybeSingle<CareerRevisionRequestRow>(),
+      .limit(5)
+      .returns<CareerRevisionRequestRow[]>(),
   ]);
 
   const careerRaw = careerResult.data;
@@ -324,10 +326,18 @@ export default async function FootballDataPage() {
     crestUrl: stage.team?.crestUrl ?? null,
   }));
 
-  let latestRevision: CareerRequestSnapshot | null = null;
-  if (!revisionResult.error && revisionResult.data) {
-    const items: CareerRequestStage[] = Array.isArray(revisionResult.data.items)
-      ? revisionResult.data.items
+  // A single career_revision_request can hold career_revision_items, stats_revision_items,
+  // or both. We split into two snapshots so each panel (Trayectoria / Estadísticas)
+  // shows the resolution_note of its own latest applicable request.
+  let latestCareerRevision: CareerRequestSnapshot | null = null;
+  let latestStatsRevision: CareerRequestSnapshot | null = null;
+  const revisionRows = !revisionResult.error && Array.isArray(revisionResult.data)
+    ? revisionResult.data
+    : [];
+
+  const buildSnapshot = (row: CareerRevisionRequestRow): CareerRequestSnapshot => {
+    const items: CareerRequestStage[] = Array.isArray(row.items)
+      ? row.items
           .slice()
           .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
           .map((item) => ({
@@ -354,16 +364,27 @@ export default async function FootballDataPage() {
               : null,
           }))
       : [];
-
-    latestRevision = {
-      id: revisionResult.data.id,
-      status: normalizeRequestStatus(revisionResult.data.status),
-      submittedAt: revisionResult.data.submitted_at ?? null,
-      reviewedAt: revisionResult.data.reviewed_at ?? null,
-      note: revisionResult.data.change_summary ?? null,
-      resolutionNote: revisionResult.data.resolution_note ?? null,
+    return {
+      id: row.id,
+      status: normalizeRequestStatus(row.status),
+      submittedAt: row.submitted_at ?? null,
+      reviewedAt: row.reviewed_at ?? null,
+      note: row.change_summary ?? null,
+      resolutionNote: row.resolution_note ?? null,
       items,
     };
+  };
+
+  for (const row of revisionRows) {
+    const hasCareerItems = Array.isArray(row.items) && row.items.length > 0;
+    const hasStatsItems = Array.isArray(row.stats_items) && row.stats_items.length > 0;
+    if (!latestCareerRevision && hasCareerItems) {
+      latestCareerRevision = buildSnapshot(row);
+    }
+    if (!latestStatsRevision && hasStatsItems) {
+      latestStatsRevision = buildSnapshot(row);
+    }
+    if (latestCareerRevision && latestStatsRevision) break;
   }
 
   // NOTE: Profile state loader is required to fetch extra custom columns when not in basic snapshot
@@ -415,7 +436,7 @@ export default async function FootballDataPage() {
           playerId={profileData.id}
           playerName={profileData.full_name ?? null}
           stages={careerStages}
-          latestRequest={latestRevision}
+          latestRequest={latestCareerRevision}
         />
       </SectionCard>
 
@@ -427,7 +448,7 @@ export default async function FootballDataPage() {
           playerId={profileData.id}
           stats={publishingState.stats}
           careerOptions={careerSeasonOptions}
-          latestRequest={latestRevision}
+          latestRequest={latestStatsRevision}
         />
       </SectionCard>
 
