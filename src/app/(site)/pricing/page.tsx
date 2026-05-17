@@ -27,9 +27,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function PricingPage() {
+export default async function PricingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ audience?: string; currency?: string }>;
+}) {
+  const sp = await searchParams;
+  const audience = sp.audience === "agency" ? "agency" : "player";
+  const currency =
+    sp.currency === "ARS" || sp.currency === "EUR" ? sp.currency : "USD";
+
   return (
-    <PricingProvider initialAudience="player" initialCurrency="USD">
+    <PricingProvider initialAudience={audience} initialCurrency={currency}>
       {/*
         Product + Offer × N (one Offer per currency × tier). Helps the
         page win plan/price queries and gives AI Overviews a structured

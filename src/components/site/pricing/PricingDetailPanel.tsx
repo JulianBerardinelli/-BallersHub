@@ -400,23 +400,34 @@ function SceneSlide({
   scene: Scene;
   accent: Accent;
 }) {
+  // Range must stay inside [0, 1] (WAAPI requires offsets in that range) and be
+  // monotonically non-decreasing. Cap fadeWidth at a fraction of slot so
+  // adjacent scenes don't overlap-invert when total is high.
   const slot = 1 / total;
-  const fadeWidth = 0.12;
+  const fadeWidth = Math.min(0.12, slot * 0.6);
+  const half = fadeWidth / 2;
   const isFirst = index === 0;
   const isLast = index === total - 1;
 
-  const fadeInStart = isFirst ? -1 : index * slot - fadeWidth / 2;
-  const fadeInEnd = isFirst ? -0.5 : index * slot + fadeWidth / 2;
-  const fadeOutStart = isLast ? 1.5 : (index + 1) * slot - fadeWidth / 2;
-  const fadeOutEnd = isLast ? 2 : (index + 1) * slot + fadeWidth / 2;
+  const rawFadeInStart = isFirst ? 0 : index * slot - half;
+  const rawFadeInEnd = isFirst ? 0 : index * slot + half;
+  const rawFadeOutStart = isLast ? 1 : (index + 1) * slot - half;
+  const rawFadeOutEnd = isLast ? 1 : (index + 1) * slot + half;
+
+  const fadeInStart = Math.max(0, Math.min(1, rawFadeInStart));
+  const fadeInEnd = Math.max(fadeInStart, Math.min(1, rawFadeInEnd));
+  const fadeOutStart = Math.max(fadeInEnd, Math.min(1, rawFadeOutStart));
+  const fadeOutEnd = Math.max(fadeOutStart, Math.min(1, rawFadeOutEnd));
 
   const range: number[] = [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd];
 
-  const opacity = useTransform(scrollYProgress, range, [0, 1, 1, 0]);
-  const y = useTransform(scrollYProgress, range, [56, 0, 0, -48]);
-  const scale = useTransform(scrollYProgress, range, [0.94, 1, 1, 0.965]);
-  const captionX = useTransform(scrollYProgress, range, [-32, 0, 0, -28]);
-  const mockX = useTransform(scrollYProgress, range, [56, 0, 0, -20]);
+  // For first/last we want the scene to be fully visible at scroll edges,
+  // so the in/out values collapse to the "visible" state for those edges.
+  const opacity = useTransform(scrollYProgress, range, [isFirst ? 1 : 0, 1, 1, isLast ? 1 : 0]);
+  const y = useTransform(scrollYProgress, range, [isFirst ? 0 : 56, 0, 0, isLast ? 0 : -48]);
+  const scale = useTransform(scrollYProgress, range, [isFirst ? 1 : 0.94, 1, 1, isLast ? 1 : 0.965]);
+  const captionX = useTransform(scrollYProgress, range, [isFirst ? 0 : -32, 0, 0, isLast ? 0 : -28]);
+  const mockX = useTransform(scrollYProgress, range, [isFirst ? 0 : 56, 0, 0, isLast ? 0 : -20]);
 
   const accentText =
     accent === "blue"
@@ -521,19 +532,32 @@ function RailDot({
   total: number;
   progress: MotionValue<number>;
 }) {
+  // Fade window must stay inside [0, 1] (WAAPI requires offsets in that range)
+  // and must be strictly monotonically non-decreasing. We also cap `fadeWidth`
+  // to a fraction of `slot` so adjacent dots never invert (slot < fadeWidth).
   const slot = 1 / total;
-  const fadeWidth = 0.12;
+  const fadeWidth = Math.min(0.12, slot * 0.6);
+  const half = fadeWidth / 2;
   const isFirst = index === 0;
   const isLast = index === total - 1;
 
-  const fadeInStart = isFirst ? -1 : index * slot - fadeWidth / 2;
-  const fadeInEnd = isFirst ? -0.5 : index * slot + fadeWidth / 2;
-  const fadeOutStart = isLast ? 1.5 : (index + 1) * slot - fadeWidth / 2;
-  const fadeOutEnd = isLast ? 2 : (index + 1) * slot + fadeWidth / 2;
+  // First dot is already visible at scroll 0; last dot stays visible at scroll 1.
+  const rawFadeInStart = isFirst ? 0 : index * slot - half;
+  const rawFadeInEnd = isFirst ? 0 : index * slot + half;
+  const rawFadeOutStart = isLast ? 1 : (index + 1) * slot - half;
+  const rawFadeOutEnd = isLast ? 1 : (index + 1) * slot + half;
+
+  // Clamp into [0, 1] and enforce non-decreasing using a running max.
+  const fadeInStart = Math.max(0, Math.min(1, rawFadeInStart));
+  const fadeInEnd = Math.max(fadeInStart, Math.min(1, rawFadeInEnd));
+  const fadeOutStart = Math.max(fadeInEnd, Math.min(1, rawFadeOutStart));
+  const fadeOutEnd = Math.max(fadeOutStart, Math.min(1, rawFadeOutEnd));
 
   const range: number[] = [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd];
-  const opacity = useTransform(progress, range, [0.35, 1, 1, 0.35]);
-  const scale = useTransform(progress, range, [1, 1.6, 1.6, 1]);
+  const outOpacity = [isFirst ? 1 : 0.35, 1, 1, isLast ? 1 : 0.35];
+  const outScale = [isFirst ? 1.6 : 1, 1.6, 1.6, isLast ? 1.6 : 1];
+  const opacity = useTransform(progress, range, outOpacity);
+  const scale = useTransform(progress, range, outScale);
 
   return (
     <m.span
