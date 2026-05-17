@@ -21,6 +21,7 @@ import type {
 } from "./components/free/FreeLayout";
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
 import { formatPlayerPositions } from "@/lib/format";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 
 // Public portfolios are cached for an hour. Crawlers hit these
 // frequently and we don't need second-by-second freshness — the
@@ -154,13 +155,45 @@ export default async function PlayerPublicPage({
   if (!player) return notFound();
 
   // 2) Plan y límites (Para limitar fotos - o enviarlo completo y limitar ahi)
+  //    IMPORTANTE: usamos resolvePlanAccess (mira statusV2 + plan_id) y NO
+  //    `subscriptions.plan` directo. La column `plan` legacy lagea cuando hay
+  //    grants admin / fixes parciales — ver plan-access.ts.
   const sub = await db.query.subscriptions.findFirst({
     where: (s, { eq }) => eq(s.userId, player.userId),
-    columns: { plan: true, limitsJson: true }
+    columns: {
+      plan: true,
+      planId: true,
+      status: true,
+      statusV2: true,
+      processor: true,
+      processorSubscriptionId: true,
+      currentPeriodEnd: true,
+      cancelAtPeriodEnd: true,
+      limitsJson: true,
+    }
   });
   const limits = (sub?.limitsJson ?? {}) as Record<string, unknown>;
   const maxPhotos = Number(limits?.max_photos ?? 100);
   const maxVideos = Number(limits?.max_videos ?? 100);
+
+  const planAccess = resolvePlanAccess(
+    sub
+      ? {
+          plan: sub.plan,
+          planId: sub.planId,
+          status: sub.status,
+          statusV2: sub.statusV2,
+          processor: sub.processor,
+          processorSubscriptionId: sub.processorSubscriptionId,
+          currentPeriodEnd: sub.currentPeriodEnd
+            ? sub.currentPeriodEnd.toISOString()
+            : null,
+          cancelAtPeriodEnd: sub.cancelAtPeriodEnd ?? false,
+          trialEndsAt: null,
+          canceledAt: null,
+        }
+      : null,
+  );
 
   // DEV-ONLY override so we can preview the Free layout on any /[slug]
   // without flipping subscriptions in the DB. Trips on `?force_free=1`
@@ -168,9 +201,9 @@ export default async function PlayerPublicPage({
   const devForceFree =
     process.env.NODE_ENV !== "production" && sp.force_free === "1";
 
-  const plan = devForceFree
-    ? ("free" as const)
-    : ((sub?.plan ?? "free") as "free" | "pro" | "pro_plus");
+  const plan: "free" | "pro" | "pro_plus" = devForceFree
+    ? "free"
+    : planAccess.effectivePlan;
   const isFree = plan === "free";
 
   // 3) Bandeja de Datos Públicos
