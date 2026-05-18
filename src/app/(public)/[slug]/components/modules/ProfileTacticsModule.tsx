@@ -402,51 +402,72 @@ export default function ProfileTacticsModule({
                   isScouting ? "pointer-events-none" : "pointer-events-auto"
                 }`}
               >
-                {/* ▸ MOBILE layout (< lg): 2D pitch izq + info der, highlights abajo */}
-                <div className="flex lg:hidden flex-col h-full gap-3">
+                {/* ▸ MOBILE layout (< lg): info left + 2D pitch right, highlights below.
+                    Reworked to match the rest of /slug's design system:
+                    glass cards (bg-black/40 backdrop-blur + ring/border),
+                    accent-tinted rounded-square badges (like the scouting
+                    cards), and proper section dividers. Extra top padding
+                    so the content has breathing room from the scramble
+                    title above. */}
+                <div className="flex lg:hidden flex-col h-full gap-3 pt-3 pb-1">
 
-                  {/* Top: [info left] + [2D pitch right] — aligned to top, no centering */}
+                  {/* Top: [position cards | 2D pitch in glass card] */}
                   <motion.div
                     style={{ opacity: pitchOpac, scale: pitchScale }}
-                    className="flex gap-3 min-h-0 items-start"
+                    className="flex gap-3 min-h-0 items-stretch flex-1"
                   >
-                    {/* Izquierda: position data */}
-                    <div className="flex flex-col gap-4 flex-1 min-w-0 pr-1 overflow-y-auto max-h-[50vh] pb-4 scrollbar-hide">
+                    {/* Izquierda: position cards in glass containers */}
+                    <div className="flex flex-col gap-2.5 flex-1 min-w-0 pr-0.5 overflow-y-auto scrollbar-hide">
                       {validPositions.length > 0 ? (
                         validPositions.map((posCode: string, i: number) => {
                           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
                           const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
-                          
+
                           return (
-                            <div key={posCode} className="flex flex-col justify-center gap-2.5 border-b border-white/10 pb-3 last:border-0 last:pb-0">
-                              {/* Badge posicion */}
-                              <div className="flex items-center gap-2">
+                            <div
+                              key={posCode}
+                              className="relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]"
+                            >
+                              {/* Accent stripe — matches the master card pattern */}
+                              <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
+
+                              {/* Header: tinted-square badge + label */}
+                              <div className="flex items-center gap-2.5 mb-2.5">
                                 <div
-                                  className="w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0"
-                                  style={{ borderColor: color, background: `color-mix(in srgb, ${color} 12%, transparent)` }}
+                                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                                  style={{
+                                    background: `color-mix(in srgb, ${color} 14%, transparent)`,
+                                    border: `1px solid color-mix(in srgb, ${color} 30%, transparent)`
+                                  }}
                                 >
-                                  <span className="font-black text-xs" style={{ color: color }}>{posCode.toUpperCase()}</span>
+                                  <span className="font-black text-[10px] tracking-wider" style={{ color: color }}>
+                                    {posCode.toUpperCase()}
+                                  </span>
                                 </div>
-                                <div>
-                                  <p className="text-[8px] uppercase tracking-[0.2em] text-white/40 leading-none mb-0.5">Posición</p>
-                                  <h4 className="text-sm font-black text-white uppercase leading-tight">
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
+                                    Posición
+                                  </p>
+                                  <h4 className="text-[11px] font-black text-white uppercase leading-tight">
                                     {cfg.label}
                                   </h4>
                                 </div>
                               </div>
 
                               {/* Zona de influencia */}
-                              <div>
-                                <p className="text-[8px] uppercase tracking-[0.15em] mb-0.5" style={{ color: color }}>Zona de Influencia</p>
-                                <p className="text-[11px] font-bold text-white/70 leading-snug">{cfg.area}</p>
+                              <div className="mb-2.5 pb-2.5 border-b border-white/[0.06]">
+                                <p className="text-[8px] uppercase tracking-[0.2em] mb-1" style={{ color: color }}>
+                                  Zona de Influencia
+                                </p>
+                                <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
                               </div>
 
-                              {/* Strengths */}
+                              {/* Strengths as proper chips */}
                               <div className="flex flex-wrap gap-1">
                                 {cfg.strengths.map((s, idx) => (
                                   <span
                                     key={idx}
-                                    className="text-[8px] px-2 py-0.5 rounded-full border border-white/10 text-white/50 uppercase tracking-wider"
+                                    className="text-[8px] px-2 py-1 rounded-full border border-white/10 bg-white/[0.03] text-white/60 uppercase tracking-[0.1em] font-bold backdrop-blur-sm"
                                   >
                                     {s}
                                   </span>
@@ -456,59 +477,77 @@ export default function ProfileTacticsModule({
                           );
                         })
                       ) : (
-                        <p className="text-white/30 text-xs">Sin posición registrada</p>
+                        <div className="bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-4 text-center">
+                          <p className="text-white/30 text-xs uppercase tracking-widest font-medium">
+                            Sin posición registrada
+                          </p>
+                        </div>
                       )}
                     </div>
 
-                    {/* Derecha: 2D pitch SVG — max-h para que no se estire */}
-                    <div className="w-[42%] sm:w-[38%] shrink-0 flex items-start justify-center" style={{ maxHeight: '52dvh' }}>
-                      <SoccerPitch2D positions={player.positions || ["DEL"]} />
+                    {/* Derecha: 2D pitch wrapped in a glass card so it
+                        reads as a peer to the position cards instead of
+                        floating raw against the ambient bg */}
+                    <div className="w-[42%] sm:w-[38%] shrink-0 flex">
+                      <div className="w-full bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-2 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)] flex items-center justify-center">
+                        <SoccerPitch2D positions={player.positions || ["DEL"]} />
+                      </div>
                     </div>
                   </motion.div>
 
-                  {/* Bottom: highlights compact (max 3 items) */}
-                  <motion.div style={{ opacity: highOpac, y: highY }} className="shrink-0 pb-1">
-                    {videos.length > 0 && (
-                      <>
-                        <h4 className="text-white/40 text-[9px] uppercase font-black tracking-[0.2em] mb-1.5 border-b border-white/10 pb-1.5">
+                  {/* Highlights — also wrapped in a glass card, with a
+                      proper section divider matching the scouting/career
+                      sub-headers */}
+                  {videos.length > 0 && (
+                    <motion.div
+                      style={{ opacity: highOpac, y: highY }}
+                      className="shrink-0 bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]"
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="text-white/60 text-[9px] uppercase font-black tracking-[0.3em] shrink-0">
                           Highlights
                         </h4>
-                        <div className="flex flex-col gap-1.5">
-                          {videos.slice(0, 3).map((vid) => {
-                            const year = vid.createdAt
-                              ? new Date(vid.createdAt).getFullYear()
-                              : new Date().getFullYear();
-                            return (
-                              <a
-                                key={vid.id}
-                                href={vid.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="flex items-center gap-2.5 bg-black/30 border border-white/10 rounded-lg p-2 hover:border-[var(--theme-primary)]/50 transition-colors"
-                              >
-                                <div className="w-10 h-7 bg-black rounded overflow-hidden shrink-0 relative">
-                                  <img
-                                    src={getYouTubeThumbnail(vid.url)}
-                                    className="w-full h-full object-cover opacity-60"
-                                    alt=""
-                                  />
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-white text-[7px]">▶</span>
+                        <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        {videos.slice(0, 3).map((vid) => {
+                          const year = vid.createdAt
+                            ? new Date(vid.createdAt).getFullYear()
+                            : new Date().getFullYear();
+                          return (
+                            <a
+                              key={vid.id}
+                              href={vid.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="group flex items-center gap-2.5 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
+                            >
+                              <div className="w-10 h-7 bg-black rounded overflow-hidden shrink-0 relative">
+                                <img
+                                  src={getYouTubeThumbnail(vid.url)}
+                                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                                  alt=""
+                                />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <div className="w-4 h-4 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/70 group-hover:bg-[var(--theme-primary)] group-hover:text-white transition-colors">
+                                    <span className="text-[6px] ml-[1px]">▶</span>
                                   </div>
                                 </div>
-                                <div className="min-w-0">
-                                  <p className="text-[10px] text-white/80 font-bold uppercase tracking-wide line-clamp-1">
-                                    {vid.title || "Match Highlight"}
-                                  </p>
-                                  <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black">Temp. {year}</p>
-                                </div>
-                              </a>
-                            );
-                          })}
-                        </div>
-                      </>
-                    )}
-                  </motion.div>
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-[10px] text-white/85 font-bold uppercase tracking-wide line-clamp-1">
+                                  {vid.title || "Match Highlight"}
+                                </p>
+                                <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black tracking-widest mt-0.5">
+                                  Temp. {year}
+                                </p>
+                              </div>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* ▸ DESKTOP layout (lg+): 3D pitch izq + video/highlights der */}
