@@ -742,10 +742,13 @@ export default function ProfileTacticsModule({
                         <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
                       </div>
 
-                      {/* Link items — videos[1] and videos[2] when present */}
+                      {/* Inline link — videos[1] when present. Reduced
+                          from 2 to 1 so the highlights stack stays short
+                          enough not to crash into the section's bottom
+                          regardless of how many videos the player has. */}
                       {videos.length > 1 && (
                         <div className="flex flex-col gap-1.5 mb-2.5">
-                          {videos.slice(1, 3).map((vid: any) => {
+                          {videos.slice(1, 2).map((vid: any) => {
                             const year = vid.createdAt
                               ? new Date(vid.createdAt).getFullYear()
                               : new Date().getFullYear();
@@ -805,18 +808,22 @@ export default function ProfileTacticsModule({
                         </div>
                       </a>
 
-                      {/* Ver más → opens VideosModal with the full list */}
-                      {videos.length > 3 && (
+                      {/* "Ver más +N" appears whenever there's a video beyond
+                          the 1 inline link + 1 hero shown above (i.e.
+                          `videos.length > 2`). Keeps the inline stack bounded
+                          so the section doesn't overflow on players with rich
+                          highlight libraries. Opens the full-list VideosModal. */}
+                      {videos.length > 2 && (
                         <button
                           type="button"
                           onClick={() => setVideosModalOpen(true)}
                           className="mt-2 w-full group flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/40 transition-colors"
                         >
                           <span className="text-[9px] uppercase font-black tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
-                            Ver más
+                            Ver todos
                           </span>
                           <span className="text-[9px] font-black text-[var(--theme-accent)] tabular-nums font-bh-display">
-                            +{videos.length - 3}
+                            +{videos.length - 2}
                           </span>
                         </button>
                       )}
