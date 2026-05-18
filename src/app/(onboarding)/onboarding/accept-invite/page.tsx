@@ -1,7 +1,6 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 

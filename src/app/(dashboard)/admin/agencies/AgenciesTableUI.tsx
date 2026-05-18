@@ -5,7 +5,6 @@ import {
   Button,
   Chip,
   Tooltip,
-  User,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -105,7 +104,6 @@ function HeaderCell({
 
 function AgencyLogo({ src, name }: { src: string | null; name: string }) {
   if (src && src.trim() !== "") {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
       <img
         src={src}

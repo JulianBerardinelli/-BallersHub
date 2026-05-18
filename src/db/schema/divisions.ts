@@ -1,6 +1,5 @@
 import { pgTable, uuid, text, timestamp, integer, char, boolean } from "drizzle-orm/pg-core";
 import { divisionStatusEnum } from "./enums";
-import { countries } from "./countries";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const divisions = pgTable("divisions", {

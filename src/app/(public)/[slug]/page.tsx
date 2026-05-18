@@ -6,7 +6,6 @@ import {
   careerItems,
   statsSeasons,
   playerArticles,
-  playerPersonalDetails,
   playerLinks,
   teams,
   divisions,

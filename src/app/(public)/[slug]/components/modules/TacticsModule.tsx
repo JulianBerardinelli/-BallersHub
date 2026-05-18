@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { playerProfiles, playerMedia } from "@/db/schema";
+import { playerMedia } from "@/db/schema";
 import { eq, and } from "drizzle-orm";
 import ProfileTacticsModule from "./ProfileTacticsModule";
 

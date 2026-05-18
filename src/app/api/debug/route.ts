@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { playerMedia } from "@/db/schema";
 
 export const dynamic = 'force-dynamic';

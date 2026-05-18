@@ -4,10 +4,10 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import type { PublicProfileData } from "./LayoutResolver";
 import ProPlayerHeader from "./ProPlayerHeader";
-import { formatMarketValueEUR, formatPlayerPositions } from "@/lib/format";
+import { formatPlayerPositions } from "@/lib/format";
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
-  const { player, career, theme } = data;
+  const { player, theme } = data;
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({

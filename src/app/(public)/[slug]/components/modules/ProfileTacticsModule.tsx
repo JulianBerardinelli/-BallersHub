@@ -345,13 +345,6 @@ export default function ProfileTacticsModule({
     (m) => m.url && (m.url.match(/\.(jpeg|jpg|gif|png|webp)$/i) || m.mediaType === "photo")
   ).slice(0, 3) || [];
 
-  const palettes = [
-    { border: "border-[var(--theme-primary)]/40", text: "text-[var(--theme-accent)]",  dot: "bg-[var(--theme-primary)]" },
-    { border: "border-orange-500/40",             text: "text-orange-400",             dot: "bg-orange-500" },
-    { border: "border-violet-500/40",             text: "text-violet-400",             dot: "bg-violet-500" },
-    { border: "border-emerald-500/40",            text: "text-emerald-400",            dot: "bg-emerald-500" },
-  ];
-
   const PALETTES_COLORS = [
     "var(--theme-primary)",
     "#f97316", // orange-500
@@ -365,13 +358,6 @@ export default function ProfileTacticsModule({
     .filter((p: string) => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
     .map((p: string) => normalizePosition(p))
     .filter((p: string | null): p is string => p !== null);
-
-  const PALETTES = [
-    "var(--theme-primary)",
-    "#f97316", // orange-500
-    "#8b5cf6", // violet-500
-    "#10b981", // emerald-500
-  ];
 
   return (
     <section

@@ -17,13 +17,17 @@ import * as schema from "@/db/schema";
 // entirely. P3 fixes the root cause: `node-postgres` does not have
 // the extended-protocol stalling pattern that produced the zombies.
 //
-// We keep the same defensive timeouts at the Postgres session level
-// for any new code path that might still misbehave — `pg` accepts
-// them via `options` (libpq-style `-c key=value`).
+// Defensive timeouts at the Postgres session level. With pg replacing
+// postgres-js, the ClientRead zombie pattern is gone, so we relax
+// from the aggressive 8s `statement_timeout` we ran during the
+// post-incident period (PR #71) — 30s is enough for any reasonable
+// query and stays well under Vercel's 60s maxDuration. The other
+// timeouts stay as belt-and-suspenders for stuck-transaction or
+// idle-session edge cases.
 const PG_SESSION_OPTIONS = [
-  "-c statement_timeout=8000",
-  "-c idle_in_transaction_session_timeout=10000",
-  "-c idle_session_timeout=30000",
+  "-c statement_timeout=30000",
+  "-c idle_in_transaction_session_timeout=15000",
+  "-c idle_session_timeout=60000",
 ].join(" ");
 
 const globalForPool = globalThis as unknown as {

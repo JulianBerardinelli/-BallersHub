@@ -20,7 +20,7 @@ export default function StructureManagerClient({
   initialBlocks: OptimisticStructureBlock[];
 }) {
   const { enqueue } = useNotificationContext();
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const [blocks, updateBlockOptimistic] = useOptimistic(
     initialBlocks,

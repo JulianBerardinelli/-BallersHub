@@ -205,9 +205,31 @@ páginas (football-data + agency + agency/[slug]).
   Supabase Auth. Ojo: middleware corre en cada request — usar bien el
   matcher.
 
-### P4 — Cleanup (paralelo, opcional)
-- [ ] Limpiar warnings ESLint del build (50+ `any`, 30+ unused,
-  useEffect deps). Sin impacto perf pero molesta al refactorizar.
+### P4 — Cleanup
+- [x] **`db.ts` timeouts relajados**: post-P3 (con `pg`) las defensas
+  agresivas ya no son necesarias. `statement_timeout` 8s → 30s,
+  `idle_in_transaction_session_timeout` 10s → 15s, `idle_session_timeout`
+  30s → 60s. Aún bien debajo del `maxDuration: 60s` de Vercel.
+- [x] **Cleanup ESLint en bulk (35 archivos)**: borrados imports
+  unused, vars no utilizadas, directivas `// eslint-disable` muertas,
+  parámetros `e` en catches que no se usaban, y funciones huérfanas
+  (`formatSettingValue` en `structure/page.tsx`, `AccordionCard`
+  + `DesktopCinematicAccordion` en `ProfileCareerTimelineModule.tsx`,
+  ~120 líneas de código muerto).
+  **Resultado**: 211 → 153 warnings (-58, -27%).
+  Breakdown: unused 64 → 12 (los 12 restantes son `_param` que
+  ESLint marca por config, no por código), eslint-disable muertas
+  9 → 0, any 118 → 113 (algunos cayeron al borrar código muerto),
+  exhaustive-deps 10 → 10 (no tocados, requieren entender cada hook),
+  img 17 → 16.
+- [ ] **Postponed**: remover `postgres-js` de `package.json` —
+  `scripts/*.ts` (7 archivos one-off / maintenance) lo siguen
+  importando. Migrar después o borrar los scripts si están cumplidos.
+- [ ] **Postponed**: `any` → tipos concretos. Quedan 113. Más
+  laburo y requiere derivar tipos de Drizzle (`$inferSelect`).
+- [ ] **Postponed**: `useEffect` exhaustive-deps. 10 warnings,
+  cada uno requiere entender la lógica del componente.
+- [ ] **Postponed**: 16 `<img>` restantes (no críticos para LCP).
 
 ---
 

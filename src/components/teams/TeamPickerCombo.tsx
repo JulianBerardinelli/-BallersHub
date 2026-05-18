@@ -8,7 +8,6 @@ import {
   Switch,
   Chip,
   Kbd,
-  ScrollShadow,
 } from "@heroui/react";
 import { supabase } from "@/lib/supabase/client";
 import CountryFlag from "@/components/common/CountryFlag";

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Upload, X, CheckCircle, Image as ImageIcon, ExternalLink, Info, Sparkles } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
 import { updateProAssetAction } from "@/app/actions/pro-assets";
 import { announcementNotification, profileNotification, useNotificationContext } from "@/modules/notifications";
 
@@ -21,8 +20,8 @@ export default function ProAssetsUploaderClient({
   currentHeroUrl,
   currentModelUrl1,
   currentModelUrl2,
-  playerId,
-  userId,
+  playerId: _playerId,
+  userId: _userId,
 }: ProAssetsProps) {
   const [isUploading, setIsUploading] = useState<AssetType | null>(null);
   const [previews, setPreviews] = useState<Record<AssetType, string | null>>({
