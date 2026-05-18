@@ -4,11 +4,11 @@ import React, { useRef, useState } from "react";
 import {
   motion,
   useInView,
-  useScroll,
   useTransform,
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
+import { useStableScrollProgress } from "@/hooks/useStableScrollProgress";
 import SoccerPitch3D, { POSITIONS_MAP, normalizePosition } from "@/components/common/animations/SoccerPitch3D";
 import { IconSoccerField } from "@/components/icons/IconSoccerField";
 import { IconBrain } from "@/components/icons/IconBrain";
@@ -301,10 +301,14 @@ export default function ProfileTacticsModule({
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [openCard, setOpenCard] = useState<string | null>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end end"],
-  });
+  // Custom live-measurement hook (see `src/hooks/useStableScrollProgress.ts`)
+  // instead of framer-motion's `useScroll({ target })` — the latter caches
+  // the target's document offset on mount and only refreshes on `resize`,
+  // which is fatal for this section because streaming-SSR siblings (Bio,
+  // Career, Media) resolve at different moments and shift its offset after
+  // calibration. Live measurement reads `getBoundingClientRect()` on every
+  // scroll / resize / layout mutation so the calibration never goes stale.
+  const { scrollYProgress } = useStableScrollProgress(sectionRef);
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     if (latest > 0.35 && !isScouting) setIsScouting(true);
