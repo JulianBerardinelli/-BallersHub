@@ -243,10 +243,10 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                      className="absolute w-full max-w-[750px] drop-shadow-2xl"
                    >
                      {/* Tarjeta Glassmorphism */}
-                     <div className="w-full bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-[2rem] p-5 lg:p-8 flex flex-col relative overflow-hidden shadow-[inset_0_0_60px_rgba(255,255,255,0.03)]">
+                     <div className="w-full bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-[2rem] p-5 lg:p-6 flex flex-col relative overflow-hidden shadow-[inset_0_0_60px_rgba(255,255,255,0.03)]">
                          <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-[var(--theme-primary)] rounded-full blur-[80px] opacity-[0.1] pointer-events-none" />
 
-                         <div className="flex justify-between items-start mb-4">
+                         <div className="flex justify-between items-start mb-3">
                              <div className="flex flex-col">
                                 <span className={`w-fit px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest mb-3 ${nodeData.isCurrent ? 'bg-[var(--theme-primary)] text-white' : 'bg-white/10 text-white/60'}`}>
                                    {nodeData.startYear} - {nodeData.endYear}
@@ -270,7 +270,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
 
                          {/* Stats Data Centralizd */}
                          {nodeData.hasStats && (
-                            <div className="grid grid-cols-5 gap-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-6">
+                            <div className="grid grid-cols-5 gap-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-3">
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4">
                                  <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Partidos</span>
                                  <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.matches}</span>
@@ -306,56 +306,57 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                             </div>
                          )}
 
-                         {/* Achivements Grid */}
-                         {nodeData.itemHonours.length > 0 && (
-                            <div className="flex-1 grid grid-cols-2 gap-2 mt-2 max-h-[140px] overflow-y-auto scrollbar-hide pr-2">
-                               {nodeData.itemHonours.map((p: any) => {
-                                 const isTrophy = isHonourTrophy(p.title);
-                                 return (
-                                 <div key={p.id} onClick={() => onSelectHonour(p)} className="group w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg cursor-pointer hover:bg-yellow-500/20 transition-colors">
-                                    <div className="flex flex-col truncate pr-2">
-                                      <span className="text-yellow-500 font-extrabold text-[10px] uppercase tracking-wider truncate group-hover:text-yellow-400 transition-colors">{p.title}</span>
-                                      {p.competition && <span className="text-yellow-500/50 text-[9px] font-bold uppercase truncate group-hover:text-yellow-500/80 transition-colors">{p.competition} {p.season && `• ${p.season}`}</span>}
-                                    </div>
-                                    <div className="flex items-center gap-1.5">
-                                      <div className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px]">
-                                        {isTrophy ? (
-                                           <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z" /><path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" /><path d="M11 17V20H8V22H16V20H13V17H11Z" /><path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" /><path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" /></svg>
-                                        ) : (
-                                           <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                                        )}
+                         {/* Honours + Transfermarkt club link in a parallel row.
+                             Honours grid takes the remaining space; the
+                             transfermarkt link sits as a compact chip on the
+                             right so the card stays short enough not to
+                             collide with the player platform links above. */}
+                         {(nodeData.itemHonours.length > 0 || nodeData.team?.transfermarktUrl) && (
+                           <div className="flex flex-row items-stretch gap-2 mt-2 min-h-0">
+                             {nodeData.itemHonours.length > 0 && (
+                               <div className="flex-1 grid grid-cols-2 gap-2 max-h-[140px] overflow-y-auto scrollbar-hide pr-1 min-w-0">
+                                 {nodeData.itemHonours.map((p: any) => {
+                                   const isTrophy = isHonourTrophy(p.title);
+                                   return (
+                                   <div key={p.id} onClick={() => onSelectHonour(p)} className="group w-full flex items-center justify-between px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-transparent border border-yellow-500/20 rounded-lg cursor-pointer hover:bg-yellow-500/20 transition-colors">
+                                      <div className="flex flex-col truncate pr-2">
+                                        <span className="text-yellow-500 font-extrabold text-[10px] uppercase tracking-wider truncate group-hover:text-yellow-400 transition-colors">{p.title}</span>
+                                        {p.competition && <span className="text-yellow-500/50 text-[9px] font-bold uppercase truncate group-hover:text-yellow-500/80 transition-colors">{p.competition} {p.season && `• ${p.season}`}</span>}
                                       </div>
-                                      <svg className="w-3.5 h-3.5 text-yellow-500/50 group-hover:text-yellow-500 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                                    </div>
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="flex items-center justify-center w-6 h-6 shrink-0 rounded-full bg-yellow-500/20 text-yellow-500 text-[10px]">
+                                          {isTrophy ? (
+                                             <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15 8H9L12 2Z" /><path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" /><path d="M11 17V20H8V22H16V20H13V17H11Z" /><path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" /><path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" /></svg>
+                                          ) : (
+                                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                          )}
+                                        </div>
+                                        <svg className="w-3.5 h-3.5 text-yellow-500/50 group-hover:text-yellow-500 group-hover:translate-x-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                                      </div>
+                                   </div>
+                                 )})}
+                               </div>
+                             )}
+
+                             {nodeData.team?.transfermarktUrl && (
+                               <a
+                                 href={nodeData.team.transfermarktUrl}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 aria-label="Ver perfil del club en Transfermarkt"
+                                 className={`group shrink-0 self-start flex flex-col items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/8 hover:border-[#B5101F]/40 transition-all duration-300 overflow-hidden relative ${nodeData.itemHonours.length > 0 ? 'w-[88px]' : 'w-full'}`}
+                               >
+                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(181,16,31,0.12), rgba(0,25,63,0.08))' }} />
+                                 <div className="relative z-10 flex items-center justify-center w-9 h-5 rounded overflow-hidden bg-white shrink-0">
+                                   <TransfermarktIcon className="w-full h-full" />
                                  </div>
-                               )})}
-                            </div>
+                                 <span className="relative z-10 text-[8px] font-black text-white/70 leading-none tracking-[0.15em] uppercase group-hover:text-white text-center">
+                                   {nodeData.itemHonours.length > 0 ? 'Club' : 'Ver club en Transfermarkt'}
+                                 </span>
+                               </a>
+                             )}
+                           </div>
                          )}
-
-
-                          {/* Transfermarkt club link */}
-                          {nodeData.team?.transfermarktUrl && (
-                            <div className="mt-4 pt-4 border-t border-white/5">
-                              <a
-                                href={nodeData.team.transfermarktUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group inline-flex items-center gap-2.5 px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/8 hover:border-[#B5101F]/40 transition-all duration-300 overflow-hidden relative"
-                              >
-                                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(181,16,31,0.12), rgba(0,25,63,0.08))' }} />
-                                <div className="relative z-10 flex items-center justify-center w-8 h-5 rounded overflow-hidden bg-white shrink-0">
-                                  <TransfermarktIcon className="w-full h-full" />
-                                </div>
-                                <div className="relative z-10 flex flex-col items-start">
-                                  <span className="text-[10px] font-black text-white/80 leading-none tracking-wide group-hover:text-white/100 transition-colors">Ver en Transfermarkt</span>
-                                  <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">Perfil del club</span>
-                                </div>
-                                <svg className="relative z-10 w-3 h-3 text-white/20 group-hover:text-white/50 ml-1 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                              </a>
-                            </div>
-                          )}
                       </div>
                    </motion.div>
                  );
