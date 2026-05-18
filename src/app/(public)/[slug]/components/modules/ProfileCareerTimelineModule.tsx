@@ -10,6 +10,7 @@ import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import BeSoccerIcon from "@/components/icons/BeSoccerIcon";
 import FlashscoreIcon from "@/components/icons/FlashscoreIcon";
 import CountUp from "@/components/ui/CountUp";
+import BioAnimatedBackground from "./BioAnimatedBackground";
 
 type ExternalLinks = { transfermarkt: string | null; beSoccer: string | null; flashscore?: string | null; };
 export default function ProfileCareerTimelineModule({ career, externalLinks }: { career: any[]; externalLinks?: ExternalLinks }) {
@@ -33,12 +34,13 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
       </AnimatePresence>
 
       {/* MOBILE TIMELINE (Vertical Zig-Zag, visible only < lg) */}
-      <div className="block lg:hidden w-full relative py-16 px-6">
-        <motion.div 
+      <div className="block lg:hidden w-full relative py-16 px-6 overflow-hidden">
+        <BioAnimatedBackground />
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="w-full mb-12 flex flex-col"
+          className="relative z-10 w-full mb-12 flex flex-col"
         >
            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-2">
              Historial Deportivo
@@ -48,7 +50,7 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
            </h3>
         </motion.div>
 
-        <div className="relative">
+        <div className="relative z-10">
            {/* Mobile Line */}
            <div className="absolute top-0 bottom-0 left-[24px] w-[2px] bg-white/10 rounded-full" />
 
@@ -136,12 +138,16 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
 
   return (
     <div ref={containerRef} className="relative w-full" style={{ height: "450vh" }}>
-      <motion.div 
+      <motion.div
         className="sticky top-0 h-screen w-full flex flex-col items-center overflow-hidden bg-[var(--theme-background)] z-20"
       >
-         
-         {/* Grilla Background para diferenciar secciones */}
-         <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+
+         {/* Themed ambient background — mirrors the bio section: dot
+             pattern + 3 floating orbs tinted with --theme-primary/accent/
+             secondary. Lives behind the inner content (z-0 via the
+             component's own wrapper) and respects overflow-hidden of
+             the sticky parent. */}
+         <BioAnimatedBackground />
 
          {/* Inner layout: distributes title, card, and timeline proportionally within viewport */}
          <div className="w-full max-w-[1240px] px-8 flex flex-col relative z-10" style={{ height: '100svh', paddingTop: '128px', paddingBottom: '0px', justifyContent: 'space-between', alignItems: 'center' }}>
