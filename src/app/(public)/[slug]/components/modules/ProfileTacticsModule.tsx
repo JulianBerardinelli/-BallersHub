@@ -299,11 +299,17 @@ function SkillChip({ label, color }: { label: string; color: string }) {
   );
 }
 
-// ── MOBILE POSITION CARD (collapsible chips) ──────────────────────────────────
-// Compact glass card for the mobile Layer 1. Skill chips are tucked inside an
-// expandable wrapper so the card's default height is short enough to read in
-// rhythm with the SVG pitch on the right — user opts into the chip detail
-// with the "Atributos clave" toggle.
+// ── MOBILE POSITION CARD (3D flip) ────────────────────────────────────────────
+// Glass card for the mobile Layer 1 that flips 180° on Y axis when tapped:
+// front shows the position identity (badge + label + zone of influence), back
+// shows the skill chips. Using `transform-style: preserve-3d` + `backface-
+// visibility: hidden` instead of a collapsible wrapper, so the card stays a
+// single fixed-height tile and never pushes content below it down — fixing
+// the collision that the earlier accordion version had inside the scroll-jack
+// 100dvh frame.
+//
+// The two faces sit in the same CSS grid cell via `grid-area: card` so the
+// container auto-sizes to the larger of the two faces.
 
 function MobilePositionCard({
   posCode,
@@ -314,81 +320,166 @@ function MobilePositionCard({
   color: string;
   cfg: { label: string; area: string; strengths: string[] };
 }) {
-  const [chipsOpen, setChipsOpen] = useState(false);
+  const [flipped, setFlipped] = useState(false);
+  const hasChips = cfg.strengths.length > 0;
 
-  return (
-    <div className="relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]">
-      {/* Accent stripe */}
-      <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
-
-      {/* Header: badge + label */}
-      <div className="flex items-center gap-2.5 mb-2.5">
-        <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
-        <div className="min-w-0 flex-1">
-          <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
-            Posición
+  // No chips → render a plain, non-flippable card (no flip indicator either).
+  if (!hasChips) {
+    return (
+      <div className="relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]">
+        <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
+        <div className="flex items-center gap-2.5 mb-2.5">
+          <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
+          <div className="min-w-0 flex-1">
+            <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">Posición</p>
+            <h4 className="text-[11px] font-black text-white uppercase leading-tight">{cfg.label}</h4>
+          </div>
+        </div>
+        <div>
+          <p className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold" style={{ color }}>
+            Zona de Influencia
           </p>
-          <h4 className="text-[11px] font-black text-white uppercase leading-tight">
-            {cfg.label}
-          </h4>
+          <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
         </div>
       </div>
+    );
+  }
 
-      {/* Zona de influencia */}
-      <div>
-        <p
-          className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold"
-          style={{ color: color }}
+  const faceClasses =
+    "relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]";
+
+  return (
+    <div className="relative w-full" style={{ perspective: "1200px" }}>
+      <motion.button
+        type="button"
+        onClick={() => setFlipped((v) => !v)}
+        aria-pressed={flipped}
+        aria-label={flipped ? "Volver al frente de la card" : "Ver atributos clave"}
+        animate={{ rotateY: flipped ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className="relative w-full text-left grid"
+        style={{
+          transformStyle: "preserve-3d",
+          gridTemplateAreas: '"card"',
+        }}
+      >
+        {/* ── FRONT FACE ── */}
+        <div
+          className={faceClasses}
+          style={{
+            gridArea: "card",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+          }}
         >
-          Zona de Influencia
-        </p>
-        <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
-      </div>
+          {/* Accent stripe */}
+          <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
 
-      {/* Collapsible chips wrapper */}
-      {cfg.strengths.length > 0 && (
-        <>
-          <button
-            type="button"
-            onClick={() => setChipsOpen((v) => !v)}
-            aria-expanded={chipsOpen}
-            className="mt-2.5 pt-2 w-full flex items-center justify-between gap-2 border-t border-white/[0.06] group"
-          >
-            <span
-              className="text-[8px] uppercase font-bh-display font-bold tracking-[0.2em] transition-colors"
-              style={{ color: chipsOpen ? color : "rgba(255,255,255,0.5)" }}
+          {/* Header: badge + label + flip indicator */}
+          <div className="flex items-start gap-2.5 mb-2.5">
+            <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
+            <div className="min-w-0 flex-1">
+              <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
+                Posición
+              </p>
+              <h4 className="text-[11px] font-black text-white uppercase leading-tight">
+                {cfg.label}
+              </h4>
+            </div>
+            {/* Flip affordance — tinted with the position colour */}
+            <div
+              className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-px"
+              style={{
+                background: `color-mix(in srgb, ${color} 14%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${color} 32%, transparent)`,
+              }}
+              aria-hidden="true"
             >
-              Atributos clave
-            </span>
-            <motion.span
-              animate={{ rotate: chipsOpen ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="text-[10px] leading-none"
-              style={{ color: chipsOpen ? color : "rgba(255,255,255,0.4)" }}
-            >
-              ▾
-            </motion.span>
-          </button>
-
-          <AnimatePresence initial={false}>
-            {chipsOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.22, ease: "easeInOut" }}
-                className="overflow-hidden"
+              <svg
+                className="w-2 h-2"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ color }}
               >
-                <div className="flex flex-wrap gap-1 pt-2">
-                  {cfg.strengths.map((s, idx) => (
-                    <SkillChip key={idx} label={s} color={color} />
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </>
-      )}
+                <path d="M2 6h8" />
+                <path d="M7 3l3 3-3 3" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Zona de influencia */}
+          <div>
+            <p
+              className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold"
+              style={{ color }}
+            >
+              Zona de Influencia
+            </p>
+            <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
+          </div>
+        </div>
+
+        {/* ── BACK FACE ── */}
+        <div
+          className={`${faceClasses} flex flex-col`}
+          style={{
+            gridArea: "card",
+            backfaceVisibility: "hidden",
+            WebkitBackfaceVisibility: "hidden",
+            transform: "rotateY(180deg)",
+          }}
+        >
+          {/* Accent stripe */}
+          <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
+
+          {/* Back header: badge + title + back arrow */}
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <div className="flex items-center gap-2 min-w-0">
+              <PositionBadge label={posCode.toUpperCase()} color={color} size="xs" />
+              <span
+                className="text-[8px] uppercase font-bh-display font-bold tracking-[0.2em] truncate"
+                style={{ color }}
+              >
+                Atributos clave
+              </span>
+            </div>
+            {/* Back-to-front affordance */}
+            <div
+              className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center"
+              style={{
+                background: `color-mix(in srgb, ${color} 14%, transparent)`,
+                border: `1px solid color-mix(in srgb, ${color} 32%, transparent)`,
+              }}
+              aria-hidden="true"
+            >
+              <svg
+                className="w-2 h-2"
+                viewBox="0 0 12 12"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ color }}
+              >
+                <path d="M10 6H2" />
+                <path d="M5 3l-3 3 3 3" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Chips — vertically centred so the back face balances the front */}
+          <div className="flex flex-wrap gap-1 flex-1 items-center content-center">
+            {cfg.strengths.map((s, idx) => (
+              <SkillChip key={idx} label={s} color={color} />
+            ))}
+          </div>
+        </div>
+      </motion.button>
     </div>
   );
 }
@@ -808,13 +899,59 @@ export default function ProfileTacticsModule({
                   {/* Lado izq: pitch 3D */}
                   <motion.div
                     style={{ opacity: pitchOpac, scale: pitchScale, rotateX: pitchRotateX, transformOrigin: "center" }}
-                    className="w-1/2 flex items-start justify-center relative -mt-10"
+                    className="w-1/2 flex flex-col items-center relative -mt-10"
                   >
-                    <div className="absolute top-[40%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[var(--theme-primary)] blur-[150px] opacity-10 pointer-events-none" />
+                    <div className="absolute top-[35%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[var(--theme-primary)] blur-[150px] opacity-10 pointer-events-none" />
                     <SoccerPitch3D
                       playerPositions={player.positions || ["DEL"]}
                       characteristics={characteristics}
                     />
+
+                    {/* Floating skill chips — fill the empty space below the
+                        3D pitch on desktop. Each chip bobs independently with
+                        a staggered delay so the cluster reads as "alive" but
+                        not chaotic. Tinted with the per-position colour to
+                        echo the pitch's position lights above. */}
+                    {validPositions.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 1.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                        className="mt-6 lg:mt-8 w-full max-w-[460px] flex flex-col gap-2 items-center"
+                      >
+                        <h5 className="text-[9px] uppercase font-black tracking-[0.4em] text-white/40 text-center mb-1">
+                          Atributos clave
+                        </h5>
+                        {validPositions.map((posCode: string, i: number) => {
+                          const cfg = POSITIONS_MAP[posCode.toUpperCase()];
+                          if (!cfg || cfg.strengths.length === 0) return null;
+                          const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
+                          return (
+                            <div
+                              key={posCode}
+                              className="flex items-center justify-center gap-2 flex-wrap"
+                            >
+                              <PositionBadge label={posCode.toUpperCase()} color={color} size="xs" />
+                              {cfg.strengths.map((skill, j) => (
+                                <motion.div
+                                  key={`${posCode}-${j}`}
+                                  animate={{ y: [0, -4, 0] }}
+                                  transition={{
+                                    duration: 3 + j * 0.18,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                    delay: (i * cfg.strengths.length + j) * 0.22,
+                                  }}
+                                >
+                                  <SkillChip label={skill} color={color} />
+                                </motion.div>
+                              ))}
+                            </div>
+                          );
+                        })}
+                      </motion.div>
+                    )}
                   </motion.div>
 
                   {/* Lado der: video + highlights */}
@@ -840,32 +977,77 @@ export default function ProfileTacticsModule({
                     )}
                     <motion.div style={{ opacity: highOpac, y: highY }} className="w-full max-w-[550px] relative z-30">
                       <h4 className="text-white/50 text-[10px] uppercase font-black tracking-[0.2em] mb-4 border-b border-white/10 pb-2">Highlights</h4>
-                      <ul className="flex flex-col gap-3">
-                        {videos.length === 0 && <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Sin recursos</p>}
-                        {videos.map((vid) => {
-                          const year = vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear();
-                          return (
-                            <li key={vid.id}>
-                              <a href={vid.url} target="_blank" rel="noreferrer"
-                                className="flex items-center gap-4 group bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg p-3 hover:bg-black/60 hover:border-[var(--theme-primary)] transition-colors"
-                              >
-                                <div className="w-16 h-12 bg-black rounded overflow-hidden shrink-0 relative">
-                                  <img src={getYouTubeThumbnail(vid.url)} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" alt="thumbnail" />
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-5 h-5 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/80 group-hover:bg-[var(--theme-primary)] group-hover:border-transparent group-hover:text-white transition-colors">
-                                      <span className="text-[6px] ml-[1px]">▶</span>
+                      {videos.length <= 1 ? (
+                        videos.length === 0 && (
+                          <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Sin recursos</p>
+                        )
+                      ) : (
+                        <ul className="flex flex-col gap-3">
+                          {/* Show videos[1] and videos[2] as link items —
+                              videos[0] is already on display as the hero
+                              auto-play above. Beyond videos[2], surface the
+                              "Ver todos" CTA so the column doesn't fill the
+                              whole sticky pin with link items. */}
+                          {videos.slice(1, 3).map((vid) => {
+                            const year = vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear();
+                            return (
+                              <li key={vid.id}>
+                                <a href={vid.url} target="_blank" rel="noreferrer"
+                                  className="flex items-center gap-4 group bg-black/40 backdrop-blur-xl border border-white/10 rounded-lg p-3 hover:bg-black/60 hover:border-[var(--theme-primary)] transition-colors"
+                                >
+                                  <div className="w-16 h-12 bg-black rounded overflow-hidden shrink-0 relative">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img src={getYouTubeThumbnail(vid.url)} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" alt="thumbnail" />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <div className="w-5 h-5 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/80 group-hover:bg-[var(--theme-primary)] group-hover:border-transparent group-hover:text-white transition-colors">
+                                        <span className="text-[6px] ml-[1px]">▶</span>
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                                <div className="flex flex-col justify-center min-w-0">
-                                  <span className="text-white/90 text-xs font-bold tracking-widest uppercase line-clamp-1">{vid.title || "Match Highlight"}</span>
-                                  <span className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-1">Temp. {year}</span>
-                                </div>
-                              </a>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                                  <div className="flex flex-col justify-center min-w-0">
+                                    <span className="text-white/90 text-xs font-bold tracking-widest uppercase line-clamp-1">{vid.title || "Match Highlight"}</span>
+                                    <span className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-1">Temp. {year}</span>
+                                  </div>
+                                </a>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                      {/* "Ver todos los highlights" CTA — mirrors the mobile
+                          treatment. Fires the same VideosModal with the full
+                          list. Threshold is `> 3` because desktop shows hero
+                          + 2 inline links by default. */}
+                      {videos.length > 3 && (
+                        <button
+                          type="button"
+                          onClick={() => setVideosModalOpen(true)}
+                          className="mt-3 w-full group flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg transition-all hover:scale-[1.01]"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, color-mix(in srgb, var(--theme-primary) 28%, transparent), color-mix(in srgb, var(--theme-accent) 18%, transparent))",
+                            border:
+                              "1px solid color-mix(in srgb, var(--theme-primary) 50%, transparent)",
+                            boxShadow:
+                              "0 6px 18px color-mix(in srgb, var(--theme-primary) 28%, transparent), inset 0 1px 0 color-mix(in srgb, var(--theme-primary) 25%, transparent)",
+                          }}
+                        >
+                          <span className="text-[10px] uppercase font-black tracking-[0.22em] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                            Ver todos los highlights
+                          </span>
+                          <span
+                            className="text-[10px] font-black text-white tabular-nums font-bh-display px-2 py-0.5 rounded-full backdrop-blur-sm leading-none"
+                            style={{
+                              background:
+                                "color-mix(in srgb, var(--theme-primary) 55%, transparent)",
+                              border:
+                                "1px solid color-mix(in srgb, var(--theme-primary) 70%, transparent)",
+                            }}
+                          >
+                            +{videos.length - 3}
+                          </span>
+                        </button>
+                      )}
                     </motion.div>
                   </div>
                 </div>
