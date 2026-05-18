@@ -8,6 +8,7 @@ import {
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { useStableScrollProgress } from "@/hooks/useStableScrollProgress";
 import SoccerPitch3D, { POSITIONS_MAP, normalizePosition } from "@/components/common/animations/SoccerPitch3D";
 import { IconSoccerField } from "@/components/icons/IconSoccerField";
@@ -105,7 +106,11 @@ function YoutubeClip({ video, className, animate = false }: { video: any; classN
   return <div ref={containerRef} className={className}>{inner}</div>;
 }
 
-// ── 2D SOCCER PITCH (mobile-only, lightweight SVG) ────────────────────────────
+// ── 2D SOCCER PITCH (mobile-only) ─────────────────────────────────────────────
+// SVG for the field outline + lines (colours mirror the 3D desktop pitch —
+// neutral-900 ground, white/30 paint, subtle white grass stripes). Position
+// markers are HTML/CSS lights overlaid on top so framer-motion can drive the
+// glow pulse + bob animation, same vocabulary as `SoccerPitch3D`.
 function SoccerPitch2D({ positions }: { positions: string[] }) {
   const validPositions = positions
     .filter(p => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
@@ -120,66 +125,84 @@ function SoccerPitch2D({ positions }: { positions: string[] }) {
   ];
 
   return (
-    <svg
-      viewBox="0 0 68 105"
-      className="w-full h-auto"
-      style={{ filter: "drop-shadow(0 0 16px rgba(0,0,0,0.7))" }}
-    >
-      {/* Field background */}
-      <rect x="0" y="0" width="68" height="105" fill="#0c1a0f" />
-      {/* Grass stripes */}
-      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-        <rect key={i} x="0" y={i * 15} width="68" height="7.5" fill="rgba(255,255,255,0.018)" />
-      ))}
-      {/* Outer border */}
-      <rect x="1" y="1" width="66" height="103" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="0.8" />
-      {/* Center line */}
-      <line x1="1" y1="52.5" x2="67" y2="52.5" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
-      {/* Center circle */}
-      <circle cx="34" cy="52.5" r="9.15" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
-      <circle cx="34" cy="52.5" r="0.7" fill="rgba(255,255,255,0.4)" />
-      {/* Penalty area — top */}
-      <rect x="13.85" y="1" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <rect x="24.84" y="1" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <circle cx="34" cy="11" r="0.6" fill="rgba(255,255,255,0.3)" />
-      {/* Penalty area — bottom */}
-      <rect x="13.85" y="87.5" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <rect x="24.84" y="98.5" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <circle cx="34" cy="94" r="0.6" fill="rgba(255,255,255,0.3)" />
-      {/* Goals */}
-      <rect x="27.5" y="0" width="13" height="2" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.35)" strokeWidth="0.4" />
-      <rect x="27.5" y="103" width="13" height="2" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.35)" strokeWidth="0.4" />
+    <div className="relative w-full" style={{ aspectRatio: "68 / 105" }}>
+      <svg
+        viewBox="0 0 68 105"
+        className="absolute inset-0 w-full h-full"
+        style={{ filter: "drop-shadow(0 0 16px rgba(0,0,0,0.7))" }}
+        aria-hidden="true"
+      >
+        {/* Field background — neutral-900 to match the desktop 3D pitch */}
+        <rect x="0" y="0" width="68" height="105" fill="#171717" />
+        {/* Grass stripes — subtle white tint, low contrast */}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+          <rect key={i} x="0" y={i * 10} width="68" height="5" fill="rgba(255,255,255,0.04)" />
+        ))}
+        {/* Outer border — matches desktop border-white/20 */}
+        <rect x="0.5" y="0.5" width="67" height="104" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.8" />
+        {/* Center line + circle — white/30 like desktop */}
+        <line x1="0.5" y1="52.5" x2="67.5" y2="52.5" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="52.5" r="9.15" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="52.5" r="0.6" fill="rgba(255,255,255,0.3)" />
+        {/* Penalty area — top */}
+        <rect x="13.85" y="0.5" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <rect x="24.84" y="0.5" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="11" r="0.6" fill="rgba(255,255,255,0.3)" />
+        {/* Penalty area — bottom */}
+        <rect x="13.85" y="88" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <rect x="24.84" y="99" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="94" r="0.6" fill="rgba(255,255,255,0.3)" />
+        {/* Goals */}
+        <rect x="27.5" y="0" width="13" height="1.5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" strokeWidth="0.3" />
+        <rect x="27.5" y="103.5" width="13" height="1.5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" strokeWidth="0.3" />
+      </svg>
 
-      {/* Position markers */}
-      {validPositions.map((posCode, i) => {
-        const cfg = POSITIONS_MAP[posCode.toUpperCase()];
-        if (!cfg) return null;
-        const x = (parseFloat(cfg.left) / 100) * 68;
-        const y = (parseFloat(cfg.top) / 100) * 105;
-        const color = PALETTES[i % PALETTES.length];
-        return (
-          <g key={posCode}>
-            <circle cx={x} cy={y} r="9" fill={color} opacity="0.12" />
-            <circle cx={x} cy={y} r="5.5" fill={color} opacity="0.2" />
-            <circle
-              cx={x} cy={y} r="3.2"
-              fill={color}
-              opacity={1}
-            />
-            <text
-              x={x} y={y + 8.5}
-              textAnchor="middle"
-              fontSize="4"
-              fill="rgba(255,255,255,0.85)"
-              fontFamily="monospace"
-              fontWeight="bold"
+      {/* Position markers — HTML overlay with framer-motion animations.
+          Mirrors the 3D pitch's "floating light" treatment: outer halo
+          pulses scale + opacity, inner dot bobs vertically, both tinted
+          with the per-position colour. */}
+      <div className="absolute inset-0 pointer-events-none">
+        {validPositions.map((posCode, i) => {
+          const cfg = POSITIONS_MAP[posCode.toUpperCase()];
+          if (!cfg) return null;
+          const color = PALETTES[i % PALETTES.length];
+
+          return (
+            <div
+              key={posCode}
+              className="absolute -translate-x-1/2 -translate-y-1/2"
+              style={{ top: cfg.top, left: cfg.left }}
             >
-              {posCode.toUpperCase()}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+              <div className="relative">
+                {/* Outer glow halo — pulses opacity + scale */}
+                <motion.div
+                  animate={{ scale: [1, 1.7, 1], opacity: [0.35, 0.85, 0.35] }}
+                  transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.35, ease: "easeInOut" }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full blur-[7px] mix-blend-screen"
+                  style={{ backgroundColor: color }}
+                />
+                {/* Inner light node — white core with colour border + glow */}
+                <motion.div
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}
+                  className="relative w-3 h-3 rounded-full border bg-white flex items-center justify-center z-10"
+                  style={{ borderColor: color, boxShadow: `0 0 8px ${color}, 0 0 16px ${color}50` }}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                </motion.div>
+                {/* Position code label below the light */}
+                <span
+                  className="absolute top-full left-1/2 -translate-x-1/2 mt-1 text-[9px] font-black uppercase tracking-wider whitespace-nowrap font-mono"
+                  style={{ color: color, textShadow: "0 0 6px rgba(0,0,0,0.9)" }}
+                >
+                  {posCode.toUpperCase()}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -285,6 +308,118 @@ function AccordionCard({
   );
 }
 
+// ── VIDEOS MODAL ──────────────────────────────────────────────────────────────
+// Opens from the mobile highlights "Ver más" button when the player has more
+// than the 5-item inline cap. Locks both `document.body.overflow` and Lenis
+// (same recipe `GalleryLightbox` uses) so the page behind doesn't scroll.
+function VideosModal({
+  videos,
+  playerName,
+  onClose,
+}: {
+  videos: any[];
+  playerName: string;
+  onClose: () => void;
+}) {
+  const lenis = useLenis();
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    lenis?.stop();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      lenis?.start();
+    };
+  }, [onClose, lenis]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[150] bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Todos los highlights de ${playerName}`}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 12 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-neutral-900/95 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-3xl p-5 relative shadow-2xl max-h-[80vh] flex flex-col"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-white/70 hover:text-white transition-colors border border-white/10 z-10"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="mb-4 pr-10">
+          <span className="text-[9px] uppercase font-black tracking-[0.3em] text-[var(--theme-accent)]">
+            Highlights · {videos.length}
+          </span>
+          <h3 className="text-xl font-black font-heading text-white uppercase leading-tight mt-1">
+            Todos los videos
+          </h3>
+        </div>
+
+        <ul className="flex-1 overflow-y-auto pr-1 custom-scrollbar flex flex-col gap-2 -mr-1">
+          {videos.map((vid: any) => {
+            const year = vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear();
+            return (
+              <li key={vid.id}>
+                <a
+                  href={vid.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center gap-3 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
+                >
+                  <div className="w-16 h-10 bg-black rounded overflow-hidden shrink-0 relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getYouTubeThumbnail(vid.url)}
+                      className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
+                      alt=""
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/80 group-hover:bg-[var(--theme-primary)] group-hover:text-white group-hover:border-transparent transition-colors">
+                        <span className="text-[7px] ml-[1px]">▶</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] text-white/90 font-bold uppercase tracking-wide line-clamp-1">
+                      {vid.title || "Match Highlight"}
+                    </p>
+                    <p className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-0.5">
+                      Temp. {year}
+                    </p>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ── MAIN MODULE ───────────────────────────────────────────────────────────────
 export default function ProfileTacticsModule({
   player,
@@ -300,6 +435,7 @@ export default function ProfileTacticsModule({
   const [isScouting, setIsScouting] = useState(isScoutingProp);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [openCard, setOpenCard] = useState<string | null>(null);
+  const [videosModalOpen, setVideosModalOpen] = useState(false);
 
   // Custom live-measurement hook (see `src/hooks/useStableScrollProgress.ts`)
   // instead of framer-motion's `useScroll({ target })` — the latter caches
@@ -485,24 +621,19 @@ export default function ProfileTacticsModule({
                       )}
                     </div>
 
-                    {/* Derecha: 2D pitch wrapped in a glass card so it
-                        reads as a peer to the position cards instead of
-                        floating raw against the ambient bg */}
-                    <div className="w-[42%] sm:w-[38%] shrink-0 flex">
-                      <div className="w-full bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-2 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)] flex items-center justify-center">
-                        <SoccerPitch2D positions={player.positions || ["DEL"]} />
-                      </div>
+                    {/* Derecha: 2D pitch — rendered bare against the ambient
+                        bg (no glass card wrapper) so it reads as part of the
+                        section's atmosphere, like the desktop 3D pitch. */}
+                    <div className="w-[42%] sm:w-[38%] shrink-0 flex items-center">
+                      <SoccerPitch2D positions={player.positions || ["DEL"]} />
                     </div>
                   </motion.div>
 
-                  {/* Highlights — also wrapped in a glass card, with a
-                      proper section divider matching the scouting/career
-                      sub-headers */}
+                  {/* Highlights — bare list (no card wrapper) with a section
+                      divider. Cap at 5 inline; surface a "Ver más (N)" button
+                      that opens the full-list modal when there are more. */}
                   {videos.length > 0 && (
-                    <motion.div
-                      style={{ opacity: highOpac, y: highY }}
-                      className="shrink-0 bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]"
-                    >
+                    <motion.div style={{ opacity: highOpac, y: highY }} className="shrink-0">
                       <div className="flex items-center gap-2 mb-2">
                         <h4 className="text-white/60 text-[9px] uppercase font-black tracking-[0.3em] shrink-0">
                           Highlights
@@ -510,7 +641,7 @@ export default function ProfileTacticsModule({
                         <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        {videos.slice(0, 3).map((vid) => {
+                        {videos.slice(0, 5).map((vid) => {
                           const year = vid.createdAt
                             ? new Date(vid.createdAt).getFullYear()
                             : new Date().getFullYear();
@@ -545,6 +676,20 @@ export default function ProfileTacticsModule({
                             </a>
                           );
                         })}
+                        {videos.length > 5 && (
+                          <button
+                            type="button"
+                            onClick={() => setVideosModalOpen(true)}
+                            className="group flex items-center justify-center gap-2 mt-0.5 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/40 transition-colors"
+                          >
+                            <span className="text-[9px] uppercase font-black tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
+                              Ver más
+                            </span>
+                            <span className="text-[9px] font-black text-[var(--theme-accent)] tabular-nums">
+                              +{videos.length - 5}
+                            </span>
+                          </button>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -976,6 +1121,18 @@ export default function ProfileTacticsModule({
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Videos full-list modal — surfaced from the mobile highlights
+          "Ver más" button when there are more than 5 videos. */}
+      <AnimatePresence>
+        {videosModalOpen && (
+          <VideosModal
+            videos={videos}
+            playerName={player.fullName as string}
+            onClose={() => setVideosModalOpen(false)}
+          />
         )}
       </AnimatePresence>
     </section>
