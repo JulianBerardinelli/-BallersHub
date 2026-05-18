@@ -728,10 +728,11 @@ export default function ProfileTacticsModule({
                     </div>
                   </motion.div>
 
-                  {/* Highlights: section header → 2 link items
-                      (videos[1], videos[2]) → 1 hero auto-play (videos[0],
-                      same YoutubeClip treatment as desktop) → "Ver más"
-                      button when the player has more than 3 videos. */}
+                  {/* Highlights: section header → hero auto-play (videos[0])
+                      → "Ver todos los highlights +N" theme-tinted button when
+                      the player has more than 1 video. Removed inline link
+                      items — the stack was getting too cramped within the
+                      scroll-jack's 100dvh frame; the modal carries the rest. */}
                   {videos.length > 0 && (
                     <motion.div style={{ opacity: highOpac, y: highY }} className="shrink-0">
                       {/* Section divider header */}
@@ -741,51 +742,6 @@ export default function ProfileTacticsModule({
                         </h4>
                         <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
                       </div>
-
-                      {/* Inline link — videos[1] when present. Reduced
-                          from 2 to 1 so the highlights stack stays short
-                          enough not to crash into the section's bottom
-                          regardless of how many videos the player has. */}
-                      {videos.length > 1 && (
-                        <div className="flex flex-col gap-1.5 mb-2.5">
-                          {videos.slice(1, 2).map((vid: any) => {
-                            const year = vid.createdAt
-                              ? new Date(vid.createdAt).getFullYear()
-                              : new Date().getFullYear();
-                            return (
-                              <a
-                                key={vid.id}
-                                href={vid.url}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="group flex items-center gap-2.5 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
-                              >
-                                <div className="w-10 h-7 bg-black rounded overflow-hidden shrink-0 relative">
-                                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img
-                                    src={getYouTubeThumbnail(vid.url)}
-                                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
-                                    alt=""
-                                  />
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-4 h-4 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/70 group-hover:bg-[var(--theme-primary)] group-hover:text-white transition-colors">
-                                      <span className="text-[6px] ml-[1px]">▶</span>
-                                    </div>
-                                  </div>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-[10px] text-white/85 font-bold uppercase tracking-wide line-clamp-1">
-                                    {vid.title || "Match Highlight"}
-                                  </p>
-                                  <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black tracking-widest mt-0.5">
-                                    Temp. {year}
-                                  </p>
-                                </div>
-                              </a>
-                            );
-                          })}
-                        </div>
-                      )}
 
                       {/* Hero auto-play — videos[0]. Anchor wraps the YouTube
                           iframe (which is pointer-events-none in YoutubeClip),
@@ -808,22 +764,38 @@ export default function ProfileTacticsModule({
                         </div>
                       </a>
 
-                      {/* "Ver más +N" appears whenever there's a video beyond
-                          the 1 inline link + 1 hero shown above (i.e.
-                          `videos.length > 2`). Keeps the inline stack bounded
-                          so the section doesn't overflow on players with rich
-                          highlight libraries. Opens the full-list VideosModal. */}
-                      {videos.length > 2 && (
+                      {/* "Ver todos los highlights +N" — primary CTA. Theme-
+                          tinted gradient + glow using the player's
+                          `--theme-primary` so it pops against the ambient
+                          backdrop and reads as the canonical action. Opens
+                          the full-list VideosModal. */}
+                      {videos.length > 1 && (
                         <button
                           type="button"
                           onClick={() => setVideosModalOpen(true)}
-                          className="mt-2 w-full group flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/40 transition-colors"
+                          className="mt-2.5 w-full group flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg transition-all hover:scale-[1.01]"
+                          style={{
+                            background:
+                              "linear-gradient(135deg, color-mix(in srgb, var(--theme-primary) 28%, transparent), color-mix(in srgb, var(--theme-accent) 18%, transparent))",
+                            border:
+                              "1px solid color-mix(in srgb, var(--theme-primary) 50%, transparent)",
+                            boxShadow:
+                              "0 6px 18px color-mix(in srgb, var(--theme-primary) 28%, transparent), inset 0 1px 0 color-mix(in srgb, var(--theme-primary) 25%, transparent)",
+                          }}
                         >
-                          <span className="text-[9px] uppercase font-black tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
-                            Ver todos
+                          <span className="text-[10px] uppercase font-black tracking-[0.22em] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+                            Ver todos los highlights
                           </span>
-                          <span className="text-[9px] font-black text-[var(--theme-accent)] tabular-nums font-bh-display">
-                            +{videos.length - 2}
+                          <span
+                            className="text-[10px] font-black text-white tabular-nums font-bh-display px-2 py-0.5 rounded-full backdrop-blur-sm leading-none"
+                            style={{
+                              background:
+                                "color-mix(in srgb, var(--theme-primary) 55%, transparent)",
+                              border:
+                                "1px solid color-mix(in srgb, var(--theme-primary) 70%, transparent)",
+                            }}
+                          >
+                            +{videos.length - 1}
                           </span>
                         </button>
                       )}
