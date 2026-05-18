@@ -8,6 +8,7 @@ import {
   useMotionValueEvent,
   AnimatePresence,
 } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { useStableScrollProgress } from "@/hooks/useStableScrollProgress";
 import SoccerPitch3D, { POSITIONS_MAP, normalizePosition } from "@/components/common/animations/SoccerPitch3D";
 import { IconSoccerField } from "@/components/icons/IconSoccerField";
@@ -105,7 +106,11 @@ function YoutubeClip({ video, className, animate = false }: { video: any; classN
   return <div ref={containerRef} className={className}>{inner}</div>;
 }
 
-// ── 2D SOCCER PITCH (mobile-only, lightweight SVG) ────────────────────────────
+// ── 2D SOCCER PITCH (mobile-only) ─────────────────────────────────────────────
+// SVG for the field outline + lines (colours mirror the 3D desktop pitch —
+// neutral-900 ground, white/30 paint, subtle white grass stripes). Position
+// markers are HTML/CSS lights overlaid on top so framer-motion can drive the
+// glow pulse + bob animation, same vocabulary as `SoccerPitch3D`.
 function SoccerPitch2D({ positions }: { positions: string[] }) {
   const validPositions = positions
     .filter(p => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
@@ -120,66 +125,82 @@ function SoccerPitch2D({ positions }: { positions: string[] }) {
   ];
 
   return (
-    <svg
-      viewBox="0 0 68 105"
-      className="w-full h-auto"
-      style={{ filter: "drop-shadow(0 0 16px rgba(0,0,0,0.7))" }}
-    >
-      {/* Field background */}
-      <rect x="0" y="0" width="68" height="105" fill="#0c1a0f" />
-      {/* Grass stripes */}
-      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-        <rect key={i} x="0" y={i * 15} width="68" height="7.5" fill="rgba(255,255,255,0.018)" />
-      ))}
-      {/* Outer border */}
-      <rect x="1" y="1" width="66" height="103" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="0.8" />
-      {/* Center line */}
-      <line x1="1" y1="52.5" x2="67" y2="52.5" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
-      {/* Center circle */}
-      <circle cx="34" cy="52.5" r="9.15" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.5" />
-      <circle cx="34" cy="52.5" r="0.7" fill="rgba(255,255,255,0.4)" />
-      {/* Penalty area — top */}
-      <rect x="13.85" y="1" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <rect x="24.84" y="1" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <circle cx="34" cy="11" r="0.6" fill="rgba(255,255,255,0.3)" />
-      {/* Penalty area — bottom */}
-      <rect x="13.85" y="87.5" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <rect x="24.84" y="98.5" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="0.5" />
-      <circle cx="34" cy="94" r="0.6" fill="rgba(255,255,255,0.3)" />
-      {/* Goals */}
-      <rect x="27.5" y="0" width="13" height="2" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.35)" strokeWidth="0.4" />
-      <rect x="27.5" y="103" width="13" height="2" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.35)" strokeWidth="0.4" />
+    <div className="relative w-full" style={{ aspectRatio: "68 / 105" }}>
+      <svg
+        viewBox="0 0 68 105"
+        className="absolute inset-0 w-full h-full"
+        style={{ filter: "drop-shadow(0 0 16px rgba(0,0,0,0.7))" }}
+        aria-hidden="true"
+      >
+        {/* Field background — neutral-900 to match the desktop 3D pitch */}
+        <rect x="0" y="0" width="68" height="105" fill="#171717" />
+        {/* Grass stripes — subtle white tint, low contrast */}
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
+          <rect key={i} x="0" y={i * 10} width="68" height="5" fill="rgba(255,255,255,0.04)" />
+        ))}
+        {/* Outer border — matches desktop border-white/20 */}
+        <rect x="0.5" y="0.5" width="67" height="104" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="0.8" />
+        {/* Center line + circle — white/30 like desktop */}
+        <line x1="0.5" y1="52.5" x2="67.5" y2="52.5" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="52.5" r="9.15" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="52.5" r="0.6" fill="rgba(255,255,255,0.3)" />
+        {/* Penalty area — top */}
+        <rect x="13.85" y="0.5" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <rect x="24.84" y="0.5" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="11" r="0.6" fill="rgba(255,255,255,0.3)" />
+        {/* Penalty area — bottom */}
+        <rect x="13.85" y="88" width="40.32" height="16.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <rect x="24.84" y="99" width="18.32" height="5.5" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.4" />
+        <circle cx="34" cy="94" r="0.6" fill="rgba(255,255,255,0.3)" />
+        {/* Goals */}
+        <rect x="27.5" y="0" width="13" height="1.5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" strokeWidth="0.3" />
+        <rect x="27.5" y="103.5" width="13" height="1.5" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.3)" strokeWidth="0.3" />
+      </svg>
 
-      {/* Position markers */}
-      {validPositions.map((posCode, i) => {
-        const cfg = POSITIONS_MAP[posCode.toUpperCase()];
-        if (!cfg) return null;
-        const x = (parseFloat(cfg.left) / 100) * 68;
-        const y = (parseFloat(cfg.top) / 100) * 105;
-        const color = PALETTES[i % PALETTES.length];
-        return (
-          <g key={posCode}>
-            <circle cx={x} cy={y} r="9" fill={color} opacity="0.12" />
-            <circle cx={x} cy={y} r="5.5" fill={color} opacity="0.2" />
-            <circle
-              cx={x} cy={y} r="3.2"
-              fill={color}
-              opacity={1}
-            />
-            <text
-              x={x} y={y + 8.5}
-              textAnchor="middle"
-              fontSize="4"
-              fill="rgba(255,255,255,0.85)"
-              fontFamily="monospace"
-              fontWeight="bold"
+      {/* Position markers — HTML overlay with framer-motion animations.
+          Mirrors the 3D pitch's "floating light" treatment: outer halo
+          pulses scale + opacity, inner dot bobs vertically, both tinted
+          with the per-position colour. */}
+      <div className="absolute inset-0 pointer-events-none">
+        {validPositions.map((posCode, i) => {
+          const cfg = POSITIONS_MAP[posCode.toUpperCase()];
+          if (!cfg) return null;
+          const color = PALETTES[i % PALETTES.length];
+
+          return (
+            <div
+              key={posCode}
+              className="absolute -translate-x-1/2 -translate-y-1/2"
+              style={{ top: cfg.top, left: cfg.left }}
             >
-              {posCode.toUpperCase()}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+              <div className="relative">
+                {/* Outer glow halo — pulses opacity + scale */}
+                <motion.div
+                  animate={{ scale: [1, 1.7, 1], opacity: [0.35, 0.85, 0.35] }}
+                  transition={{ duration: 2.2, repeat: Infinity, delay: i * 0.35, ease: "easeInOut" }}
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full blur-[7px] mix-blend-screen"
+                  style={{ backgroundColor: color }}
+                />
+                {/* Inner light node — white core with colour border + glow */}
+                <motion.div
+                  animate={{ y: [0, -3, 0] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}
+                  className="relative w-3 h-3 rounded-full border bg-white flex items-center justify-center z-10"
+                  style={{ borderColor: color, boxShadow: `0 0 8px ${color}, 0 0 16px ${color}50` }}
+                >
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+                </motion.div>
+                {/* Position code label below the light — design-system
+                    badge tinted with the per-position colour. */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5">
+                  <PositionBadge label={posCode.toUpperCase()} color={color} size="xs" />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -223,6 +244,151 @@ function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
       <h3 className="text-[1.6rem] sm:text-3xl md:text-5xl font-black font-heading text-white uppercase leading-[0.9] whitespace-pre-line mt-1">
         <ScrambleText text={subtitle} active={isScouting} />
       </h3>
+    </div>
+  );
+}
+
+// ── DESIGN-SYSTEM BADGES ──────────────────────────────────────────────────────
+// Both the position-code label (EI / MCO / etc.) and the per-skill chips
+// (DESBORDE, 1 VS 1, …) use the `.pos-tag` recipe from the Claude Design
+// `components-badges.html` brief: Barlow Condensed, color/10% bg, color
+// border, rounded 5px. Tinted with the player's per-position colour.
+
+function PositionBadge({
+  label,
+  color,
+  size = "sm",
+}: {
+  label: string;
+  color: string;
+  size?: "xs" | "sm" | "md";
+}) {
+  const sizing =
+    size === "xs"
+      ? "px-1.5 py-px text-[8px] tracking-[0.06em]"
+      : size === "md"
+        ? "px-2.5 py-1 text-[12px] tracking-[0.06em]"
+        : "px-2 py-0.5 text-[10px] tracking-[0.06em]";
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-[5px] font-bh-display font-bold uppercase whitespace-nowrap leading-none ${sizing}`}
+      style={{
+        background: `color-mix(in srgb, ${color} 10%, transparent)`,
+        color: color,
+        border: `1px solid color-mix(in srgb, ${color} 22%, transparent)`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function SkillChip({ label, color }: { label: string; color: string }) {
+  return (
+    <span
+      className="inline-flex items-center px-2 py-1 rounded-[5px] text-[9px] font-bh-display font-bold uppercase tracking-[0.08em] whitespace-nowrap leading-none transition-all hover:-translate-y-px"
+      style={{
+        background: `color-mix(in srgb, ${color} 8%, transparent)`,
+        color: color,
+        border: `1px solid color-mix(in srgb, ${color} 20%, transparent)`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+// ── MOBILE POSITION CARD (collapsible chips) ──────────────────────────────────
+// Compact glass card for the mobile Layer 1. Skill chips are tucked inside an
+// expandable wrapper so the card's default height is short enough to read in
+// rhythm with the SVG pitch on the right — user opts into the chip detail
+// with the "Atributos clave" toggle.
+
+function MobilePositionCard({
+  posCode,
+  color,
+  cfg,
+}: {
+  posCode: string;
+  color: string;
+  cfg: { label: string; area: string; strengths: string[] };
+}) {
+  const [chipsOpen, setChipsOpen] = useState(false);
+
+  return (
+    <div className="relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]">
+      {/* Accent stripe */}
+      <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
+
+      {/* Header: badge + label */}
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
+            Posición
+          </p>
+          <h4 className="text-[11px] font-black text-white uppercase leading-tight">
+            {cfg.label}
+          </h4>
+        </div>
+      </div>
+
+      {/* Zona de influencia */}
+      <div>
+        <p
+          className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold"
+          style={{ color: color }}
+        >
+          Zona de Influencia
+        </p>
+        <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
+      </div>
+
+      {/* Collapsible chips wrapper */}
+      {cfg.strengths.length > 0 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setChipsOpen((v) => !v)}
+            aria-expanded={chipsOpen}
+            className="mt-2.5 pt-2 w-full flex items-center justify-between gap-2 border-t border-white/[0.06] group"
+          >
+            <span
+              className="text-[8px] uppercase font-bh-display font-bold tracking-[0.2em] transition-colors"
+              style={{ color: chipsOpen ? color : "rgba(255,255,255,0.5)" }}
+            >
+              Atributos clave
+            </span>
+            <motion.span
+              animate={{ rotate: chipsOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="text-[10px] leading-none"
+              style={{ color: chipsOpen ? color : "rgba(255,255,255,0.4)" }}
+            >
+              ▾
+            </motion.span>
+          </button>
+
+          <AnimatePresence initial={false}>
+            {chipsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.22, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-wrap gap-1 pt-2">
+                  {cfg.strengths.map((s, idx) => (
+                    <SkillChip key={idx} label={s} color={color} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }
@@ -285,6 +451,118 @@ function AccordionCard({
   );
 }
 
+// ── VIDEOS MODAL ──────────────────────────────────────────────────────────────
+// Opens from the mobile highlights "Ver más" button when the player has more
+// than the 5-item inline cap. Locks both `document.body.overflow` and Lenis
+// (same recipe `GalleryLightbox` uses) so the page behind doesn't scroll.
+function VideosModal({
+  videos,
+  playerName,
+  onClose,
+}: {
+  videos: any[];
+  playerName: string;
+  onClose: () => void;
+}) {
+  const lenis = useLenis();
+
+  React.useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    lenis?.stop();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      lenis?.start();
+    };
+  }, [onClose, lenis]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+      className="fixed inset-0 z-[150] bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Todos los highlights de ${playerName}`}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 12 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-md bg-neutral-900/95 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-3xl p-5 relative shadow-2xl max-h-[80vh] flex flex-col"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Cerrar"
+          className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-white/70 hover:text-white transition-colors border border-white/10 z-10"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div className="mb-4 pr-10">
+          <span className="text-[9px] uppercase font-black tracking-[0.3em] text-[var(--theme-accent)]">
+            Highlights · {videos.length}
+          </span>
+          <h3 className="text-xl font-black font-heading text-white uppercase leading-tight mt-1">
+            Todos los videos
+          </h3>
+        </div>
+
+        <ul className="flex-1 overflow-y-auto pr-1 custom-scrollbar flex flex-col gap-2 -mr-1">
+          {videos.map((vid: any) => {
+            const year = vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear();
+            return (
+              <li key={vid.id}>
+                <a
+                  href={vid.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-center gap-3 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
+                >
+                  <div className="w-16 h-10 bg-black rounded overflow-hidden shrink-0 relative">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={getYouTubeThumbnail(vid.url)}
+                      className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity"
+                      alt=""
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-5 h-5 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/80 group-hover:bg-[var(--theme-primary)] group-hover:text-white group-hover:border-transparent transition-colors">
+                        <span className="text-[7px] ml-[1px]">▶</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] text-white/90 font-bold uppercase tracking-wide line-clamp-1">
+                      {vid.title || "Match Highlight"}
+                    </p>
+                    <p className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-0.5">
+                      Temp. {year}
+                    </p>
+                  </div>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ── MAIN MODULE ───────────────────────────────────────────────────────────────
 export default function ProfileTacticsModule({
   player,
@@ -300,6 +578,7 @@ export default function ProfileTacticsModule({
   const [isScouting, setIsScouting] = useState(isScoutingProp);
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [openCard, setOpenCard] = useState<string | null>(null);
+  const [videosModalOpen, setVideosModalOpen] = useState(false);
 
   // Custom live-measurement hook (see `src/hooks/useStableScrollProgress.ts`)
   // instead of framer-motion's `useScroll({ target })` — the latter caches
@@ -402,79 +681,71 @@ export default function ProfileTacticsModule({
                   isScouting ? "pointer-events-none" : "pointer-events-auto"
                 }`}
               >
-                {/* ▸ MOBILE layout (< lg): 2D pitch izq + info der, highlights abajo */}
-                <div className="flex lg:hidden flex-col h-full gap-3">
+                {/* ▸ MOBILE layout (< lg): info left + 2D pitch right, highlights below.
+                    Reworked to match the rest of /slug's design system:
+                    glass cards (bg-black/40 backdrop-blur + ring/border),
+                    accent-tinted rounded-square badges (like the scouting
+                    cards), and proper section dividers. Extra top padding
+                    so the content has breathing room from the scramble
+                    title above. */}
+                <div className="flex lg:hidden flex-col h-full gap-3 pt-3 pb-1">
 
-                  {/* Top: [info left] + [2D pitch right] — aligned to top, no centering */}
+                  {/* Top row: position cards (left, collapsible chips so the
+                      stack stays compact) + 2D pitch (right). `items-start`
+                      keeps both columns top-aligned regardless of how tall
+                      either becomes. */}
                   <motion.div
                     style={{ opacity: pitchOpac, scale: pitchScale }}
                     className="flex gap-3 min-h-0 items-start"
                   >
-                    {/* Izquierda: position data */}
-                    <div className="flex flex-col gap-4 flex-1 min-w-0 pr-1 overflow-y-auto max-h-[50vh] pb-4 scrollbar-hide">
+                    {/* Position cards */}
+                    <div className="flex flex-col gap-2.5 flex-1 min-w-0 pr-0.5 overflow-y-auto scrollbar-hide">
                       {validPositions.length > 0 ? (
                         validPositions.map((posCode: string, i: number) => {
                           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
                           const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
-                          
                           return (
-                            <div key={posCode} className="flex flex-col justify-center gap-2.5 border-b border-white/10 pb-3 last:border-0 last:pb-0">
-                              {/* Badge posicion */}
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="w-9 h-9 rounded-full border-2 flex items-center justify-center shrink-0"
-                                  style={{ borderColor: color, background: `color-mix(in srgb, ${color} 12%, transparent)` }}
-                                >
-                                  <span className="font-black text-xs" style={{ color: color }}>{posCode.toUpperCase()}</span>
-                                </div>
-                                <div>
-                                  <p className="text-[8px] uppercase tracking-[0.2em] text-white/40 leading-none mb-0.5">Posición</p>
-                                  <h4 className="text-sm font-black text-white uppercase leading-tight">
-                                    {cfg.label}
-                                  </h4>
-                                </div>
-                              </div>
-
-                              {/* Zona de influencia */}
-                              <div>
-                                <p className="text-[8px] uppercase tracking-[0.15em] mb-0.5" style={{ color: color }}>Zona de Influencia</p>
-                                <p className="text-[11px] font-bold text-white/70 leading-snug">{cfg.area}</p>
-                              </div>
-
-                              {/* Strengths */}
-                              <div className="flex flex-wrap gap-1">
-                                {cfg.strengths.map((s, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="text-[8px] px-2 py-0.5 rounded-full border border-white/10 text-white/50 uppercase tracking-wider"
-                                  >
-                                    {s}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
+                            <MobilePositionCard
+                              key={posCode}
+                              posCode={posCode}
+                              color={color}
+                              cfg={cfg}
+                            />
                           );
                         })
                       ) : (
-                        <p className="text-white/30 text-xs">Sin posición registrada</p>
+                        <div className="bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-4 text-center">
+                          <p className="text-white/30 text-xs uppercase tracking-widest font-medium">
+                            Sin posición registrada
+                          </p>
+                        </div>
                       )}
                     </div>
 
-                    {/* Derecha: 2D pitch SVG — max-h para que no se estire */}
-                    <div className="w-[42%] sm:w-[38%] shrink-0 flex items-start justify-center" style={{ maxHeight: '52dvh' }}>
+                    {/* 2D pitch — bare against the ambient bg. */}
+                    <div className="w-[42%] sm:w-[38%] shrink-0">
                       <SoccerPitch2D positions={player.positions || ["DEL"]} />
                     </div>
                   </motion.div>
 
-                  {/* Bottom: highlights compact (max 3 items) */}
-                  <motion.div style={{ opacity: highOpac, y: highY }} className="shrink-0 pb-1">
-                    {videos.length > 0 && (
-                      <>
-                        <h4 className="text-white/40 text-[9px] uppercase font-black tracking-[0.2em] mb-1.5 border-b border-white/10 pb-1.5">
+                  {/* Highlights: section header → 2 link items
+                      (videos[1], videos[2]) → 1 hero auto-play (videos[0],
+                      same YoutubeClip treatment as desktop) → "Ver más"
+                      button when the player has more than 3 videos. */}
+                  {videos.length > 0 && (
+                    <motion.div style={{ opacity: highOpac, y: highY }} className="shrink-0">
+                      {/* Section divider header */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <h4 className="text-white/60 text-[9px] uppercase font-black tracking-[0.3em] shrink-0">
                           Highlights
                         </h4>
-                        <div className="flex flex-col gap-1.5">
-                          {videos.slice(0, 3).map((vid) => {
+                        <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
+                      </div>
+
+                      {/* Link items — videos[1] and videos[2] when present */}
+                      {videos.length > 1 && (
+                        <div className="flex flex-col gap-1.5 mb-2.5">
+                          {videos.slice(1, 3).map((vid: any) => {
                             const year = vid.createdAt
                               ? new Date(vid.createdAt).getFullYear()
                               : new Date().getFullYear();
@@ -484,31 +755,73 @@ export default function ProfileTacticsModule({
                                 href={vid.url}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="flex items-center gap-2.5 bg-black/30 border border-white/10 rounded-lg p-2 hover:border-[var(--theme-primary)]/50 transition-colors"
+                                className="group flex items-center gap-2.5 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
                               >
                                 <div className="w-10 h-7 bg-black rounded overflow-hidden shrink-0 relative">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
                                   <img
                                     src={getYouTubeThumbnail(vid.url)}
-                                    className="w-full h-full object-cover opacity-60"
+                                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
                                     alt=""
                                   />
                                   <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-white text-[7px]">▶</span>
+                                    <div className="w-4 h-4 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/70 group-hover:bg-[var(--theme-primary)] group-hover:text-white transition-colors">
+                                      <span className="text-[6px] ml-[1px]">▶</span>
+                                    </div>
                                   </div>
                                 </div>
-                                <div className="min-w-0">
-                                  <p className="text-[10px] text-white/80 font-bold uppercase tracking-wide line-clamp-1">
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-[10px] text-white/85 font-bold uppercase tracking-wide line-clamp-1">
                                     {vid.title || "Match Highlight"}
                                   </p>
-                                  <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black">Temp. {year}</p>
+                                  <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black tracking-widest mt-0.5">
+                                    Temp. {year}
+                                  </p>
                                 </div>
                               </a>
                             );
                           })}
                         </div>
-                      </>
-                    )}
-                  </motion.div>
+                      )}
+
+                      {/* Hero auto-play — videos[0]. Anchor wraps the YouTube
+                          iframe (which is pointer-events-none in YoutubeClip),
+                          so any tap on the player redirects to YouTube. */}
+                      <a
+                        href={videos[0].url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="relative block w-full aspect-video rounded-lg overflow-hidden border border-white/10 ring-1 ring-white/5 shadow-[0_8px_24px_rgba(0,0,0,0.5)] group"
+                      >
+                        <YoutubeClip
+                          video={videos[0]}
+                          className="absolute inset-0 w-full h-full"
+                        />
+                        {/* Tap affordance */}
+                        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/15 pointer-events-none">
+                          <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+                            <span className="text-white text-base ml-0.5">▶</span>
+                          </div>
+                        </div>
+                      </a>
+
+                      {/* Ver más → opens VideosModal with the full list */}
+                      {videos.length > 3 && (
+                        <button
+                          type="button"
+                          onClick={() => setVideosModalOpen(true)}
+                          className="mt-2 w-full group flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/40 transition-colors"
+                        >
+                          <span className="text-[9px] uppercase font-black tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
+                            Ver más
+                          </span>
+                          <span className="text-[9px] font-black text-[var(--theme-accent)] tabular-nums font-bh-display">
+                            +{videos.length - 3}
+                          </span>
+                        </button>
+                      )}
+                    </motion.div>
+                  )}
                 </div>
 
                 {/* ▸ DESKTOP layout (lg+): 3D pitch izq + video/highlights der */}
@@ -937,6 +1250,18 @@ export default function ProfileTacticsModule({
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Videos full-list modal — surfaced from the mobile highlights
+          "Ver más" button when there are more than 5 videos. */}
+      <AnimatePresence>
+        {videosModalOpen && (
+          <VideosModal
+            videos={videos}
+            playerName={player.fullName as string}
+            onClose={() => setVideosModalOpen(false)}
+          />
         )}
       </AnimatePresence>
     </section>
