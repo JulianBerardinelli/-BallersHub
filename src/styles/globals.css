@@ -60,48 +60,6 @@
 html, body { min-height: 100%; }
 
 /* ============================================================
-   APP-WIDE TOUCH / SCROLL / ZOOM POLICY
-   - `overscroll-behavior: none` stops the rubber-band effect on
-     mobile + desktop trackpads, so the user can't pull past the
-     body and expose the document background underneath.
-   - `touch-action: pan-x pan-y` allows normal one-finger panning
-     but disables pinch-to-zoom and double-tap-zoom. Works in
-     combination with the viewport meta `userScalable: false` in
-     `app/layout.tsx` (Safari iOS occasionally ignores the meta
-     alone, this is the CSS belt-and-suspenders).
-   - `overflow-x: clip` keeps absolutely-positioned background
-     orbs / parallax layers from triggering a horizontal scrollbar.
-   ============================================================ */
-html,
-body {
-  overscroll-behavior: none;
-  touch-action: pan-x pan-y;
-}
-
-html {
-  overflow-x: clip;
-}
-
-/* Hide the visible scroll-track on touch viewports (mobile +
-   tablet). Content still scrolls via touch / swipe; we only
-   suppress the rail to keep the layout edge-to-edge. Desktop
-   keeps the native scrollbar so power users have the visual
-   affordance. */
-@media (max-width: 1023.98px) {
-  html,
-  body {
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE / legacy Edge */
-  }
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
-}
-
-/* ============================================================
    BallersHub — Color & Motion Primitives (opt-in).
    No afectan al pro template porque todo lo de aquí o vive
    bajo namespace --bh-* / .bh-* / clases utilitarias bh-*,
