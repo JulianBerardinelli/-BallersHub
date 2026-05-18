@@ -190,13 +190,11 @@ function SoccerPitch2D({ positions }: { positions: string[] }) {
                 >
                   <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
                 </motion.div>
-                {/* Position code label below the light */}
-                <span
-                  className="absolute top-full left-1/2 -translate-x-1/2 mt-1 text-[9px] font-black uppercase tracking-wider whitespace-nowrap font-mono"
-                  style={{ color: color, textShadow: "0 0 6px rgba(0,0,0,0.9)" }}
-                >
-                  {posCode.toUpperCase()}
-                </span>
+                {/* Position code label below the light — design-system
+                    badge tinted with the per-position colour. */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5">
+                  <PositionBadge label={posCode.toUpperCase()} color={color} size="xs" />
+                </div>
               </div>
             </div>
           );
@@ -246,6 +244,151 @@ function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
       <h3 className="text-[1.6rem] sm:text-3xl md:text-5xl font-black font-heading text-white uppercase leading-[0.9] whitespace-pre-line mt-1">
         <ScrambleText text={subtitle} active={isScouting} />
       </h3>
+    </div>
+  );
+}
+
+// ── DESIGN-SYSTEM BADGES ──────────────────────────────────────────────────────
+// Both the position-code label (EI / MCO / etc.) and the per-skill chips
+// (DESBORDE, 1 VS 1, …) use the `.pos-tag` recipe from the Claude Design
+// `components-badges.html` brief: Barlow Condensed, color/10% bg, color
+// border, rounded 5px. Tinted with the player's per-position colour.
+
+function PositionBadge({
+  label,
+  color,
+  size = "sm",
+}: {
+  label: string;
+  color: string;
+  size?: "xs" | "sm" | "md";
+}) {
+  const sizing =
+    size === "xs"
+      ? "px-1.5 py-px text-[8px] tracking-[0.06em]"
+      : size === "md"
+        ? "px-2.5 py-1 text-[12px] tracking-[0.06em]"
+        : "px-2 py-0.5 text-[10px] tracking-[0.06em]";
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center rounded-[5px] font-bh-display font-bold uppercase whitespace-nowrap leading-none ${sizing}`}
+      style={{
+        background: `color-mix(in srgb, ${color} 10%, transparent)`,
+        color: color,
+        border: `1px solid color-mix(in srgb, ${color} 22%, transparent)`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+function SkillChip({ label, color }: { label: string; color: string }) {
+  return (
+    <span
+      className="inline-flex items-center px-2 py-1 rounded-[5px] text-[9px] font-bh-display font-bold uppercase tracking-[0.08em] whitespace-nowrap leading-none transition-all hover:-translate-y-px"
+      style={{
+        background: `color-mix(in srgb, ${color} 8%, transparent)`,
+        color: color,
+        border: `1px solid color-mix(in srgb, ${color} 20%, transparent)`,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+// ── MOBILE POSITION CARD (collapsible chips) ──────────────────────────────────
+// Compact glass card for the mobile Layer 1. Skill chips are tucked inside an
+// expandable wrapper so the card's default height is short enough to read in
+// rhythm with the SVG pitch on the right — user opts into the chip detail
+// with the "Atributos clave" toggle.
+
+function MobilePositionCard({
+  posCode,
+  color,
+  cfg,
+}: {
+  posCode: string;
+  color: string;
+  cfg: { label: string; area: string; strengths: string[] };
+}) {
+  const [chipsOpen, setChipsOpen] = useState(false);
+
+  return (
+    <div className="relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]">
+      {/* Accent stripe */}
+      <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
+
+      {/* Header: badge + label */}
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
+        <div className="min-w-0 flex-1">
+          <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
+            Posición
+          </p>
+          <h4 className="text-[11px] font-black text-white uppercase leading-tight">
+            {cfg.label}
+          </h4>
+        </div>
+      </div>
+
+      {/* Zona de influencia */}
+      <div>
+        <p
+          className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold"
+          style={{ color: color }}
+        >
+          Zona de Influencia
+        </p>
+        <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
+      </div>
+
+      {/* Collapsible chips wrapper */}
+      {cfg.strengths.length > 0 && (
+        <>
+          <button
+            type="button"
+            onClick={() => setChipsOpen((v) => !v)}
+            aria-expanded={chipsOpen}
+            className="mt-2.5 pt-2 w-full flex items-center justify-between gap-2 border-t border-white/[0.06] group"
+          >
+            <span
+              className="text-[8px] uppercase font-bh-display font-bold tracking-[0.2em] transition-colors"
+              style={{ color: chipsOpen ? color : "rgba(255,255,255,0.5)" }}
+            >
+              Atributos clave
+            </span>
+            <motion.span
+              animate={{ rotate: chipsOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="text-[10px] leading-none"
+              style={{ color: chipsOpen ? color : "rgba(255,255,255,0.4)" }}
+            >
+              ▾
+            </motion.span>
+          </button>
+
+          <AnimatePresence initial={false}>
+            {chipsOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.22, ease: "easeInOut" }}
+                className="overflow-hidden"
+              >
+                <div className="flex flex-wrap gap-1 pt-2">
+                  {cfg.strengths.map((s, idx) => (
+                    <SkillChip key={idx} label={s} color={color} />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </>
+      )}
     </div>
   );
 }
@@ -547,69 +690,27 @@ export default function ProfileTacticsModule({
                     title above. */}
                 <div className="flex lg:hidden flex-col h-full gap-3 pt-3 pb-1">
 
-                  {/* Top: [position cards | 2D pitch in glass card] */}
+                  {/* Top row: position cards (left, collapsible chips so the
+                      stack stays compact) + 2D pitch (right). `items-start`
+                      keeps both columns top-aligned regardless of how tall
+                      either becomes. */}
                   <motion.div
                     style={{ opacity: pitchOpac, scale: pitchScale }}
-                    className="flex gap-3 min-h-0 items-stretch flex-1"
+                    className="flex gap-3 min-h-0 items-start"
                   >
-                    {/* Izquierda: position cards in glass containers */}
+                    {/* Position cards */}
                     <div className="flex flex-col gap-2.5 flex-1 min-w-0 pr-0.5 overflow-y-auto scrollbar-hide">
                       {validPositions.length > 0 ? (
                         validPositions.map((posCode: string, i: number) => {
                           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
                           const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
-
                           return (
-                            <div
+                            <MobilePositionCard
                               key={posCode}
-                              className="relative overflow-hidden bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-3 shadow-[inset_0_0_30px_rgba(255,255,255,0.02)]"
-                            >
-                              {/* Accent stripe — matches the master card pattern */}
-                              <div className="absolute top-0 left-0 w-[3px] h-full" style={{ background: color }} />
-
-                              {/* Header: tinted-square badge + label */}
-                              <div className="flex items-center gap-2.5 mb-2.5">
-                                <div
-                                  className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                                  style={{
-                                    background: `color-mix(in srgb, ${color} 14%, transparent)`,
-                                    border: `1px solid color-mix(in srgb, ${color} 30%, transparent)`
-                                  }}
-                                >
-                                  <span className="font-black text-[10px] tracking-wider" style={{ color: color }}>
-                                    {posCode.toUpperCase()}
-                                  </span>
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
-                                    Posición
-                                  </p>
-                                  <h4 className="text-[11px] font-black text-white uppercase leading-tight">
-                                    {cfg.label}
-                                  </h4>
-                                </div>
-                              </div>
-
-                              {/* Zona de influencia */}
-                              <div className="mb-2.5 pb-2.5 border-b border-white/[0.06]">
-                                <p className="text-[8px] uppercase tracking-[0.2em] mb-1" style={{ color: color }}>
-                                  Zona de Influencia
-                                </p>
-                                <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
-                              </div>
-
-                              {/* Strengths as proper chips */}
-                              <div className="flex flex-wrap gap-1">
-                                {cfg.strengths.map((s, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="text-[8px] px-2 py-1 rounded-full border border-white/10 bg-white/[0.03] text-white/60 uppercase tracking-[0.1em] font-bold backdrop-blur-sm"
-                                  >
-                                    {s}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
+                              posCode={posCode}
+                              color={color}
+                              cfg={cfg}
+                            />
                           );
                         })
                       ) : (
@@ -621,76 +722,104 @@ export default function ProfileTacticsModule({
                       )}
                     </div>
 
-                    {/* Derecha: 2D pitch — rendered bare against the ambient
-                        bg (no glass card wrapper) so it reads as part of the
-                        section's atmosphere, like the desktop 3D pitch. */}
-                    <div className="w-[42%] sm:w-[38%] shrink-0 flex items-center">
+                    {/* 2D pitch — bare against the ambient bg. */}
+                    <div className="w-[42%] sm:w-[38%] shrink-0">
                       <SoccerPitch2D positions={player.positions || ["DEL"]} />
                     </div>
                   </motion.div>
 
-                  {/* Highlights — bare list (no card wrapper) with a section
-                      divider. Cap at 5 inline; surface a "Ver más (N)" button
-                      that opens the full-list modal when there are more. */}
+                  {/* Highlights: section header → 2 link items
+                      (videos[1], videos[2]) → 1 hero auto-play (videos[0],
+                      same YoutubeClip treatment as desktop) → "Ver más"
+                      button when the player has more than 3 videos. */}
                   {videos.length > 0 && (
                     <motion.div style={{ opacity: highOpac, y: highY }} className="shrink-0">
+                      {/* Section divider header */}
                       <div className="flex items-center gap-2 mb-2">
                         <h4 className="text-white/60 text-[9px] uppercase font-black tracking-[0.3em] shrink-0">
                           Highlights
                         </h4>
                         <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
                       </div>
-                      <div className="flex flex-col gap-1.5">
-                        {videos.slice(0, 5).map((vid) => {
-                          const year = vid.createdAt
-                            ? new Date(vid.createdAt).getFullYear()
-                            : new Date().getFullYear();
-                          return (
-                            <a
-                              key={vid.id}
-                              href={vid.url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="group flex items-center gap-2.5 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
-                            >
-                              <div className="w-10 h-7 bg-black rounded overflow-hidden shrink-0 relative">
-                                <img
-                                  src={getYouTubeThumbnail(vid.url)}
-                                  className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
-                                  alt=""
-                                />
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                  <div className="w-4 h-4 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/70 group-hover:bg-[var(--theme-primary)] group-hover:text-white transition-colors">
-                                    <span className="text-[6px] ml-[1px]">▶</span>
+
+                      {/* Link items — videos[1] and videos[2] when present */}
+                      {videos.length > 1 && (
+                        <div className="flex flex-col gap-1.5 mb-2.5">
+                          {videos.slice(1, 3).map((vid: any) => {
+                            const year = vid.createdAt
+                              ? new Date(vid.createdAt).getFullYear()
+                              : new Date().getFullYear();
+                            return (
+                              <a
+                                key={vid.id}
+                                href={vid.url}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="group flex items-center gap-2.5 bg-white/[0.02] border border-white/10 rounded-lg p-2 hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/50 transition-colors"
+                              >
+                                <div className="w-10 h-7 bg-black rounded overflow-hidden shrink-0 relative">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={getYouTubeThumbnail(vid.url)}
+                                    className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity"
+                                    alt=""
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-4 h-4 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-white/70 group-hover:bg-[var(--theme-primary)] group-hover:text-white transition-colors">
+                                      <span className="text-[6px] ml-[1px]">▶</span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="text-[10px] text-white/85 font-bold uppercase tracking-wide line-clamp-1">
-                                  {vid.title || "Match Highlight"}
-                                </p>
-                                <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black tracking-widest mt-0.5">
-                                  Temp. {year}
-                                </p>
-                              </div>
-                            </a>
-                          );
-                        })}
-                        {videos.length > 5 && (
-                          <button
-                            type="button"
-                            onClick={() => setVideosModalOpen(true)}
-                            className="group flex items-center justify-center gap-2 mt-0.5 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/40 transition-colors"
-                          >
-                            <span className="text-[9px] uppercase font-black tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
-                              Ver más
-                            </span>
-                            <span className="text-[9px] font-black text-[var(--theme-accent)] tabular-nums">
-                              +{videos.length - 5}
-                            </span>
-                          </button>
-                        )}
-                      </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-[10px] text-white/85 font-bold uppercase tracking-wide line-clamp-1">
+                                    {vid.title || "Match Highlight"}
+                                  </p>
+                                  <p className="text-[var(--theme-accent)] text-[8px] uppercase font-black tracking-widest mt-0.5">
+                                    Temp. {year}
+                                  </p>
+                                </div>
+                              </a>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Hero auto-play — videos[0]. Anchor wraps the YouTube
+                          iframe (which is pointer-events-none in YoutubeClip),
+                          so any tap on the player redirects to YouTube. */}
+                      <a
+                        href={videos[0].url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="relative block w-full aspect-video rounded-lg overflow-hidden border border-white/10 ring-1 ring-white/5 shadow-[0_8px_24px_rgba(0,0,0,0.5)] group"
+                      >
+                        <YoutubeClip
+                          video={videos[0]}
+                          className="absolute inset-0 w-full h-full"
+                        />
+                        {/* Tap affordance */}
+                        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/15 pointer-events-none">
+                          <div className="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
+                            <span className="text-white text-base ml-0.5">▶</span>
+                          </div>
+                        </div>
+                      </a>
+
+                      {/* Ver más → opens VideosModal with the full list */}
+                      {videos.length > 3 && (
+                        <button
+                          type="button"
+                          onClick={() => setVideosModalOpen(true)}
+                          className="mt-2 w-full group flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 bg-white/[0.02] hover:bg-white/[0.06] hover:border-[var(--theme-primary)]/40 transition-colors"
+                        >
+                          <span className="text-[9px] uppercase font-black tracking-[0.25em] text-white/70 group-hover:text-white transition-colors">
+                            Ver más
+                          </span>
+                          <span className="text-[9px] font-black text-[var(--theme-accent)] tabular-nums font-bh-display">
+                            +{videos.length - 3}
+                          </span>
+                        </button>
+                      )}
                     </motion.div>
                   )}
                 </div>
