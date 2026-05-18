@@ -436,15 +436,28 @@ export async function fetchGlobalStats(): Promise<MarketingGlobalStats> {
   // Migrated from `db.execute(sql\`…\`)` (Drizzle/postgres-js) to
   // Supabase REST to avoid the ClientRead zombie bug on the pooler
   // when this runs in a Vercel function. See PERFORMANCE_PLAN.md.
-  // Aggregations done client-side: HEAD count for subs/unsubs is
-  // exact, and the 30d send-stats are summarized in JS over the
-  // last-30d window of marketing_sends.status (small table).
+  //
+  // Counts are HEAD requests with status filters — exact in the DB,
+  // zero rows transferred. Earlier iteration of this migration used a
+  // single `select("status").gte("sent_at", since)` + JS aggregation,
+  // but PostgREST caps responses at ~1000 rows by default so the JS
+  // counts would silently undercount once 30-day volume crossed that
+  // threshold (Codex flagged this on PR #73). Pulling counts per
+  // status keeps the precision the original SQL `count(*) filter`
+  // had, without re-introducing postgres-js.
   const { createSupabaseAdmin } = await import("@/lib/supabase/admin");
   const supabase = createSupabaseAdmin();
 
   const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const [subsRes, unsubsRes, sendsRes] = await Promise.all([
+  const [
+    subsRes,
+    unsubsRes,
+    sentRes,
+    deliveredRes,
+    openedRes,
+    clickedRes,
+  ] = await Promise.all([
     supabase
       .from("marketing_subscriptions")
       .select("email", { count: "exact", head: true }),
@@ -453,27 +466,32 @@ export async function fetchGlobalStats(): Promise<MarketingGlobalStats> {
       .select("email", { count: "exact", head: true }),
     supabase
       .from("marketing_sends")
-      .select("status")
-      .gte("sent_at", since),
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .in("status", ["sent", "delivered", "opened", "clicked", "bounced"]),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .in("status", ["delivered", "opened", "clicked"]),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .in("status", ["opened", "clicked"]),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .eq("status", "clicked"),
   ]);
 
   const subscribers = subsRes.count ?? 0;
   const unsubscribes = unsubsRes.count ?? 0;
-
-  const sendRows = (sendsRes.data ?? []) as Array<{ status: string }>;
-  const SENT_SET = new Set(["sent", "delivered", "opened", "clicked", "bounced"]);
-  const DELIVERED_SET = new Set(["delivered", "opened", "clicked"]);
-  const OPENED_SET = new Set(["opened", "clicked"]);
-  let sent = 0,
-    delivered = 0,
-    opened = 0,
-    clicked = 0;
-  for (const r of sendRows) {
-    if (SENT_SET.has(r.status)) sent++;
-    if (DELIVERED_SET.has(r.status)) delivered++;
-    if (OPENED_SET.has(r.status)) opened++;
-    if (r.status === "clicked") clicked++;
-  }
+  const sent = sentRes.count ?? 0;
+  const delivered = deliveredRes.count ?? 0;
+  const opened = openedRes.count ?? 0;
+  const clicked = clickedRes.count ?? 0;
 
   return {
     subscribers,
