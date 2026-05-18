@@ -82,6 +82,18 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",
+  // App-wide zoom + overscroll behaviour:
+  // - `width: device-width` + `initialScale: 1` keep the layout at the
+  //   intended viewport size on every device.
+  // - `maximumScale: 1` + `userScalable: false` disable pinch-to-zoom.
+  //   The css `overscroll-behavior` + `touch-action` rules in
+  //   `globals.css` back this up (Safari iOS sometimes ignores the meta
+  //   tag alone) and also block the rubber-band overscroll that exposed
+  //   the body background underneath the app.
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -95,9 +107,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         */}
         <OrganizationJsonLd />
 
+        {/*
+          Deepest layer behind the entire app. Was previously a teal
+          radial that bled green at the edges on overscroll — replaced
+          with a pure dark radial so the app's background reads as one
+          consistent dark tone, even when the user pulls past the body
+          on mobile.
+        */}
         <div
           aria-hidden
-          className="pointer-events-none fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(125%_125%_at_50%_10%,#001915_40%,#0dd5a5_100%)]"
+          className="pointer-events-none fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(125%_125%_at_50%_10%,#0a0a0a_40%,#000000_100%)]"
         />
         <Providers>
           <div className="relative flex min-h-screen flex-col">
