@@ -1,8 +1,41 @@
-# BallersHub — Plan de performance y fixes del 504 (2026-05-17)
+# BallersHub — Plan de performance y fixes del 504 (2026-05-17 → 2026-05-18)
 
 Hand-off para próximas sesiones. Continúa lo dejado en `HANDOFF.md`
 (mismo bug, ahora con plan ejecutable). Owner: Julian. Stack en Vercel
 **Pro** (10s default fue el problema; con Pro podemos ir a 60s+).
+
+---
+
+## ✅ Estado final (2026-05-18)
+
+PR [#73](https://github.com/JulianBerardinelli/-BallersHub/pull/73) —
+**6 commits, ready to merge**. P0-P4 ejecutados.
+
+| Fase | Commit | Estado | Impacto |
+|---|---|---|---|
+| **P0** | `047d972` | ✅ Validado en prod | Bug 504 mitigado (admin nav sin trabas, cero 504s post-deploy) |
+| **P1** | `619d4dc` | Ready Preview | `next/image` + tree-shaking |
+| **Codex fix** | `a8df1ef` | Ready Preview | Exact counts en `fetchGlobalStats` (page-limit PostgREST) |
+| **P2** | `eb86aed` | Ready Preview | **-186 kB First Load JS** (3 páginas pesadas) |
+| **P3** | `fa5f65f` | Ready Preview | **Bug 504 estructural cerrado** (driver pg) |
+| **P4** | `eb33813` | Ready Preview | **-58 ESLint warnings** + tighter db timeouts |
+
+Bundle deltas finales:
+| Página | Pre-fixes | Post-fixes | Delta |
+|---|---|---|---|
+| `/dashboard/edit-profile/football-data` | 572 kB | **483 kB** | **-89 kB** |
+| `/dashboard/agency` | 510 kB | **462 kB** | **-48 kB** |
+| `/agency/[slug]` (público) | 336 kB | **287 kB** | **-49 kB** |
+| First Load JS shared | 319 kB → 294 (P0/P1/P2) → 319 (P3) | 319 kB | 0 (Turbopack chunk-split post-P3) |
+
+ESLint warnings: 211 → **153** (-27%).
+
+Lo que queda postponed (no bloqueante):
+- Migrar 7 scripts/ `postgres-js` → `pg` y remover dep.
+- 113 `any` → tipos concretos (Drizzle `$inferSelect`).
+- 10 `useEffect` exhaustive-deps (cada uno requiere análisis individual).
+- 16 `<img>` restantes (no críticos para LCP).
+- 1.2 (resto de `<img>` no críticos) y 1.3 (consolidación fuentes con audit `font-heading`/`font-display`).
 
 ---
 
