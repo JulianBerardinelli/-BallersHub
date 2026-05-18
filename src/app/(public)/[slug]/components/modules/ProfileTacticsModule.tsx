@@ -9,6 +9,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import { useLenis } from "lenis/react";
+import { Zap } from "lucide-react";
 import { useStableScrollProgress } from "@/hooks/useStableScrollProgress";
 import SoccerPitch3D, { POSITIONS_MAP, normalizePosition } from "@/components/common/animations/SoccerPitch3D";
 import { IconSoccerField } from "@/components/icons/IconSoccerField";
@@ -284,16 +285,39 @@ function PositionBadge({
   );
 }
 
-function SkillChip({ label, color }: { label: string; color: string }) {
+function SkillChip({
+  label,
+  color,
+  size = "sm",
+  withIcon = false,
+}: {
+  label: string;
+  color: string;
+  size?: "sm" | "lg";
+  withIcon?: boolean;
+}) {
+  const sizing =
+    size === "lg"
+      ? "px-3 py-1.5 text-[11px] gap-1.5 rounded-[6px]"
+      : "px-2 py-1 text-[9px] gap-1 rounded-[5px]";
+  const iconClass = size === "lg" ? "w-3 h-3" : "w-2.5 h-2.5";
+
   return (
     <span
-      className="inline-flex items-center px-2 py-1 rounded-[5px] text-[9px] font-bh-display font-bold uppercase tracking-[0.08em] whitespace-nowrap leading-none transition-all hover:-translate-y-px"
+      className={`inline-flex items-center font-bh-display font-bold uppercase tracking-[0.08em] whitespace-nowrap leading-none transition-all hover:-translate-y-px ${sizing}`}
       style={{
-        background: `color-mix(in srgb, ${color} 8%, transparent)`,
+        background: `color-mix(in srgb, ${color} 10%, transparent)`,
         color: color,
-        border: `1px solid color-mix(in srgb, ${color} 20%, transparent)`,
+        border: `1px solid color-mix(in srgb, ${color} 22%, transparent)`,
       }}
     >
+      {withIcon && (
+        <Zap
+          className={`${iconClass} shrink-0`}
+          strokeWidth={2.5}
+          aria-hidden="true"
+        />
+      )}
       {label}
     </span>
   );
@@ -386,16 +410,29 @@ function MobilePositionCard({
                 {cfg.label}
               </h4>
             </div>
-            {/* Flip affordance — tinted with the position colour */}
-            <div
+            {/* Flip affordance — tinted with the position colour. Circle
+                pulses subtly for attention, and the arrow inside rotates
+                around the Y axis as a literal preview of the card's flip
+                gesture. */}
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               className="shrink-0 w-5 h-5 rounded-full flex items-center justify-center mt-px"
               style={{
                 background: `color-mix(in srgb, ${color} 14%, transparent)`,
                 border: `1px solid color-mix(in srgb, ${color} 32%, transparent)`,
+                boxShadow: `0 0 8px color-mix(in srgb, ${color} 25%, transparent)`,
               }}
               aria-hidden="true"
             >
-              <svg
+              <motion.svg
+                animate={{ rotateY: [0, 180, 360] }}
+                transition={{
+                  duration: 2.4,
+                  repeat: Infinity,
+                  repeatDelay: 1.2,
+                  ease: "easeInOut",
+                }}
                 className="w-2 h-2"
                 viewBox="0 0 12 12"
                 fill="none"
@@ -403,12 +440,12 @@ function MobilePositionCard({
                 strokeWidth={2.5}
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                style={{ color }}
+                style={{ color, transformStyle: "preserve-3d" }}
               >
                 <path d="M2 6h8" />
                 <path d="M7 3l3 3-3 3" />
-              </svg>
-            </div>
+              </motion.svg>
+            </motion.div>
           </div>
 
           {/* Zona de influencia */}
@@ -932,7 +969,7 @@ export default function ProfileTacticsModule({
                               key={posCode}
                               className="flex items-center justify-center gap-2 flex-wrap"
                             >
-                              <PositionBadge label={posCode.toUpperCase()} color={color} size="xs" />
+                              <PositionBadge label={posCode.toUpperCase()} color={color} size="sm" />
                               {cfg.strengths.map((skill, j) => (
                                 <motion.div
                                   key={`${posCode}-${j}`}
@@ -944,7 +981,7 @@ export default function ProfileTacticsModule({
                                     delay: (i * cfg.strengths.length + j) * 0.22,
                                   }}
                                 >
-                                  <SkillChip label={skill} color={color} />
+                                  <SkillChip label={skill} color={color} size="lg" withIcon />
                                 </motion.div>
                               ))}
                             </div>
