@@ -9,6 +9,7 @@ import TeamCrest from "@/components/teams/TeamCrest";
 import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import BeSoccerIcon from "@/components/icons/BeSoccerIcon";
 import FlashscoreIcon from "@/components/icons/FlashscoreIcon";
+import CountUp from "@/components/ui/CountUp";
 
 type ExternalLinks = { transfermarkt: string | null; beSoccer: string | null; flashscore?: string | null; };
 export default function ProfileCareerTimelineModule({ career, externalLinks }: { career: any[]; externalLinks?: ExternalLinks }) {
@@ -273,35 +274,38 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                             <div className="grid grid-cols-5 gap-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-3">
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4">
                                  <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Partidos</span>
-                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.matches}</span>
+                                 <CountUp value={nodeData.totals.matches} className="text-xl lg:text-3xl text-white font-black leading-none" />
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
                                  <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Titular</span>
                                  <div className="relative w-12 h-12 lg:w-14 lg:h-14 flex items-center justify-center mt-1">
                                     <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 48 48">
                                       <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3.5" fill="transparent" className="text-white/10" />
-                                      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3.5" fill="transparent" 
-                                        strokeDasharray="125.66" 
-                                        strokeDashoffset={125.66 - ((nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0) / 100) * 125.66} 
+                                      <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3.5" fill="transparent"
+                                        strokeDasharray="125.66"
+                                        strokeDashoffset={125.66 - ((nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0) / 100) * 125.66}
                                         className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_6px_rgba(16,185,129,0.5)]" strokeLinecap="round" />
                                     </svg>
-                                    <div className="flex flex-col items-center justify-center">
-                                      <span className="text-lg lg:text-xl font-black text-white leading-none">{nodeData.totals.startingMatches}</span>
-                                      <span className="text-[8px] lg:text-[9px] font-black text-[#10b981] mt-[2px]">{nodeData.totals.matches > 0 ? Math.round((nodeData.totals.startingMatches / nodeData.totals.matches) * 100) : 0}%</span>
-                                    </div>
+                                    {/* Center value: just the starting-matches count.
+                                        Removed the redundant "%" label — the ring
+                                        already encodes the ratio visually. */}
+                                    <CountUp value={nodeData.totals.startingMatches} className="relative text-lg lg:text-xl font-black text-white leading-none" />
                                  </div>
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
                                  <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Minutos</span>
-                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">{nodeData.totals.minutesPlayed}<span className="text-sm lg:text-lg text-white/50 ml-0.5">&apos;</span></span>
+                                 <span className="text-xl lg:text-3xl text-white font-black leading-none">
+                                   <CountUp value={nodeData.totals.minutesPlayed} />
+                                   <span className="text-sm lg:text-lg text-white/50 ml-0.5">&apos;</span>
+                                 </span>
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-accent)]/5">
                                  <span className="text-[9px] lg:text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest mb-1">Goles</span>
-                                 <span className="text-xl lg:text-3xl text-[var(--theme-accent)] font-black leading-none">{nodeData.totals.goals}</span>
+                                 <CountUp value={nodeData.totals.goals} className="text-xl lg:text-3xl text-[var(--theme-accent)] font-black leading-none" />
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-primary)]/5">
                                  <span className="text-[9px] lg:text-[10px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest mb-1">Asist.</span>
-                                 <span className="text-xl lg:text-3xl text-[var(--theme-primary)] font-black leading-none">{nodeData.totals.assists}</span>
+                                 <CountUp value={nodeData.totals.assists} className="text-xl lg:text-3xl text-[var(--theme-primary)] font-black leading-none" />
                                </div>
                             </div>
                          )}
@@ -499,35 +503,35 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
           <div className="mt-5 grid grid-cols-5 gap-1 bg-black/40 rounded-2xl p-2 border border-white/5 overflow-hidden relative z-10">
              <div className="flex flex-col items-center justify-center p-1">
                <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Partidos</span>
-               <span className="text-xl text-white font-black leading-none">{totals.matches}</span>
+               <CountUp value={totals.matches} className="text-xl text-white font-black leading-none" />
              </div>
              <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
                <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Titular</span>
                <div className="relative w-9 h-9 flex items-center justify-center mt-1">
                   <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" className="text-white/10" />
-                    <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" 
-                      strokeDasharray="94.24" 
-                      strokeDashoffset={94.24 - ((totals.matches > 0 ? Math.round((totals.startingMatches / totals.matches) * 100) : 0) / 100) * 94.24} 
+                    <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent"
+                      strokeDasharray="94.24"
+                      strokeDashoffset={94.24 - ((totals.matches > 0 ? Math.round((totals.startingMatches / totals.matches) * 100) : 0) / 100) * 94.24}
                       className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]" strokeLinecap="round" />
                   </svg>
-                  <div className="flex flex-col items-center justify-center">
-                    <span className="text-[10px] font-black text-white leading-none">{totals.startingMatches}</span>
-                    <span className="text-[5px] font-black text-[#10b981] mt-[1px]">{totals.matches > 0 ? Math.round((totals.startingMatches / totals.matches) * 100) : 0}%</span>
-                  </div>
+                  <CountUp value={totals.startingMatches} className="relative text-[10px] font-black text-white leading-none" />
                </div>
              </div>
              <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
                <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Minutos</span>
-               <span className="text-xl text-white font-black leading-none">{totals.minutesPlayed}<span className="text-[9px] text-white/50 ml-0.5">&apos;</span></span>
+               <span className="text-xl text-white font-black leading-none">
+                 <CountUp value={totals.minutesPlayed} />
+                 <span className="text-[9px] text-white/50 ml-0.5">&apos;</span>
+               </span>
              </div>
              <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-accent)]/5">
                <span className="text-[8px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">Goles</span>
-               <span className="text-xl text-[var(--theme-accent)] font-black leading-none">{totals.goals}</span>
+               <CountUp value={totals.goals} className="text-xl text-[var(--theme-accent)] font-black leading-none" />
              </div>
              <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-primary)]/5">
                <span className="text-[8px] text-[var(--theme-primary)]/60 uppercase font-black tracking-widest text-center mb-1">Asist.</span>
-               <span className="text-xl text-[var(--theme-primary)] font-black leading-none">{totals.assists}</span>
+               <CountUp value={totals.assists} className="text-xl text-[var(--theme-primary)] font-black leading-none" />
              </div>
           </div>
         )}
