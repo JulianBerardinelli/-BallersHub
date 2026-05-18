@@ -34,7 +34,10 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
       </AnimatePresence>
 
       {/* MOBILE TIMELINE (Vertical Zig-Zag, visible only < lg) */}
-      <div className="block lg:hidden w-full relative py-16 px-6 overflow-hidden">
+      <div className="block lg:hidden w-full relative py-16 px-6">
+        {/* Ambient backdrop — mirrors the Bio section pattern. Lives at
+            the wrapper level (no max-width on this div), the radial mask
+            inside the component handles the soft edge fade. */}
         <BioAnimatedBackground />
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -142,12 +145,26 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
         className="sticky top-0 h-screen w-full flex flex-col items-center overflow-hidden bg-[var(--theme-background)] z-20"
       >
 
-         {/* Themed ambient background — mirrors the bio section: dot
-             pattern + 3 floating orbs tinted with --theme-primary/accent/
-             secondary. Lives behind the inner content (z-0 via the
-             component's own wrapper) and respects overflow-hidden of
-             the sticky parent. */}
+         {/* Themed ambient orbs + dot pattern (same component as Bio).
+             Lives inside the sticky so it's visible during the entire
+             pin range, not just the middle slice. */}
          <BioAnimatedBackground />
+
+         {/* Top & bottom fade overlays — paint the page background back
+             over the bg's top and bottom strips so the ambient orbs
+             dissolve into the page seamlessly instead of being clipped
+             to the sticky's square edges. The radial mask inside the
+             bg component handles the side fade. */}
+         <div
+           aria-hidden="true"
+           className="absolute top-0 left-0 right-0 h-[14vh] z-[1] pointer-events-none"
+           style={{ background: 'linear-gradient(to bottom, var(--theme-background) 25%, transparent 100%)' }}
+         />
+         <div
+           aria-hidden="true"
+           className="absolute bottom-0 left-0 right-0 h-[18vh] z-[1] pointer-events-none"
+           style={{ background: 'linear-gradient(to top, var(--theme-background) 25%, transparent 100%)' }}
+         />
 
          {/* Inner layout: distributes title, card, and timeline proportionally within viewport */}
          <div className="w-full max-w-[1240px] px-8 flex flex-col relative z-10" style={{ height: '100svh', paddingTop: '128px', paddingBottom: '0px', justifyContent: 'space-between', alignItems: 'center' }}>
