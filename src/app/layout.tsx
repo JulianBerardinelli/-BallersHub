@@ -1,6 +1,8 @@
 // app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed, DM_Mono, DM_Sans, Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Providers } from "./providers";
 import { zuume } from "@/lib/fonts";
 import { getSiteBaseUrlObject } from "@/lib/seo/baseUrl";
@@ -102,6 +104,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             {children}
           </div>
         </Providers>
+        {/*
+          Vercel observability — only emit beacons in production so we
+          don't pollute the dashboard with dev/preview traffic. Speed
+          Insights captures Core Web Vitals (LCP, INP, CLS, FCP, TTFB)
+          per route; Analytics captures pageviews + referrers (no
+          cookies, GDPR-friendly). Both ship ~2 KB to the client.
+        */}
+        <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
