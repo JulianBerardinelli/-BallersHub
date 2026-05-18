@@ -1199,22 +1199,29 @@ export default function ProfileTacticsModule({
                   className="hidden lg:flex lg:w-3/12 flex-col justify-end relative h-full pb-0 z-0"
                 >
                   {(player.modelUrl1 || player.modelUrl2) ? (
-                    <div className="w-full relative flex flex-col items-center justify-end h-full">
-                      {/* Ground Shadow (Piso) - Very subtle for high-end look */}
-                      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[50%] h-[15px] pointer-events-none z-0" style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.5) 0%, transparent 70%)" }} />
-                      
-                      {/* Asset Pro PNG */}
-                      <img 
-                         src={player.modelUrl1 || player.modelUrl2} 
-                         alt="Player full body" 
-                         className="w-[130%] max-w-none -mr-8 h-auto object-contain object-bottom max-h-[75vh] relative z-10"
-                         style={{ 
-                            transformOrigin: "bottom",
-                            WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 40%)",
-                            maskImage: "linear-gradient(to top, transparent 0%, black 40%)"
+                    <div className="w-full relative h-full">
+                      {/* Ground Shadow (Piso) - aligned with the image bottom-left anchor */}
+                      <div
+                        className="absolute bottom-0 left-[6%] w-[55%] h-[18px] pointer-events-none z-0"
+                        style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, transparent 70%)" }}
+                      />
+
+                      {/* Asset Pro PNG — anchored bottom-left, scaled by height so it
+                          bleeds past the 3/12 column and sits BEHIND the right cards
+                          (Layer 2 parent has overflow-hidden, so the bleed is clipped
+                          at the row edges — the player overlapping the cards is the
+                          intended visual). */}
+                      <img
+                         src={player.modelUrl1 || player.modelUrl2}
+                         alt="Player full body"
+                         className="absolute bottom-0 left-0 w-auto h-[95%] max-h-[95vh] object-contain object-left-bottom"
+                         style={{
+                            transformOrigin: "bottom left",
+                            WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 32%)",
+                            maskImage: "linear-gradient(to top, transparent 0%, black 32%)"
                          }}
                       />
-                      
+
                       {/* Evaluación Oficial flotante */}
                       {author && author.trim() !== "" && (
                         <div className="absolute top-10 left-0 right-0 mx-auto w-max z-20 flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl hover:border-white/25 transition-colors">
