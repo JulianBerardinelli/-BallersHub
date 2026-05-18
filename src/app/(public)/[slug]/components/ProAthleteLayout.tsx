@@ -244,39 +244,24 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
         </motion.div>
 
         {/*
-          LAYER 1 STATIC OUTLINE — solid accent-colored outline that sits
-          DIRECTLY BEHIND the white solid title (one z-index below). The
-          white fill of Layer 1 NORMAL covers the inner contours of each
-          letter (the strokes of `B`, `A`, `N`, etc.), so only the outer
-          silhouette of this outline is visible — exactly the "white
-          letter with magenta border" effect, without the interior cuts
-          that `-webkit-text-stroke` produces when painted in front.
-        */}
-        <motion.div
-          className="absolute z-[19] w-full flex flex-col justify-center items-center pointer-events-none select-none"
-          style={{ y: textY }}
-        >
-          <motion.span
-            initial="hidden" animate="visible" variants={lastNameVariants}
-            aria-hidden="true"
-            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)] text-transparent"
-            style={{
-              filter: `drop-shadow(0px 0px 20px ${accentColor}40)`,
-            }}
-          >
-            {lastName}
-          </motion.span>
-        </motion.div>
+          LAYER STACK (back → front):
+            z-15 : ghost-trail outlines (parallax decoration above)
+            z-20 : WHITE-SOLID title  (back text)
+            z-30 : CUTOUT PLAYER image (middle)
+            z-35 : ACCENT-OUTLINE title (front text — overlaps player)
+            z-40 : bottom transition gradient (below)
 
-        {/*
-          LAYER 1 NORMAL — the page's single canonical <h1>.
-
-          Crawlers read `${firstName} ${lastName}` (full name) via the
-          .sr-only span; users see only `${lastName}` rendered huge.
-          `aria-label` makes screen readers announce the full name in
-          one phrase rather than splitting it across the visually-
-          hidden span and visible span.
+          The white solid sits behind the player, and the accent outline
+          sits IN FRONT of the player so the silhouette of each letter
+          frames the player from the foreground. The interior contours
+          of letters (the inside strokes of `B`, `A`, `N`, etc.) are
+          visible in this configuration — by design.
         */}
+
+        {/* LAYER 1 — WHITE-SOLID title (back). Page's single canonical <h1>.
+            Crawlers read `${firstName} ${lastName}` via the .sr-only span;
+            users see `${lastName}` rendered huge. `aria-label` makes screen
+            readers announce the full name in one phrase. */}
         <motion.div
           className="absolute z-20 w-full flex flex-col justify-center items-center pointer-events-none select-none"
           style={{ y: textY }}
@@ -291,7 +276,7 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
           </motion.h1>
         </motion.div>
 
-        {/* LAYER 2: CUTOUT PLAYER (PNG transparent) */}
+        {/* LAYER 2 — CUTOUT PLAYER (PNG transparent), middle of the stack. */}
         <motion.div
           style={{ y: playerY }}
           initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
@@ -305,6 +290,25 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
             alt={player.fullName}
             className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125"
           />
+        </motion.div>
+
+        {/* LAYER 3 — ACCENT-OUTLINE title (front). Tinted with the player's
+            `--theme-accent`. Sits IN FRONT of the player image so the
+            stroked silhouette wraps around the cutout. */}
+        <motion.div
+          className="absolute z-[35] w-full flex flex-col justify-center items-center pointer-events-none select-none"
+          style={{ y: textY }}
+        >
+          <motion.span
+            initial="hidden" animate="visible" variants={lastNameVariants}
+            aria-hidden="true"
+            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)] text-transparent"
+            style={{
+              filter: `drop-shadow(0px 0px 20px ${accentColor}40)`,
+            }}
+          >
+            {lastName}
+          </motion.span>
         </motion.div>
 
         {/* Bottom Fade Gradient for smooth transition to sections */}
