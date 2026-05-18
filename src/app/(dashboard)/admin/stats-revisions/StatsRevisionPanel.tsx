@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Avatar, Button, Card, CardBody, CardHeader, Chip, Divider, Input, Textarea } from "@heroui/react";
+import { Avatar, Button, Card, CardBody, CardHeader, Chip, Divider, Textarea } from "@heroui/react";
 import { Check, X, ExternalLink, Pencil } from "lucide-react";
 
 import CountryFlag from "@/components/common/CountryFlag";

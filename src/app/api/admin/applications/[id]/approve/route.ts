@@ -135,7 +135,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
   const slug = await ensureUniqueSlug(slugify(app.full_name ?? "player"), admin);
 
   // 4) actualizar user_profiles.role = 'player'
-  const { error: roleErr } = await admin
+  await admin
     .from("user_profiles")
     .update({ role: "player" })
     .eq("user_id", app.user_id)
@@ -152,7 +152,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
       if (typeof parsedNotes.height_cm === "number") fallbackHeight = parsedNotes.height_cm;
       if (typeof parsedNotes.weight_kg === "number") fallbackWeight = parsedNotes.weight_kg;
     }
-  } catch (e) {}
+  } catch {}
 
   // 5) crear player_profile (incluye current_team_id si existe)
   const e2 = await admin

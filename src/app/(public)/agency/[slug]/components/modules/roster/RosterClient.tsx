@@ -23,8 +23,6 @@ type Player = {
 };
 
 export default function RosterClient({ players }: { players: Player[] }) {
-  const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
-
   return (
     <section id="roster" className="relative scroll-mt-32 space-y-10 isolate">
       <ModuleBackdrop variant="soft" align="left" />

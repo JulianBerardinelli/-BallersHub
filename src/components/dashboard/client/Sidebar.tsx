@@ -3,7 +3,7 @@
 import clsx from "classnames";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTransition, useState } from "react";
+import { useTransition } from "react";
 import {
   Badge,
   Button,
@@ -114,7 +114,7 @@ export function ClientDashboardSidebarMobile({
     <div className="lg:hidden">
       <Modal isOpen={isModalOpen} onOpenChange={onModalOpenChange} classNames={{ base: "bg-bh-surface-1 border border-white/[0.08]" }}>
         <ModalContent>
-          {(onClose) => (
+          {(_onClose) => (
             <>
               <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
               <ModalBody>

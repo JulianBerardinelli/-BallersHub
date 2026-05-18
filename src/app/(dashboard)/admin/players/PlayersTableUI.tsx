@@ -20,7 +20,7 @@ import {
   SelectItem,
   User,
 } from "@heroui/react";
-import { Copy, Filter, ExternalLink, Edit } from "lucide-react";
+import { Copy, Filter, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import TeamCrest from "@/components/teams/TeamCrest";
 import type { PlayerProfileRow } from "./types";

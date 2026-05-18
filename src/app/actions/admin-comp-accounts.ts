@@ -22,7 +22,7 @@
 // touched by these actions — see `assertNotPaidSubscription` below.
 
 import { z } from "zod";
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
@@ -507,63 +507,69 @@ export async function listCompAccounts(): Promise<
   const auth = await ensureAdmin();
   if (!auth.ok) return auth;
 
-  // Pull subs whose processor_subscription_id starts with the comp prefix.
-  // Drizzle doesn't expose `LIKE` ergonomically across all dialects, so we
-  // build it via the `sql` template tag.
-  const rows = await db
-    .select({
-      subscriptionId: subscriptions.id,
-      userId: subscriptions.userId,
-      planId: subscriptions.planId,
-      statusV2: subscriptions.statusV2,
-      currentPeriodEnd: subscriptions.currentPeriodEnd,
-      canceledAt: subscriptions.canceledAt,
-      createdAt: subscriptions.createdAt,
-      processorSubscriptionId: subscriptions.processorSubscriptionId,
-    })
-    .from(subscriptions)
-    .where(
-      and(
-        isNull(subscriptions.processor),
-        sql`${subscriptions.processorSubscriptionId} LIKE ${COMP_GRANT_PREFIX + "%"}`,
-      ),
-    )
-    .orderBy(desc(subscriptions.createdAt));
-
-  if (rows.length === 0) return { ok: true, data: [] };
-
-  // Resolve email / full name via Supabase admin API (best-effort, soft-fails).
+  // Migrated from Drizzle/postgres-js to Supabase REST. This function
+  // is called during page render, so it sits on the hot path that
+  // caused the lambda-poisoning 504s (see PERFORMANCE_PLAN.md). The
+  // write actions in this file still use Drizzle — they don't render
+  // and the risk is lower; pending migration in P3.
   const { createSupabaseAdmin } = await import("@/lib/supabase/admin");
   const admin = createSupabaseAdmin();
+
+  const { data: rawRows, error } = await admin
+    .from("subscriptions")
+    .select(
+      "id, user_id, plan_id, status_v2, current_period_end, canceled_at, created_at, processor_subscription_id",
+    )
+    .is("processor", null)
+    .like("processor_subscription_id", `${COMP_GRANT_PREFIX}%`)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("[admin-comp/list] supabase error", error);
+    return { ok: false, error: "Error listando cuentas de cortesía" };
+  }
+
+  const rows = (rawRows ?? []) as Array<{
+    id: string;
+    user_id: string;
+    plan_id: string | null;
+    status_v2: string | null;
+    current_period_end: string | null;
+    canceled_at: string | null;
+    created_at: string;
+    processor_subscription_id: string | null;
+  }>;
+
+  if (rows.length === 0) return { ok: true, data: [] };
 
   const result: CompAccountRow[] = [];
   for (const r of rows) {
     let email: string | null = null;
     let fullName: string | null = null;
     try {
-      const { data } = await admin.auth.admin.getUserById(r.userId);
+      const { data } = await admin.auth.admin.getUserById(r.user_id);
       email = data?.user?.email ?? null;
       fullName =
         (data?.user?.user_metadata?.full_name as string | undefined) ?? null;
     } catch {
       /* ignore */
     }
-    const grantedByUserId = r.processorSubscriptionId?.replace(
+    const grantedByUserId = r.processor_subscription_id?.replace(
       COMP_GRANT_PREFIX,
       "",
     ) ?? null;
 
     result.push({
-      subscriptionId: r.subscriptionId,
-      userId: r.userId,
+      subscriptionId: r.id,
+      userId: r.user_id,
       email,
       fullName,
-      planId: r.planId,
-      statusV2: r.statusV2,
-      grantedAt: r.createdAt.toISOString(),
+      planId: r.plan_id,
+      statusV2: r.status_v2,
+      grantedAt: r.created_at,
       grantedByUserId,
-      currentPeriodEnd: r.currentPeriodEnd?.toISOString() ?? null,
-      canceledAt: r.canceledAt?.toISOString() ?? null,
+      currentPeriodEnd: r.current_period_end,
+      canceledAt: r.canceled_at,
     });
   }
 

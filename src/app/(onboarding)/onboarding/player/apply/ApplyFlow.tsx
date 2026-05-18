@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
 import StepHeader from "./StepHeader";
 import Step1Personal from "./Step1Personal";
 import Step2Football, { type Step2Data } from "./Step2Football";
@@ -10,15 +9,17 @@ import Step3Verify, { type Step1Data as S1 } from "./Step3Verify";
 
 export default function PlayerApplyFlow({
   applicationId,
+  userEmail,
 }: {
   applicationId?: string | null;
+  // Resolved server-side from the route page (RSC) — used to be
+  // re-fetched here via `supabase.auth.getUser()` in a useEffect,
+  // which (a) duplicated work, (b) pulled @supabase/ssr into the
+  // client bundle for this route, (c) caused a flash of empty email
+  // on initial render.
+  userEmail: string | null;
 }) {
   const router = useRouter();
-
-  const [userEmail, setUserEmail] = React.useState<string | null>(null);
-  React.useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUserEmail(data.user?.email ?? null));
-  }, []);
 
   const [activeStep, setActiveStep] = React.useState<1 | 2 | 3>(1);
   const [maxStepUnlocked, setMaxStepUnlocked] = React.useState<1 | 2 | 3>(1);

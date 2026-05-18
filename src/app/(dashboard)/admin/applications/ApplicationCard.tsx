@@ -1,17 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Copy, Edit2, Check, X, ShieldAlert, Link as LinkIcon, Trash2 } from "lucide-react";
+import { Copy, Edit2, Check, ShieldAlert, Link as LinkIcon, Trash2 } from "lucide-react";
 import {
   Button,
   Chip,
   Input,
-  Tooltip,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  useToast, // Asumo que existe algún hook de toast o lo cambiamos por un alert si no
   Modal,
   ModalContent,
   ModalHeader,
@@ -59,7 +53,7 @@ export default function ApplicationCard({
       if (typeof parsed.height_cm === "number") fallbackHeight = String(parsed.height_cm);
       if (typeof parsed.weight_kg === "number") fallbackWeight = String(parsed.weight_kg);
     }
-  } catch (e) {}
+  } catch {}
 
   // Editing state -> overrides
   const [draft, setDraft] = React.useState({
@@ -134,7 +128,7 @@ export default function ApplicationCard({
         natCodes = parsed.nationality_codes;
       }
     }
-  } catch (e) {}
+  } catch {}
 
   const nats = Array.isArray(application.nationality)
     ? application.nationality

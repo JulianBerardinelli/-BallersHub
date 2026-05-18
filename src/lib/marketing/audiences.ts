@@ -105,11 +105,13 @@ function consentClause(consent: AudienceFilter["requireConsent"]) {
   }
 }
 
-function rowsToEmails(result: unknown): string[] {
-  // postgres-js returns array-like with .rows or directly an array depending on driver path.
-  const arr = (result as { rows?: Array<{ email: string }> }).rows ?? (result as Array<{ email: string }>);
+function rowsToEmails(result: { rows: Array<{ email: string | null }> }): string[] {
   return Array.from(
-    new Set((arr ?? []).map((r) => (r.email ?? "").trim().toLowerCase()).filter(Boolean)),
+    new Set(
+      result.rows
+        .map((r) => (r.email ?? "").trim().toLowerCase())
+        .filter(Boolean),
+    ),
   );
 }
 
@@ -126,6 +128,6 @@ export async function filterByFrequencyCap(emails: string[], windowDays: number)
     where email = ANY(${emails})
       and sent_at >= now() - (${window}::int || ' days')::interval
   `);
-  const recent = new Set(((rows as { rows?: Array<{ email: string }> }).rows ?? (rows as Array<{ email: string }>)).map((r) => r.email));
+  const recent = new Set(rows.rows.map((r) => r.email));
   return emails.filter((e) => !recent.has(e));
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Posiciones al porcentaje en el campo (equipo atacando hacia "arriba")
@@ -48,7 +48,6 @@ export function normalizePosition(p: string | null | undefined): string | null {
 
 export default function SoccerPitch3D({
   playerPositions = [],
-  characteristics = [],
 }: {
   playerPositions?: string[];
   characteristics?: string[];

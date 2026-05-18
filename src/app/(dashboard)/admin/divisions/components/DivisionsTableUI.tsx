@@ -30,7 +30,7 @@ import { supabase } from "@/lib/supabase/client";
 import CsvImporter from "@/components/admin/CsvImporter";
 import { bulkUpsertDivisions } from "../bulkActions";
 import FormField from "@/components/dashboard/client/FormField";
-import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
+import { bhChip } from "@/lib/ui/heroui-brand";
 
 const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
 

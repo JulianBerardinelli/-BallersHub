@@ -272,27 +272,6 @@ function formatSectionIdentifier(value: string) {
     .join(" ");
 }
 
-function summarizeSectionSettings(settings: Record<string, unknown> | null | undefined): string | null {
-  if (!settings || Object.keys(settings).length === 0) return null;
-  const parts = Object.entries(settings).map(([key, value]) => {
-    return `${formatSectionIdentifier(key)}: ${formatSettingValue(value)}`;
-  });
-  return parts.join(" · ");
-}
-
-function formatSettingValue(value: unknown): string {
-  if (Array.isArray(value)) return value.map((item) => formatSettingValue(item)).join(", ");
-  if (value === null || value === undefined) return "–";
-  if (typeof value === "boolean") return value ? "Sí" : "No";
-  if (typeof value === "object") {
-    const entries = Object.entries(value as Record<string, unknown>)
-      .map(([key, val]) => `${formatSectionIdentifier(key)}: ${formatSettingValue(val)}`)
-      .join(", ");
-    return `{ ${entries} }`;
-  }
-  return String(value);
-}
-
 function formatLayoutLabel(layout: string): string {
   return LAYOUT_LABELS[layout] ?? formatSectionIdentifier(layout);
 }

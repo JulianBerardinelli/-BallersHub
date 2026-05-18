@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
-import { careerItems, teams } from "@/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { careerItems } from "@/db/schema";
+import { desc } from "drizzle-orm";
 import BioClientCard from "./BioClientCard";
 
 import BioAnimatedBackground from "./BioAnimatedBackground";

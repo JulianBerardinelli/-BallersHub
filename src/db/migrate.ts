@@ -1,6 +1,6 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { migrate } from "drizzle-orm/node-postgres/migrator";
+import { Pool } from "pg";
 
 const runMigration = async () => {
   if (!process.env.DATABASE_URL) {
@@ -8,9 +8,10 @@ const runMigration = async () => {
   }
 
   // If DATABASE_URL points at the pooler, rewrite it to the direct
-  // connection — Supabase's pooler in session mode does not support all the
-  // protocol features `drizzle-kit migrate` needs.
-  // Project ref is derived from the username (e.g. `postgres.<project_ref>`).
+  // connection — Supabase's pooler in transaction mode does not
+  // support advisory locks or all the protocol features
+  // `drizzle-kit migrate` needs. Project ref is derived from the
+  // username (e.g. `postgres.<project_ref>`).
   let migrationUrl = process.env.DATABASE_URL;
   if (migrationUrl.includes(".pooler.supabase.com")) {
     const userMatch = migrationUrl.match(/\/\/postgres\.([a-z0-9]+):/);
@@ -27,14 +28,14 @@ const runMigration = async () => {
     migrationUrl = migrationUrl.replace(`postgres.${projectRef}`, "postgres");
   }
 
-  const migrationClient = postgres(migrationUrl, { max: 1 });
-  const db = drizzle(migrationClient);
+  const pool = new Pool({ connectionString: migrationUrl, max: 1 });
+  const db = drizzle(pool);
 
   console.log("Running migrations...");
   await migrate(db, { migrationsFolder: "src/db/migrations" });
   console.log("Migrations applied successfully!");
 
-  await migrationClient.end();
+  await pool.end();
   process.exit(0);
 };
 

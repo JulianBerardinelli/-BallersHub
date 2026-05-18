@@ -187,10 +187,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 <div className="relative size-16 shrink-0 overflow-hidden rounded-bh-md border border-white/[0.08] bg-bh-surface-2">
                   {isManager ? (
                     up?.agency?.logoUrl ? (
-                      <img
+                      <Image
                         src={up.agency.logoUrl}
                         alt="Logo de la agencia"
-                        className="h-full w-full object-contain"
+                        fill
+                        sizes="64px"
+                        className="object-contain"
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center font-bh-display text-sm font-bold uppercase text-bh-fg-3">

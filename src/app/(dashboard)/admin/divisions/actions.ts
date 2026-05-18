@@ -2,6 +2,7 @@
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminCounters } from "@/lib/admin/counters";
 
 export async function upsertDivision(input: {
   id?: string;
@@ -55,5 +56,6 @@ export async function upsertDivision(input: {
   }
 
   revalidatePath("/admin/divisions");
+  revalidateAdminCounters();
   return { success: true };
 }

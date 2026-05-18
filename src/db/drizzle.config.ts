@@ -7,7 +7,7 @@ try {
   if (match) {
     process.env.DATABASE_URL = match[1].trim();
   }
-} catch (e) {}
+} catch {}
 
 export default defineConfig({
   dialect: "postgresql",

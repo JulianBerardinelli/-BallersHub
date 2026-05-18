@@ -36,7 +36,6 @@ const statusChipTone: Record<TeamRow["status"], "success" | "warning" | "danger"
 };
 
 export default function TeamsTableUI({ items: initialItems, allDivisions = [] }: { items: TeamRow[], allDivisions?: any[] }) {
-  const isMobile = useIsMobile();
   const modalPreset = useAdminModalPreset();
   const [items, setItems] = React.useState<TeamRow[]>(initialItems);
 
@@ -309,7 +308,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
         {...modalPreset}
       >
         <ModalContent>
-          {(onClose) => {
+          {(_onClose) => {
 
             if (!openItem) return null;
             const item = openItem;
@@ -459,7 +458,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
         {...modalPreset}
       >
         <ModalContent>
-          {(onClose) => {
+          {(_onClose) => {
             if (!openItem) return null;
             const item = openItem as TeamEditableInput;
 

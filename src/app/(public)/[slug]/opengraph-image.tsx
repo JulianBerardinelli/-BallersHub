@@ -16,12 +16,13 @@
 //
 // Implementation notes:
 //
-//   • Uses `next/og`'s `ImageResponse` — runs on the Edge runtime.
-//     Free tier falls through to the static fallback by returning the
-//     site's default OG; Next.js handles the dispatch.
+//   • Uses `next/og`'s `ImageResponse` — runs on Node.js (Fluid
+//     Compute on Vercel). Was on Edge originally, but the move from
+//     postgres-js to node-postgres in src/lib/db.ts means importing
+//     `db` from here is no longer Edge-compatible (pg uses Node net
+//     + crypto modules). Vercel's current guidance is to default to
+//     Node anyway — Edge is deprecated for new work.
 //   • Image dimensions: 1200x630 (Facebook/Twitter/IG canonical).
-//   • No external font fetches — Edge runtime makes font loading
-//     fragile and the system stack covers the design.
 //   • Avatar is rendered via an absolute URL because `ImageResponse`
 //     cannot resolve relative paths.
 
@@ -31,11 +32,11 @@ import { subscriptions } from "@/db/schema/subscriptions";
 import { eq } from "drizzle-orm";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 // Cache for an hour, same as the page. Sharers will see fresh edits
-// within 60 minutes; AI/bot scrapers can't DoS the edge runtime.
+// within 60 minutes.
 export const revalidate = 3600;
 
 type Params = { slug: string };
