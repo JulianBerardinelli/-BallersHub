@@ -162,13 +162,44 @@ Pages que todavía usan Drizzle (confirmado leyendo el código en
 **Total P2**: ~186 kB removidos del First Load JS sumando las 3
 páginas (football-data + agency + agency/[slug]).
 
-### P3 — Arquitectura defensiva (decisión estratégica)
-- [ ] **Decisión: ¿migrar driver `postgres-js` → `@vercel/postgres`?**
-  `@vercel/postgres` es HTTP, no TCP. Cero zombies por diseño. Drizzle
-  tiene adapter. **Esto cierra el bug 504 definitivamente**, los
-  parches en `db.ts` (PR #69-#72) son band-aids. Riesgo: cambios en
-  sintaxis de `db.execute(sql\`…\`)`, validar todos los usos. Tiempo:
-  2-3h.
+### P3 — Arquitectura defensiva
+- [x] **Migración `postgres-js` → `pg` (node-postgres)**.
+  Nota: `@vercel/postgres` (lo que originalmente sugerí) es **Neon-only**,
+  no funciona con Supabase. La migración real es a `pg` con el adapter
+  `drizzle-orm/node-postgres`. `pg` no tiene el bug de extended-protocol
+  que causaba los ClientRead zombies de `postgres-js`.
+  - `src/lib/db.ts`: reescrito con `pg.Pool` + `drizzle(pool, { schema })`.
+    Timeouts defensivos mantenidos vía `options` libpq-style
+    (`statement_timeout`, `idle_in_transaction_session_timeout`,
+    `idle_session_timeout`) + `keepAlive` socket-level. `max: 1`,
+    `maxLifetimeSeconds: 60`, `idleTimeoutMillis: 5000`,
+    `connectionTimeoutMillis: 10000`.
+  - `src/db/migrate.ts`: misma migración a `pg.Pool` + `drizzle-orm/node-postgres/migrator`.
+  - `src/db/migrate_raw.ts`: **eliminado**. Era código muerto con un
+    project_ref del dev borrado del incidente original.
+  - `src/app/(dashboard)/admin/{divisions,teams}/bulkActions.ts`:
+    spawneaban su propio `postgres()` client a load del módulo, doblando
+    el pool footprint por warm lambda. Refactoreados a usar el `db`
+    compartido de `@/lib/db`.
+  - Call-sites de `db.execute<T>()`: `pg` siempre devuelve
+    `QueryResult<T>` con `.rows`; `postgres-js` a veces devolvía array
+    directo. Simplificados los unwraps defensivos en 8 archivos
+    (`audiences.ts`, `recipient-props.ts`, `player-invites.ts`,
+    `agency-invites.ts`, `marketing/actions.ts`, `ContactPortfolioModule.tsx`).
+  - `src/app/(public)/[slug]/opengraph-image.tsx`: cambiado de
+    `runtime = "edge"` → `"nodejs"`. `pg` no funciona en Edge (usa
+    `net`/`crypto` de Node) y la guía oficial de Vercel ya no recomienda
+    Edge para nuevo trabajo (Fluid Compute es el sucesor).
+
+  **Resultado**: bug 504 estructural cerrado. Los timeouts en `db.ts`
+  pasan a ser defensa de borde, no la línea principal de defensa.
+
+  **Regresión menor de bundle**: First Load JS shared 294 → 319 kB
+  (+25 kB) y CSS 42 → 67 kB. Causa: Turbopack rehace el chunk-splitting
+  por el nuevo grafo de imports (verificado: ningún client component
+  importa `pg`, no leaks al cliente). Páginas individuales **mantienen
+  los gains de P2** — football-data 483 kB, agency 462 kB, /agency/[slug]
+  287 kB. Aceptable tradeoff por eliminar el bug 504.
 - [ ] **Auth check de admin a middleware**: hoy cada layout/page hace
   `getUser()` + lookup de `role`. Centralizar reduce round-trips a
   Supabase Auth. Ojo: middleware corre en cada request — usar bien el

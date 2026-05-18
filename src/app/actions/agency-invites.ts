@@ -63,12 +63,12 @@ export async function inviteAgencyStaff(email: string) {
   // 1. Edge Checks: Is the target email already a registered user?
   // We use the postgres superuser connection in Drizzle to check auth.users securely.
   try {
-    const authResult = await db.execute(
+    const authResult = await db.execute<{ id: string }>(
       sql`SELECT id FROM auth.users WHERE email = ${normalizedEmail} LIMIT 1`
     );
-    
-    if (authResult.length > 0) {
-      const targetUserId = authResult[0].id as string;
+
+    if (authResult.rows.length > 0) {
+      const targetUserId = authResult.rows[0].id;
       const targetProfile = await db.query.userProfiles.findFirst({
         where: eq(userProfiles.userId, targetUserId),
       });
