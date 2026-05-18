@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withBotId } from "botid/next/config";
 
 const nextConfig: NextConfig = {
   images: {
@@ -33,4 +34,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// Vercel BotID — wraps the config to inject the proxy rewrites that
+// keep the bot-challenge JS reachable even when ad-blockers/extensions
+// try to strip third-party scripts. See instrumentation-client.ts for
+// the per-route protect list and src/app/api/{onboarding,portfolio}
+// for the server-side `checkBotId()` enforcement.
+export default withBotId(nextConfig);

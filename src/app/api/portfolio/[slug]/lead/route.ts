@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { checkBotId } from "botid/server";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -29,6 +30,16 @@ type Params = Promise<{ slug: string }>;
  */
 export async function POST(req: Request, { params }: { params: Params }) {
   const { slug } = await params;
+
+  // BotID check — this endpoint is the highest-exposure surface in the
+  // app (public, no auth, accessible from every shared portfolio).
+  // Without protection, automated email-collection bots can scrape
+  // unique emails by walking through every player slug. See
+  // src/instrumentation-client.ts for the protect config.
+  const verification = await checkBotId();
+  if (verification.isBot) {
+    return NextResponse.json({ error: "bot_detected" }, { status: 403 });
+  }
 
   let payload: unknown;
   try {

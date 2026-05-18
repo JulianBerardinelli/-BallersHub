@@ -1,5 +1,6 @@
 // app/api/onboarding/submit/route.ts
 import { NextResponse } from "next/server";
+import { checkBotId } from "botid/server";
 import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
@@ -60,6 +61,15 @@ const Bad = (msg: string) => J(400, { error: msg });
 const Unauth = () => J(401, { error: "unauthorized" });
 
 export async function POST(req: Request) {
+  // 0) BotID check — see src/instrumentation-client.ts for the protect
+  // config. Local dev always returns isBot: false; in prod a positive
+  // detection means the request came without the bot-challenge headers
+  // or the challenge response failed validation.
+  const verification = await checkBotId();
+  if (verification.isBot) {
+    return J(403, { error: "bot_detected" });
+  }
+
   // 1) Body
   let body: { step1: Step1; step2: Step2; kyc: { idDocKey: string; selfieKey: string } };
   try {
