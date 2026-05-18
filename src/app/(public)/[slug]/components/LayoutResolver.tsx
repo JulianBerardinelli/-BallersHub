@@ -37,6 +37,11 @@ export type PublicProfileData = {
   media: Array<Record<string, unknown> & { id: string; url: string; type: string }>;
   articles?: Array<Record<string, unknown> & { id: string; title: string; url: string; imageUrl?: string | null }>;
   sections: Array<{ section: string; visible: boolean }>;
+  /**
+   * Pro-only preference for the Press & Notes module. Defaults to "newspaper"
+   * (the original Daily Press layout). "cards" renders a responsive 2/3-col grid.
+   */
+  pressLayout?: "newspaper" | "cards";
   theme: Record<string, unknown> & { layout?: string | null; primaryColor?: string | null; accentColor?: string | null; typography?: string | null; };
   limits?: any; // Subscription limits
   /**
@@ -64,7 +69,7 @@ export type PublicProfileData = {
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
-  const { player, theme, limits, articles, plan, freeData } = data;
+  const { player, theme, limits, articles, plan, freeData, pressLayout } = data;
 
   // Free-tier players ALWAYS get the editorial dossier, regardless of
   // whatever `theme.layout` they had selected. The pro variants are
@@ -194,7 +199,7 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
             </Suspense>
 
             {/* Press & Notes Module (Client Side) */}
-            <ProfilePressNotesModule articles={articles as any} />
+            <ProfilePressNotesModule articles={articles as any} layout={pressLayout ?? "newspaper"} />
 
             <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
               <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
