@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import {
   Button,
   Autocomplete,
@@ -275,7 +276,7 @@ export default function CareerRowEditor({
           ]}
           startContent={
             selectedKey && !String(selectedKey).startsWith("new:") && selectedTeam
-              ? <img src={selectedTeam.crest_url || "/images/team-default.svg"} width={18} height={18} className="h-5 w-5 object-contain" alt="" />
+              ? <Image src={selectedTeam.crest_url || "/images/team-default.svg"} width={18} height={18} unoptimized={!selectedTeam.crest_url} className="h-5 w-5 object-contain" alt="" />
               : null
           }
         >
@@ -296,7 +297,7 @@ export default function CareerRowEditor({
                 key={item.id}
                 textValue={`${item.name} ${item.slug}`}
                 startContent={
-                  <img src={item.crest_url || "/images/team-default.svg"} width={18} height={18} className="h-5 w-5 object-contain" alt="" />
+                  <Image src={item.crest_url || "/images/team-default.svg"} width={18} height={18} unoptimized={!item.crest_url} className="h-5 w-5 object-contain" alt="" />
                 }
                 description={
                   <div className="flex items-center gap-1 text-bh-fg-4">
@@ -358,7 +359,7 @@ export default function CareerRowEditor({
           }
           return (
             <AutocompleteItem key={item.id} textValue={item.name} startContent={
-                <img src={item.crest_url || "/images/team-default.svg"} className="h-4 w-4 object-contain" alt="" />
+                <Image src={item.crest_url || "/images/team-default.svg"} width={16} height={16} unoptimized={!item.crest_url} className="h-4 w-4 object-contain" alt="" />
             }>
               {item.name}
             </AutocompleteItem>

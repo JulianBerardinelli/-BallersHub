@@ -103,23 +103,34 @@ Pages que todavía usan Drizzle (confirmado leyendo el código en
   ya probado). Lista de archivos arriba.
 - [x] **Documentar este plan** (este archivo).
 
-### P1 — Performance público + dashboard (próximo PR)
-- [ ] **`next.config.ts`**: agregar `images: { formats: ['image/avif',
-  'image/webp'], minimumCacheTTL: 86400, deviceSizes: […],
-  imageSizes: […] }`.
-- [ ] **Configurar `experimental.optimizePackageImports:
-  ['@heroui/react', 'lucide-react']`** + `modularizeImports` para
-  lucide. Validar reducción con `ANALYZE=true npm run build`.
-- [ ] **Reemplazar los `<img>` en layouts públicos** por `next/image`
-  con `sizes` correcto. Lista priorizada:
-  - `src/app/(public)/[slug]/components/modules/ProfileTacticsModule.tsx`
-    (7 instances)
-  - `src/components/teams/TeamCrest.tsx` (usado en muchas pantallas)
-  - `src/components/teams/TeamPicker*.tsx`
-  - `src/app/(public)/[slug]/components/free/atoms.tsx`
-- [ ] **Consolidar fuentes**: revisar uso real de Geist/Geist_Mono/
-  Barlow_Condensed/Barlow/DM_Sans/DM_Mono/zuume. Dropear las no usadas
-  y bajar pesos a los estrictamente necesarios.
+### P1 — Performance público + dashboard
+- [x] **`next.config.ts`**: `images.formats: ['image/avif','image/webp']`
+  + `minimumCacheTTL: 7d` + `experimental.optimizePackageImports`
+  para `@heroui/react`, `lucide-react`, `framer-motion`.
+- [x] **`<img>` críticos migrados a `next/image`**: TeamCrest,
+  TeamPicker, TeamPickerCombo (×2), CareerRowRead, CareerRowEditor
+  (×3), atoms.tsx del free layout (Crest), dashboard layout header
+  avatar.
+- [ ] **Pendiente P1.2**: migrar el resto de `<img>` (~45 restantes,
+  no críticos): `ProfileTacticsModule.tsx` (7), `manager-applications`
+  (los `<img>` del ID doc / selfie son links a Supabase signed URLs
+  cortas; pueden quedar), `media-moderation`, `agency/edit-profile`,
+  `dashboard/edit-profile/multimedia`. Hacer cuando el bundle lo
+  justifique.
+- [ ] **Consolidar fuentes — POSTPONED**. Análisis hecho:
+  - `font-heading` / `font-display` (usadas 19 + 1 files en
+    layouts pro) **no están mapeadas en `@theme inline`** — el
+    template pro probablemente cae a system font. Necesita
+    investigación: ver si zuume debería estar mapeada o si los
+    layouts están rotos visualmente sin que nadie haya reportado.
+  - `font-bh-display` (86 files), `font-bh-mono` (40 files),
+    `font-bh-heading` (20 files) son las que se usan masivo —
+    Barlow + Barlow_Condensed + DM_Mono son load-bearing.
+  - Zuume carga 7 pesos. Si solo se usa Bold (700), podemos
+    dropear los otros 6 pesos.
+  - **Decisión**: no tocar fuentes en este PR (riesgo visual
+    sin ganancia clara hasta que se aclare el mapping de
+    font-heading). Anotado para P1.3.
 
 ### P2 — Reducir bundles de páginas pesadas (después de P1)
 - [ ] **`dynamic()` para los managers** de

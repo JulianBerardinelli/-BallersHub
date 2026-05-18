@@ -2,6 +2,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase/client";
 import { Button, Chip, Spinner } from "@heroui/react";
 
@@ -194,11 +195,12 @@ export default function TeamPicker({
                 className="bh-card-lift flex items-center justify-between rounded-bh-md border border-white/[0.06] bg-bh-surface-1/60 p-2.5"
               >
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={t.crest_url || "/images/team-default.svg"}
                     alt=""
                     width={24}
                     height={24}
+                    unoptimized={!t.crest_url}
                     className="h-6 w-6 rounded-[3px] bg-bh-surface-2 object-contain"
                   />
                   <div>
