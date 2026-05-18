@@ -132,20 +132,35 @@ Pages que todavía usan Drizzle (confirmado leyendo el código en
     sin ganancia clara hasta que se aclare el mapping de
     font-heading). Anotado para P1.3.
 
-### P2 — Reducir bundles de páginas pesadas (después de P1)
-- [ ] **`dynamic()` para los managers** de
+### P2 — Reducir bundles de páginas pesadas
+- [x] **`dynamic({ ssr: false })` para 5 managers below-fold** en
   `/dashboard/edit-profile/football-data`: `SeasonStatsManager`,
-  `ScoutingAnalysisSection`, `HonoursManager`,
-  `ExternalLinksManager`. `CareerManager` puede quedarse arriba si es
-  el primer fold.
-- [ ] **Mismo patrón en `(dashboard)/dashboard/agency/page.tsx`** para
-  secciones bajo el primer pliegue.
-- [ ] **Refactor `ApplyFlow.tsx`**: que `getUser()` viva en el RSC
-  padre y se le pase el user como prop. Borrar el `useEffect` inicial.
-  Esto saca el bundle de `@supabase/ssr` del client.
-- [ ] **Map del player**: `dynamic(() => import("./Map"), { ssr:
-  false, loading: () => <MapSkeleton /> })`. Elimina `world-atlas` +
-  `topojson-client` + `d3-geo` del bundle inicial.
+  `ExternalLinksManager`, `HonoursManager`, `ScoutingAnalysisSection`,
+  `MarketProjectionSection`. Wrappers en `components/lazy/*Lazy.tsx`
+  (client) que importan los originales dinámicamente. `CareerManager`
+  queda síncrono (primer fold).
+  **Impacto**: First Load JS 572 → 483 kB (-89 kB / -15%). Page chunk
+  107 → 19 kB.
+- [x] **Mismo patrón en `/dashboard/agency/page.tsx`** — 6 secciones
+  below-fold: `ServicesSection`, `OperativeReachSection`,
+  `CountriesSection`, `TeamRelationsSection`, `ContactSocialSection`,
+  `AgencyMediaManagerClient`. Identity + GeneralInfo (primer fold)
+  síncronos.
+  **Impacto**: First Load JS 510 → 462 kB (-48 kB / -9%). Page chunk
+  46 → 8.2 kB.
+- [x] **`ApplyFlow.tsx`**: `userEmail` viene como prop desde el RSC
+  padre. Se borró el `useEffect` con `supabase.auth.getUser()` que
+  duplicaba el fetch + flash inicial sin email. Bundle ~igual (los
+  Step1/2/3 son los pesos reales), pero gana UX + un round-trip menos.
+- [x] **Globe3D `dynamic({ ssr: false })`** en
+  `(public)/agency/[slug]/components/modules/AgencyReachModule.tsx`.
+  Saca `d3-geo` + `topojson-client` + `world-atlas` (~80 kB TopoJSON)
+  del bundle inicial.
+  **Impacto**: `/agency/[slug]` First Load JS 336 → 287 kB (-49 kB /
+  -15%).
+
+**Total P2**: ~186 kB removidos del First Load JS sumando las 3
+páginas (football-data + agency + agency/[slug]).
 
 ### P3 — Arquitectura defensiva (decisión estratégica)
 - [ ] **Decisión: ¿migrar driver `postgres-js` → `@vercel/postgres`?**

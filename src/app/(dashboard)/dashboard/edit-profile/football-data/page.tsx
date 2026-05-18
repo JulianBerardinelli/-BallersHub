@@ -20,18 +20,26 @@ import { db } from "@/lib/db";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing-state";
-import ExternalLinksManager from "./components/ExternalLinksManager";
-import HonoursManager from "./components/HonoursManager";
-import SeasonStatsManager from "./components/SeasonStatsManager";
 import SportProfileSection from "./components/SportProfileSection";
 import AgencyRepresentationManager from "./components/AgencyRepresentationManager";
-import MarketProjectionSection from "./components/MarketProjectionSection";
-import ScoutingAnalysisSection from "./components/ScoutingAnalysisSection";
 import CareerManager, {
   type CareerStage,
   type CareerRequestSnapshot,
   type CareerRequestStage,
 } from "./components/CareerManager";
+
+// Below-the-fold managers are heavy (~200–800 lines of client code
+// each). They lazy-load via dedicated client wrappers in ./components/lazy/
+// using `dynamic({ ssr: false })`. That keeps them out of the initial
+// First Load JS — hydration on this route is dominated by these
+// forms, so this is the single biggest reduction in /dashboard/edit-
+// profile/football-data's bundle (~570 kB → lower).
+import SeasonStatsManager from "./components/lazy/SeasonStatsManagerLazy";
+import ExternalLinksManager from "./components/lazy/ExternalLinksManagerLazy";
+import HonoursManager from "./components/lazy/HonoursManagerLazy";
+import ScoutingAnalysisSection from "./components/lazy/ScoutingAnalysisSectionLazy";
+import MarketProjectionSection from "./components/lazy/MarketProjectionSectionLazy";
+
 import type { LinkKind } from "./schemas";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import { Lock } from "lucide-react";

@@ -1,14 +1,30 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe2, ExternalLink, Users, Building2 } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
 import CountUp from "@/components/ui/CountUp";
 import GlassCard from "@/components/ui/GlassCard";
 import ModuleBackdrop from "../ModuleBackdrop";
-import Globe3D from "./reach/Globe3D";
 import type { AgencyPublicData } from "../AgencyLayoutResolver";
+
+// Globe3D bundles d3-geo + topojson-client + world-atlas (~80 KB of
+// TopoJSON). The reach section is below the fold on every agency
+// page, so we keep it out of the initial bundle. ssr:false skips the
+// server render too — the loading fallback reserves the height so
+// there's no CLS.
+const Globe3D = dynamic(() => import("./reach/Globe3D"), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="mx-auto rounded-full bg-white/[0.02]"
+      style={{ width: 420, height: 420 }}
+      aria-hidden
+    />
+  ),
+});
 
 type Props = {
   countries: string[] | null;

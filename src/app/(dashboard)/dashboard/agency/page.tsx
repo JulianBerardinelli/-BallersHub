@@ -16,12 +16,15 @@ import SectionCard from "@/components/dashboard/client/SectionCard";
 
 import IdentitySection from "./components/IdentitySection";
 import GeneralInfoSection from "./components/GeneralInfoSection";
-import ServicesSection from "./components/ServicesSection";
-import OperativeReachSection from "./components/OperativeReachSection";
-import CountriesSection from "./components/CountriesSection";
-import TeamRelationsSection from "./components/TeamRelationsSection";
-import ContactSocialSection from "./components/ContactSocialSection";
-import AgencyMediaManagerClient from "./components/AgencyMediaManagerClient";
+// Below-the-fold sections lazy-load via client wrappers with
+// `ssr: false`. Identity + GeneralInfo (first fold) stay sync so the
+// initial paint is intact.
+import ServicesSection from "./components/lazy/ServicesSectionLazy";
+import OperativeReachSection from "./components/lazy/OperativeReachSectionLazy";
+import CountriesSection from "./components/lazy/CountriesSectionLazy";
+import TeamRelationsSection from "./components/lazy/TeamRelationsSectionLazy";
+import ContactSocialSection from "./components/lazy/ContactSocialSectionLazy";
+import AgencyMediaManagerClient from "./components/lazy/AgencyMediaManagerClientLazy";
 
 export const metadata = {
   title: "Mi Agencia - Dashboard",
