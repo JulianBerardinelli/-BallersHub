@@ -8,7 +8,7 @@ import FreeLayout, {
   type FreeLayoutVideo,
 } from "./free/FreeLayout";
 import SmoothScrollProvider from "./SmoothScrollProvider";
-import SuspenseResizeNudge from "./SuspenseResizeNudge";
+import ScrollMeasurementSync from "./ScrollMeasurementSync";
 import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 
 // SSR Modules for Streaming
@@ -152,40 +152,32 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
               These block load independently from the Hero, heavily improving TTFB
             */}
             {/*
-              SuspenseResizeNudge — workaround for a framer-motion
-              `useScroll` measurement bug. See the component file for
-              the full explanation. TL;DR: streaming SSR resolves each
-              Suspense at a different moment, shifting siblings' offsets
-              after TacticsModule has already calibrated `useScroll`.
-              This nudges window resize at staggered intervals so all
-              `useScroll` instances re-measure after every likely stream.
+              ScrollMeasurementSync — keeps every `useScroll` instance on
+              the page calibrated when streaming SSR (or images/fonts)
+              shifts the document layout after mount. Replaces the old
+              interval-based `SuspenseResizeNudge`: now event-driven via
+              `ResizeObserver(document.body)`, so it cannot miss late
+              Suspense resolutions on slow Vercel cold starts.
             */}
-            <SuspenseResizeNudge />
+            <ScrollMeasurementSync />
 
             {/*
-              All Suspense fallbacks below are pinned to `min-h-` values
-              that approximate the typical resolved content size. The
-              goal is to make the layout stable across the stream so
-              `useScroll`-based animations (Tactics scroll-jack, Career
-              timeline pin) don't lose their offset calibration when
-              siblings grow. The `min-h` floor still allows the real
-              content to expand if it's taller; the resize nudge above
-              catches whatever delta remains.
+              Suspense fallbacks below are still pinned to `min-h-` /
+              `h-` values that approximate the resolved content size — not
+              for the scroll math (ScrollMeasurementSync handles that)
+              but to prevent visible layout jumps while streaming.
             */}
             <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
               <ProfileBioModule playerId={player.id} />
             </Suspense>
 
             {/*
-              The TacticsModule renders an `h-[200vh]` scroll-jacked section
-              (ProfileTacticsModule). When Suspense streams the content in,
-              the section's height changes from the fallback's `h-40` to
-              `h-[200vh]` AFTER framer-motion's `useScroll` has measured
-              offsets — leaving `scrollYProgress` calibrated against the
-              short fallback, which causes the Layer 1 → Layer 2 transition
-              to never reach its trigger ranges in production builds.
-              Keeping the fallback at `h-[200vh]` so the layout is stable
-              before and after streaming.
+              TacticsModule renders an `h-[200vh]` scroll-jacked section
+              (ProfileTacticsModule). The fallback matches that height +
+              a sticky 100dvh loader so the page doesn't jump when the
+              real content streams in. ScrollMeasurementSync above keeps
+              `useScroll` calibrated no matter how the surrounding
+              boundaries resolve.
             */}
             <Suspense fallback={
               <div className="h-[200vh] relative w-full">
