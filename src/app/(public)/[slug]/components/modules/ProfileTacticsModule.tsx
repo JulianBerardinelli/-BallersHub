@@ -1214,7 +1214,7 @@ export default function ProfileTacticsModule({
                       <img
                          src={player.modelUrl1 || player.modelUrl2}
                          alt="Player full body"
-                         className="absolute bottom-0 left-0 w-auto h-[95%] max-h-[95vh] object-contain object-left-bottom"
+                         className="absolute bottom-0 left-0 w-auto h-[95%] max-w-none max-h-[95vh] object-contain object-left-bottom"
                          style={{
                             transformOrigin: "bottom left",
                             WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 32%)",
