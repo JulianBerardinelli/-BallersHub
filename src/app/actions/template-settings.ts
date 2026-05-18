@@ -142,3 +142,69 @@ export async function updateSectionVisibilityAction(payload: {
   revalidatePath("/dashboard/edit-template/structure");
   return { success: true };
 }
+
+const VALID_PRESS_LAYOUTS = ["newspaper", "cards"] as const;
+export type PressLayout = (typeof VALID_PRESS_LAYOUTS)[number];
+
+function normalizePressLayout(value: string | undefined): PressLayout {
+  return value === "cards" ? "cards" : "newspaper";
+}
+
+export async function updatePressLayoutAction(payload: { layout: string }) {
+  const supabase = await createSupabaseServerRoute();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const player = await db.query.playerProfiles.findFirst({
+    where: (players, { eq }) => eq(players.userId, user.id),
+  });
+
+  if (!player) throw new Error("Player profile not found");
+
+  const dashboardState = await fetchDashboardState(supabase, user.id);
+  const access = resolvePlanAccess(dashboardState.subscription);
+  if (!access.isPro) {
+    throw new Error("Pro plan required to customize notes layout");
+  }
+
+  const layout = normalizePressLayout(payload.layout);
+
+  const { profileSectionsVisibility } = await import("@/db/schema/profilePublishing");
+
+  const existing = await db.query.profileSectionsVisibility.findFirst({
+    where: (s, { eq, and }) => and(eq(s.playerId, player.id), eq(s.section, "press")),
+  });
+
+  if (existing) {
+    const prevSettings =
+      existing.settings && typeof existing.settings === "object"
+        ? (existing.settings as Record<string, unknown>)
+        : {};
+    await db
+      .update(profileSectionsVisibility)
+      .set({
+        settings: { ...prevSettings, layout },
+        updatedAt: new Date(),
+      })
+      .where(eq(profileSectionsVisibility.id, existing.id));
+  } else {
+    await db.insert(profileSectionsVisibility).values({
+      playerId: player.id,
+      section: "press",
+      visible: true,
+      settings: { layout },
+    });
+  }
+
+  revalidatePath("/dashboard/edit-profile/multimedia");
+  if (player.slug) {
+    revalidatePath(`/${player.slug}`);
+  }
+
+  return { success: true, layout };
+}

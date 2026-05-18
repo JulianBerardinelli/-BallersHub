@@ -6,6 +6,7 @@ import { Button, useDisclosure } from "@heroui/react";
 import { Plus, Newspaper } from "lucide-react";
 import ArticleModal, { Article } from "./ArticleModal";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import NotesLayoutPicker, { type NotesLayout } from "./NotesLayoutPicker";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
 import { bhButtonClass } from "@/components/ui/BhButton";
@@ -15,7 +16,17 @@ import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/Upgra
 
 const FREE_ARTICLE_CAP = 3;
 
-export default function ArticlesManager({ articles }: { articles: Article[] }) {
+export default function ArticlesManager({
+  articles,
+  initialLayout = "newspaper",
+}: {
+  articles: Article[];
+  initialLayout?: NotesLayout;
+  // isPro is kept on the props signature for callers but the picker
+  // visibility uses `access.isPro` from the provider to stay in sync with
+  // optimistic subscription state.
+  isPro?: boolean;
+}) {
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -67,6 +78,10 @@ export default function ArticlesManager({ articles }: { articles: Article[] }) {
       }
     >
       <div className="flex flex-col gap-4">
+        {access.isPro && (
+          <NotesLayoutPicker initialLayout={initialLayout} />
+        )}
+
         {articles.length === 0 ? (
           <BhEmptyState
             icon={<Newspaper className="h-5 w-5" />}

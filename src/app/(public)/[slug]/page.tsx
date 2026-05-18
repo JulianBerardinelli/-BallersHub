@@ -386,12 +386,24 @@ export default async function PlayerPublicPage({
       }
     : null;
 
+  // Press notes layout preference is stored in profile_sections_visibility.settings
+  // for the row with section='press'. Defaults to "newspaper" so existing Pro
+  // players keep their current layout.
+  const pressSection = sections.find((s) => s.section === "press");
+  const pressSettings =
+    pressSection?.settings && typeof pressSection.settings === "object"
+      ? (pressSection.settings as Record<string, unknown>)
+      : null;
+  const pressLayout: "newspaper" | "cards" =
+    pressSettings?.layout === "cards" ? "cards" : "newspaper";
+
   const publicData = {
     player,
     career: [],
     media,
     sections,
     articles,
+    pressLayout,
     theme:
       theme || {
         layout: "futuristic",
