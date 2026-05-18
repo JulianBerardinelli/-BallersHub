@@ -11,7 +11,7 @@ import {
 import { useLenis } from "lenis/react";
 import { Zap } from "lucide-react";
 import { useStableScrollProgress } from "@/hooks/useStableScrollProgress";
-import SoccerPitch3D, { POSITIONS_MAP, normalizePosition } from "@/components/common/animations/SoccerPitch3D";
+import SoccerPitch3D, { POSITIONS_MAP, normalizePosition, getPositionColor } from "@/components/common/animations/SoccerPitch3D";
 import { IconSoccerField } from "@/components/icons/IconSoccerField";
 import { IconBrain } from "@/components/icons/IconBrain";
 import { IconActivity } from "@/components/icons/IconActivity";
@@ -118,13 +118,6 @@ function SoccerPitch2D({ positions }: { positions: string[] }) {
     .map(p => normalizePosition(p))
     .filter((p): p is string => p !== null);
 
-  const PALETTES = [
-    "var(--theme-primary)",
-    "#f97316", // orange-500
-    "#8b5cf6", // violet-500
-    "#10b981", // emerald-500
-  ];
-
   return (
     <div className="relative w-full" style={{ aspectRatio: "68 / 105" }}>
       <svg
@@ -166,7 +159,7 @@ function SoccerPitch2D({ positions }: { positions: string[] }) {
         {validPositions.map((posCode, i) => {
           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
           if (!cfg) return null;
-          const color = PALETTES[i % PALETTES.length];
+          const color = getPositionColor(posCode);
 
           return (
             <div
@@ -756,13 +749,6 @@ export default function ProfileTacticsModule({
     (m) => m.url && (m.url.match(/\.(jpeg|jpg|gif|png|webp)$/i) || m.mediaType === "photo")
   ).slice(0, 3) || [];
 
-  const PALETTES_COLORS = [
-    "var(--theme-primary)",
-    "#f97316", // orange-500
-    "#8b5cf6", // violet-500
-    "#10b981", // emerald-500
-  ];
-
   // Primary position info for mobile display
   const rawPositions = player.positions || ["DEL"];
   const validPositions = rawPositions
@@ -829,9 +815,9 @@ export default function ProfileTacticsModule({
                     {/* Position cards */}
                     <div className="flex flex-col gap-2.5 flex-1 min-w-0 pr-0.5 overflow-y-auto scrollbar-hide">
                       {validPositions.length > 0 ? (
-                        validPositions.map((posCode: string, i: number) => {
+                        validPositions.map((posCode: string) => {
                           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
-                          const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
+                          const color = getPositionColor(posCode);
                           return (
                             <MobilePositionCard
                               key={posCode}
@@ -963,7 +949,7 @@ export default function ProfileTacticsModule({
                         {validPositions.map((posCode: string, i: number) => {
                           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
                           if (!cfg || cfg.strengths.length === 0) return null;
-                          const color = PALETTES_COLORS[i % PALETTES_COLORS.length];
+                          const color = getPositionColor(posCode);
                           return (
                             <div
                               key={posCode}
