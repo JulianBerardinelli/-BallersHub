@@ -223,9 +223,9 @@ function ScrambleText({ text, active }: { text: string; active: boolean }) {
 
 function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
   const title = isScouting ? "Perfil" : "Análisis Táctico";
-  const subtitle = isScouting ? "Características" : "Análisis\nPosicional";
+  const subtitle = isScouting ? "Características" : "Análisis Posicional";
   return (
-    <div className="relative z-20 shrink-0 mb-2">
+    <div className="relative z-20 shrink-0 mb-6 lg:mb-8">
       <div className="flex items-center gap-3">
         <h2 className="text-[9px] sm:text-[10px] md:text-sm font-black uppercase tracking-[0.25em] text-[var(--theme-accent)] whitespace-nowrap">
           <ScrambleText text={title} active={isScouting} />
@@ -776,6 +776,34 @@ export default function ProfileTacticsModule({
       >
         <AnimatedPattern />
 
+        {/* ▸ MOBILE PNG Asset — placed as a direct child of the sticky container
+            (not inside Layer 2 / padded wrapper) so it can anchor `absolute
+            bottom-0 right-0` against the actual viewport corner without the
+            section's horizontal/vertical padding pushing it inward. Because it
+            sits inside the sticky container, it scrolls AWAY naturally once
+            sticky releases at the section's end — no fixed-position bleed
+            onto the sections below. Behind the cards via z-[5] (< padded
+            wrapper's z-10). */}
+        {(player.modelUrl1 || player.modelUrl2) && (
+          <motion.div
+            style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
+            className="lg:hidden absolute -bottom-12 -right-16 w-[95%] max-w-[600px] pointer-events-none z-[5]"
+          >
+            <img
+               src={player.modelUrl1 || player.modelUrl2}
+               alt="Player asset mobile"
+               className="w-full h-auto object-contain max-h-[80vh]"
+               style={{
+                   transformOrigin: "bottom right",
+                   WebkitMaskImage: "linear-gradient(to top, transparent 10%, black 25%), linear-gradient(to right, black 60%, transparent 100%)",
+                   maskImage: "linear-gradient(to top, transparent 10%, black 25%), linear-gradient(to right, black 60%, transparent 100%)",
+                   WebkitMaskComposite: "source-in",
+                   maskComposite: "intersect",
+               }}
+            />
+          </motion.div>
+        )}
+
         <div
           className="absolute inset-0 w-full h-full flex flex-col px-5 sm:px-8 lg:px-16 z-10 pointer-events-none"
           style={{ paddingTop: "108px", paddingBottom: "16px" }}
@@ -784,6 +812,28 @@ export default function ProfileTacticsModule({
 
             {/* TÍTULO SCRAMBLE */}
             <ScrambleTitle isScouting={isScouting} />
+
+            {/* ▸ Evaluación Oficial badge (mobile + desktop) — pulled out of all
+                Layer 2 column flow and anchored bottom-left of the inner wrapper,
+                so it sits at the same left edge as the title and at the bottom
+                of the section content area. Compact `w-fit` so it reads as a
+                discrete chip, not a stretched bar. Only shown while Layer 2 is
+                active (`isScouting`). On desktop it floats over the player
+                image's lower body — z-20 keeps it above the asset/cards. */}
+            {isScouting && author && author.trim() !== "" && (
+              <motion.div
+                style={{ opacity: scoutCharOpac, y: scoutCharY }}
+                className="absolute bottom-0 lg:bottom-4 left-0 w-fit z-20 flex items-center gap-2 lg:gap-3 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 lg:p-3 shadow-2xl"
+              >
+                <div className="w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0 shadow-lg">
+                  <span className="text-[8px] lg:text-[10px] text-white font-black">ST</span>
+                </div>
+                <div className="overflow-hidden min-w-0">
+                  <p className="text-[7px] lg:text-[8px] uppercase tracking-[0.15em] lg:tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
+                  <p className="text-[10px] lg:text-[11px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
+                </div>
+              </motion.div>
+            )}
 
             <div className="relative flex-grow w-full min-h-0">
 
@@ -978,7 +1028,7 @@ export default function ProfileTacticsModule({
                   </motion.div>
 
                   {/* Lado der: video + highlights */}
-                  <div className="w-1/2 relative flex flex-col items-end lg:pr-4 xl:pr-12 pb-0">
+                  <div className="w-1/2 relative flex flex-col items-end pb-0">
                     {videos[0] && (
                       <div className="relative w-full max-w-[550px] shrink-0 mb-8 mt-4 flex justify-center z-20">
                         <motion.div style={{ opacity: vid1Opac, y: vid1Y }} className="w-full">
@@ -1087,25 +1137,6 @@ export default function ProfileTacticsModule({
                 {/* ▸ MOBILE layout (< lg): características + acordeones (sin fotos) */}
                 <div className="flex lg:hidden flex-col gap-2 h-full relative">
 
-                  {/* MOBILE PNG Asset (Bottom Right, absolute, crisp right edge) */}
-                  {(player.modelUrl1 || player.modelUrl2) && (
-                    <motion.div
-                      style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                      className="absolute bottom-[-5%] right-0 w-[140%] max-w-[500px] pointer-events-none z-0 flex justify-end"
-                    >
-                       <img 
-                          src={player.modelUrl1 || player.modelUrl2} 
-                          alt="Player asset mobile"
-                          className="w-full h-auto object-contain object-bottom object-right max-h-[70vh]"
-                          style={{ 
-                              transformOrigin: "bottom right",
-                              WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 40%)",
-                              maskImage: "linear-gradient(to top, transparent 0%, black 40%)"
-                          }}
-                       />
-                    </motion.div>
-                  )}
-
                   {/* Avatar + Características principales */}
                   <motion.div
                     style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
@@ -1176,21 +1207,6 @@ export default function ProfileTacticsModule({
                     />
                   </div>
 
-                  {/* Autor — solo si hay */}
-                  {author && author.trim() !== "" && (
-                    <motion.div
-                      style={{ opacity: scoutCharOpac, y: scoutCharY }}
-                      className="shrink-0 mt-auto relative z-10 flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/5 rounded-2xl p-2.5 hover:border-white/15 transition-colors"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
-                        <span className="text-[8px] text-white font-black">ST</span>
-                      </div>
-                      <div className="overflow-hidden min-w-0">
-                        <p className="text-[7px] uppercase tracking-[0.15em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                        <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
 
                 {/* ▸ DESKTOP layout (lg+): fotos izq + grid cards der */}
@@ -1214,7 +1230,7 @@ export default function ProfileTacticsModule({
                       <img
                          src={player.modelUrl1 || player.modelUrl2}
                          alt="Player full body"
-                         className="absolute bottom-0 left-0 w-auto h-[95%] max-h-[95vh] object-contain object-left-bottom"
+                         className="absolute bottom-0 -left-32 w-auto h-[95%] max-w-none max-h-[95vh] object-contain object-left-bottom"
                          style={{
                             transformOrigin: "bottom left",
                             WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 32%)",
@@ -1222,19 +1238,6 @@ export default function ProfileTacticsModule({
                          }}
                       />
 
-                      {/* Evaluación Oficial flotante */}
-                      {author && author.trim() !== "" && (
-                        <div className="absolute top-10 left-0 right-0 mx-auto w-max z-20 flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl hover:border-white/25 transition-colors">
-                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-10 rounded-2xl pointer-events-none" />
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0 shadow-lg">
-                            <span className="text-[10px] text-white font-black">ST</span>
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-[8px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                            <p className="text-[11px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="w-full h-full flex flex-col justify-end pb-10">
@@ -1254,19 +1257,6 @@ export default function ProfileTacticsModule({
                       ) : (
                         <div className="w-full aspect-square bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center p-4 text-center mt-auto mb-10">
                           <span className="text-[10px] uppercase font-light text-white/30 tracking-widest">Sin fotos</span>
-                        </div>
-                      )}
-                      
-                      {author && author.trim() !== "" && (
-                        <div className="mt-4 relative flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 rounded-[1rem] p-3 hover:border-white/20 transition-colors">
-                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-[0.02] rounded-[1rem] pointer-events-none" />
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
-                            <span className="text-[9px] text-white font-black">ST</span>
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-[7px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                            <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                          </div>
                         </div>
                       )}
                     </div>
