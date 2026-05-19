@@ -1091,7 +1091,7 @@ export default function ProfileTacticsModule({
                   {(player.modelUrl1 || player.modelUrl2) && (
                     <motion.div
                       style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                      className="absolute bottom-[-5%] right-0 w-[140%] max-w-[500px] pointer-events-none z-0 flex justify-end"
+                      className="absolute bottom-[-5%] -right-16 w-[140%] max-w-[500px] pointer-events-none z-0 flex justify-end"
                     >
                        <img 
                           src={player.modelUrl1 || player.modelUrl2} 
