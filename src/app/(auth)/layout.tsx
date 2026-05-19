@@ -6,8 +6,8 @@ import { ArrowLeft } from "lucide-react";
 import { Wordmark } from "@/components/brand/Wordmark";
 
 export const metadata: Metadata = {
-  title: { default: "Acceder", template: "%s • BallersHub" },
-  description: "Accedé a tu cuenta BallersHub",
+  title: { default: "Acceder", template: "%s • 'BallersHub" },
+  description: "Accedé a tu cuenta 'BallersHub",
 };
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

@@ -38,7 +38,7 @@ type PageProps = {
 };
 
 export const metadata = {
-  title: "Suscripción",
+  title: "Suscripción · 'BallersHub",
   robots: { index: false, follow: false },
 };
 

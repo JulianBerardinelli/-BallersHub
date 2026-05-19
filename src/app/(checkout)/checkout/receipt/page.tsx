@@ -25,7 +25,7 @@ import { PLAN_COPY } from "@/components/site/checkout/data";
 import { CURRENCY_GLYPH } from "@/components/site/pricing/data";
 
 export const metadata = {
-  title: "Recibo",
+  title: "Recibo · 'BallersHub",
   robots: { index: false, follow: false },
 };
 

@@ -10,7 +10,7 @@ import {
 } from "@/lib/billing/plans";
 
 export const metadata = {
-  title: "Pago rechazado",
+  title: "Pago rechazado · 'BallersHub",
   robots: { index: false, follow: false },
 };
 

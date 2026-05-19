@@ -3,7 +3,7 @@ import { ArrowRight, Hourglass } from "lucide-react";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
 
 export const metadata = {
-  title: "Pago en proceso",
+  title: "Pago en proceso · 'BallersHub",
   robots: { index: false, follow: false },
 };
 

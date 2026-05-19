@@ -14,7 +14,7 @@ export default function CheckoutTopbar() {
         <Link href="/" className="flex items-center" aria-label="Volver al inicio">
           <Image
             src="/images/logo/imagotipo-full_white.svg"
-            alt="BallersHub"
+            alt="'BallersHub"
             width={140}
             height={28}
             priority
