@@ -223,7 +223,7 @@ function ScrambleText({ text, active }: { text: string; active: boolean }) {
 
 function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
   const title = isScouting ? "Perfil" : "Análisis Táctico";
-  const subtitle = isScouting ? "Características" : "Análisis\nPosicional";
+  const subtitle = isScouting ? "Características" : "Análisis Posicional";
   return (
     <div className="relative z-20 shrink-0 mb-2">
       <div className="flex items-center gap-3">
