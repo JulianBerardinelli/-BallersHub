@@ -1093,14 +1093,16 @@ export default function ProfileTacticsModule({
                       style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
                       className="absolute bottom-[-5%] -right-40 w-[140%] max-w-[500px] pointer-events-none z-0 flex justify-end"
                     >
-                       <img 
-                          src={player.modelUrl1 || player.modelUrl2} 
+                       <img
+                          src={player.modelUrl1 || player.modelUrl2}
                           alt="Player asset mobile"
                           className="w-full h-auto object-contain object-bottom object-right max-h-[70vh]"
-                          style={{ 
+                          style={{
                               transformOrigin: "bottom right",
-                              WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 40%)",
-                              maskImage: "linear-gradient(to top, transparent 0%, black 40%)"
+                              WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 35%), linear-gradient(to right, black 65%, transparent 100%)",
+                              maskImage: "linear-gradient(to top, transparent 0%, black 35%), linear-gradient(to right, black 65%, transparent 100%)",
+                              WebkitMaskComposite: "source-in",
+                              maskComposite: "intersect",
                           }}
                        />
                     </motion.div>
