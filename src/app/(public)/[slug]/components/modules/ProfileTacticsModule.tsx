@@ -795,8 +795,8 @@ export default function ProfileTacticsModule({
                className="w-full h-auto object-contain max-h-[80vh]"
                style={{
                    transformOrigin: "bottom right",
-                   WebkitMaskImage: "linear-gradient(to top, transparent 5%, black 55%), linear-gradient(to right, black 60%, transparent 100%)",
-                   maskImage: "linear-gradient(to top, transparent 5%, black 55%), linear-gradient(to right, black 60%, transparent 100%)",
+                   WebkitMaskImage: "linear-gradient(to top, transparent 10%, black 25%), linear-gradient(to right, black 60%, transparent 100%)",
+                   maskImage: "linear-gradient(to top, transparent 10%, black 25%), linear-gradient(to right, black 60%, transparent 100%)",
                    WebkitMaskComposite: "source-in",
                    maskComposite: "intersect",
                }}
