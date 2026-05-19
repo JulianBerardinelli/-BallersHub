@@ -225,7 +225,7 @@ function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
   const title = isScouting ? "Perfil" : "Análisis Táctico";
   const subtitle = isScouting ? "Características" : "Análisis Posicional";
   return (
-    <div className="relative z-20 shrink-0 mb-2">
+    <div className="relative z-20 shrink-0 mb-6 lg:mb-8">
       <div className="flex items-center gap-3">
         <h2 className="text-[9px] sm:text-[10px] md:text-sm font-black uppercase tracking-[0.25em] text-[var(--theme-accent)] whitespace-nowrap">
           <ScrambleText text={title} active={isScouting} />
