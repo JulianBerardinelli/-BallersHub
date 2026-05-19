@@ -813,22 +813,24 @@ export default function ProfileTacticsModule({
             {/* TÍTULO SCRAMBLE */}
             <ScrambleTitle isScouting={isScouting} />
 
-            {/* ▸ MOBILE Evaluación Oficial badge — pulled out of the mobile cards
-                column and anchored bottom-left of the inner wrapper (= same left
-                edge as the title), so it sits at the bottom of the player image
-                area aligned with the title's left margin. Compact `w-fit` pill
-                so it doesn't stretch across the full column. */}
+            {/* ▸ Evaluación Oficial badge (mobile + desktop) — pulled out of all
+                Layer 2 column flow and anchored bottom-left of the inner wrapper,
+                so it sits at the same left edge as the title and at the bottom
+                of the section content area. Compact `w-fit` so it reads as a
+                discrete chip, not a stretched bar. Only shown while Layer 2 is
+                active (`isScouting`). On desktop it floats over the player
+                image's lower body — z-20 keeps it above the asset/cards. */}
             {isScouting && author && author.trim() !== "" && (
               <motion.div
                 style={{ opacity: scoutCharOpac, y: scoutCharY }}
-                className="lg:hidden absolute bottom-0 left-0 w-fit z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 shadow-2xl"
+                className="absolute bottom-0 left-0 w-fit z-20 flex items-center gap-2 lg:gap-3 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 lg:p-3 shadow-2xl"
               >
-                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
-                  <span className="text-[8px] text-white font-black">ST</span>
+                <div className="w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0 shadow-lg">
+                  <span className="text-[8px] lg:text-[10px] text-white font-black">ST</span>
                 </div>
                 <div className="overflow-hidden min-w-0">
-                  <p className="text-[7px] uppercase tracking-[0.15em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                  <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
+                  <p className="text-[7px] lg:text-[8px] uppercase tracking-[0.15em] lg:tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
+                  <p className="text-[10px] lg:text-[11px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
                 </div>
               </motion.div>
             )}
@@ -1236,19 +1238,6 @@ export default function ProfileTacticsModule({
                          }}
                       />
 
-                      {/* Evaluación Oficial flotante */}
-                      {author && author.trim() !== "" && (
-                        <div className="absolute top-10 left-0 right-0 mx-auto w-max z-20 flex items-center gap-3 bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl hover:border-white/25 transition-colors">
-                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-10 rounded-2xl pointer-events-none" />
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0 shadow-lg">
-                            <span className="text-[10px] text-white font-black">ST</span>
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-[8px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                            <p className="text-[11px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="w-full h-full flex flex-col justify-end pb-10">
@@ -1268,19 +1257,6 @@ export default function ProfileTacticsModule({
                       ) : (
                         <div className="w-full aspect-square bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center p-4 text-center mt-auto mb-10">
                           <span className="text-[10px] uppercase font-light text-white/30 tracking-widest">Sin fotos</span>
-                        </div>
-                      )}
-                      
-                      {author && author.trim() !== "" && (
-                        <div className="mt-4 relative flex items-center gap-3 bg-black/40 backdrop-blur-md border border-white/5 rounded-[1rem] p-3 hover:border-white/20 transition-colors">
-                          <div className="absolute inset-0 bg-gradient-to-r from-[var(--theme-primary)] to-transparent opacity-[0.02] rounded-[1rem] pointer-events-none" />
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
-                            <span className="text-[9px] text-white font-black">ST</span>
-                          </div>
-                          <div className="overflow-hidden">
-                            <p className="text-[7px] uppercase tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                            <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                          </div>
                         </div>
                       )}
                     </div>
