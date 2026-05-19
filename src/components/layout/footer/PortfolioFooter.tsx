@@ -126,12 +126,12 @@ export default async function PortfolioFooter({
       ? "Conectá con "
       : "Sumate al ecosistema de ";
 
-  const highlight = ownerName ? ownerName : "BallersHub";
+  const highlight = ownerName ? ownerName : "'BallersHub";
 
   const eyebrow =
     ownerKind === "agency"
-      ? "Agencia verificada en BallersHub"
-      : "Perfil verificado en BallersHub";
+      ? "Agencia verificada en 'BallersHub"
+      : "Perfil verificado en 'BallersHub";
 
   const subheadline =
     ownerKind === "agency"

@@ -12,7 +12,7 @@ import "@/styles/globals.css";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-// BallersHub design system fonts — opt-in via font-display / font-heading / font-dm-sans / font-dm-mono.
+// 'BallersHub design system fonts — opt-in via font-display / font-heading / font-dm-sans / font-dm-mono.
 const barlowCondensed = Barlow_Condensed({
   variable: "--font-barlow-condensed",
   subsets: ["latin"],
@@ -41,25 +41,32 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   metadataBase: getSiteBaseUrlObject(),
   title: {
-    default: "BallersHub — Perfiles profesionales de futbolistas",
-    template: "%s · BallersHub",
+    default: "'BallersHub — Perfiles profesionales de futbolistas",
+    template: "%s · 'BallersHub",
   },
   description:
-    "BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
-  applicationName: "BallersHub",
+    "'BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
+  applicationName: "'BallersHub",
   keywords: [
     "futbolistas",
     "perfil de jugador",
     "scouting",
     "agencias de representación",
     "portfolio de futbolista",
+    // Brand: real form has the leading apostrophe. We also ship the
+    // unapostrophed and space-separated variants so queries like
+    // "ballershub" or "ballers hub" (the natural way someone types it
+    // when they don't remember the punctuation) still match. The
+    // domain ballershub.co reinforces the unapostrophed match.
+    "'BallersHub",
     "BallersHub",
+    "Ballers Hub",
   ],
-  authors: [{ name: "BallersHub" }],
-  creator: "BallersHub",
-  publisher: "BallersHub",
+  authors: [{ name: "'BallersHub" }],
+  creator: "'BallersHub",
+  publisher: "'BallersHub",
   openGraph: {
-    siteName: "BallersHub",
+    siteName: "'BallersHub",
     type: "website",
     locale: "es_AR",
   },

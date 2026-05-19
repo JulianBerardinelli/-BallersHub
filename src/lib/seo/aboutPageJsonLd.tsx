@@ -1,6 +1,6 @@
 // JSON-LD for /about — AboutPage + Organization (rich) + team Person entities.
 //
-// The /about page is BallersHub's E-E-A-T anchor. Google's quality
+// The /about page is 'BallersHub's E-E-A-T anchor. Google's quality
 // guidelines explicitly reward sites that disclose who is behind them,
 // when the company was founded, and what credentials the team brings.
 // We surface all of that as structured data so search engines and AI
@@ -69,7 +69,7 @@ export function AboutPageJsonLd() {
   const orgExtension = {
     "@type": "Organization",
     "@id": orgId,
-    name: "BallersHub",
+    name: "'BallersHub",
     url: base,
     foundingDate: "2025-08",
     description: ORG_DESCRIPTION,
@@ -87,7 +87,7 @@ export function AboutPageJsonLd() {
     "@type": "AboutPage",
     "@id": aboutId,
     url: aboutUrl,
-    name: "Nosotros · BallersHub",
+    name: "Nosotros · 'BallersHub",
     inLanguage: "es-AR",
     isPartOf: { "@id": `${base}#website` },
     mainEntity: { "@id": orgId },

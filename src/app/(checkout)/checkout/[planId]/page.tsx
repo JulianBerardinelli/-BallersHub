@@ -26,7 +26,7 @@ import CheckoutOrderSummary from "@/components/site/checkout/CheckoutOrderSummar
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
 
 export const metadata = {
-  title: "Checkout · 'BallersHub",
+  title: "Checkout",
   description: "Completá tu suscripción al plan Pro de 'BallersHub.",
   robots: { index: false, follow: false },
 };

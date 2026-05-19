@@ -2,7 +2,7 @@
 //
 // Mounted once in the root layout. Three purposes:
 //
-//   1. Establish BallersHub as a recognized brand entity in Google's
+//   1. Establish 'BallersHub as a recognized brand entity in Google's
 //      Knowledge Graph so player profiles can later reference it via
 //      `publisher` on Article/Person schemas.
 //   2. Emit a `WebSite` node with a `SearchAction` so Google can offer
@@ -41,7 +41,13 @@ export function OrganizationJsonLd() {
       {
         "@type": "Organization",
         "@id": orgId,
-        name: "BallersHub",
+        name: "'BallersHub",
+        // The brand is intentionally spelled with a leading apostrophe.
+        // We expose the unapostrophed and space-separated variants as
+        // alternates so Google can resolve queries like "ballershub" or
+        // "ballers hub" to the same Knowledge Graph entity. The domain
+        // ballershub.co reinforces the unapostrophed mapping.
+        alternateName: ["BallersHub", "Ballers Hub"],
         url: base,
         // Founded August 2025 — sourced from docs/about MILESTONES.
         foundingDate: "2025-08",
@@ -57,7 +63,7 @@ export function OrganizationJsonLd() {
         "@type": "WebSite",
         "@id": siteId,
         url: base,
-        name: "BallersHub",
+        name: "'BallersHub",
         inLanguage: "es-AR",
         publisher: { "@id": orgId },
         potentialAction: {
@@ -73,7 +79,7 @@ export function OrganizationJsonLd() {
       {
         "@type": "SoftwareApplication",
         "@id": appId,
-        name: "BallersHub",
+        name: "'BallersHub",
         url: base,
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",

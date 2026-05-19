@@ -15,7 +15,7 @@ export function getStripe(): Stripe {
       apiVersion: "2026-04-22.dahlia",
       // Tag every API call so dashboard logs are easy to grep.
       appInfo: {
-        name: "BallersHub",
+        name: "'BallersHub",
         version: "0.1.0",
         url: billingEnv.appUrl(),
       },

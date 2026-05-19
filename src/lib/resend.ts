@@ -8,7 +8,7 @@ import { signUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
  *
  * All HTML is now rendered from the React Email template registry in
  * `src/emails/templates/_registry.ts` so every send (welcome, invite,
- * disconnect…) inherits the BallersHub design system automatically.
+ * disconnect…) inherits the 'BallersHub design system automatically.
  *
  * Marketing campaigns DO NOT go through here — those are dispatched by
  * `src/lib/marketing/dispatch.ts` (with batching, suppression, etc.).
@@ -42,7 +42,7 @@ export async function sendPlayerWelcomeEmail(email: string, playerName: string) 
     await resend.emails.send({
       from: senderFrom,
       to: [email],
-      subject: "Ponte en marcha en BallersHub",
+      subject: "Ponte en marcha en 'BallersHub",
       html,
     });
   } catch (error) {
@@ -65,7 +65,7 @@ export async function sendAgencyWelcomeEmail(email: string, managerName: string)
     await resend.emails.send({
       from: senderFrom,
       to: [email],
-      subject: "Construí tu directorio de talentos en BallersHub",
+      subject: "Construí tu directorio de talentos en 'BallersHub",
       html,
     });
   } catch (error) {
@@ -132,7 +132,7 @@ export async function sendAgencyStaffInviteEmail(
     await resend.emails.send({
       from: senderFrom,
       to: [email],
-      subject: `Invitación para unirte a ${agencyName} en BallersHub`,
+      subject: `Invitación para unirte a ${agencyName} en 'BallersHub`,
       html,
     });
   } catch (error) {
@@ -163,7 +163,7 @@ export async function sendPlayerAgencyInviteEmail(
     await resend.emails.send({
       from: senderFrom,
       to: [email],
-      subject: `${agencyName} solicitó representarte en BallersHub`,
+      subject: `${agencyName} solicitó representarte en 'BallersHub`,
       html,
     });
   } catch (error) {

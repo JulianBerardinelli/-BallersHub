@@ -25,7 +25,7 @@ export function EmailHeader() {
               <td valign="middle" style={isotipoCellStyle}>
                 <Img
                   src={logoUrl}
-                  alt="BallersHub"
+                  alt="'BallersHub"
                   width="28"
                   height="26"
                   style={isotipoStyle}

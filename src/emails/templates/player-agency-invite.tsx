@@ -38,7 +38,7 @@ export default function PlayerAgencyInviteEmail({
       <EmailParagraph>
         La agencia <strong>{agencyName}</strong> (representada por{" "}
         <strong>{managerName}</strong>) te invitó a sumarte a su cartera de
-        futbolistas en BallersHub.
+        futbolistas en 'BallersHub.
       </EmailParagraph>
 
       <EmailCard tone="lime">

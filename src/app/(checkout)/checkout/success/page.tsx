@@ -32,7 +32,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 
 export const metadata = {
-  title: "Pago confirmado · 'BallersHub",
+  title: "Pago confirmado",
   robots: { index: false, follow: false },
 };
 

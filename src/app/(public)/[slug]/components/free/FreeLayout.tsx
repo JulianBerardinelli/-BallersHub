@@ -1047,10 +1047,10 @@ function Footer({ fullName, year }: { fullName: string; year: number }) {
             </div>
             <p className="mt-2.5 max-w-[380px] font-body text-xs text-bh-fg-3">
               Portfolio gratuito de {fullName}. Generado y servido por
-              BallersHub — el ecosistema digital del fútbol profesional.
+              'BallersHub — el ecosistema digital del fútbol profesional.
             </p>
             <div className="mt-3 flex flex-wrap gap-3.5 font-body text-[11px] text-bh-fg-3">
-              <span>© {year} BallersHub</span>
+              <span>© {year} 'BallersHub</span>
               <span>·</span>
               <Link href="/legal/terms" className="text-bh-fg-2 no-underline">
                 Términos

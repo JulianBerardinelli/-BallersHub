@@ -242,7 +242,7 @@ export default function NewCampaignForm() {
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="Hay novedades en BallersHub"
+              placeholder="Hay novedades en 'BallersHub"
               className={inputClass}
             />
           </Field>

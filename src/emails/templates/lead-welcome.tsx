@@ -76,7 +76,7 @@ export default function LeadWelcomeEmail({
         <EmailLinkInline href={signUpUrl} tone="subtle">
           crear tu propio perfil profesional
         </EmailLinkInline>{" "}
-        en BallersHub.
+        en 'BallersHub.
       </EmailParagraph>
     </EmailLayout>
   );

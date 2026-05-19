@@ -26,7 +26,7 @@ type Props = {
 };
 
 /**
- * Master email wrapper — every BallersHub email composes from this.
+ * Master email wrapper — every 'BallersHub email composes from this.
  *
  * The shell is intentionally minimal: dark page background, centered
  * 600px column on `bh-black`, branded header on top, branded footer

@@ -28,7 +28,7 @@ export function EmailFooter({ unsubscribeToken, recipientEmail }: Props) {
       <Hr style={dividerStyle} />
 
       <Text style={smallTextStyle}>
-        Recibís este email porque te suscribiste a BallersHub o dejaste tu mail en
+        Recibís este email porque te suscribiste a 'BallersHub o dejaste tu mail en
         un perfil profesional. Si no querés volver a recibir emails de marketing,{" "}
         <Link href={unsubscribeUrl} style={unsubLinkStyle}>
           desuscribite acá
@@ -51,7 +51,7 @@ export function EmailFooter({ unsubscribeToken, recipientEmail }: Props) {
       </Text>
 
       <Text style={legalStyle}>
-        © {year} BallersHub. Todos los derechos reservados.
+        © {year} 'BallersHub. Todos los derechos reservados.
       </Text>
     </Section>
   );

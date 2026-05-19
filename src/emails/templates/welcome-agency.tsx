@@ -29,7 +29,7 @@ export default function WelcomeAgencyEmail({
 
   return (
     <EmailLayout
-      preheader={`${firstName}, organizá tu cartera en BallersHub.`}
+      preheader={`${firstName}, organizá tu cartera en 'BallersHub.`}
       recipientEmail={recipientEmail}
       unsubscribeToken={unsubscribeToken}
     >
@@ -37,7 +37,7 @@ export default function WelcomeAgencyEmail({
       <EmailHeading level={1}>Hola {firstName}</EmailHeading>
 
       <EmailParagraph>
-        BallersHub es tu directorio de talento. Acá centralizás scouting, gestionás
+        'BallersHub es tu directorio de talento. Acá centralizás scouting, gestionás
         a tus representados y publicás portfolios profesionales con un nivel de
         terminación de élite. Estos tres pasos son tu setup inicial.
       </EmailParagraph>
@@ -55,7 +55,7 @@ export default function WelcomeAgencyEmail({
       </EmailStep>
 
       <EmailStep index={3} title="Publicá portfolios profesionales">
-        Cada perfil aprobado se renderiza con el layout Pro de BallersHub —
+        Cada perfil aprobado se renderiza con el layout Pro de 'BallersHub —
         animaciones, datos validados y media en alta. Listos para mandar a clubes.
       </EmailStep>
 

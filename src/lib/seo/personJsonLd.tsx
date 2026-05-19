@@ -1,6 +1,6 @@
 // Per-player JSON-LD: Person + SportsTeam affiliation.
 //
-// This is the SEO differentiator that lets BallersHub compete in the
+// This is the SEO differentiator that lets 'BallersHub compete in the
 // SERP against Transfermarkt/Besoccer. We emit a rich `Person` entity
 // with `sameAs` linking out to the player's other authoritative
 // profiles (Transfermarkt, BeSoccer, Instagram, etc.) and structured

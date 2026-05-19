@@ -76,7 +76,7 @@ function buildSeoDescription(p: {
   if (p.positions && p.positions.length > 0) segments.push(formatPlayerPositions(p.positions));
   if (p.currentClub) segments.push(p.currentClub);
   if (p.nationality && p.nationality.length > 0) segments.push(p.nationality.join(" / "));
-  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en BallersHub.`;
+  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en 'BallersHub.`;
 }
 
 // Below this bio length we soft-noindex Free portfolios so thin profiles
@@ -138,6 +138,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
               ? sub.currentPeriodEnd.toISOString()
               : null,
             cancelAtPeriodEnd: sub.cancelAtPeriodEnd ?? false,
+            trialEndsAt: null,
+            canceledAt: null,
           }
         : null,
     );
@@ -158,7 +160,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       description,
       url: canonical,
       type: "profile",
-      siteName: "BallersHub",
+      siteName: "'BallersHub",
       locale: "es_AR",
       images: player.avatarUrl
         ? [{ url: player.avatarUrl, alt: player.fullName }]

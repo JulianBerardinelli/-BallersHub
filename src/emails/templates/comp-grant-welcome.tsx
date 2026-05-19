@@ -39,7 +39,7 @@ export default function CompGrantWelcomeEmail({
 }: CompGrantWelcomeProps) {
   const firstName = (displayName || "").split(" ")[0] || displayName;
   const planLabel =
-    planId === "pro-agency" ? "BallersHub Pro Agency" : "BallersHub Pro Player";
+    planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
 
   const expiryLine = expiresAt
     ? `Tu acceso es válido hasta el ${formatDate(expiresAt)}.`
@@ -50,8 +50,8 @@ export default function CompGrantWelcomeEmail({
     : `Activamos tu acceso, ${firstName}`;
 
   const intro = variant === "extend"
-    ? `El equipo de BallersHub extendió tu cuenta de cortesía a ${planLabel}.`
-    : `El equipo de BallersHub te activó una cuenta de cortesía a ${planLabel} — sin cargo.`;
+    ? `El equipo de 'BallersHub extendió tu cuenta de cortesía a ${planLabel}.`
+    : `El equipo de 'BallersHub te activó una cuenta de cortesía a ${planLabel} — sin cargo.`;
 
   return (
     <EmailLayout
@@ -73,7 +73,7 @@ export default function CompGrantWelcomeEmail({
       </EmailStep>
 
       <EmailStep index={2} title="No hay tarjeta ni facturación involucrada" badge="Sin cargo">
-        Esta cuenta está gestionada directamente por el equipo de BallersHub. No vas a recibir
+        Esta cuenta está gestionada directamente por el equipo de 'BallersHub. No vas a recibir
         cobros ni necesitás registrar un método de pago.
       </EmailStep>
 
