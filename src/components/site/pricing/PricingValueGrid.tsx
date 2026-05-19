@@ -19,7 +19,7 @@ const ITEMS = [
   {
     title: "Comunidad activa",
     description:
-      "Clubes, agentes y staff técnico que ya usan 'BallersHub para descubrir talento.",
+      "Clubes, agentes y staff técnico que ya usan BallersHub para descubrir talento.",
     Icon: Users,
     accent: "lime" as const,
   },

@@ -167,7 +167,7 @@ export default function FreeHeader({
           </button>
         </nav>
 
-        {/* RIGHT: Powered BY 'BallersHub */}
+        {/* RIGHT: Powered BY BallersHub */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">
             Powered BY

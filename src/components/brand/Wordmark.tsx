@@ -21,7 +21,7 @@ export function Wordmark({
   const apos = apostropheColor ?? "var(--bh-lime-200)";
   return (
     <span
-      aria-label="'BallersHub"
+      aria-label="BallersHub"
       className={`font-bh-display font-black uppercase leading-none select-none ${SIZE_CLASSES[size]} ${className}`}
     >
       <span style={{ color: apos }}>&apos;</span>

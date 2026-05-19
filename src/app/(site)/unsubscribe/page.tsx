@@ -4,7 +4,7 @@ import { suppress } from "@/lib/marketing/suppression";
 import UnsubscribeView from "./UnsubscribeView";
 
 export const metadata: Metadata = {
-  title: "Cancelar suscripción · BallersHub",
+  title: "Cancelar suscripción",
   description: "Cancelá tu suscripción a comunicaciones de BallersHub.",
   robots: { index: false, follow: false },
 };
