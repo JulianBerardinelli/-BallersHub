@@ -823,7 +823,7 @@ export default function ProfileTacticsModule({
             {isScouting && author && author.trim() !== "" && (
               <motion.div
                 style={{ opacity: scoutCharOpac, y: scoutCharY }}
-                className="absolute bottom-0 left-0 w-fit z-20 flex items-center gap-2 lg:gap-3 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 lg:p-3 shadow-2xl"
+                className="absolute bottom-0 left-0 lg:left-[calc(25%+2rem)] w-fit z-20 flex items-center gap-2 lg:gap-3 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 lg:p-3 shadow-2xl"
               >
                 <div className="w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0 shadow-lg">
                   <span className="text-[8px] lg:text-[10px] text-white font-black">ST</span>
