@@ -813,6 +813,26 @@ export default function ProfileTacticsModule({
             {/* TÍTULO SCRAMBLE */}
             <ScrambleTitle isScouting={isScouting} />
 
+            {/* ▸ MOBILE Evaluación Oficial badge — pulled out of the mobile cards
+                column and anchored bottom-left of the inner wrapper (= same left
+                edge as the title), so it sits at the bottom of the player image
+                area aligned with the title's left margin. Compact `w-fit` pill
+                so it doesn't stretch across the full column. */}
+            {isScouting && author && author.trim() !== "" && (
+              <motion.div
+                style={{ opacity: scoutCharOpac, y: scoutCharY }}
+                className="lg:hidden absolute bottom-0 left-0 w-fit z-20 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-2xl p-2.5 shadow-2xl"
+              >
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
+                  <span className="text-[8px] text-white font-black">ST</span>
+                </div>
+                <div className="overflow-hidden min-w-0">
+                  <p className="text-[7px] uppercase tracking-[0.15em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
+                  <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
+                </div>
+              </motion.div>
+            )}
+
             <div className="relative flex-grow w-full min-h-0">
 
               {/* ═══════════════════════════════════════════════════════════
@@ -1185,21 +1205,6 @@ export default function ProfileTacticsModule({
                     />
                   </div>
 
-                  {/* Autor — solo si hay */}
-                  {author && author.trim() !== "" && (
-                    <motion.div
-                      style={{ opacity: scoutCharOpac, y: scoutCharY }}
-                      className="shrink-0 mt-auto relative z-10 flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/5 rounded-2xl p-2.5 hover:border-white/15 transition-colors"
-                    >
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[var(--theme-primary)] to-[var(--theme-secondary)] flex items-center justify-center shrink-0">
-                        <span className="text-[8px] text-white font-black">ST</span>
-                      </div>
-                      <div className="overflow-hidden min-w-0">
-                        <p className="text-[7px] uppercase tracking-[0.15em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
-                        <p className="text-[10px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
 
                 {/* ▸ DESKTOP layout (lg+): fotos izq + grid cards der */}
