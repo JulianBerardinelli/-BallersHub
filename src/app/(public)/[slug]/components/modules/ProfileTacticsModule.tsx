@@ -776,6 +776,34 @@ export default function ProfileTacticsModule({
       >
         <AnimatedPattern />
 
+        {/* ▸ MOBILE PNG Asset — placed as a direct child of the sticky container
+            (not inside Layer 2 / padded wrapper) so it can anchor `absolute
+            bottom-0 right-0` against the actual viewport corner without the
+            section's horizontal/vertical padding pushing it inward. Because it
+            sits inside the sticky container, it scrolls AWAY naturally once
+            sticky releases at the section's end — no fixed-position bleed
+            onto the sections below. Behind the cards via z-[5] (< padded
+            wrapper's z-10). */}
+        {(player.modelUrl1 || player.modelUrl2) && (
+          <motion.div
+            style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
+            className="lg:hidden absolute -bottom-12 -right-16 w-[95%] max-w-[600px] pointer-events-none z-[5]"
+          >
+            <img
+               src={player.modelUrl1 || player.modelUrl2}
+               alt="Player asset mobile"
+               className="w-full h-auto object-contain max-h-[80vh]"
+               style={{
+                   transformOrigin: "bottom right",
+                   WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, black 60%, transparent 100%)",
+                   maskImage: "linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, black 60%, transparent 100%)",
+                   WebkitMaskComposite: "source-in",
+                   maskComposite: "intersect",
+               }}
+            />
+          </motion.div>
+        )}
+
         <div
           className="absolute inset-0 w-full h-full flex flex-col px-5 sm:px-8 lg:px-16 z-10 pointer-events-none"
           style={{ paddingTop: "108px", paddingBottom: "16px" }}
@@ -1084,31 +1112,6 @@ export default function ProfileTacticsModule({
                   !isScouting ? "pointer-events-none" : "pointer-events-auto"
                 }`}
               >
-                {/* ▸ MOBILE PNG Asset — pulled OUT of all the padded wrappers and
-                    pinned `fixed` to the actual phone viewport bottom-right.
-                    Opacity is driven by scoutTacticOpac so it only appears while
-                    Layer 2 is active in the scrolljack. `lg:hidden` keeps it off
-                    desktop (desktop has its own absolute-positioned variant). */}
-                {(player.modelUrl1 || player.modelUrl2) && (
-                  <motion.div
-                    style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                    className="lg:hidden fixed -bottom-12 -right-16 w-[90%] max-w-[560px] pointer-events-none z-[5]"
-                  >
-                    <img
-                       src={player.modelUrl1 || player.modelUrl2}
-                       alt="Player asset mobile"
-                       className="w-full h-auto object-contain max-h-[80vh]"
-                       style={{
-                           transformOrigin: "bottom right",
-                           WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, black 75%, transparent 100%)",
-                           maskImage: "linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, black 75%, transparent 100%)",
-                           WebkitMaskComposite: "source-in",
-                           maskComposite: "intersect",
-                       }}
-                    />
-                  </motion.div>
-                )}
-
                 {/* ▸ MOBILE layout (< lg): características + acordeones (sin fotos) */}
                 <div className="flex lg:hidden flex-col gap-2 h-full relative">
 
