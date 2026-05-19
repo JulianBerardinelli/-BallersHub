@@ -1,12 +1,14 @@
-// Global JSON-LD: Organization + WebSite with SearchAction.
+// Global JSON-LD: Organization + WebSite + SoftwareApplication.
 //
-// Mounted once in the root layout. Two purposes:
+// Mounted once in the root layout. Three purposes:
 //
 //   1. Establish BallersHub as a recognized brand entity in Google's
 //      Knowledge Graph so player profiles can later reference it via
 //      `publisher` on Article/Person schemas.
 //   2. Emit a `WebSite` node with a `SearchAction` so Google can offer
 //      an inline search box for the site in the SERP.
+//   3. Declare the product as a `SoftwareApplication` so AI engines and
+//      Google can surface it in app-style result cards.
 //
 // Why a server component returning a <script> tag: Next.js streams the
 // JSON-LD with the initial HTML, which is exactly what crawlers consume.
@@ -21,15 +23,17 @@ const ORG_HANDLES = {
   twitter: "https://x.com/ballershub_",
 } as const;
 
-/**
- * Single combined `@graph` object covering Organization + WebSite.
- * Using `@graph` lets us cross-reference the two nodes via `@id`,
- * which is Google's preferred shape for sitewide JSON-LD.
- */
+const ORG_DESCRIPTION =
+  "Plataforma de portfolios profesionales para futbolistas y agencias de representación. Cada jugador y cada agencia obtiene un link único optimizado para SEO que centraliza trayectoria, estadísticas, datos físicos y media verificada.";
+
+const APP_DESCRIPTION =
+  "Aplicación web para crear portfolios profesionales de futbolistas y agencias: link único, datos centralizados, SEO listo desde el primer día.";
+
 export function OrganizationJsonLd() {
   const base = getSiteBaseUrl();
   const orgId = `${base}#organization`;
   const siteId = `${base}#website`;
+  const appId = `${base}#software`;
 
   const graph = {
     "@context": "https://schema.org",
@@ -38,12 +42,13 @@ export function OrganizationJsonLd() {
         "@type": "Organization",
         "@id": orgId,
         name: "BallersHub",
-        alternateName: "'BallersHub",
         url: base,
+        // Founded August 2025 — sourced from docs/about MILESTONES.
+        foundingDate: "2025-08",
+        description: ORG_DESCRIPTION,
         logo: {
           "@type": "ImageObject",
           url: `${base}/images/logo/imagotipo-full_lime.svg`,
-          contentUrl: `${base}/images/logo/imagotipo-full_lime.svg`,
         },
         sameAs: [ORG_HANDLES.instagram, ORG_HANDLES.twitter],
         slogan: "Perfiles profesionales de futbolistas",
@@ -63,6 +68,27 @@ export function OrganizationJsonLd() {
           },
           // schema.org requires this exact literal string format.
           "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": appId,
+        name: "BallersHub",
+        url: base,
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        inLanguage: "es-AR",
+        description: APP_DESCRIPTION,
+        publisher: { "@id": orgId },
+        // Offers live on /pricing as their own Product+Offer graph; we
+        // link to that page so crawlers can follow the trail without us
+        // duplicating price data here.
+        offers: {
+          "@type": "AggregateOffer",
+          url: `${base}/pricing`,
+          priceCurrency: "USD",
+          lowPrice: "0",
+          offerCount: 2,
         },
       },
     ],

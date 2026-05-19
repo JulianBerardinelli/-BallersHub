@@ -16,22 +16,32 @@ import {
   StoryTimeline,
   TeamGrid,
 } from "@/components/site/about";
+import { AboutPageJsonLd } from "@/lib/seo/aboutPageJsonLd";
 
 export const metadata: Metadata = {
-  title: "Nosotros · 'BallersHub",
+  title: "Nosotros",
   description:
     "Conocé al equipo, la misión, visión y valores detrás de BallersHub: el hub donde el talento futbolístico gana visibilidad real y verificada.",
+  alternates: { canonical: "/about" },
   openGraph: {
-    title: "Nosotros · 'BallersHub",
+    title: "Nosotros · BallersHub",
     description:
       "Construimos el escenario donde el fútbol profesional se conecta. Conocé nuestra misión, visión, equipo e impacto.",
+    url: "/about",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nosotros · BallersHub",
+    description:
+      "El equipo, misión, visión e impacto detrás de BallersHub.",
   },
 };
 
 export default function AboutPage() {
   return (
     <div className="space-y-24 pb-12 md:space-y-28">
+      <AboutPageJsonLd />
       {/* Hero — sin band, ya tiene artwork propio */}
       <AboutHero />
 
