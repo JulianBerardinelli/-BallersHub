@@ -1084,29 +1084,33 @@ export default function ProfileTacticsModule({
                   !isScouting ? "pointer-events-none" : "pointer-events-auto"
                 }`}
               >
+                {/* ▸ MOBILE PNG Asset — pulled OUT of all the padded wrappers and
+                    pinned `fixed` to the actual phone viewport bottom-right.
+                    Opacity is driven by scoutTacticOpac so it only appears while
+                    Layer 2 is active in the scrolljack. `lg:hidden` keeps it off
+                    desktop (desktop has its own absolute-positioned variant). */}
+                {(player.modelUrl1 || player.modelUrl2) && (
+                  <motion.div
+                    style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
+                    className="lg:hidden fixed bottom-0 right-0 w-[85%] max-w-[460px] pointer-events-none z-[5]"
+                  >
+                    <img
+                       src={player.modelUrl1 || player.modelUrl2}
+                       alt="Player asset mobile"
+                       className="w-full h-auto object-contain object-right-bottom max-h-[75vh]"
+                       style={{
+                           transformOrigin: "bottom right",
+                           WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 35%), linear-gradient(to right, black 40%, transparent 80%)",
+                           maskImage: "linear-gradient(to top, transparent 0%, black 35%), linear-gradient(to right, black 40%, transparent 80%)",
+                           WebkitMaskComposite: "source-in",
+                           maskComposite: "intersect",
+                       }}
+                    />
+                  </motion.div>
+                )}
+
                 {/* ▸ MOBILE layout (< lg): características + acordeones (sin fotos) */}
                 <div className="flex lg:hidden flex-col gap-2 h-full relative">
-
-                  {/* MOBILE PNG Asset (Bottom Right, absolute, crisp right edge) */}
-                  {(player.modelUrl1 || player.modelUrl2) && (
-                    <motion.div
-                      style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                      className="absolute bottom-[-5%] -right-40 w-[140%] max-w-[500px] pointer-events-none z-0 flex justify-end"
-                    >
-                       <img
-                          src={player.modelUrl1 || player.modelUrl2}
-                          alt="Player asset mobile"
-                          className="w-full h-auto object-contain object-bottom object-right max-h-[70vh]"
-                          style={{
-                              transformOrigin: "bottom right",
-                              WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 35%), linear-gradient(to right, black 40%, transparent 75%)",
-                              maskImage: "linear-gradient(to top, transparent 0%, black 35%), linear-gradient(to right, black 40%, transparent 75%)",
-                              WebkitMaskComposite: "source-in",
-                              maskComposite: "intersect",
-                          }}
-                       />
-                    </motion.div>
-                  )}
 
                   {/* Avatar + Características principales */}
                   <motion.div
