@@ -978,7 +978,7 @@ export default function ProfileTacticsModule({
                   </motion.div>
 
                   {/* Lado der: video + highlights */}
-                  <div className="w-1/2 relative flex flex-col items-end lg:pr-4 xl:pr-12 pb-0">
+                  <div className="w-1/2 relative flex flex-col items-end pb-0">
                     {videos[0] && (
                       <div className="relative w-full max-w-[550px] shrink-0 mb-8 mt-4 flex justify-center z-20">
                         <motion.div style={{ opacity: vid1Opac, y: vid1Y }} className="w-full">
@@ -1214,7 +1214,7 @@ export default function ProfileTacticsModule({
                       <img
                          src={player.modelUrl1 || player.modelUrl2}
                          alt="Player full body"
-                         className="absolute bottom-0 -left-20 w-auto h-[95%] max-w-none max-h-[95vh] object-contain object-left-bottom"
+                         className="absolute bottom-0 -left-32 w-auto h-[95%] max-w-none max-h-[95vh] object-contain object-left-bottom"
                          style={{
                             transformOrigin: "bottom left",
                             WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 32%)",
