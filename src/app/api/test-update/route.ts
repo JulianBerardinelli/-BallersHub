@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { updateAgencyProfile, getActiveAgencies } from "@/app/actions/agencies";
 import { db } from "@/lib/db";
 import { agencyProfiles } from "@/db/schema/agencies";
 import { eq } from "drizzle-orm";

@@ -207,7 +207,9 @@ export const PLANS: Plan[] = [
       { label: "Reviews y contactos de referencia", included: false },
     ],
     ctaLabel: "Empezar gratis",
-    ctaHref: "/auth/sign-up?audience=player&plan=free",
+    // /onboarding/player/apply tiene server gate: si no logueado redirige a
+    // sign-in con redirect back, si ya tiene profile va a /dashboard.
+    ctaHref: "/onboarding/player/apply",
   },
   {
     id: "pro-player",
@@ -259,7 +261,9 @@ export const PLANS: Plan[] = [
       { label: "Reviews y contactos de referencia", included: false },
     ],
     ctaLabel: "Crear cuenta gratis",
-    ctaHref: "/auth/sign-up?audience=agency&plan=free",
+    // /onboarding/manager/info gate via parent layout (see below). If not
+    // authenticated, redirected to sign-in with redirect back.
+    ctaHref: "/onboarding/manager/info",
   },
   {
     id: "pro-agency",

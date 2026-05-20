@@ -11,17 +11,18 @@
 //   Instagram, the receiving platform fetches this image and shows it
 //   as the rich preview. A branded, personalized card converts far
 //   better than a generic site logo — both for the player (more clicks
-//   back to their portfolio) and for BallersHub (impression with logo
+//   back to their portfolio) and for 'BallersHub (impression with logo
 //   on every share, regardless of click-through).
 //
 // Implementation notes:
 //
-//   • Uses `next/og`'s `ImageResponse` — runs on the Edge runtime.
-//     Free tier falls through to the static fallback by returning the
-//     site's default OG; Next.js handles the dispatch.
+//   • Uses `next/og`'s `ImageResponse` — runs on Node.js (Fluid
+//     Compute on Vercel). Was on Edge originally, but the move from
+//     postgres-js to node-postgres in src/lib/db.ts means importing
+//     `db` from here is no longer Edge-compatible (pg uses Node net
+//     + crypto modules). Vercel's current guidance is to default to
+//     Node anyway — Edge is deprecated for new work.
 //   • Image dimensions: 1200x630 (Facebook/Twitter/IG canonical).
-//   • No external font fetches — Edge runtime makes font loading
-//     fragile and the system stack covers the design.
 //   • Avatar is rendered via an absolute URL because `ImageResponse`
 //     cannot resolve relative paths.
 
@@ -31,11 +32,11 @@ import { subscriptions } from "@/db/schema/subscriptions";
 import { eq } from "drizzle-orm";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 // Cache for an hour, same as the page. Sharers will see fresh edits
-// within 60 minutes; AI/bot scrapers can't DoS the edge runtime.
+// within 60 minutes.
 export const revalidate = 3600;
 
 type Params = { slug: string };
@@ -62,7 +63,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
   });
 
   if (!player) {
-    return brandOnlyCard("BallersHub");
+    return brandOnlyCard("'BallersHub");
   }
 
   const sub = await db.query.subscriptions.findFirst({
@@ -78,7 +79,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
   if (!isPro) {
     // Free tier — render a lean brand card with just the name. We
     // could `return null` to fall through to the static layout OG,
-    // but that yields the generic "BallersHub" image for every Free
+    // but that yields the generic "'BallersHub" image for every Free
     // player. Showing the name is still better SEO than nothing.
     return brandOnlyCard(player.fullName);
   }
@@ -126,7 +127,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
               background: "#CCFF00",
             }}
           />
-          BallersHub
+          &apos;BallersHub
         </div>
 
         <div
@@ -255,7 +256,7 @@ function brandOnlyCard(displayName: string) {
             marginBottom: 24,
           }}
         >
-          BallersHub
+          &apos;BallersHub
         </div>
         <div
           style={{

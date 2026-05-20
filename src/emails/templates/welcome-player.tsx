@@ -30,7 +30,7 @@ export default function WelcomePlayerEmail({
 
   return (
     <EmailLayout
-      preheader={`${firstName}, así arrancás en BallersHub.`}
+      preheader={`${firstName}, así arrancás en 'BallersHub.`}
       recipientEmail={recipientEmail}
       unsubscribeToken={unsubscribeToken}
     >
@@ -38,7 +38,7 @@ export default function WelcomePlayerEmail({
       <EmailHeading level={1}>Bienvenido, {firstName}</EmailHeading>
 
       <EmailParagraph>
-        Diste el primer paso. Clubes, agencias y scouts buscan jugadores en BallersHub
+        Diste el primer paso. Clubes, agencias y scouts buscan jugadores en &apos;BallersHub
         todos los días — para destacar, te recomendamos seguir esta hoja de ruta corta.
       </EmailParagraph>
 

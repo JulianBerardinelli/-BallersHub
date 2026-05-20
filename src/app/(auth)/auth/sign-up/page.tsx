@@ -1,7 +1,6 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import { Mail, Lock, Eye, EyeOff, UserPlus, CheckCircle2 } from "lucide-react";
@@ -10,7 +9,6 @@ import Link from "next/link";
 import FormField from "@/components/dashboard/client/FormField";
 
 export default function SignUpPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);

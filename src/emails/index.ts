@@ -1,5 +1,5 @@
 /**
- * BallersHub email design system — public surface.
+ * 'BallersHub email design system — public surface.
  *
  * Templates compose **only** from these primitives. Never write raw HTML
  * or hardcoded colors inside a template — the whole point of this module

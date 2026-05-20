@@ -35,17 +35,6 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 
-const FREE_LIMITS = {
-  max_photos: 10,
-  max_videos: 5,
-  reviews_enabled: false,
-  can_invite_reviews: false,
-  max_active_invitations: 0,
-  stats_by_year_enabled: false,
-  branding_ads_visible: true,
-  branding_partner: "service",
-} as const;
-
 function slugify(input: string) {
   return (input || "player")
     .toLowerCase()
@@ -146,7 +135,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
   const slug = await ensureUniqueSlug(slugify(app.full_name ?? "player"), admin);
 
   // 4) actualizar user_profiles.role = 'player'
-  const { error: roleErr } = await admin
+  await admin
     .from("user_profiles")
     .update({ role: "player" })
     .eq("user_id", app.user_id)
@@ -163,7 +152,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
       if (typeof parsedNotes.height_cm === "number") fallbackHeight = parsedNotes.height_cm;
       if (typeof parsedNotes.weight_kg === "number") fallbackWeight = parsedNotes.weight_kg;
     }
-  } catch (e) {}
+  } catch {}
 
   // 5) crear player_profile (incluye current_team_id si existe)
   const e2 = await admin
@@ -203,21 +192,13 @@ export async function POST(req: Request, ctx: { params: Params }) {
     if (tmErr) console.error("Could not insert transfermarkt player_link:", tmErr);
   }
 
-  // 6) upsert suscripción free
-  const { error: e3 } = await admin
-    .from("subscriptions")
-    .upsert(
-      {
-        user_id: app.user_id,
-        plan: "free",
-        status: "active",
-        limits_json: FREE_LIMITS as Record<string, unknown>,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" }
-    );
-  if (e3) return NextResponse.json({ error: `upsert subscription failed: ${e3.message}` }, { status: 400 });
-
+  // 6) Subscriptions are orthogonal to player_applications. They are managed by:
+  //    - Stripe/MP webhooks (when the user pays)
+  //    - admin/comp-accounts (when admin grants Pro)
+  //    A user without a subscription is treated as 'free' by the app
+  //    (see dashboard/layout.tsx fallback: subscription?.plan ?? "free").
+  //    DO NOT create or overwrite the subscription here — it would destroy
+  //    Pro/Pro+ plans granted before onboarding.
 
   // 6.5) materializar trayectoria aceptada (si hay)
   //    Usamos el cliente con sesión de usuario para que `auth.uid()` en la función SQL

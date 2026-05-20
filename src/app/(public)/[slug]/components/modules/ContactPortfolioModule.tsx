@@ -45,7 +45,7 @@ export default async function ContactPortfolioModule({ playerId, playerSlug, pla
     const rows = await db.execute<{ email: string | null }>(
       sql`select email from auth.users where id = ${player.userId} limit 1`,
     );
-    ownerEmail = (rows as unknown as Array<{ email: string | null }>)[0]?.email ?? null;
+    ownerEmail = rows.rows[0]?.email ?? null;
   }
 
   const channels: PortfolioContactChannel[] = [];

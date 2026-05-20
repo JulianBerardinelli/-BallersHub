@@ -41,7 +41,7 @@ export const notificationTemplates: {
     tone: "success",
     headline: ({ userName }) => `${displayName(userName)}¡tu perfil fue aprobado! 🥳`,
     body: () =>
-      "Felicitaciones, ya sos parte de BallersHub. Ingresá a tu panel para completar el resto de tu información y potenciar tu perfil.",
+      "Felicitaciones, ya sos parte de 'BallersHub. Ingresá a tu panel para completar el resto de tu información y potenciar tu perfil.",
     cta: ({ dashboardHref }) => ({
       label: "Ir al dashboard",
       href: dashboardHref ?? "/dashboard",

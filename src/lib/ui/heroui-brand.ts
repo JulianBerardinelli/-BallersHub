@@ -1,4 +1,4 @@
-// Reusable BallersHub-branded HeroUI classNames presets.
+// Reusable 'BallersHub-branded HeroUI classNames presets.
 // Drop into <Input classNames={bhInputClassNames} /> etc.
 
 export const bhInputClassNames = {

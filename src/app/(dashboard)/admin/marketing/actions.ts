@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { db } from "@/lib/db";
@@ -433,30 +433,65 @@ export type MarketingGlobalStats = {
 export async function fetchGlobalStats(): Promise<MarketingGlobalStats> {
   await ensureAdmin();
 
-  type CountRow = { count: string };
-  type SendStatsRow = { sent: string; delivered: string; opened: string; clicked: string };
+  // Migrated from `db.execute(sql\`…\`)` (Drizzle/postgres-js) to
+  // Supabase REST to avoid the ClientRead zombie bug on the pooler
+  // when this runs in a Vercel function. See PERFORMANCE_PLAN.md.
+  //
+  // Counts are HEAD requests with status filters — exact in the DB,
+  // zero rows transferred. Earlier iteration of this migration used a
+  // single `select("status").gte("sent_at", since)` + JS aggregation,
+  // but PostgREST caps responses at ~1000 rows by default so the JS
+  // counts would silently undercount once 30-day volume crossed that
+  // threshold (Codex flagged this on PR #73). Pulling counts per
+  // status keeps the precision the original SQL `count(*) filter`
+  // had, without re-introducing postgres-js.
+  const { createSupabaseAdmin } = await import("@/lib/supabase/admin");
+  const supabase = createSupabaseAdmin();
 
-  const [subsCount, unsubsCount, sendStats] = await Promise.all([
-    db.execute<CountRow>(sql`select count(*)::text as count from marketing_subscriptions`),
-    db.execute<CountRow>(sql`select count(*)::text as count from marketing_unsubscribes`),
-    db.execute<SendStatsRow>(sql`
-      select
-        count(*) filter (where status in ('sent','delivered','opened','clicked','bounced'))::text as sent,
-        count(*) filter (where status in ('delivered','opened','clicked'))::text as delivered,
-        count(*) filter (where status in ('opened','clicked'))::text as opened,
-        count(*) filter (where status = 'clicked')::text as clicked
-      from marketing_sends
-      where sent_at >= now() - interval '30 days'
-    `),
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [
+    subsRes,
+    unsubsRes,
+    sentRes,
+    deliveredRes,
+    openedRes,
+    clickedRes,
+  ] = await Promise.all([
+    supabase
+      .from("marketing_subscriptions")
+      .select("email", { count: "exact", head: true }),
+    supabase
+      .from("marketing_unsubscribes")
+      .select("email", { count: "exact", head: true }),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .in("status", ["sent", "delivered", "opened", "clicked", "bounced"]),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .in("status", ["delivered", "opened", "clicked"]),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .in("status", ["opened", "clicked"]),
+    supabase
+      .from("marketing_sends")
+      .select("id", { count: "exact", head: true })
+      .gte("sent_at", since)
+      .eq("status", "clicked"),
   ]);
 
-  const subscribers = Number(rowsToFirst<CountRow>(subsCount)?.count ?? 0);
-  const unsubscribes = Number(rowsToFirst<CountRow>(unsubsCount)?.count ?? 0);
-  const stats = rowsToFirst<SendStatsRow>(sendStats);
-  const sent = Number(stats?.sent ?? 0);
-  const delivered = Number(stats?.delivered ?? 0);
-  const opened = Number(stats?.opened ?? 0);
-  const clicked = Number(stats?.clicked ?? 0);
+  const subscribers = subsRes.count ?? 0;
+  const unsubscribes = unsubsRes.count ?? 0;
+  const sent = sentRes.count ?? 0;
+  const delivered = deliveredRes.count ?? 0;
+  const opened = openedRes.count ?? 0;
+  const clicked = clickedRes.count ?? 0;
 
   return {
     subscribers,
@@ -468,9 +503,4 @@ export async function fetchGlobalStats(): Promise<MarketingGlobalStats> {
     openRate30d: delivered > 0 ? Math.round((opened / delivered) * 1000) / 10 : 0,
     clickRate30d: delivered > 0 ? Math.round((clicked / delivered) * 1000) / 10 : 0,
   };
-}
-
-function rowsToFirst<T>(result: unknown): T | undefined {
-  const arr = (result as { rows?: T[] }).rows ?? (result as T[]);
-  return arr?.[0];
 }

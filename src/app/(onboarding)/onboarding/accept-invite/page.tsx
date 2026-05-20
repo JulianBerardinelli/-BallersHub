@@ -1,12 +1,11 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
-import { eq } from "drizzle-orm";
 import Link from "next/link";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 
 export const metadata = {
-  title: "Aceptar Invitación - BallersHub",
+  title: "Aceptar Invitación",
 };
 
 interface PageProps {
@@ -54,7 +53,7 @@ export default async function AcceptInvitePage(props: PageProps) {
            <AlertTriangle className="mx-auto w-12 h-12 text-bh-warning" />
            <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Invitación no encontrada</h1>
            <p className="text-bh-fg-3">El enlace pudo haber expirado o la invitación fue revocada por la agencia.</p>
-           <Link href="/" className="inline-block mt-4 text-bh-lime underline-offset-4 hover:underline">Ir a BallersHub</Link>
+           <Link href="/" className="inline-block mt-4 text-bh-lime underline-offset-4 hover:underline">Ir a &apos;BallersHub</Link>
         </div>
       </div>
     );

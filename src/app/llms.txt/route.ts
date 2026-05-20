@@ -5,7 +5,7 @@
 // AI search engines an explicit entry point. Not standardized; we
 // implement the most-recommended shape from `llmstxt.org`.
 //
-// Strategy for BallersHub: enumerate all approved + public player and
+// Strategy for 'BallersHub: enumerate all approved + public player and
 // agency portfolios. Group them under H2 sections so the LLM can scan
 // the topical layout in seconds. Static marketing pages go at the top.
 //
@@ -16,7 +16,8 @@
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { agencyProfiles } from "@/db/schema/agencies";
-import { and, eq } from "drizzle-orm";
+import { blogPosts } from "@/db/schema/blog";
+import { and, eq, desc } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
 
 export const revalidate = 3600;
@@ -26,9 +27,10 @@ export async function GET() {
 
   let players: Array<{ slug: string; fullName: string }> = [];
   let agencies: Array<{ slug: string; name: string }> = [];
+  let posts: Array<{ slug: string; title: string; description: string }> = [];
 
   try {
-    [players, agencies] = await Promise.all([
+    [players, agencies, posts] = await Promise.all([
       db
         .select({ slug: playerProfiles.slug, fullName: playerProfiles.fullName })
         .from(playerProfiles)
@@ -42,21 +44,32 @@ export async function GET() {
         .select({ slug: agencyProfiles.slug, name: agencyProfiles.name })
         .from(agencyProfiles)
         .where(eq(agencyProfiles.isApproved, true)),
+      db
+        .select({
+          slug: blogPosts.slug,
+          title: blogPosts.title,
+          description: blogPosts.description,
+        })
+        .from(blogPosts)
+        .where(eq(blogPosts.status, "published"))
+        .orderBy(desc(blogPosts.publishedAt))
+        .limit(50),
     ]);
   } catch (err) {
     console.error("[llms.txt] db query failed:", err);
   }
 
   const body = [
-    "# BallersHub",
+    "# 'BallersHub",
     "",
     "> Plataforma de portfolios profesionales para futbolistas y agencias de representación. Perfiles verificados con trayectoria, estadísticas, galería oficial y contacto.",
     "",
     "## Información de la marca",
     "",
-    `- [Inicio](${base}/): Página principal de BallersHub`,
+    `- [Inicio](${base}/): Página principal de 'BallersHub`,
     `- [Planes y precios](${base}/pricing): Comparativa Free vs Pro para jugadores y agencias`,
-    `- [Sobre BallersHub](${base}/about): Misión, equipo y contacto`,
+    `- [Sobre 'BallersHub](${base}/about): Misión, equipo y contacto`,
+    `- [Blog](${base}/blog): Notas sobre carrera del jugador, operaciones de agencia e industria AR`,
     "",
     "## Jugadores",
     "",
@@ -73,6 +86,14 @@ export async function GET() {
           .map((a) => `- [${a.name}](${base}/agency/${a.slug}): Agencia de representación ${a.name}`)
           .join("\n")
       : "*(Sin agencias publicadas todavía.)*",
+    "",
+    "## Blog",
+    "",
+    posts.length > 0
+      ? posts
+          .map((p) => `- [${p.title}](${base}/blog/${p.slug}): ${p.description}`)
+          .join("\n")
+      : "*(Sin artículos publicados todavía.)*",
     "",
   ].join("\n");
 

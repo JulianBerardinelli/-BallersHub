@@ -33,7 +33,7 @@ export default function PaymentFailedEmail({
 }: PaymentFailedProps) {
   const firstName = (displayName || "").split(" ")[0] || displayName;
   const planLabel =
-    planId === "pro-agency" ? "BallersHub Pro Agency" : "BallersHub Pro Player";
+    planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
   const retryLine = nextRetryAt
     ? `Vamos a intentarlo de nuevo el ${formatDate(nextRetryAt)}.`
     : "Vamos a reintentar el cargo en los próximos días.";

@@ -4,7 +4,7 @@ import { heroui } from "@heroui/react";
 /**
  * Definimos dos temas:
  * - "light" (referencia) – opcional si querés soportarlo luego
- * - "bh-dark" – tema por defecto de BallersHub (todo dark app-wide)
+ * - "bh-dark" – tema por defecto de 'BallersHub (todo dark app-wide)
  *
  * Tip: Podés pegar acá el JSON que te da https://www.heroui.com/themes
  *      y ajustar colores/gradaciones 50-900 como quieras.

@@ -2,6 +2,7 @@
 
 import { eq, and, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminCounters } from "@/lib/admin/counters";
 import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
@@ -117,6 +118,7 @@ export async function createAgencyTeamSubmissionAction(payload: {
 
   revalidatePath("/dashboard/agency");
   revalidatePath("/admin/agency-team-proposals");
+  revalidateAdminCounters();
 
   return { success: true, submissionId: submission.id };
 }
@@ -148,6 +150,7 @@ export async function cancelAgencyTeamSubmissionAction(submissionId: string) {
 
   revalidatePath("/dashboard/agency");
   revalidatePath("/admin/agency-team-proposals");
+  revalidateAdminCounters();
   return { success: true };
 }
 

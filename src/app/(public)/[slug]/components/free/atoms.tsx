@@ -2,6 +2,7 @@
 // no client-side state. Visual primitives ported from the Claude Design
 // handoff (variation-safe.jsx + ui-kit.jsx).
 
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 // ---------------------------------------------------------------
@@ -79,14 +80,12 @@ export function Crest({
   rounded?: boolean;
 }) {
   if (url && /^https?:\/\//i.test(url)) {
-    // eslint-disable-next-line @next/next/no-img-element
     return (
-      <img
+      <Image
         src={url}
         alt=""
         width={size}
         height={size}
-        loading="lazy"
         className={rounded ? "rounded-full" : ""}
         style={{
           width: size,

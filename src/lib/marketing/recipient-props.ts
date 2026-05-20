@@ -91,8 +91,7 @@ async function fetchAuthUserMeta(recipient: RecipientLookup): Promise<AuthUserMe
   const rows = await db.execute<AuthUserMetaRow>(
     sql`select raw_user_meta_data, email from auth.users where ${where} limit 1`,
   );
-  const arr = (rows as { rows?: AuthUserMetaRow[] }).rows ?? (rows as AuthUserMetaRow[]);
-  return arr[0] ?? null;
+  return rows.rows[0] ?? null;
 }
 
 function pickFirstName(row: AuthUserMetaRow | null, fallbackEmail: string): string {
@@ -136,12 +135,8 @@ async function fetchMissingSectionsForUser(recipient: RecipientLookup): Promise<
     where ${where}
     limit 1
   `);
-  const arr =
-    (rows as { rows?: typeof rows extends unknown ? Array<{ has_profile: boolean; has_personal_details: boolean; has_career: boolean; has_media: boolean }> : never }).rows ??
-    (rows as Array<{ has_profile: boolean; has_personal_details: boolean; has_career: boolean; has_media: boolean }>);
-
-  if (!arr || arr.length === 0) return 4;
-  const r = arr[0];
+  if (rows.rows.length === 0) return 4;
+  const r = rows.rows[0];
   let missing = 0;
   if (!r.has_profile) missing++;
   if (!r.has_personal_details) missing++;
@@ -168,8 +163,7 @@ export async function evaluateExitCondition(
       const rows = await db.execute<{ exists: boolean }>(
         sql`select exists(select 1 from public.player_profiles where ${where}) as exists`,
       );
-      const arr = (rows as { rows?: Array<{ exists: boolean }> }).rows ?? (rows as Array<{ exists: boolean }>);
-      return Boolean(arr[0]?.exists);
+      return Boolean(rows.rows[0]?.exists);
     }
 
     case "has_completed_profile": {
@@ -182,8 +176,7 @@ export async function evaluateExitCondition(
           where ${where} and status = 'approved' and visibility = 'public'
         ) as exists
       `);
-      const arr = (rows as { rows?: Array<{ exists: boolean }> }).rows ?? (rows as Array<{ exists: boolean }>);
-      return Boolean(arr[0]?.exists);
+      return Boolean(rows.rows[0]?.exists);
     }
 
     default:

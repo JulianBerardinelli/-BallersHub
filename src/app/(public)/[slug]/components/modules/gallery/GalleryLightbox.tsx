@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLenis } from "lenis/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { GalleryPhoto } from "./types";
 
@@ -17,6 +18,7 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
   const open = index !== null;
   const total = photos.length;
   const photo = open ? photos[index!] : null;
+  const lenis = useLenis();
 
   const goPrev = useCallback(() => {
     if (index === null) return;
@@ -38,14 +40,21 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
     };
 
     document.addEventListener("keydown", handleKey);
+
+    // CSS overflow lock alone is NOT enough on this site: Lenis intercepts
+    // wheel events at the document level and updates window.scrollY via JS,
+    // bypassing `overflow: hidden`. Stop Lenis while the lightbox is open
+    // so the background page doesn't scroll behind the modal.
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    lenis?.stop();
 
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = previousOverflow;
+      lenis?.start();
     };
-  }, [open, onClose, goPrev, goNext]);
+  }, [open, onClose, goPrev, goNext, lenis]);
 
   return (
     <AnimatePresence>

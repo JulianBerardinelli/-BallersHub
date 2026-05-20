@@ -55,3 +55,23 @@ export type TaxIdType = (typeof taxIdTypeEnum.enumValues)[number];
 
 export type Visibility = (typeof visibilityEnum.enumValues)[number];
 export type PlayerStatus = (typeof playerStatusEnum.enumValues)[number];
+
+// --------------------------------------------------------------
+// Blog enums
+// --------------------------------------------------------------
+
+export const blogClusterEnum = pgEnum("blog_cluster", [
+  "career_guidance",
+  "agency_ops",
+  "industry_ar",
+]);
+
+export const blogStatusEnum = pgEnum("blog_status", [
+  "draft",
+  "pending_review",
+  "published",
+  "rejected",
+]);
+
+export type BlogCluster = (typeof blogClusterEnum.enumValues)[number];
+export type BlogStatus = (typeof blogStatusEnum.enumValues)[number];

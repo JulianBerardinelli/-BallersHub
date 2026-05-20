@@ -84,7 +84,7 @@ export async function POST(req: Request) {
     if (tagsString) {
       try {
         tags = JSON.parse(tagsString);
-      } catch (e) {
+      } catch {
         tags = tagsString.split(",").map(t => t.trim()).filter(Boolean);
       }
     }
@@ -99,7 +99,6 @@ export async function POST(req: Request) {
     if (file && !url) {
       // Validate file size (5MB for images, 50MB for videos)
       const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
-      const MAX_VIDEO_SIZE = 50 * 1024 * 1024;
 
       if (type === "photo" && file.size > MAX_IMAGE_SIZE) {
         return NextResponse.json({ error: "Image size exceeds 5MB limit" }, { status: 400 });

@@ -173,7 +173,7 @@ export default async function StartPage() {
 
       <div className="grid gap-3">
         <Link
-          href="/onboarding/player/plan"
+          href="/pricing?audience=player"
           className="bh-card-lift group flex items-center justify-between gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 px-5 py-4 transition-colors"
         >
           <div className="space-y-0.5">
@@ -189,7 +189,7 @@ export default async function StartPage() {
           </span>
         </Link>
         <Link
-          href="/onboarding/manager/info"
+          href="/pricing?audience=agency"
           className="bh-card-lift group flex items-center justify-between gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 px-5 py-4 transition-colors"
         >
           <div className="space-y-0.5">

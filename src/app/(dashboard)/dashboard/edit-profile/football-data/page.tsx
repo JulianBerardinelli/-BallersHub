@@ -20,18 +20,26 @@ import { db } from "@/lib/db";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import { fetchDashboardPublishingState } from "@/lib/dashboard/client/publishing-state";
-import ExternalLinksManager from "./components/ExternalLinksManager";
-import HonoursManager from "./components/HonoursManager";
-import SeasonStatsManager from "./components/SeasonStatsManager";
 import SportProfileSection from "./components/SportProfileSection";
 import AgencyRepresentationManager from "./components/AgencyRepresentationManager";
-import MarketProjectionSection from "./components/MarketProjectionSection";
-import ScoutingAnalysisSection from "./components/ScoutingAnalysisSection";
 import CareerManager, {
   type CareerStage,
   type CareerRequestSnapshot,
   type CareerRequestStage,
 } from "./components/CareerManager";
+
+// Below-the-fold managers are heavy (~200–800 lines of client code
+// each). They lazy-load via dedicated client wrappers in ./components/lazy/
+// using `dynamic({ ssr: false })`. That keeps them out of the initial
+// First Load JS — hydration on this route is dominated by these
+// forms, so this is the single biggest reduction in /dashboard/edit-
+// profile/football-data's bundle (~570 kB → lower).
+import SeasonStatsManager from "./components/lazy/SeasonStatsManagerLazy";
+import ExternalLinksManager from "./components/lazy/ExternalLinksManagerLazy";
+import HonoursManager from "./components/lazy/HonoursManagerLazy";
+import ScoutingAnalysisSection from "./components/lazy/ScoutingAnalysisSectionLazy";
+import MarketProjectionSection from "./components/lazy/MarketProjectionSectionLazy";
+
 import type { LinkKind } from "./schemas";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import { Lock } from "lucide-react";
@@ -102,6 +110,7 @@ type CareerRevisionRequestRow = {
   change_summary: string | null;
   resolution_note: string | null;
   items: CareerRevisionItemRow[] | null;
+  stats_items: { id: string }[] | null;
 };
 
 export default async function FootballDataPage() {
@@ -182,12 +191,13 @@ export default async function FootballDataPage() {
              country_code,
              country_name
            )
-         )`
+         ),
+         stats_items:stats_revision_items ( id )`
       )
       .eq("player_id", profileData.id)
       .order("submitted_at", { ascending: false })
-      .limit(1)
-      .maybeSingle<CareerRevisionRequestRow>(),
+      .limit(5)
+      .returns<CareerRevisionRequestRow[]>(),
   ]);
 
   const careerRaw = careerResult.data;
@@ -324,10 +334,18 @@ export default async function FootballDataPage() {
     crestUrl: stage.team?.crestUrl ?? null,
   }));
 
-  let latestRevision: CareerRequestSnapshot | null = null;
-  if (!revisionResult.error && revisionResult.data) {
-    const items: CareerRequestStage[] = Array.isArray(revisionResult.data.items)
-      ? revisionResult.data.items
+  // A single career_revision_request can hold career_revision_items, stats_revision_items,
+  // or both. We split into two snapshots so each panel (Trayectoria / Estadísticas)
+  // shows the resolution_note of its own latest applicable request.
+  let latestCareerRevision: CareerRequestSnapshot | null = null;
+  let latestStatsRevision: CareerRequestSnapshot | null = null;
+  const revisionRows = !revisionResult.error && Array.isArray(revisionResult.data)
+    ? revisionResult.data
+    : [];
+
+  const buildSnapshot = (row: CareerRevisionRequestRow): CareerRequestSnapshot => {
+    const items: CareerRequestStage[] = Array.isArray(row.items)
+      ? row.items
           .slice()
           .sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0))
           .map((item) => ({
@@ -354,16 +372,27 @@ export default async function FootballDataPage() {
               : null,
           }))
       : [];
-
-    latestRevision = {
-      id: revisionResult.data.id,
-      status: normalizeRequestStatus(revisionResult.data.status),
-      submittedAt: revisionResult.data.submitted_at ?? null,
-      reviewedAt: revisionResult.data.reviewed_at ?? null,
-      note: revisionResult.data.change_summary ?? null,
-      resolutionNote: revisionResult.data.resolution_note ?? null,
+    return {
+      id: row.id,
+      status: normalizeRequestStatus(row.status),
+      submittedAt: row.submitted_at ?? null,
+      reviewedAt: row.reviewed_at ?? null,
+      note: row.change_summary ?? null,
+      resolutionNote: row.resolution_note ?? null,
       items,
     };
+  };
+
+  for (const row of revisionRows) {
+    const hasCareerItems = Array.isArray(row.items) && row.items.length > 0;
+    const hasStatsItems = Array.isArray(row.stats_items) && row.stats_items.length > 0;
+    if (!latestCareerRevision && hasCareerItems) {
+      latestCareerRevision = buildSnapshot(row);
+    }
+    if (!latestStatsRevision && hasStatsItems) {
+      latestStatsRevision = buildSnapshot(row);
+    }
+    if (latestCareerRevision && latestStatsRevision) break;
   }
 
   // NOTE: Profile state loader is required to fetch extra custom columns when not in basic snapshot
@@ -415,7 +444,7 @@ export default async function FootballDataPage() {
           playerId={profileData.id}
           playerName={profileData.full_name ?? null}
           stages={careerStages}
-          latestRequest={latestRevision}
+          latestRequest={latestCareerRevision}
         />
       </SectionCard>
 
@@ -427,7 +456,7 @@ export default async function FootballDataPage() {
           playerId={profileData.id}
           stats={publishingState.stats}
           careerOptions={careerSeasonOptions}
-          latestRequest={latestRevision}
+          latestRequest={latestStatsRevision}
         />
       </SectionCard>
 

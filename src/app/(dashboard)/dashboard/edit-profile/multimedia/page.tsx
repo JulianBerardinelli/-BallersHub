@@ -76,6 +76,20 @@ export default async function MultimediaPage() {
     .eq("player_id", profile.id)
     .order("published_at", { ascending: false, nullsFirst: false });
 
+  // Persisted layout for the public Press & Notes module. Lives in
+  // profile_sections_visibility.settings under section='press'.
+  const { data: pressSectionRow } = await supabase
+    .from("profile_sections_visibility")
+    .select("settings")
+    .eq("player_id", profile.id)
+    .eq("section", "press")
+    .maybeSingle();
+  const initialPressLayout: "newspaper" | "cards" =
+    pressSectionRow?.settings && typeof pressSectionRow.settings === "object" &&
+    (pressSectionRow.settings as { layout?: string }).layout === "cards"
+      ? "cards"
+      : "newspaper";
+
   // Fetch pro assets explicitly because dashboard view might not have it yet
   const { data: profileWithProAssets } = await supabase
     .from("player_profiles")
@@ -165,7 +179,11 @@ export default async function MultimediaPage() {
         }}
       />
 
-      <ArticlesManager articles={rawArticles || []} />
+      <ArticlesManager
+        articles={rawArticles || []}
+        initialLayout={initialPressLayout}
+        isPro={planAccess.isPro}
+      />
 
     </div>
   );

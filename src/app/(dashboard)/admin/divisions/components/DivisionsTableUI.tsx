@@ -30,7 +30,7 @@ import { supabase } from "@/lib/supabase/client";
 import CsvImporter from "@/components/admin/CsvImporter";
 import { bulkUpsertDivisions } from "../bulkActions";
 import FormField from "@/components/dashboard/client/FormField";
-import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
+import { bhChip } from "@/lib/ui/heroui-brand";
 
 const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
 
@@ -135,10 +135,10 @@ export default function DivisionsTableUI({ items }: { items: any[] }) {
         const tempid = selectedItem?.id || Date.now().toString();
         const key = `${tempid}/crest.${ext}`;
 
-        const { error: upErr } = await supabase.storage.from("teams").upload(key, crestFile, { upsert: true });
+        const { error: upErr } = await supabase.storage.from("divisions").upload(key, crestFile, { upsert: true });
         if (upErr) throw upErr;
 
-        const { data: pub } = supabase.storage.from("teams").getPublicUrl(key);
+        const { data: pub } = supabase.storage.from("divisions").getPublicUrl(key);
         crestUrl = pub.publicUrl;
       }
 

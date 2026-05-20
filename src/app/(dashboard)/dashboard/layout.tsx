@@ -113,18 +113,29 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const audience = isManager ? "agency" : "player";
 
   // Tutorial bootstrap. Non-fatal: if it fails we just don't render the dock.
+  //
+  // Gate: only show the tutorial to users with a *professional account*
+  // already created — player_profile (application approved) OR confirmed
+  // manager. A brand-new signup with no application yet (or one still
+  // pending review) should NOT see player/agency tasks: their role hasn't
+  // been decided yet, so we have nothing to guide them on. The onboarding
+  // flow drives those users instead.
+  const hasProfessionalAccount = Boolean(profile) || isManager;
+
   let tutorialState = null;
-  try {
-    tutorialState = await bootstrapTutorialState({
-      userId: user.id,
-      audience,
-      tier: planAccess.isPro ? "pro" : "free",
-    });
-  } catch (err) {
-    console.warn(
-      "[DashboardLayout] tutorial bootstrap failed (non-fatal):",
-      err instanceof Error ? err.message : err,
-    );
+  if (hasProfessionalAccount) {
+    try {
+      tutorialState = await bootstrapTutorialState({
+        userId: user.id,
+        audience,
+        tier: planAccess.isPro ? "pro" : "free",
+      });
+    } catch (err) {
+      console.warn(
+        "[DashboardLayout] tutorial bootstrap failed (non-fatal):",
+        err instanceof Error ? err.message : err,
+      );
+    }
   }
 
   return (
@@ -176,10 +187,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
                 <div className="relative size-16 shrink-0 overflow-hidden rounded-bh-md border border-white/[0.08] bg-bh-surface-2">
                   {isManager ? (
                     up?.agency?.logoUrl ? (
-                      <img
+                      <Image
                         src={up.agency.logoUrl}
                         alt="Logo de la agencia"
-                        className="h-full w-full object-contain"
+                        fill
+                        sizes="64px"
+                        className="object-contain"
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center font-bh-display text-sm font-bold uppercase text-bh-fg-3">

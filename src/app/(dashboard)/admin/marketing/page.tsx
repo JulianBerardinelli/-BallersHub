@@ -1,8 +1,6 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
 import { Mail, MailMinus, Send, Eye, MousePointerClick, Plus } from "lucide-react";
-import { db } from "@/lib/db";
-import { marketingCampaigns } from "@/db/schema";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { fetchGlobalStats } from "./actions";
 import { TEMPLATE_DESCRIPTORS } from "@/emails";
 import CampaignDeleteButton from "./components/CampaignDeleteButton";
@@ -10,15 +8,48 @@ import StatusChip from "./components/StatusChip";
 
 export const dynamic = "force-dynamic";
 
+// Row shape we render — mapped from snake_case Supabase REST output to
+// the camelCase we used to get from Drizzle, so render code below
+// doesn't change.
+type CampaignRow = {
+  id: string;
+  slug: string;
+  name: string;
+  status: string;
+  templateKey: string;
+  totalRecipients: number;
+  totalDelivered: number;
+  totalOpened: number;
+  totalClicked: number;
+};
+
 export default async function MarketingAdminPage() {
-  const [stats, campaigns] = await Promise.all([
+  // Render path migrated to Supabase REST. Drizzle/postgres-js under
+  // Vercel serverless was leaving ClientRead zombies on the pooler
+  // (see HANDOFF.md / PERFORMANCE_PLAN.md). Same RLS, no postgres-js.
+  const supabase = createSupabaseAdmin();
+  const [stats, campaignsRes] = await Promise.all([
     fetchGlobalStats(),
-    db
-      .select()
-      .from(marketingCampaigns)
-      .orderBy(desc(marketingCampaigns.createdAt))
+    supabase
+      .from("marketing_campaigns")
+      .select(
+        "id, slug, name, status, template_key, total_recipients, total_delivered, total_opened, total_clicked",
+      )
+      .order("created_at", { ascending: false })
       .limit(50),
   ]);
+
+  const campaigns: CampaignRow[] = (campaignsRes.data ?? []).map((c) => ({
+    id: c.id as string,
+    slug: c.slug as string,
+    name: c.name as string,
+    status: c.status as string,
+    templateKey: c.template_key as string,
+    totalRecipients: Number(c.total_recipients ?? 0),
+    totalDelivered: Number(c.total_delivered ?? 0),
+    totalOpened: Number(c.total_opened ?? 0),
+    totalClicked: Number(c.total_clicked ?? 0),
+  }));
 
   const templateLabelByKey = new Map<string, string>(
     TEMPLATE_DESCRIPTORS.map((t) => [t.key, t.label]),

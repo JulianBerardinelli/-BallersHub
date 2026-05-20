@@ -1,6 +1,7 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AdminNavLink } from "./AdminNavLink";
+import { getAdminCounters } from "@/lib/admin/counters";
 
 type NavSection = {
   title: string;
@@ -64,47 +65,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     redirect("/dashboard");
   }
 
-  const [
-    { count: appCount },
-    { count: managerAppCount },
-    { count: careerItemCount },
-    { data: revisionsData },
-    { count: mediaCount },
-    { count: teamsCount },
-    { count: divisionsCount },
-    { count: agenciesPendingCount }
-  ] = await Promise.all([
-    supabase.from("player_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("manager_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("career_item_proposals").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("career_revision_requests").select("id, career_revision_items(id), stats_revision_items(id)").eq("status", "pending"),
-    supabase.from("player_media").select("id", { count: "exact", head: true }).is("reviewed_by", null),
-    supabase.from("teams").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("divisions").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("agency_profiles").select("id", { count: "exact", head: true }).eq("is_approved", false),
-  ]);
-
-  let careerRevisionsCount = 0;
-  let statsRevisionsCount = 0;
-
-  if (revisionsData) {
-    revisionsData.forEach((row: { career_revision_items: { id: string }[] | null, stats_revision_items: { id: string }[] | null }) => {
-      if (row.career_revision_items && row.career_revision_items.length > 0) careerRevisionsCount++;
-      if (row.stats_revision_items && row.stats_revision_items.length > 0) statsRevisionsCount++;
-    });
-  }
-
-  const counts: Record<string, number> = {
-    "/admin/applications": appCount || 0,
-    "/admin/manager-applications": managerAppCount || 0,
-    "/admin/career": careerItemCount || 0,
-    "/admin/revisions": careerRevisionsCount,
-    "/admin/stats-revisions": statsRevisionsCount,
-    "/admin/media-moderation": mediaCount || 0,
-    "/admin/teams": teamsCount || 0,
-    "/admin/divisions": divisionsCount || 0,
-    "/admin/agencies": agenciesPendingCount || 0,
-  };
+  // Counters are cached with tag "admin-counters" and invalidated from
+  // the admin server actions that mutate the underlying tables. See
+  // src/lib/admin/counters.ts. Avoids re-issuing 8 counts on every
+  // nav click between admin pages.
+  const counts = await getAdminCounters();
 
   return (
     <div className="mx-auto w-full max-w-[1200px] px-6 py-7">

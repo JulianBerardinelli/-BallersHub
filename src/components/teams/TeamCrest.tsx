@@ -1,6 +1,5 @@
 // src/components/team/TeamCrest.tsx
-"use client";
-
+import Image from "next/image";
 
 export default function TeamCrest({
   src,
@@ -21,17 +20,20 @@ export default function TeamCrest({
     <span
       className={`inline-flex items-center justify-center shrink-0 ${className}`}
       style={{ width: px, height: px }}
+      title={title ?? name}
     >
-      <img
+      <Image
         src={url}
         alt={name}
-        title={title ?? name}
-        loading="lazy"
-        decoding="async"
-        className="block w-full h-full"
-        style={{ objectFit: "contain" }} // 👈 clave: no recorta
+        width={size}
+        height={size}
+        // Crests are tiny and load in long lists (rosters, career
+        // tables) — leave the default lazy loading; no priority.
+        // unoptimized for SVG defaults; Next can still optimize the
+        // remote raster crests from Supabase.
+        unoptimized={url.endsWith(".svg")}
+        className="block h-full w-full object-contain"
       />
     </span>
   );
 }
-

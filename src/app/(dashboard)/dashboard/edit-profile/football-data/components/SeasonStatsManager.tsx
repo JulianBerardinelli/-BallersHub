@@ -755,14 +755,19 @@ function reflectValidationErrors(
   setStatus: (status: StatusState) => void,
 ) {
   const fieldErrors = error.flatten().fieldErrors;
+  const visibleMessages: string[] = [];
   (Object.entries(fieldErrors) as Array<[keyof SeasonStatMutationInput, string[] | undefined]>).forEach(
     ([field, messages]) => {
       if (!messages || messages.length === 0) return;
       if (field === "playerId" || field === "id") return;
       setError(field as keyof FormValues, { type: "manual", message: messages[0] });
+      visibleMessages.push(messages[0]);
     },
   );
-  setStatus({ type: "error", message: "Revisá los datos del formulario." });
+  setStatus({
+    type: "error",
+    message: visibleMessages.length > 0 ? visibleMessages.join(" · ") : "Revisá los datos del formulario.",
+  });
 }
 
 function FieldError({ message }: { message?: string }) {

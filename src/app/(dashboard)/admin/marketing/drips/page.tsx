@@ -1,34 +1,66 @@
 import Link from "next/link";
-import { asc, eq, sql } from "drizzle-orm";
 import { ArrowLeft, ArrowRight, Clock, Layers, Zap } from "lucide-react";
-import { db } from "@/lib/db";
-import { marketingDripConfigs, marketingDripEnrollments } from "@/db/schema";
+import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { TEMPLATE_DESCRIPTORS } from "@/emails";
 import DripActiveSwitch from "./DripActiveSwitch";
 
 export const dynamic = "force-dynamic";
 
-export default async function DripsAdminPage() {
-  // Pull every drip + per-status counts (via grouped subquery).
-  const configs = await db
-    .select()
-    .from(marketingDripConfigs)
-    .orderBy(asc(marketingDripConfigs.triggerEvent), asc(marketingDripConfigs.delaySeconds));
+// Render-time shape mapped from Supabase REST snake_case → camelCase
+// so the JSX below stays unchanged.
+type DripConfigRow = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  templateKey: string;
+  delaySeconds: number;
+  triggerEvent: string;
+  exitCondition: string | null;
+  isActive: boolean;
+};
 
-  const counts = await db
-    .select({
-      dripId: marketingDripEnrollments.dripId,
-      status: marketingDripEnrollments.status,
-      total: sql<number>`count(*)::int`,
-    })
-    .from(marketingDripEnrollments)
-    .groupBy(marketingDripEnrollments.dripId, marketingDripEnrollments.status);
+export default async function DripsAdminPage() {
+  // Migrated to Supabase REST. Drizzle/postgres-js + Vercel + Supavisor
+  // leaves ClientRead zombies; see HANDOFF.md / PERFORMANCE_PLAN.md.
+  const supabase = createSupabaseAdmin();
+
+  const [configsRes, enrollmentsRes] = await Promise.all([
+    supabase
+      .from("marketing_drip_configs")
+      .select(
+        "id, slug, name, description, template_key, delay_seconds, trigger_event, exit_condition, is_active",
+      )
+      .order("trigger_event", { ascending: true })
+      .order("delay_seconds", { ascending: true }),
+    // No GROUP BY in PostgREST — pull enrollments (drip_id, status)
+    // and aggregate in memory. Table stays small enough for now; if
+    // it grows large, replace with an RPC or materialized view.
+    supabase
+      .from("marketing_drip_enrollments")
+      .select("drip_id, status"),
+  ]);
+
+  const configs: DripConfigRow[] = (configsRes.data ?? []).map((c) => ({
+    id: c.id as string,
+    slug: c.slug as string,
+    name: c.name as string,
+    description: (c.description as string | null) ?? null,
+    templateKey: c.template_key as string,
+    delaySeconds: Number(c.delay_seconds ?? 0),
+    triggerEvent: c.trigger_event as string,
+    exitCondition: (c.exit_condition as string | null) ?? null,
+    isActive: Boolean(c.is_active),
+  }));
 
   const countsByDrip = new Map<string, Record<string, number>>();
-  for (const r of counts) {
-    const map = countsByDrip.get(r.dripId) ?? {};
-    map[r.status] = Number(r.total);
-    countsByDrip.set(r.dripId, map);
+  for (const r of (enrollmentsRes.data ?? []) as Array<{
+    drip_id: string;
+    status: string;
+  }>) {
+    const map = countsByDrip.get(r.drip_id) ?? {};
+    map[r.status] = (map[r.status] ?? 0) + 1;
+    countsByDrip.set(r.drip_id, map);
   }
 
   const triggers = Array.from(new Set(configs.map((c) => c.triggerEvent)));

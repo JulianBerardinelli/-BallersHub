@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, Chip, Tabs, Tab, Tooltip } from "@heroui/react";
+import { Chip, Tabs, Tab, Tooltip } from "@heroui/react";
 
 const MAP: Record<"ARQ"|"DEF"|"MID"|"DEL", { label: string; subs: string[] }> = {
   ARQ: { label: "Arquero", subs: ["Arquero"] },

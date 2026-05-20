@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "src/app/**/*.tsx": { "maxDuration": 60 },
+    "src/app/**/route.ts": { "maxDuration": 60 }
+  },
   "crons": [
     {
       "path": "/api/cron/marketing-dispatch",

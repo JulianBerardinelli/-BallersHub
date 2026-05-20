@@ -2,6 +2,7 @@
 
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminCounters } from "@/lib/admin/counters";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { managerApplications, type NewManagerApplication } from "@/db/schema/managerApplications";
@@ -116,6 +117,7 @@ export async function approveManagerApplication(applicationId: string) {
   });
 
   revalidatePath("/admin/manager-applications");
+  revalidateAdminCounters();
 }
 
 export async function rejectManagerApplication(applicationId: string) {
@@ -133,4 +135,5 @@ export async function rejectManagerApplication(applicationId: string) {
     .where(eq(managerApplications.id, applicationId));
 
   revalidatePath("/admin/manager-applications");
+  revalidateAdminCounters();
 }

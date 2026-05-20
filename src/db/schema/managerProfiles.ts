@@ -1,6 +1,5 @@
 // manager_profiles
 import { pgTable, uuid, text, timestamp, jsonb } from "drizzle-orm/pg-core";
-import { userProfiles } from "./users";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const managerProfiles = pgTable("manager_profiles", {

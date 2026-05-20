@@ -1,4 +1,4 @@
-// BallersHub branded button primitive.
+// 'BallersHub branded button primitive.
 //
 // Renders a native <button> by default, or polymorphic-as via the `as` prop
 // (e.g. <BhButton as={Link} href="/x">). Designed for content-rendering use;

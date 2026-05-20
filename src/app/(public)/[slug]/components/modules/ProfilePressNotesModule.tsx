@@ -68,7 +68,15 @@ function ScalableNewspaper({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function ProfilePressNotesModule({ articles }: { articles: Article[] }) {
+export type PressNotesLayout = "newspaper" | "cards";
+
+export default function ProfilePressNotesModule({
+  articles,
+  layout = "newspaper",
+}: {
+  articles: Article[];
+  layout?: PressNotesLayout;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // If no articles, don't render the section
@@ -81,56 +89,67 @@ export default function ProfilePressNotesModule({ articles }: { articles: Articl
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
   });
 
-  // Chunk articles into sets of 7
-  const chunkSize = 7;
-  const chunkedArticles = [];
-  for (let i = 0; i < sortedArticles.length; i += chunkSize) {
-    chunkedArticles.push(sortedArticles.slice(i, i + chunkSize));
-  }
-
   return (
-    <section 
+    <section
       ref={containerRef}
-      id="press" 
+      id="press"
       className="relative z-40 py-20 px-6 md:px-12 w-full max-w-[1400px] mx-auto"
     >
       {/* AMBIENT BACKGROUND EFFECTS */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        
+
         {/* Moving Orbs */}
-        <motion.div 
+        <motion.div
           animate={{ x: [0, 50, 0], y: [0, 30, 0], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-[-10%] left-[-5%] w-[40vw] h-[40vw] rounded-full bg-[var(--theme-accent)]/15 blur-[120px]"
         />
-        <motion.div 
+        <motion.div
           animate={{ x: [0, -50, 0], y: [0, -40, 0], opacity: [0.2, 0.5, 0.2] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-white/5 blur-[140px]"
         />
 
-        {/* Central Spotlight behind the newspaper */}
+        {/* Central Spotlight behind the layout */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[var(--theme-accent)]/10 blur-[150px] rounded-full" />
       </div>
 
       <div className="relative z-10">
-      {/* SECTION HEADER (Standard Portfolio Style) */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="w-full mb-12 flex flex-col md:items-center md:text-center"
-      >
-         <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-2">
-           Publicaciones
-         </h2>
-         <h3 className="text-3xl md:text-5xl lg:text-6xl font-black font-heading text-white uppercase drop-shadow-2xl leading-[0.9]">
-           Prensa & Notas
-         </h3>
-      </motion.div>
+        {/* SECTION HEADER (Standard Portfolio Style) */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="w-full mb-12 flex flex-col md:items-center md:text-center"
+        >
+          <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-2">
+            Publicaciones
+          </h2>
+          <h3 className="text-3xl md:text-5xl lg:text-6xl font-black font-heading text-white uppercase drop-shadow-2xl leading-[0.9]">
+            Prensa & Notas
+          </h3>
+        </motion.div>
 
-      {/* NEWSPAPER CAROUSEL */}
-      <div className={`w-full flex overflow-x-auto snap-x snap-mandatory gap-8 pb-12 px-4 md:px-12 scrollbar-hide ${chunkedArticles.length === 1 ? 'justify-center' : ''}`}>
+        {layout === "cards" ? (
+          <CardsGrid articles={sortedArticles} />
+        ) : (
+          <NewspaperCarousel articles={sortedArticles} />
+        )}
+      </div>
+    </section>
+  );
+}
+
+function NewspaperCarousel({ articles }: { articles: Article[] }) {
+  // Chunk articles into sets of 7
+  const chunkSize = 7;
+  const chunkedArticles: Article[][] = [];
+  for (let i = 0; i < articles.length; i += chunkSize) {
+    chunkedArticles.push(articles.slice(i, i + chunkSize));
+  }
+
+  return (
+    <div className={`w-full flex overflow-x-auto snap-x snap-mandatory gap-8 pb-12 px-4 md:px-12 scrollbar-hide ${chunkedArticles.length === 1 ? 'justify-center' : ''}`}>
         {chunkedArticles.map((chunk, chunkIndex) => (
           <motion.div
             key={`newspaper-${chunkIndex}`}
@@ -261,8 +280,95 @@ export default function ProfilePressNotesModule({ articles }: { articles: Articl
             </ScalableNewspaper>
           </motion.div>
         ))}
-        </div>
-      </div>
-    </section>
+    </div>
+  );
+}
+
+function CardsGrid({ articles }: { articles: Article[] }) {
+  const count = articles.length;
+
+  // Adapt the column count to the actual number of articles so we never get
+  // a half-empty row dangling left. With 1 we render a single centered card;
+  // with 2 we hold the 2-col layout and constrain the grid width so it stays
+  // visually centered on desktop. 3+ uses the responsive 2/3 grid as usual.
+  // Tailwind requires literal class strings, so we map explicitly.
+  const gridClass =
+    count === 1
+      ? "grid-cols-1 max-w-md mx-auto"
+      : count === 2
+        ? "grid-cols-2 max-w-[640px] lg:max-w-[920px] mx-auto"
+        : "grid-cols-2 lg:grid-cols-3";
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className={`w-full grid ${gridClass} gap-4 sm:gap-5 md:gap-6`}
+    >
+      {articles.map((article, index) => (
+        <motion.a
+          key={article.id}
+          href={article.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.5, delay: Math.min(index * 0.04, 0.32), ease: "easeOut" }}
+          className="group relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm transition-all duration-500 hover:border-[var(--theme-accent)]/40 hover:bg-white/[0.05] hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:-translate-y-1"
+        >
+          {article.imageUrl ? (
+            <div className="relative w-full aspect-[16/10] overflow-hidden bg-black/40">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={article.imageUrl}
+                alt={article.title}
+                className="absolute inset-0 w-full h-full object-cover grayscale-[0.35] opacity-90 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.04]"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent pointer-events-none" />
+
+              <div className="absolute top-3 right-3 z-10 flex items-center justify-center rounded-full bg-black/60 backdrop-blur-md p-2 opacity-0 translate-y-1 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+                <ExternalLink size={14} strokeWidth={2.25} className="text-[var(--theme-accent)]" />
+              </div>
+            </div>
+          ) : (
+            <div className="relative w-full aspect-[16/10] overflow-hidden bg-gradient-to-br from-white/[0.06] to-white/[0.02] flex items-center justify-center">
+              <span className="text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">
+                {article.publisher ?? "Press"}
+              </span>
+              <div className="absolute top-3 right-3 z-10 flex items-center justify-center rounded-full bg-black/60 backdrop-blur-md p-2 opacity-0 translate-y-1 transition-all duration-500 group-hover:opacity-100 group-hover:translate-y-0">
+                <ExternalLink size={14} strokeWidth={2.25} className="text-[var(--theme-accent)]" />
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1.5 sm:gap-2 p-3 sm:p-5 md:p-6 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.18em] sm:tracking-[0.22em] text-[var(--theme-accent)]/90">
+              {article.publisher && (
+                <span className="truncate max-w-full">{article.publisher}</span>
+              )}
+              {article.publisher && article.publishedAt && (
+                <span className="text-white/25 hidden sm:inline">•</span>
+              )}
+              {article.publishedAt && (
+                <time className="text-white/45">
+                  {new Date(article.publishedAt).toLocaleDateString("es-AR", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </time>
+              )}
+            </div>
+            <h3 className="font-heading text-sm sm:text-lg md:text-xl font-black uppercase leading-[1.1] sm:leading-[1.05] text-white transition-colors duration-300 group-hover:text-[var(--theme-accent)] line-clamp-3">
+              {article.title}
+            </h3>
+          </div>
+        </motion.a>
+      ))}
+    </motion.div>
   );
 }

@@ -46,3 +46,7 @@ supabase/backups/
 
 
 .tmp-design/
+
+# local agent / tool artifacts (Claude Code, Junie, etc.)
+.claude/
+.junie/

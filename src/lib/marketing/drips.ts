@@ -1,5 +1,5 @@
 import { Resend } from "resend";
-import { and, eq, lt, or, sql } from "drizzle-orm";
+import { and, eq, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   marketingDripConfigs,

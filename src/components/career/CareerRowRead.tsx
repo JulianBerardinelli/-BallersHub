@@ -2,6 +2,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Button, Chip, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { MoreHorizontal } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -53,10 +54,11 @@ export default function CareerRowRead({
             }`}
         >
             <div className="flex min-w-0 items-center gap-3">
-                <img
+                <Image
                     src={crest}
                     width={24}
                     height={24}
+                    unoptimized={crest.endsWith(".svg")}
                     className="h-6 w-6 shrink-0 object-contain"
                     alt=""
                 />

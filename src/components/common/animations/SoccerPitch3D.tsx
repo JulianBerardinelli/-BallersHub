@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 // Posiciones al porcentaje en el campo (equipo atacando hacia "arriba")
@@ -46,9 +46,47 @@ export function normalizePosition(p: string | null | undefined): string | null {
   return null;
 }
 
+// ── POSITION COLOUR SYSTEM ─────────────────────────────────────────────────
+// Every position code maps to one of four tactical categories, and each
+// category has a single fixed colour. This replaces the previous index-based
+// PALETTE rotation (which meant the same position could change colour
+// depending on the order in which the player listed it). With fixed colours
+// a viewer reads the pitch consistently across players: a defender is
+// always red, a forward is always lime, etc.
+
+export type PositionCategory = "POR" | "DEF" | "MED" | "DEL";
+
+export const POSITION_CATEGORY: Record<string, PositionCategory> = {
+  POR: "POR",
+  DFC: "DEF",
+  LI: "DEF",
+  LD: "DEF",
+  MCD: "MED",
+  MC: "MED",
+  MI: "MED",
+  MD: "MED",
+  MCO: "MED",
+  EI: "DEL",
+  ED: "DEL",
+  DEL: "DEL",
+  SD: "DEL",
+};
+
+export const POSITION_COLORS: Record<PositionCategory, string> = {
+  POR: "#A855F7", // violet-500 — goalkeeper
+  DEF: "#EF4444", // red-500 — defender
+  MED: "#38BDF8", // sky-400 — midfielder (celeste)
+  DEL: "#CCFF00", // bh-lime — forward (verde lima, brand colour)
+};
+
+export function getPositionColor(posCode: string | null | undefined): string {
+  if (!posCode) return "#FFFFFF";
+  const category = POSITION_CATEGORY[posCode.toUpperCase().trim()];
+  return category ? POSITION_COLORS[category] : "#FFFFFF";
+}
+
 export default function SoccerPitch3D({
   playerPositions = [],
-  characteristics = [],
 }: {
   playerPositions?: string[];
   characteristics?: string[];
@@ -57,13 +95,6 @@ export default function SoccerPitch3D({
     .filter(p => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
     .map(p => normalizePosition(p))
     .filter((p): p is string => p !== null);
-
-  const PALETTES = [
-    "var(--theme-primary)",
-    "#f97316", // orange-500
-    "#8b5cf6", // violet-500
-    "#10b981", // emerald-500
-  ];
 
   return (
     /*
@@ -115,7 +146,7 @@ export default function SoccerPitch3D({
         {/* ── POSICIÓN MARKERS (billboarding) ─────────────── */}
         {validPositions.map((posCode, i) => {
           const config = POSITIONS_MAP[posCode.toUpperCase()];
-          const color = PALETTES[i % PALETTES.length];
+          const color = getPositionColor(posCode);
 
           return (
             <React.Fragment key={posCode}>
@@ -161,7 +192,7 @@ export default function SoccerPitch3D({
       <AnimatePresence mode="wait">
         {validPositions.map((posCode, i) => {
           const config = POSITIONS_MAP[posCode.toUpperCase()];
-          const color = PALETTES[i % PALETTES.length];
+          const color = getPositionColor(posCode);
 
           const SLOTS = [
             // 1. Top Right

@@ -22,7 +22,7 @@ import CompGrantWelcomeEmail, {
 import PaymentFailedEmail, { type PaymentFailedProps } from "./payment-failed";
 
 /**
- * Template registry — every email shipped from BallersHub goes through here.
+ * Template registry — every email shipped from 'BallersHub goes through here.
  *
  * Adding a template:
  *   1. Build the React component under `src/emails/templates/<name>.tsx`,

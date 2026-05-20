@@ -31,7 +31,7 @@ export type CustomBroadcastProps = {
 /**
  * Generic broadcast template — for ad-hoc campaigns where the admin
  * doesn't want to ship a new TS template per send. Renders the same
- * BallersHub branded shell, exposes 3 props (eyebrow / headline / body)
+ * 'BallersHub branded shell, exposes 3 props (eyebrow / headline / body)
  * + an optional CTA button.
  *
  * Use this for: feature announcements, weekly digest summaries, "new

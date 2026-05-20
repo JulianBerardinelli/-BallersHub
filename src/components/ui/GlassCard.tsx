@@ -23,7 +23,7 @@ type Props = {
  * Theme-aware: variants `accent` and `primary` derive their tint from
  * `--theme-accent` / `--theme-primary` so they match the portfolio palette.
  *
- * Adapted from the BallersHub design system (components-cards.html).
+ * Adapted from the 'BallersHub design system (components-cards.html).
  *
  * Always renders as <div> + <div>. For navigation, wrap with <Link>
  * externally. For full-card hit areas inside a card, position children

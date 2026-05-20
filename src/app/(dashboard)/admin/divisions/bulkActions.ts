@@ -1,14 +1,15 @@
 "use server";
 
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { db } from "@/lib/db";
 import * as schema from "@/db/schema/index";
 import { sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { revalidateAdminCounters } from "@/lib/admin/counters";
 
-const connection = postgres(process.env.DATABASE_URL!);
-const db = drizzle(connection, { schema });
+// Was spinning up its own `postgres()` client at module load — that
+// doubled the pool footprint per warm lambda. Use the shared
+// `db` from @/lib/db instead.
 
 function slugify(input: string) {
   return (input || "")
@@ -71,6 +72,7 @@ export async function bulkUpsertDivisions(rows: any[]) {
     }
 
     revalidatePath("/admin/divisions");
+    revalidateAdminCounters();
     return { success: successCount, errors: errorCount, message: `Se insertaron/actualizaron ${successCount} divisiones.` };
   } catch (error: any) {
     throw new Error(error.message || "Error procesando el Bulk Upsert de Divisiones.");

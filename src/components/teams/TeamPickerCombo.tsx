@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import {
   Autocomplete,
   AutocompleteItem,
   Switch,
   Chip,
   Kbd,
-  ScrollShadow,
 } from "@heroui/react";
 import { supabase } from "@/lib/supabase/client";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -336,10 +336,11 @@ export default function TeamPickerCombo({
         errorMessage={errorMessage}
         startContent={
           selectedKey && !String(selectedKey).startsWith("new:") && selectedTeam ? (
-            <img
+            <Image
               src={selectedTeam.crest_url || "/images/team-default.svg"}
               width={18}
               height={18}
+              unoptimized={!selectedTeam.crest_url}
               className="h-5 w-5 object-contain"
               alt=""
             />
@@ -377,10 +378,11 @@ export default function TeamPickerCombo({
               key={item.id}
               textValue={`${item.name} ${item.slug}`}
               startContent={
-                <img
+                <Image
                   src={item.crest_url || "/images/team-default.svg"}
                   width={18}
                   height={18}
+                  unoptimized={!item.crest_url}
                   className="h-5 w-5 object-contain"
                   alt=""
                 />

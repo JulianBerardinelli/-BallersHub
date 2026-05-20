@@ -47,7 +47,6 @@ const QUICK_ACTIONS = [
 export default function ManagerOverview({ managerApp, role, agencyData }: { managerApp: ManagerApp, role: string, agencyData: AgencyData }) {
   const isPending = managerApp?.status === "pending";
   const isApproved = managerApp?.status === "approved" || role === "manager";
-  const isRejected = managerApp?.status === "rejected";
 
   const getStatusProps = (): DashboardStatusSummaryProps => {
     if (isPending) {

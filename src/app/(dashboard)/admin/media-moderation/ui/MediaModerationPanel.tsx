@@ -296,7 +296,7 @@ function getYouTubeEmbedUrl(urlStr: string) {
       videoId = url.pathname.slice(1);
     }
     return videoId ? `https://www.youtube.com/embed/${videoId}` : urlStr;
-  } catch (e) {
+  } catch {
     return urlStr;
   }
 }

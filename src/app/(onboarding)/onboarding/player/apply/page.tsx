@@ -31,5 +31,10 @@ export default async function PlayerApplyPage() {
     redirect("/dashboard");
   }
 
-  return <PlayerApplyFlow applicationId={application?.id ?? null} />;
+  return (
+    <PlayerApplyFlow
+      applicationId={application?.id ?? null}
+      userEmail={user.email ?? null}
+    />
+  );
 }

@@ -6,7 +6,6 @@ import {
   careerItems,
   statsSeasons,
   playerArticles,
-  playerPersonalDetails,
   playerLinks,
   teams,
   divisions,
@@ -21,6 +20,7 @@ import type {
 } from "./components/free/FreeLayout";
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
 import { formatPlayerPositions } from "@/lib/format";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 
 // Public portfolios are cached for an hour. Crawlers hit these
 // frequently and we don't need second-by-second freshness — the
@@ -76,8 +76,13 @@ function buildSeoDescription(p: {
   if (p.positions && p.positions.length > 0) segments.push(formatPlayerPositions(p.positions));
   if (p.currentClub) segments.push(p.currentClub);
   if (p.nationality && p.nationality.length > 0) segments.push(p.nationality.join(" / "));
-  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en BallersHub.`;
+  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en 'BallersHub.`;
 }
+
+// Below this bio length we soft-noindex Free portfolios so thin profiles
+// don't drag the whole site quality score. Pro portfolios are always
+// indexable — they pay for the SERP slot. See seo-strategy.md §5 Track C.
+const FREE_BIO_INDEX_MIN_CHARS = 100;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
@@ -85,6 +90,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     where: (p, { and, eq }) =>
       and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
     columns: {
+      userId: true,
       fullName: true,
       bio: true,
       positions: true,
@@ -100,6 +106,46 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     };
   }
 
+  // Resolve Pro vs Free to decide whether thin Free profiles should be
+  // noindexed. We only run the subscription query when the bio is
+  // actually short — common case is "bio is fine, no extra query".
+  const bioLen = player.bio?.trim().length ?? 0;
+  let softNoindex = false;
+  if (bioLen < FREE_BIO_INDEX_MIN_CHARS) {
+    const sub = await db.query.subscriptions.findFirst({
+      where: (s, { eq }) => eq(s.userId, player.userId),
+      columns: {
+        plan: true,
+        planId: true,
+        status: true,
+        statusV2: true,
+        processor: true,
+        processorSubscriptionId: true,
+        currentPeriodEnd: true,
+        cancelAtPeriodEnd: true,
+      },
+    });
+    const planAccess = resolvePlanAccess(
+      sub
+        ? {
+            plan: sub.plan,
+            planId: sub.planId,
+            status: sub.status,
+            statusV2: sub.statusV2,
+            processor: sub.processor,
+            processorSubscriptionId: sub.processorSubscriptionId,
+            currentPeriodEnd: sub.currentPeriodEnd
+              ? sub.currentPeriodEnd.toISOString()
+              : null,
+            cancelAtPeriodEnd: sub.cancelAtPeriodEnd ?? false,
+            trialEndsAt: null,
+            canceledAt: null,
+          }
+        : null,
+    );
+    softNoindex = planAccess.isFree;
+  }
+
   const title = buildSeoTitle(player);
   const description = buildSeoDescription(player);
   const canonical = `/${slug}`;
@@ -108,12 +154,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title,
     description,
     alternates: { canonical },
+    ...(softNoindex && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
       url: canonical,
       type: "profile",
-      siteName: "BallersHub",
+      siteName: "'BallersHub",
       locale: "es_AR",
       images: player.avatarUrl
         ? [{ url: player.avatarUrl, alt: player.fullName }]
@@ -154,13 +201,45 @@ export default async function PlayerPublicPage({
   if (!player) return notFound();
 
   // 2) Plan y límites (Para limitar fotos - o enviarlo completo y limitar ahi)
+  //    IMPORTANTE: usamos resolvePlanAccess (mira statusV2 + plan_id) y NO
+  //    `subscriptions.plan` directo. La column `plan` legacy lagea cuando hay
+  //    grants admin / fixes parciales — ver plan-access.ts.
   const sub = await db.query.subscriptions.findFirst({
     where: (s, { eq }) => eq(s.userId, player.userId),
-    columns: { plan: true, limitsJson: true }
+    columns: {
+      plan: true,
+      planId: true,
+      status: true,
+      statusV2: true,
+      processor: true,
+      processorSubscriptionId: true,
+      currentPeriodEnd: true,
+      cancelAtPeriodEnd: true,
+      limitsJson: true,
+    }
   });
   const limits = (sub?.limitsJson ?? {}) as Record<string, unknown>;
   const maxPhotos = Number(limits?.max_photos ?? 100);
   const maxVideos = Number(limits?.max_videos ?? 100);
+
+  const planAccess = resolvePlanAccess(
+    sub
+      ? {
+          plan: sub.plan,
+          planId: sub.planId,
+          status: sub.status,
+          statusV2: sub.statusV2,
+          processor: sub.processor,
+          processorSubscriptionId: sub.processorSubscriptionId,
+          currentPeriodEnd: sub.currentPeriodEnd
+            ? sub.currentPeriodEnd.toISOString()
+            : null,
+          cancelAtPeriodEnd: sub.cancelAtPeriodEnd ?? false,
+          trialEndsAt: null,
+          canceledAt: null,
+        }
+      : null,
+  );
 
   // DEV-ONLY override so we can preview the Free layout on any /[slug]
   // without flipping subscriptions in the DB. Trips on `?force_free=1`
@@ -168,9 +247,9 @@ export default async function PlayerPublicPage({
   const devForceFree =
     process.env.NODE_ENV !== "production" && sp.force_free === "1";
 
-  const plan = devForceFree
-    ? ("free" as const)
-    : ((sub?.plan ?? "free") as "free" | "pro" | "pro_plus");
+  const plan: "free" | "pro" | "pro_plus" = devForceFree
+    ? "free"
+    : planAccess.effectivePlan;
   const isFree = plan === "free";
 
   // 3) Bandeja de Datos Públicos
@@ -354,12 +433,24 @@ export default async function PlayerPublicPage({
       }
     : null;
 
+  // Press notes layout preference is stored in profile_sections_visibility.settings
+  // for the row with section='press'. Defaults to "newspaper" so existing Pro
+  // players keep their current layout.
+  const pressSection = sections.find((s) => s.section === "press");
+  const pressSettings =
+    pressSection?.settings && typeof pressSection.settings === "object"
+      ? (pressSection.settings as Record<string, unknown>)
+      : null;
+  const pressLayout: "newspaper" | "cards" =
+    pressSettings?.layout === "cards" ? "cards" : "newspaper";
+
   const publicData = {
     player,
     career: [],
     media,
     sections,
     articles,
+    pressLayout,
     theme:
       theme || {
         layout: "futuristic",
