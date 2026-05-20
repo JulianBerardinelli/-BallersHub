@@ -9,6 +9,7 @@ import DashboardProgressList, {
 import DashboardStatusSummary, {
   type DashboardStatusSummaryProps,
 } from "@/components/dashboard/client/overview/DashboardStatusSummary";
+import type { ApplicationReviewDetails } from "@/components/dashboard/client/overview/ApplicationReviewModal";
 import { db } from "@/lib/db";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
@@ -31,6 +32,7 @@ import ManagerOverview from "@/components/dashboard/manager/ManagerOverview";
 type PlayerOverview = TaskProfileSnapshot & { updated_at: string | null };
 
 type ApplicationOverview = {
+  id: string;
   status: string;
   created_at: string;
   plan_requested: string | null;
@@ -176,6 +178,40 @@ function getProfileSummary(
   };
 }
 
+function buildPlayerReviewDetails(
+  application: ApplicationOverview,
+  profileStatus?: string,
+): ApplicationReviewDetails {
+  const status = profileStatus ?? application.status;
+  const isPending = status === "pending" || status === "pending_review";
+  return {
+    id: application.id,
+    type: "player",
+    status,
+    statusLabel: isPending
+      ? "En revisión"
+      : status === "approved"
+        ? "Aprobada"
+        : status === "rejected"
+          ? "Rechazada"
+          : status,
+    statusColor: isPending
+      ? "primary"
+      : status === "approved"
+        ? "success"
+        : status === "rejected"
+          ? "danger"
+          : "default",
+    createdAt: application.created_at,
+    planRequested: application.plan_requested,
+    fullName: application.full_name,
+    positions: application.positions,
+    nationality: application.nationality,
+    currentClub: application.current_club,
+    notes: application.notes,
+  };
+}
+
 function getPrimaryCta(
   profile: PlayerOverview | null,
   application: ApplicationOverview | null,
@@ -184,10 +220,11 @@ function getPrimaryCta(
   if (!profile) {
     if (application?.status === "pending") {
       return {
+        kind: "review-application",
         label: "Ver solicitud",
-        href: "/onboarding/player/apply",
         variant: "bordered",
         color: "primary",
+        details: buildPlayerReviewDetails(application),
       };
     }
 
@@ -241,12 +278,16 @@ function getPrimaryCta(
         color: "primary",
       };
     case "pending_review":
-      return {
-        label: "Ver solicitud",
-        href: "/onboarding/player/apply",
-        variant: "bordered",
-        color: "primary",
-      };
+      if (application) {
+        return {
+          kind: "review-application",
+          label: "Ver solicitud",
+          variant: "bordered",
+          color: "primary",
+          details: buildPlayerReviewDetails(application, "pending_review"),
+        };
+      }
+      return undefined;
     case "rejected":
       return {
         label: "Reabrir onboarding",
@@ -333,6 +374,7 @@ export default async function DashboardPage() {
 
   const application = dashboardState.application
     ? ({
+        id: dashboardState.application.id,
         status: dashboardState.application.status ?? "pending",
         created_at: dashboardState.application.created_at ?? "",
         plan_requested: dashboardState.application.plan_requested ?? null,
@@ -350,7 +392,9 @@ export default async function DashboardPage() {
   // En caso de que sea una solicitud Manager (el rol "member" lo mantiene si aún no se le aprueba su agencia)
   const { data: managerApp } = await supabase
     .from("manager_applications")
-    .select("status, created_at, agency_name")
+    .select(
+      "id, status, created_at, updated_at, agency_name, full_name, contact_email, contact_phone, agency_website_url, notes",
+    )
     .eq("user_id", user.id)
     .order("created_at", { ascending: false })
     .limit(1)

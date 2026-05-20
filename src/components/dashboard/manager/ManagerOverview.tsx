@@ -4,11 +4,19 @@ import SectionCard from "@/components/dashboard/client/SectionCard";
 import DashboardStatusSummary, {
   type DashboardStatusSummaryProps,
 } from "@/components/dashboard/client/overview/DashboardStatusSummary";
+import type { ApplicationReviewDetails } from "@/components/dashboard/client/overview/ApplicationReviewModal";
 
 type ManagerApp = {
+  id?: string | null;
   status: string;
   agency_name: string | null;
   created_at: string;
+  updated_at?: string | null;
+  full_name?: string | null;
+  contact_email?: string | null;
+  contact_phone?: string | null;
+  agency_website_url?: string | null;
+  notes?: string | null;
 } | null;
 
 type AgencyData = {
@@ -44,12 +52,45 @@ const QUICK_ACTIONS = [
   },
 ];
 
+function buildManagerReviewDetails(app: NonNullable<ManagerApp>): ApplicationReviewDetails | null {
+  if (!app.id) return null;
+  const isPending = app.status === "pending";
+  return {
+    id: app.id,
+    type: "manager",
+    status: app.status,
+    statusLabel: isPending
+      ? "En revisión"
+      : app.status === "approved"
+        ? "Aprobada"
+        : app.status === "rejected"
+          ? "Rechazada"
+          : app.status,
+    statusColor: isPending
+      ? "warning"
+      : app.status === "approved"
+        ? "success"
+        : app.status === "rejected"
+          ? "danger"
+          : "default",
+    createdAt: app.created_at,
+    updatedAt: app.updated_at ?? null,
+    fullName: app.full_name ?? null,
+    agencyName: app.agency_name,
+    agencyWebsite: app.agency_website_url ?? null,
+    contactEmail: app.contact_email ?? null,
+    contactPhone: app.contact_phone ?? null,
+    notes: app.notes ?? null,
+  };
+}
+
 export default function ManagerOverview({ managerApp, role, agencyData }: { managerApp: ManagerApp, role: string, agencyData: AgencyData }) {
   const isPending = managerApp?.status === "pending";
   const isApproved = managerApp?.status === "approved" || role === "manager";
 
   const getStatusProps = (): DashboardStatusSummaryProps => {
-    if (isPending) {
+    if (isPending && managerApp) {
+      const details = buildManagerReviewDetails(managerApp);
       return {
         profileStatus: {
           code: "pending",
@@ -61,6 +102,15 @@ export default function ManagerOverview({ managerApp, role, agencyData }: { mana
         publicUrl: null,
         updatedAt: null,
         applicationStatus: null,
+        cta: details
+          ? {
+              kind: "review-application",
+              label: "Ver solicitud",
+              variant: "bordered" as const,
+              color: "warning" as const,
+              details,
+            }
+          : undefined,
       };
     }
 
@@ -133,7 +183,7 @@ export default function ManagerOverview({ managerApp, role, agencyData }: { mana
                   </Link>
                </div>
             </SectionCard>
-            
+
             <SectionCard title="Equipo de Representación" description="Mánagers pertenecientes a la institución.">
                <div className="flex flex-col items-center justify-center p-6 text-center text-neutral-400 gap-2 border border-dashed border-neutral-800 rounded-lg bg-neutral-950/40">
                  <span className="text-4xl font-bold text-white shadow-xl">
