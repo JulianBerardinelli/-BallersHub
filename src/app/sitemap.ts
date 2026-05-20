@@ -36,6 +36,7 @@ import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { agencyProfiles } from "@/db/schema/agencies";
 import { subscriptions } from "@/db/schema/subscriptions";
+import { blogPosts } from "@/db/schema/blog";
 import { and, eq, inArray } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
 
@@ -69,6 +70,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.5,
     },
+    {
+      url: `${base}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    },
   ];
 
   // ----- Players -----
@@ -82,6 +89,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }> = [];
   let proUserIds = new Set<string>();
   let agencyRows: Array<{ slug: string; updatedAt: Date }> = [];
+  let blogRows: Array<{ slug: string; updatedAt: Date }> = [];
 
   try {
     playerRows = await db
@@ -128,6 +136,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .from(agencyProfiles)
       .where(eq(agencyProfiles.isApproved, true));
+
+    // ----- Blog posts -----
+    // Solo posts publicados. updated_at refleja la última edición
+    // (vía trigger set_updated_at), así Google ve cambios post-publish.
+    blogRows = await db
+      .select({
+        slug: blogPosts.slug,
+        updatedAt: blogPosts.updatedAt,
+      })
+      .from(blogPosts)
+      .where(eq(blogPosts.status, "published"));
   } catch (err) {
     // If the DB is unreachable (build time without DATABASE_URL, or
     // misconfigured preview env), don't crash the build — return just
@@ -149,5 +168,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...playerEntries, ...agencyEntries];
+  const blogEntries: SitemapEntry[] = blogRows.map((p) => ({
+    url: `${base}/blog/${p.slug}`,
+    lastModified: p.updatedAt,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticEntries, ...playerEntries, ...agencyEntries, ...blogEntries];
 }
