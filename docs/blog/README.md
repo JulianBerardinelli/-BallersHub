@@ -32,12 +32,12 @@ Métrica de éxito: NO views del blog. Es **conversiones desde mid-funnel posts 
 ```
 1. Admin marca usuario como "blogger" → flag is_blogger=true
 2. Usuario blogger ve "Escribir artículo" en /blog (CTA gated)
-3. Click → /blog/escribir con editor TipTap
+3. Click → /blog/write con editor TipTap
 4. Save draft → guardado en blog_posts.status='draft'
 5. Submit → status='pending_review', email al admin (MVP-2)
 6. Admin entra a /admin/blog/pending → review
 7. Aprobado → status='published', published_at=now, aparece en /blog público + sitemap
-8. Rechazado → status='rejected' + rejection_reason, autor lo ve en /blog/borradores
+8. Rechazado → status='rejected' + rejection_reason, autor lo ve en /blog/drafts
 9. Autor edita un draft rechazado → re-submit → loop al paso 5
 10. Una vez publicado: solo admin puede editar (autor lo ve read-only)
 ```
@@ -155,10 +155,10 @@ NUNCA aplicar a prod desde agente sin autorización explícita.
 |---|---|---|
 | `/blog` | público | listing paginado de posts published |
 | `/blog/[slug]` | público | detail con Article JSON-LD |
-| `/blog/escribir` | gated `is_blogger=true` | editor TipTap para nuevo post |
-| `/blog/escribir/[id]` | gated owner | editor para editar draft existente |
-| `/blog/borradores` | gated `is_blogger=true` | lista de mis posts (draft/pending/published/rejected) |
-| `/blog/autores/[author-slug]` | público | author hub (MVP-2) |
+| `/blog/write` | gated `is_blogger=true` | editor TipTap para nuevo post |
+| `/blog/write/[id]` | gated owner | editor para editar draft existente |
+| `/blog/drafts` | gated `is_blogger=true` | lista de mis posts (draft/pending/published/rejected) |
+| `/blog/authors/[author-slug]` | público | author hub (MVP-2) |
 | `/admin/blog` | gated `is_admin=true` | listado completo (todos los estados) |
 | `/admin/blog/pending` | gated admin | queue de pending_review |
 | `/admin/blog/[id]` | gated admin | detalle + accept/reject/edit |
@@ -178,11 +178,11 @@ src/db/migrations/
 src/app/(site)/blog/
   page.tsx                                 ← listing público
   [slug]/page.tsx                          ← detail con Article JSON-LD
-  escribir/
+  write/
     page.tsx                               ← nuevo post (gated is_blogger)
     [id]/page.tsx                          ← editar draft (gated owner)
     actions.ts                             ← server actions: createDraft, saveDraft, submitForReview
-  borradores/
+  drafts/
     page.tsx                               ← lista de mis posts
 
 src/app/(dashboard)/admin/blog/
@@ -255,7 +255,7 @@ YouTube embed + tabla + emoji se evalúan para MVP-3 si los pide algún autor.
   "description": "...",
   "datePublished": "<published_at>",
   "dateModified": "<updated_at>",
-  "author": { "@id": "<base>/blog/autores/<author-slug>#person" },
+  "author": { "@id": "<base>/blog/authors/<author-slug>#person" },
   "publisher": { "@id": "<base>#organization" },
   "mainEntityOfPage": "<base>/blog/<slug>",
   "image": "<hero_image_url>",
@@ -329,7 +329,7 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 ## 11. Out of scope (NO entra en MVP-1)
 
 - Email notifications → MVP-2
-- Author hubs `/blog/autores/[slug]` con `ProfilePage` JSON-LD → MVP-2
+- Author hubs `/blog/authors/[slug]` con `ProfilePage` JSON-LD → MVP-2
 - Image upload integrado en TipTap (hero + inline) → MVP-2 (MVP-1 acepta solo hero image como input file separado)
 - Cluster hubs `/blog/cluster/[slug]` → MVP-3
 - YouTube/embeds en editor → MVP-3

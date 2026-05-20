@@ -261,7 +261,7 @@ Recordá: para dev usá `avhctddkbcneugtqqxxk`, para prod `erdvpcfjynkhcrqktozd`
 | Versión | Qué entra |
 |---|---|
 | **MVP-1** (actual) | Editor TipTap, drafts, submit, review queue, public blog, Article JSON-LD, sitemap extension |
-| **MVP-2** | Email notifications, author hubs `/blog/autores/[slug]` con `ProfilePage`, image upload integrado en TipTap |
+| **MVP-2** | Email notifications, author hubs `/blog/authors/[slug]` con `ProfilePage`, image upload integrado en TipTap |
 | **MVP-3** | UI de admin para togglear `is_blogger`, cluster hubs `/blog/cluster/[slug]`, YouTube embeds |
 
 Cosas que NO están en roadmap (decisión consciente):

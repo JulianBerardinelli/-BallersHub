@@ -18,7 +18,7 @@ Si no lo ves todavía, escribile a Julián por DM o WhatsApp para que active tu 
 
 1. Entrá a [/blog](/blog) logueado
 2. Click en **"Escribir artículo"** (botón visible solo si sos blogger)
-3. Se abre el editor en `/blog/escribir`
+3. Se abre el editor en `/blog/write`
 
 ### Paso 2 — Llenar el editor
 
@@ -35,7 +35,7 @@ Vas a ver estos campos obligatorios:
 
 ### Paso 3 — Guardar como borrador
 
-Mientras escribís, podés **"Guardar borrador"** en cualquier momento. Tus borradores quedan en [/blog/borradores](/blog/borradores) — solo vos los ves.
+Mientras escribís, podés **"Guardar borrador"** en cualquier momento. Tus borradores quedan en [/blog/drafts](/blog/drafts) — solo vos los ves.
 
 ### Paso 4 — Submit para review
 
@@ -43,7 +43,7 @@ Cuando terminás, click **"Enviar para revisión"**. El artículo pasa a estado 
 
 ### Paso 5 — Esperar resultado
 
-Vas a ver el estado del post en [/blog/borradores](/blog/borradores):
+Vas a ver el estado del post en [/blog/drafts](/blog/drafts):
 
 | Estado | Significa |
 |---|---|
@@ -56,7 +56,7 @@ Vas a ver el estado del post en [/blog/borradores](/blog/borradores):
 
 Si tu post quedó en `Rechazado`:
 
-1. Entrá al post desde `/blog/borradores`
+1. Entrá al post desde `/blog/drafts`
 2. Vas a ver una caja amarilla con el feedback de Julián (qué cambiar)
 3. Editás el contenido según las observaciones
 4. Click **"Enviar para revisión"** otra vez
@@ -144,7 +144,7 @@ Cierre + call-to-action: "Si querés armar tu propio portfolio profesional, [reg
 1. Tu post aparece en [/blog](/blog) como tarjeta en el listing
 2. Es accesible en `/blog/[tu-slug]`
 3. Google lo indexa eventualmente (1-7 días dependiendo de crawl frequency)
-4. Eventualmente vas a tener una página de autor `/blog/autores/[tu-slug]` con todos tus posts (MVP-2)
+4. Eventualmente vas a tener una página de autor `/blog/authors/[tu-slug]` con todos tus posts (MVP-2)
 5. Si tu post genera tráfico, te avisamos por DM con métricas (impresiones GSC, etc.)
 
 ---
