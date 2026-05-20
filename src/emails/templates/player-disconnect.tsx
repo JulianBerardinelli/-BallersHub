@@ -34,7 +34,7 @@ export default function PlayerDisconnectEmail({
 
       <EmailParagraph>
         El jugador <strong>{playerName}</strong> canceló su vinculación con la
-        agencia <strong>{agencyName}</strong> en 'BallersHub.
+        agencia <strong>{agencyName}</strong> en &apos;BallersHub.
       </EmailParagraph>
 
       <EmailParagraph tone="muted">
@@ -48,7 +48,7 @@ export default function PlayerDisconnectEmail({
       <EmailParagraph tone="subtle">
         Si pensás que esto es un error, contactá a tu jugador directamente.
         Las desvinculaciones son acciones del titular del perfil y no las
-        gestiona 'BallersHub.
+        gestiona &apos;BallersHub.
       </EmailParagraph>
     </EmailLayout>
   );

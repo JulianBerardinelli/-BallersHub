@@ -127,7 +127,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
               background: "#CCFF00",
             }}
           />
-          'BallersHub
+          &apos;BallersHub
         </div>
 
         <div
@@ -256,7 +256,7 @@ function brandOnlyCard(displayName: string) {
             marginBottom: 24,
           }}
         >
-          'BallersHub
+          &apos;BallersHub
         </div>
         <div
           style={{

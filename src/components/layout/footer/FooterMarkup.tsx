@@ -640,7 +640,7 @@ export default function FooterMarkup({
               gap: 8,
             }}
           >
-            <span>© {new Date().getFullYear()} 'BallersHub S.A. · Made in Buenos Aires</span>
+            <span>© {new Date().getFullYear()} &apos;BallersHub S.A. · Made in Buenos Aires</span>
             {showCredits && (
               <>
                 <span style={{ color: theme.fg4 }}>·</span>

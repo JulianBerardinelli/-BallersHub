@@ -73,7 +73,7 @@ export default function CompGrantWelcomeEmail({
       </EmailStep>
 
       <EmailStep index={2} title="No hay tarjeta ni facturación involucrada" badge="Sin cargo">
-        Esta cuenta está gestionada directamente por el equipo de 'BallersHub. No vas a recibir
+        Esta cuenta está gestionada directamente por el equipo de &apos;BallersHub. No vas a recibir
         cobros ni necesitás registrar un método de pago.
       </EmailStep>
 

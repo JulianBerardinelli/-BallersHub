@@ -143,7 +143,7 @@ export const NotificationCard = ({ notification, onDismiss }: NotificationCardPr
                     />
                     <div className="flex flex-col">
                       <span className="flex items-center gap-1 text-sm font-semibold text-white">
-                        'BallersHub Admin
+                        &apos;BallersHub Admin
                         <VerifiedBadge size={16} title="Cuenta verificada" />
                       </span>
                       <div className="flex items-center gap-2 text-xs text-neutral-400">

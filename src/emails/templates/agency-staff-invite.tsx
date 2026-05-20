@@ -34,7 +34,7 @@ export default function AgencyStaffInviteEmail({
 
       <EmailParagraph>
         <strong>{managerName}</strong> te invitó a formar parte del staff de la
-        agencia <strong>{agencyName}</strong> en 'BallersHub.
+        agencia <strong>{agencyName}</strong> en &apos;BallersHub.
       </EmailParagraph>
 
       <EmailParagraph tone="muted">

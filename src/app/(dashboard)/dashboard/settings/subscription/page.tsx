@@ -222,7 +222,7 @@ export default async function SubscriptionSettingsPage({
               <p className="flex items-start gap-2">
                 <Gift className="mt-0.5 size-4 shrink-0 text-bh-lime" />
                 <span>
-                  Esta suscripción está gestionada directamente por el equipo de 'BallersHub.
+                  Esta suscripción está gestionada directamente por el equipo de &apos;BallersHub.
                   Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a{" "}
                   <Link
                     href="mailto:billing@ballershub.app"
