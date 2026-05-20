@@ -36,3 +36,4 @@ export * from "./agencyPublishing";
 export * from "./agencyMedia";
 export * from "./agencyTeamRelations";
 export * from "./tutorialProgress";
+export * from "./blog";
