@@ -63,18 +63,28 @@ export function AdminReviewActions({ postId, currentStatus }: Props) {
               placeholder="Buen ángulo del tema, pero faltan 3 cosas: 1) ..."
               className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-2 px-3 py-2 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
             />
+            <p className="text-[11px] text-bh-fg-3">
+              Mínimo 20 caracteres. El feedback es lo único que el autor
+              va a ver al recibir el rechazo — sé específico.
+            </p>
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
+                if (reason.trim().length < 20) {
+                  setError(
+                    "El feedback debe tener al menos 20 caracteres. Sé específico para que el autor sepa qué cambiar.",
+                  );
+                  return;
+                }
                 run(() =>
                   reviewPost({
                     id: postId,
                     decision: "reject",
                     rejectionReason: reason,
                   }),
-                )
-              }
-              disabled={isPending || reason.trim().length < 20}
+                );
+              }}
+              disabled={isPending}
               className="w-full rounded-bh-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-red-200 hover:bg-red-500/20 disabled:opacity-50"
             >
               Rechazar con feedback

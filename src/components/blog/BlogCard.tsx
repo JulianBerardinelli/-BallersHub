@@ -2,7 +2,6 @@
 // Server component — no client interactivity needed.
 
 import Link from "next/link";
-import Image from "next/image";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import type { ListedBlogPost } from "@/lib/blog/posts";
 
@@ -15,12 +14,15 @@ export function BlogCard({ post }: { post: ListedBlogPost }) {
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-bh-surface-2">
         {post.heroImageUrl ? (
-          <Image
+          // Plain <img> for the same reason as /blog/[slug]/page.tsx —
+          // arbitrary external hosts. Will switch back to next/image
+          // when MVP-2 ships Supabase Storage upload for blog images.
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
             src={post.heroImageUrl}
             alt={post.title}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center text-bh-fg-3 text-xs">
