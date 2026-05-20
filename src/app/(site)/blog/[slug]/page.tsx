@@ -1,7 +1,6 @@
 // Public /blog/[slug] post detail.
 
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getAuthorsMap } from "@/lib/blog/posts";
@@ -121,14 +120,21 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       </header>
 
       {post.heroImageUrl && (
-        <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-bh-lg">
-          <Image
+        <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-bh-lg bg-bh-surface-2">
+          {/*
+            Plain <img> instead of next/image because blog authors paste
+            URLs from arbitrary hosts (Unsplash, news sites, AI-generated
+            images, etc.) and next/image requires every host in
+            remotePatterns. Image upload integrated to Supabase Storage
+            is MVP-2; once that ships we can switch back to <Image> since
+            *.supabase.co is already whitelisted.
+          */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src={post.heroImageUrl}
             alt={post.title}
-            fill
-            sizes="(min-width: 1024px) 768px, 100vw"
-            priority
-            className="object-cover"
+            loading="eager"
+            className="h-full w-full object-cover"
           />
         </div>
       )}
