@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     "Elegí el plan que potencia tu carrera o agencia. Free incluye perfil verificado y URL pública. Pro suma galería extendida, prensa, SEO avanzado y schema en JSON-LD.",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "Planes y precios — BallersHub",
+    title: "Planes y precios — 'BallersHub",
     description:
       "Free vs Pro para jugadores y agencias. Suscripción anual con trial de 7 días en Pro.",
     url: "/pricing",

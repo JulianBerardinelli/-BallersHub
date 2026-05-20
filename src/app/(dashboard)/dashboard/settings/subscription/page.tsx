@@ -38,7 +38,7 @@ type PageProps = {
 };
 
 export const metadata = {
-  title: "Suscripción · 'BallersHub",
+  title: "Suscripción",
   robots: { index: false, follow: false },
 };
 
@@ -102,9 +102,9 @@ export default async function SubscriptionSettingsPage({
   const planId = sub?.planId ?? planFromQuery ?? null;
   const planLabel =
     planId === "pro-agency"
-      ? "BallersHub Pro Agency"
+      ? "'BallersHub Pro Agency"
       : planId === "pro-player"
-      ? "BallersHub Pro Player"
+      ? "'BallersHub Pro Player"
       : "Free";
 
   const formattedAmount =
@@ -216,13 +216,13 @@ export default async function SubscriptionSettingsPage({
         isCompGrant ? (
           <SectionCard
             title="Cuenta de cortesía"
-            description="Tu acceso Pro fue activado por el equipo de BallersHub — no hay cobros asociados."
+            description="Tu acceso Pro fue activado por el equipo de 'BallersHub — no hay cobros asociados."
           >
             <div className="rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 p-4 text-[13px] text-bh-fg-2">
               <p className="flex items-start gap-2">
                 <Gift className="mt-0.5 size-4 shrink-0 text-bh-lime" />
                 <span>
-                  Esta suscripción está gestionada directamente por el equipo de BallersHub.
+                  Esta suscripción está gestionada directamente por el equipo de &apos;BallersHub.
                   Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a{" "}
                   <Link
                     href="mailto:billing@ballershub.app"

@@ -5,7 +5,7 @@
 // AI search engines an explicit entry point. Not standardized; we
 // implement the most-recommended shape from `llmstxt.org`.
 //
-// Strategy for BallersHub: enumerate all approved + public player and
+// Strategy for 'BallersHub: enumerate all approved + public player and
 // agency portfolios. Group them under H2 sections so the LLM can scan
 // the topical layout in seconds. Static marketing pages go at the top.
 //
@@ -48,15 +48,15 @@ export async function GET() {
   }
 
   const body = [
-    "# BallersHub",
+    "# 'BallersHub",
     "",
     "> Plataforma de portfolios profesionales para futbolistas y agencias de representación. Perfiles verificados con trayectoria, estadísticas, galería oficial y contacto.",
     "",
     "## Información de la marca",
     "",
-    `- [Inicio](${base}/): Página principal de BallersHub`,
+    `- [Inicio](${base}/): Página principal de 'BallersHub`,
     `- [Planes y precios](${base}/pricing): Comparativa Free vs Pro para jugadores y agencias`,
-    `- [Sobre BallersHub](${base}/about): Misión, equipo y contacto`,
+    `- [Sobre 'BallersHub](${base}/about): Misión, equipo y contacto`,
     "",
     "## Jugadores",
     "",

@@ -60,7 +60,7 @@ export default function PlayerPendingInvitesModal({ invites }: { invites: Pendin
         <ModalHeader className="flex flex-col gap-1 text-white">¡Nuevas oportunidades!</ModalHeader>
         <ModalBody className="text-neutral-300">
           <p>
-            La agencia <strong className="text-white">{activeInvite.agencyName}</strong> ha solicitado incluirte en su cartera de jugadores representados en BallersHub.
+            La agencia <strong className="text-white">{activeInvite.agencyName}</strong> ha solicitado incluirte en su cartera de jugadores representados en &apos;BallersHub.
           </p>
           {activeInvite.contractEndDate && (
             <p className="text-sm text-neutral-400">

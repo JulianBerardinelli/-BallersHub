@@ -43,7 +43,7 @@ export default function SubscriptionWelcomeEmail({
 }: SubscriptionWelcomeProps) {
   const firstName = (displayName || "").split(" ")[0] || displayName;
   const planLabel =
-    planId === "pro-agency" ? "BallersHub Pro Agency" : "BallersHub Pro Player";
+    planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
   const trialLine = trialEndsAt
     ? `Tu prueba gratuita corre hasta el ${formatDate(trialEndsAt)}. Si no cancelás antes, te cobramos automáticamente ${formattedAmount}.`
     : `Tu suscripción anual a ${planLabel} ya está activa por ${formattedAmount}.`;

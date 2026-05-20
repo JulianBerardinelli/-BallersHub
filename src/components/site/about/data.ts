@@ -116,7 +116,7 @@ export const ABOUT_HERO = {
   secondaryCta: { label: "Hablar con el equipo", href: "/contact" },
   /** Reservado para foto real del equipo en cancha. */
   imageSrc: undefined as string | undefined,
-  imageAlt: "Equipo BallersHub durante una jornada de scouting",
+  imageAlt: "Equipo 'BallersHub durante una jornada de scouting",
 } as const;
 
 /* ---------------------------------------------- */
@@ -150,7 +150,7 @@ export const PILLARS: Pillar[] = [
 ];
 
 /* ---------------------------------------------- */
-/* Audiencias — quién usa BallersHub              */
+/* Audiencias — quién usa 'BallersHub              */
 /* ---------------------------------------------- */
 /**
  * Dos grupos:
@@ -360,7 +360,7 @@ export const TEAM: TeamMember[] = [
   {
     name: "Julián Berardinelli",
     role: "Co-Founder & Desarrollador",
-    bio: "Jugador profesional de fútbol, ideador y desarrollador de BallersHub. Vivió en carne propia la falta de una plataforma seria para que un jugador se venda profesionalmente — así que decidió construirla. Combina cancha, código y producto para que cada portfolio se sienta hecho por alguien que entiende el deporte desde adentro.",
+    bio: "Jugador profesional de fútbol, ideador y desarrollador de 'BallersHub. Vivió en carne propia la falta de una plataforma seria para que un jugador se venda profesionalmente — así que decidió construirla. Combina cancha, código y producto para que cada portfolio se sienta hecho por alguien que entiende el deporte desde adentro.",
     initials: "JB",
     accent: "lime",
     imageSrc: undefined,
@@ -403,7 +403,7 @@ export const PARTNERS: Partner[] = [
 /* CTA final                                      */
 /* ---------------------------------------------- */
 export const ABOUT_CTA = {
-  eyebrow: "Sumate a BallersHub",
+  eyebrow: "Sumate a 'BallersHub",
   title: "Tu portfolio. Tu link. Tu carrera.",
   description:
     "Centralizá tu trayectoria, mostrá tus datos y posicionate en internet. Para jugadores que quieren venderse profesionalmente y para agencias que quieren escalar su identidad.",

@@ -25,7 +25,7 @@ export default function AgencyStaffInviteEmail({
 }: AgencyStaffInviteProps) {
   return (
     <EmailLayout
-      preheader={`${managerName} te invitó a unirte a ${agencyName} en BallersHub.`}
+      preheader={`${managerName} te invitó a unirte a ${agencyName} en 'BallersHub.`}
       recipientEmail={recipientEmail}
       unsubscribeToken={unsubscribeToken}
     >
@@ -34,7 +34,7 @@ export default function AgencyStaffInviteEmail({
 
       <EmailParagraph>
         <strong>{managerName}</strong> te invitó a formar parte del staff de la
-        agencia <strong>{agencyName}</strong> en BallersHub.
+        agencia <strong>{agencyName}</strong> en &apos;BallersHub.
       </EmailParagraph>
 
       <EmailParagraph tone="muted">

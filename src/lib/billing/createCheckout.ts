@@ -337,7 +337,7 @@ async function createMpCheckout(args: {
 // ---------------------------------------------------------------
 
 function planLabel(planId: CheckoutPlanId): string {
-  return planId === "pro-agency" ? "BallersHub Pro Agency" : "BallersHub Pro Player";
+  return planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
 }
 
 function planDescription(planId: CheckoutPlanId): string {

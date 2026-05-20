@@ -1,5 +1,5 @@
 /**
- * Email design tokens — BallersHub.
+ * Email design tokens — 'BallersHub.
  *
  * Mirrors `--bh-*` CSS variables defined in `src/styles/globals.css` but
  * resolved to email-safe HEX values (no CSS variables, no transparency
@@ -21,7 +21,7 @@
  */
 
 export const senderEmail = "info@ballershub.co";
-export const senderName = "BallersHub";
+export const senderName = "'BallersHub";
 export const senderFrom = `${senderName} <${senderEmail}>`;
 export const supportEmail = senderEmail;
 export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://ballershub.co";

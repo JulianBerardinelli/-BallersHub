@@ -32,7 +32,7 @@ export default function FreeHeader({
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share({
           title: `Perfil de ${fullName}`,
-          text: `Mira el perfil profesional de ${fullName} en BallersHub.`,
+          text: `Mira el perfil profesional de ${fullName} en 'BallersHub.`,
           url: window.location.href,
         });
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -85,10 +85,10 @@ export default function FreeHeader({
       className="fixed top-0 left-0 w-full z-[100] pt-4 md:pt-6 px-4 md:px-6 lg:px-12 pointer-events-none"
     >
       <div className="relative w-full max-w-[1400px] mx-auto flex items-center justify-center">
-        {/* LEFT: Back to BallersHub */}
+        {/* LEFT: Back to 'BallersHub */}
         <Link
           href="/"
-          aria-label="Volver a BallersHub"
+          aria-label="Volver a 'BallersHub"
           className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-start group"
         >
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold flex items-center gap-1.5 group-hover:text-white/80 transition-colors">

@@ -76,8 +76,13 @@ function buildSeoDescription(p: {
   if (p.positions && p.positions.length > 0) segments.push(formatPlayerPositions(p.positions));
   if (p.currentClub) segments.push(p.currentClub);
   if (p.nationality && p.nationality.length > 0) segments.push(p.nationality.join(" / "));
-  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en BallersHub.`;
+  return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en 'BallersHub.`;
 }
+
+// Below this bio length we soft-noindex Free portfolios so thin profiles
+// don't drag the whole site quality score. Pro portfolios are always
+// indexable — they pay for the SERP slot. See seo-strategy.md §5 Track C.
+const FREE_BIO_INDEX_MIN_CHARS = 100;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
@@ -85,6 +90,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     where: (p, { and, eq }) =>
       and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
     columns: {
+      userId: true,
       fullName: true,
       bio: true,
       positions: true,
@@ -100,6 +106,46 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     };
   }
 
+  // Resolve Pro vs Free to decide whether thin Free profiles should be
+  // noindexed. We only run the subscription query when the bio is
+  // actually short — common case is "bio is fine, no extra query".
+  const bioLen = player.bio?.trim().length ?? 0;
+  let softNoindex = false;
+  if (bioLen < FREE_BIO_INDEX_MIN_CHARS) {
+    const sub = await db.query.subscriptions.findFirst({
+      where: (s, { eq }) => eq(s.userId, player.userId),
+      columns: {
+        plan: true,
+        planId: true,
+        status: true,
+        statusV2: true,
+        processor: true,
+        processorSubscriptionId: true,
+        currentPeriodEnd: true,
+        cancelAtPeriodEnd: true,
+      },
+    });
+    const planAccess = resolvePlanAccess(
+      sub
+        ? {
+            plan: sub.plan,
+            planId: sub.planId,
+            status: sub.status,
+            statusV2: sub.statusV2,
+            processor: sub.processor,
+            processorSubscriptionId: sub.processorSubscriptionId,
+            currentPeriodEnd: sub.currentPeriodEnd
+              ? sub.currentPeriodEnd.toISOString()
+              : null,
+            cancelAtPeriodEnd: sub.cancelAtPeriodEnd ?? false,
+            trialEndsAt: null,
+            canceledAt: null,
+          }
+        : null,
+    );
+    softNoindex = planAccess.isFree;
+  }
+
   const title = buildSeoTitle(player);
   const description = buildSeoDescription(player);
   const canonical = `/${slug}`;
@@ -108,12 +154,13 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     title,
     description,
     alternates: { canonical },
+    ...(softNoindex && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
       url: canonical,
       type: "profile",
-      siteName: "BallersHub",
+      siteName: "'BallersHub",
       locale: "es_AR",
       images: player.avatarUrl
         ? [{ url: player.avatarUrl, alt: player.fullName }]

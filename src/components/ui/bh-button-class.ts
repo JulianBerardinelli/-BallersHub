@@ -1,4 +1,4 @@
-// Pure className helper for the BallersHub button visual.
+// Pure className helper for the 'BallersHub button visual.
 // Server-safe: callable from server components and from `"use client"` files.
 
 export type BhButtonVariant =

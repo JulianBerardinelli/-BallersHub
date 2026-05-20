@@ -5,7 +5,7 @@ const TESTIMONIALS = [
     name: "María López",
     role: "Extremo · Primera División Femenina",
     quote:
-      "BallersHub me permitió centralizar videos y referencias en minutos. Ahora cada contacto recibe información actualizada.",
+      "'BallersHub me permitió centralizar videos y referencias en minutos. Ahora cada contacto recibe información actualizada.",
   },
   {
     name: "Sebastián Duarte",

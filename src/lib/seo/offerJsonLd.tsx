@@ -84,10 +84,10 @@ export function OfferJsonLd() {
   const payload = {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: "BallersHub — Suscripciones",
+    name: "'BallersHub — Suscripciones",
     description:
-      "Acceso a perfiles profesionales en BallersHub. Plan Free disponible para jugadores y agencias; Pro desbloquea galería extendida, prensa curada, SEO avanzado y schema verificable.",
-    brand: { "@type": "Brand", name: "BallersHub" },
+      "Acceso a perfiles profesionales en 'BallersHub. Plan Free disponible para jugadores y agencias; Pro desbloquea galería extendida, prensa curada, SEO avanzado y schema verificable.",
+    brand: { "@type": "Brand", name: "'BallersHub" },
     url: pricingUrl,
     offers: buildOffers(),
   };

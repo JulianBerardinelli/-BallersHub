@@ -11,7 +11,7 @@
 //   Instagram, the receiving platform fetches this image and shows it
 //   as the rich preview. A branded, personalized card converts far
 //   better than a generic site logo — both for the player (more clicks
-//   back to their portfolio) and for BallersHub (impression with logo
+//   back to their portfolio) and for 'BallersHub (impression with logo
 //   on every share, regardless of click-through).
 //
 // Implementation notes:
@@ -63,7 +63,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
   });
 
   if (!player) {
-    return brandOnlyCard("BallersHub");
+    return brandOnlyCard("'BallersHub");
   }
 
   const sub = await db.query.subscriptions.findFirst({
@@ -79,7 +79,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
   if (!isPro) {
     // Free tier — render a lean brand card with just the name. We
     // could `return null` to fall through to the static layout OG,
-    // but that yields the generic "BallersHub" image for every Free
+    // but that yields the generic "'BallersHub" image for every Free
     // player. Showing the name is still better SEO than nothing.
     return brandOnlyCard(player.fullName);
   }
@@ -127,7 +127,7 @@ export default async function OpenGraphImage({ params }: { params: Params }) {
               background: "#CCFF00",
             }}
           />
-          BallersHub
+          &apos;BallersHub
         </div>
 
         <div
@@ -256,7 +256,7 @@ function brandOnlyCard(displayName: string) {
             marginBottom: 24,
           }}
         >
-          BallersHub
+          &apos;BallersHub
         </div>
         <div
           style={{

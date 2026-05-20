@@ -33,7 +33,7 @@ function buildAgencyDescription(agency: {
     const lastSpace = cut.lastIndexOf(" ");
     return `${cut.slice(0, lastSpace > 0 ? lastSpace : 158)}…`;
   }
-  return `Perfil oficial de ${agency.name} en BallersHub — cartera de jugadores representados, staff, países operativos y contacto verificado.`;
+  return `Perfil oficial de ${agency.name} en 'BallersHub — cartera de jugadores representados, staff, países operativos y contacto verificado.`;
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -71,7 +71,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       description,
       url: canonical,
       type: "website",
-      siteName: "BallersHub",
+      siteName: "'BallersHub",
       locale: "es_AR",
       images: agency.logoUrl
         ? [{ url: agency.logoUrl, alt: agency.name }]

@@ -33,7 +33,7 @@ export default function ProAgencyHeader({ agency }: Props) {
       if (navigator.share) {
         await navigator.share({
           title: `Agencia ${agency.name}`,
-          text: `Conocé el portfolio profesional de ${agency.name} en BallersHub.`,
+          text: `Conocé el portfolio profesional de ${agency.name} en 'BallersHub.`,
           url: window.location.href,
         });
       } else if (navigator.clipboard) {
@@ -87,7 +87,7 @@ export default function ProAgencyHeader({ agency }: Props) {
       <div className="relative w-full max-w-[1400px] mx-auto flex items-center justify-center">
         <Link
           href="/"
-          aria-label="Volver a BallersHub"
+          aria-label="Volver a 'BallersHub"
           className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-start group"
         >
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold flex items-center gap-1.5 group-hover:text-white/80 transition-colors">

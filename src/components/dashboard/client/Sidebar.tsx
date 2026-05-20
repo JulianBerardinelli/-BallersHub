@@ -63,7 +63,7 @@ export default function ClientDashboardSidebar({
             <>
               <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en &apos;BallersHub?</p>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose} isDisabled={pending} className="text-bh-fg-3">
@@ -118,7 +118,7 @@ export function ClientDashboardSidebarMobile({
             <>
               <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en &apos;BallersHub?</p>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onModalClose} isDisabled={pending} className="text-bh-fg-3">
