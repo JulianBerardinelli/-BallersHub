@@ -22,6 +22,7 @@ import ContactPortfolioModule from "./modules/ContactPortfolioModule";
 export type PublicProfileData = {
   player: Record<string, unknown> & {
     id: string; // Used for fetching relations in modules
+    userId: string; // Owner check for the hero-missing placeholder card
     fullName: string;
     avatarUrl?: string | null;
     heroUrl?: string | null;

@@ -1,12 +1,17 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { ArrowUpRight, ImagePlus } from "lucide-react";
 import type { PublicProfileData } from "./LayoutResolver";
 import ProPlayerHeader from "./ProPlayerHeader";
 import { formatPlayerPositions } from "@/lib/format";
+
+// Code-split the missing-hero placeholder. It carries the supabase browser
+// client (to detect owner vs visitor) and four view variants. The vast
+// majority of Pro Athlete renders DO have a heroUrl, so this chunk should
+// never enter their bundle.
+const HeroPlaceholderCard = dynamic(() => import("./HeroPlaceholderCard"));
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player } = data;
@@ -19,43 +24,10 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
   // means useScroll only mounts in the branch where the ref actually exists.
   if (!player.heroUrl) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center px-6 py-16">
-        <div className="max-w-lg space-y-5 rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur md:p-10">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-bh-lime/30 bg-bh-lime/10 px-3 py-1 font-bh-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-bh-lime">
-            <ImagePlus size={11} />
-            Hero asset pendiente
-          </span>
-          <h2 className="font-bh-display text-2xl font-black uppercase leading-tight text-bh-fg-1 md:text-3xl">
-            Subí tu recorte para activar la plantilla Pro
-          </h2>
-          <p className="text-sm leading-[1.6] text-bh-fg-3">
-            La plantilla{" "}
-            <span className="font-semibold text-bh-fg-1">Pro Athlete</span>{" "}
-            necesita un PNG con tu silueta recortada para renderizar el hero
-            cinemático. Cargalo desde la sección{" "}
-            <span className="font-semibold text-bh-fg-1">Multimedia</span> del
-            dashboard y tu perfil público se actualizará al instante. Si
-            preferís publicar ya sin foto, podés cambiar a la plantilla{" "}
-            <span className="font-semibold text-bh-fg-1">Free Editorial</span>{" "}
-            desde Estilos.
-          </p>
-          <div className="flex flex-col items-center justify-center gap-2 pt-1 sm:flex-row sm:gap-3">
-            <Link
-              href="/dashboard/edit-profile/multimedia"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-bh-lime px-5 py-2.5 font-body text-sm font-semibold text-bh-black transition-colors hover:bg-[#d8ff26] sm:w-auto"
-            >
-              Ir a Multimedia
-              <ArrowUpRight size={16} />
-            </Link>
-            <Link
-              href="/dashboard/edit-template/styles"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 font-body text-sm font-semibold text-bh-fg-2 transition-colors hover:bg-white/[0.08] hover:text-bh-fg-1 sm:w-auto"
-            >
-              Cambiar a Free Editorial
-            </Link>
-          </div>
-        </div>
-      </div>
+      <HeroPlaceholderCard
+        ownerUserId={player.userId}
+        playerName={player.fullName}
+      />
     );
   }
 
