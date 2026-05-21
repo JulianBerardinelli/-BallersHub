@@ -1,6 +1,21 @@
 import { NextResponse } from "next/server";
+import sharp from "sharp";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
+
+// Accepted MIME types for catalog photo uploads. AVIF is accepted as-is
+// (already optimized); other rasters are transcoded to AVIF server-side.
+const ACCEPTED_IMAGE_MIME = new Set([
+  "image/avif",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+]);
+
+// Sharp AVIF quality. 60 is a good "visually lossless for portraits"
+// preset — AVIF at q60 typically beats JPEG q85 in both size and quality.
+const AVIF_QUALITY = 60;
 
 /**
  * Compose a meaningful default alt-text for a media item when the
@@ -69,6 +84,18 @@ export async function POST(req: Request) {
     const isPrimary = formData.get("isPrimary") === "true";
     const rawAltText = formData.get("altText") as string | null;
     const tagsString = formData.get("tags") as string | null;
+    const rawSeasonYear = formData.get("seasonYear") as string | null;
+
+    // Parse season_year. Only meaningful for type=video; ignored otherwise.
+    // Sanity bounds: 1900–2100 (catches typos like 20245 / "abc"). NULL when
+    // not provided or invalid so the column stays nullable for legacy rows.
+    let seasonYear: number | null = null;
+    if (type === "video" && rawSeasonYear && rawSeasonYear.trim()) {
+      const parsed = parseInt(rawSeasonYear.trim(), 10);
+      if (Number.isFinite(parsed) && parsed >= 1900 && parsed <= 2100) {
+        seasonYear = parsed;
+      }
+    }
 
     // Server-default alt-text: when the form omits/empties altText,
     // synthesize one from the player's name + position + current club.
@@ -97,7 +124,8 @@ export async function POST(req: Request) {
 
     // Upload local file if provided
     if (file && !url) {
-      // Validate file size (5MB for images, 50MB for videos)
+      // Validate file size (5MB for images pre-transcode; AVIF output is
+      // smaller). Video file uploads stay Pro-only.
       const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 
       if (type === "photo" && file.size > MAX_IMAGE_SIZE) {
@@ -107,14 +135,49 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "La subida de archivos de video está reservada para usuarios Pro. Por favor, utiliza un link de YouTube o Vimeo." }, { status: 403 });
       }
 
-      // Upload to Supabase Storage
-      const fileExt = file.name.split(".").pop();
-      const fileName = `gallery/${user.id}/${crypto.randomUUID()}.${fileExt}`;
+      const mimeType = file.type.toLowerCase();
+      if (type === "photo" && !ACCEPTED_IMAGE_MIME.has(mimeType)) {
+        return NextResponse.json(
+          { error: "Formato no soportado. Subí JPG, PNG, WebP o AVIF." },
+          { status: 400 },
+        );
+      }
 
-      // Assume bucket name is 'player-media'
+      // Transcode JPG/PNG/WebP to AVIF for catalog storage savings + faster
+      // public renders. Already-AVIF files pass through untouched.
+      let uploadBuffer: Buffer;
+      let uploadContentType: string;
+      if (mimeType === "image/avif") {
+        uploadBuffer = Buffer.from(await file.arrayBuffer());
+        uploadContentType = "image/avif";
+      } else {
+        try {
+          const input = Buffer.from(await file.arrayBuffer());
+          uploadBuffer = await sharp(input)
+            .rotate() // honor EXIF orientation before re-encoding
+            .avif({ quality: AVIF_QUALITY, effort: 4 })
+            .toBuffer();
+          uploadContentType = "image/avif";
+        } catch (transcodeError) {
+          console.error("AVIF transcode error:", transcodeError);
+          return NextResponse.json(
+            { error: "No se pudo procesar la imagen. Probá con otro archivo." },
+            { status: 400 },
+          );
+        }
+      }
+
+      // Always store with .avif extension since the bytes are always AVIF
+      // after the branch above.
+      const fileName = `gallery/${user.id}/${crypto.randomUUID()}.avif`;
+
       const { error: uploadError } = await supabase.storage
         .from("player-media")
-        .upload(fileName, file);
+        .upload(fileName, uploadBuffer, {
+          contentType: uploadContentType,
+          cacheControl: "31536000",
+          upsert: false,
+        });
 
       if (uploadError) {
         console.error("Storage upload error:", uploadError);
@@ -141,6 +204,7 @@ export async function POST(req: Request) {
         alt_text: altText,
         tags,
         provider,
+        season_year: seasonYear,
         is_primary: isPrimary,
         is_approved: true, // Reactive mode
         is_flagged: false,

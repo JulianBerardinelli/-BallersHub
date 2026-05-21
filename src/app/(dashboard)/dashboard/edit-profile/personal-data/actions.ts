@@ -9,6 +9,11 @@ import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
 
 const DASHBOARD_ROUTE = "/dashboard/edit-profile/personal-data";
 
+// Education is a free-text line (think "Secundaria completa", "Licenciado en
+// Educación Física"). Cap at 200 chars so the field stays a single phrase and
+// doesn't grow into a second bio.
+const EDUCATION_MAX_LENGTH = 200;
+
 const basicInfoSchema = z.object({
   playerId: z.string().uuid(),
   fullName: z.string().trim().optional(),
@@ -18,6 +23,11 @@ const basicInfoSchema = z.object({
   heightCm: z.string().trim().optional(),
   weightKg: z.string().trim().optional(),
   bio: z.string().trim().optional(),
+  education: z
+    .string()
+    .trim()
+    .max(EDUCATION_MAX_LENGTH, `La educación no puede superar los ${EDUCATION_MAX_LENGTH} caracteres.`)
+    .optional(),
 });
 
 const contactInfoSchema = z.object({
@@ -43,6 +53,7 @@ type BasicInfoResponse = {
   heightCm: string;
   weightKg: string;
   bio: string;
+  education: string;
 };
 
 type ContactInfoResponse = {
@@ -369,6 +380,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
         heightCm: fieldErrors.heightCm?.[0],
         weightKg: fieldErrors.weightKg?.[0],
         bio: fieldErrors.bio?.[0],
+        education: fieldErrors.education?.[0],
       },
     };
   }
@@ -382,6 +394,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
   const fieldErrors: Record<string, string | undefined> = {};
 
   const bio = sanitizeText(parsed.data.bio);
+  const education = sanitizeText(parsed.data.education);
 
   const birthDateResult = parseBirthDate(parsed.data.birthDate);
   if (birthDateResult.error) {
@@ -429,13 +442,14 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
 
   const { data: personalBefore } = await ownership.supabase
     .from("player_personal_details")
-    .select("id, residence_city, residence_country, residence_country_code")
+    .select("id, residence_city, residence_country, residence_country_code, education")
     .eq("player_id", parsed.data.playerId)
     .maybeSingle<{
       id: string;
       residence_city: string | null;
       residence_country: string | null;
       residence_country_code: string | null;
+      education: string | null;
     }>();
 
   const profilePayload = {
@@ -459,6 +473,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
     residence_city: residenceResult.city,
     residence_country: residenceResult.countryName,
     residence_country_code: residenceResult.countryCode,
+    education,
   };
 
   const { error: personalError } = await ownership.supabase
@@ -490,6 +505,11 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
   if ((profileBefore?.bio ?? null) !== (bio ?? null)) {
     changes.push({ field: "bio", oldValue: profileBefore?.bio, newValue: bio });
     updatedFields.add("Biografía");
+  }
+
+  if ((personalBefore?.education ?? null) !== (education ?? null)) {
+    changes.push({ field: "education", oldValue: personalBefore?.education ?? null, newValue: education });
+    updatedFields.add("Educación");
   }
 
   if (
@@ -536,6 +556,7 @@ export async function updateBasicInformation(input: z.infer<typeof basicInfoSche
       heightCm: heightResult.display,
       weightKg: weightResult.display,
       bio: bio ?? "",
+      education: education ?? "",
     },
     updatedFields: Array.from(updatedFields),
   };

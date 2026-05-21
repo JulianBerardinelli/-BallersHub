@@ -19,7 +19,10 @@ type BasicInfoFormValues = {
   heightCm: string;
   weightKg: string;
   bio: string;
+  education: string;
 };
+
+const EDUCATION_MAX_LENGTH = 200;
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
@@ -86,6 +89,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
         heightCm: values.heightCm,
         weightKg: values.weightKg,
         bio: values.bio,
+        education: values.education,
       });
 
       if (!result.success) {
@@ -212,6 +216,23 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           defaultValue={defaults.bio}
           errorMessage={errors.bio?.message}
           {...register("bio")}
+        />
+        <FormField
+          key={`education-${defaults.education}`}
+          id="education"
+          label="Educación"
+          placeholder="Ej: Secundaria completa, Licenciado en Educación Física, etc."
+          description={`Nivel educativo o título alcanzado. Máx. ${EDUCATION_MAX_LENGTH} caracteres.`}
+          maxLength={EDUCATION_MAX_LENGTH}
+          readOnly={!isEditing}
+          defaultValue={defaults.education}
+          errorMessage={errors.education?.message}
+          {...register("education", {
+            maxLength: {
+              value: EDUCATION_MAX_LENGTH,
+              message: `La educación no puede superar los ${EDUCATION_MAX_LENGTH} caracteres.`,
+            },
+          })}
         />
 
         {status ? (

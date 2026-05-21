@@ -40,6 +40,7 @@ export type DashboardPersonalDetails = {
   residence_country_code: string | null;
   whatsapp: string | null;
   show_contact_section: boolean | null;
+  education: string | null;
 };
 
 export type DashboardApplication = {
@@ -115,6 +116,7 @@ type DashboardStateRow = {
   personal_residence_country_code: string | null;
   personal_whatsapp: string | null;
   personal_show_contact_section: boolean | null;
+  personal_education: string | null;
   application_id: string | null;
   application_status: string | null;
   application_created_at: string | null;
@@ -167,6 +169,7 @@ const DASHBOARD_STATE_COLUMNS = [
   "personal_residence_country_code",
   "personal_whatsapp",
   "personal_show_contact_section",
+  "personal_education",
   "application_id",
   "application_status",
   "application_created_at",
@@ -324,6 +327,7 @@ async function fetchDashboardStateFromBaseTables(
     residence_country_code: string | null;
     whatsapp: string | null;
     show_contact_section: boolean | null;
+    education: string | null;
   };
 
   type ApplicationRow = {
@@ -403,6 +407,7 @@ async function fetchDashboardStateFromBaseTables(
               "residence_country_code",
               "whatsapp",
               "show_contact_section",
+              "education",
             ].join(", "),
           )
           .eq("player_id", profileRow.id)
@@ -502,6 +507,7 @@ async function fetchDashboardStateFromBaseTables(
           personal_residence_country_code: personalDetailsResult.data?.residence_country_code ?? null,
           personal_whatsapp: personalDetailsResult.data?.whatsapp ?? null,
           personal_show_contact_section: personalDetailsResult.data?.show_contact_section ?? null,
+          personal_education: personalDetailsResult.data?.education ?? null,
           application_id: applicationResult.data?.id ?? null,
           application_status: applicationResult.data?.status ?? null,
           application_created_at: applicationResult.data?.created_at ?? null,
@@ -579,6 +585,7 @@ function mapDashboardStateRow(
         residence_country_code: row.personal_residence_country_code,
         whatsapp: row.personal_whatsapp,
         show_contact_section: row.personal_show_contact_section,
+        education: row.personal_education,
       }
     : null;
 
