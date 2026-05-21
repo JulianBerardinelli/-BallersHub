@@ -66,10 +66,19 @@ export type PublicProfileData = {
     currentDivisionName: string | null;
     currentDivisionCrestUrl: string | null;
   } | null;
+  /**
+   * Owner-only nudge eligibility signal. When the profile owner has a Pro
+   * subscription AND is currently rendering Free (theme.layout === "free"),
+   * page.tsx sets this to `player.userId`. The Free layout then mounts a
+   * floating banner that does a client-side session check and only displays
+   * when the viewer is the owner. Set to null/undefined for ineligible
+   * profiles so the nudge stays fully absent from the DOM.
+   */
+  ownerProUpgradeNudgeUserId?: string | null;
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
-  const { player, theme, limits, articles, plan, freeData, pressLayout } = data;
+  const { player, theme, limits, articles, plan, freeData, pressLayout, ownerProUpgradeNudgeUserId } = data;
 
   // Free-tier players ALWAYS get the editorial dossier, regardless of
   // whatever `theme.layout` they had selected. The pro variants are
@@ -121,14 +130,18 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
           career: freeData?.career ?? [],
           video: freeData?.video ?? null,
         }}
+        ownerProUpgradeNudgeUserId={ownerProUpgradeNudgeUserId ?? null}
       />
     );
   }
 
-  // Pro tier always renders the Pro Athlete layout. Legacy `theme.layout`
-  // values (`futuristic`, `minimalist`, `vintage`) are ignored — the column
-  // is preserved in DB but no longer respected (see
-  // `project_dashboard_plan_gating.md`).
+  // `plan` here is the already-resolved effective layout coming from
+  // page.tsx. The Free/Pro routing decision (which respects both the
+  // subscription AND `theme.layout` so Pro users can opt back into the
+  // Free editorial dossier) lives in page.tsx; this branch just renders
+  // the Pro layout for non-free plans. Legacy `theme.layout` values
+  // (`futuristic`, `minimalist`, `vintage`) are ignored — the column is
+  // preserved in DB but no longer drives layout choice from here.
   const primaryColor = theme?.primaryColor || "#0a0a0a";
   const accentColor = theme?.accentColor || "#10b981";
   const backgroundColor = (theme as Record<string, unknown>)?.backgroundColor as string | undefined;
