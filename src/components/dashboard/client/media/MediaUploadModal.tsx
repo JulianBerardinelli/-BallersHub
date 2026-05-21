@@ -73,13 +73,16 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext,
       }
       features={{ videos: true, photos: !videoOnly, tags: true, isPrimary: !videoOnly }}
       seo={seo}
-      onSubmit={async ({ type, file, videoUrl, title, altText, tags, isPrimary, provider }) => {
+      onSubmit={async ({ type, file, videoUrl, title, altText, tags, isPrimary, provider, seasonYear }) => {
         const formData = new FormData();
         formData.append("type", type);
         formData.append("title", title);
         formData.append("altText", altText);
         formData.append("tags", tags);
         formData.append("isPrimary", String(isPrimary));
+        if (type === "video" && seasonYear != null) {
+          formData.append("seasonYear", String(seasonYear));
+        }
 
         if (file) {
           formData.append("file", file);

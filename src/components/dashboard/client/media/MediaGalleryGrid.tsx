@@ -121,7 +121,9 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
                   {item.title || (item.type === "photo" ? "Fotografía sin título" : "Video sin título")}
                 </p>
                 <p className="font-bh-mono text-[11px] text-bh-fg-4">
-                  {new Date(item.createdAt).toLocaleDateString()}
+                  {item.type === "video" && item.seasonYear
+                    ? `Temporada ${item.seasonYear} · ${new Date(item.createdAt).toLocaleDateString()}`
+                    : new Date(item.createdAt).toLocaleDateString()}
                 </p>
                 {isFlagged && (
                   <p className="mt-2 text-[11px] text-bh-danger">
