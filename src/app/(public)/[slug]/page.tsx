@@ -483,6 +483,14 @@ export default async function PlayerPublicPage({
         typography: "syncopate",
       },
     plan,
+    // Owner-only upgrade nudge: when the player has a Pro subscription but
+    // is currently rendering Free (because they chose theme.layout='free'),
+    // we expose their userId to the client so the floating banner can
+    // verify the viewer's session matches and only then show itself.
+    // For Free-subscription players, this stays null and the nudge code
+    // path is fully absent from the page.
+    ownerProUpgradeNudgeUserId:
+      isFree && subscriptionPlan === "pro" ? player.userId : null,
     freeData: isFree
       ? {
           personal: freePersonal,

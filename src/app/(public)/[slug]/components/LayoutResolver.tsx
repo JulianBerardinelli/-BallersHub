@@ -66,10 +66,19 @@ export type PublicProfileData = {
     currentDivisionName: string | null;
     currentDivisionCrestUrl: string | null;
   } | null;
+  /**
+   * Owner-only nudge eligibility signal. When the profile owner has a Pro
+   * subscription AND is currently rendering Free (theme.layout === "free"),
+   * page.tsx sets this to `player.userId`. The Free layout then mounts a
+   * floating banner that does a client-side session check and only displays
+   * when the viewer is the owner. Set to null/undefined for ineligible
+   * profiles so the nudge stays fully absent from the DOM.
+   */
+  ownerProUpgradeNudgeUserId?: string | null;
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
-  const { player, theme, limits, articles, plan, freeData, pressLayout } = data;
+  const { player, theme, limits, articles, plan, freeData, pressLayout, ownerProUpgradeNudgeUserId } = data;
 
   // Free-tier players ALWAYS get the editorial dossier, regardless of
   // whatever `theme.layout` they had selected. The pro variants are
@@ -121,6 +130,7 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
           career: freeData?.career ?? [],
           video: freeData?.video ?? null,
         }}
+        ownerProUpgradeNudgeUserId={ownerProUpgradeNudgeUserId ?? null}
       />
     );
   }

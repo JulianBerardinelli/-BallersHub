@@ -30,6 +30,7 @@ import LockedBanner from "./LockedBanner";
 import CountUp, { CountBar } from "./CountUp";
 import { pillsFromPositions, type PositionPill } from "./positions";
 import FreeHeader from "./FreeHeader";
+import OwnerProUpgradeNudge from "./OwnerProUpgradeNudge";
 import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import BeSoccerIcon from "@/components/icons/BeSoccerIcon";
 import FlashscoreIcon from "@/components/icons/FlashscoreIcon";
@@ -123,7 +124,22 @@ export type FreeLayoutData = {
 // Top-level layout
 // ---------------------------------------------------------------
 
-export default function FreeLayout({ data }: { data: FreeLayoutData }) {
+export default function FreeLayout({
+  data,
+  ownerProUpgradeNudgeUserId = null,
+}: {
+  data: FreeLayoutData;
+  /**
+   * Renders a floating owner-only invitation to switch back to the Pro
+   * Athlete layout. Pass the owner's userId only when the profile is
+   * eligible (owner has Pro subscription AND theme.layout === "free");
+   * pass null/undefined otherwise. The nudge itself does the client-side
+   * session check so public visitors never see it. Keeping the prop null
+   * for ineligible profiles means the component (and its supabase auth
+   * roundtrip) is fully absent from the page.
+   */
+  ownerProUpgradeNudgeUserId?: string | null;
+}) {
   const { player, personal, career, video } = data;
   const { firstName, lastName } = splitName(player.fullName);
   const positionPills = pillsFromPositions(player.positions);
@@ -235,6 +251,14 @@ export default function FreeLayout({ data }: { data: FreeLayoutData }) {
         {/* ---------- Footer ---------- */}
         <Footer fullName={player.fullName} year={yearNow} />
       </div>
+
+      {/* Owner-only floating nudge — only mounted when the parent confirms
+          the profile is eligible (owner has Pro subscription AND chose
+          theme.layout === "free"). The component itself does the
+          client-side session check so public visitors never see it. */}
+      {ownerProUpgradeNudgeUserId ? (
+        <OwnerProUpgradeNudge ownerUserId={ownerProUpgradeNudgeUserId} />
+      ) : null}
     </div>
   );
 }
