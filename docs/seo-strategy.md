@@ -1,11 +1,11 @@
 # 'BallersHub — SEO Strategy
 
-> **Status:** Phase 1 (foundation) in progress on branch `claude/xenodochial-buck-896eb9`. Phases 2–4 not started.
+> **Status:** **Phases 1 + 2 deployed to prod**. Phase 3 gated by ≥200 Pro profiles. Phase 4 in months 4-6.
 > **Owner:** @julian-berardinelli
-> **Last updated:** 2026-05-14
+> **Last updated:** 2026-05-21
 > **Generated from:** `/claude-seo:seo plan saas` skill output + manual codebase audit.
 
-> When this strategy changes, **update this doc first**. The implementation handoff lives in [`seo-per-player-handoff.md`](./seo-per-player-handoff.md). The pricing matrix §E is the contractual source of truth for what Free vs Pro get — this strategy can never violate it.
+> When this strategy changes, **update this doc first**. The implementation handoff for player/agency pages lives in [`seo-per-player-handoff.md`](./seo-per-player-handoff.md). The blog editorial system (Phase 2 Track B) lives in [`blog/README.md`](./blog/README.md). The pricing matrix §E is the contractual source of truth for what Free vs Pro get — this strategy can never violate it.
 
 ---
 
@@ -84,27 +84,47 @@ The textbook SaaS tree (`/features/*`, `/solutions/*`, `/integrations/*`) does *
 - `/about` — team Person entities, mission, contact, founding date. This is where E-E-A-T lives.
 - `/legal/*` — keep crawlable as trust signal.
 
-### Track B — Editorial blog (`/blog`)
+### Track B — Editorial blog (`/blog`) ✅ IMPLEMENTED
+
+**Live: <https://ballershub.co/blog>** — system fully deployed (PRs #84/#85/#87 merged). Architecture + roles + flow documented in [`blog/README.md`](./blog/README.md). Editorial playbook in [`blog/admin-guide.md`](./blog/admin-guide.md). Manual for invited writers in [`blog/contributor-guide.md`](./blog/contributor-guide.md).
 
 The blog exists to:
-1. Capture mid-funnel queries from players/agencies considering signup.
-2. Link to portfolios to boost their crawl frequency (link-equity flywheel).
-3. Build domain authority.
+1. **Capture mid-funnel queries** from players/agencies considering signup (e.g., `"cómo armar portfolio futbolista"`).
+2. **Link to portfolios to boost their crawl frequency** (link-equity flywheel — every post must link ≥3 `/[slug]` portfolios; enforced at submit-time validation).
+3. **Build domain authority** through original editorial content that earns natural backlinks.
+4. **E-E-A-T amplifier** — each invited writer is a `Person` entity with `sameAs` to their external profiles (LinkedIn, X, IG). Cross-validates authorship for Google.
+5. **AI search citability** — Perplexity / ChatGPT search / Google AI Overviews cite original posts. Article JSON-LD + author Person makes the content quotable.
 
-**Cluster topics**:
+**Cluster topics** (enum `blog_cluster` in DB):
 
-1. **Career guidance for footballers** (target: players)
+1. **`career_guidance`** — "Carrera del jugador" (target: players)
    - "Cómo armar un portfolio profesional de futbolista"
    - "Qué buscan los scouts en un perfil"
    - "Estadísticas que importan según tu posición"
-2. **Agency operations** (target: agencies)
+2. **`agency_ops`** — "Operaciones de agencia" (target: agencies)
    - "Gestión de roster de jugadores: herramientas"
    - "Cómo presentar jugadores a clubes"
-3. **Industry/local AR** (target: top-of-funnel, AR market)
+3. **`industry_ar`** — "Industria AR" (target: top-of-funnel, AR market)
    - "Mercado de pases AFA 2026"
    - "Categorías de ascenso argentino: estructura"
 
-**Cadence target**: 2 posts/week, ≥1,500 words each, every post links to ≥3 relevant `/[slug]` portfolios.
+**Cadence target**: 2 posts/week, ≥1,500 words each, every post links to ≥3 relevant `/[slug]` portfolios (validated at submit).
+
+**Editorial gate** — submit requires:
+- Title ≥15 chars, description ≤158 chars
+- Content ≥8000 chars HTML (~1500 words)
+- Hero image present
+- 3-8 tags
+- Cluster selected
+- See `src/lib/blog/validation.ts` `submitForReviewSchema` for exact zod rules
+
+**SEO surface per post** (`/blog/[slug]`):
+- `Article` JSON-LD with `headline`, `description`, `datePublished`, `dateModified`, `author` (Person `@id`), `publisher` (Organization `@id`), `articleSection` = cluster, `wordCount`
+- `BreadcrumbList` (Inicio → Blog → cluster label → post title)
+- `<link rel="canonical">` to `/blog/[slug]`
+- OG type=article + `article:published_time` + `article:modified_time`
+- Sitemap entry with `lastModified` = `updated_at`, `priority=0.7`, `changeFrequency=monthly`
+- llms.txt entry under `## Blog` section (top 50 most recent posts)
 
 ### Track C — Portfolio quality enforcement (highest leverage)
 
@@ -164,31 +184,47 @@ Audit with `/claude-seo:seo page https://ballershub.co/<slug>` once a Pro profil
 
 ## 8. Roadmap
 
-### Phase 1 — Foundation (this week)
+### Phase 1 — Foundation ✅ DEPLOYED (2026-05-21)
 
 Goal: ship deployable SEO baseline.
 
 - [x] `robots.ts`
 - [x] `sitemap.ts` with Pro/Free priority
 - [x] Person JSON-LD (Free minimal, Pro full graph)
-- [x] Organization + WebSite JSON-LD sitewide
+- [x] Organization + WebSite JSON-LD sitewide (PR #63)
 - [x] `metadataBase`, canonical, rich metadata in root layout + `[slug]` + `agency/[slug]`
 - [x] Fix `revalidate: 0` → 3600
 - [x] Refactor Pro layout: 8+ H1 → 1 semantic H1
-- [ ] Dynamic OG image (Pro-only)
-- [ ] Agency JSON-LD
-- [ ] Offer schema on `/pricing`
-- [ ] Drop default placeholder image from Person.image when no real avatar (audit finding H2)
-- [ ] Language consistency: `jobTitle: "Futbolista"` (audit finding H3)
-- [ ] **Deploy real app to `ballershub.co`** — currently a stub Create-Next-App placeholder
+- [x] Dynamic OG image (Pro-only) — `src/app/(public)/[slug]/opengraph-image.tsx`
+- [x] Agency JSON-LD — `src/lib/seo/agencyJsonLd.tsx`
+- [x] Offer schema on `/pricing` — `src/lib/seo/offerJsonLd.tsx`
+- [x] Drop default placeholder image when no real avatar
+- [x] Language consistency: `jobTitle: "Futbolista"` + position labels in Spanish
+- [x] **Deploy real app to `ballershub.co`** — production live since 2026-05-19 (PR #65 release v1)
+- [x] **Brand consistency: `'BallersHub` real + `alternateName: ["BallersHub", "Ballers Hub"]`** (PR #82)
+- [x] **Soft-noindex Free portfolios con bio <100 chars** (PR #82)
+- [x] **SoftwareApplication schema node** (PR #82)
+- [x] **AboutPage JSON-LD con team Person entities + founder/employee cross-refs** (PR #82)
 
-### Phase 2 — Blog + E-E-A-T (weeks 2-6)
+### Phase 2 — Blog + E-E-A-T ✅ DEPLOYED (2026-05-20)
 
-- `/blog` with Article schema + author Person entities
-- `/about` with team Person entities
-- 6 cornerstone posts (2 per cluster from §5 Track B)
-- Extend `sitemap.ts` to include blog posts
-- Wire `revalidatePath('/<slug>')` in player dashboard save action
+**Implementation: see [`docs/blog/README.md`](./blog/README.md)**
+
+- [x] `/blog` listing + `/blog/[slug]` detail with Article schema
+- [x] Gated editorial flow: blogger (whitelisted via `is_blogger`) → admin review → publish
+- [x] TipTap rich-text editor on `/blog/write`
+- [x] Admin review queue on `/admin/blog/pending` with accept/reject/edit/unpublish
+- [x] Article JSON-LD with author Person cross-reference + BreadcrumbList
+- [x] Sitemap.ts + llms.txt extended with published blog posts
+- [x] `/about` with team Person entities (Phase 1 closure PR #82)
+- [x] `revalidatePath('/<slug>')` wired in player + agency dashboard save actions
+- [ ] **6 cornerstone posts** (2 per cluster from §5 Track B) — content writing pending (owner)
+
+**Pending MVP-2 (next iteration, see `docs/blog/README.md` §11):**
+- Email notifications (Resend → admin on pending_review, → author on approve/reject)
+- Author hubs `/blog/authors/[author-slug]` with ProfilePage JSON-LD
+- Image upload integrated into TipTap → Supabase Storage (currently external URLs only)
+- UI for admin to toggle `is_blogger` (currently manual SQL)
 
 ### Phase 3 — Directory hubs (months 2-3, gated by ≥200 Pro profiles)
 
