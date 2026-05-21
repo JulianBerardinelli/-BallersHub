@@ -2,6 +2,17 @@
 
 > Esta guía es para vos si Julián te invitó a escribir en el blog de 'BallersHub.
 
+## Antes de escribir — el por qué de las reglas
+
+El blog de 'BallersHub no es un blog cualquiera. Es **pieza central de la estrategia SEO** de la plataforma. Cada regla que vas a leer abajo (mínimo de palabras, links obligatorios, hero image, etc.) existe por una razón concreta de SEO documentada en [`../seo-strategy.md`](../seo-strategy.md).
+
+**Lo que tu post hace específicamente por el SEO:**
+1. **Captura queries mid-funnel** que players y agencias buscan en Google (ej. `"cómo armar portfolio futbolista"`). Esa gente llega al post → conoce 'BallersHub → eventualmente convierte a signup.
+2. **Le pasa link equity a los portfolios `/[slug]`** — por eso te pedimos ≥3 links a perfiles reales. Cada link tuyo hace que Google crawlee más seguido ese perfil y le suba la posición en sus búsquedas de nombre.
+3. **Tu firma como autor (Person con sameAs)** suma E-E-A-T (Expertise, Experience, Authoritativeness, Trustworthiness) al dominio entero — Google premia sitios con autores verificables.
+
+**Si no querés respetar las reglas**, no escribas — el post va a ser rechazado, perdemos tu tiempo y el de Julián. Si las reglas tienen sentido y querés contribuir, seguí leyendo.
+
 ---
 
 ## 1. Cómo sé que estoy habilitado para escribir

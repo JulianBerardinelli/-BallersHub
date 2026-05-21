@@ -1,10 +1,21 @@
 # SEO per-player & sitewide — Implementation Handoff
 
-> **Status**: Phase 1 partially landed on branch `claude/xenodochial-buck-896eb9`. Not yet deployed to production (`ballershub.co` currently serves a Create-Next-App stub).
+> **Status**: ✅ **Phase 1 + Phase 2 deployed to production** (`ballershub.co`).
 > **Owner**: @julian-berardinelli
 > **Pricing matrix reference**: §E (5 SEO features, Free vs Pro split)
 > **Strategy doc**: [`seo-strategy.md`](./seo-strategy.md)
-> **Last updated**: 2026-05-14
+> **Phase 2 (blog editorial system)**: [`blog/README.md`](./blog/README.md) — alimenta link equity a los portfolios documentados acá
+> **Last updated**: 2026-05-21
+
+## Cross-references rápidas
+
+| Concern | Documento |
+|---|---|
+| Por qué esta estrategia SEO existe (KPIs, competencia, roadmap completo) | [`seo-strategy.md`](./seo-strategy.md) |
+| Cómo construir los portfolios SEO-optimizados (este doc) | aquí |
+| Cómo alimentar los portfolios con link equity desde el blog | [`blog/README.md`](./blog/README.md) §1.5 (Rol del blog en estrategia SEO) |
+| Reglas para escritores que linkean portfolios desde el blog | [`blog/contributor-guide.md`](./blog/contributor-guide.md) |
+| Editorial gate del admin para garantizar quality SEO del blog | [`blog/admin-guide.md`](./blog/admin-guide.md) |
 
 ## Why this PR exists
 

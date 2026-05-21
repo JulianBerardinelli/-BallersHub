@@ -1,15 +1,27 @@
 # Blog de 'BallersHub — sistema editorial gated
 
-> **Status**: Diseño aprobado, MVP-1 en desarrollo (branch `claude/seo-blog`).
+> **Status**: ✅ **MVP-1 deployed a prod**. Live en <https://ballershub.co/blog>.
 > **Owner**: @julian-berardinelli
-> **Última actualización**: 2026-05-19
+> **Última actualización**: 2026-05-21
+> **PRs deployed**: #84 (MVP-1), #85 (fix imagen + UX rechazar), #87 (sync drift histórico), #90 (fix definitivo unaccent qualified).
 
 Este sistema permite que escritores invitados (bloggers whitelisted) submiteen artículos para review editorial. El admin (Julián) aprueba/rechaza antes de publicar. Los posts publicados alimentan SEO del dominio y dan link equity a los portfolios `/[slug]`.
 
-Tres docs complementarios:
-- [`contributor-guide.md`](./contributor-guide.md) — para escritores invitados
-- [`admin-guide.md`](./admin-guide.md) — para Julián (review editorial)
-- Este `README.md` — arquitectura técnica + setup
+## Documentación relacionada
+
+**Docs del blog (este folder):**
+- [`contributor-guide.md`](./contributor-guide.md) — manual para escritores invitados
+- [`admin-guide.md`](./admin-guide.md) — playbook para Julián (review editorial)
+- Este `README.md` — arquitectura técnica + setup + bugs conocidos + roadmap MVP-2
+
+**Docs de SEO (contexto cruzado, leer para entender por qué existe el blog):**
+- [`../seo-strategy.md`](../seo-strategy.md) — la estrategia SEO completa. El blog es **Phase 2 Track B** de ese plan.
+- [`../seo-per-player-handoff.md`](../seo-per-player-handoff.md) — implementación SEO de los portfolios `/[slug]` (Phase 1). El blog los alimenta con link equity.
+
+**Memory (contexto histórico):**
+- `memory/project_blog_mvp1_live.md` — state post-deploy + bugs conocidos + roadmap
+- `memory/project_seo_per_player.md` — bloque SEO que precedió al blog
+- `memory/feedback_migration_protocol.md` — reglas DB post-incidente (leer antes de tocar schema)
 
 ---
 
@@ -24,6 +36,58 @@ El blog **no es para vender**. Es palanca de SEO + E-E-A-T:
 5. **AI search citations** — Perplexity / ChatGPT search / Google AI Overviews citan posts con datos originales.
 
 Métrica de éxito: NO views del blog. Es **conversiones desde mid-funnel posts + crawl frequency aumentada en los portfolios linkeados** (GSC).
+
+---
+
+## 1.5. Rol del blog en la estrategia SEO
+
+El blog es **Phase 2 Track B** del [`seo-strategy.md`](../seo-strategy.md). Encaja en la estrategia general así:
+
+### Mapa de phases del SEO general
+
+| Phase | Track | Implementación | Status |
+|---|---|---|---|
+| **Phase 1 — Foundation** | Sitewide: Organization + WebSite + SoftwareApplication. Per-player: Person JSON-LD + dynamic OG. Per-agency: SportsOrganization. Pricing: Offer schema. `/about`: AboutPage + team Person | [`seo-per-player-handoff.md`](../seo-per-player-handoff.md), `src/lib/seo/*` | ✅ deployed (PRs #63, #82) |
+| **Phase 2 — E-E-A-T + content** | Track A (marketing pages estáticas), **Track B (este blog)**, Track C (portfolio quality enforcement) | Track A: hecho. Track B: **este blog** (PRs #84/#85). Track C: soft-noindex Free <100 chars (PR #82) | ✅ deployed |
+| **Phase 3 — Directory hubs** | `/jugadores/por-club|posicion|pais` con CollectionPage + ItemList | Gated por ≥200 Pro profiles aprobados | ⏳ pending |
+| **Phase 4 — Authority + AI search** | Backlink outreach (Olé, Infobae, TyC Sports), `/sitemap-index.xml` split, hreflang `/en/[slug]`, AI Overviews monitoring | — | ⏳ pending |
+
+### Qué SEO references el blog específicamente
+
+| Pieza del blog | Pieza del SEO strategy que cubre |
+|---|---|
+| `Article` JSON-LD con `headline`/`datePublished`/`dateModified`/`articleSection` | §6 Schema plan: `/blog/[post]` → `Article` + author `Person` link |
+| `BreadcrumbList` (Inicio → Blog → cluster → post) | §6 Schema plan: BreadcrumbList per page-type |
+| Author Person con `@id` cruzando a `/blog/authors/[slug]#person` | §5 Track B objetivo 4 (E-E-A-T amplifier) |
+| `≥3 links a /[slug]` reales (validation enforced) | §5 Track B objetivo 2 (link-equity flywheel) — la primera palanca de crawl frequency boost a Pro portfolios |
+| Sitemap entry para cada published post | §7 Required technical foundation (sitemap.ts extensión) |
+| llms.txt sección `## Blog` | §7 + §1.5 (AI-search readiness) |
+| `≥1500 palabras` enforced at submit | §5 Track B cadence target (long-form content) |
+| Cluster enum `career_guidance / agency_ops / industry_ar` | §5 Track B cluster topics literal |
+| Editorial gate (admin review antes de publish) | §10 anti-cargo-cult — evita thin programmatic pages que tankan quality score |
+
+### Cómo el blog ALIMENTA al SEO de los portfolios `/[slug]`
+
+```
+Post publicado en /blog/[slug]
+  → contenido con ≥3 links a /julian-berardinelli, /lucia-gomez, /santiago-perez
+  → Google crawler visita /blog/[slug] (sitemap + llms.txt + GSC submission)
+  → sigue los links a /[slug] portfolios
+  → INCREMENTA crawl frequency en esos portfolios (medible en GSC Crawl Stats)
+  → Los portfolios suben de posición en SERP para su own-name query
+  → Métrica primaria del SEO strategy: "Pro players winning their own name SERP" sube
+```
+
+Sin el blog, los portfolios solo reciben crawl desde el sitemap. Con el blog, **cada post nuevo es un nuevo path para que Google descubra y refresque** los portfolios linkeados. Por eso la validation enforce `≥3 links a /[slug]` no es arbitraria — es la métrica que conecta blog → portfolios → ranking.
+
+### Anti-patterns que el blog evita
+
+Del §10 "What to skip" del SEO strategy:
+
+- ❌ `FAQ schema` en posts: Google removió rich results para sitios comerciales (Aug 2023). El blog NO usa FAQ schema.
+- ❌ `Review` schema: no somos un review site, fabrication risk.
+- ❌ `HowTo` schema: deprecated por Google (Sept 2023). Los posts usan `Article` schema regular.
+- ❌ Programmatic / thin content: el editorial gate del admin (≥1500 palabras + ≥3 H2 + ≥3 links + hero image + cluster) bloquea posts thin que tankan quality score.
 
 ---
 
