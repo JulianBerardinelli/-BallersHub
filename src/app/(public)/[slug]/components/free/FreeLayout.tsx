@@ -17,6 +17,7 @@
 
 import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Crest,
   DataRow,
@@ -30,7 +31,14 @@ import LockedBanner from "./LockedBanner";
 import CountUp, { CountBar } from "./CountUp";
 import { pillsFromPositions, type PositionPill } from "./positions";
 import FreeHeader from "./FreeHeader";
-import OwnerProUpgradeNudge from "./OwnerProUpgradeNudge";
+
+// OwnerProUpgradeNudge pulls in the supabase browser client to verify the
+// viewer's session matches the profile owner. Code-split it so the supabase
+// JS only lands in the bundle for the (rare) Pro-sub-on-Free-layout case —
+// the vast majority of Free portfolios are served by Free-sub players who
+// never need this code path. Keeps the public portfolio JS lean for SEO
+// and Core Web Vitals on LCP-sensitive entry points.
+const OwnerProUpgradeNudge = dynamic(() => import("./OwnerProUpgradeNudge"));
 import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import BeSoccerIcon from "@/components/icons/BeSoccerIcon";
 import FlashscoreIcon from "@/components/icons/FlashscoreIcon";
