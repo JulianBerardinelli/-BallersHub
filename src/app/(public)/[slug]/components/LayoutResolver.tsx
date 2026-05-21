@@ -125,10 +125,13 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
     );
   }
 
-  // Pro tier always renders the Pro Athlete layout. Legacy `theme.layout`
-  // values (`futuristic`, `minimalist`, `vintage`) are ignored — the column
-  // is preserved in DB but no longer respected (see
-  // `project_dashboard_plan_gating.md`).
+  // `plan` here is the already-resolved effective layout coming from
+  // page.tsx. The Free/Pro routing decision (which respects both the
+  // subscription AND `theme.layout` so Pro users can opt back into the
+  // Free editorial dossier) lives in page.tsx; this branch just renders
+  // the Pro layout for non-free plans. Legacy `theme.layout` values
+  // (`futuristic`, `minimalist`, `vintage`) are ignored — the column is
+  // preserved in DB but no longer drives layout choice from here.
   const primaryColor = theme?.primaryColor || "#0a0a0a";
   const accentColor = theme?.accentColor || "#10b981";
   const backgroundColor = (theme as Record<string, unknown>)?.backgroundColor as string | undefined;

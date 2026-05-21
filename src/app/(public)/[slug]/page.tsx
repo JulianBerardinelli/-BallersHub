@@ -247,10 +247,15 @@ export default async function PlayerPublicPage({
   const devForceFree =
     process.env.NODE_ENV !== "production" && sp.force_free === "1";
 
-  const plan: "free" | "pro" | "pro_plus" = devForceFree
+  // Subscription-driven plan. We then optionally downgrade to "free" below
+  // based on the user's `profile_theme_settings.layout` choice — Pro users
+  // are allowed to opt into the Free editorial dossier.
+  // `planAccess.effectivePlan` is "free" | "pro" (pro_plus collapses to pro
+  // at the access layer); narrow with that union to keep the comparisons
+  // below honest under strict mode.
+  const subscriptionPlan: "free" | "pro" = devForceFree
     ? "free"
     : planAccess.effectivePlan;
-  const isFree = plan === "free";
 
   // 3) Bandeja de Datos Públicos
   const [
@@ -303,6 +308,25 @@ export default async function PlayerPublicPage({
         .from(playerLinks)
         .where(eq(playerLinks.playerId, player.id)),
     ]);
+
+  // Effective layout decision. `theme.layout` is the user's explicit
+  // choice from the dashboard styles manager — values are "free" or
+  // "pro" (newer) or legacy "classic"/"futuristic"/etc.
+  //
+  // Rules:
+  //   • theme.layout === "free" → render Free (even if user has Pro
+  //     subscription, they may want the simpler editorial dossier).
+  //   • Free subscription → always Free (can't unlock Pro).
+  //   • Otherwise → respect the subscription's effective plan.
+  //
+  // This is also what gates `freeData` below — keep it in sync.
+  const themeLayoutChoice = (theme?.layout as string | null | undefined) ?? null;
+  const subscriptionAllowsPro = subscriptionPlan === "pro";
+  const plan: "free" | "pro" | "pro_plus" =
+    themeLayoutChoice === "free" || !subscriptionAllowsPro
+      ? "free"
+      : subscriptionPlan;
+  const isFree = plan === "free";
 
   // Resolve teams + divisions for career rows (and the player's current
   // club) in one shot so the Free layout can show real crests/flags.
