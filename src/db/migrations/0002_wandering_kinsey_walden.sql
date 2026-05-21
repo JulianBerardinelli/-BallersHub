@@ -1,0 +1,1 @@
+ALTER TABLE "player_media" ADD COLUMN "season_year" integer;

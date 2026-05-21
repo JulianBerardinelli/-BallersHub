@@ -351,9 +351,30 @@ export default async function PlayerPublicPage({
     : [];
   const divisionById = new Map(divisionRows.map((d) => [d.id, d]));
 
+  // Order videos in the Pro layout so the most recent season appears first
+  // (NULL season_year sinks to the bottom). Primary stays on top, and within
+  // the same year we fall back to upload recency. Keep this in sync with the
+  // Free-layout video sort below.
+  const sortedVideos = rawMedia
+    .filter((m) => m.type === "video")
+    .slice()
+    .sort((a, b) => {
+      if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+      const ay = a.seasonYear ?? null;
+      const by = b.seasonYear ?? null;
+      if (ay !== by) {
+        if (ay == null) return 1;
+        if (by == null) return -1;
+        return by - ay;
+      }
+      const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bd - ad;
+    });
+
   const media = [
     ...rawMedia.filter((m) => m.type === "photo").slice(0, maxPhotos),
-    ...rawMedia.filter((m) => m.type === "video").slice(0, maxVideos),
+    ...sortedVideos.slice(0, maxVideos),
   ];
 
   // Aggregate per-career stats so the free layout can render the
@@ -416,12 +437,20 @@ export default async function PlayerPublicPage({
       label: l.label ?? null,
     }));
 
-  // Free plan = 1 video. Prefer the approved isPrimary video, fall back to
-  // the most recently uploaded approved video. If the player has no video
-  // in player_media, fall back to a `kind=highlight` URL from player_links.
+  // Free plan = 1 video. Prefer the approved isPrimary video, then the most
+  // recent season_year (DESC, nulls last), then the most recently uploaded
+  // approved video. If the player has no video in player_media, fall back
+  // to a `kind=highlight` URL from player_links.
   const videos = rawMedia.filter((m) => m.type === "video" && m.isApproved);
   videos.sort((a, b) => {
     if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
+    const ay = a.seasonYear ?? null;
+    const by = b.seasonYear ?? null;
+    if (ay !== by) {
+      if (ay == null) return 1;
+      if (by == null) return -1;
+      return by - ay;
+    }
     const ad = a.createdAt ? new Date(a.createdAt).getTime() : 0;
     const bd = b.createdAt ? new Date(b.createdAt).getTime() : 0;
     return bd - ad;

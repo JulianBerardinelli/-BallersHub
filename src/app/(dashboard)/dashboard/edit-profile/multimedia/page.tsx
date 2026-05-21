@@ -110,6 +110,7 @@ export default async function MultimediaPage() {
     altText: item.alt_text,
     tags: item.tags,
     provider: item.provider,
+    seasonYear: item.season_year ?? null,
     isPrimary: item.is_primary,
     isApproved: item.is_approved,
     isFlagged: item.is_flagged,

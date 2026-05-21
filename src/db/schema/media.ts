@@ -1,5 +1,5 @@
 // player_media
-import { pgTable, uuid, text, timestamp, boolean, date } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, boolean, date, integer } from "drizzle-orm/pg-core";
 import { mediaTypeEnum } from "./enums";
 import { playerProfiles } from "./players";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
@@ -13,6 +13,11 @@ export const playerMedia = pgTable("player_media", {
   altText: text("alt_text"),
   tags: text("tags").array(),
   provider: text("provider"),
+  // Season this highlight belongs to (e.g. 2024 for the 2024-2025 season).
+  // Used to order videos in the public portfolio so the newest season appears
+  // first. NULL for photos and for legacy videos uploaded before this field
+  // existed.
+  seasonYear: integer("season_year"),
   isPrimary: boolean("is_primary").default(false).notNull(),
   isApproved: boolean("is_approved").default(true).notNull(),
   isFlagged: boolean("is_flagged").default(false).notNull(),

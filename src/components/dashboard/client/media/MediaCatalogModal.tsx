@@ -32,6 +32,8 @@ export type MediaCatalogPayload = {
   tags: string;
   isPrimary: boolean;
   provider: "youtube" | "vimeo" | null;
+  /** Season year (e.g. 2024 for the 2024-25 season). Only set when type=video. */
+  seasonYear: number | null;
 };
 
 export type SeoSuggestionsByTab = Partial<
@@ -97,10 +99,13 @@ export default function MediaCatalogModal({
   const [altText, setAltText] = useState("");
   const [tags, setTags] = useState("");
   const [isPrimary, setIsPrimary] = useState(false);
+  const [seasonYearInput, setSeasonYearInput] = useState("");
   const [acceptedPolicy, setAcceptedPolicy] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const currentYear = new Date().getFullYear();
 
   const tabSeo = seo[activeTab] ?? { titles: [], altTexts: [] };
 
@@ -112,6 +117,7 @@ export default function MediaCatalogModal({
     setAltText("");
     setTags("");
     setIsPrimary(false);
+    setSeasonYearInput("");
     setAcceptedPolicy(false);
     setError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -154,6 +160,16 @@ export default function MediaCatalogModal({
       return;
     }
 
+    let seasonYearValue: number | null = null;
+    if (activeTab === "video" && seasonYearInput.trim()) {
+      const parsed = parseInt(seasonYearInput.trim(), 10);
+      if (!Number.isFinite(parsed) || parsed < 1900 || parsed > 2100) {
+        setError("El año de la temporada debe estar entre 1900 y 2100.");
+        return;
+      }
+      seasonYearValue = parsed;
+    }
+
     setIsUploading(true);
     setError(null);
 
@@ -173,6 +189,7 @@ export default function MediaCatalogModal({
         tags: tags.trim(),
         isPrimary,
         provider,
+        seasonYear: seasonYearValue,
       });
 
       onOpenChange(false);
@@ -184,7 +201,10 @@ export default function MediaCatalogModal({
     }
   };
 
-  const acceptAttr = activeTab === "photo" ? "image/jpeg,image/png,image/webp" : "video/mp4,video/quicktime";
+  const acceptAttr =
+    activeTab === "photo"
+      ? "image/jpeg,image/png,image/webp,image/avif"
+      : "video/mp4,video/quicktime";
 
   return (
     <Modal
@@ -246,6 +266,21 @@ export default function MediaCatalogModal({
                 </div>
               )}
 
+              {activeTab === "video" && (
+                <FormField
+                  label="Año de la temporada (opcional)"
+                  placeholder={`Ej. ${currentYear}`}
+                  type="number"
+                  min={1900}
+                  max={2100}
+                  step={1}
+                  inputMode="numeric"
+                  value={seasonYearInput}
+                  onChange={(e) => setSeasonYearInput(e.target.value)}
+                  description="Usá el año en que arrancó la temporada (ej. 2024 para 2024-25). Ordenamos los highlights del más reciente al más viejo."
+                />
+              )}
+
               <input
                 type="file"
                 className="hidden"
@@ -274,13 +309,16 @@ export default function MediaCatalogModal({
                     Hacé clic para buscar o arrastrá un archivo aquí
                   </p>
                   <p className="text-[11px] text-bh-fg-4">
-                    JPG, PNG o WebP (máx {Math.round(maxPhotoBytes / (1024 * 1024))}MB)
+                    JPG, PNG, WebP o AVIF (máx {Math.round(maxPhotoBytes / (1024 * 1024))}MB)
+                  </p>
+                  <p className="mt-1 text-[10px] text-bh-fg-4">
+                    Convertimos a AVIF automáticamente para optimizar la galería.
                   </p>
                 </button>
               )}
 
               {!previewUrl && activeTab === "photo" && (
-                <SquooshHint maxBytes={maxPhotoBytes} accept="image/jpeg,image/png,image/webp" />
+                <SquooshHint maxBytes={maxPhotoBytes} accept="image/jpeg,image/png,image/webp,image/avif" />
               )}
 
               {previewUrl && (
