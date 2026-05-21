@@ -2,18 +2,27 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Share2, ArrowLeft } from "lucide-react";
+import {
+  Share2,
+  ArrowLeft,
+  User2,
+  Target,
+  TrendingUp,
+  Newspaper,
+  Image as ImageIcon,
+  type LucideIcon,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-type SectionItem = { id: string; label: string };
+type SectionItem = { id: string; label: string; Icon: LucideIcon };
 
 const PORTFOLIO_SECTIONS: SectionItem[] = [
-  { id: "biography", label: "Bio" },
-  { id: "tactics", label: "Táctica" },
-  { id: "career-timeline", label: "Carrera" },
-  { id: "press", label: "Prensa" },
-  { id: "gallery", label: "Galería" },
+  { id: "biography",       label: "Bio",     Icon: User2 },
+  { id: "tactics",         label: "Táctica", Icon: Target },
+  { id: "career-timeline", label: "Carrera", Icon: TrendingUp },
+  { id: "press",           label: "Prensa",  Icon: Newspaper },
+  { id: "gallery",         label: "Galería", Icon: ImageIcon },
 ];
 
 export default function ProPlayerHeader({ player }: { player: any }) {
@@ -94,10 +103,17 @@ export default function ProPlayerHeader({ player }: { player: any }) {
           />
         </Link>
 
-        {/* CENTER: Nav Pill — Glassmorphism */}
+        {/*
+          CENTER: Nav Pill — Glassmorphism
+          Mobile: cada sección se muestra como ícono cuadrado (los textos
+          "GALERÍA" + tracking widest desbordaban el ancho del viewport, incluso
+          con scroll horizontal). Desktop (md+): se mantiene el texto que ya
+          conocemos. El active pill se conserva en ambos modos gracias al
+          layoutId compartido.
+        */}
         <nav
           aria-label="Navegación del perfil"
-          className="pointer-events-auto bg-black/40 backdrop-blur-xl border border-white/10 rounded-full pl-2 pr-2 py-2 flex items-center gap-1 md:gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
+          className="pointer-events-auto bg-black/40 backdrop-blur-xl border border-white/10 rounded-full pl-2 pr-2 py-2 flex items-center gap-0.5 md:gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all max-w-[calc(100vw-1.5rem)]"
         >
           {/* Avatar */}
           {player.avatarUrl && (
@@ -116,15 +132,18 @@ export default function ProPlayerHeader({ player }: { player: any }) {
             </button>
           )}
 
-          {/* Section links with animated active highlight */}
+          {/* Section links: iconos en mobile, texto en desktop */}
           {PORTFOLIO_SECTIONS.map((item) => {
             const isActive = activeId === item.id;
+            const Icon = item.Icon;
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => scrollToSection(item.id)}
-                className={`relative pointer-events-auto px-2.5 md:px-3 py-1.5 rounded-full text-[10px] md:text-xs font-semibold uppercase tracking-[0.18em] md:tracking-widest transition-colors whitespace-nowrap ${
+                aria-label={item.label}
+                title={item.label}
+                className={`relative pointer-events-auto rounded-full font-semibold uppercase tracking-widest transition-colors whitespace-nowrap flex items-center justify-center shrink-0 px-2 py-1.5 md:px-3 md:text-xs ${
                   isActive
                     ? "text-[var(--theme-background,#050505)]"
                     : "text-white/70 hover:text-[var(--theme-accent,#34d399)]"
@@ -142,20 +161,23 @@ export default function ProPlayerHeader({ player }: { player: any }) {
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
-                <span className="relative z-10">{item.label}</span>
+                <span className="relative z-10 flex items-center gap-1.5">
+                  <Icon className="w-4 h-4 md:hidden" aria-hidden="true" />
+                  <span className="hidden md:inline">{item.label}</span>
+                </span>
               </button>
             );
           })}
 
           {/* Divider */}
-          <div className="w-px h-4 bg-white/20 mx-1 shrink-0" />
+          <div className="w-px h-4 bg-white/20 mx-0.5 md:mx-1 shrink-0" />
 
           {/* Share */}
           <button
             type="button"
             onClick={handleShare}
             aria-label="Compartir perfil"
-            className="text-white hover:text-[var(--theme-accent,#34d399)] transition-colors pointer-events-auto px-2 shrink-0"
+            className="text-white hover:text-[var(--theme-accent,#34d399)] transition-colors pointer-events-auto px-1.5 md:px-2 shrink-0"
           >
             <Share2 className="w-4 h-4" />
           </button>
