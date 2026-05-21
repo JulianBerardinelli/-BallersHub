@@ -2,6 +2,22 @@
 
 > Esta guía es para el admin del blog (Julián, eventualmente delegable).
 
+## Contexto antes de empezar
+
+El blog es **Phase 2 Track B** de la [estrategia SEO completa](../seo-strategy.md). Las reglas editoriales que vas a aplicar acá no son arbitrarias — están directamente conectadas a las métricas SEO que querés mover:
+
+| Regla que aplicás | Métrica SEO que mueve |
+|---|---|
+| `≥3 links a /[slug]` reales | Crawl frequency de portfolios linkeados (GSC → Crawl Stats) |
+| `≥1500 palabras` | Long-form content → mejor ranking para queries mid-funnel |
+| `Hero image 1200×630` | OG cards en redes → social referrals |
+| `Cluster correcto` (career/agency/industry) | Topical authority por silo |
+| `Tags relevantes` (3-5, no genéricos) | Internal linking + topic clustering (Phase 3 prep) |
+| `Sin AI obvio` | Google E-E-A-T scoring + evita penalties |
+| `≥1 link a fuente externa autoritativa` | Outbound link trust signals |
+
+Si vas a rechazar un post, el `rejection_reason` debe referir a la regla específica violada — y a la métrica SEO que esa regla protege. Así el autor entiende **por qué** y no se siente arbitrariamente rechazado.
+
 ---
 
 ## 1. Tu trabajo como admin del blog
