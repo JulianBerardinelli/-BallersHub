@@ -562,3 +562,81 @@ CREATE POLICY player_media_storage_select ON storage.objects
   FOR SELECT
   TO anon, authenticated
   USING (bucket_id = 'player-media'::text);
+
+-- ===============================================================
+-- SECTION 7 — Fix definitivo unaccent: qualified call extensions.unaccent
+--
+-- El owner reportó error 'function unaccent(text) does not exist' al
+-- aprobar jugadores en /admin/applications. La cadena que falla:
+--
+--   INSERT player_profiles
+--     → trigger biu_set_nationality_codes_players
+--       → trg_set_country_code_from_text
+--         → country_guess_codes(text[])
+--           → country_guess_code(text)
+--             → unaccent(...)   ← FALLA: vive en schema extensions,
+--                                  no en search_path
+--
+-- Fix 1 (insuficiente): agregar 'extensions' al search_path de las
+-- 4 functions de la cadena (search_path resolution puede tener edge
+-- cases con SQL functions IMMUTABLE).
+--
+-- Fix 2 (definitivo, este): qualify la llamada explícitamente como
+-- `extensions.unaccent(...)` en country_guess_code y slugify. Bypassa
+-- el search_path resolution completamente.
+--
+-- Aplicado en prod via migration fix_unaccent_explicit_extensions_qualifier
+-- y fix_slugify_qualified_unaccent.
+-- ===============================================================
+
+CREATE OR REPLACE FUNCTION public.country_guess_code(p_country text) RETURNS text
+    LANGUAGE sql IMMUTABLE
+    SET search_path TO 'public, extensions'
+    AS $$
+  with norm as (
+    select lower(extensions.unaccent(coalesce(trim(p_country), ''))) as s
+  ),
+  m(alias, iso2) as (
+    values
+      ('argentina','ar'), ('brasil','br'), ('brazil','br'), ('uruguay','uy'),
+      ('chile','cl'), ('colombia','co'), ('peru','pe'),
+      ('paraguay','py'), ('bolivia','bo'), ('venezuela','ve'),
+      ('mexico','mx'), ('canada','ca'), ('estados unidos','us'), ('usa','us'), ('united states','us'),
+      ('espana','es'), ('spain','es'), ('francia','fr'), ('france','fr'),
+      ('italia','it'), ('italy','it'), ('alemania','de'), ('germany','de'),
+      ('inglaterra','gb'), ('reino unido','gb'), ('uk','gb'), ('united kingdom','gb'),
+      ('irlanda','ie'), ('ireland','ie'), ('portugal','pt'),
+      ('paises bajos','nl'), ('holanda','nl'), ('netherlands','nl'),
+      ('belgica','be'), ('belgium','be'), ('suiza','ch'), ('switzerland','ch'),
+      ('austria','at'), ('polonia','pl'), ('dinamarca','dk'), ('denmark','dk'),
+      ('noruega','no'), ('norway','no'), ('suecia','se'), ('sweden','se'),
+      ('finlandia','fi'), ('finland','fi'), ('grecia','gr'), ('greece','gr'),
+      ('turquia','tr'), ('turkey','tr'), ('rumania','ro'), ('romania','ro'),
+      ('croacia','hr'), ('croatia','hr'), ('serbia','rs'),
+      ('marruecos','ma'), ('morocco','ma'), ('argelia','dz'), ('algeria','dz'),
+      ('egipto','eg'), ('egypt','eg'), ('sudafrica','za'), ('south africa','za'),
+      ('nigeria','ng'), ('ghana','gh'),
+      ('japon','jp'), ('japan','jp'), ('china','cn'),
+      ('corea del sur','kr'), ('south korea','kr'),
+      ('australia','au'), ('nueva zelanda','nz'), ('new zealand','nz'),
+      ('arabia saudita','sa'), ('saudi arabia','sa'),
+      ('emiratos arabes unidos','ae'), ('uae','ae'),
+      ('catar','qa'), ('qatar','qa'), ('iran','ir'), ('iraq','iq'), ('israel','il')
+  )
+  select iso2
+  from norm n
+  join m on n.s = m.alias
+  limit 1
+$$;
+
+CREATE OR REPLACE FUNCTION public.slugify(input text) RETURNS text
+    LANGUAGE sql IMMUTABLE
+    SET search_path TO 'public, extensions'
+    AS $$
+  select coalesce(
+    nullif(
+      regexp_replace(lower(extensions.unaccent(coalesce(input,''))), '[^a-z0-9]+', '-', 'g'),
+      ''
+    ), 'team'
+  )
+$$;
