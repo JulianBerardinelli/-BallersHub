@@ -195,6 +195,7 @@ export default async function PersonalDataPage() {
     heightCm: heightCm != null ? String(heightCm) : "",
     weightKg: weightKg != null ? String(weightKg) : "",
     bio: hydratedProfile.bio ?? "",
+    education: personalDetails?.education ?? "",
   } as const;
 
   const contactInfoInitialValues = {

@@ -644,7 +644,7 @@ function VideosModal({
 
         <ul className="flex-1 overflow-y-auto pr-1 custom-scrollbar flex flex-col gap-2 -mr-1">
           {videos.map((vid: any) => {
-            const year = vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear();
+            const year = vid.seasonYear ?? (vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear());
             return (
               <li key={vid.id}>
                 <a
@@ -1062,7 +1062,7 @@ export default function ProfileTacticsModule({
                               "Ver todos" CTA so the column doesn't fill the
                               whole sticky pin with link items. */}
                           {videos.slice(1, 3).map((vid) => {
-                            const year = vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear();
+                            const year = vid.seasonYear ?? (vid.createdAt ? new Date(vid.createdAt).getFullYear() : new Date().getFullYear());
                             return (
                               <li key={vid.id}>
                                 <a href={vid.url} target="_blank" rel="noreferrer"
