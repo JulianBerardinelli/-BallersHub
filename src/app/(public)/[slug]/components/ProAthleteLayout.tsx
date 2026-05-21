@@ -7,23 +7,14 @@ import ProPlayerHeader from "./ProPlayerHeader";
 import { formatPlayerPositions } from "@/lib/format";
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
-  const { player, theme } = data;
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { player } = data;
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"]
-  });
-
-  const playerY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
-  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]); // Parallax hacia abajo principal
-  const trailY1 = useTransform(scrollYProgress, [0, 1], ["0%", "150%"]);
-  const trailY2 = useTransform(scrollYProgress, [0, 1], ["0%", "300%"]);
-  const trailY3 = useTransform(scrollYProgress, [0, 1], ["0%", "500%"]);
-  const trailY4 = useTransform(scrollYProgress, [0, 1], ["0%", "700%"]);
-  const trailY5 = useTransform(scrollYProgress, [0, 1], ["0%", "1000%"]);
-  const trailY6 = useTransform(scrollYProgress, [0, 1], ["0%", "1500%"]);
-
+  // Early-return BEFORE any hooks that depend on a DOM ref. `useScroll`
+  // (below, in ProAthleteLayoutBody) throws "Target ref is defined but not
+  // hydrated" when its target ref never attaches to a node — which is what
+  // used to happen here when heroUrl was missing and we returned the
+  // placeholder. Keeping the placeholder above the hook-using subcomponent
+  // means useScroll only mounts in the branch where the ref actually exists.
   if (!player.heroUrl) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-6">
@@ -42,6 +33,27 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
       </div>
     );
   }
+
+  return <ProAthleteLayoutBody data={data}>{children}</ProAthleteLayoutBody>;
+}
+
+function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
+  const { player, theme } = data;
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  const playerY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]); // Parallax hacia abajo principal
+  const trailY1 = useTransform(scrollYProgress, [0, 1], ["0%", "150%"]);
+  const trailY2 = useTransform(scrollYProgress, [0, 1], ["0%", "300%"]);
+  const trailY3 = useTransform(scrollYProgress, [0, 1], ["0%", "500%"]);
+  const trailY4 = useTransform(scrollYProgress, [0, 1], ["0%", "700%"]);
+  const trailY5 = useTransform(scrollYProgress, [0, 1], ["0%", "1000%"]);
+  const trailY6 = useTransform(scrollYProgress, [0, 1], ["0%", "1500%"]);
 
   const primaryColor = (theme?.primaryColor as string | null | undefined) || "#10b981";
   const secondaryColor = (theme?.secondaryColor as string | null | undefined) || "#2A2A2A";

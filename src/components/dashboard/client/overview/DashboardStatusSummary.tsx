@@ -1,8 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpRight, FileSearch } from "lucide-react";
 import { Button, Chip, Divider } from "@heroui/react";
+import ApplicationReviewModal, {
+  type ApplicationReviewDetails,
+} from "./ApplicationReviewModal";
 
 type HeroColor = "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 
@@ -20,12 +24,23 @@ type ApplicationDescriptor = {
   createdAtLabel: string | null;
 };
 
-type StatusCta = {
+type CtaBase = {
   label: string;
-  href: string;
   variant: "solid" | "bordered" | "light";
   color: HeroColor;
 };
+
+type LinkCta = CtaBase & {
+  kind?: "link";
+  href: string;
+};
+
+type ModalCta = CtaBase & {
+  kind: "review-application";
+  details: ApplicationReviewDetails;
+};
+
+export type StatusCta = LinkCta | ModalCta;
 
 export type DashboardStatusSummaryProps = {
   profileStatus: StatusDescriptor;
@@ -52,6 +67,10 @@ function getUpdatedCopy(updatedAt: string | null): string | null {
   return `Actualizado el ${formatted}`;
 }
 
+function isModalCta(cta: StatusCta): cta is ModalCta {
+  return cta.kind === "review-application";
+}
+
 export default function DashboardStatusSummary({
   profileStatus,
   visibility,
@@ -62,6 +81,34 @@ export default function DashboardStatusSummary({
 }: DashboardStatusSummaryProps) {
   const visibilityCopy = getVisibilityCopy(visibility);
   const updatedCopy = getUpdatedCopy(updatedAt);
+  const [reviewOpen, setReviewOpen] = useState(false);
+
+  const modalCta = cta && isModalCta(cta) ? cta : null;
+
+  const ctaButton = cta ? (
+    isModalCta(cta) ? (
+      <Button
+        onPress={() => setReviewOpen(true)}
+        color={cta.color === "default" ? "primary" : cta.color}
+        variant={cta.variant}
+        className="w-full max-w-xs self-start lg:w-auto"
+        endContent={<FileSearch size={16} />}
+      >
+        {cta.label}
+      </Button>
+    ) : (
+      <Button
+        as={Link}
+        href={cta.href}
+        color={cta.color === "default" ? "primary" : cta.color}
+        variant={cta.variant}
+        className="w-full max-w-xs self-start lg:w-auto"
+        endContent={<ArrowUpRight size={18} />}
+      >
+        {cta.label}
+      </Button>
+    )
+  ) : null;
 
   return (
     <div className="space-y-5 text-sm text-bh-fg-2">
@@ -96,18 +143,7 @@ export default function DashboardStatusSummary({
           ) : null}
         </div>
 
-        {cta ? (
-          <Button
-            as={Link}
-            href={cta.href}
-            color={cta.color === "default" ? "primary" : cta.color}
-            variant={cta.variant}
-            className="w-full max-w-xs self-start lg:w-auto"
-            endContent={<ArrowUpRight size={18} />}
-          >
-            {cta.label}
-          </Button>
-        ) : null}
+        {ctaButton}
       </div>
 
       {applicationStatus ? (
@@ -128,6 +164,14 @@ export default function DashboardStatusSummary({
           Todavía no registramos una solicitud activa. Iniciá el proceso de onboarding para generar tu perfil profesional.
         </p>
       )}
+
+      {modalCta ? (
+        <ApplicationReviewModal
+          isOpen={reviewOpen}
+          onClose={() => setReviewOpen(false)}
+          details={modalCta.details}
+        />
+      ) : null}
     </div>
   );
 }
