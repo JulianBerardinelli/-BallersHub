@@ -17,23 +17,52 @@ export default function PortfolioGallery({ photos, playerName }: Props) {
   const sectionRef = useRef<HTMLElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [orientations, setOrientations] = useState<Map<string, Orientation>>(new Map());
+  // Detección mobile: en vp < md, la animación de scroll de entrada tiene que
+  // resolver mucho antes (ranges chicos), porque el viewport es corto y, si
+  // mantenemos el rango de desktop, la grid queda recortada por `inset()` la
+  // mitad del scroll y se ve un bloque vacío gigante encima del título.
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => setIsMobile(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "center center"],
+    // Mobile: arrancamos a medir antes (cuando el top de la sección está cerca
+    // del final del viewport) y terminamos cuando el centro toca arriba, así
+    // todo el rango 0→1 sucede en una distancia corta de scroll.
+    // Desktop: rango original más extendido para la animación cinemática.
+    offset: isMobile ? ["start 0.85", "start center"] : ["start end", "center center"],
   });
 
   const headerY = useTransform(scrollYProgress, [0, 0.45], [40, 0]);
   const headerOpacity = useTransform(scrollYProgress, [0, 0.25, 0.5], [0, 1, 1]);
   const ruleScaleX = useTransform(scrollYProgress, [0.2, 0.6], [0, 1]);
 
+  // Mobile: rangos chicos y `inset` inicial parcial (50%) para que la grid no
+  // se quede invisible casi medio scroll, lo cual generaba el "espacio vacío".
+  // Desktop: rangos extendidos para la transición cinemática original.
   const gridClip = useTransform(
     scrollYProgress,
-    [0.2, 0.85],
-    ["inset(100% 0% 0% 0%)", "inset(0% 0% 0% 0%)"]
+    isMobile ? [0.0, 0.35] : [0.2, 0.85],
+    isMobile
+      ? ["inset(40% 0% 0% 0%)", "inset(0% 0% 0% 0%)"]
+      : ["inset(100% 0% 0% 0%)", "inset(0% 0% 0% 0%)"],
   );
-  const gridY = useTransform(scrollYProgress, [0.2, 0.95], [120, 0]);
-  const gridScale = useTransform(scrollYProgress, [0.2, 0.95], [0.96, 1]);
+  const gridY = useTransform(
+    scrollYProgress,
+    isMobile ? [0.0, 0.4] : [0.2, 0.95],
+    isMobile ? [40, 0] : [120, 0],
+  );
+  const gridScale = useTransform(
+    scrollYProgress,
+    isMobile ? [0.0, 0.4] : [0.2, 0.95],
+    isMobile ? [0.99, 1] : [0.96, 1],
+  );
 
   // Detect each photo's natural orientation client-side. Used to reorder
   // photos so portraits land in portrait slots and landscapes in landscape

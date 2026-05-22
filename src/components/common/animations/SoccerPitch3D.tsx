@@ -16,7 +16,7 @@ export const POSITIONS_MAP: Record<string, { top: string; left: string; label: s
   "MCO": { top: "35%", left: "50%", label: "Medio Ofensivo",     area: "3/4 de Cancha Frontal",   strengths: ["Creación", "Último Pase", "Tiro Media Distancia"] },
   "EI":  { top: "25%", left: "15%", label: "Extremo Izquierdo",  area: "Carril Izquierdo Alto",    strengths: ["Desborde", "1 vs 1", "Centros al Área"] },
   "ED":  { top: "25%", left: "85%", label: "Extremo Derecho",    area: "Carril Derecho Alto",      strengths: ["Picardía", "Velocidad", "Corte hacia adentro"] },
-  "DEL": { top: "15%", left: "50%", label: "Centrodelantero",    area: "Área Rival",               strengths: ["Definición", "Juego Aéreo", "Posicionamiento"] },
+  "DEL": { top: "15%", left: "50%", label: "Centro Delantero",   area: "Área Rival",               strengths: ["Definición", "Juego Aéreo", "Posicionamiento"] },
   "SD":  { top: "20%", left: "50%", label: "Segundo Delantero",  area: "Frontal de Área",          strengths: ["Asociación", "Desmarque", "Conducción Rápida"] },
 };
 

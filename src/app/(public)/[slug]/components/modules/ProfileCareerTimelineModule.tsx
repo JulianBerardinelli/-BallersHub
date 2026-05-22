@@ -33,8 +33,12 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
         )}
       </AnimatePresence>
 
-      {/* MOBILE TIMELINE (Vertical Zig-Zag, visible only < lg) */}
-      <div className="block lg:hidden w-full relative py-16 px-6">
+      {/* MOBILE TIMELINE (Vertical Zig-Zag, visible only < lg).
+          Padding horizontal apretado contra el borde izquierdo: la línea +
+          nodo viven en los primeros ~24px del viewport y las cards arrancan
+          a ~40px, liberando ~36px más de ancho para las stats internas
+          (Partidos / Titular / Minutos / Goles / Asist no se aplastan). */}
+      <div className="block lg:hidden w-full relative py-16 pl-3 pr-4">
         {/* Ambient backdrop — mirrors the Bio section pattern. Lives at
             the wrapper level (no max-width on this div), the radial mask
             inside the component handles the soft edge fade. */}
@@ -54,21 +58,21 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
         </motion.div>
 
         <div className="relative z-10">
-           {/* Mobile Line */}
-           <div className="absolute top-0 bottom-0 left-[24px] w-[2px] bg-white/10 rounded-full" />
+           {/* Mobile Line — pegada al borde izquierdo */}
+           <div className="absolute top-0 bottom-0 left-[12px] w-[2px] bg-white/10 rounded-full" />
 
            <div className="flex flex-col gap-8 relative w-full">
               {sortedCareer.map((item, index) => {
                   const nodeData = prepareCardData(item, index);
                   return (
-                    <motion.div 
+                    <motion.div
                       key={item.id}
                       initial={{ opacity: 0, x: -30 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-                      className="relative w-full flex items-center pl-[52px]"
+                      className="relative w-full flex items-center pl-[28px]"
                     >
-                       <div className="absolute left-[24px] w-4 h-4 rounded-full bg-[var(--theme-primary)] shadow-[0_0_15px_var(--theme-primary)] -translate-x-1/2 z-10">
+                       <div className="absolute left-[12px] w-4 h-4 rounded-full bg-[var(--theme-primary)] shadow-[0_0_15px_var(--theme-primary)] -translate-x-1/2 z-10">
                          <div className="absolute inset-[3px] rounded-full bg-black/50" />
                        </div>
                        <MobileTimelineCard nodeData={nodeData} onSelectHonour={setSelectedHonour} />
@@ -140,7 +144,24 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full" style={{ height: "450vh" }}>
+    /*
+      El container externo rompe los bounds del wrapper padre (max-w-[1400px]
+      del ProAthleteLayout) para que el sticky de adentro herede el ancho del
+      viewport completo. Con el ancho real a 100vw, el `BioAnimatedBackground`
+      (que ya está pensado en 100vw) ya no se corta visualmente cuando los
+      blobs de luz llegan al borde. Usamos negative margins en lugar de
+      `position: relative + left-1/2` para no entrar en conflicto con el
+      `position: sticky` del hijo. Eje vertical intacto: solo expandimos x.
+    */
+    <div
+      ref={containerRef}
+      className="relative w-screen"
+      style={{
+        height: "450vh",
+        marginLeft: "calc(50% - 50vw)",
+        marginRight: "calc(50% - 50vw)",
+      }}
+    >
       <motion.div
         className="sticky top-0 h-screen w-full flex flex-col items-center overflow-hidden bg-[var(--theme-background)] z-20"
       >
@@ -521,16 +542,21 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
            </span>
         </div>
 
-        {/* Stats */}
+        {/* Stats — mobile mini card.
+            Layout 2 + 3: fila 1 con PARTIDOS y TITULAR (la stat con donut
+            necesita más aire, y partidos es su contraparte natural); fila 2
+            con MINUTOS, GOLES y ASIST. El label "Titular" va dentro del donut
+            (debajo del número) para no quedar desalineado verticalmente con
+            los headers del resto de stats. */}
         {hasStats && (
-          <div className="mt-5 grid grid-cols-5 gap-1 bg-black/40 rounded-2xl p-2 border border-white/5 overflow-hidden relative z-10">
-             <div className="flex flex-col items-center justify-center p-1">
+          <div className="mt-5 grid grid-cols-6 gap-1 bg-black/40 rounded-2xl p-2 border border-white/5 overflow-hidden relative z-10">
+             {/* Fila 1 — 2 datos (col-span-3 cada uno) */}
+             <div className="col-span-3 flex flex-col items-center justify-center p-1">
                <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Partidos</span>
                <CountUp value={totals.matches} className="text-xl text-white font-black leading-none" />
              </div>
-             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
-               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Titular</span>
-               <div className="relative w-9 h-9 flex items-center justify-center mt-1">
+             <div className="col-span-3 flex items-center justify-center p-1 border-l border-white/5">
+               <div className="relative w-12 h-12 flex flex-col items-center justify-center">
                   <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent" className="text-white/10" />
                     <circle cx="18" cy="18" r="15" stroke="currentColor" strokeWidth="2.5" fill="transparent"
@@ -538,21 +564,23 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
                       strokeDashoffset={94.24 - ((totals.matches > 0 ? Math.round((totals.startingMatches / totals.matches) * 100) : 0) / 100) * 94.24}
                       className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]" strokeLinecap="round" />
                   </svg>
-                  <CountUp value={totals.startingMatches} className="relative text-[10px] font-black text-white leading-none" />
+                  <CountUp value={totals.startingMatches} className="relative text-[12px] font-black text-white leading-none" />
+                  <span className="relative text-[6px] font-black uppercase tracking-[0.18em] text-white/60 mt-0.5">Titular</span>
                </div>
              </div>
-             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5">
+             {/* Fila 2 — 3 datos (col-span-2 cada uno) */}
+             <div className="col-span-2 flex flex-col items-center justify-center p-1.5 border-t border-white/5">
                <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Minutos</span>
                <span className="text-xl text-white font-black leading-none">
                  <CountUp value={totals.minutesPlayed} />
                  <span className="text-[9px] text-white/50 ml-0.5">&apos;</span>
                </span>
              </div>
-             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-accent)]/5">
+             <div className="col-span-2 flex flex-col items-center justify-center p-1.5 border-t border-l border-white/5 bg-[var(--theme-accent)]/5">
                <span className="text-[8px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">Goles</span>
                <CountUp value={totals.goals} className="text-xl text-[var(--theme-accent)] font-black leading-none" />
              </div>
-             <div className="flex flex-col items-center justify-center p-1 border-l border-white/5 bg-[var(--theme-primary)]/5">
+             <div className="col-span-2 flex flex-col items-center justify-center p-1.5 border-t border-l border-white/5 bg-[var(--theme-primary)]/5">
                <span className="text-[8px] text-[var(--theme-primary)]/60 uppercase font-black tracking-widest text-center mb-1">Asist.</span>
                <CountUp value={totals.assists} className="text-xl text-[var(--theme-primary)] font-black leading-none" />
              </div>

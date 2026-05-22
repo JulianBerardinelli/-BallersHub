@@ -201,11 +201,16 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
                  <span className="block text-[10px] md:text-[11px] tracking-[0.2em] font-black uppercase mb-1 md:mb-2" style={{ color: 'var(--theme-accent)' }}>
                    <ScrambleText text="Físico" delay={0.15} />
                  </span>
-                 <div className="flex gap-3 md:gap-4">
-                    <span className="text-2xl md:text-4xl font-black text-white leading-none">
+                 {/*
+                   Mobile: apilamos altura y peso en columna (la columna del
+                   grid es ~135px y `178cm 74kg` en text-2xl flex-row se
+                   desbordaba a la derecha). Desktop conserva el flex-row.
+                 */}
+                 <div className="flex flex-col md:flex-row gap-1 md:gap-4">
+                    <span className="text-2xl md:text-4xl font-black text-white leading-none whitespace-nowrap">
                        <ScrambleText text={String(player.heightCm || '--')} delay={0.3} /><span className="text-lg md:text-xl text-white/30 uppercase"><ScrambleText text="cm" delay={0.35} /></span>
                     </span>
-                    <span className="text-2xl md:text-4xl font-black text-white leading-none">
+                    <span className="text-2xl md:text-4xl font-black text-white leading-none whitespace-nowrap">
                        <ScrambleText text={String(player.weightKg || '--')} delay={0.4} /><span className="text-lg md:text-xl text-white/30 uppercase"><ScrambleText text="kg" delay={0.45} /></span>
                     </span>
                  </div>
@@ -249,11 +254,18 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
                    <ScrambleText text="Pasaporte" delay={0.25} />
                  </span>
                  <div className="flex flex-col">
-                   <div className="flex items-center gap-2 md:gap-3">
+                   {/*
+                     Mobile: pasamos a flex-col para que las flags no desborden
+                     cuando el jugador tiene 2-3 nacionalidades. El divider
+                     border-left vive solo en md+ (en mobile no se ve porque la
+                     fila se vuelve columna). Las flags también pueden wrapear
+                     entre sí con `flex-wrap` por si son >3.
+                   */}
+                   <div className="flex flex-col md:flex-row md:items-center gap-1.5 md:gap-3">
                      <span className="text-xs md:text-base font-bold text-white/80 uppercase tracking-widest">
                        <ScrambleText text="Ciudadano" delay={0.35} />
                      </span>
-                     <div className="flex items-center gap-2 border-l-[2px] border-white/20 pl-2 md:pl-3">
+                     <div className="flex flex-wrap items-center gap-2 md:border-l-[2px] md:border-white/20 md:pl-3">
                        {player.nationalityCodes?.length > 0 ? (
                          player.nationalityCodes.map((code: string, i: number) => (
                            <CountryFlag key={i} code={code} className="w-6 h-4 md:w-9 md:h-6 rounded-sm object-cover drop-shadow-md" />
