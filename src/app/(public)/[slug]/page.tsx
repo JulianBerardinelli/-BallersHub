@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { cache } from "react";
 import { db } from "@/lib/db";
 import {
   playerMedia,
@@ -9,6 +10,8 @@ import {
   playerLinks,
   teams,
   divisions,
+  playerProfiles,
+  profileThemeSettings,
 } from "@/db/schema";
 import { and, eq, desc, inArray } from "drizzle-orm";
 import LayoutResolver from "./components/LayoutResolver";
@@ -33,6 +36,58 @@ import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 export const revalidate = 3600;
 
 type Params = Promise<{ slug: string }>;
+
+/**
+ * Lee el background color del theme del jugador (configurable desde el
+ * dashboard del propio jugador en /dashboard/edit-template). Se usa para
+ * pintar la barra de URL / status bar mobile via `<meta name="theme-color">`,
+ * de modo que la chrome del navegador (Safari iOS y Chrome Android) se
+ * integra con el fondo del portfolio en vez de salir gris/blanco por defecto.
+ *
+ * Cached con `react.cache` para que `generateMetadata`, `generateViewport` y
+ * el render principal compartan el mismo SELECT en cada request.
+ */
+const getPlayerThemeColor = cache(async (slug: string): Promise<string> => {
+  const fallback = "#050505";
+  try {
+    const rows = await db
+      .select({ bg: profileThemeSettings.backgroundColor })
+      .from(playerProfiles)
+      .leftJoin(
+        profileThemeSettings,
+        eq(profileThemeSettings.playerId, playerProfiles.id),
+      )
+      .where(
+        and(
+          eq(playerProfiles.slug, slug),
+          eq(playerProfiles.visibility, "public"),
+          eq(playerProfiles.status, "approved"),
+        ),
+      )
+      .limit(1);
+    return rows[0]?.bg ?? fallback;
+  } catch {
+    return fallback;
+  }
+});
+
+/**
+ * `generateViewport` (Next 15 App Router) emite las meta tags `theme-color` y
+ * `viewport` por página. Acá usamos el background del theme del jugador, que
+ * iOS Safari pinta detrás de la URL bar (efecto inmersivo: la barra se mimetiza
+ * con el hero en lugar de ser una franja gris/blanca encima del contenido).
+ */
+export async function generateViewport({ params }: { params: Params }): Promise<Viewport> {
+  const { slug } = await params;
+  const bg = await getPlayerThemeColor(slug);
+  return {
+    themeColor: bg,
+    // En iOS standalone PWA, este modo deja el status bar transparente para
+    // que el contenido pase por debajo. En navegador normal no aplica pero
+    // tampoco hace daño.
+    colorScheme: "dark",
+  };
+}
 
 /**
  * Build a SEO-rich title + description from the player's public data.

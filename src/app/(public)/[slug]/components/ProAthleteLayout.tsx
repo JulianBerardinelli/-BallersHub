@@ -130,19 +130,30 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
         {/* Layer 0: Radial Dark Gradient & Ambient Color */}
         <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-black/20 via-black to-black opacity-90" />
         
-        {/* Layer 1: Texturas & Particulas Estáticas */}
-        <div 
-          className="absolute inset-0 z-0 mix-blend-overlay opacity-30 pointer-events-none" 
-          style={{ backgroundImage: `url('/images/pack/particles/noise_2.jpg')`, backgroundSize: 'cover' }} 
+        {/* Layer 1: Texturas & Particulas — Estática (noise) + drift suave en
+            partículas y light-leak para que el fondo respire sin distraer. */}
+        <div
+          className="absolute inset-0 z-0 mix-blend-overlay opacity-30 pointer-events-none"
+          style={{ backgroundImage: `url('/images/pack/particles/noise_2.jpg')`, backgroundSize: 'cover' }}
         />
-        <div 
-          className="absolute inset-0 z-10 mix-blend-screen opacity-30 pointer-events-none" 
-          style={{ backgroundImage: `url('/images/pack/particles/particle_1.png')`, backgroundSize: 'cover', backgroundPosition: 'center' }} 
+        <motion.div
+          className="absolute inset-0 z-10 mix-blend-screen opacity-30 pointer-events-none"
+          style={{ backgroundImage: `url('/images/pack/particles/particle_1.png')`, backgroundSize: '120% 120%', backgroundPosition: 'center', willChange: 'background-position' }}
+          animate={{
+            backgroundPosition: ['50% 50%', '52% 48%', '48% 52%', '50% 50%'],
+          }}
+          transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
         />
-        {/* Destellos simulados (si Leak existe) */}
-        <div 
-          className="absolute inset-0 z-10 mix-blend-screen opacity-40 pointer-events-none grayscale" 
-          style={{ backgroundImage: `url('/images/pack/flares/light_leak_1.png')`, backgroundSize: 'cover', backgroundPosition: 'top right' }} 
+        {/* Destellos / humo simulados — opacidad reducida + drift lento para
+            que sume atmósfera sin tapar al jugador. */}
+        <motion.div
+          className="absolute inset-0 z-10 mix-blend-screen opacity-20 pointer-events-none grayscale"
+          style={{ backgroundImage: `url('/images/pack/flares/light_leak_1.png')`, backgroundSize: '140% 140%', backgroundPosition: 'top right', willChange: 'background-position, opacity' }}
+          animate={{
+            opacity: [0.16, 0.24, 0.16],
+            backgroundPosition: ['top right', '60% 20%', 'top right'],
+          }}
+          transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
         />
         
         {/* Color de acento reaccionando dinámicamente como luz */}
@@ -176,24 +187,33 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
           elementos perfectamente a sus bordes reales.
           ======================================================================== 
         */}
-        <motion.div 
-          className="absolute z-40 w-full flex flex-col justify-center items-center pointer-events-none select-none"
+        <motion.div
+          className="absolute z-40 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none pl-5 md:pl-0"
           style={{ y: textY }}
         >
           <div className="relative w-fit">
-            
-            {/* CABECERA FLOTANTE JUSTIFICADA */}
-            <div className="absolute bottom-[90%] left-0 w-full flex justify-between items-end mb-2 md:mb-4">
-              
-              {/* NOMBRE PEQUEÑO (Alineado estrictamente a la izquierda) */}
-              <motion.div 
-                className="flex items-center gap-3 md:gap-5"
+
+            {/*
+              CABECERA FLOTANTE — Desktop: nombre a la izquierda + metadatos a la
+              derecha en una sola línea, justificados al borde real del apellido.
+              Mobile: como el asset pro vive a la derecha del viewport, el nombre
+              y los metadatos se anclan a la izquierda (items-start) en una
+              segunda línea bajo el nombre, evitando colisión con el cutout.
+            */}
+            <div className="absolute bottom-[90%] left-0 w-full flex flex-col md:flex-row md:justify-between md:items-end items-start gap-1.5 md:gap-0 mb-2 md:mb-4">
+
+              {/* NOMBRE PEQUEÑO — orden invertido en mobile (queda debajo de
+                  los metadatos para que "CENTRODELANTERO + flags" lidere la
+                  cabecera). Desktop conserva el orden natural (nombre a la
+                  izquierda, metadatos a la derecha del apellido). */}
+              <motion.div
+                className="flex items-center gap-3 md:gap-5 order-2 md:order-none"
                 initial="hidden" animate="visible" variants={nameVariants}
               >
-                <div className="w-8 md:w-12 h-[2px] bg-white opacity-40 md:opacity-70" />
-                <motion.div 
-                  className="text-[clamp(1rem,3vw,1.8rem)] md:tracking-[0.4em] tracking-[0.2em] font-light uppercase text-white"
-                  animate={{ 
+                <div className="w-6 md:w-12 h-[2px] bg-white opacity-40 md:opacity-70" />
+                <motion.div
+                  className="text-[clamp(0.95rem,3.6vw,1.8rem)] tracking-[0.18em] md:tracking-[0.4em] font-light uppercase text-white whitespace-nowrap"
+                  animate={{
                     opacity: [0.8, 1, 0.8],
                     textShadow: [
                       `0px 0px 10px ${accentColor}`,
@@ -207,30 +227,30 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
                 </motion.div>
               </motion.div>
 
-              {/* METADATOS (Alineado estrictamente a la derecha) */}
-              <motion.div 
-                className="flex items-center gap-2 md:gap-4 pb-[2px]"
+              {/* METADATOS: posición + flags. En mobile bajan a línea propia. */}
+              <motion.div
+                className="flex items-center gap-2 md:gap-4 pb-[2px] max-w-full"
                 initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
                 animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                 transition={{ type: "spring", stiffness: 100, damping: 14, delay: 0.3 }}
               >
                 {player.positions && player.positions.length > 0 && (
-                  <div className="text-white tracking-[0.1em] md:tracking-[0.2em] uppercase font-bold text-[10px] md:text-sm lg:text-base opacity-95 drop-shadow-md">
+                  <div className="text-white tracking-[0.1em] md:tracking-[0.2em] uppercase font-bold text-[10px] md:text-sm lg:text-base opacity-95 drop-shadow-md whitespace-nowrap">
                     {/* Toma la última posición después de filtrarla */}
                     {formatPlayerPositions(player.positions).split(" / ").pop()}
                   </div>
                 )}
-                
+
                 {/* Separador estético circular */}
                 {(player as any).nationalityCodes && ((player as any).nationalityCodes as string[]).length > 0 && player.positions?.length && player.positions?.length > 0 && (
-                  <div className="w-1.5 h-1.5 rounded-full bg-white opacity-60 mx-1" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white opacity-60 mx-0.5 md:mx-1" />
                 )}
 
                 {/* Flags Container en fila (Sin Border Radius) */}
                 {(player as any).nationalityCodes && ((player as any).nationalityCodes as string[]).length > 0 && (
-                  <div className="flex items-center gap-2 drop-shadow-lg">
+                  <div className="flex items-center gap-1.5 md:gap-2 drop-shadow-lg">
                     {((player as any).nationalityCodes as string[])?.slice(0, 3).map((code: string) => (
-                      <span key={code} className={`fi fi-${code.toLowerCase()} text-base md:text-xl shadow-md bg-center`} style={{ borderRadius: "0" }} />
+                      <span key={code} className={`fi fi-${code.toLowerCase()} text-sm md:text-xl shadow-md bg-center`} style={{ borderRadius: "0" }} />
                     ))}
                   </div>
                 )}
@@ -261,23 +281,26 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
           rendered as blocks so the parallax animation is preserved
           visually but the semantic outline stays clean.
         */}
-        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY6, opacity: 0.05 }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</span>
+        {/* Ghost trails — grosores afinados + paint-order stroke fill para
+            evitar las intersecciones cruzadas del webkit-text-stroke en letras
+            con curvas internas (B, R, Ä, …). */}
+        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: trailY6, opacity: 0.05 }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: "1px var(--theme-accent)", paintOrder: "stroke fill" }}>{lastName}</span>
         </motion.div>
-        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY5, opacity: 0.1 }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)]">{lastName}</span>
+        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: trailY5, opacity: 0.1 }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: "1px var(--theme-accent)", paintOrder: "stroke fill" }}>{lastName}</span>
         </motion.div>
-        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY4, opacity: 0.15 }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:2px_var(--theme-accent)]">{lastName}</span>
+        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: trailY4, opacity: 0.15 }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: "1px var(--theme-accent)", paintOrder: "stroke fill" }}>{lastName}</span>
         </motion.div>
-        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY3, opacity: 0.2 }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1px_var(--theme-accent)] md:[-webkit-text-stroke:3px_var(--theme-accent)]">{lastName}</span>
+        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: trailY3, opacity: 0.2 }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: "1.25px var(--theme-accent)", paintOrder: "stroke fill" }}>{lastName}</span>
         </motion.div>
-        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY2, opacity: 0.3 }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:1.5px_var(--theme-accent)] md:[-webkit-text-stroke:4px_var(--theme-accent)]">{lastName}</span>
+        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: trailY2, opacity: 0.28 }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: "1.25px var(--theme-accent)", paintOrder: "stroke fill" }}>{lastName}</span>
         </motion.div>
-        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen" style={{ y: trailY1, opacity: 0.4 }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)]">{lastName}</span>
+        <motion.div className="absolute z-15 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: trailY1, opacity: 0.35 }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: "1.5px var(--theme-accent)", paintOrder: "stroke fill" }}>{lastName}</span>
         </motion.div>
 
         {/*
@@ -300,47 +323,57 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
             users see `${lastName}` rendered huge. `aria-label` makes screen
             readers announce the full name in one phrase. */}
         <motion.div
-          className="absolute z-20 w-full flex flex-col justify-center items-center pointer-events-none select-none"
+          className="absolute z-20 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none pl-5 md:pl-0"
           style={{ y: textY }}
         >
           <motion.h1
             initial="hidden" animate="visible" variants={lastNameVariants}
             aria-label={player.fullName}
-            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center w-fit mx-auto"
+            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-left md:text-center w-fit md:mx-auto"
           >
             <span className="sr-only">{firstName} </span>
             <span aria-hidden="true">{lastName}</span>
           </motion.h1>
         </motion.div>
 
-        {/* LAYER 2 — CUTOUT PLAYER (PNG transparent), middle of the stack. */}
+        {/* LAYER 2 — CUTOUT PLAYER (PNG transparent), middle of the stack.
+            Mobile: lo subimos (top más alto y bottom negativo más alto para
+            que crezca) y le damos un leve scale + un push fuerte a la derecha
+            para que el jugador "se asome" desde el costado sin pisar el
+            nombre/apellido centrados, manteniendo `overflow-hidden` del padre
+            para que NUNCA genere scroll horizontal.
+            Desktop: se mantiene la configuración original. */}
         <motion.div
           style={{ y: playerY }}
           initial={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
           transition={{ duration: 1.5, ease: "easeOut" }}
-          className="absolute z-30 bottom-[-5vh] md:bottom-0 top-[15vh] w-full max-w-[1200px] flex justify-center items-end"
+          className="absolute z-30 bottom-[-2vh] md:bottom-0 top-[8vh] md:top-[15vh] w-full max-w-[1200px] flex justify-center items-end"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={player.heroUrl || undefined}
             alt={player.fullName}
-            className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125"
+            className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 scale-[1.18] md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
           />
         </motion.div>
 
-        {/* LAYER 3 — ACCENT-OUTLINE title (front). Tinted with the player's
-            `--theme-accent`. Sits IN FRONT of the player image so the
-            stroked silhouette wraps around the cutout. */}
+        {/* LAYER 3 — ACCENT-OUTLINE title (front). Tinted con el `--theme-accent`
+            del player y dibujado en FRENTE del PNG para que el contorno envuelva
+            la silueta. Se usa `paint-order: stroke fill` + grosores finos para
+            que los trazos no se intersecten dentro de la letra (que era lo que
+            producía los "cortes" feos en el border anterior). */}
         <motion.div
-          className="absolute z-[35] w-full flex flex-col justify-center items-center pointer-events-none select-none"
+          className="absolute z-[35] w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none pl-5 md:pl-0"
           style={{ y: textY }}
         >
           <motion.span
             initial="hidden" animate="visible" variants={lastNameVariants}
             aria-hidden="true"
-            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full [-webkit-text-stroke:2px_var(--theme-accent)] md:[-webkit-text-stroke:5px_var(--theme-accent)] text-transparent"
+            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-left md:text-center w-fit md:w-full text-transparent"
             style={{
+              WebkitTextStroke: `1.5px ${accentColor}`,
+              paintOrder: "stroke fill",
               filter: `drop-shadow(0px 0px 20px ${accentColor}40)`,
             }}
           >

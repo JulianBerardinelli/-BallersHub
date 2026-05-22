@@ -700,6 +700,11 @@ export default function ProfileTacticsModule({
   const [lightboxImg, setLightboxImg] = useState<string | null>(null);
   const [openCard, setOpenCard] = useState<string | null>(null);
   const [videosModalOpen, setVideosModalOpen] = useState(false);
+  // Mobile-only: collapse the "Cualidades Destacadas" chip cluster to the first
+  // N items with an opacity-fade "Ver más" affordance so long lists don't push
+  // the accordion cards out of the scroll-jacked 100dvh viewport.
+  const [showAllCharacteristics, setShowAllCharacteristics] = useState(false);
+  const MOBILE_CHIPS_VISIBLE = 5;
 
   // Custom live-measurement hook (see `src/hooks/useStableScrollProgress.ts`)
   // instead of framer-motion's `useScroll({ target })` — the latter caches
@@ -1137,33 +1142,133 @@ export default function ProfileTacticsModule({
                 {/* ▸ MOBILE layout (< lg): características + acordeones (sin fotos) */}
                 <div className="flex lg:hidden flex-col gap-2 h-full relative">
 
-                  {/* Avatar + Características principales */}
+                  {/*
+                    Cualidades Destacadas — mobile:
+                      • título a dos líneas ("Cualidades Destacadas / Principales
+                        fortalezas") que mantiene la jerarquía del desktop,
+                      • chips tintados con el `--theme-primary` (mismo lenguaje
+                        que el desktop, no la pildora gris/blanca que tenía
+                        antes),
+                      • si el jugador cargó más chips que `MOBILE_CHIPS_VISIBLE`,
+                        se colapsan en los primeros 5 + un toggle "ver más" que
+                        revela el resto con un fade animado (AnimatePresence).
+                  */}
                   <motion.div
                     style={{ opacity: scoutTacticOpac, y: scoutTacticY }}
-                    className="flex items-center gap-2.5 shrink-0 mb-0.5 mt-5 relative z-10 w-[85%] max-w-[320px]"
+                    className="flex items-start gap-2.5 shrink-0 mb-1 mt-2 relative z-10 w-[88%] max-w-[340px]"
                   >
                     {/* Avatar pequeño */}
-                    <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 shrink-0 bg-neutral-800">
+                    <div className="w-8 h-8 rounded-full overflow-hidden border border-white/20 shrink-0 bg-neutral-800 mt-0.5">
                       <img
                         src={player.avatarUrl || "/images/player-default.jpg"}
                         alt=""
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    {/* Label + chips en wrap */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-[8px] sm:text-[9px] uppercase font-black tracking-[0.2em] text-white/40 whitespace-nowrap border-r border-white/15 pr-2">
-                        Características
-                      </span>
-                      {characteristics.map((char: string, i: number) => (
-                        <div
-                          key={i}
-                          className="px-2.5 py-0.5 flex items-center gap-1 rounded-full border border-white/15 bg-white/5 text-[8px] font-bold tracking-widest text-white/65 uppercase backdrop-blur-sm"
-                        >
-                          <span className="w-[5px] h-[5px] rounded-full bg-white/40 shrink-0" />
-                          {char}
-                        </div>
-                      ))}
+
+                    <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+                      {/* En mobile sólo "Principales Fortalezas" — el bloque de
+                          ancho < 340px no banca dos labels + divisor sin que la
+                          segunda se trunque. Desktop mantiene el header completo
+                          en su propia rama del JSX más abajo. */}
+                      <div className="flex items-center gap-2 whitespace-nowrap">
+                        <span className="text-[10px] uppercase font-black tracking-[0.22em] text-[var(--theme-accent)] leading-none">
+                          Principales Fortalezas
+                        </span>
+                      </div>
+
+                      {/* Chips: primer batch siempre visible, resto con fade.
+                          Color tomado del `--theme-primary` (igual que el
+                          desktop) en lugar del white/5 anterior. */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {characteristics.slice(0, MOBILE_CHIPS_VISIBLE).map((char: string, i: number) => (
+                          <div
+                            key={`base-${i}`}
+                            className="px-2 py-0.5 flex items-center gap-1 rounded-full text-[8px] font-bold tracking-widest uppercase backdrop-blur-sm"
+                            style={{
+                              border: "1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent)",
+                              background: "color-mix(in srgb, var(--theme-primary) 12%, transparent)",
+                              color: "rgba(255,255,255,0.9)",
+                            }}
+                          >
+                            <span
+                              className="w-[5px] h-[5px] rounded-full shrink-0"
+                              style={{ background: "var(--theme-primary)" }}
+                            />
+                            {char}
+                          </div>
+                        ))}
+
+                        <AnimatePresence initial={false}>
+                          {showAllCharacteristics &&
+                            characteristics
+                              .slice(MOBILE_CHIPS_VISIBLE)
+                              .map((char: string, i: number) => (
+                                <motion.div
+                                  key={`extra-${i}`}
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.9 }}
+                                  transition={{ duration: 0.2, delay: i * 0.04 }}
+                                  className="px-2 py-0.5 flex items-center gap-1 rounded-full text-[8px] font-bold tracking-widest uppercase backdrop-blur-sm"
+                                  style={{
+                                    border: "1px solid color-mix(in srgb, var(--theme-primary) 30%, transparent)",
+                                    background: "color-mix(in srgb, var(--theme-primary) 12%, transparent)",
+                                    color: "rgba(255,255,255,0.9)",
+                                  }}
+                                >
+                                  <span
+                                    className="w-[5px] h-[5px] rounded-full shrink-0"
+                                    style={{ background: "var(--theme-primary)" }}
+                                  />
+                                  {char}
+                                </motion.div>
+                              ))}
+                        </AnimatePresence>
+
+                        {characteristics.length > MOBILE_CHIPS_VISIBLE && (
+                          <button
+                            type="button"
+                            onClick={() => setShowAllCharacteristics((v) => !v)}
+                            aria-expanded={showAllCharacteristics}
+                            aria-label={
+                              showAllCharacteristics
+                                ? "Ver menos cualidades"
+                                : `Ver ${characteristics.length - MOBILE_CHIPS_VISIBLE} cualidades más`
+                            }
+                            className="px-2 py-0.5 flex items-center gap-1 rounded-full text-[8px] font-bold tracking-widest uppercase transition-colors"
+                            style={{
+                              border: "1px solid color-mix(in srgb, var(--theme-accent) 40%, transparent)",
+                              background: "color-mix(in srgb, var(--theme-accent) 14%, transparent)",
+                              color: "var(--theme-accent)",
+                            }}
+                          >
+                            {showAllCharacteristics ? (
+                              <>
+                                Ver menos
+                                <motion.span
+                                  animate={{ rotate: 180 }}
+                                  className="inline-block leading-none"
+                                  aria-hidden="true"
+                                >
+                                  ↓
+                                </motion.span>
+                              </>
+                            ) : (
+                              <>
+                                +{characteristics.length - MOBILE_CHIPS_VISIBLE}
+                                <motion.span
+                                  animate={{ rotate: 0 }}
+                                  className="inline-block leading-none"
+                                  aria-hidden="true"
+                                >
+                                  ↓
+                                </motion.span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </motion.div>
 
@@ -1216,21 +1321,23 @@ export default function ProfileTacticsModule({
                 >
                   {(player.modelUrl1 || player.modelUrl2) ? (
                     <div className="w-full relative h-full">
-                      {/* Ground Shadow (Piso) - aligned with the image bottom-left anchor */}
+                      {/* Ground Shadow (Piso) — re-anclada al nuevo origen del
+                          asset para que la sombra acompañe la base del PNG. */}
                       <div
-                        className="absolute bottom-0 left-[6%] w-[55%] h-[18px] pointer-events-none z-0"
+                        className="absolute bottom-0 left-[28%] w-[55%] h-[18px] pointer-events-none z-0"
                         style={{ background: "radial-gradient(ellipse at center, rgba(0,0,0,0.55) 0%, transparent 70%)" }}
                       />
 
-                      {/* Asset Pro PNG — anchored bottom-left, scaled by height so it
-                          bleeds past the 3/12 column and sits BEHIND the right cards
-                          (Layer 2 parent has overflow-hidden, so the bleed is clipped
-                          at the row edges — the player overlapping the cards is the
-                          intended visual). */}
+                      {/* Asset Pro PNG — corrido hacia la derecha para que el
+                          recorte del jugador no quede pegado al borde izquierdo
+                          del viewport (cortaba la imagen visualmente). Sigue
+                          bleed-past la columna 3/12 y se mete por detrás de las
+                          cards (parent tiene overflow-hidden y las cards van con
+                          z-index superior, así que es el solapamiento buscado). */}
                       <img
                          src={player.modelUrl1 || player.modelUrl2}
                          alt="Player full body"
-                         className="absolute bottom-0 -left-32 w-auto h-[95%] max-w-none max-h-[95vh] object-contain object-left-bottom"
+                         className="absolute bottom-0 left-[12%] xl:left-[18%] w-auto h-[95%] max-w-none max-h-[95vh] object-contain object-left-bottom"
                          style={{
                             transformOrigin: "bottom left",
                             WebkitMaskImage: "linear-gradient(to top, transparent 0%, black 32%)",
