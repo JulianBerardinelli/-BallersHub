@@ -3,16 +3,18 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@heroui/react";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Pencil } from "lucide-react";
 import type { PlayerMedia } from "@/db/schema/media";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { bhChip } from "@/lib/ui/heroui-brand";
+import MediaEditModal from "./MediaEditModal";
 
 export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<PlayerMedia | null>(null);
 
   const handleDelete = async (id: string) => {
     if (!confirm("¿Estás seguro de que deseas eliminar este archivo?")) {
@@ -50,6 +52,7 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
   };
 
   return (
+    <>
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {items.map((item) => {
         const isFlagged = item.isFlagged;
@@ -109,6 +112,24 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
                   </Chip>
                 )}
               </div>
+
+              {/* Hover-only edit affordance: lime circle + black pencil. The
+                  YouTube iframe captures pointer events so the hover trigger
+                  has to live in a sibling overlay (pointer-events-none on the
+                  wrapper, pointer-events-auto on the button itself). */}
+              {!isFlagged && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-200 group-hover:bg-black/35 group-hover:opacity-100">
+                  <button
+                    type="button"
+                    onClick={() => setEditingItem(item)}
+                    aria-label={`Editar ${item.type === "video" ? "video" : "imagen"}`}
+                    title="Editar"
+                    className="pointer-events-auto inline-flex h-11 w-11 items-center justify-center rounded-full bg-bh-lime text-black shadow-lg shadow-bh-lime/30 transition-transform hover:scale-105 active:scale-95"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Content & Actions */}
@@ -149,5 +170,17 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
         );
       })}
     </div>
+    <MediaEditModal
+      item={editingItem}
+      isOpen={editingItem !== null}
+      onOpenChange={(open) => {
+        if (!open) setEditingItem(null);
+      }}
+      onSaved={() => {
+        setEditingItem(null);
+        router.refresh();
+      }}
+    />
+    </>
   );
 }
