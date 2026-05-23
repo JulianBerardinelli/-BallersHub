@@ -394,9 +394,20 @@ export default async function PlayerPublicPage({
     : [];
   const teamById = new Map(teamRows.map((t) => [t.id, t]));
 
+  // Cada career_item tiene su propia división (la del momento que el jugador
+  // disputó esa etapa). NO usamos team.divisionId como fallback acá — el team
+  // pudo cambiar de liga, pero la trayectoria es un snapshot histórico. El
+  // único caso donde team.divisionId vale es el header del jugador (división
+  // "actual"), que se resuelve más abajo via player.currentTeamId.
   const divisionIdSet = new Set<string>();
-  for (const c of careerRows) if (c.divisionId) divisionIdSet.add(c.divisionId);
-  for (const t of teamRows) if (t.divisionId) divisionIdSet.add(t.divisionId);
+  for (const c of careerRows) {
+    if (c.divisionId) divisionIdSet.add(c.divisionId);
+    if (c.secondaryDivisionId) divisionIdSet.add(c.secondaryDivisionId);
+  }
+  if (player.currentTeamId) {
+    const currentTeamRow = teamById.get(player.currentTeamId);
+    if (currentTeamRow?.divisionId) divisionIdSet.add(currentTeamRow.divisionId);
+  }
 
   const divisionRows = divisionIdSet.size
     ? await db
@@ -461,14 +472,20 @@ export default async function PlayerPublicPage({
     const startYear = c.startDate ? new Date(c.startDate).getFullYear() : null;
     const endYear = c.endDate ? new Date(c.endDate).getFullYear() : null;
     const team = c.teamId ? teamById.get(c.teamId) : null;
-    const divisionId = c.divisionId ?? team?.divisionId ?? null;
-    const division = divisionId ? divisionById.get(divisionId) : null;
+    // Solo usamos la división del career_item — la del team puede haber
+    // cambiado y no representa la etapa real del jugador.
+    const division = c.divisionId ? divisionById.get(c.divisionId) : null;
+    const secondaryDivision = c.secondaryDivisionId
+      ? divisionById.get(c.secondaryDivisionId)
+      : null;
     return {
       id: c.id,
       club: team?.name ?? c.club,
       countryCode: team?.countryCode ?? null,
       divisionName: division?.name ?? c.division ?? null,
       divisionCrestUrl: division?.crestUrl ?? null,
+      secondaryDivisionName: secondaryDivision?.name ?? null,
+      secondaryDivisionCrestUrl: secondaryDivision?.crestUrl ?? null,
       teamCrestUrl: team?.crestUrl ?? null,
       startYear,
       endYear,
