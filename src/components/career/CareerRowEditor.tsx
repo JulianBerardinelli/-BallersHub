@@ -295,7 +295,11 @@ export default function CareerRowEditor({
   };
 
   return (
-    <div className="grid grid-cols-1 items-end gap-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4 lg:grid-cols-5">
+    <div
+      className={`grid grid-cols-1 items-end gap-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4 ${
+        secondaryEnabled ? "lg:grid-cols-6" : "lg:grid-cols-5"
+      }`}
+    >
       <div className="lg:col-span-2">
         <Autocomplete
           label="Club"
@@ -360,8 +364,7 @@ export default function CareerRowEditor({
         </Autocomplete>
       </div>
 
-      <div className="flex flex-col gap-2">
-        <Autocomplete
+      <Autocomplete
           label="División"
           labelPlacement="outside"
           menuTrigger="input"
@@ -416,7 +419,7 @@ export default function CareerRowEditor({
         </Autocomplete>
 
         {secondaryEnabled ? (
-          <Autocomplete
+        <Autocomplete
             label="Otra categoría/liga"
             labelPlacement="outside"
             menuTrigger="input"
@@ -491,7 +494,6 @@ export default function CareerRowEditor({
             }}
           </Autocomplete>
         ) : null}
-      </div>
 
       <FormField
         type="text"
@@ -522,62 +524,66 @@ export default function CareerRowEditor({
         isInvalid={endInvalid}
       />
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between lg:col-span-5">
-        <div className="flex flex-wrap items-center gap-2">
-          {value.team_id && (
-            <Chip variant="flat" classNames={bhChip("success")}>Equipo verificado</Chip>
-          )}
-          {!value.team_id && value.proposed?.country && (
-            <Chip
-              variant="flat"
-              startContent={<CountryFlag code={value.proposed.country.code} size={12} />}
-              classNames={bhChip("neutral")}
-            >
-              {value.proposed.country.name}
-            </Chip>
-          )}
-          {!value.team_id && value.proposed?.tmUrl && (
-            <Chip variant="flat" classNames={bhChip("blue")}>TM OK</Chip>
-          )}
-          {showErrors && yMsgs.length > 0 && (
-            <span className="text-[12px] text-bh-danger">{yMsgs[0]}</span>
-          )}
-          {overlapError && (
-            <span className="text-[12px] text-bh-danger">{overlapError}</span>
-          )}
-        </div>
+      <div className={`flex flex-col gap-3 ${secondaryEnabled ? "lg:col-span-6" : "lg:col-span-5"}`}>
+        {/* Fila de toggles — alineados a la derecha, encima de los botones. */}
+        <div className="flex flex-wrap items-center justify-end gap-x-5 gap-y-2">
+            {showCurrentToggle ? (
+              <Switch
+                size="sm"
+                isSelected={isCurrent}
+                onValueChange={(selected) => {
+                  if (selected) {
+                    const allowed = onRequestCurrentChange ? onRequestCurrentChange(true) !== false : true;
+                    if (!allowed) return;
+                    onPatch({ source: "current", lockEnd: true, end_year: null });
+                  } else {
+                    onPatch({ source: "manual", lockEnd: false });
+                    onRequestCurrentChange?.(false);
+                  }
+                }}
+                classNames={bhSwitchClassNames}
+              >
+                Es mi equipo actual
+              </Switch>
+            ) : null}
 
-        <div className="flex flex-wrap items-center gap-3">
-          {showCurrentToggle ? (
             <Switch
               size="sm"
-              isSelected={isCurrent}
-              onValueChange={(selected) => {
-                if (selected) {
-                  const allowed = onRequestCurrentChange ? onRequestCurrentChange(true) !== false : true;
-                  if (!allowed) return;
-                  onPatch({ source: "current", lockEnd: true, end_year: null });
-                } else {
-                  onPatch({ source: "manual", lockEnd: false });
-                  onRequestCurrentChange?.(false);
-                }
-              }}
+              isSelected={secondaryEnabled}
+              onValueChange={toggleSecondary}
               classNames={bhSwitchClassNames}
             >
-              Es mi equipo actual
+              Disputé otra categoría/liga
             </Switch>
-          ) : null}
+        </div>
 
-          <Switch
-            size="sm"
-            isSelected={secondaryEnabled}
-            onValueChange={toggleSecondary}
-            classNames={bhSwitchClassNames}
-          >
-            Disputé otra categoría/liga
-          </Switch>
+        {/* Fila inferior — chips/errores a la izquierda, botones a la derecha. */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            {value.team_id && (
+              <Chip variant="flat" classNames={bhChip("success")}>Equipo verificado</Chip>
+            )}
+            {!value.team_id && value.proposed?.country && (
+              <Chip
+                variant="flat"
+                startContent={<CountryFlag code={value.proposed.country.code} size={12} />}
+                classNames={bhChip("neutral")}
+              >
+                {value.proposed.country.name}
+              </Chip>
+            )}
+            {!value.team_id && value.proposed?.tmUrl && (
+              <Chip variant="flat" classNames={bhChip("blue")}>TM OK</Chip>
+            )}
+            {showErrors && yMsgs.length > 0 && (
+              <span className="text-[12px] text-bh-danger">{yMsgs[0]}</span>
+            )}
+            {overlapError && (
+              <span className="text-[12px] text-bh-danger">{overlapError}</span>
+            )}
+          </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             {!value.team_id && (
               <Button
                 size="sm"
