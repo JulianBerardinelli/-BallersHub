@@ -38,6 +38,11 @@ export type RowDraft = {
   division?: string | null;
   division_id?: string | null;
   division_meta?: { crest_url?: string | null } | null;
+  // Categoría/liga adicional opcional para etapas donde el jugador disputó
+  // dos competencias en simultáneo (reserva, equipo II/U20, etc).
+  secondary_division?: string | null;
+  secondary_division_id?: string | null;
+  secondary_division_meta?: { crest_url?: string | null } | null;
   start_year?: number | null;
   end_year?: number | null;
   team_id?: string | null;
@@ -79,12 +84,23 @@ export default function CareerRowEditor({
   const [selectedTeam, setSelectedTeam] = React.useState<TeamLite | null>(null);
   const selectedLabelRef = React.useRef<string | null>(value.club || null);
 
-  // --- Autocomplete Division ---
+  // --- Autocomplete Division (principal) ---
   const [divQ, setDivQ] = React.useState(value.division ?? "");
   const [divs, setDivs] = React.useState<any[]>([]);
   const [divLoading, setDivLoading] = React.useState(false);
   const [selectedDivKey, setSelectedDivKey] = React.useState<string | null>(
     value.division_id ? value.division_id : null
+  );
+
+  // --- Autocomplete Division (secundaria opcional) ---
+  // El toggle queda activo si la fila viene con secundaria persistida o si
+  // el usuario lo activa manualmente. Limpiar el toggle dropea ambos campos.
+  const [secondaryEnabled, setSecondaryEnabled] = React.useState<boolean>(
+    Boolean(value.secondary_division_id || (value.secondary_division ?? "").trim())
+  );
+  const [secondaryDivQ, setSecondaryDivQ] = React.useState(value.secondary_division ?? "");
+  const [selectedSecondaryDivKey, setSelectedSecondaryDivKey] = React.useState<string | null>(
+    value.secondary_division_id ? value.secondary_division_id : null
   );
 
   React.useEffect(() => {
@@ -94,7 +110,7 @@ export default function CareerRowEditor({
       let query = supabase.from("divisions").select("id, name, country_code, crest_url").eq("status", "approved");
       const c = value.team_meta?.country_code || value.proposed?.country?.code;
       if (c) query = query.eq("country_code", c);
-      
+
       const { data } = await query.order("level", { ascending: true, nullsFirst: false });
       if (cancelled) return;
       setDivs(data || []);
@@ -185,6 +201,31 @@ export default function CareerRowEditor({
     onPatch({ division: v });
   }
 
+  function handleSecondaryDivChange(v: string) {
+    setSecondaryDivQ(v);
+    if (
+      selectedSecondaryDivKey &&
+      v !== divs.find((d) => d.id === selectedSecondaryDivKey)?.name
+    ) {
+      setSelectedSecondaryDivKey(null);
+      onPatch({ secondary_division_id: null, secondary_division_meta: null });
+    }
+    onPatch({ secondary_division: v });
+  }
+
+  function toggleSecondary(enabled: boolean) {
+    setSecondaryEnabled(enabled);
+    if (!enabled) {
+      setSecondaryDivQ("");
+      setSelectedSecondaryDivKey(null);
+      onPatch({
+        secondary_division: null,
+        secondary_division_id: null,
+        secondary_division_meta: null,
+      });
+    }
+  }
+
   function saveModal() {
     onPatch({ proposed: { country: tmpCountry ?? null, tmUrl: tmpTm || null } });
     setModalOpen(false);
@@ -225,24 +266,30 @@ export default function CareerRowEditor({
   }
 
   // shared brand classNames for both Autocompletes
+  // Nota popover: la celda del grid puede ser angosta (ej. División en
+  // lg:col-span-1 ≈ 180px) y trunca el listado a "Prime…"/"Segu…". Forzamos
+  // un ancho mínimo en el popover para que los nombres de liga se vean
+  // completos, sin agrandar la celda del input.
   const autocompleteBrandProps = {
     inputProps: {
       classNames: {
         inputWrapper:
           "bg-bh-surface-1 border border-white/[0.08] shadow-none transition-colors duration-150 hover:border-white/[0.18] data-[focus=true]:border-bh-lime data-[focus=true]:bg-bh-surface-1 data-[invalid=true]:border-bh-danger",
         input: "text-[14px] text-bh-fg-1 placeholder:text-bh-fg-4",
-        label: "!text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2",
+        label: "!text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2 whitespace-nowrap",
       },
     },
     listboxProps: {
       itemClasses: {
         base: "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1 data-[selectable=true]:focus:bg-white/[0.05] data-[focus=true]:bg-white/[0.05]",
-        title: "text-[13px]",
+        title: "text-[13px] whitespace-normal",
       },
     },
     popoverProps: {
+      placement: "bottom-start" as const,
       classNames: {
-        content: "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg",
+        content:
+          "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg min-w-[320px] max-w-[420px]",
       },
     },
   };
@@ -313,59 +360,138 @@ export default function CareerRowEditor({
         </Autocomplete>
       </div>
 
-      <Autocomplete
-        label="División/Categoría"
-        labelPlacement="outside"
-        menuTrigger="input"
-        {...autocompleteBrandProps}
-        inputValue={divQ}
-        onInputChange={handleDivChange}
-        isLoading={divLoading}
-        selectedKey={selectedDivKey ?? undefined}
-        onSelectionChange={(key) => {
-          const k = String(key || "");
-          if (!k) return;
-          const isNew = k.startsWith("new:");
-          if (isNew) {
-            setSelectedDivKey(k);
-            onPatch({ division_id: null, division: divQ, division_meta: null });
-          } else {
-            const d = divs.find((i) => i.id === k);
-            if (d) {
-              setSelectedDivKey(d.id);
-              setDivQ(d.name);
-              onPatch({ division: d.name, division_id: d.id, division_meta: { crest_url: d.crest_url } });
+      <div className="flex flex-col gap-2">
+        <Autocomplete
+          label="División"
+          labelPlacement="outside"
+          menuTrigger="input"
+          {...autocompleteBrandProps}
+          inputValue={divQ}
+          onInputChange={handleDivChange}
+          isLoading={divLoading}
+          selectedKey={selectedDivKey ?? undefined}
+          onSelectionChange={(key) => {
+            const k = String(key || "");
+            if (!k) return;
+            const isNew = k.startsWith("new:");
+            if (isNew) {
+              setSelectedDivKey(k);
+              onPatch({ division_id: null, division: divQ, division_meta: null });
+            } else {
+              const d = divs.find((i) => i.id === k);
+              if (d) {
+                setSelectedDivKey(d.id);
+                setDivQ(d.name);
+                onPatch({ division: d.name, division_id: d.id, division_meta: { crest_url: d.crest_url } });
+              }
             }
-          }
-        }}
-        items={[
-          ...(!divLoading && divQ.trim().length > 1 && !divs.some(d => d.name.toLowerCase() === divQ.toLowerCase())
-            ? ([{ id: `new:${divQ.trim()}`, name: divQ.trim() }] as any)
-            : []),
-          ...divs,
-        ]}
-        placeholder="Primera / Sub-20…"
-      >
-        {(item: any) => {
-          const isNew = String(item.id).startsWith("new:");
-          if (isNew) {
+          }}
+          items={[
+            ...(!divLoading && divQ.trim().length > 1 && !divs.some(d => d.name.toLowerCase() === divQ.toLowerCase())
+              ? ([{ id: `new:${divQ.trim()}`, name: divQ.trim() }] as any)
+              : []),
+            ...divs,
+          ]}
+          placeholder="Primera / Sub-20…"
+        >
+          {(item: any) => {
+            const isNew = String(item.id).startsWith("new:");
+            if (isNew) {
+              return (
+                <AutocompleteItem key={item.id} textValue={`Proponer ${item.name}`}>
+                  <div className="flex flex-col">
+                    <span>“{item.name}” (Sugerir nueva liga)</span>
+                  </div>
+                </AutocompleteItem>
+              );
+            }
             return (
-              <AutocompleteItem key={item.id} textValue={`Proponer ${item.name}`}>
-                <div className="flex flex-col">
-                  <span>“{item.name}” (Sugerir nueva liga)</span>
-                </div>
+              <AutocompleteItem key={item.id} textValue={item.name} startContent={
+                  <Image src={item.crest_url || "/images/team-default.svg"} width={16} height={16} unoptimized={!item.crest_url} className="h-4 w-4 object-contain" alt="" />
+              }>
+                {item.name}
               </AutocompleteItem>
             );
-          }
-          return (
-            <AutocompleteItem key={item.id} textValue={item.name} startContent={
-                <Image src={item.crest_url || "/images/team-default.svg"} width={16} height={16} unoptimized={!item.crest_url} className="h-4 w-4 object-contain" alt="" />
-            }>
-              {item.name}
-            </AutocompleteItem>
-          );
-        }}
-      </Autocomplete>
+          }}
+        </Autocomplete>
+
+        {secondaryEnabled ? (
+          <Autocomplete
+            label="Otra categoría/liga"
+            labelPlacement="outside"
+            menuTrigger="input"
+            {...autocompleteBrandProps}
+            inputValue={secondaryDivQ}
+            onInputChange={handleSecondaryDivChange}
+            isLoading={divLoading}
+            selectedKey={selectedSecondaryDivKey ?? undefined}
+            onSelectionChange={(key) => {
+              const k = String(key || "");
+              if (!k) return;
+              const isNew = k.startsWith("new:");
+              if (isNew) {
+                setSelectedSecondaryDivKey(k);
+                onPatch({
+                  secondary_division_id: null,
+                  secondary_division: secondaryDivQ,
+                  secondary_division_meta: null,
+                });
+              } else {
+                const d = divs.find((i) => i.id === k);
+                if (d) {
+                  setSelectedSecondaryDivKey(d.id);
+                  setSecondaryDivQ(d.name);
+                  onPatch({
+                    secondary_division: d.name,
+                    secondary_division_id: d.id,
+                    secondary_division_meta: { crest_url: d.crest_url },
+                  });
+                }
+              }
+            }}
+            items={[
+              ...(!divLoading &&
+              secondaryDivQ.trim().length > 1 &&
+              !divs.some((d) => d.name.toLowerCase() === secondaryDivQ.toLowerCase())
+                ? ([{ id: `new:${secondaryDivQ.trim()}`, name: secondaryDivQ.trim() }] as any)
+                : []),
+              ...divs.filter((d) => d.id !== selectedDivKey),
+            ]}
+            placeholder="Reserva / U20 / Segunda…"
+          >
+            {(item: any) => {
+              const isNew = String(item.id).startsWith("new:");
+              if (isNew) {
+                return (
+                  <AutocompleteItem key={item.id} textValue={`Proponer ${item.name}`}>
+                    <div className="flex flex-col">
+                      <span>“{item.name}” (Sugerir nueva liga)</span>
+                    </div>
+                  </AutocompleteItem>
+                );
+              }
+              return (
+                <AutocompleteItem
+                  key={item.id}
+                  textValue={item.name}
+                  startContent={
+                    <Image
+                      src={item.crest_url || "/images/team-default.svg"}
+                      width={16}
+                      height={16}
+                      unoptimized={!item.crest_url}
+                      className="h-4 w-4 object-contain"
+                      alt=""
+                    />
+                  }
+                >
+                  {item.name}
+                </AutocompleteItem>
+              );
+            }}
+          </Autocomplete>
+        ) : null}
+      </div>
 
       <FormField
         type="text"
@@ -441,6 +567,15 @@ export default function CareerRowEditor({
               Es mi equipo actual
             </Switch>
           ) : null}
+
+          <Switch
+            size="sm"
+            isSelected={secondaryEnabled}
+            onValueChange={toggleSecondary}
+            classNames={bhSwitchClassNames}
+          >
+            Disputé otra categoría/liga
+          </Switch>
 
           <div className="flex gap-2">
             {!value.team_id && (

@@ -19,6 +19,7 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
 
   const divisionIds = Array.from(new Set([
     ...careerRecords.map(c => c.divisionId),
+    ...careerRecords.map(c => c.secondaryDivisionId),
     ...mappedTeams.map(t => t.divisionId)
   ].filter(Boolean) as string[]));
   const mappedDivisions = divisionIds.length > 0
@@ -29,12 +30,16 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
     const teamDb = mappedTeams.find(t => t.id === item.teamId);
     const effectiveDivisionId = item.divisionId || teamDb?.divisionId;
     const divisionDb = mappedDivisions.find(d => d.id === effectiveDivisionId);
+    const secondaryDivisionDb = item.secondaryDivisionId
+      ? mappedDivisions.find(d => d.id === item.secondaryDivisionId)
+      : null;
     return {
       ...item,
       stats: stats.filter(s => s.careerItemId === item.id),
       honours: honours.filter(h => h.careerItemId === item.id),
       team: teamDb || null,
-      divisionData: divisionDb || null
+      divisionData: divisionDb || null,
+      secondaryDivisionData: secondaryDivisionDb || null
     };
   });
 

@@ -11,6 +11,9 @@ export const careerItems = pgTable("career_items", {
   club: text("club").notNull(),                // nombre libre legacy (mantener por ahora)
   division: text("division"),
   divisionId: uuid("division_id"), // Reference to divisions.id, FK added in relations or mapped manually
+  // Categoría/liga adicional opcional para jugadores que en la misma etapa
+  // disputaron una segunda competencia (reserva, equipo II, U20, etc).
+  secondaryDivisionId: uuid("secondary_division_id"),
   startDate: date("start_date"),
   endDate: date("end_date"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

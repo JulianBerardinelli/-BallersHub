@@ -209,6 +209,15 @@ export const careerStageInputSchema = z.object({
     })
     .nullable(),
   divisionId: optionalUuid("Seleccioná una división válida."),
+  secondaryDivision: z
+    .union([z.string().trim().max(120, "Máximo 120 caracteres."), z.literal(""), z.null(), z.undefined()])
+    .transform((value) => {
+      if (!value) return null;
+      const trimmed = value.trim();
+      return trimmed.length === 0 ? null : trimmed;
+    })
+    .nullable(),
+  secondaryDivisionId: optionalUuid("Seleccioná una categoría/liga adicional válida."),
   startYear: yearField,
   endYear: yearField,
   teamId: optionalUuid("Seleccioná un equipo válido."),

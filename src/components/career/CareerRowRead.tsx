@@ -19,6 +19,7 @@ export type TeamMeta = {
 export default function CareerRowRead({
     club,
     division,
+    secondaryDivision,
     start_year,
     end_year,
     teamMeta,
@@ -31,6 +32,7 @@ export default function CareerRowRead({
 }: {
     club: string;
     division?: string | null;
+    secondaryDivision?: string | null;
     start_year?: number | null;
     end_year?: number | null;
     teamMeta?: TeamMeta | null;
@@ -82,7 +84,14 @@ export default function CareerRowRead({
                         ) : null}
                     </div>
                     <p className="truncate text-[12px] text-bh-fg-3">
-                        {division || "—"}{" "}
+                        {division || "—"}
+                        {secondaryDivision ? (
+                            <>
+                                {" "}
+                                <span className="text-bh-fg-4">+</span>{" "}
+                                <span className="text-bh-fg-2">{secondaryDivision}</span>
+                            </>
+                        ) : null}{" "}
                         <span className="text-bh-fg-4">·</span>{" "}
                         <span className="font-bh-mono">
                             {start_year ?? "?"}–{end_year ?? "Actual"}
