@@ -43,6 +43,9 @@ export default function CareerEditor({
         id: crypto.randomUUID(),
         club: "",
         division: null,
+        secondary_division: null,
+        secondary_division_id: null,
+        secondary_division_meta: null,
         start_year: null,
         end_year: null,
         team_id: null,
@@ -154,6 +157,7 @@ export default function CareerEditor({
               <CareerRowRead
                 club={row.club}
                 division={row.division}
+                secondaryDivision={row.secondary_division ?? null}
                 start_year={row.start_year}
                 end_year={row.end_year}
                 teamMeta={row.team_meta ?? null}
