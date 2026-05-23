@@ -42,13 +42,21 @@
 --
 -- Aplicado en dev via MCP apply_migration con name='0002b_grants_sync' el 2026-05-22.
 --   ⚠️ Solo las secciones (1) y (2) corrieron via MCP. La sección (3)
---   (ALTER DEFAULT PRIVILEGES) requiere el rol `supabase_admin` o
---   `postgres` superuser y el role del MCP no lo tiene; fue rechazado con
---   "permission denied to change default privileges". Para cerrar el loop
---   y que tablas nuevas hereden grants automáticamente, ejecutar la
---   sección (3) manualmente desde Supabase Studio dev (SQL editor corre
---   como supabase_admin) o desde psql con el connection string del pooler
---   apuntando a postgres user.
+--   inicialmente intentada con `FOR ROLE postgres` / `FOR ROLE supabase_admin`
+--   falló con "permission denied to change default privileges" tanto via
+--   MCP como desde el SQL Editor de Supabase Studio dev: en branches de
+--   dev el rol del session no es miembro de `postgres` ni de
+--   `supabase_admin`, así que Postgres bloquea cualquier ALTER DEFAULT
+--   PRIVILEGES FOR ROLE <otro>. La versión actual omite `FOR ROLE` para
+--   aplicar los defaults al rol del session activo.
+--
+--   ⚠️ Caveat: ALTER DEFAULT PRIVILEGES sin FOR ROLE registra defaults
+--   solo para los objetos que cree el rol del session actual. Como
+--   `db:migrate` corre via pooler con un rol distinto al del SQL Editor,
+--   las tablas nuevas creadas por Drizzle (Tipo A) no van a heredarlos
+--   automáticamente. Workaround: después de cada `db:migrate` en dev,
+--   reaplicar las secciones (1) y (2) via MCP o Studio para cubrir las
+--   tablas nuevas. La sección (3) es best-effort.
 -- Aplicado en prod: NO requerido — prod ya tiene los grants y defaults correctos.
 --   (El archivo se mantiene idempotente para soportar bootstrap desde cero.)
 -- ===============================================================
@@ -61,18 +69,13 @@ GRANT ALL ON ALL TABLES    IN SCHEMA public TO anon, authenticated, service_role
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO anon, authenticated, service_role;
 
--- 3) Default privileges (futuros objetos)  [PENDIENTE — correr en Supabase Studio dev]
---    Replicamos los dos owners que aparecen en main: postgres + supabase_admin.
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+-- 3) Default privileges (futuros objetos)  [correr en Supabase Studio dev]
+--    Sin FOR ROLE — Supabase dev branches no permiten setearlos para
+--    `postgres`/`supabase_admin` desde el SQL Editor. Se aplica al rol
+--    activo del session. Best-effort; ver caveat en el header.
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT ALL ON TABLES    TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
-  GRANT ALL ON FUNCTIONS TO anon, authenticated, service_role;
-
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
-  GRANT ALL ON TABLES    TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
-  GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
   GRANT ALL ON FUNCTIONS TO anon, authenticated, service_role;
