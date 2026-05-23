@@ -45,7 +45,8 @@ export const careerRevisionItems = pgTable("career_revision_items", {
   club: text("club").notNull(),
   division: text("division"),
   divisionId: uuid("division_id"), // Reference to divisions.id, FK mapped manually or in relations
-  secondaryDivisionId: uuid("secondary_division_id"), // categoría/liga adicional opcional
+  secondaryDivision: text("secondary_division"), // texto libre de la segunda categoría/liga
+  secondaryDivisionId: uuid("secondary_division_id"), // FK opcional al catálogo
   startYear: integer("start_year"),
   endYear: integer("end_year"),
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }),

@@ -36,6 +36,13 @@
       "when": 1779553713269,
       "tag": "0004_married_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1779559400788,
+      "tag": "0005_modern_baron_strucker",
+      "breakpoints": true
     }
   ]
 }

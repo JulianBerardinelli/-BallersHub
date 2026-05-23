@@ -484,7 +484,10 @@ export default async function PlayerPublicPage({
       countryCode: team?.countryCode ?? null,
       divisionName: division?.name ?? c.division ?? null,
       divisionCrestUrl: division?.crestUrl ?? null,
-      secondaryDivisionName: secondaryDivision?.name ?? null,
+      // Si la secundaria está linkeada al catálogo, usamos el nombre +
+      // crest del catálogo. Si no, mostramos el texto libre que el jugador
+      // cargó (caso "Preferente FFIB" sin entry en divisions todavía).
+      secondaryDivisionName: secondaryDivision?.name ?? c.secondaryDivision ?? null,
       secondaryDivisionCrestUrl: secondaryDivision?.crestUrl ?? null,
       teamCrestUrl: team?.crestUrl ?? null,
       startYear,
