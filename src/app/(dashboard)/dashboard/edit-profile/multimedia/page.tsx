@@ -17,6 +17,8 @@ import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolveDashboardAccess } from "@/lib/dashboard/client/permissions";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import PlanGate from "@/components/dashboard/plan/PlanGate";
+import { isFounderEmail } from "@/lib/dashboard/founder-emails";
+import { isCatalogPhoto } from "@/lib/dashboard/catalog-photos";
 
 export default async function MultimediaPage() {
   const supabase = await createSupabaseServerRSC();
@@ -65,10 +67,15 @@ export default async function MultimediaPage() {
     .eq("player_id", profile.id)
     .order("created_at", { ascending: false });
 
-  // Filter out Pro Assets so they don't show up in the public catalog gallery
-  const rawMediaItems = (rawMediaItemsFromDB || []).filter(
-    (item) => !item.provider?.startsWith("pro_asset_")
-  );
+  // Hide pro assets AND the avatar row from the catalog list so the
+  // dashboard "Fotografías" tab matches what the public /[slug] gallery
+  // shows. The avatar is managed from its own uploader (PageHeader) and
+  // shouldn't count against the catalog cap.
+  const avatarUrl = profile.avatar_url ?? null;
+  const rawMediaItems = (rawMediaItemsFromDB || []).filter((item) => {
+    if (item.type === "photo") return isCatalogPhoto(item, avatarUrl);
+    return true; // videos pass through untouched
+  });
 
   const { data: rawArticles } = await supabase
     .from("player_articles")
@@ -171,6 +178,7 @@ export default async function MultimediaPage() {
       <MultimediaManagerClient
         media={mediaItems || []}
         isPro={planAccess.isPro}
+        isFounder={isFounderEmail(user.email)}
         profileContext={{
           fullName: profile.full_name,
           currentClub: profile.current_club,
