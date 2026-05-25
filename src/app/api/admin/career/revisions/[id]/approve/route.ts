@@ -14,6 +14,7 @@ type RevisionItem = {
   club: string;
   division: string | null;
   division_id: string | null;
+  secondary_division: string | null;
   secondary_division_id: string | null;
   start_year: number | null;
   end_year: number | null;
@@ -82,6 +83,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
          club,
          division,
          division_id,
+         secondary_division,
          secondary_division_id,
          start_year,
          end_year,
@@ -201,6 +203,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
       club: item.club,
       division: item.division ?? null,
       division_id: item.division_id ?? null,
+      secondary_division: item.secondary_division ?? null,
       secondary_division_id: item.secondary_division_id ?? null,
       start_date: toStartDate(item.start_year),
       end_date: toEndDate(item.end_year),
@@ -227,6 +230,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
           club: payload.club,
           division: payload.division,
           division_id: payload.division_id,
+          secondary_division: payload.secondary_division,
           secondary_division_id: payload.secondary_division_id,
           start_date: payload.start_date,
           end_date: payload.end_date,

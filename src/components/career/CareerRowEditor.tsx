@@ -120,6 +120,42 @@ export default function CareerRowEditor({
     return () => { cancelled = true; };
   }, [value.team_meta?.country_code, value.proposed?.country?.code]);
 
+  // Backfill en cliente: si la fila vino con `division` (texto legacy) pero
+  // sin `division_id`, y el texto matchea exacto con una división del
+  // catálogo recién cargada, linkeamos automáticamente para que la fila se
+  // guarde como enlazada al catálogo. Lo mismo para la secundaria.
+  React.useEffect(() => {
+    if (!divs.length) return;
+    const norm = (s: string) => s.trim().toLowerCase();
+
+    if (!value.division_id && value.division) {
+      const match = divs.find((d) => norm(d.name as string) === norm(value.division as string));
+      if (match) {
+        setSelectedDivKey(match.id);
+        onPatch({
+          division: match.name,
+          division_id: match.id,
+          division_meta: { crest_url: match.crest_url },
+        });
+      }
+    }
+
+    if (!value.secondary_division_id && value.secondary_division) {
+      const match = divs.find(
+        (d) => norm(d.name as string) === norm(value.secondary_division as string),
+      );
+      if (match) {
+        setSelectedSecondaryDivKey(match.id);
+        onPatch({
+          secondary_division: match.name,
+          secondary_division_id: match.id,
+          secondary_division_meta: { crest_url: match.crest_url },
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [divs]);
+
   // --- Años: strings locales para evitar “pelea” de inputs ---
   const [startStr, setStartStr] = React.useState<string>(value.start_year ? String(value.start_year) : "");
   const [endStr, setEndStr] = React.useState<string>(value.end_year ? String(value.end_year) : "");
@@ -192,8 +228,30 @@ export default function CareerRowEditor({
     onPatch({ club: v });
   }
 
+  // Si el usuario tipea texto que matchea exacto (case-insensitive) con una
+  // división del catálogo, auto-linkeamos el id para que la fila quede
+  // enlazada al catálogo (crest en portfolio, filtros por liga, etc).
+  // Antes esto solo pasaba al hacer click explícito en el dropdown.
+  function findExactDivisionMatch(input: string) {
+    const target = input.trim().toLowerCase();
+    if (!target) return null;
+    return divs.find((d) => (d.name as string).toLowerCase() === target) ?? null;
+  }
+
   function handleDivChange(v: string) {
     setDivQ(v);
+
+    const match = findExactDivisionMatch(v);
+    if (match) {
+      setSelectedDivKey(match.id);
+      onPatch({
+        division: match.name,
+        division_id: match.id,
+        division_meta: { crest_url: match.crest_url },
+      });
+      return;
+    }
+
     if (selectedDivKey && v !== divs.find((d) => d.id === selectedDivKey)?.name) {
       setSelectedDivKey(null);
       onPatch({ division_id: null, division_meta: null });
@@ -203,6 +261,18 @@ export default function CareerRowEditor({
 
   function handleSecondaryDivChange(v: string) {
     setSecondaryDivQ(v);
+
+    const match = findExactDivisionMatch(v);
+    if (match && match.id !== selectedDivKey) {
+      setSelectedSecondaryDivKey(match.id);
+      onPatch({
+        secondary_division: match.name,
+        secondary_division_id: match.id,
+        secondary_division_meta: { crest_url: match.crest_url },
+      });
+      return;
+    }
+
     if (
       selectedSecondaryDivKey &&
       v !== divs.find((d) => d.id === selectedSecondaryDivKey)?.name
@@ -575,6 +645,17 @@ export default function CareerRowEditor({
             {!value.team_id && value.proposed?.tmUrl && (
               <Chip variant="flat" classNames={bhChip("blue")}>TM OK</Chip>
             )}
+            {/* Aviso suave si la liga quedó como texto libre (no enlazada al
+                catálogo). Esa fila no aparecerá en filtros por liga ni
+                mostrará crest en el portfolio. Aplica a primaria y
+                secundaria. */}
+            {((value.division && value.division.trim() && !value.division_id) ||
+              (value.secondary_division && value.secondary_division.trim() && !value.secondary_division_id)) ? (
+              <span className="inline-flex items-center gap-1 text-[11px] text-bh-fg-3">
+                <span aria-hidden>⚠</span>
+                Liga sin enlazar al catálogo — usá el desplegable o se cargará como texto suelto.
+              </span>
+            ) : null}
             {showErrors && yMsgs.length > 0 && (
               <span className="text-[12px] text-bh-danger">{yMsgs[0]}</span>
             )}

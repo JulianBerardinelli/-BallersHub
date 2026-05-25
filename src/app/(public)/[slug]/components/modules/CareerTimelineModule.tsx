@@ -37,13 +37,20 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
     const secondaryDivisionDb = item.secondaryDivisionId
       ? mappedDivisions.find(d => d.id === item.secondaryDivisionId) ?? null
       : null;
+    // Si la secundaria no está enlazada al catálogo pero hay texto libre,
+    // sintetizamos un shape compatible con el cliente. Crest queda null
+    // (no hay match en `divisions`), pero el nombre se renderiza con el
+    // chip "+ Liga" igual.
+    const secondaryDivisionData =
+      secondaryDivisionDb ??
+      (item.secondaryDivision ? { name: item.secondaryDivision, crestUrl: null } : null);
     return {
       ...item,
       stats: stats.filter(s => s.careerItemId === item.id),
       honours: honours.filter(h => h.careerItemId === item.id),
       team: teamDb || null,
       divisionData: divisionDb,
-      secondaryDivisionData: secondaryDivisionDb
+      secondaryDivisionData
     };
   });
 

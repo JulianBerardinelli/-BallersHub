@@ -992,6 +992,7 @@ export async function submitCareerRevision(
         club: stage.club,
         division: stage.division,
         division_id: finalDivisionId,
+        secondary_division: stage.secondary_division,
         secondary_division_id: finalSecondaryDivisionId,
         start_year: stage.start_year,
         end_year: stage.end_year,
