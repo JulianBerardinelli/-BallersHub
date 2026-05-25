@@ -153,51 +153,94 @@ export default async function CampaignDetailPage({ params }: { params: Params })
         }
       >
         {recentSends.length > 0 ? (
-          <div className="overflow-x-auto rounded-bh-md border border-white/[0.06]">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-white/[0.06] bg-bh-bg/40">
-                  <Th>Email</Th>
-                  <Th>Estado</Th>
-                  <Th>Enviado</Th>
-                  <Th>Última actividad</Th>
-                  <Th>Error</Th>
-                </tr>
-              </thead>
-              <tbody>
-                {recentSends.map((s) => (
-                  <tr
-                    key={s.id}
-                    className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.015]"
-                  >
-                    <Td>
-                      <span className="font-bh-mono text-[12px] text-bh-fg-2">{s.email}</span>
-                    </Td>
-                    <Td>
-                      <SendStatusChip status={s.status} />
-                    </Td>
-                    <Td>
-                      <span className="text-[11px] text-bh-fg-3">
-                        {s.sentAt ? new Date(s.sentAt).toLocaleString("es-AR") : "—"}
-                      </span>
-                    </Td>
-                    <Td>
-                      <span className="text-[11px] text-bh-fg-3">
-                        {s.lastEventAt ? new Date(s.lastEventAt).toLocaleString("es-AR") : "—"}
-                      </span>
-                    </Td>
-                    <Td>
-                      {s.error ? (
-                        <span className="text-[11px] text-bh-danger">{s.error}</span>
-                      ) : (
-                        <span className="text-bh-fg-4">—</span>
-                      )}
-                    </Td>
+          <>
+            {/* Desktop table */}
+            <div className="hidden overflow-x-auto rounded-bh-md border border-white/[0.06] md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/[0.06] bg-bh-bg/40">
+                    <Th>Email</Th>
+                    <Th>Estado</Th>
+                    <Th>Enviado</Th>
+                    <Th>Última actividad</Th>
+                    <Th>Error</Th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {recentSends.map((s) => (
+                    <tr
+                      key={s.id}
+                      className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.015]"
+                    >
+                      <Td>
+                        <span className="font-bh-mono text-[12px] text-bh-fg-2">{s.email}</span>
+                      </Td>
+                      <Td>
+                        <SendStatusChip status={s.status} />
+                      </Td>
+                      <Td>
+                        <span className="text-[11px] text-bh-fg-3">
+                          {s.sentAt ? new Date(s.sentAt).toLocaleString("es-AR") : "—"}
+                        </span>
+                      </Td>
+                      <Td>
+                        <span className="text-[11px] text-bh-fg-3">
+                          {s.lastEventAt ? new Date(s.lastEventAt).toLocaleString("es-AR") : "—"}
+                        </span>
+                      </Td>
+                      <Td>
+                        {s.error ? (
+                          <span className="text-[11px] text-bh-danger">{s.error}</span>
+                        ) : (
+                          <span className="text-bh-fg-4">—</span>
+                        )}
+                      </Td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="space-y-2 md:hidden">
+              {recentSends.map((s) => (
+                <div
+                  key={s.id}
+                  className="rounded-bh-md border border-white/[0.06] bg-white/[0.02] p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="min-w-0 flex-1 break-all font-bh-mono text-[12px] text-bh-fg-2">
+                      {s.email}
+                    </span>
+                    <SendStatusChip status={s.status} />
+                  </div>
+                  <dl className="mt-2 grid grid-cols-2 gap-2 border-t border-white/[0.04] pt-2 text-[11px]">
+                    <div>
+                      <dt className="text-[9px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+                        Enviado
+                      </dt>
+                      <dd className="mt-0.5 text-bh-fg-3">
+                        {s.sentAt ? new Date(s.sentAt).toLocaleString("es-AR") : "—"}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="text-[9px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+                        Última act.
+                      </dt>
+                      <dd className="mt-0.5 text-bh-fg-3">
+                        {s.lastEventAt ? new Date(s.lastEventAt).toLocaleString("es-AR") : "—"}
+                      </dd>
+                    </div>
+                  </dl>
+                  {s.error ? (
+                    <p className="mt-2 border-t border-white/[0.04] pt-2 text-[11px] text-bh-danger">
+                      {s.error}
+                    </p>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </>
         ) : null}
       </Section>
     </div>

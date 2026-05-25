@@ -134,19 +134,86 @@ export default async function MarketingAdminPage() {
             </Link>
           </div>
         ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <Th>Nombre</Th>
-                <Th>Template</Th>
-                <Th>Estado</Th>
-                <Th align="right">Destinatarios</Th>
-                <Th align="right">Open</Th>
-                <Th align="right">Click</Th>
-                <Th align="right">Acciones</Th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-white/[0.06]">
+                    <Th>Nombre</Th>
+                    <Th>Template</Th>
+                    <Th>Estado</Th>
+                    <Th align="right">Destinatarios</Th>
+                    <Th align="right">Open</Th>
+                    <Th align="right">Click</Th>
+                    <Th align="right">Acciones</Th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {campaigns.map((c) => {
+                    const openRate =
+                      c.totalDelivered > 0
+                        ? Math.round((c.totalOpened / c.totalDelivered) * 1000) / 10
+                        : 0;
+                    const clickRate =
+                      c.totalDelivered > 0
+                        ? Math.round((c.totalClicked / c.totalDelivered) * 1000) / 10
+                        : 0;
+                    return (
+                      <tr
+                        key={c.id}
+                        className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.015]"
+                      >
+                        <Td>
+                          <Link
+                            href={`/admin/marketing/${c.id}`}
+                            className="block font-medium text-bh-fg-1 hover:text-bh-lime"
+                          >
+                            {c.name}
+                          </Link>
+                          <span className="text-[11px] text-bh-fg-4 font-bh-mono">{c.slug}</span>
+                        </Td>
+                        <Td>
+                          <span className="text-[12px] text-bh-fg-2">
+                            {templateLabelByKey.get(c.templateKey) ?? c.templateKey}
+                          </span>
+                        </Td>
+                        <Td>
+                          <StatusChip status={c.status} />
+                        </Td>
+                        <Td align="right">
+                          <span className="font-bh-mono text-[12px] text-bh-fg-1">
+                            {c.totalRecipients.toLocaleString("es-AR")}
+                          </span>
+                        </Td>
+                        <Td align="right">
+                          <span className="font-bh-mono text-[12px] text-bh-fg-2">{openRate}%</span>
+                        </Td>
+                        <Td align="right">
+                          <span className="font-bh-mono text-[12px] text-bh-fg-2">{clickRate}%</span>
+                        </Td>
+                        <Td align="right">
+                          <div className="flex items-center justify-end gap-2">
+                            <Link
+                              href={`/admin/marketing/${c.id}`}
+                              className="text-[12px] text-bh-fg-3 hover:text-bh-lime"
+                            >
+                              Ver
+                            </Link>
+                            {["draft", "scheduled", "failed"].includes(c.status) ? (
+                              <CampaignDeleteButton campaignId={c.id} campaignName={c.name} />
+                            ) : null}
+                          </div>
+                        </Td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="space-y-2 p-3 md:hidden">
               {campaigns.map((c) => {
                 const openRate =
                   c.totalDelivered > 0
@@ -156,57 +223,47 @@ export default async function MarketingAdminPage() {
                   c.totalDelivered > 0
                     ? Math.round((c.totalClicked / c.totalDelivered) * 1000) / 10
                     : 0;
+                const canDelete = ["draft", "scheduled", "failed"].includes(c.status);
                 return (
-                  <tr
+                  <div
                     key={c.id}
-                    className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.015]"
+                    className="rounded-bh-md border border-white/[0.06] bg-white/[0.02] p-3"
                   >
-                    <Td>
-                      <Link
-                        href={`/admin/marketing/${c.id}`}
-                        className="block font-medium text-bh-fg-1 hover:text-bh-lime"
-                      >
-                        {c.name}
-                      </Link>
-                      <span className="text-[11px] text-bh-fg-4 font-bh-mono">{c.slug}</span>
-                    </Td>
-                    <Td>
-                      <span className="text-[12px] text-bh-fg-2">
-                        {templateLabelByKey.get(c.templateKey) ?? c.templateKey}
-                      </span>
-                    </Td>
-                    <Td>
-                      <StatusChip status={c.status} />
-                    </Td>
-                    <Td align="right">
-                      <span className="font-bh-mono text-[12px] text-bh-fg-1">
-                        {c.totalRecipients.toLocaleString("es-AR")}
-                      </span>
-                    </Td>
-                    <Td align="right">
-                      <span className="font-bh-mono text-[12px] text-bh-fg-2">{openRate}%</span>
-                    </Td>
-                    <Td align="right">
-                      <span className="font-bh-mono text-[12px] text-bh-fg-2">{clickRate}%</span>
-                    </Td>
-                    <Td align="right">
-                      <div className="flex items-center justify-end gap-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
                         <Link
                           href={`/admin/marketing/${c.id}`}
-                          className="text-[12px] text-bh-fg-3 hover:text-bh-lime"
+                          className="block truncate text-sm font-medium text-bh-fg-1 hover:text-bh-lime"
                         >
-                          Ver
+                          {c.name}
                         </Link>
-                        {["draft", "scheduled", "failed"].includes(c.status) ? (
-                          <CampaignDeleteButton campaignId={c.id} campaignName={c.name} />
-                        ) : null}
+                        <span className="block truncate font-bh-mono text-[10px] text-bh-fg-4">
+                          {c.slug}
+                        </span>
+                        <span className="mt-1 block truncate text-[11px] text-bh-fg-3">
+                          {templateLabelByKey.get(c.templateKey) ?? c.templateKey}
+                        </span>
                       </div>
-                    </Td>
-                  </tr>
+                      <StatusChip status={c.status} />
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/[0.04] pt-2 text-center">
+                      <MobileStat
+                        label="Dest."
+                        value={c.totalRecipients.toLocaleString("es-AR")}
+                      />
+                      <MobileStat label="Open" value={`${openRate}%`} />
+                      <MobileStat label="Click" value={`${clickRate}%`} />
+                    </div>
+                    {canDelete ? (
+                      <div className="mt-2 flex justify-end">
+                        <CampaignDeleteButton campaignId={c.id} campaignName={c.name} />
+                      </div>
+                    ) : null}
+                  </div>
                 );
               })}
-            </tbody>
-          </table>
+            </div>
+          </>
         )}
       </section>
     </div>
@@ -267,5 +324,16 @@ function Td({ children, align }: { children: React.ReactNode; align?: "right" })
     <td className={`px-4 py-3 align-middle ${align === "right" ? "text-right" : "text-left"}`}>
       {children}
     </td>
+  );
+}
+
+function MobileStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="font-bh-mono text-[12px] text-bh-fg-1">{value}</div>
+      <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+        {label}
+      </div>
+    </div>
   );
 }

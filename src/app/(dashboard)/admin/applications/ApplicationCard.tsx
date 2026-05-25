@@ -15,7 +15,8 @@ import {
 import type { PlayerApplication } from "./ApplicationsPanel";
 import CountryFlag from "@/components/common/CountryFlag";
 import { bhButtonClass } from "@/components/ui/BhButton";
-import { bhChip, bhModalClassNames } from "@/lib/ui/heroui-brand";
+import { bhChip } from "@/lib/ui/heroui-brand";
+import { useAdminModalPreset } from "../ui/modalPresets";
 
 export default function ApplicationCard({
   application,
@@ -31,6 +32,7 @@ export default function ApplicationCard({
 
   // Modal states
   const [confirmModal, setConfirmModal] = React.useState<"approve" | "reject" | null>(null);
+  const modalPreset = useAdminModalPreset();
 
   // Extract fallback values from notes (for backward compatibility with existing applications)
   let fallbackBirth = "";
@@ -396,7 +398,7 @@ export default function ApplicationCard({
       <Modal
         isOpen={confirmModal === "approve"}
         onOpenChange={(open) => !open && setConfirmModal(null)}
-        classNames={bhModalClassNames}
+        {...modalPreset}
       >
         <ModalContent>
           {() => (
@@ -448,7 +450,7 @@ export default function ApplicationCard({
       <Modal
         isOpen={confirmModal === "reject"}
         onOpenChange={(open) => !open && setConfirmModal(null)}
-        classNames={bhModalClassNames}
+        {...modalPreset}
       >
         <ModalContent>
           {() => (
