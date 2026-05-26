@@ -2,6 +2,7 @@
 
 import SiteHeader from "@/components/layout/SiteHeader";
 import SiteFooter from "@/components/layout/footer/SiteFooter";
+import { AdminFooterGate } from "./AdminFooterGate";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -10,7 +11,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <main className="flex-1 pt-20">
         {children}
       </main>
-      <SiteFooter />
+      <AdminFooterGate>
+        <SiteFooter />
+      </AdminFooterGate>
     </div>
   );
 }
