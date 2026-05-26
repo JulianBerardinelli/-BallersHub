@@ -43,6 +43,13 @@
       "when": 1779559400788,
       "tag": "0005_modern_baron_strucker",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1779833441747,
+      "tag": "0006_sweet_preak",
+      "breakpoints": true
     }
   ]
 }

@@ -3,7 +3,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPostBySlug, getAuthorsMap } from "@/lib/blog/posts";
+import { getPostBySlug } from "@/lib/blog/posts";
+import {
+  hydrateAuthors,
+  authorSameAs,
+  fallbackDisplayName,
+} from "@/lib/blog/authors";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import { estimateWordCount } from "@/lib/blog/reading-time";
 import { ArticleJsonLd } from "@/lib/seo/articleJsonLd";
@@ -58,10 +63,17 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   const post = await getPostBySlug(slug);
   if (!post) return notFound();
 
-  const authorsMap = await getAuthorsMap([post.authorUserId]);
-  const author = authorsMap.get(post.authorUserId);
-  const authorName = author?.role === "admin" ? "Equipo 'BallersHub" : "Autor invitado";
-  const authorSlug = post.authorUserId.slice(0, 8);
+  const authorsMap = await hydrateAuthors([post.authorUserId]);
+  const hydrated = authorsMap.get(post.authorUserId);
+  const blogAuthor = hydrated?.blogAuthor ?? null;
+
+  // Cuando hay blog_authors row, todo viene de ahí (slug real, display
+  // name editorial, bio, sameAs). Cuando no, fallback al display por
+  // role — mismo comportamiento que MVP-1 para no romper posts viejos.
+  const authorName = blogAuthor?.displayName ?? fallbackDisplayName(hydrated?.role);
+  const authorSlug = blogAuthor?.slug ?? post.authorUserId.slice(0, 8);
+  const authorBio = blogAuthor?.bio ?? null;
+  const authorSameAsUrls = blogAuthor ? authorSameAs(blogAuthor) : [];
 
   const wordCount = estimateWordCount(post.contentHtml);
 
@@ -82,6 +94,8 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           author: {
             slug: authorSlug,
             name: authorName,
+            bio: authorBio,
+            sameAs: authorSameAsUrls,
           },
         }}
       />
@@ -105,7 +119,16 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           {post.description}
         </p>
         <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-bh-fg-3">
-          <span>{authorName}</span>
+          {blogAuthor ? (
+            <Link
+              href={`/blog/authors/${blogAuthor.slug}`}
+              className="text-bh-fg-2 underline-offset-4 transition-colors hover:text-bh-lime hover:underline"
+            >
+              {authorName}
+            </Link>
+          ) : (
+            <span>{authorName}</span>
+          )}
           <span aria-hidden>·</span>
           <span>{post.readingTimeMin} min de lectura</span>
           {post.publishedAt && (
