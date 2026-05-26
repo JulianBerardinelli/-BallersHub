@@ -2,8 +2,17 @@
 // Server component — no client interactivity needed.
 
 import Link from "next/link";
+import Image from "next/image";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import type { ListedBlogPost } from "@/lib/blog/posts";
+
+// Tras MVP-2 #3, todas las imágenes del blog viven en *.supabase.co
+// (bucket blog-media) → next/image las optimiza. El fallback unoptimized
+// cubre posts MVP-1 con URLs externas (Unsplash, etc.) que el optimizer
+// no puede tocar por remotePatterns.
+function isOptimizable(url: string): boolean {
+  return url.includes(".supabase.co");
+}
 
 export function BlogCard({ post }: { post: ListedBlogPost }) {
   const cluster = CLUSTER_LABELS[post.cluster];
@@ -14,15 +23,14 @@ export function BlogCard({ post }: { post: ListedBlogPost }) {
     >
       <div className="relative aspect-[16/9] w-full overflow-hidden bg-bh-surface-2">
         {post.heroImageUrl ? (
-          // Plain <img> for the same reason as /blog/[slug]/page.tsx —
-          // arbitrary external hosts. Will switch back to next/image
-          // when MVP-2 ships Supabase Storage upload for blog images.
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
+          <Image
             src={post.heroImageUrl}
             alt={post.title}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            unoptimized={!isOptimizable(post.heroImageUrl)}
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         ) : (
           <div className="absolute inset-0 grid place-items-center text-bh-fg-3 text-xs">

@@ -2,6 +2,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getPostBySlug } from "@/lib/blog/posts";
 import {
@@ -145,19 +146,19 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       {post.heroImageUrl && (
         <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-bh-lg bg-bh-surface-2">
           {/*
-            Plain <img> instead of next/image because blog authors paste
-            URLs from arbitrary hosts (Unsplash, news sites, AI-generated
-            images, etc.) and next/image requires every host in
-            remotePatterns. Image upload integrated to Supabase Storage
-            is MVP-2; once that ships we can switch back to <Image> since
-            *.supabase.co is already whitelisted.
+            Tras MVP-2 #3, los autores suben imágenes via /api/blog/media/upload
+            → bucket blog-media (host *.supabase.co whitelisted en next.config).
+            unoptimized fallback cubre posts MVP-1 con URLs externas que el
+            optimizer no puede tocar.
           */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={post.heroImageUrl}
             alt={post.title}
-            loading="eager"
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 768px) 768px, 100vw"
+            priority
+            unoptimized={!post.heroImageUrl.includes(".supabase.co")}
+            className="object-cover"
           />
         </div>
       )}

@@ -396,7 +396,7 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 |---|---|
 | Email notifications (Resend) → admin pending + author approve/reject | ⏳ MVP-2 pendiente |
 | **Author hubs `/blog/authors/[slug]` con `ProfilePage` JSON-LD + sameAs** | ✅ **MVP-2 implementado** (ver §11.1 abajo) |
-| Image upload integrado en TipTap (hero + inline) → Supabase Storage | ⏳ MVP-2 pendiente |
+| **Image upload integrado en TipTap (hero + inline) → Supabase Storage** | ✅ **MVP-2 implementado** (ver §11.2 abajo) |
 | UI admin toggle `is_blogger` | ⏳ MVP-3 (manual via SQL hasta entonces) |
 | Cluster hubs `/blog/cluster/[slug]` | ⏳ MVP-3 |
 | YouTube/embeds en editor | ⏳ MVP-3 |
@@ -404,14 +404,14 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 
 ### 11.1. Author hubs (MVP-2 item #1)
 
-**Estado**: deployed contra branch `claude/blog-mvp2-author-hubs` (PR pendiente de merge).
+**Estado**: ✅ deployed en prod (PR #101 merged a `main` el 2026-05-26). Schema + seed aplicados a dev (`ciolizjshimyvyonlssq`) y prod (`erdvpcfjynkhcrqktozd`), hash registrado en `drizzle.__drizzle_migrations` id=4.
 
-**Modelo**: nueva tabla `blog_authors` (1:1 con `user_profiles` whitelisted). Columnas: `slug`, `display_name`, `headline`, `bio`, `avatar_url`, `website_url`, `twitter_url`, `linkedin_url`, `instagram_url`, `youtube_url`. RLS: public select libre + admin all + self update.
+**Modelo**: nueva tabla `blog_authors` (1:1 con `user_profiles` whitelisted). Columnas: `slug`, `display_name`, `headline`, `bio`, `avatar_url`, `website_url`, `twitter_url`, `linkedin_url`, `instagram_url`, `youtube_url`. RLS: public select libre + admin all + self update + **trigger `blog_authors_protect_slug` que bloquea cambio de slug por non-admins** (fix del Codex P1 review — slug es URL pública e immutable salvo admin).
 
 **Migration files**:
-- `src/db/migrations/0003_supreme_mastermind.sql` (Drizzle tracked) — CREATE TABLE + 2 UNIQUE indexes
-- `src/db/migrations/0003a_blog_authors_rls.sql` (complementario manual) — enable RLS + trigger + 3 policies + GRANTs
-- `src/db/migrations/0003b_blog_authors_seed_owner.sql` (complementario manual) — seed idempotente del row del owner
+- `src/db/migrations/0006_sweet_preak.sql` (Drizzle tracked) — CREATE TABLE + 2 UNIQUE indexes
+- `src/db/migrations/0006a_blog_authors_rls.sql` (complementario manual) — enable RLS + trigger updated_at + 3 policies + GRANTs + trigger protect_slug
+- `src/db/migrations/0006b_blog_authors_seed_owner.sql` (complementario manual) — seed idempotente del row del owner (tolerante a `auth.users` vacío en dev schema-only)
 
 **Ruta nueva**: `/blog/authors/[slug]` → `src/app/(site)/blog/authors/[slug]/page.tsx`
 - Header con avatar + display_name + headline + bio + social icons
@@ -425,6 +425,32 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 **Byline en `/blog/[slug]`**: cuando hay `blog_authors` row, el nombre del autor es un `<Link>` al hub. Sin row, fallback al texto plano "Equipo 'BallersHub" o "Autor invitado" (mismo comportamiento MVP-1).
 
 **Sitemap + llms.txt**: `listAuthorsWithPublishedPosts()` filtra a authors con ≥1 post published (anti thin-content). Sitemap priority 0.6, changeFrequency monthly. llms.txt sección `## Autores`.
+
+### 11.2. Image upload integrado (MVP-2 item #3)
+
+**Estado**: ✅ deployed contra branch `claude/blog-mvp2-image-upload`.
+
+**Modelo**: bucket nuevo `blog-media` (Supabase Storage, público, 5MB cap, JPEG/PNG/WebP/AVIF). Path convention `{user_id}/{uuid}.avif` — todo se transcodea a AVIF q60 server-side via `sharp` (mismo preset que `/api/media/upload` para player media). RLS storage.objects: SELECT público, INSERT bloggers/admin con foldername match, UPDATE/DELETE owner+admin.
+
+**Migration file**:
+- `src/db/migrations/0006c_blog_media_bucket.sql` (complementario manual) — INSERT bucket + 4 storage policies. Idempotente (ON CONFLICT DO UPDATE).
+
+**API route**: `/api/blog/media/upload` (`src/app/api/blog/media/upload/route.ts`)
+- POST con FormData (`file` field)
+- `requireBlogger()` check app-side (defense-in-depth sobre la RLS del bucket)
+- Sharp transcode → AVIF q60 (excepto AVIF passthrough)
+- Upload a bucket con `cacheControl: 31536000` (1 año, UUID en nombre = immutable)
+- Devuelve `{ url, path }`
+
+**UI changes**:
+- `RichTextEditor`: el botón de imagen ahora abre file picker (no más `window.prompt` URL). Loading state durante upload, error alert si falla.
+- `BlogPostForm`: el hero image input es file picker + preview con botones "Cambiar" / "Quitar". Loading state inline, error message en el field.
+- `BlogCard`, `blog/[slug]/page.tsx`, `blog/authors/[slug]/page.tsx`: migrados de `<img>` plain a `next/image` con `unoptimized={!url.includes(".supabase.co")}` fallback para posts MVP-1 con URLs externas.
+
+**Out of scope (MVP-3+)**:
+- Image cropping / aspect ratio enforce (autor sube tamaño libre)
+- Galería de imágenes previas del autor (sin tabla `blog_media` separada por ahora — el bucket es la fuente de la verdad)
+- Garbage collection de imágenes huérfanas (sin post asociado) — cleanup manual via admin
 
 ---
 

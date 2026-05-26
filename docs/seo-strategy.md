@@ -220,11 +220,11 @@ Goal: ship deployable SEO baseline.
 - [x] `revalidatePath('/<slug>')` wired in player + agency dashboard save actions
 - [ ] **6 cornerstone posts** (2 per cluster from §5 Track B) — content writing pending (owner)
 
-**Pending MVP-2 (next iteration, see `docs/blog/README.md` §11):**
-- Email notifications (Resend → admin on pending_review, → author on approve/reject)
-- Author hubs `/blog/authors/[author-slug]` with ProfilePage JSON-LD
-- Image upload integrated into TipTap → Supabase Storage (currently external URLs only)
-- UI for admin to toggle `is_blogger` (currently manual SQL)
+**MVP-2 progress (see `docs/blog/README.md` §11):**
+- [ ] Email notifications (Resend → admin on pending_review, → author on approve/reject)
+- [x] **Author hubs `/blog/authors/[author-slug]` with ProfilePage JSON-LD** ✅ DEPLOYED 2026-05-26 (PR #101) — closes the dangling `author.@id` cross-reference from Article schema
+- [x] **Image upload integrated into TipTap → Supabase Storage** ✅ implemented (current PR) — bucket `blog-media`, sharp AVIF transcode, migrated `<img>` → `next/image`
+- [ ] UI for admin to toggle `is_blogger` (currently manual SQL)
 
 ### Phase 3 — Directory hubs (months 2-3, gated by ≥200 Pro profiles)
 

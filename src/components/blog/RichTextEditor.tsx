@@ -6,7 +6,14 @@
 // sanitized HTML via editor.getHTML() — we trust TipTap's output for
 // MVP-1 (no inline scripts, well-formed HTML). MVP-2 might add a
 // server-side sanitizer pass if we let untrusted images / iframes in.
+//
+// MVP-2 #3 — image upload integrado a Supabase Storage:
+//   - Botón de imagen abre file picker (no más window.prompt URL)
+//   - File se sube a /api/blog/media/upload, transcoded a AVIF q60
+//   - URL pública retornada → insertada en el doc
+//   - Loading state durante upload, error alert si falla
 
+import { useRef, useState } from "react";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import LinkExt from "@tiptap/extension-link";
@@ -22,6 +29,7 @@ import {
   ListOrdered,
   Quote,
   Image as ImageIcon,
+  Loader2,
   Undo2,
   Redo2,
 } from "lucide-react";
@@ -78,6 +86,9 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: Props)
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
   const promptForLink = () => {
     const previousUrl = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt("URL del link:", previousUrl ?? "https://");
@@ -89,10 +100,36 @@ function Toolbar({ editor }: { editor: Editor }) {
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
-  const promptForImage = () => {
-    const url = window.prompt("URL de la imagen:");
-    if (!url) return;
-    editor.chain().focus().setImage({ src: url }).run();
+  const triggerImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // Reset input para permitir re-upload del mismo archivo.
+    event.target.value = "";
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/blog/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const json = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !json.url) {
+        window.alert(json.error ?? "No se pudo subir la imagen.");
+        return;
+      }
+      editor.chain().focus().setImage({ src: json.url }).run();
+    } catch (err) {
+      console.error("[RichTextEditor] image upload failed:", err);
+      window.alert("No se pudo subir la imagen. Probá de nuevo.");
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -156,9 +193,25 @@ function Toolbar({ editor }: { editor: Editor }) {
       >
         <LinkIcon className="size-4" aria-hidden />
       </ToolbarButton>
-      <ToolbarButton label="Insertar imagen" onClick={promptForImage}>
-        <ImageIcon className="size-4" aria-hidden />
+      <ToolbarButton
+        label={uploading ? "Subiendo imagen…" : "Insertar imagen"}
+        onClick={triggerImageUpload}
+        disabled={uploading}
+      >
+        {uploading ? (
+          <Loader2 className="size-4 animate-spin" aria-hidden />
+        ) : (
+          <ImageIcon className="size-4" aria-hidden />
+        )}
       </ToolbarButton>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/avif"
+        onChange={handleImageFile}
+        className="hidden"
+        aria-hidden
+      />
       <div className="ml-auto flex items-center gap-1">
         <ToolbarButton
           label="Deshacer (⌘Z)"
