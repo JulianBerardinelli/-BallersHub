@@ -1,5 +1,5 @@
 -- ===============================================================
--- 0003a_blog_authors_rls.sql
+-- 0006a_blog_authors_rls.sql
 --
 -- Manual complementario (NO tracked by Drizzle, NO entry en
 -- meta/_journal.json).
@@ -7,16 +7,20 @@
 -- Aplica:
 --   - RLS enable sobre public.blog_authors
 --   - Trigger updated_at (reusa public.set_updated_at)
---   - 4 policies: public select, admin all, self update, admin all-mutate
+--   - 3 policies: public select, admin all, self update
+--   - Trigger BEFORE UPDATE que bloquea cambio de slug por non-admins
+--     (fix del comentario Codex P1: enforce slug immutability en DB,
+--     no solo app-side, para que clientes Supabase directos no rompan
+--     URLs históricas + Article author.@id refs)
 --
--- Requires: 0003_supreme_mastermind.sql aplicado primero (crea la tabla).
+-- Requires: 0006_sweet_preak.sql aplicado primero (crea la tabla) y
+-- public.is_admin(uuid) ya existe (auth schema bootstrap).
 --
--- Aplicado en dev (avhctddkbcneugtqqxxk) via MCP apply_migration el
--- <pendiente — completar al aplicar>.
--- Aplicado en prod (erdvpcfjynkhcrqktozd) — pendiente, requiere
--- autorización explícita del owner antes del merge dev→main.
+-- Aplicado en dev (ciolizjshimyvyonlssq) via MCP apply_migration.
+-- Aplicado en prod (erdvpcfjynkhcrqktozd) via MCP apply_migration el
+-- 2026-05-25 con OK explícito del owner.
 --
--- Idempotente: sí (DROP POLICY IF EXISTS antes de cada CREATE).
+-- Idempotente: sí (DROP POLICY/TRIGGER/FUNCTION IF EXISTS + CREATE).
 -- ===============================================================
 
 -- ============================================================
@@ -55,21 +59,57 @@ CREATE POLICY blog_authors_admin_all ON public.blog_authors
   WITH CHECK (public.is_admin(auth.uid()));
 
 -- 3. Self update: el dueño del row puede actualizar SU PROPIA fila.
---    No incluye slug (que es URL pública y rompe links históricos
---    si cambia) — el cambio de slug requiere admin. Para enforce eso
---    al nivel de RLS sin CHECK condicional por columna, mantenemos la
---    policy a "update libre de columnas no-críticas" y el slug se
---    bloquea app-side en la server action. La policy admin_all puede
---    cambiar el slug sin restricción.
---
---    En el WITH CHECK no validamos columnas individuales porque
---    Postgres no soporta column-level WITH CHECK sin triggers; la app
---    es la línea de defensa en el campo slug.
+--    El bloqueo de cambio de slug NO vive en esta policy — RLS WITH
+--    CHECK no soporta comparar OLD vs NEW por columna. El enforce de
+--    slug-immutability vive en el trigger blog_authors_protect_slug
+--    declarado más abajo (fix del comentario Codex P1).
 DROP POLICY IF EXISTS blog_authors_self_update ON public.blog_authors;
 CREATE POLICY blog_authors_self_update ON public.blog_authors
   FOR UPDATE
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- Trigger: prevenir cambio de slug por non-admins (Codex P1 fix)
+-- ============================================================
+-- Por qué un trigger y no column-level GRANT:
+--   - Column GRANT bloquearía también al admin (admin usa el rol
+--     "authenticated" + check de is_admin(auth.uid()) en RLS).
+--   - El trigger consulta is_admin() y permite admin, bloquea el
+--     resto. Mantiene el modelo de "admin via authenticated role"
+--     que ya usa el resto de la app.
+--   - SECURITY DEFINER + search_path explícito evita ataques de
+--     resolución de nombres en el cuerpo del trigger.
+--   - WHEN clause skipea la function call cuando slug no cambia
+--     (UPDATEs de bio/social URLs no pagan el costo del trigger).
+--
+-- Operaciones admin que sí necesitan cambiar slug deben correr con
+-- service_role (bypasses RLS y triggers SECURITY INVOKER) o
+-- autenticadas con un user que pase is_admin(auth.uid())=true.
+
+CREATE OR REPLACE FUNCTION public.blog_authors_protect_slug()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.slug IS DISTINCT FROM OLD.slug
+     AND NOT public.is_admin(auth.uid()) THEN
+    RAISE EXCEPTION
+      'blog_authors.slug is admin-only (changing it breaks public URLs and JSON-LD author.@id references)'
+      USING ERRCODE = '42501';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS blog_authors_protect_slug ON public.blog_authors;
+CREATE TRIGGER blog_authors_protect_slug
+  BEFORE UPDATE ON public.blog_authors
+  FOR EACH ROW
+  WHEN (OLD.slug IS DISTINCT FROM NEW.slug)
+  EXECUTE FUNCTION public.blog_authors_protect_slug();
 
 -- ============================================================
 -- GRANTs (compatibility con drizzle role + supabase pooler)
