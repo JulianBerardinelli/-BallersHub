@@ -1,6 +1,6 @@
 {
-  "id": "09fbc08d-3883-4fa2-84b8-0f759a70da7e",
-  "prevId": "f35534c6-da49-4311-8820-5913ce03705b",
+  "id": "d643dd73-3287-45ae-9acc-bff3a5a7cdd2",
+  "prevId": "46958b83-3e03-463f-9181-d993aab53456",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1477,6 +1477,137 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.blog_authors": {
+      "name": "blog_authors",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "slug": {
+          "name": "slug",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "headline": {
+          "name": "headline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "avatar_url": {
+          "name": "avatar_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website_url": {
+          "name": "website_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "twitter_url": {
+          "name": "twitter_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linkedin_url": {
+          "name": "linkedin_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "instagram_url": {
+          "name": "instagram_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "youtube_url": {
+          "name": "youtube_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "blog_authors_slug_idx": {
+          "name": "blog_authors_slug_idx",
+          "columns": [
+            {
+              "expression": "slug",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "blog_authors_user_id_idx": {
+          "name": "blog_authors_user_id_idx",
+          "columns": [
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.career_items": {
       "name": "career_items",
       "schema": "",
@@ -1515,6 +1646,12 @@
         "division_id": {
           "name": "division_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_division": {
+          "name": "secondary_division",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -1617,6 +1754,12 @@
         },
         "division_id": {
           "name": "division_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_division_id": {
+          "name": "secondary_division_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -1782,6 +1925,12 @@
         "division_id": {
           "name": "division_id",
           "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "secondary_division": {
+          "name": "secondary_division",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

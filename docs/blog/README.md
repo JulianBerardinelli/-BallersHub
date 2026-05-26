@@ -390,15 +390,41 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 
 ---
 
-## 11. Out of scope (NO entra en MVP-1)
+## 11. Out of scope (NO entra en MVP-1) y status de MVP-2
 
-- Email notifications → MVP-2
-- Author hubs `/blog/authors/[slug]` con `ProfilePage` JSON-LD → MVP-2
-- Image upload integrado en TipTap (hero + inline) → MVP-2 (MVP-1 acepta solo hero image como input file separado)
-- Cluster hubs `/blog/cluster/[slug]` → MVP-3
-- YouTube/embeds en editor → MVP-3
-- Comentarios/reacciones → no en roadmap
-- UI de admin para togglear `is_blogger` → MVP-3 (manual via SQL hasta entonces)
+| Item | Status |
+|---|---|
+| Email notifications (Resend) → admin pending + author approve/reject | ⏳ MVP-2 pendiente |
+| **Author hubs `/blog/authors/[slug]` con `ProfilePage` JSON-LD + sameAs** | ✅ **MVP-2 implementado** (ver §11.1 abajo) |
+| Image upload integrado en TipTap (hero + inline) → Supabase Storage | ⏳ MVP-2 pendiente |
+| UI admin toggle `is_blogger` | ⏳ MVP-3 (manual via SQL hasta entonces) |
+| Cluster hubs `/blog/cluster/[slug]` | ⏳ MVP-3 |
+| YouTube/embeds en editor | ⏳ MVP-3 |
+| Comentarios/reacciones | ❌ no en roadmap |
+
+### 11.1. Author hubs (MVP-2 item #1)
+
+**Estado**: deployed contra branch `claude/blog-mvp2-author-hubs` (PR pendiente de merge).
+
+**Modelo**: nueva tabla `blog_authors` (1:1 con `user_profiles` whitelisted). Columnas: `slug`, `display_name`, `headline`, `bio`, `avatar_url`, `website_url`, `twitter_url`, `linkedin_url`, `instagram_url`, `youtube_url`. RLS: public select libre + admin all + self update.
+
+**Migration files**:
+- `src/db/migrations/0003_supreme_mastermind.sql` (Drizzle tracked) — CREATE TABLE + 2 UNIQUE indexes
+- `src/db/migrations/0003a_blog_authors_rls.sql` (complementario manual) — enable RLS + trigger + 3 policies + GRANTs
+- `src/db/migrations/0003b_blog_authors_seed_owner.sql` (complementario manual) — seed idempotente del row del owner
+
+**Ruta nueva**: `/blog/authors/[slug]` → `src/app/(site)/blog/authors/[slug]/page.tsx`
+- Header con avatar + display_name + headline + bio + social icons
+- Grid de posts published del autor (reusa `BlogCard`)
+- 404 si el slug no resuelve
+
+**JSON-LD nuevo**: `ProfilePage` + `Person` + `BreadcrumbList` (graph) — `src/lib/seo/profilePageJsonLd.tsx`
+- `Person.@id` matchea el `author.@id` que Article schema emite desde `/blog/[slug]` → cierra el dangling cross-reference de MVP-1.
+- `Person.sameAs[]` alimentado por las social URLs del autor → E-E-A-T amplifier.
+
+**Byline en `/blog/[slug]`**: cuando hay `blog_authors` row, el nombre del autor es un `<Link>` al hub. Sin row, fallback al texto plano "Equipo 'BallersHub" o "Autor invitado" (mismo comportamiento MVP-1).
+
+**Sitemap + llms.txt**: `listAuthorsWithPublishedPosts()` filtra a authors con ≥1 post published (anti thin-content). Sitemap priority 0.6, changeFrequency monthly. llms.txt sección `## Autores`.
 
 ---
 

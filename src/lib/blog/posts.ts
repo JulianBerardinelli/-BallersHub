@@ -114,8 +114,10 @@ export async function listPostsByStatus(statuses: BlogStatus[]): Promise<BlogPos
 /**
  * Map de author_user_id → display data, para hidratar listings sin
  * hacer un join per-row. Devuelve por cada userId el nombre + role.
- * MVP-2 va a tener tabla `blog_authors` separada con más metadata —
- * por ahora derivamos del user_profiles.role.
+ *
+ * @deprecated MVP-2: preferir `hydrateAuthors` de `@/lib/blog/authors`
+ * que además trae la fila `blog_authors` (display name, slug, sameAs).
+ * Esta función queda por compat con call sites legacy.
  */
 export async function getAuthorsMap(
   userIds: string[],
@@ -126,4 +128,35 @@ export async function getAuthorsMap(
     .from(userProfiles)
     .where(inArray(userProfiles.userId, userIds));
   return new Map(rows.map((r) => [r.userId, r]));
+}
+
+/**
+ * Lista posts publicados por un autor específico (por user_id).
+ * Usado por /blog/authors/[slug]/page.tsx — grilla de posts del hub.
+ * Ordenado por published_at DESC.
+ */
+export async function listPublishedPostsByAuthorUserId(
+  authorUserId: string,
+): Promise<ListedBlogPost[]> {
+  return db
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      description: blogPosts.description,
+      heroImageUrl: blogPosts.heroImageUrl,
+      cluster: blogPosts.cluster,
+      tags: blogPosts.tags,
+      publishedAt: blogPosts.publishedAt,
+      readingTimeMin: blogPosts.readingTimeMin,
+      authorUserId: blogPosts.authorUserId,
+    })
+    .from(blogPosts)
+    .where(
+      and(
+        eq(blogPosts.authorUserId, authorUserId),
+        eq(blogPosts.status, "published"),
+      ),
+    )
+    .orderBy(desc(blogPosts.publishedAt));
 }
