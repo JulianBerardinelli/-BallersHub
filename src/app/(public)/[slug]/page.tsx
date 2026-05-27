@@ -22,6 +22,7 @@ import type {
   FreeLayoutVideo,
 } from "./components/free/FreeLayout";
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
+import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
 import { formatPlayerPositions } from "@/lib/format";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 
@@ -609,6 +610,11 @@ export default async function PlayerPublicPage({
       : null,
   };
 
+  // Cross-ref al author hub si este jugador también escribe en el
+  // blog (caso multi-rol). Consolida identidad Knowledge Graph via
+  // sameAs[]. Lookup barato (1 query con UNIQUE index sobre user_id).
+  const authorHubSlug = await getAuthorHubSlugForUser(player.userId);
+
   return (
     <>
       {/*
@@ -636,6 +642,7 @@ export default async function PlayerPublicPage({
           agency: player.agency
             ? { name: player.agency.name, slug: player.agency.slug }
             : null,
+          authorHubSlug,
         }}
       />
       <LayoutResolver data={publicData} />

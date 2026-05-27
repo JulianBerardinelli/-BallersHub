@@ -17,6 +17,7 @@ import { notFound } from "next/navigation";
 import { getAuthorBySlug, authorSameAs } from "@/lib/blog/authors";
 import { listPublishedPostsByAuthorUserId } from "@/lib/blog/posts";
 import { ProfilePageJsonLd } from "@/lib/seo/profilePageJsonLd";
+import { getPortfolioSlugForUser } from "@/lib/seo/cross-ref";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 
@@ -73,7 +74,14 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
   const author = await getAuthorBySlug(slug);
   if (!author) return notFound();
 
-  const posts = await listPublishedPostsByAuthorUserId(author.userId);
+  // Posts + cross-ref al portfolio del jugador en paralelo. El
+  // portfolioSlug solo se setea si el autor también es un jugador
+  // aprobado + público (gate dentro del helper) — sino el sameAs[]
+  // queda sin ese link y el author hub solo refiere al blog.
+  const [posts, portfolioSlug] = await Promise.all([
+    listPublishedPostsByAuthorUserId(author.userId),
+    getPortfolioSlugForUser(author.userId),
+  ]);
   const sameAs = authorSameAs(author);
 
   // Para JSON-LD necesitamos URLs absolutas en image/sameAs.
@@ -84,7 +92,7 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-12 md:py-16">
-      <ProfilePageJsonLd author={authorForSchema} />
+      <ProfilePageJsonLd author={authorForSchema} portfolioSlug={portfolioSlug} />
 
       <nav
         aria-label="Breadcrumbs"
