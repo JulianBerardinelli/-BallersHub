@@ -394,7 +394,7 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 
 | Item | Status |
 |---|---|
-| Email notifications (Resend) → admin pending + author approve/reject | ⏳ MVP-2 pendiente |
+| **Email notifications (Resend) → admin pending + author approve/reject** | ✅ **MVP-2 implementado** (ver §11.3 abajo) |
 | **Author hubs `/blog/authors/[slug]` con `ProfilePage` JSON-LD + sameAs** | ✅ **MVP-2 implementado** (ver §11.1 abajo) |
 | **Image upload integrado en TipTap (hero + inline) → Supabase Storage** | ✅ **MVP-2 implementado** (ver §11.2 abajo) |
 | UI admin toggle `is_blogger` | ⏳ MVP-3 (manual via SQL hasta entonces) |
@@ -452,9 +452,48 @@ UPDATE user_profiles SET is_blogger = true WHERE user_id = '<uuid>';
 - Galería de imágenes previas del autor (sin tabla `blog_media` separada por ahora — el bucket es la fuente de la verdad)
 - Garbage collection de imágenes huérfanas (sin post asociado) — cleanup manual via admin
 
----
+### 11.3. Email notifications (MVP-2 item #2)
 
-## 12. Cómo validar después del merge
+**Estado**: ✅ implementado contra branch `claude/blog-mvp2-emails`.
+
+**Stack reutilizado**: el repo ya tiene infraestructura Resend madura (11 templates existentes + registry + design system de componentes en `src/emails/`). Este item solo agrega 3 templates + 3 send functions + wireup en las server actions.
+
+**Templates nuevos** (todos transactional, no incluyen unsubscribe — son notificaciones del flow editorial, no marketing):
+
+| Template key | Trigger | Destinatario | Subject |
+|---|---|---|---|
+| `blog_post_pending_admin` | Blogger submitea (`submitForReview`) | TODOS los admins (`role='admin'`) | `Blog — Post nuevo en revisión: {title}` |
+| `blog_post_approved_author` | Admin aprueba (`reviewPost decision=approve`) | El autor del post | `Publicamos tu artículo: {title}` |
+| `blog_post_rejected_author` | Admin rechaza (`reviewPost decision=reject`) | El autor del post | `Feedback editorial sobre tu artículo` |
+
+**Helper nuevo**: `src/lib/blog/email-recipients.ts`
+- `getBlogAdminEmails()` — SQL raw join `user_profiles` × `auth.users` para todos los admins. Dinámico (multi-admin friendly).
+- `getAuthorEmailById(userId)` — lookup del email del autor por user_id.
+
+**Send functions nuevas** (en `src/lib/resend.ts`):
+- `sendBlogPostPendingAdminEmail({ adminEmails, authorName, authorEmail, postId, postTitle, clusterLabel, readingTimeMin })`
+- `sendBlogPostApprovedAuthorEmail({ authorEmail, authorName, postTitle, postSlug, clusterLabel, authorSlug? })`
+- `sendBlogPostRejectedAuthorEmail({ authorEmail, authorName, postId, postTitle, rejectionReason })`
+
+Mismo patrón que el resto: si `RESEND_API_KEY` no está, hace mock log; si falla el send, captura el error con `console.error` para no romper el flow padre.
+
+**Wireup en server actions**:
+- `src/app/(site)/blog/write/actions.ts → submitForReview`: después del UPDATE `status='pending_review'`, envía mail al admin con título + autor + link a `/admin/blog/[id]`. Try/catch decoupled del flow principal (si el email falla, el submit no falla).
+- `src/app/(dashboard)/admin/blog/actions.ts → reviewPost`: después del UPDATE, según `decision === 'approve' | 'reject'`, envía mail al autor con el template correspondiente. Mismo try/catch decoupled.
+
+**Preview en admin marketing UI**: los 3 templates están agregados al `buildSampleProps` switch en `src/app/(dashboard)/admin/marketing/actions.ts` con sample data realista, así el admin puede previsualizar el render desde `/admin/marketing` antes de habilitarlos en prod.
+
+**Validar después del merge**:
+```bash
+# 1) Como blogger, ir a /blog/write, submitear un draft válido.
+#    Esperado: email a julian.berardinelli@gmail.com con título + link a /admin/blog/[id]
+
+# 2) Como admin, aprobar el post en /admin/blog/[id]
+#    Esperado: email al autor con link al post publicado + su author hub
+
+# 3) Repetir con reject + feedback
+#    Esperado: email al autor con rejection_reason + link a editar
+```
 
 ```bash
 # 1) /blog devuelve 200 y muestra al menos posts seed

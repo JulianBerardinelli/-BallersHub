@@ -19,6 +19,14 @@ const dashboardUrl = (path = "") =>
   `${siteUrl.replace(/\/+$/, "")}/dashboard${path ? `/${path.replace(/^\/+/, "")}` : ""}`;
 const inviteUrl = (token: string) =>
   `${siteUrl.replace(/\/+$/, "")}/onboarding/accept-invite?token=${encodeURIComponent(token)}`;
+const blogPostUrl = (slug: string) =>
+  `${siteUrl.replace(/\/+$/, "")}/blog/${encodeURIComponent(slug)}`;
+const blogAuthorHubUrl = (slug: string) =>
+  `${siteUrl.replace(/\/+$/, "")}/blog/authors/${encodeURIComponent(slug)}`;
+const blogEditUrl = (postId: string) =>
+  `${siteUrl.replace(/\/+$/, "")}/blog/write/${encodeURIComponent(postId)}`;
+const adminBlogReviewUrl = (postId: string) =>
+  `${siteUrl.replace(/\/+$/, "")}/admin/blog/${encodeURIComponent(postId)}`;
 
 // ============================================================================
 // Welcomes
@@ -308,5 +316,136 @@ export async function sendPaymentFailedEmail(opts: {
     });
   } catch (error) {
     console.error("[resend] sendPaymentFailedEmail:", error);
+  }
+}
+
+// ============================================================================
+// Blog editorial workflow (MVP-2 #2)
+// ============================================================================
+
+/**
+ * Notifica a TODOS los admins cuando un blogger submitea un post para
+ * revisión. Si no hay admins (caso edge) o no hay Resend config, hace
+ * mock log. Failure silenciosa — la action principal (submitForReview)
+ * no debería romper si el email falla.
+ */
+export async function sendBlogPostPendingAdminEmail(opts: {
+  adminEmails: string[];
+  authorName: string;
+  authorEmail: string;
+  postId: string;
+  postTitle: string;
+  clusterLabel: string;
+  readingTimeMin: number;
+}) {
+  if (opts.adminEmails.length === 0) {
+    console.warn("[resend] sendBlogPostPendingAdminEmail: no admin emails to notify");
+    return;
+  }
+  if (!resend) {
+    console.log(
+      "[Resend Mock] Blog post pending →",
+      opts.adminEmails,
+      opts.postTitle,
+    );
+    return;
+  }
+  try {
+    const reviewUrl = adminBlogReviewUrl(opts.postId);
+    const html = await renderTemplate("blog_post_pending_admin", {
+      authorName: opts.authorName,
+      authorEmail: opts.authorEmail,
+      postTitle: opts.postTitle,
+      clusterLabel: opts.clusterLabel,
+      readingTimeMin: opts.readingTimeMin,
+      reviewUrl,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: opts.adminEmails,
+      subject: `Blog — Post nuevo en revisión: ${opts.postTitle}`,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendBlogPostPendingAdminEmail:", error);
+  }
+}
+
+/**
+ * Notifica al autor cuando su post es aprobado y publicado. Pasa
+ * postSlug + opcionalmente authorSlug para mostrar link a su author hub.
+ */
+export async function sendBlogPostApprovedAuthorEmail(opts: {
+  authorEmail: string;
+  authorName: string;
+  postTitle: string;
+  postSlug: string;
+  clusterLabel: string;
+  authorSlug?: string | null;
+}) {
+  if (!resend) {
+    console.log(
+      "[Resend Mock] Blog post approved →",
+      opts.authorEmail,
+      opts.postTitle,
+    );
+    return;
+  }
+  try {
+    const html = await renderTemplate("blog_post_approved_author", {
+      authorName: opts.authorName,
+      postTitle: opts.postTitle,
+      clusterLabel: opts.clusterLabel,
+      postUrl: blogPostUrl(opts.postSlug),
+      authorHubUrl: opts.authorSlug ? blogAuthorHubUrl(opts.authorSlug) : undefined,
+      recipientEmail: opts.authorEmail,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.authorEmail],
+      subject: `Publicamos tu artículo: ${opts.postTitle}`,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendBlogPostApprovedAuthorEmail:", error);
+  }
+}
+
+/**
+ * Notifica al autor cuando su post es rechazado con feedback. El editor
+ * URL apunta a /blog/write/[id] donde puede iterar (el post queda en
+ * estado 'rejected' que permite UPDATE por el autor).
+ */
+export async function sendBlogPostRejectedAuthorEmail(opts: {
+  authorEmail: string;
+  authorName: string;
+  postId: string;
+  postTitle: string;
+  rejectionReason: string;
+}) {
+  if (!resend) {
+    console.log(
+      "[Resend Mock] Blog post rejected →",
+      opts.authorEmail,
+      opts.postTitle,
+    );
+    return;
+  }
+  try {
+    const html = await renderTemplate("blog_post_rejected_author", {
+      authorName: opts.authorName,
+      postTitle: opts.postTitle,
+      rejectionReason: opts.rejectionReason,
+      editUrl: blogEditUrl(opts.postId),
+      recipientEmail: opts.authorEmail,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.authorEmail],
+      subject: `Feedback editorial sobre tu artículo`,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendBlogPostRejectedAuthorEmail:", error);
   }
 }

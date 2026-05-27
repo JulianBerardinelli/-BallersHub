@@ -22,6 +22,13 @@ import {
 import { requireBlogger } from "@/lib/blog/permissions";
 import { findFreeSlug } from "@/lib/blog/slug";
 import { estimateReadingTime } from "@/lib/blog/reading-time";
+import { CLUSTER_LABELS } from "@/lib/blog/labels";
+import { hydrateAuthors, fallbackDisplayName } from "@/lib/blog/authors";
+import {
+  getBlogAdminEmails,
+  getAuthorEmailById,
+} from "@/lib/blog/email-recipients";
+import { sendBlogPostPendingAdminEmail } from "@/lib/resend";
 
 type ActionResult<T> =
   | { success: true; data: T; message?: string }
@@ -209,7 +216,43 @@ export async function submitForReview(
 
   revalidatePath(`/blog/write/${parsed.data.id}`);
   revalidatePath("/blog/drafts");
-  // TODO MVP-2: send email notification to admin here.
+
+  // Notify admins. Decoupled try/catch — el flow del autor no debería
+  // romperse si Resend está caído o no hay admins (caso muy edge).
+  try {
+    const [adminEmails, authorEmail, authorsMap, post] = await Promise.all([
+      getBlogAdminEmails(),
+      getAuthorEmailById(userId),
+      hydrateAuthors([userId]),
+      db
+        .select({
+          title: blogPosts.title,
+          cluster: blogPosts.cluster,
+          readingTimeMin: blogPosts.readingTimeMin,
+        })
+        .from(blogPosts)
+        .where(eq(blogPosts.id, parsed.data.id))
+        .limit(1),
+    ]);
+
+    if (post[0] && adminEmails.length > 0 && authorEmail) {
+      const hydrated = authorsMap.get(userId);
+      const authorName =
+        hydrated?.blogAuthor?.displayName ?? fallbackDisplayName(hydrated?.role);
+      await sendBlogPostPendingAdminEmail({
+        adminEmails,
+        authorName,
+        authorEmail,
+        postId: parsed.data.id,
+        postTitle: post[0].title,
+        clusterLabel: CLUSTER_LABELS[post[0].cluster],
+        readingTimeMin: post[0].readingTimeMin,
+      });
+    }
+  } catch (err) {
+    console.error("[blog] submitForReview admin notification failed:", err);
+  }
+
   return { success: true, data: { id: parsed.data.id } };
 }
 
