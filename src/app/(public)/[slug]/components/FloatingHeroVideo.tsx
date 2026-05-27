@@ -202,11 +202,16 @@ export default function FloatingHeroVideo({
           {
             position: "fixed",
             top: 0,
-            left: 0,
-            right: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: HEADER_W,
             height: STAGE_HEIGHT,
             zIndex: 100,
             pointerEvents: "none",
+            // contain layout/paint so the SVG goo filter never re-runs
+            // because of work happening elsewhere on the page (hero
+            // parallax, ghost trails, etc.).
+            contain: "layout paint",
             ["--bh-morph-accent" as string]: accentColor,
           } as React.CSSProperties
         }
