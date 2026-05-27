@@ -5,9 +5,15 @@
 // Manages local state for title/description/heroImage/cluster/tags +
 // TipTap content. Calls the server actions createDraft, saveDraft,
 // submitForReview. Shows inline errors from the action result.
+//
+// MVP-2 #3 — hero image upload integrado a Supabase Storage. El
+// campo URL externa se reemplaza por file picker + preview. Todo
+// flow va al bucket `blog-media` para que next/image funcione sin
+// expandir remotePatterns.
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2, ImageIcon, X } from "lucide-react";
 import { RichTextEditor } from "./RichTextEditor";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import type { BlogCluster, BlogStatus } from "@/db/schema";
@@ -58,6 +64,44 @@ export function BlogPostForm({ mode, initialValues }: Props) {
   const [tagsInput, setTagsInput] = useState((initialValues?.tags ?? []).join(", "));
   const [contentHtml, setContentHtml] = useState(initialValues?.contentHtml ?? "");
   const [feedback, setFeedback] = useState<Feedback>({ kind: "idle" });
+  const [heroUploading, setHeroUploading] = useState(false);
+  const [heroError, setHeroError] = useState<string | null>(null);
+  const heroFileInputRef = useRef<HTMLInputElement>(null);
+
+  const triggerHeroUpload = () => heroFileInputRef.current?.click();
+
+  const handleHeroFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // reset para permitir re-upload del mismo
+    if (!file) return;
+
+    setHeroError(null);
+    setHeroUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/blog/media/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const json = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !json.url) {
+        setHeroError(json.error ?? "No se pudo subir la imagen.");
+        return;
+      }
+      setHeroImageUrl(json.url);
+    } catch (err) {
+      console.error("[BlogPostForm] hero upload failed:", err);
+      setHeroError("No se pudo subir la imagen. Probá de nuevo.");
+    } finally {
+      setHeroUploading(false);
+    }
+  };
+
+  const clearHero = () => {
+    setHeroImageUrl("");
+    setHeroError(null);
+  };
 
   const parseTags = (raw: string): string[] =>
     raw
@@ -199,14 +243,73 @@ export function BlogPostForm({ mode, initialValues }: Props) {
         </Field>
       </div>
 
-      <Field label="URL de imagen principal" error={fieldError("heroImageUrl")} hint="1200x630 ideal. Sube la imagen al storage de media y pegá el link público.">
+      <Field
+        label="Imagen principal (hero)"
+        error={fieldError("heroImageUrl") ?? heroError ?? undefined}
+        hint="1200×630 ideal. JPG/PNG/WebP/AVIF, máx 5MB. Se sube a nuestro storage y se transcodea a AVIF automáticamente."
+      >
         <input
-          type="url"
-          value={heroImageUrl}
-          onChange={(e) => setHeroImageUrl(e.target.value)}
-          className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
-          placeholder="https://…"
+          ref={heroFileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          onChange={handleHeroFile}
+          className="hidden"
+          aria-hidden
         />
+        {heroImageUrl ? (
+          <div className="relative overflow-hidden rounded-bh-md border border-bh-fg-4 bg-bh-surface-2">
+            {/*
+              Plain <img> inline para preview en el editor (client side).
+              El render público en /blog/[slug] usa next/image porque
+              todas las imágenes nuevas viven en *.supabase.co.
+            */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={heroImageUrl}
+              alt="Vista previa del hero"
+              className="block aspect-[16/9] w-full object-cover"
+            />
+            <div className="flex items-center justify-end gap-2 border-t border-bh-fg-4 bg-bh-surface-1 p-2">
+              <button
+                type="button"
+                onClick={triggerHeroUpload}
+                disabled={heroUploading}
+                className="rounded-bh-sm border border-bh-fg-4 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-bh-fg-2 transition-colors hover:border-bh-fg-3 hover:text-bh-fg-1 disabled:opacity-50"
+              >
+                {heroUploading ? "Subiendo…" : "Cambiar"}
+              </button>
+              <button
+                type="button"
+                onClick={clearHero}
+                disabled={heroUploading}
+                className="inline-flex items-center gap-1 rounded-bh-sm border border-red-500/40 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-red-300 transition-colors hover:border-red-400 hover:text-red-200 disabled:opacity-50"
+              >
+                <X className="size-3" aria-hidden />
+                Quitar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={triggerHeroUpload}
+            disabled={heroUploading}
+            className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-2 rounded-bh-md border border-dashed border-bh-fg-4 bg-bh-surface-1 text-sm text-bh-fg-3 transition-colors hover:border-bh-fg-3 hover:text-bh-fg-2 disabled:opacity-50"
+          >
+            {heroUploading ? (
+              <>
+                <Loader2 className="size-5 animate-spin" aria-hidden />
+                <span>Subiendo imagen…</span>
+              </>
+            ) : (
+              <>
+                <ImageIcon className="size-6" aria-hidden />
+                <span>Subir imagen principal</span>
+                <span className="text-[11px] text-bh-fg-3">JPG / PNG / WebP / AVIF · máx 5MB</span>
+              </>
+            )}
+          </button>
+        )}
       </Field>
 
       <Field label="Contenido" error={fieldError("contentHtml")} hint="≥1500 palabras. Mínimo 3 secciones H2. Linkear ≥3 portfolios reales de /[slug].">

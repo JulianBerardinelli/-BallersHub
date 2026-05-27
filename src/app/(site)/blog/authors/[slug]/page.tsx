@@ -12,6 +12,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getAuthorBySlug, authorSameAs } from "@/lib/blog/authors";
 import { listPublishedPostsByAuthorUserId } from "@/lib/blog/posts";
@@ -102,15 +103,16 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
 
       <header className="mb-10 grid gap-6 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6 md:grid-cols-[auto_1fr] md:p-8">
         {author.avatarUrl ? (
-          // Plain <img> consistente con BlogCard — autores pueden subir
-          // URLs externas. Cuando Storage upload (MVP-2 item #3) entre,
-          // migramos todo a next/image en un PR aparte.
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            src={author.avatarUrl}
-            alt={author.displayName}
-            className="h-28 w-28 rounded-full border border-white/[0.08] object-cover md:h-32 md:w-32"
-          />
+          <div className="relative h-28 w-28 overflow-hidden rounded-full border border-white/[0.08] md:h-32 md:w-32">
+            <Image
+              src={author.avatarUrl}
+              alt={author.displayName}
+              fill
+              sizes="128px"
+              unoptimized={!author.avatarUrl.includes(".supabase.co")}
+              className="object-cover"
+            />
+          </div>
         ) : (
           <div
             aria-hidden
