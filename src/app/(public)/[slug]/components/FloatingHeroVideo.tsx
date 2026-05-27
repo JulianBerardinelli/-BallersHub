@@ -90,6 +90,10 @@ export default function FloatingHeroVideo({
 
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [iframeMounted, setIframeMounted] = React.useState(false);
+  // Hide the YouTube player chrome that briefly flashes while the iframe
+  // loads + autoplay kicks in. After ~1.4s we fade the poster out and the
+  // playing video shows through (no controls overlay once playing).
+  const [posterCover, setPosterCover] = React.useState(true);
 
   React.useEffect(() => {
     if (state === "open") {
@@ -101,6 +105,15 @@ export default function FloatingHeroVideo({
       return () => window.clearTimeout(id);
     }
   }, [state, iframeMounted]);
+
+  React.useEffect(() => {
+    if (!iframeMounted) {
+      setPosterCover(true);
+      return;
+    }
+    const id = window.setTimeout(() => setPosterCover(false), 1400);
+    return () => window.clearTimeout(id);
+  }, [iframeMounted]);
 
   // Scroll-spy — mirrors ProPlayerHeader so the morph header reflects the
   // same active section.
@@ -167,6 +180,10 @@ export default function FloatingHeroVideo({
   // <a> tap surface above the iframe captures all clicks and opens YouTube.
   const iframeSrc = ytId
     ? `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1&disablekb=1&rel=0&iv_load_policy=3&fs=0`
+    : null;
+  // Used as the loading poster that covers YT chrome before autoplay starts.
+  const posterUrl = ytId
+    ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
     : null;
 
   return (
@@ -476,9 +493,34 @@ export default function FloatingHeroVideo({
               />
             )}
 
-            {/* Full-area tap surface — sits ABOVE the iframe so YouTube
-                chrome can never receive pointer events; click opens the
-                video natively in the YouTube app/web. */}
+            {/* Loading poster — covers YouTube's initial chrome (title bar,
+                play button, skip controls) until autoplay-muted starts the
+                playback (~1.4s). Fades out smoothly to reveal the playing
+                video underneath. */}
+            {posterUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={posterUrl}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  pointerEvents: "none",
+                  opacity: posterCover ? 1 : 0,
+                  transition: "opacity 320ms ease-out",
+                  zIndex: 5,
+                }}
+              />
+            )}
+
+            {/* Full-area tap surface — sits ABOVE the iframe + poster so
+                YouTube chrome can never receive pointer events; click opens
+                the video natively in the YouTube app/web. */}
             <a
               href={youtubeWatchUrl}
               target="_blank"
@@ -506,6 +548,9 @@ export default function FloatingHeroVideo({
 
 const MORPH_CSS = `
 .bh-morph-blob-shell {
+  /* close target — runs when .is-open is removed. Ease + duration match
+     the Claude Design prototype's in-quart (0.5, 0, 0.75, 0). The blob
+     shrinks back into the header pill over 700ms. */
   top: 78px;
   width: 56px;
   height: 12px;
@@ -513,11 +558,11 @@ const MORPH_CSS = `
   opacity: 0;
   transform: translateX(-50%);
   transition:
-    width 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    height 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    border-radius 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    top 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    opacity 280ms cubic-bezier(0.7, 0, 0.84, 0);
+    width 700ms cubic-bezier(0.5, 0, 0.75, 0),
+    height 700ms cubic-bezier(0.5, 0, 0.75, 0),
+    border-radius 700ms cubic-bezier(0.5, 0, 0.75, 0),
+    top 700ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 320ms cubic-bezier(0.5, 0, 0.75, 0) 380ms;
 }
 .bh-morph-stage.is-open .bh-morph-blob-shell {
   top: 32px;
@@ -533,20 +578,30 @@ const MORPH_CSS = `
     opacity 180ms ease-out;
 }
 .bh-morph-header-content {
+  /* close target — pill border returns gradually as blob shrinks. Delayed
+     a touch so the border fade-in syncs with the blob being noticeably
+     smaller (matches "la pill recupera su border" at the end of close). */
   transition:
-    border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 460ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 180ms,
+    border-radius 520ms cubic-bezier(0.5, 0, 0.75, 0) 80ms,
+    box-shadow 460ms cubic-bezier(0.5, 0, 0.75, 0) 180ms;
 }
 .bh-morph-stage.is-open .bh-morph-header-content {
   border-color: transparent !important;
   border-bottom-color: rgba(255, 255, 255, 0.05) !important;
   border-radius: 30px 30px 0 0 !important;
   box-shadow: none !important;
+  transition:
+    border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 460ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .bh-morph-blob-content {
+  /* close target — content fades out FIRST so the blob shape can shrink
+     visibly empty. Quick ease-in: matches design intent of "el contenido
+     del panel se desvanece primero, y la pill recupera su border". */
   opacity: 0;
-  transition: opacity 200ms ease-out;
+  transition: opacity 220ms cubic-bezier(0.5, 0, 0.75, 0);
 }
 .bh-morph-stage.is-open .bh-morph-blob-content {
   opacity: 1;
