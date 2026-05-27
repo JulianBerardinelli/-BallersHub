@@ -44,6 +44,14 @@ export type PersonJsonLdPlayer = {
   youtubeUrl?: string | null;
   tiktokUrl?: string | null;
   agency?: { name: string; slug: string } | null;
+  /**
+   * Slug del author hub del jugador en `/blog/authors/<slug>` si
+   * tiene blog_authors row. Cuando está presente, se agrega al
+   * sameAs[] para que Google consolide la identidad entre Person
+   * como futbolista (este portfolio) y Person como autor del blog.
+   * Ver src/lib/seo/cross-ref.ts.
+   */
+  authorHubSlug?: string | null;
 };
 
 type Props = {
@@ -74,14 +82,25 @@ const POSITION_LABELS: Record<string, string> = {
 };
 
 function buildSameAs(p: PersonJsonLdPlayer): string[] {
-  return [
+  const base = getSiteBaseUrl();
+  const sameAs: Array<string | null | undefined> = [
     p.transfermarktUrl,
     p.beSoccerUrl,
     p.instagramUrl,
     p.twitterUrl,
     p.youtubeUrl,
     p.tiktokUrl,
-  ].filter((v): v is string => typeof v === "string" && v.length > 0);
+  ];
+  // Cross-reference al author hub interno: si este jugador también
+  // escribe en el blog, le decimos a Google que son la misma persona.
+  // URL absoluta (vs path relativo) para que el sameAs sea válido y
+  // resolvible — Schema.org sameAs requiere URLs canónicas.
+  if (p.authorHubSlug) {
+    sameAs.push(`${base}/blog/authors/${p.authorHubSlug}`);
+  }
+  return sameAs.filter(
+    (v): v is string => typeof v === "string" && v.length > 0,
+  );
 }
 
 function buildKnowsAbout(positions: string[] | null | undefined): string[] {

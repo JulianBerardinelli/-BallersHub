@@ -18,14 +18,35 @@ import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
 import type { BlogAuthor } from "@/db/schema";
 import { authorSameAs } from "@/lib/blog/authors";
 
-export function ProfilePageJsonLd({ author }: { author: BlogAuthor }) {
+type ProfilePageJsonLdProps = {
+  author: BlogAuthor;
+  /**
+   * Slug del portfolio público del autor en /<slug> si el user
+   * también es un jugador aprobado. Cuando está presente, se agrega
+   * al sameAs[] del Person para que Google consolide identidad:
+   * "el autor de estos posts es la misma persona que el futbolista
+   * de ese portfolio". Ver src/lib/seo/cross-ref.ts.
+   */
+  portfolioSlug?: string | null;
+};
+
+export function ProfilePageJsonLd({
+  author,
+  portfolioSlug,
+}: ProfilePageJsonLdProps) {
   const base = getSiteBaseUrl();
   const pageUrl = toCanonicalUrl(`/blog/authors/${author.slug}`);
   const personId = `${pageUrl}#person`;
   const profileId = `${pageUrl}#profilepage`;
   const breadcrumbId = `${pageUrl}#breadcrumb`;
   const orgId = `${base}#organization`;
-  const sameAs = authorSameAs(author);
+  const sameAs = [
+    ...authorSameAs(author),
+    // Cross-reference al portfolio del jugador (URL absoluta para
+    // que sameAs sea válido). Si el autor no es jugador, esto queda
+    // fuera del array.
+    ...(portfolioSlug ? [`${base}/${portfolioSlug}`] : []),
+  ];
 
   const personNode: Record<string, unknown> = {
     "@type": "Person",
