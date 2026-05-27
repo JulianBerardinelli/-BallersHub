@@ -37,6 +37,14 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: "Blog",
+    items: [
+      { href: "/admin/blog/pending", label: "Cola editorial", roles: ["admin"] },
+      { href: "/admin/blog", label: "Todos los posts", roles: ["admin"] },
+      { href: "/admin/blogger-whitelist", label: "Whitelist de bloggers", roles: ["admin"] },
+    ],
+  },
+  {
     title: "Marketing",
     items: [
       { href: "/admin/marketing", label: "Campañas", roles: ["admin"] },
