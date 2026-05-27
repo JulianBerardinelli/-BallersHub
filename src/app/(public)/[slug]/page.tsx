@@ -573,6 +573,19 @@ export default async function PlayerPublicPage({
   const pressLayout: "newspaper" | "cards" =
     pressSettings?.layout === "cards" ? "cards" : "newspaper";
 
+  // Floating hero video for Pro layout (mobile-only island deployed from
+  // header). Reuses the already-computed `primaryVideo` (sorted by isPrimary
+  // → seasonYear → createdAt) so it matches what the user sees in the
+  // tactics scroll-jacked section. Free layout already has its own video
+  // block in the hero, so this stays null for Free.
+  const heroFloatingVideo = !isFree && primaryVideo
+    ? {
+        url: primaryVideo.url,
+        title: primaryVideo.title ?? null,
+        provider: primaryVideo.provider ?? null,
+      }
+    : null;
+
   const publicData = {
     player,
     career: [],
@@ -588,6 +601,7 @@ export default async function PlayerPublicPage({
         typography: "syncopate",
       },
     plan,
+    heroFloatingVideo,
     // Owner-only upgrade nudge: when the player has a Pro subscription but
     // is currently rendering Free (because they chose theme.layout='free'),
     // we expose their userId to the client so the floating banner can

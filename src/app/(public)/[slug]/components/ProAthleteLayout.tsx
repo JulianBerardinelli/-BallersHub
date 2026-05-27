@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ImagePlus } from "lucide-react";
 import type { PublicProfileData } from "./LayoutResolver";
 import ProPlayerHeader from "./ProPlayerHeader";
+import FloatingHeroVideo from "./FloatingHeroVideo";
 import { formatPlayerPositions } from "@/lib/format";
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
@@ -63,8 +64,9 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
 }
 
 function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
-  const { player, theme } = data;
+  const { player, theme, heroFloatingVideo } = data;
   const containerRef = useRef<HTMLDivElement>(null);
+  const playerSlug = (player as { slug?: string | null }).slug ?? "";
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -118,9 +120,18 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
       ref={containerRef}
     >
       
-      <ProPlayerHeader player={player} />
+      <ProPlayerHeader player={player} hideOnMobile={!!heroFloatingVideo} />
 
-      {/* 
+      {heroFloatingVideo && playerSlug && (
+        <FloatingHeroVideo
+          video={heroFloatingVideo}
+          slug={playerSlug}
+          player={{ fullName: player.fullName, avatarUrl: player.avatarUrl ?? null }}
+          accentColor={accentColor}
+        />
+      )}
+
+      {/*
         ==================================================
         HERO SECTION (Cinematic ATMOSPHERE)
         ==================================================

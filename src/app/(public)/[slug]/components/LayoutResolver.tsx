@@ -75,6 +75,18 @@ export type PublicProfileData = {
    * profiles so the nudge stays fully absent from the DOM.
    */
   ownerProUpgradeNudgeUserId?: string | null;
+  /**
+   * Pro-only floating hero video. When present, the Pro layout renders a
+   * mobile-only floating island that deploys from below the header after a
+   * short delay and disappears when the user reaches the tactics scroll-
+   * jacked section. Stays null for Free profiles (Free already has its own
+   * video block) and for Pro profiles without an approved primary video.
+   */
+  heroFloatingVideo?: {
+    url: string;
+    title: string | null;
+    provider: string | null;
+  } | null;
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {

@@ -25,7 +25,13 @@ const PORTFOLIO_SECTIONS: SectionItem[] = [
   { id: "gallery",         label: "Galería", Icon: ImageIcon },
 ];
 
-export default function ProPlayerHeader({ player }: { player: any }) {
+export default function ProPlayerHeader({
+  player,
+  hideOnMobile = false,
+}: {
+  player: any;
+  hideOnMobile?: boolean;
+}) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const handleShare = async () => {
@@ -83,7 +89,9 @@ export default function ProPlayerHeader({ player }: { player: any }) {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.8, ease: "easeOut" }}
-      className="fixed top-0 left-0 w-full z-[100] pt-4 md:pt-6 px-4 md:px-6 lg:px-12 pointer-events-none"
+      className={`fixed top-0 left-0 w-full z-[100] pt-4 md:pt-6 px-4 md:px-6 lg:px-12 pointer-events-none${
+        hideOnMobile ? " hidden lg:block" : ""
+      }`}
     >
       <div className="relative w-full max-w-[1400px] mx-auto flex items-center justify-center">
 
