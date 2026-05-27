@@ -9,8 +9,15 @@
 // Source of truth: `src/components/site/pricing/data.ts` (PRO_PLAYER_PRICES,
 // PRO_AGENCY_PRICES). When prices change there, this picks them up
 // automatically — no duplicate constants here.
+//
+// Fix Issue #3 del SEO health check del 2026-05-27: el Product ahora
+// vive dentro de `@graph` con `@id` explícito y `brand` cross-referencia
+// al `#organization` sitewide, en lugar de ser un objeto suelto sin
+// cross-refs. Esto consolida el grafo y permite que Google entienda
+// que el Product es publicado por la misma Organization que aparece
+// en el resto del sitio.
 
-import { toCanonicalUrl } from "./baseUrl";
+import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
 import {
   PRO_PLAYER_PRICES,
   PRO_AGENCY_PRICES,
@@ -79,17 +86,42 @@ function buildOffers(): OfferShape[] {
 }
 
 export function OfferJsonLd() {
+  const base = getSiteBaseUrl();
   const pricingUrl = toCanonicalUrl("/pricing");
+  const productId = `${pricingUrl}#product`;
+  const orgId = `${base}#organization`;
+  const breadcrumbId = `${pricingUrl}#breadcrumb`;
 
-  const payload = {
-    "@context": "https://schema.org",
+  const productNode = {
     "@type": "Product",
+    "@id": productId,
     name: "'BallersHub — Suscripciones",
     description:
       "Acceso a perfiles profesionales en 'BallersHub. Plan Free disponible para jugadores y agencias; Pro desbloquea galería extendida, prensa curada, SEO avanzado y schema verificable.",
-    brand: { "@type": "Brand", name: "'BallersHub" },
+    // Brand cross-referenced al Organization sitewide — el publisher
+    // del Product es la misma entidad que el resto del grafo.
+    brand: { "@id": orgId },
     url: pricingUrl,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": pricingUrl,
+      breadcrumb: { "@id": breadcrumbId },
+    },
     offers: buildOffers(),
+  };
+
+  const breadcrumbNode = {
+    "@type": "BreadcrumbList",
+    "@id": breadcrumbId,
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: base },
+      { "@type": "ListItem", position: 2, name: "Planes y precios", item: pricingUrl },
+    ],
+  };
+
+  const payload = {
+    "@context": "https://schema.org",
+    "@graph": [productNode, breadcrumbNode],
   };
 
   return (
