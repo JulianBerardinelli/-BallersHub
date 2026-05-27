@@ -257,6 +257,34 @@ function buildSampleProps(
         updatePaymentUrl: `${siteUrl}/dashboard/settings/subscription`,
         ...overrides,
       };
+    case "blog_post_pending_admin":
+      return {
+        authorName: "Lautaro Sample",
+        authorEmail: "autor@ballershub.co",
+        postTitle: "Mercado de pases AFA 2026: 5 jugadores libres más buscados",
+        clusterLabel: "Industria AR",
+        readingTimeMin: 7,
+        reviewUrl: `${siteUrl}/admin/blog/preview-id`,
+        ...overrides,
+      };
+    case "blog_post_approved_author":
+      return {
+        authorName: "Lautaro Sample",
+        postTitle: "Mercado de pases AFA 2026: 5 jugadores libres más buscados",
+        clusterLabel: "Industria AR",
+        postUrl: `${siteUrl}/blog/sample-slug`,
+        authorHubUrl: `${siteUrl}/blog/authors/lautaro-sample`,
+        ...overrides,
+      };
+    case "blog_post_rejected_author":
+      return {
+        authorName: "Lautaro Sample",
+        postTitle: "Mercado de pases AFA 2026: 5 jugadores libres más buscados",
+        rejectionReason:
+          "Buen draft, pero faltan links concretos a perfiles de /[slug]. Por nuestras reglas editoriales necesitás al menos 3 links a portfolios reales para que el post entre.\n\nTambién la sección 2 está corta — desarrollala con un caso concreto.",
+        editUrl: `${siteUrl}/blog/write/preview-id`,
+        ...overrides,
+      };
     default: {
       const _exhaustive: never = key;
       return _exhaustive;

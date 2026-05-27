@@ -13,6 +13,13 @@ import { requireBlogAdmin } from "@/lib/blog/permissions";
 import { adminReviewSchema, type AdminReviewInput } from "@/lib/blog/validation";
 import { estimateReadingTime } from "@/lib/blog/reading-time";
 import { revalidateBlogSurfaces } from "@/lib/blog/revalidate";
+import { CLUSTER_LABELS } from "@/lib/blog/labels";
+import { hydrateAuthors, fallbackDisplayName } from "@/lib/blog/authors";
+import { getAuthorEmailById } from "@/lib/blog/email-recipients";
+import {
+  sendBlogPostApprovedAuthorEmail,
+  sendBlogPostRejectedAuthorEmail,
+} from "@/lib/resend";
 
 type ActionResult =
   | { success: true; message?: string }
@@ -61,9 +68,15 @@ export async function reviewPost(input: AdminReviewInput): Promise<ActionResult>
       .where(eq(blogPosts.id, parsed.data.id));
   }
 
-  // Resolve slug for revalidation of public surfaces.
+  // Resolve post (slug + author + content) for revalidation + email payload.
   const row = await db
-    .select({ slug: blogPosts.slug })
+    .select({
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      cluster: blogPosts.cluster,
+      authorUserId: blogPosts.authorUserId,
+      rejectionReason: blogPosts.rejectionReason,
+    })
     .from(blogPosts)
     .where(eq(blogPosts.id, parsed.data.id))
     .limit(1);
@@ -71,7 +84,50 @@ export async function reviewPost(input: AdminReviewInput): Promise<ActionResult>
   await revalidateBlogSurfaces(row[0]?.slug ?? null);
   revalidatePath("/admin/blog");
   revalidatePath("/admin/blog/pending");
-  // TODO MVP-2: send email to author with decision + feedback.
+
+  // Notify author. Decoupled try/catch — si el email falla, la action
+  // principal ya escribió OK y el admin no debería ver un error.
+  if (row[0]) {
+    try {
+      const post = row[0];
+      const [authorEmail, authorsMap] = await Promise.all([
+        getAuthorEmailById(post.authorUserId),
+        hydrateAuthors([post.authorUserId]),
+      ]);
+      const hydrated = authorsMap.get(post.authorUserId);
+      const blogAuthor = hydrated?.blogAuthor ?? null;
+      const authorName =
+        blogAuthor?.displayName ?? fallbackDisplayName(hydrated?.role);
+      const clusterLabel = CLUSTER_LABELS[post.cluster];
+
+      if (authorEmail) {
+        if (parsed.data.decision === "approve") {
+          await sendBlogPostApprovedAuthorEmail({
+            authorEmail,
+            authorName,
+            postTitle: post.title,
+            postSlug: post.slug,
+            clusterLabel,
+            authorSlug: blogAuthor?.slug ?? null,
+          });
+        } else {
+          await sendBlogPostRejectedAuthorEmail({
+            authorEmail,
+            authorName,
+            postId: parsed.data.id,
+            postTitle: post.title,
+            rejectionReason: post.rejectionReason ?? "Sin feedback.",
+          });
+        }
+      } else {
+        console.warn(
+          `[blog] reviewPost: no email found for author ${post.authorUserId}, skipping notification`,
+        );
+      }
+    } catch (err) {
+      console.error("[blog] reviewPost author notification failed:", err);
+    }
+  }
 
   return { success: true };
 }
