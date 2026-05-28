@@ -12,6 +12,12 @@ type Options = {
   hideSelector: string;
   /** Delay after the user's FIRST scroll before the morph reveals. */
   revealAfterScrollMs?: number;
+  /**
+   * Delay after mount before revealing. When set, takes precedence over
+   * `revealAfterScrollMs` (used by the desktop island, which appears on a
+   * timer rather than on first scroll).
+   */
+  revealAfterLoadMs?: number;
   enabled?: boolean;
   dismissKey?: string;
 };
@@ -24,6 +30,7 @@ const FIRST_SCROLL_THRESHOLD_PX = 8;
 export function useFloatingVideoVisibility({
   hideSelector,
   revealAfterScrollMs = 1000,
+  revealAfterLoadMs,
   enabled = true,
   dismissKey,
 }: Options): { state: FloatingVideoState; dismiss: () => void } {
@@ -131,15 +138,29 @@ export function useFloatingVideoVisibility({
     };
   }, [enabled, hideSelector]);
 
-  // Reveal trigger — the morph appears `revealAfterScrollMs` after the user's
-  // FIRST real scroll (gives them time to take in the hero image first), not
-  // on a fixed mount timer. If they never scroll, it never shows (the video is
-  // also available in the tactics section). The reveal is still gated on the
-  // hide zone at fire time, so a fast scroll straight into tactics won't pop
-  // the morph just to collapse it.
+  // Reveal trigger. Two modes:
+  //  • revealAfterLoadMs set  → appear N ms after mount (desktop island).
+  //  • else                   → appear `revealAfterScrollMs` after the user's
+  //    FIRST real scroll (mobile morph), giving the hero image time to breathe.
+  // Either way the reveal is gated on the hide zone at fire time, so loading
+  // already scrolled into tactics (or a fast scroll there) won't pop it just
+  // to collapse it.
   React.useEffect(() => {
     if (!enabled) return;
     if (state !== "hidden_initial") return;
+
+    const reveal = () => {
+      setState((curr) => {
+        if (curr !== "hidden_initial") return curr;
+        if (inHideZoneRef.current) return "hidden_permanent";
+        return "open";
+      });
+    };
+
+    if (revealAfterLoadMs != null) {
+      const id = window.setTimeout(reveal, revealAfterLoadMs);
+      return () => window.clearTimeout(id);
+    }
 
     let revealTimer = 0;
     let armed = false;
@@ -150,13 +171,7 @@ export function useFloatingVideoVisibility({
       armed = true;
       window.removeEventListener("scroll", arm);
       revealCheckRef.current = null;
-      revealTimer = window.setTimeout(() => {
-        setState((curr) => {
-          if (curr !== "hidden_initial") return curr;
-          if (inHideZoneRef.current) return "hidden_permanent";
-          return "open";
-        });
-      }, revealAfterScrollMs);
+      revealTimer = window.setTimeout(reveal, revealAfterScrollMs);
     };
 
     // Catch both native scroll (Lenis updates window.scrollY + fires it) and
@@ -169,7 +184,7 @@ export function useFloatingVideoVisibility({
       revealCheckRef.current = null;
       if (revealTimer) window.clearTimeout(revealTimer);
     };
-  }, [enabled, state, revealAfterScrollMs]);
+  }, [enabled, state, revealAfterScrollMs, revealAfterLoadMs]);
 
   const dismiss = React.useCallback(() => {
     setState("hidden_permanent");
