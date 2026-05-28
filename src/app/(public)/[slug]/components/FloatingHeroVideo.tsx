@@ -53,7 +53,6 @@ function getYouTubeId(url: string): string | null {
 const HEADER_TOP = 32;
 const HEADER_W = 320;
 const HEADER_H = 60;
-const BLOB_OVERLAP = 14;
 const VIDEO_TOP_FROM_HEADER = 10; // gutter between header pill and video
 const VIDEO_W = HEADER_W - 24; // 12px gutter each side
 const VIDEO_H = Math.round((VIDEO_W * 9) / 16); // 16:9 → 166
@@ -63,17 +62,8 @@ const BLOB_OPEN_H =
 const BLOB_OPEN_W = HEADER_W;
 const BLOB_OPEN_TOP = HEADER_TOP;
 const BLOB_OPEN_RADIUS = 30;
-const BLOB_CLOSED_W = 56;
-const BLOB_CLOSED_H = 12;
-const BLOB_CLOSED_TOP = HEADER_TOP + HEADER_H - BLOB_OVERLAP;
 const STAGE_HEIGHT = HEADER_TOP + BLOB_OPEN_H + 24;
 
-const FILTER_ID = "bh-morph-goo";
-// Neutral near-black (was the prototype's bluish 12,16,28 which read as
-// "always blue"). The shell only shows during the open morph now — the
-// closed pill is the glass header-content — but keep it neutral so the
-// expanding blob doesn't tint blue.
-const SHELL_BG = "rgba(10, 11, 13, 0.9)";
 const SHELL_BORDER = "rgba(255, 255, 255, 0.12)";
 
 export default function FloatingHeroVideo({
@@ -199,30 +189,6 @@ export default function FloatingHeroVideo({
 
   return (
     <>
-      <svg
-        width="0"
-        height="0"
-        aria-hidden="true"
-        focusable="false"
-        style={{ position: "absolute", pointerEvents: "none" }}
-      >
-        <defs>
-          <filter id={FILTER_ID}>
-            <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0
-                      0 1 0 0 0
-                      0 0 1 0 0
-                      0 0 0 18 -8"
-              result="goo"
-            />
-            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-          </filter>
-        </defs>
-      </svg>
-
       <div
         data-state={state}
         className={`bh-morph-stage${isOpen ? " is-open" : ""}${hasOpened ? " bh-was-open" : ""}`}
@@ -236,51 +202,13 @@ export default function FloatingHeroVideo({
             height: STAGE_HEIGHT,
             zIndex: 100,
             pointerEvents: "none",
-            // contain layout/paint so the SVG goo filter never re-runs
-            // because of work happening elsewhere on the page (hero
-            // parallax, ghost trails, etc.).
+            // contain layout/paint so the morph never triggers repaints from
+            // unrelated page work (hero parallax, ghost trails, etc.).
             contain: "layout paint",
             ["--bh-morph-accent" as string]: accentColor,
           } as React.CSSProperties
         }
       >
-        {/* z-2 — goo layer with shells only */}
-        <div
-          className="bh-morph-goo"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: STAGE_HEIGHT,
-            filter: `url(#${FILTER_ID})`,
-            isolation: "isolate",
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            className="bh-morph-header-shell"
-            style={{
-              position: "absolute",
-              top: HEADER_TOP,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: HEADER_W,
-              height: HEADER_H,
-              borderRadius: 999,
-              backgroundColor: SHELL_BG,
-            }}
-          />
-          <div
-            className="bh-morph-blob-shell"
-            style={{
-              position: "absolute",
-              left: "50%",
-              backgroundColor: SHELL_BG,
-            }}
-          />
-        </div>
-
         {/* z-4 — header content (avatar + section icons + share).
             Glass styling (bg, blur, border, shadow) lives in CSS so it can
             transition between the closed glass pill and the open unified
@@ -427,7 +355,6 @@ export default function FloatingHeroVideo({
             top: BLOB_OPEN_TOP,
             left: "50%",
             width: BLOB_OPEN_W,
-            height: BLOB_OPEN_H,
             transform: "translateX(-50%)",
             borderRadius: BLOB_OPEN_RADIUS,
             zIndex: 4,
@@ -582,23 +509,11 @@ export default function FloatingHeroVideo({
 }
 
 const MORPH_CSS = `
-/* Header shell (dark mass for the gooey filter). Invisible while closed so
-   the only thing the user sees is the glass header-content pill — matching
-   the original Pro mobile header. Fades in fast when opening (so the gooey
-   filter has a mass to fuse the blob into) and fades out LAST when closing. */
-.bh-morph-header-shell {
-  opacity: 0;
-}
-.bh-morph-stage[data-state="open"] .bh-morph-header-shell {
-  animation: bh-shell-open 1040ms linear forwards;
-}
-.bh-morph-stage.bh-was-open[data-state="hidden_permanent"] .bh-morph-header-shell {
-  animation: bh-shell-close 740ms linear forwards;
-}
-/* Glass header pill — transparent + backdrop blur, like the original
-   ProPlayerHeader nav (bg-black/40 backdrop-blur-xl border-white/10). When
-   open it melts into the unified card (bg + border fade so the dark shell
-   shows through as one shape). */
+/* Glass header pill — transparent + backdrop blur, identical tone to the
+   original ProPlayerHeader nav (bg-black/40 backdrop-blur-xl border-white/10).
+   When open it melts into the unified glass card: border + radius shift so the
+   pill and the panel below read as one continuous glass shape. The tone never
+   changes to a solid dark/blue fill — it stays glass the whole morph. */
 .bh-morph-header-content {
   border-radius: 999px;
   background: rgba(8, 8, 8, 0.42);
@@ -606,91 +521,43 @@ const MORPH_CSS = `
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition:
+    border-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 140ms,
+    border-radius 520ms cubic-bezier(0.5, 0, 0.75, 0) 60ms,
+    background-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 100ms,
+    box-shadow 460ms cubic-bezier(0.5, 0, 0.75, 0) 140ms;
 }
 .bh-morph-stage.is-open .bh-morph-header-content {
-  background: rgba(8, 8, 8, 0.12);
-}
-/* Blob shell — the solid dark mass the gooey filter fuses with the header
-   pill. It is ONLY visible during the open/close transition (so the metaball
-   morph reads), then fades out, leaving the glass blob-content as the resting
-   panel. Size animates via transition; opacity via keyframes (needs 0→1→0). */
-.bh-morph-blob-shell {
-  top: 78px;
-  width: 56px;
-  height: 12px;
-  border-radius: 999px;
-  opacity: 0;
-  transform: translateX(-50%);
-}
-.bh-morph-stage[data-state="open"] .bh-morph-blob-shell {
-  top: 32px;
-  width: 320px;
-  height: 248px;
-  border-radius: 30px;
+  background: rgba(8, 8, 8, 0.18);
+  border-color: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  border-radius: 30px 30px 0 0;
+  box-shadow: none;
   transition:
-    width 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    height 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    top 900ms cubic-bezier(0.16, 1, 0.3, 1);
-  animation: bh-shell-open 1040ms linear forwards;
-}
-@keyframes bh-shell-open {
-  0% { opacity: 0; }
-  12% { opacity: 1; }
-  64% { opacity: 1; }
-  100% { opacity: 0; }
-}
-/* Close only after a real open (bh-was-open) so a sessionStorage-dismissed
-   fresh mount never flashes the shell. Shrinks back into the header pill. */
-.bh-morph-stage.bh-was-open[data-state="hidden_permanent"] .bh-morph-blob-shell {
-  top: 78px;
-  width: 56px;
-  height: 12px;
-  border-radius: 999px;
-  transition:
-    width 700ms cubic-bezier(0.5, 0, 0.75, 0),
-    height 700ms cubic-bezier(0.5, 0, 0.75, 0),
-    border-radius 700ms cubic-bezier(0.5, 0, 0.75, 0),
-    top 700ms cubic-bezier(0.5, 0, 0.75, 0);
-  animation: bh-shell-close 740ms linear forwards;
-}
-@keyframes bh-shell-close {
-  0% { opacity: 0; }
-  16% { opacity: 1; }
-  60% { opacity: 1; }
-  100% { opacity: 0; }
-}
-/* Transitions for the glass→unified melt. Defined after the base glass
-   rule so they layer on top. Close target — pill border + bg return
-   gradually as the blob shrinks (matches "la pill recupera su border"). */
-.bh-morph-header-content {
-  transition:
-    border-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 180ms,
-    border-radius 520ms cubic-bezier(0.5, 0, 0.75, 0) 80ms,
-    background-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 120ms,
-    box-shadow 460ms cubic-bezier(0.5, 0, 0.75, 0) 180ms;
-}
-.bh-morph-stage.is-open .bh-morph-header-content {
-  border-color: transparent !important;
-  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 30px 30px 0 0 !important;
-  box-shadow: none !important;
-  transition:
-    border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 360ms cubic-bezier(0.16, 1, 0.3, 1),
     border-radius 460ms cubic-bezier(0.16, 1, 0.3, 1),
     background-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+/* Glass panel — same glass tone as the header pill. Collapsed to the header
+   height (and invisible) when closed; expands DOWNWARD to the full panel when
+   open. No gooey shell, no solid fill: the player photo stays visible/blurred
+   through it the entire time, so the morph reads as the glass header
+   stretching open. */
 .bh-morph-blob-content {
-  /* close target — content fades out FIRST so the blob shape can shrink
-     visibly empty. Quick ease-in: matches design intent of "el contenido
-     del panel se desvanece primero, y la pill recupera su border". */
+  height: 60px;
   opacity: 0;
-  transition: opacity 220ms cubic-bezier(0.5, 0, 0.75, 0);
+  transform-origin: 50% 0%;
+  transition:
+    height 620ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 240ms cubic-bezier(0.5, 0, 0.75, 0);
 }
 .bh-morph-stage.is-open .bh-morph-blob-content {
+  height: 248px;
   opacity: 1;
-  transition: opacity 220ms ease-out 480ms;
+  transition:
+    height 880ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 220ms ease-out;
 }
 .bh-morph-icon:not([data-active="true"]):hover {
   color: rgba(255, 255, 255, 1);
@@ -704,18 +571,6 @@ const MORPH_CSS = `
   transform: scale(0.94);
 }
 @media (prefers-reduced-motion: reduce) {
-  /* No gooey morph: shells never show (they only exist to animate the
-     metaball). The glass blob-content just fades in/out. */
-  .bh-morph-header-shell,
-  .bh-morph-stage[data-state="open"] .bh-morph-header-shell,
-  .bh-morph-stage.bh-was-open[data-state="hidden_permanent"] .bh-morph-header-shell,
-  .bh-morph-blob-shell,
-  .bh-morph-stage[data-state="open"] .bh-morph-blob-shell,
-  .bh-morph-stage.bh-was-open[data-state="hidden_permanent"] .bh-morph-blob-shell {
-    animation: none !important;
-    transition: none !important;
-    opacity: 0 !important;
-  }
   .bh-morph-blob-content,
   .bh-morph-stage.is-open .bh-morph-blob-content,
   .bh-morph-header-content,
