@@ -202,9 +202,6 @@ export default function FloatingHeroVideo({
             height: STAGE_HEIGHT,
             zIndex: 100,
             pointerEvents: "none",
-            // contain layout/paint so the morph never triggers repaints from
-            // unrelated page work (hero parallax, ghost trails, etc.).
-            contain: "layout paint",
             ["--bh-morph-accent" as string]: accentColor,
           } as React.CSSProperties
         }
