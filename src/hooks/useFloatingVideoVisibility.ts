@@ -63,8 +63,16 @@ export function useFloatingVideoVisibility({
       if (!isInZone) return;
 
       setState((curr) => {
-        if (curr === "hidden_permanent") return curr;
-        return "hidden_permanent";
+        // Only collapse a morph that is already OPEN. While still in the
+        // pre-reveal phase, the reveal timer is the sole authority on whether
+        // to open (it re-checks the settled `inHideZoneRef` at fire time).
+        // Collapsing here would let a transient layout shift during streaming
+        // SSR — where #tactics is momentarily near the top before sibling
+        // sections lay out — permanently hide the morph before it ever
+        // appears. `inHideZoneRef` is still updated above, so the reveal timer
+        // sees the correct settled zone state.
+        if (curr === "open") return "hidden_permanent";
+        return curr;
       });
     };
 
