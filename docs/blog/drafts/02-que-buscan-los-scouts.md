@@ -198,7 +198,7 @@ La clave no es armar un perfil robótico. Tampoco convertir tu carrera en una ta
 
 Un buen perfil debería tener datos claros, pero también una narrativa. Debería mostrar trayectoria, pero sin inflarla. Debería incluir video, pero no como espectáculo vacío. Debería presentar estadísticas, pero con contexto. Debería tener contacto, pero de forma profesional. Y debería permitir que el scout entienda rápido por qué vale la pena seguir mirando.
 
-En ese sentido, BallersHub funciona como una herramienta para ordenar la evaluación. No porque el scout vaya a decidir solo por una página, sino porque esa página puede hacer que la primera lectura sea mucho más clara.
+En ese sentido, 'BallersHub funciona como una herramienta para ordenar la evaluación. No porque el scout vaya a decidir solo por una página, sino porque esa página puede hacer que la primera lectura sea mucho más clara.
 
 Perfiles como [Felipe Sarra](/felipe-sarra) o [Nicolás Locuoco](/nicolas-locuoco) pueden cumplir esa función: no obligan al interesado a reconstruir todo desde cero. La información está centralizada, el jugador tiene una presentación propia y el perfil puede compartirse de forma directa.
 

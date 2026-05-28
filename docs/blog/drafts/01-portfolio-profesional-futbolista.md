@@ -14,7 +14,7 @@ propio owner).
 - **Descripción meta**: Guía para crear un portfolio profesional de futbolista con trayectoria, video, estadísticas, referencias y contacto para clubes, scouts y agencias.
 - **Cluster**: `career_guidance`
 - **Tags**: `portfolio`, `scouting`, `carrera deportiva`, `perfil profesional`, `futbolistas`, `fútbol argentino`
-- **Hero image sugerida**: mockup horizontal de un perfil de BallersHub visto desde celular o notebook, con una imagen deportiva de fondo. Mejor si transmite carrera, presentación profesional y visibilidad digital.
+- **Hero image sugerida**: mockup horizontal de un perfil de 'BallersHub visto desde celular o notebook, con una imagen deportiva de fondo. Mejor si transmite carrera, presentación profesional y visibilidad digital.
 
 ---
 
@@ -198,9 +198,9 @@ Un perfil desactualizado transmite descuido. Un perfil actualizado transmite pro
 
 Además, actualizarlo no significa cambiar todo. A veces alcanza con corregir el club actual, agregar un video nuevo, sumar una referencia o ajustar la descripción del perfil. Lo importante es que la página represente tu realidad deportiva actual.
 
-## Cómo armar tu portfolio en BallersHub
+## Cómo armar tu portfolio en 'BallersHub
 
-BallersHub nace justamente para resolver este problema: que los futbolistas puedan presentar su carrera de forma profesional, clara y compartible, sin depender de mensajes desordenados ni de perfiles sociales incompletos.
+'BallersHub nace justamente para resolver este problema: que los futbolistas puedan presentar su carrera de forma profesional, clara y compartible, sin depender de mensajes desordenados ni de perfiles sociales incompletos.
 
 La plataforma permite centralizar datos deportivos, trayectoria, multimedia, links externos, referencias y contacto en una página propia. La idea no es reemplazar tu rendimiento dentro de la cancha, sino ayudarte a mostrarlo mejor cuando alguien necesita evaluarte.
 
@@ -216,4 +216,4 @@ Tu carrera ya tiene una historia. El siguiente paso es mostrarla como correspond
 
 **CTA sugerido para botón final**
 
-Crear mi portfolio profesional en BallersHub → `/pricing`
+Crear mi portfolio profesional en 'BallersHub → `/pricing`

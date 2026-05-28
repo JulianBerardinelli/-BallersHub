@@ -81,9 +81,9 @@ Cerrá con una vía de contacto clara: vos, directamente, de forma profesional. 
 
 Una ventaja subestimada: cuando todos tus jugadores se presentan con el mismo nivel profesional, tu agencia construye reputación. El club que recibió un buen perfil tuyo asume que el próximo también lo será. Perfiles como [Felipe Sarra](/felipe-sarra) o [Mateo Germani](/mateo-germani) bajo un estándar consistente convierten cada presentación en una prueba de la seriedad de la agencia.
 
-## Cómo BallersHub profesionaliza tus presentaciones
+## Cómo 'BallersHub profesionaliza tus presentaciones
 
-En BallersHub, cada jugador de tu cartera tiene un perfil profesional con URL propia, listo para presentar. Cuando surge una oportunidad con un club, no armás nada: mandás el link y del otro lado ven datos, posición, estadísticas, video y contacto, todo ordenado y actualizado.
+En 'BallersHub, cada jugador de tu cartera tiene un perfil profesional con URL propia, listo para presentar. Cuando surge una oportunidad con un club, no armás nada: mandás el link y del otro lado ven datos, posición, estadísticas, video y contacto, todo ordenado y actualizado.
 
 Eso te da tres ventajas concretas: presentás más rápido (no perdés oportunidades por demoras), presentás mejor (el formato profesional juega a favor del jugador) y construís marca de agencia (la consistencia genera confianza). Y como cada perfil aparece en Google cuando buscan al jugador, los clubes a veces te encuentran a vos antes de que vos los busques.
 
@@ -93,4 +93,4 @@ Presentar bien no garantiza cerrar. Pero presentar mal garantiza no cerrar. Dale
 
 **CTA sugerido para botón final**
 
-Profesionalizá la presentación de tu cartera en BallersHub → `/pricing`
+Profesionalizá la presentación de tu cartera en 'BallersHub → `/pricing`
