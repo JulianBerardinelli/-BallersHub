@@ -152,7 +152,20 @@ export function useFloatingVideoVisibility({
     const reveal = () => {
       setState((curr) => {
         if (curr !== "hidden_initial") return curr;
-        if (inHideZoneRef.current) return "hidden_permanent";
+        // Re-measure the hide zone FRESH at fire time instead of trusting the
+        // cached ref. The ref can be left stale-true by a transient layout
+        // shift during streaming SSR (where #tactics briefly sits near the top
+        // before sibling sections lay out) — which would otherwise suppress
+        // the reveal entirely and the morph would never appear.
+        let inZone = inHideZoneRef.current;
+        const target = document.querySelector(hideSelector);
+        if (target) {
+          const rect = target.getBoundingClientRect();
+          const triggerLine = window.innerHeight * HIDE_TRIGGER_FRACTION;
+          inZone = rect.top < triggerLine && rect.bottom > triggerLine;
+          inHideZoneRef.current = inZone;
+        }
+        if (inZone) return "hidden_permanent";
         return "open";
       });
     };

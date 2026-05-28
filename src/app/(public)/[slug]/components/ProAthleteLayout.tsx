@@ -389,10 +389,15 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
           className="absolute z-30 bottom-[-2vh] md:bottom-0 top-[8vh] md:top-[15vh] w-full max-w-[1200px] flex justify-center items-end"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* Mobile: fixed bottom-anchored box (consistent footprint across
+              profiles regardless of the source PNG's aspect). We dropped the
+              old `h-full scale-[1.18]` (~111vh, overflowed under the header and
+              read as "exageradamente grande"). Now a capped 92vh box, feet on
+              the baseline. Desktop (md:) keeps the original h-full / scale-100. */}
           <img
             src={player.heroUrl || undefined}
             alt={player.fullName}
-            className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 scale-[1.18] md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
+            className="h-[92vh] max-h-[840px] md:h-full md:max-h-none w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
           />
         </motion.div>
 
