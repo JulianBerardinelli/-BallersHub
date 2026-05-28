@@ -62,7 +62,8 @@ const BLOB_OPEN_H =
 const BLOB_OPEN_W = HEADER_W;
 const BLOB_OPEN_TOP = HEADER_TOP;
 const BLOB_OPEN_RADIUS = 30;
-const STAGE_HEIGHT = HEADER_TOP + BLOB_OPEN_H + 24;
+// Extra room below the panel for the standalone collapse chevron.
+const STAGE_HEIGHT = HEADER_TOP + BLOB_OPEN_H + 52;
 
 const SHELL_BORDER = "rgba(255, 255, 255, 0.12)";
 
@@ -365,32 +366,6 @@ export default function FloatingHeroVideo({
               "inset 0 1px 0 rgba(255,255,255,0.05), 0 18px 48px -12px rgba(0,0,0,0.6)",
           }}
         >
-          <button
-            type="button"
-            onClick={dismiss}
-            aria-label="Cerrar panel"
-            className="bh-morph-close"
-            style={{
-              position: "absolute",
-              top: 70,
-              right: 14,
-              width: 22,
-              height: 22,
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.16)",
-              background: "rgba(0,0,0,0.35)",
-              color: "rgba(255,255,255,0.75)",
-              display: "grid",
-              placeItems: "center",
-              cursor: "pointer",
-              padding: 0,
-              transition: "all 140ms ease",
-              zIndex: 20,
-            }}
-          >
-            <ChevronUp size={14} strokeWidth={1.8} />
-          </button>
-
           <div
             className="bh-morph-video-wrap"
             style={{
@@ -498,6 +473,36 @@ export default function FloatingHeroVideo({
             />
           </div>
         </div>
+
+        {/* Collapse affordance — a bare minimalist chevron BELOW the panel,
+            outside the block, so tapping it can never be confused with the
+            video tap surface (which opens YouTube). No container, just the
+            stroke icon. */}
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label="Cerrar panel"
+          className="bh-morph-collapse"
+          style={{
+            position: "absolute",
+            top: BLOB_OPEN_TOP + BLOB_OPEN_H + 6,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "grid",
+            placeItems: "center",
+            width: 48,
+            height: 30,
+            padding: 0,
+            border: 0,
+            background: "transparent",
+            color: "rgba(255,255,255,0.55)",
+            cursor: "pointer",
+            pointerEvents: isOpen ? "auto" : "none",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          <ChevronUp size={22} strokeWidth={2} />
+        </button>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: MORPH_CSS }} />
@@ -559,19 +564,29 @@ const MORPH_CSS = `
 .bh-morph-icon:not([data-active="true"]):hover {
   color: rgba(255, 255, 255, 1);
 }
-.bh-morph-close:hover {
-  color: rgba(255, 255, 255, 1);
-  border-color: rgba(255, 255, 255, 0.32);
-  transform: scale(1.04);
+/* Minimalist collapse chevron below the panel — only visible once open,
+   fading in after the panel finishes expanding. */
+.bh-morph-collapse {
+  opacity: 0;
+  transition: opacity 200ms ease-out, color 140ms ease;
 }
-.bh-morph-close:active {
-  transform: scale(0.94);
+.bh-morph-stage.is-open .bh-morph-collapse {
+  opacity: 1;
+  transition: opacity 240ms ease-out 520ms, color 140ms ease;
+}
+.bh-morph-collapse:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+.bh-morph-collapse:active {
+  transform: translateX(-50%) scale(0.88);
 }
 @media (prefers-reduced-motion: reduce) {
   .bh-morph-blob-content,
   .bh-morph-stage.is-open .bh-morph-blob-content,
   .bh-morph-header-content,
-  .bh-morph-stage.is-open .bh-morph-header-content {
+  .bh-morph-stage.is-open .bh-morph-header-content,
+  .bh-morph-collapse,
+  .bh-morph-stage.is-open .bh-morph-collapse {
     transition: opacity 180ms ease !important;
   }
 }
