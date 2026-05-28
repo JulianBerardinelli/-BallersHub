@@ -272,8 +272,10 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
               >
                 {player.positions && player.positions.length > 0 && (
                   <div className="text-white tracking-[0.1em] md:tracking-[0.2em] uppercase font-bold text-[10px] md:text-sm lg:text-base opacity-95 drop-shadow-md whitespace-nowrap">
-                    {/* Toma la última posición después de filtrarla */}
-                    {formatPlayerPositions(player.positions).split(" / ").pop()}
+                    {/* Muestra la PRIMERA posición (la principal) tras filtrar
+                        los roles padre. El orden lo preserva
+                        formatPlayerPositions desde player.positions. */}
+                    {formatPlayerPositions(player.positions).split(" / ")[0]}
                   </div>
                 )}
 
