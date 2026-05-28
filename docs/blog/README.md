@@ -10,7 +10,8 @@ Este sistema permite que escritores invitados (bloggers whitelisted) submiteen a
 ## Documentación relacionada
 
 **Docs del blog (este folder):**
-- [`contributor-guide.md`](./contributor-guide.md) — manual para escritores invitados
+- [`contributor-guide.md`](./contributor-guide.md) — manual operativo para escritores invitados (cómo usar el editor)
+- [`blogger-seo-guide.md`](./blogger-seo-guide.md) — **guía de calidad y SEO para enviar a los bloggers** (SEO strategy + E-E-A-T + criterios del audit + reglas de marca). Enviable tal cual a un escritor nuevo.
 - [`admin-guide.md`](./admin-guide.md) — playbook para Julián (review editorial)
 - Este `README.md` — arquitectura técnica + setup + bugs conocidos + roadmap MVP-2
 
