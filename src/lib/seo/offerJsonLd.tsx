@@ -98,6 +98,12 @@ export function OfferJsonLd() {
     name: "'BallersHub — Suscripciones",
     description:
       "Acceso a perfiles profesionales en 'BallersHub. Plan Free disponible para jugadores y agencias; Pro desbloquea galería extendida, prensa curada, SEO avanzado y schema verificable.",
+    // `image` requerido por Google para Product/Merchant rich results
+    // (GSC health check 2026-05-27 lo marcaba como error crítico).
+    // Apunta al OG dinámico de /pricing (PNG 1200×630 raster, generado
+    // por src/app/(site)/pricing/opengraph-image.tsx). Raster, no SVG —
+    // Google rechaza SVG como Product image.
+    image: `${pricingUrl}/opengraph-image`,
     // Brand cross-referenced al Organization sitewide — el publisher
     // del Product es la misma entidad que el resto del grafo.
     brand: { "@id": orgId },
