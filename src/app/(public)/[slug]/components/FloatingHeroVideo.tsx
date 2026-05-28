@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "framer-motion";
 import {
   User2,
   Target,
@@ -68,7 +69,11 @@ const BLOB_CLOSED_TOP = HEADER_TOP + HEADER_H - BLOB_OVERLAP;
 const STAGE_HEIGHT = HEADER_TOP + BLOB_OPEN_H + 24;
 
 const FILTER_ID = "bh-morph-goo";
-const SHELL_BG = "rgba(12, 16, 28, 0.86)";
+// Neutral near-black (was the prototype's bluish 12,16,28 which read as
+// "always blue"). The shell only shows during the open morph now — the
+// closed pill is the glass header-content — but keep it neutral so the
+// expanding blob doesn't tint blue.
+const SHELL_BG = "rgba(10, 11, 13, 0.9)";
 const SHELL_BORDER = "rgba(255, 255, 255, 0.12)";
 
 export default function FloatingHeroVideo({
@@ -270,7 +275,10 @@ export default function FloatingHeroVideo({
           />
         </div>
 
-        {/* z-4 — header content (avatar + section icons + share) */}
+        {/* z-4 — header content (avatar + section icons + share).
+            Glass styling (bg, blur, border, shadow) lives in CSS so it can
+            transition between the closed glass pill and the open unified
+            card. */}
         <div
           className="bh-morph-header-content"
           style={{
@@ -280,14 +288,10 @@ export default function FloatingHeroVideo({
             transform: "translateX(-50%)",
             width: HEADER_W,
             height: HEADER_H,
-            borderRadius: 999,
             zIndex: 4,
             display: "flex",
             alignItems: "center",
             padding: "0 10px 0 6px",
-            border: `1px solid ${SHELL_BORDER}`,
-            boxShadow:
-              "inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,0.35)",
             pointerEvents: "auto",
           }}
         >
@@ -340,21 +344,37 @@ export default function FloatingHeroVideo({
                   className="bh-morph-icon"
                   data-active={isActive ? "true" : undefined}
                   style={{
-                    width: 28,
-                    height: 28,
+                    position: "relative",
+                    width: 30,
+                    height: 30,
                     display: "grid",
                     placeItems: "center",
                     background: "transparent",
                     border: 0,
                     padding: 0,
                     cursor: "pointer",
-                    color: isActive
-                      ? accentColor
-                      : "rgba(255, 255, 255, 0.7)",
-                    transition: "color 140ms ease",
+                    color: isActive ? "#0a0a0a" : "rgba(255, 255, 255, 0.7)",
+                    transition: "color 200ms ease",
                   }}
                 >
-                  <Icon size={18} strokeWidth={1.7} />
+                  {isActive && (
+                    <motion.span
+                      layoutId="bh-morph-nav-active"
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 999,
+                        backgroundColor: accentColor,
+                        boxShadow: `0 4px 18px color-mix(in srgb, ${accentColor} 45%, transparent)`,
+                      }}
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <Icon
+                    size={17}
+                    strokeWidth={1.8}
+                    style={{ position: "relative", zIndex: 1 }}
+                  />
                 </button>
               );
             })}
@@ -547,6 +567,33 @@ export default function FloatingHeroVideo({
 }
 
 const MORPH_CSS = `
+/* Header shell (dark mass for the gooey filter). Invisible while closed so
+   the only thing the user sees is the glass header-content pill — matching
+   the original Pro mobile header. Fades in fast when opening (so the gooey
+   filter has a mass to fuse the blob into) and fades out LAST when closing. */
+.bh-morph-header-shell {
+  opacity: 0;
+  transition: opacity 280ms ease 360ms;
+}
+.bh-morph-stage.is-open .bh-morph-header-shell {
+  opacity: 1;
+  transition: opacity 140ms ease;
+}
+/* Glass header pill — transparent + backdrop blur, like the original
+   ProPlayerHeader nav (bg-black/40 backdrop-blur-xl border-white/10). When
+   open it melts into the unified card (bg + border fade so the dark shell
+   shows through as one shape). */
+.bh-morph-header-content {
+  border-radius: 999px;
+  background: rgba(8, 8, 8, 0.42);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.bh-morph-stage.is-open .bh-morph-header-content {
+  background: rgba(8, 8, 8, 0.12);
+}
 .bh-morph-blob-shell {
   /* close target — runs when .is-open is removed. Ease + duration match
      the Claude Design prototype's in-quart (0.5, 0, 0.75, 0). The blob
@@ -577,13 +624,14 @@ const MORPH_CSS = `
     top 900ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 180ms ease-out;
 }
+/* Transitions for the glass→unified melt. Defined after the base glass
+   rule so they layer on top. Close target — pill border + bg return
+   gradually as the blob shrinks (matches "la pill recupera su border"). */
 .bh-morph-header-content {
-  /* close target — pill border returns gradually as blob shrinks. Delayed
-     a touch so the border fade-in syncs with the blob being noticeably
-     smaller (matches "la pill recupera su border" at the end of close). */
   transition:
     border-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 180ms,
     border-radius 520ms cubic-bezier(0.5, 0, 0.75, 0) 80ms,
+    background-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 120ms,
     box-shadow 460ms cubic-bezier(0.5, 0, 0.75, 0) 180ms;
 }
 .bh-morph-stage.is-open .bh-morph-header-content {
@@ -594,6 +642,7 @@ const MORPH_CSS = `
   transition:
     border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
     border-radius 460ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 .bh-morph-blob-content {
@@ -607,10 +656,7 @@ const MORPH_CSS = `
   opacity: 1;
   transition: opacity 220ms ease-out 480ms;
 }
-.bh-morph-icon[data-active="true"] {
-  color: var(--bh-morph-accent, #34d399) !important;
-}
-.bh-morph-icon:hover {
+.bh-morph-icon:not([data-active="true"]):hover {
   color: rgba(255, 255, 255, 1);
 }
 .bh-morph-close:hover {
@@ -622,6 +668,8 @@ const MORPH_CSS = `
   transform: scale(0.94);
 }
 @media (prefers-reduced-motion: reduce) {
+  .bh-morph-header-shell,
+  .bh-morph-stage.is-open .bh-morph-header-shell,
   .bh-morph-blob-shell,
   .bh-morph-stage.is-open .bh-morph-blob-shell,
   .bh-morph-blob-content,
