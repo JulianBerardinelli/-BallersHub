@@ -90,7 +90,9 @@ Un delantero suele ser evaluado por goles, movimientos ofensivos, potencia, defi
 
 Por eso, un buen portfolio no debería ser una plantilla vacía donde todos cargan lo mismo. Debería permitir que cada jugador construya una presentación coherente con su rol.
 
-En perfiles defensivos, por ejemplo, el objetivo no es simplemente mostrar una jugada fuerte o una foto llamativa. Un jugador como [Federico Sarra](/federico-sarra) sirve para pensar otro tipo de presentación: una donde pesan la trayectoria, la posición, la regularidad, el contexto competitivo y la sensación de confiabilidad. Para un defensor, el portfolio debería ayudar a responder una pregunta muy concreta: ¿este jugador puede competir con seriedad en mi equipo?
+Pensemos en un delantero. Un jugador como [Felipe Sarra](/felipe-sarra), centrodelantero, necesita una presentación que muestre algo más que goles sueltos: cómo ataca los espacios, cómo se asocia con sus compañeros, cómo se mueve dentro del área y cómo define en distintas situaciones. Para un club que busca un nueve, el portfolio tiene que responder rápido una pregunta concreta: ¿este jugador resuelve la necesidad ofensiva que tenemos?
+
+En perfiles defensivos, en cambio, el objetivo no es simplemente mostrar una jugada fuerte o una foto llamativa. Un jugador como [Federico Sarra](/federico-sarra) sirve para pensar otro tipo de presentación: una donde pesan la trayectoria, la posición, la regularidad, el contexto competitivo y la sensación de confiabilidad. Para un defensor, el portfolio debería ayudar a responder una pregunta muy concreta: ¿este jugador puede competir con seriedad en mi equipo?
 
 Con un arquero como [Mateo Germani](/mateo-germani), la lectura vuelve a cambiar. No alcanza con mostrar una atajada espectacular. En ese puesto también importan las salidas, el juego aéreo, el mano a mano, la comunicación, la seguridad y el juego con los pies. Si el portfolio no permite mostrar ese tipo de material, termina tratando al arquero como si fuera cualquier otro jugador de campo.
 
