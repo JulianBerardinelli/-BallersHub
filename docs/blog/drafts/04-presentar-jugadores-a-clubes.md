@@ -1,23 +1,27 @@
 <!--
 ====================================================================
 CORNERSTONE POST #4 — cluster: agency_ops
-Draft para revisión/mejora del owner. NO es contenido final.
-Datos de jugadores verificados desde prod el 2026-05-27.
-Cumple editorial gate: ≥1500 palabras, ≥3 links portfolios, 3-8 tags.
+Versión del owner. El agente agregó a Julián Berardinelli en la
+sección de encaje (regla "siempre Julián") — ya estaba en "El formato
+importa". Datos de jugadores verificados desde prod.
+⚠️ Word count ~870 palabras: por debajo del floor de 1500 para
+publicación por flujo de autor. Publicable por vía admin (reviewPost
+no valida word count), pero subóptimo para SEO de cornerstone.
 ====================================================================
 -->
 
-# METADATOS (cargar en /blog/write)
+# METADATOS
 
 - **Título**: Cómo presentar jugadores a clubes: guía para representantes
 - **Descripción (meta)**: La forma profesional de presentar un jugador a un club: qué incluir, cómo estructurarlo y los errores que cierran puertas. Con ejemplos reales.
 - **Cluster**: `agency_ops`
 - **Tags**: `agencias`, `representantes`, `clubes`, `transferencias`, `scouting`, `negociación`
 - **Hero image (sugerencia)**: apretón de manos en contexto deportivo / reunión en una oficina de club, o un dirigente revisando una carpeta.
+- **Slug**: `como-presentar-jugadores-a-clubes`
 
 ---
 
-# CUERPO DEL ARTÍCULO
+# Cómo presentar jugadores a clubes: guía para representantes
 
 ## La presentación es la primera impresión de tu jugador (y de vos)
 
@@ -47,7 +51,7 @@ El estándar profesional hoy es el **link único**: una URL que el dirigente abr
 
 ### 1. El encabezado que define el encaje
 
-Lo primero tiene que responder la pregunta #1 del club: ¿encaja? Nombre, posición principal y secundaria, edad, club actual. En tres segundos el dirigente sabe si seguir leyendo. [Pedro Samso](/pedro-samso), Mediocentro / Mediapunta, comunica su encaje desde el título de su perfil.
+Lo primero tiene que responder la pregunta #1 del club: ¿encaja? Nombre, posición principal y secundaria, edad, club actual. En tres segundos el dirigente sabe si seguir leyendo. Perfiles como [Pedro Samso](/pedro-samso), Mediocentro / Mediapunta, o [Julián Berardinelli](/julian-berardinelli), Mediapunta / Extremo izquierdo, comunican su encaje desde el título mismo de su perfil.
 
 ### 2. Las estadísticas con contexto
 
@@ -87,4 +91,6 @@ Presentar bien no garantiza cerrar. Pero presentar mal garantiza no cerrar. Dale
 
 ---
 
-**[CTA sugerido]** 👉 Profesionalizá la presentación de tu cartera en [BallersHub](/pricing)
+**CTA sugerido para botón final**
+
+Profesionalizá la presentación de tu cartera en BallersHub → `/pricing`
