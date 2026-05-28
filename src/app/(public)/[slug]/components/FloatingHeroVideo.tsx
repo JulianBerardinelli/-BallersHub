@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { motion } from "framer-motion";
 import {
   User2,
   Target,
@@ -52,7 +53,6 @@ function getYouTubeId(url: string): string | null {
 const HEADER_TOP = 32;
 const HEADER_W = 320;
 const HEADER_H = 60;
-const BLOB_OVERLAP = 14;
 const VIDEO_TOP_FROM_HEADER = 10; // gutter between header pill and video
 const VIDEO_W = HEADER_W - 24; // 12px gutter each side
 const VIDEO_H = Math.round((VIDEO_W * 9) / 16); // 16:9 → 166
@@ -62,13 +62,9 @@ const BLOB_OPEN_H =
 const BLOB_OPEN_W = HEADER_W;
 const BLOB_OPEN_TOP = HEADER_TOP;
 const BLOB_OPEN_RADIUS = 30;
-const BLOB_CLOSED_W = 56;
-const BLOB_CLOSED_H = 12;
-const BLOB_CLOSED_TOP = HEADER_TOP + HEADER_H - BLOB_OVERLAP;
-const STAGE_HEIGHT = HEADER_TOP + BLOB_OPEN_H + 24;
+// Extra room below the panel for the standalone collapse chevron.
+const STAGE_HEIGHT = HEADER_TOP + BLOB_OPEN_H + 52;
 
-const FILTER_ID = "bh-morph-goo";
-const SHELL_BG = "rgba(12, 16, 28, 0.86)";
 const SHELL_BORDER = "rgba(255, 255, 255, 0.12)";
 
 export default function FloatingHeroVideo({
@@ -83,17 +79,27 @@ export default function FloatingHeroVideo({
 
   const { state, dismiss } = useFloatingVideoVisibility({
     hideSelector,
-    initialDelayMs: 1400,
+    revealAfterScrollMs: 1000,
     enabled,
     dismissKey: `bh:floatingVideoDismissed:${slug}`,
   });
 
   const [activeId, setActiveId] = React.useState<string | null>(null);
   const [iframeMounted, setIframeMounted] = React.useState(false);
+  // Tracks whether the morph has opened at least once this session. Used to
+  // gate the close (shrink) shell animation so it only plays after a real
+  // open — never on a fresh mount that starts dismissed via sessionStorage
+  // (which would otherwise flash the dark shell).
+  const [hasOpened, setHasOpened] = React.useState(false);
+  // Hide the YouTube player chrome that briefly flashes while the iframe
+  // loads + autoplay kicks in. After ~1.4s we fade the poster out and the
+  // playing video shows through (no controls overlay once playing).
+  const [posterCover, setPosterCover] = React.useState(true);
 
   React.useEffect(() => {
     if (state === "open") {
       setIframeMounted(true);
+      setHasOpened(true);
       return;
     }
     if (state === "hidden_permanent" && iframeMounted) {
@@ -101,6 +107,15 @@ export default function FloatingHeroVideo({
       return () => window.clearTimeout(id);
     }
   }, [state, iframeMounted]);
+
+  React.useEffect(() => {
+    if (!iframeMounted) {
+      setPosterCover(true);
+      return;
+    }
+    const id = window.setTimeout(() => setPosterCover(false), 1400);
+    return () => window.clearTimeout(id);
+  }, [iframeMounted]);
 
   // Scroll-spy — mirrors ProPlayerHeader so the morph header reflects the
   // same active section.
@@ -168,42 +183,23 @@ export default function FloatingHeroVideo({
   const iframeSrc = ytId
     ? `https://www.youtube-nocookie.com/embed/${ytId}?autoplay=1&mute=1&loop=1&playlist=${ytId}&controls=0&modestbranding=1&playsinline=1&disablekb=1&rel=0&iv_load_policy=3&fs=0`
     : null;
+  // Used as the loading poster that covers YT chrome before autoplay starts.
+  const posterUrl = ytId
+    ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`
+    : null;
 
   return (
     <>
-      <svg
-        width="0"
-        height="0"
-        aria-hidden="true"
-        focusable="false"
-        style={{ position: "absolute", pointerEvents: "none" }}
-      >
-        <defs>
-          <filter id={FILTER_ID}>
-            <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="blur" />
-            <feColorMatrix
-              in="blur"
-              mode="matrix"
-              values="1 0 0 0 0
-                      0 1 0 0 0
-                      0 0 1 0 0
-                      0 0 0 18 -8"
-              result="goo"
-            />
-            <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-          </filter>
-        </defs>
-      </svg>
-
       <div
         data-state={state}
-        className={`bh-morph-stage${isOpen ? " is-open" : ""}`}
+        className={`bh-morph-stage${isOpen ? " is-open" : ""}${hasOpened ? " bh-was-open" : ""}`}
         style={
           {
             position: "fixed",
             top: 0,
-            left: 0,
-            right: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: HEADER_W,
             height: STAGE_HEIGHT,
             zIndex: 100,
             pointerEvents: "none",
@@ -211,44 +207,10 @@ export default function FloatingHeroVideo({
           } as React.CSSProperties
         }
       >
-        {/* z-2 — goo layer with shells only */}
-        <div
-          className="bh-morph-goo"
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: STAGE_HEIGHT,
-            filter: `url(#${FILTER_ID})`,
-            isolation: "isolate",
-            pointerEvents: "none",
-          }}
-        >
-          <div
-            className="bh-morph-header-shell"
-            style={{
-              position: "absolute",
-              top: HEADER_TOP,
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: HEADER_W,
-              height: HEADER_H,
-              borderRadius: 999,
-              backgroundColor: SHELL_BG,
-            }}
-          />
-          <div
-            className="bh-morph-blob-shell"
-            style={{
-              position: "absolute",
-              left: "50%",
-              backgroundColor: SHELL_BG,
-            }}
-          />
-        </div>
-
-        {/* z-4 — header content (avatar + section icons + share) */}
+        {/* z-4 — header content (avatar + section icons + share).
+            Glass styling (bg, blur, border, shadow) lives in CSS so it can
+            transition between the closed glass pill and the open unified
+            card. */}
         <div
           className="bh-morph-header-content"
           style={{
@@ -258,14 +220,10 @@ export default function FloatingHeroVideo({
             transform: "translateX(-50%)",
             width: HEADER_W,
             height: HEADER_H,
-            borderRadius: 999,
-            zIndex: 4,
+            zIndex: 5,
             display: "flex",
             alignItems: "center",
             padding: "0 10px 0 6px",
-            border: `1px solid ${SHELL_BORDER}`,
-            boxShadow:
-              "inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,0.35)",
             pointerEvents: "auto",
           }}
         >
@@ -318,21 +276,37 @@ export default function FloatingHeroVideo({
                   className="bh-morph-icon"
                   data-active={isActive ? "true" : undefined}
                   style={{
-                    width: 28,
-                    height: 28,
+                    position: "relative",
+                    width: 30,
+                    height: 30,
                     display: "grid",
                     placeItems: "center",
                     background: "transparent",
                     border: 0,
                     padding: 0,
                     cursor: "pointer",
-                    color: isActive
-                      ? accentColor
-                      : "rgba(255, 255, 255, 0.7)",
-                    transition: "color 140ms ease",
+                    color: isActive ? "#0a0a0a" : "rgba(255, 255, 255, 0.7)",
+                    transition: "color 200ms ease",
                   }}
                 >
-                  <Icon size={18} strokeWidth={1.7} />
+                  {isActive && (
+                    <motion.span
+                      layoutId="bh-morph-nav-active"
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        borderRadius: 999,
+                        backgroundColor: accentColor,
+                        boxShadow: `0 4px 18px color-mix(in srgb, ${accentColor} 45%, transparent)`,
+                      }}
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <Icon
+                    size={17}
+                    strokeWidth={1.8}
+                    style={{ position: "relative", zIndex: 1 }}
+                  />
                 </button>
               );
             })}
@@ -367,7 +341,11 @@ export default function FloatingHeroVideo({
           </div>
         </div>
 
-        {/* z-4 — blob content (HIGHLIGHT label + close + video frame) */}
+        {/* z-4 — blob content (HIGHLIGHT label + close + video frame).
+            This is the REAL glass panel: transparent bg + backdrop-blur over
+            the player photo. The solid goo shell behind it fades out once the
+            morph finishes opening (see CSS), so the open panel reads as glass,
+            not a solid dark fill. */}
         <div
           className="bh-morph-blob-content"
           style={{
@@ -375,41 +353,19 @@ export default function FloatingHeroVideo({
             top: BLOB_OPEN_TOP,
             left: "50%",
             width: BLOB_OPEN_W,
-            height: BLOB_OPEN_H,
             transform: "translateX(-50%)",
             borderRadius: BLOB_OPEN_RADIUS,
             zIndex: 4,
             overflow: "hidden",
             pointerEvents: isOpen ? "auto" : "none",
             border: `1px solid ${SHELL_BORDER}`,
+            background: "rgba(8, 8, 8, 0.30)",
+            backdropFilter: "blur(22px) saturate(140%)",
+            WebkitBackdropFilter: "blur(22px) saturate(140%)",
+            boxShadow:
+              "inset 0 1px 0 rgba(255,255,255,0.05), 0 18px 48px -12px rgba(0,0,0,0.6)",
           }}
         >
-          <button
-            type="button"
-            onClick={dismiss}
-            aria-label="Cerrar panel"
-            className="bh-morph-close"
-            style={{
-              position: "absolute",
-              top: 70,
-              right: 14,
-              width: 22,
-              height: 22,
-              borderRadius: 999,
-              border: "1px solid rgba(255,255,255,0.16)",
-              background: "rgba(0,0,0,0.35)",
-              color: "rgba(255,255,255,0.75)",
-              display: "grid",
-              placeItems: "center",
-              cursor: "pointer",
-              padding: 0,
-              transition: "all 140ms ease",
-              zIndex: 20,
-            }}
-          >
-            <ChevronUp size={14} strokeWidth={1.8} />
-          </button>
-
           <div
             className="bh-morph-video-wrap"
             style={{
@@ -471,9 +427,34 @@ export default function FloatingHeroVideo({
               />
             )}
 
-            {/* Full-area tap surface — sits ABOVE the iframe so YouTube
-                chrome can never receive pointer events; click opens the
-                video natively in the YouTube app/web. */}
+            {/* Loading poster — covers YouTube's initial chrome (title bar,
+                play button, skip controls) until autoplay-muted starts the
+                playback (~1.4s). Fades out smoothly to reveal the playing
+                video underneath. */}
+            {posterUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={posterUrl}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  pointerEvents: "none",
+                  opacity: posterCover ? 1 : 0,
+                  transition: "opacity 320ms ease-out",
+                  zIndex: 5,
+                }}
+              />
+            )}
+
+            {/* Full-area tap surface — sits ABOVE the iframe + poster so
+                YouTube chrome can never receive pointer events; click opens
+                the video natively in the YouTube app/web. */}
             <a
               href={youtubeWatchUrl}
               target="_blank"
@@ -492,6 +473,36 @@ export default function FloatingHeroVideo({
             />
           </div>
         </div>
+
+        {/* Collapse affordance — a bare minimalist chevron BELOW the panel,
+            outside the block, so tapping it can never be confused with the
+            video tap surface (which opens YouTube). No container, just the
+            stroke icon. */}
+        <button
+          type="button"
+          onClick={dismiss}
+          aria-label="Cerrar panel"
+          className="bh-morph-collapse"
+          style={{
+            position: "absolute",
+            top: BLOB_OPEN_TOP + BLOB_OPEN_H + 6,
+            left: "50%",
+            transform: "translateX(-50%)",
+            display: "grid",
+            placeItems: "center",
+            width: 48,
+            height: 30,
+            padding: 0,
+            border: 0,
+            background: "transparent",
+            color: "rgba(255,255,255,0.55)",
+            cursor: "pointer",
+            pointerEvents: isOpen ? "auto" : "none",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          <ChevronUp size={22} strokeWidth={2} />
+        </button>
       </div>
 
       <style dangerouslySetInnerHTML={{ __html: MORPH_CSS }} />
@@ -500,74 +511,82 @@ export default function FloatingHeroVideo({
 }
 
 const MORPH_CSS = `
-.bh-morph-blob-shell {
-  top: 78px;
-  width: 56px;
-  height: 12px;
-  border-radius: 999px;
-  opacity: 0;
-  transform: translateX(-50%);
-  transition:
-    width 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    height 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    border-radius 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    top 700ms cubic-bezier(0.7, 0, 0.84, 0),
-    opacity 280ms cubic-bezier(0.7, 0, 0.84, 0);
-}
-.bh-morph-stage.is-open .bh-morph-blob-shell {
-  top: 32px;
-  width: 320px;
-  height: 248px;
-  border-radius: 30px;
-  opacity: 1;
-  transition:
-    width 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    height 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    top 900ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 180ms ease-out;
-}
+/* Glass header pill — transparent + backdrop blur, identical tone to the
+   original ProPlayerHeader nav (bg-black/40 backdrop-blur-xl border-white/10).
+   When open it melts into the unified glass card: border + radius shift so the
+   pill and the panel below read as one continuous glass shape. The tone never
+   changes to a solid dark/blue fill — it stays glass the whole morph. */
 .bh-morph-header-content {
+  border-radius: 999px;
+  background: rgba(8, 8, 8, 0.42);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.35);
   transition:
-    border-color 380ms cubic-bezier(0.16, 1, 0.3, 1),
-    border-radius 460ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 380ms cubic-bezier(0.16, 1, 0.3, 1);
+    border-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 140ms,
+    border-radius 520ms cubic-bezier(0.5, 0, 0.75, 0) 60ms,
+    background-color 460ms cubic-bezier(0.5, 0, 0.75, 0) 100ms,
+    box-shadow 460ms cubic-bezier(0.5, 0, 0.75, 0) 140ms;
 }
 .bh-morph-stage.is-open .bh-morph-header-content {
-  border-color: transparent !important;
-  border-bottom-color: rgba(255, 255, 255, 0.05) !important;
-  border-radius: 30px 30px 0 0 !important;
-  box-shadow: none !important;
+  background: rgba(8, 8, 8, 0.18);
+  border-color: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+  border-radius: 30px 30px 0 0;
+  box-shadow: none;
+  transition:
+    border-color 360ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 460ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 360ms cubic-bezier(0.16, 1, 0.3, 1);
 }
+/* Glass panel — same glass tone as the header pill. Collapsed to the header
+   height (and invisible) when closed; expands DOWNWARD to the full panel when
+   open. No gooey shell, no solid fill: the player photo stays visible/blurred
+   through it the entire time, so the morph reads as the glass header
+   stretching open. */
 .bh-morph-blob-content {
+  height: 60px;
   opacity: 0;
-  transition: opacity 200ms ease-out;
+  transform-origin: 50% 0%;
+  transition:
+    height 620ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 240ms cubic-bezier(0.5, 0, 0.75, 0);
 }
 .bh-morph-stage.is-open .bh-morph-blob-content {
+  height: 248px;
   opacity: 1;
-  transition: opacity 220ms ease-out 480ms;
+  transition:
+    height 880ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 220ms ease-out;
 }
-.bh-morph-icon[data-active="true"] {
-  color: var(--bh-morph-accent, #34d399) !important;
-}
-.bh-morph-icon:hover {
+.bh-morph-icon:not([data-active="true"]):hover {
   color: rgba(255, 255, 255, 1);
 }
-.bh-morph-close:hover {
-  color: rgba(255, 255, 255, 1);
-  border-color: rgba(255, 255, 255, 0.32);
-  transform: scale(1.04);
+/* Minimalist collapse chevron below the panel — only visible once open,
+   fading in after the panel finishes expanding. */
+.bh-morph-collapse {
+  opacity: 0;
+  transition: opacity 200ms ease-out, color 140ms ease;
 }
-.bh-morph-close:active {
-  transform: scale(0.94);
+.bh-morph-stage.is-open .bh-morph-collapse {
+  opacity: 1;
+  transition: opacity 240ms ease-out 520ms, color 140ms ease;
+}
+.bh-morph-collapse:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+.bh-morph-collapse:active {
+  transform: translateX(-50%) scale(0.88);
 }
 @media (prefers-reduced-motion: reduce) {
-  .bh-morph-blob-shell,
-  .bh-morph-stage.is-open .bh-morph-blob-shell,
   .bh-morph-blob-content,
   .bh-morph-stage.is-open .bh-morph-blob-content,
   .bh-morph-header-content,
-  .bh-morph-stage.is-open .bh-morph-header-content {
+  .bh-morph-stage.is-open .bh-morph-header-content,
+  .bh-morph-collapse,
+  .bh-morph-stage.is-open .bh-morph-collapse {
     transition: opacity 180ms ease !important;
   }
 }
