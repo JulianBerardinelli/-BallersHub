@@ -6,7 +6,7 @@ import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const userProfiles = pgTable("user_profiles", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id").notNull(),
+  userId: uuid("user_id").notNull().unique(),
   role: roleEnum("role").notNull().default("member"),
   agencyId: uuid("agency_id").references(() => agencyProfiles.id, { onDelete: "set null" }),
   // Editorial blog whitelist flag. When true, the user can write posts

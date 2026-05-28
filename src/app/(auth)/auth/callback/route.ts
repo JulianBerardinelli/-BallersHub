@@ -37,7 +37,9 @@ export async function GET(req: Request) {
 
       const isFirstSignIn = !existingProfile;
 
-      await supabase.from("user_profiles").upsert({ user_id: user.id }); // role=member
+      // The user_profiles row is created by the on_auth_user_created DB
+      // trigger (idempotent). Re-inserting here on every callback created
+      // duplicate rows — do not add an insert/upsert back.
 
       const [{ data: pp }, { data: rp }, { data: up }] = await Promise.all([
         supabase.from("player_profiles").select("id").eq("user_id", user.id).maybeSingle(),
