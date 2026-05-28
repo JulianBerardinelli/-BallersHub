@@ -193,9 +193,25 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
         />
         
         {/* Color de acento reaccionando dinámicamente como luz */}
-        <div 
+        <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px] opacity-20 pointer-events-none z-10 mix-blend-screen"
           style={{ backgroundColor: accentColor }}
+        />
+
+        {/* Segunda luz ambiente: "color primario" (luces principales) del theme.
+            Descentrada hacia arriba-izquierda y animada (drift + respiración
+            lenta) como las demás capas del fondo, para que el hero combine los
+            dos tonos elegidos por el usuario (primario + acento). */}
+        <motion.div
+          className="absolute rounded-full blur-[140px] pointer-events-none z-10 mix-blend-screen w-[560px] h-[560px] md:w-[680px] md:h-[680px] opacity-20"
+          style={{ backgroundColor: primaryColor, top: '14%', left: '8%', willChange: 'transform, opacity' }}
+          initial={{ opacity: 0.18 }}
+          animate={{
+            x: ['-6%', '9%', '-6%'],
+            y: ['-5%', '7%', '-5%'],
+            opacity: [0.16, 0.28, 0.16],
+          }}
+          transition={{ duration: 19, repeat: Infinity, ease: 'easeInOut' }}
         />
 
         {/* ======================= EFECTO SANDWICH (Z-INDEX MAGIC) ======================= */}
