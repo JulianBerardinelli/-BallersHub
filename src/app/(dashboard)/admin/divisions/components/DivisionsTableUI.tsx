@@ -31,11 +31,13 @@ import CsvImporter from "@/components/admin/CsvImporter";
 import { bulkUpsertDivisions } from "../bulkActions";
 import FormField from "@/components/dashboard/client/FormField";
 import { bhChip } from "@/lib/ui/heroui-brand";
+import { useAdminModalPreset } from "../../ui/modalPresets";
 
 const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
 
 export default function DivisionsTableUI({ items }: { items: any[] }) {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const modalPreset = useAdminModalPreset();
   const [selectedItem, setSelectedItem] = React.useState<any>(null);
 
   // Form states
@@ -305,12 +307,7 @@ export default function DivisionsTableUI({ items }: { items: any[] }) {
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        size="2xl"
-        classNames={{
-          base: "bg-bh-surface-1 border border-white/[0.08]",
-          header: "font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1 border-b border-white/[0.06]",
-          body: "py-5",
-        }}
+        {...modalPreset}
       >
         <ModalContent>
           <ModalHeader>{selectedItem ? "Editar división" : "Crear división"}</ModalHeader>

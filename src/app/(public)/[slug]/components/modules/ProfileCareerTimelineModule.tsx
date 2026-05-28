@@ -299,12 +299,20 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                                 <h4 className="text-2xl lg:text-3xl font-black text-white uppercase leading-[1.1] max-w-[480px] text-pretty">
                                    {nodeData.club}
                                 </h4>
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="flex flex-wrap items-center gap-2 mt-2">
                                    {nodeData.team?.countryCode && <CountryFlag code={nodeData.team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
                                    {nodeData.divisionData?.crestUrl && <TeamCrest src={nodeData.divisionData.crestUrl} size={28} className="drop-shadow-md" />}
                                    <span className="text-white/60 font-bold uppercase tracking-widest text-xs">
                                      {nodeData.divisionData?.name || nodeData.division || "División no especificada"}
                                    </span>
+                                   {nodeData.secondaryDivisionData?.name ? (
+                                     <span className="inline-flex items-center gap-1.5 text-white/40 font-bold uppercase tracking-widest text-[10px] before:content-['+'] before:text-white/30">
+                                       {nodeData.secondaryDivisionData.crestUrl ? (
+                                         <TeamCrest src={nodeData.secondaryDivisionData.crestUrl} size={20} className="drop-shadow-md" />
+                                       ) : null}
+                                       <span>{nodeData.secondaryDivisionData.name}</span>
+                                     </span>
+                                   ) : null}
                                 </div>
                              </div>
                              
@@ -510,12 +518,13 @@ function prepareCardData(item: any, index: number) {
     totals,
     hasStats,
     itemHonours,
-    divisionData: item.divisionData || null
+    divisionData: item.divisionData || null,
+    secondaryDivisionData: item.secondaryDivisionData || null
   };
 }
 
 function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSelectHonour: (h: any) => void }) {
-  const { club, division, divisionData, startYear, endYear, isCurrent, totals, hasStats, itemHonours, team } = nodeData;
+  const { club, division, divisionData, secondaryDivisionData, startYear, endYear, isCurrent, totals, hasStats, itemHonours, team } = nodeData;
 
   return (
     <div className="w-full bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-[2rem] p-6 shadow-2xl relative overflow-hidden shadow-[inset_0_0_60px_rgba(255,255,255,0.03)]">
@@ -534,12 +543,18 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
            )}
         </div>
 
-        <div className="flex items-center gap-2 mt-2 border-b border-white/[0.05] pb-4 relative z-10">
+        <div className="flex flex-wrap items-center gap-2 mt-2 border-b border-white/[0.05] pb-4 relative z-10">
            {team?.countryCode && <CountryFlag code={team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
            {divisionData?.crestUrl && <TeamCrest src={divisionData.crestUrl} size={28} className="drop-shadow-md" />}
            <span className="text-white/40 font-bold uppercase tracking-widest text-[10px] truncate">
              {divisionData?.name || division || "División no especificada"}
            </span>
+           {secondaryDivisionData?.name ? (
+             <span className="inline-flex items-center gap-1 text-white/30 font-bold uppercase tracking-widest text-[9px] truncate before:content-['+'] before:text-white/30">
+               {secondaryDivisionData.crestUrl ? <TeamCrest src={secondaryDivisionData.crestUrl} size={16} /> : null}
+               <span>{secondaryDivisionData.name}</span>
+             </span>
+           ) : null}
         </div>
 
         {/* Stats — mobile mini card.

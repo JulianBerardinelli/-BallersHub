@@ -189,7 +189,7 @@ function RevisionStatRow({ item, editable, onCommit }: StatRowProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 text-center text-xs">
+      <div className="grid grid-cols-4 gap-2 text-center text-xs sm:grid-cols-7">
         <EditableNumericCell
           label="PJ"
           value={isEditing ? draft.matches : item.matches}

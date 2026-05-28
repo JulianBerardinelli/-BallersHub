@@ -1,6 +1,7 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { AdminNavLink } from "./AdminNavLink";
+import { AdminMobileNav } from "./AdminMobileNav";
 import { getAdminCounters } from "@/lib/admin/counters";
 
 type NavSection = {
@@ -33,6 +34,14 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/revisions", label: "Revisiones de trayectoria", roles: ["admin", "analyst"] },
       { href: "/admin/stats-revisions", label: "Revisiones de estadísticas", roles: ["admin", "analyst"] },
       { href: "/admin/media-moderation", label: "Moderación multimedia", roles: ["admin", "moderator"] },
+    ],
+  },
+  {
+    title: "Blog",
+    items: [
+      { href: "/admin/blog/pending", label: "Cola editorial", roles: ["admin"] },
+      { href: "/admin/blog", label: "Todos los posts", roles: ["admin"] },
+      { href: "/admin/blogger-whitelist", label: "Whitelist de bloggers", roles: ["admin"] },
     ],
   },
   {
@@ -71,51 +80,58 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // nav click between admin pages.
   const counts = await getAdminCounters();
 
+  const visibleSections = NAV_SECTIONS
+    .map((section) => ({
+      title: section.title,
+      items: section.items
+        .filter((item) => item.roles.includes(userRole as string))
+        .map(({ href, label }) => ({ href, label })),
+    }))
+    .filter((section) => section.items.length > 0);
+
   return (
-    <div className="mx-auto w-full max-w-[1200px] px-6 py-7">
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-5 md:px-6 md:py-7">
       {/* Header — full width, scrolls with the page */}
-      <header className="mb-6 space-y-2">
+      <header className="mb-5 space-y-2 md:mb-6">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
           Admin
         </span>
-        <h1 className="font-bh-display text-3xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
+        <h1 className="font-bh-display text-2xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
           Panel de <span className="text-bh-lime">administración</span>
         </h1>
-        <p className="text-sm leading-[1.55] text-bh-fg-3">
+        <p className="hidden text-sm leading-[1.55] text-bh-fg-3 md:block">
           Gestioná nuevas aplicaciones, actualizaciones de perfiles y el
           catálogo de equipos oficiales.
         </p>
       </header>
 
-      {/* Floating sidebar + content */}
+      {/* Mobile nav trigger (Drawer) — only <md */}
+      <div className="mb-5 md:hidden">
+        <AdminMobileNav sections={visibleSections} counts={counts} />
+      </div>
+
+      {/* Desktop sidebar + content */}
       <div className="flex flex-col gap-6 md:flex-row">
-        <aside className="md:w-[240px] md:shrink-0">
+        <aside className="hidden md:block md:w-[240px] md:shrink-0">
           <div className="sticky top-24 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-3">
             <nav className="space-y-5">
-              {NAV_SECTIONS.map((section) => {
-                const visibleItems = section.items.filter((item) =>
-                  item.roles.includes(userRole as string),
-                );
-                if (visibleItems.length === 0) return null;
-
-                return (
-                  <div key={section.title} className="space-y-1.5">
-                    <p className="px-2 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
-                      {section.title}
-                    </p>
-                    <div className="space-y-0.5">
-                      {visibleItems.map((item) => (
-                        <AdminNavLink
-                          key={item.href}
-                          href={item.href}
-                          label={item.label}
-                          badgeCount={counts[item.href]}
-                        />
-                      ))}
-                    </div>
+              {visibleSections.map((section) => (
+                <div key={section.title} className="space-y-1.5">
+                  <p className="px-2 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
+                    {section.title}
+                  </p>
+                  <div className="space-y-0.5">
+                    {section.items.map((item) => (
+                      <AdminNavLink
+                        key={item.href}
+                        href={item.href}
+                        label={item.label}
+                        badgeCount={counts[item.href]}
+                      />
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </nav>
           </div>
         </aside>

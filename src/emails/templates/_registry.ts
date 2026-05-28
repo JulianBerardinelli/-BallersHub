@@ -20,6 +20,15 @@ import CompGrantWelcomeEmail, {
   type CompGrantWelcomeProps,
 } from "./comp-grant-welcome";
 import PaymentFailedEmail, { type PaymentFailedProps } from "./payment-failed";
+import BlogPostPendingAdminEmail, {
+  type BlogPostPendingAdminProps,
+} from "./blog-post-pending-admin";
+import BlogPostApprovedAuthorEmail, {
+  type BlogPostApprovedAuthorProps,
+} from "./blog-post-approved-author";
+import BlogPostRejectedAuthorEmail, {
+  type BlogPostRejectedAuthorProps,
+} from "./blog-post-rejected-author";
 
 /**
  * Template registry — every email shipped from 'BallersHub goes through here.
@@ -51,7 +60,10 @@ export type TemplateKey =
   | "custom_broadcast"
   | "subscription_welcome"
   | "comp_grant_welcome"
-  | "payment_failed";
+  | "payment_failed"
+  | "blog_post_pending_admin"
+  | "blog_post_approved_author"
+  | "blog_post_rejected_author";
 
 export type TemplateCategory = "marketing" | "transactional";
 
@@ -67,6 +79,9 @@ export type TemplatePropsMap = {
   subscription_welcome: SubscriptionWelcomeProps;
   comp_grant_welcome: CompGrantWelcomeProps;
   payment_failed: PaymentFailedProps;
+  blog_post_pending_admin: BlogPostPendingAdminProps;
+  blog_post_approved_author: BlogPostApprovedAuthorProps;
+  blog_post_rejected_author: BlogPostRejectedAuthorProps;
 };
 
 const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactElement } = {
@@ -81,6 +96,9 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   subscription_welcome: (props) => SubscriptionWelcomeEmail(props),
   comp_grant_welcome: (props) => CompGrantWelcomeEmail(props),
   payment_failed: (props) => PaymentFailedEmail(props),
+  blog_post_pending_admin: (props) => BlogPostPendingAdminEmail(props),
+  blog_post_approved_author: (props) => BlogPostApprovedAuthorEmail(props),
+  blog_post_rejected_author: (props) => BlogPostRejectedAuthorEmail(props),
 };
 
 /** Render a registered template to its final HTML string. */
@@ -171,5 +189,26 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     label: "Cobro fallido",
     description:
       "Disparado cuando una factura de renovación no se pudo cobrar. Llama al usuario a actualizar el método de pago.",
+  },
+  {
+    key: "blog_post_pending_admin",
+    category: "transactional",
+    label: "Blog — Post pending review (admin)",
+    description:
+      "Disparado cuando un blogger submitea un post para revisión. Notifica a los admins con link al review screen.",
+  },
+  {
+    key: "blog_post_approved_author",
+    category: "transactional",
+    label: "Blog — Post aprobado (autor)",
+    description:
+      "Disparado cuando un admin aprueba un post. Notifica al autor con link al post publicado + su author hub.",
+  },
+  {
+    key: "blog_post_rejected_author",
+    category: "transactional",
+    label: "Blog — Post rechazado (autor)",
+    description:
+      "Disparado cuando un admin rechaza un post. Notifica al autor con el feedback editorial + link a editar.",
   },
 ];

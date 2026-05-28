@@ -139,7 +139,8 @@ export default async function DripsAdminPage() {
               </div>
             </header>
 
-            <div className="px-5 pb-4">
+            {/* Desktop table */}
+            <div className="hidden px-5 pb-4 md:block">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/[0.04]">
@@ -204,6 +205,61 @@ export default async function DripsAdminPage() {
                   })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="space-y-2 p-3 md:hidden">
+              {group.map((c) => {
+                const count = countsByDrip.get(c.id) ?? {};
+                return (
+                  <div
+                    key={c.id}
+                    className="rounded-bh-md border border-white/[0.06] bg-white/[0.02] p-3"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-bh-fg-1">{c.name}</p>
+                        <p className="truncate font-bh-mono text-[10px] text-bh-fg-4">{c.slug}</p>
+                        <p className="mt-1 truncate text-[11px] text-bh-fg-3">
+                          {templateLabel.get(c.templateKey) ?? c.templateKey}
+                        </p>
+                        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                          <span className="inline-flex items-center rounded-full border border-white/[0.12] bg-white/[0.04] px-2 py-0.5 font-bh-mono text-[10px] font-medium text-bh-fg-2">
+                            {formatDelay(c.delaySeconds)}
+                          </span>
+                          {c.exitCondition ? (
+                            <span className="inline-flex items-center rounded-full border border-white/[0.12] bg-white/[0.04] px-2 py-0.5 text-[10px] font-medium text-bh-fg-3">
+                              exit: {c.exitCondition}
+                            </span>
+                          ) : null}
+                        </div>
+                        {c.description ? (
+                          <p className="mt-1.5 text-[11px] leading-snug text-bh-fg-3">
+                            {c.description}
+                          </p>
+                        ) : null}
+                      </div>
+                      <DripActiveSwitch dripId={c.id} initial={c.isActive} />
+                    </div>
+                    <div className="mt-3 grid grid-cols-3 gap-2 border-t border-white/[0.04] pt-2 text-center">
+                      <DripMobileStat
+                        label="Pend."
+                        value={(count.pending ?? 0).toLocaleString("es-AR")}
+                      />
+                      <DripMobileStat
+                        label="Enviados"
+                        value={(count.sent ?? 0).toLocaleString("es-AR")}
+                      />
+                      <DripMobileStat
+                        label="Exited"
+                        value={(
+                          (count.exited ?? 0) + (count.cancelled ?? 0)
+                        ).toLocaleString("es-AR")}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </section>
         );
@@ -279,5 +335,16 @@ function Td({ children, align }: { children: React.ReactNode; align?: "right" })
     <td className={`px-3 py-3 align-top ${align === "right" ? "text-right" : "text-left"}`}>
       {children}
     </td>
+  );
+}
+
+function DripMobileStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <div className="font-bh-mono text-[12px] text-bh-fg-1">{value}</div>
+      <div className="mt-0.5 text-[9px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+        {label}
+      </div>
+    </div>
   );
 }

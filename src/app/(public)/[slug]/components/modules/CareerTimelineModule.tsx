@@ -17,9 +17,13 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
     ? await db.select().from(teams).where(inArray(teams.id, teamIds))
     : [];
 
+  // La división de cada card sale del career_item (snapshot histórico), no
+  // del team — un equipo pudo cambiar de liga y eso no debe reflejarse en
+  // etapas pasadas. Solo cargamos las divisions referenciadas por los
+  // career_items (principal + secundaria).
   const divisionIds = Array.from(new Set([
     ...careerRecords.map(c => c.divisionId),
-    ...mappedTeams.map(t => t.divisionId)
+    ...careerRecords.map(c => c.secondaryDivisionId),
   ].filter(Boolean) as string[]));
   const mappedDivisions = divisionIds.length > 0
     ? await db.select().from(divisions).where(inArray(divisions.id, divisionIds))
@@ -27,14 +31,26 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
 
   const career = careerRecords.map(item => {
     const teamDb = mappedTeams.find(t => t.id === item.teamId);
-    const effectiveDivisionId = item.divisionId || teamDb?.divisionId;
-    const divisionDb = mappedDivisions.find(d => d.id === effectiveDivisionId);
+    const divisionDb = item.divisionId
+      ? mappedDivisions.find(d => d.id === item.divisionId) ?? null
+      : null;
+    const secondaryDivisionDb = item.secondaryDivisionId
+      ? mappedDivisions.find(d => d.id === item.secondaryDivisionId) ?? null
+      : null;
+    // Si la secundaria no está enlazada al catálogo pero hay texto libre,
+    // sintetizamos un shape compatible con el cliente. Crest queda null
+    // (no hay match en `divisions`), pero el nombre se renderiza con el
+    // chip "+ Liga" igual.
+    const secondaryDivisionData =
+      secondaryDivisionDb ??
+      (item.secondaryDivision ? { name: item.secondaryDivision, crestUrl: null } : null);
     return {
       ...item,
       stats: stats.filter(s => s.careerItemId === item.id),
       honours: honours.filter(h => h.careerItemId === item.id),
       team: teamDb || null,
-      divisionData: divisionDb || null
+      divisionData: divisionDb,
+      secondaryDivisionData
     };
   });
 

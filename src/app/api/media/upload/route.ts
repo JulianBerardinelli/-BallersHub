@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import sharp from "sharp";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
+import { PRO_PHOTO_CAP, isFounderEmail } from "@/lib/dashboard/founder-emails";
+import { isCatalogPhoto } from "@/lib/dashboard/catalog-photos";
 
 // Accepted MIME types for catalog photo uploads. AVIF is accepted as-is
 // (already optimized); other rasters are transcoded to AVIF server-side.
@@ -54,14 +56,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get Player Profile (id + slug + alt-text composition fields).
-    // We pull `slug` so we can revalidate the public page after the
-    // upload lands, and `full_name`/`positions`/`current_club` so the
-    // server can compose a default alt-text when the form didn't
-    // supply one.
+    // Get Player Profile (id + slug + alt-text composition fields + avatar_url).
+    // `avatar_url` is needed to discount the avatar row when counting
+    // existing catalog photos against `PRO_PHOTO_CAP`.
     const { data: profile } = await supabase
       .from("player_profiles")
-      .select("id, slug, full_name, positions, current_club")
+      .select("id, slug, full_name, positions, current_club, avatar_url")
       .eq("user_id", user.id)
       .single<{
         id: string;
@@ -69,6 +69,7 @@ export async function POST(req: Request) {
         full_name: string | null;
         positions: string[] | null;
         current_club: string | null;
+        avatar_url: string | null;
       }>();
 
     if (!profile) {
@@ -118,6 +119,32 @@ export async function POST(req: Request) {
 
     if (!type) {
       return NextResponse.json({ error: "Media type is required" }, { status: 400 });
+    }
+
+    // Catalog photo cap (`PRO_PHOTO_CAP` = 5). Founder accounts listed in
+    // FOUNDER_EMAILS are exempt — they can upload unlimited photos.
+    // Counting uses isCatalogPhoto, which excludes the avatar row and any
+    // pro_asset_* rows so the dashboard counter matches the public
+    // /[slug] gallery (which also caps at 5).
+    if (type === "photo" && !isFounderEmail(user.email)) {
+      const { data: existingPhotos } = await supabase
+        .from("player_media")
+        .select("id, type, provider, url")
+        .eq("player_id", profile.id)
+        .eq("type", "photo");
+
+      const catalogCount = (existingPhotos ?? []).filter((row) =>
+        isCatalogPhoto(row, profile.avatar_url),
+      ).length;
+
+      if (catalogCount >= PRO_PHOTO_CAP) {
+        return NextResponse.json(
+          {
+            error: `Llegaste al límite de ${PRO_PHOTO_CAP} fotos del catálogo. Eliminá alguna existente para subir una nueva.`,
+          },
+          { status: 403 },
+        );
+      }
     }
 
     let publicUrl = url || "";

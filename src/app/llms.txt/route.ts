@@ -19,6 +19,7 @@ import { agencyProfiles } from "@/db/schema/agencies";
 import { blogPosts } from "@/db/schema/blog";
 import { and, eq, desc } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
+import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 
 export const revalidate = 3600;
 
@@ -28,9 +29,10 @@ export async function GET() {
   let players: Array<{ slug: string; fullName: string }> = [];
   let agencies: Array<{ slug: string; name: string }> = [];
   let posts: Array<{ slug: string; title: string; description: string }> = [];
+  let authors: Array<{ slug: string; displayName: string }> = [];
 
   try {
-    [players, agencies, posts] = await Promise.all([
+    [players, agencies, posts, authors] = await Promise.all([
       db
         .select({ slug: playerProfiles.slug, fullName: playerProfiles.fullName })
         .from(playerProfiles)
@@ -54,6 +56,7 @@ export async function GET() {
         .where(eq(blogPosts.status, "published"))
         .orderBy(desc(blogPosts.publishedAt))
         .limit(50),
+      listAuthorsWithPublishedPosts(),
     ]);
   } catch (err) {
     console.error("[llms.txt] db query failed:", err);
@@ -94,6 +97,17 @@ export async function GET() {
           .map((p) => `- [${p.title}](${base}/blog/${p.slug}): ${p.description}`)
           .join("\n")
       : "*(Sin artículos publicados todavía.)*",
+    "",
+    "## Autores",
+    "",
+    authors.length > 0
+      ? authors
+          .map(
+            (a) =>
+              `- [${a.displayName}](${base}/blog/authors/${a.slug}): Perfil editorial de ${a.displayName}`,
+          )
+          .join("\n")
+      : "*(Sin autores con artículos todavía.)*",
     "",
   ].join("\n");
 

@@ -35,6 +35,9 @@ type CareerItemInput = {
   id: string;
   club: string;
   division?: string | null;
+  division_id?: string | null;
+  secondary_division?: string | null;
+  secondary_division_id?: string | null;
   start_year?: number | null;
   end_year?: number | null;
   team_id?: string | null;
@@ -183,10 +186,22 @@ export async function POST(req: Request) {
       const cc = c?.proposed?.country?.code || c?.team_meta?.country_code || null;
       const cn = c?.proposed?.country?.name || null;
 
+      // El picker puede devolver un id sintético "new:<name>|<cc>" para una
+      // división que el usuario está proponiendo crear; no es un UUID válido
+      // y rompería el insert. Solo persistimos UUIDs reales.
+      const realDivisionId =
+        typeof c.division_id === "string" && !c.division_id.startsWith("new:") ? c.division_id : null;
+      const realSecondaryDivisionId =
+        typeof c.secondary_division_id === "string" && !c.secondary_division_id.startsWith("new:")
+          ? c.secondary_division_id
+          : null;
+
       return {
         application_id: appId,
         club: c.club,
         division: c.division ?? null,
+        division_id: realDivisionId,
+        secondary_division_id: realSecondaryDivisionId,
         start_year: c.start_year ?? null,
         end_year: c.end_year ?? null,
         team_id: c.team_id ?? null,

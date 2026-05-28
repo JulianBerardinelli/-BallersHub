@@ -215,7 +215,7 @@ export default function SignInPage() {
           </svg>
           <span className="text-sm font-medium text-white">Google</span>
         </button>
-        <button onClick={() => signInOAuth("apple")} className="flex items-center justify-center gap-2 w-full rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 py-3 transition-colors">
+        <button type="button" disabled aria-disabled="true" title="Próximamente" className="flex items-center justify-center gap-2 w-full rounded-xl border border-white/10 bg-white/5 py-3 opacity-40 cursor-not-allowed">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.25.68 2.92.68.66 0 1.91-.76 3.47-.63 1.39.06 2.54.58 3.23 1.5-3.41 1.76-2.73 6.03.45 7.2-.68 1.63-1.39 3.09-2.07 4.22-.05.07-.05.07 0 0zm-5.18-13.6c-.19-1.93 1.4-3.76 3.37-4.05.34 2.13-1.63 3.86-3.37 4.05z" />
           </svg>

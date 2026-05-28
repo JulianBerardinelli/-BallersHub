@@ -817,6 +817,8 @@ type NormalizedStage = {
   club: string;
   division: string | null;
   division_id: string | null;
+  secondary_division: string | null;
+  secondary_division_id: string | null;
   start_year: number | null;
   end_year: number | null;
   team_id: string | null;
@@ -824,11 +826,13 @@ type NormalizedStage = {
   original_item_id: string | null;
 };
 
-function normalizeStage(input: CareerStageInput & { divisionId?: string | null }): NormalizedStage {
+function normalizeStage(input: CareerStageInput & { divisionId?: string | null; secondaryDivisionId?: string | null }): NormalizedStage {
   return {
     club: input.club,
     division: input.division ?? null,
     division_id: input.divisionId ?? null,
+    secondary_division: input.secondaryDivision ?? null,
+    secondary_division_id: input.secondaryDivisionId ?? null,
     start_year: input.startYear ?? null,
     end_year: input.endYear ?? null,
     team_id: input.teamId ?? null,
@@ -940,32 +944,45 @@ export async function submitCareerRevision(
       proposedTeamId = proposedRow?.id ?? null;
     }
 
-    let finalDivisionId = stage.division_id;
+    const resolveDivisionId = async (
+      rawId: string | null,
+      rawName: string | null,
+    ): Promise<string | null> => {
+      if (!rawId) return null;
+      if (!rawId.startsWith("new:")) return rawId;
 
-    if (finalDivisionId?.startsWith("new:")) {
-      const parts = finalDivisionId.replace("new:", "").split("|");
-      const tmpDivName = parts[0];
+      const parts = rawId.replace("new:", "").split("|");
+      const tmpDivName = parts[0] || rawName || "";
+      if (!tmpDivName) return null;
       const tmpCountryCode = parts[1] || stage.proposed_team?.countryCode || "";
-      
-      const slug = tmpDivName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + tmpCountryCode.toLowerCase();
+      const slug =
+        tmpDivName.toLowerCase().replace(/[^a-z0-9]+/g, "-") +
+        "-" +
+        tmpCountryCode.toLowerCase();
 
       const { data: divRow, error: divErr } = await supabase
         .from("divisions")
-        .upsert({
-          name: tmpDivName,
-          country_code: tmpCountryCode.toUpperCase(),
-          slug,
-          status: "pending"
-        }, { onConflict: "slug" })
+        .upsert(
+          {
+            name: tmpDivName,
+            country_code: tmpCountryCode.toUpperCase(),
+            slug,
+            status: "pending",
+          },
+          { onConflict: "slug" },
+        )
         .select("id")
-        .maybeSingle<{id: string}>();
+        .maybeSingle<{ id: string }>();
 
-      if (!divErr && divRow) {
-        finalDivisionId = divRow.id;
-      } else {
-        finalDivisionId = null; 
-      }
-    }
+      if (divErr || !divRow) return null;
+      return divRow.id;
+    };
+
+    const finalDivisionId = await resolveDivisionId(stage.division_id, stage.division);
+    const finalSecondaryDivisionId = await resolveDivisionId(
+      stage.secondary_division_id,
+      stage.secondary_division,
+    );
 
     const { error: itemError } = await supabase
       .from("career_revision_items")
@@ -975,6 +992,8 @@ export async function submitCareerRevision(
         club: stage.club,
         division: stage.division,
         division_id: finalDivisionId,
+        secondary_division: stage.secondary_division,
+        secondary_division_id: finalSecondaryDivisionId,
         start_year: stage.start_year,
         end_year: stage.end_year,
         team_id: stage.team_id,

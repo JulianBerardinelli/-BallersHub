@@ -357,122 +357,233 @@ export default function CompAccountsClient({ initial }: Props) {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">
-            <table className="w-full text-left text-[12.5px]">
-              <thead className="border-b border-white/[0.08] text-[10.5px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
-                <tr>
-                  <th className="px-4 py-3">Usuario</th>
-                  <th className="px-4 py-3">Plan</th>
-                  <th className="px-4 py-3">Estado</th>
-                  <th className="px-4 py-3">Otorgado</th>
-                  <th className="px-4 py-3">Vence</th>
-                  <th className="px-4 py-3 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {initial.map((row) => {
-                  const busy = rowBusy === row.subscriptionId;
-                  const isCanceled = row.statusV2 === "canceled";
-                  return (
-                    <tr
-                      key={row.subscriptionId}
-                      className="border-b border-white/[0.04] last:border-b-0"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="text-[12.5px] font-semibold text-bh-fg-1">
-                          {row.fullName ?? row.email ?? row.userId.slice(0, 8)}
-                        </div>
-                        <div className="font-bh-mono text-[10.5px] text-bh-fg-4">
-                          {row.email ?? row.userId.slice(0, 8)}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-bh-fg-2">
-                        {row.planId === "pro-agency"
-                          ? "Pro Agency"
-                          : "Pro Player"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <StatusPill status={row.statusV2} />
-                      </td>
-                      <td className="px-4 py-3 text-bh-fg-3">
-                        {formatDate(row.grantedAt)}
-                      </td>
-                      <td className="px-4 py-3 text-bh-fg-3">
-                        {row.currentPeriodEnd ? (
-                          formatDate(row.currentPeriodEnd)
-                        ) : isCanceled ? (
-                          "—"
-                        ) : (
-                          <span className="inline-flex items-center gap-1 rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-bh-lime">
-                            <InfinityIcon className="h-3 w-3" />
-                            Permanente
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1.5">
-                          {!isCanceled && (
-                            <>
-                              {([1, 3, 6, 12] as const).map((m) => (
-                                <button
-                                  key={m}
-                                  type="button"
-                                  disabled={busy}
-                                  onClick={() => handleExtend(row, m)}
-                                  className={bhButtonClass({
-                                    variant: "outline",
-                                    size: "xs",
-                                  })}
-                                  title={`Extender +${m} meses`}
-                                >
-                                  +{m}m
-                                </button>
-                              ))}
-                              {row.currentPeriodEnd && (
-                                <button
-                                  type="button"
-                                  disabled={busy}
-                                  onClick={() => handleMakePermanent(row)}
-                                  className={bhButtonClass({
-                                    variant: "outline",
-                                    size: "xs",
-                                  })}
-                                  title="Hacer permanente"
-                                >
-                                  <CalendarPlus className="h-3.5 w-3.5" />
-                                </button>
-                              )}
-                              <button
-                                type="button"
-                                disabled={busy}
-                                onClick={() => handleRevoke(row)}
-                                className={bhButtonClass({
-                                  variant: "danger-soft",
-                                  size: "xs",
-                                })}
-                                title="Revocar"
-                              >
-                                {busy ? (
-                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                ) : (
-                                  <ShieldOff className="h-3.5 w-3.5" />
-                                )}
-                              </button>
-                            </>
-                          )}
-                          {isCanceled && (
-                            <span className="text-[11px] text-bh-fg-4">
-                              Revocada {row.canceledAt && formatDate(row.canceledAt)}
+          <>
+            {/* Desktop table */}
+            <div className="hidden overflow-x-auto rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 md:block">
+              <table className="w-full text-left text-[12.5px]">
+                <thead className="border-b border-white/[0.08] text-[10.5px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+                  <tr>
+                    <th className="px-4 py-3">Usuario</th>
+                    <th className="px-4 py-3">Plan</th>
+                    <th className="px-4 py-3">Estado</th>
+                    <th className="px-4 py-3">Otorgado</th>
+                    <th className="px-4 py-3">Vence</th>
+                    <th className="px-4 py-3 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {initial.map((row) => {
+                    const busy = rowBusy === row.subscriptionId;
+                    const isCanceled = row.statusV2 === "canceled";
+                    return (
+                      <tr
+                        key={row.subscriptionId}
+                        className="border-b border-white/[0.04] last:border-b-0"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="text-[12.5px] font-semibold text-bh-fg-1">
+                            {row.fullName ?? row.email ?? row.userId.slice(0, 8)}
+                          </div>
+                          <div className="font-bh-mono text-[10.5px] text-bh-fg-4">
+                            {row.email ?? row.userId.slice(0, 8)}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-bh-fg-2">
+                          {row.planId === "pro-agency"
+                            ? "Pro Agency"
+                            : "Pro Player"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <StatusPill status={row.statusV2} />
+                        </td>
+                        <td className="px-4 py-3 text-bh-fg-3">
+                          {formatDate(row.grantedAt)}
+                        </td>
+                        <td className="px-4 py-3 text-bh-fg-3">
+                          {row.currentPeriodEnd ? (
+                            formatDate(row.currentPeriodEnd)
+                          ) : isCanceled ? (
+                            "—"
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-bh-lime">
+                              <InfinityIcon className="h-3 w-3" />
+                              Permanente
                             </span>
                           )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {!isCanceled && (
+                              <>
+                                {([1, 3, 6, 12] as const).map((m) => (
+                                  <button
+                                    key={m}
+                                    type="button"
+                                    disabled={busy}
+                                    onClick={() => handleExtend(row, m)}
+                                    className={bhButtonClass({
+                                      variant: "outline",
+                                      size: "xs",
+                                    })}
+                                    title={`Extender +${m} meses`}
+                                  >
+                                    +{m}m
+                                  </button>
+                                ))}
+                                {row.currentPeriodEnd && (
+                                  <button
+                                    type="button"
+                                    disabled={busy}
+                                    onClick={() => handleMakePermanent(row)}
+                                    className={bhButtonClass({
+                                      variant: "outline",
+                                      size: "xs",
+                                    })}
+                                    title="Hacer permanente"
+                                  >
+                                    <CalendarPlus className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  disabled={busy}
+                                  onClick={() => handleRevoke(row)}
+                                  className={bhButtonClass({
+                                    variant: "danger-soft",
+                                    size: "xs",
+                                  })}
+                                  title="Revocar"
+                                >
+                                  {busy ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    <ShieldOff className="h-3.5 w-3.5" />
+                                  )}
+                                </button>
+                              </>
+                            )}
+                            {isCanceled && (
+                              <span className="text-[11px] text-bh-fg-4">
+                                Revocada {row.canceledAt && formatDate(row.canceledAt)}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile card list */}
+            <div className="space-y-3 md:hidden">
+              {initial.map((row) => {
+                const busy = rowBusy === row.subscriptionId;
+                const isCanceled = row.statusV2 === "canceled";
+                return (
+                  <div
+                    key={row.subscriptionId}
+                    className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13px] font-semibold text-bh-fg-1">
+                          {row.fullName ?? row.email ?? row.userId.slice(0, 8)}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        <div className="mt-0.5 truncate font-bh-mono text-[10.5px] text-bh-fg-4">
+                          {row.email ?? row.userId.slice(0, 8)}
+                        </div>
+                        <div className="mt-1 text-[11px] text-bh-fg-2">
+                          {row.planId === "pro-agency" ? "Pro Agency" : "Pro Player"}
+                        </div>
+                      </div>
+                      <StatusPill status={row.statusV2} />
+                    </div>
+                    <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-white/[0.04] pt-2 text-[11px]">
+                      <div>
+                        <dt className="text-[9px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+                          Otorgado
+                        </dt>
+                        <dd className="mt-0.5 text-bh-fg-3">{formatDate(row.grantedAt)}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[9px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+                          Vence
+                        </dt>
+                        <dd className="mt-0.5 text-bh-fg-3">
+                          {row.currentPeriodEnd ? (
+                            formatDate(row.currentPeriodEnd)
+                          ) : isCanceled ? (
+                            "—"
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-bh-lime">
+                              <InfinityIcon className="h-2.5 w-2.5" />
+                              Permanente
+                            </span>
+                          )}
+                        </dd>
+                      </div>
+                    </dl>
+                    {!isCanceled ? (
+                      <div className="mt-3 flex flex-wrap gap-1.5 border-t border-white/[0.04] pt-3">
+                        {([1, 3, 6, 12] as const).map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            disabled={busy}
+                            onClick={() => handleExtend(row, m)}
+                            className={bhButtonClass({
+                              variant: "outline",
+                              size: "xs",
+                            })}
+                          >
+                            +{m}m
+                          </button>
+                        ))}
+                        {row.currentPeriodEnd && (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => handleMakePermanent(row)}
+                            className={bhButtonClass({
+                              variant: "outline",
+                              size: "xs",
+                            })}
+                          >
+                            <CalendarPlus className="h-3.5 w-3.5" />
+                            <span className="ml-1">Permanente</span>
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          disabled={busy}
+                          onClick={() => handleRevoke(row)}
+                          className={`${bhButtonClass({
+                            variant: "danger-soft",
+                            size: "xs",
+                          })} ml-auto`}
+                        >
+                          {busy ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <>
+                              <ShieldOff className="h-3.5 w-3.5" />
+                              <span className="ml-1">Revocar</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="mt-3 border-t border-white/[0.04] pt-3 text-[11px] text-bh-fg-4">
+                        Revocada {row.canceledAt && formatDate(row.canceledAt)}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </section>
     </div>

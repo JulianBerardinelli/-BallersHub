@@ -22,6 +22,7 @@ import type {
   FreeLayoutVideo,
 } from "./components/free/FreeLayout";
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
+import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
 import { formatPlayerPositions } from "@/lib/format";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 
@@ -394,9 +395,20 @@ export default async function PlayerPublicPage({
     : [];
   const teamById = new Map(teamRows.map((t) => [t.id, t]));
 
+  // Cada career_item tiene su propia división (la del momento que el jugador
+  // disputó esa etapa). NO usamos team.divisionId como fallback acá — el team
+  // pudo cambiar de liga, pero la trayectoria es un snapshot histórico. El
+  // único caso donde team.divisionId vale es el header del jugador (división
+  // "actual"), que se resuelve más abajo via player.currentTeamId.
   const divisionIdSet = new Set<string>();
-  for (const c of careerRows) if (c.divisionId) divisionIdSet.add(c.divisionId);
-  for (const t of teamRows) if (t.divisionId) divisionIdSet.add(t.divisionId);
+  for (const c of careerRows) {
+    if (c.divisionId) divisionIdSet.add(c.divisionId);
+    if (c.secondaryDivisionId) divisionIdSet.add(c.secondaryDivisionId);
+  }
+  if (player.currentTeamId) {
+    const currentTeamRow = teamById.get(player.currentTeamId);
+    if (currentTeamRow?.divisionId) divisionIdSet.add(currentTeamRow.divisionId);
+  }
 
   const divisionRows = divisionIdSet.size
     ? await db
@@ -461,14 +473,23 @@ export default async function PlayerPublicPage({
     const startYear = c.startDate ? new Date(c.startDate).getFullYear() : null;
     const endYear = c.endDate ? new Date(c.endDate).getFullYear() : null;
     const team = c.teamId ? teamById.get(c.teamId) : null;
-    const divisionId = c.divisionId ?? team?.divisionId ?? null;
-    const division = divisionId ? divisionById.get(divisionId) : null;
+    // Solo usamos la división del career_item — la del team puede haber
+    // cambiado y no representa la etapa real del jugador.
+    const division = c.divisionId ? divisionById.get(c.divisionId) : null;
+    const secondaryDivision = c.secondaryDivisionId
+      ? divisionById.get(c.secondaryDivisionId)
+      : null;
     return {
       id: c.id,
       club: team?.name ?? c.club,
       countryCode: team?.countryCode ?? null,
       divisionName: division?.name ?? c.division ?? null,
       divisionCrestUrl: division?.crestUrl ?? null,
+      // Si la secundaria está linkeada al catálogo, usamos el nombre +
+      // crest del catálogo. Si no, mostramos el texto libre que el jugador
+      // cargó (caso "Preferente FFIB" sin entry en divisions todavía).
+      secondaryDivisionName: secondaryDivision?.name ?? c.secondaryDivision ?? null,
+      secondaryDivisionCrestUrl: secondaryDivision?.crestUrl ?? null,
       teamCrestUrl: team?.crestUrl ?? null,
       startYear,
       endYear,
@@ -552,6 +573,19 @@ export default async function PlayerPublicPage({
   const pressLayout: "newspaper" | "cards" =
     pressSettings?.layout === "cards" ? "cards" : "newspaper";
 
+  // Floating hero video for Pro layout (mobile-only island deployed from
+  // header). Reuses the already-computed `primaryVideo` (sorted by isPrimary
+  // → seasonYear → createdAt) so it matches what the user sees in the
+  // tactics scroll-jacked section. Free layout already has its own video
+  // block in the hero, so this stays null for Free.
+  const heroFloatingVideo = !isFree && primaryVideo
+    ? {
+        url: primaryVideo.url,
+        title: primaryVideo.title ?? null,
+        provider: primaryVideo.provider ?? null,
+      }
+    : null;
+
   const publicData = {
     player,
     career: [],
@@ -567,6 +601,7 @@ export default async function PlayerPublicPage({
         typography: "syncopate",
       },
     plan,
+    heroFloatingVideo,
     // Owner-only upgrade nudge: when the player has a Pro subscription but
     // is currently rendering Free (because they chose theme.layout='free'),
     // we expose their userId to the client so the floating banner can
@@ -588,6 +623,11 @@ export default async function PlayerPublicPage({
         }
       : null,
   };
+
+  // Cross-ref al author hub si este jugador también escribe en el
+  // blog (caso multi-rol). Consolida identidad Knowledge Graph via
+  // sameAs[]. Lookup barato (1 query con UNIQUE index sobre user_id).
+  const authorHubSlug = await getAuthorHubSlugForUser(player.userId);
 
   return (
     <>
@@ -616,6 +656,7 @@ export default async function PlayerPublicPage({
           agency: player.agency
             ? { name: player.agency.name, slug: player.agency.slug }
             : null,
+          authorHubSlug,
         }}
       />
       <LayoutResolver data={publicData} />

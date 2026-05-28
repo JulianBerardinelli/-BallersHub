@@ -108,6 +108,9 @@ export type FreeLayoutCareerRow = {
   countryCode: string | null;
   divisionName: string | null;
   divisionCrestUrl: string | null;
+  // Categoría/liga adicional opcional (reserva, U20, equipo II, etc).
+  secondaryDivisionName: string | null;
+  secondaryDivisionCrestUrl: string | null;
   teamCrestUrl: string | null;
   startYear: number | null;
   endYear: number | null;
@@ -729,7 +732,7 @@ function CareerRow({
           <div className="mt-0.5 font-bh-display text-[22px] font-extrabold uppercase leading-[1.05] text-bh-fg-1 md:text-[26px]">
             {item.club}
           </div>
-          <div className="mt-2.5 flex items-center gap-3 font-body text-[13px] text-bh-fg-2">
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-body text-[13px] text-bh-fg-2">
             {item.divisionCrestUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -749,6 +752,24 @@ function CareerRow({
             </span>
             {item.countryCode && item.divisionCrestUrl ? (
               <Flag code={item.countryCode} h={12} />
+            ) : null}
+            {item.secondaryDivisionName ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-[11px] font-medium text-bh-fg-3">
+                <span className="text-bh-fg-4">+</span>
+                {item.secondaryDivisionCrestUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.secondaryDivisionCrestUrl}
+                    alt=""
+                    width={16}
+                    height={16}
+                    loading="lazy"
+                    className="object-contain"
+                    style={{ width: 16, height: 16 }}
+                  />
+                ) : null}
+                <span>{item.secondaryDivisionName}</span>
+              </span>
             ) : null}
           </div>
         </div>

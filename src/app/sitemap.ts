@@ -39,6 +39,7 @@ import { subscriptions } from "@/db/schema/subscriptions";
 import { blogPosts } from "@/db/schema/blog";
 import { and, eq, inArray } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
+import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 
 // Revalidate hourly. Sitemap doesn't need to be live-fresh — Google
 // crawls it at most every few hours anyway. 1h keeps DB load minimal.
@@ -90,6 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let proUserIds = new Set<string>();
   let agencyRows: Array<{ slug: string; updatedAt: Date }> = [];
   let blogRows: Array<{ slug: string; updatedAt: Date }> = [];
+  let authorRows: Array<{ slug: string; displayName: string; updatedAt: Date }> = [];
 
   try {
     playerRows = await db
@@ -147,6 +149,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .from(blogPosts)
       .where(eq(blogPosts.status, "published"));
+
+    // ----- Author hubs -----
+    // Solo authors con al menos 1 post published — un hub vacío es
+    // thin content y tanka quality (anti-pattern del seo-strategy §10).
+    authorRows = await listAuthorsWithPublishedPosts();
   } catch (err) {
     // If the DB is unreachable (build time without DATABASE_URL, or
     // misconfigured preview env), don't crash the build — return just
@@ -175,5 +182,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticEntries, ...playerEntries, ...agencyEntries, ...blogEntries];
+  const authorEntries: SitemapEntry[] = authorRows.map((a) => ({
+    url: `${base}/blog/authors/${a.slug}`,
+    lastModified: a.updatedAt,
+    changeFrequency: "monthly" as const,
+    // Authors son E-E-A-T anchors pero secundarios vs posts.
+    priority: 0.6,
+  }));
+
+  return [
+    ...staticEntries,
+    ...playerEntries,
+    ...agencyEntries,
+    ...blogEntries,
+    ...authorEntries,
+  ];
 }

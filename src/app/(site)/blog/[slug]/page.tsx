@@ -2,8 +2,14 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getPostBySlug, getAuthorsMap } from "@/lib/blog/posts";
+import { getPostBySlug } from "@/lib/blog/posts";
+import {
+  hydrateAuthors,
+  authorSameAs,
+  fallbackDisplayName,
+} from "@/lib/blog/authors";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import { estimateWordCount } from "@/lib/blog/reading-time";
 import { ArticleJsonLd } from "@/lib/seo/articleJsonLd";
@@ -58,10 +64,17 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   const post = await getPostBySlug(slug);
   if (!post) return notFound();
 
-  const authorsMap = await getAuthorsMap([post.authorUserId]);
-  const author = authorsMap.get(post.authorUserId);
-  const authorName = author?.role === "admin" ? "Equipo 'BallersHub" : "Autor invitado";
-  const authorSlug = post.authorUserId.slice(0, 8);
+  const authorsMap = await hydrateAuthors([post.authorUserId]);
+  const hydrated = authorsMap.get(post.authorUserId);
+  const blogAuthor = hydrated?.blogAuthor ?? null;
+
+  // Cuando hay blog_authors row, todo viene de ahí (slug real, display
+  // name editorial, bio, sameAs). Cuando no, fallback al display por
+  // role — mismo comportamiento que MVP-1 para no romper posts viejos.
+  const authorName = blogAuthor?.displayName ?? fallbackDisplayName(hydrated?.role);
+  const authorSlug = blogAuthor?.slug ?? post.authorUserId.slice(0, 8);
+  const authorBio = blogAuthor?.bio ?? null;
+  const authorSameAsUrls = blogAuthor ? authorSameAs(blogAuthor) : [];
 
   const wordCount = estimateWordCount(post.contentHtml);
 
@@ -82,6 +95,8 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           author: {
             slug: authorSlug,
             name: authorName,
+            bio: authorBio,
+            sameAs: authorSameAsUrls,
           },
         }}
       />
@@ -105,7 +120,16 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           {post.description}
         </p>
         <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-bh-fg-3">
-          <span>{authorName}</span>
+          {blogAuthor ? (
+            <Link
+              href={`/blog/authors/${blogAuthor.slug}`}
+              className="text-bh-fg-2 underline-offset-4 transition-colors hover:text-bh-lime hover:underline"
+            >
+              {authorName}
+            </Link>
+          ) : (
+            <span>{authorName}</span>
+          )}
           <span aria-hidden>·</span>
           <span>{post.readingTimeMin} min de lectura</span>
           {post.publishedAt && (
@@ -122,19 +146,19 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       {post.heroImageUrl && (
         <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-bh-lg bg-bh-surface-2">
           {/*
-            Plain <img> instead of next/image because blog authors paste
-            URLs from arbitrary hosts (Unsplash, news sites, AI-generated
-            images, etc.) and next/image requires every host in
-            remotePatterns. Image upload integrated to Supabase Storage
-            is MVP-2; once that ships we can switch back to <Image> since
-            *.supabase.co is already whitelisted.
+            Tras MVP-2 #3, los autores suben imágenes via /api/blog/media/upload
+            → bucket blog-media (host *.supabase.co whitelisted en next.config).
+            unoptimized fallback cubre posts MVP-1 con URLs externas que el
+            optimizer no puede tocar.
           */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={post.heroImageUrl}
             alt={post.title}
-            loading="eager"
-            className="h-full w-full object-cover"
+            fill
+            sizes="(min-width: 768px) 768px, 100vw"
+            priority
+            unoptimized={!post.heroImageUrl.includes(".supabase.co")}
+            className="object-cover"
           />
         </div>
       )}

@@ -2,11 +2,22 @@
 
 import { useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ImagePlus } from "lucide-react";
 import type { PublicProfileData } from "./LayoutResolver";
 import ProPlayerHeader from "./ProPlayerHeader";
 import { formatPlayerPositions } from "@/lib/format";
+
+// Code-split FloatingHeroVideo: it pulls in a YouTube iframe + an SVG gooey
+// filter that paints over a large area, so we don't want any of its JS or
+// CSS in the initial bundle. ssr:false keeps it out of SSR — the server
+// already returns null for it (isMobile is always false on the server), so
+// removing SSR here only changes WHERE we skip the render, not whether.
+const FloatingHeroVideo = dynamic(() => import("./FloatingHeroVideo"), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player } = data;
@@ -63,8 +74,9 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
 }
 
 function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
-  const { player, theme } = data;
+  const { player, theme, heroFloatingVideo } = data;
   const containerRef = useRef<HTMLDivElement>(null);
+  const playerSlug = (player as { slug?: string | null }).slug ?? "";
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -118,9 +130,18 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
       ref={containerRef}
     >
       
-      <ProPlayerHeader player={player} />
+      <ProPlayerHeader player={player} hideOnMobile={!!heroFloatingVideo} />
 
-      {/* 
+      {heroFloatingVideo && playerSlug && (
+        <FloatingHeroVideo
+          video={heroFloatingVideo}
+          slug={playerSlug}
+          player={{ fullName: player.fullName, avatarUrl: player.avatarUrl ?? null }}
+          accentColor={accentColor}
+        />
+      )}
+
+      {/*
         ==================================================
         HERO SECTION (Cinematic ATMOSPHERE)
         ==================================================

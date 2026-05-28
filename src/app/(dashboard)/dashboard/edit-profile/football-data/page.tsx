@@ -49,6 +49,11 @@ type CareerItem = {
   club: string | null;
   division: string | null;
   division_id: string | null;
+  // Texto libre + (opcional) id resuelto al catálogo. La columna texto
+  // existe para mostrar la liga aunque no esté linkeada al catálogo.
+  secondary_division: string | null;
+  secondary_division_id: string | null;
+  secondary_division_division: { id: string | null; name: string | null } | null;
   start_date: string | null;
   end_date: string | null;
   team: {
@@ -85,6 +90,9 @@ type CareerRevisionItemRow = {
   club: string | null;
   division: string | null;
   division_id: string | null;
+  secondary_division: string | null;
+  secondary_division_id: string | null;
+  secondary_division_division: { id: string | null; name: string | null } | null;
   start_year: number | null;
   end_year: number | null;
   order_index: number | null;
@@ -160,8 +168,9 @@ export default async function FootballDataPage() {
     supabase
       .from("career_items")
       .select(
-        `id, club, division, start_date, end_date, division_id,
-         team:teams!career_items_team_id_fkey ( id, name, crest_url, country_code )`
+        `id, club, division, start_date, end_date, division_id, secondary_division, secondary_division_id,
+         team:teams!career_items_team_id_fkey ( id, name, crest_url, country_code ),
+         secondary_division_division:divisions!career_items_secondary_division_id_divisions_id_fk ( id, name )`
       )
       .eq("player_id", profileData.id)
       .order("start_date", { ascending: false }),
@@ -181,6 +190,8 @@ export default async function FootballDataPage() {
            club,
            division,
            division_id,
+           secondary_division,
+           secondary_division_id,
            start_year,
            end_year,
            order_index,
@@ -190,7 +201,8 @@ export default async function FootballDataPage() {
              name,
              country_code,
              country_name
-           )
+           ),
+           secondary_division_division:divisions!career_revision_items_secondary_division_id_divisions_id_fk ( id, name )
          ),
          stats_items:stats_revision_items ( id )`
       )
@@ -314,6 +326,10 @@ export default async function FootballDataPage() {
     club: item.club,
     division: item.division,
     division_id: item.division_id,
+    secondaryDivisionId: item.secondary_division_id ?? null,
+    // Preferimos el texto libre (cubre el caso "Preferente FFIB" que no
+    // está en el catálogo). Si está vacío, fallback al nombre del join.
+    secondaryDivisionName: item.secondary_division ?? item.secondary_division_division?.name ?? null,
     startYear: item.start_date ? safeYear(item.start_date) : null,
     endYear: item.end_date ? safeYear(item.end_date) : null,
     team: item.team
@@ -353,6 +369,9 @@ export default async function FootballDataPage() {
             club: item.club,
             division: item.division,
             division_id: item.division_id,
+            secondaryDivisionId: item.secondary_division_id ?? null,
+            secondaryDivisionName:
+              item.secondary_division ?? item.secondary_division_division?.name ?? null,
             startYear: item.start_year ?? null,
             endYear: item.end_year ?? null,
             team: item.team

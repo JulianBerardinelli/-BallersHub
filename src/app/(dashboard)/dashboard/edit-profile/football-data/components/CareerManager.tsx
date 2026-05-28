@@ -42,6 +42,8 @@ export type CareerStage = {
   club: string | null;
   division: string | null;
   division_id?: string | null;
+  secondaryDivisionName?: string | null;
+  secondaryDivisionId?: string | null;
   startYear: number | null;
   endYear: number | null;
   team: {
@@ -98,6 +100,9 @@ function toEditorItem(stage: CareerStage): AugmentedCareerItem {
     club: stage.team?.name ?? stage.club ?? "",
     division: stage.division ?? null,
     division_id: stage.division_id ?? null,
+    secondary_division: stage.secondaryDivisionName ?? null,
+    secondary_division_id: stage.secondaryDivisionId ?? null,
+    secondary_division_meta: null,
     start_year: stage.startYear ?? null,
     end_year: stage.endYear ?? null,
     team_id: stage.team?.id ?? null,
@@ -111,13 +116,17 @@ function toEditorItem(stage: CareerStage): AugmentedCareerItem {
   };
 }
 
-function mapToPayload(item: AugmentedCareerItem): CareerStageInput & { divisionId?: string | null } {
+function mapToPayload(
+  item: AugmentedCareerItem,
+): CareerStageInput & { divisionId?: string | null; secondaryDivisionId?: string | null } {
   return {
     id: item.id,
     originalId: item.originalId ?? null,
     club: item.club,
     division: item.division ?? null,
     divisionId: item.division_id ?? null,
+    secondaryDivision: item.secondary_division ?? null,
+    secondaryDivisionId: item.secondary_division_id ?? null,
     startYear: item.start_year ?? null,
     endYear: item.end_year ?? null,
     teamId: item.team_id ?? null,
@@ -136,6 +145,8 @@ type ComparableStage = {
   club: string;
   division: string | null;
   divisionId: string | null;
+  secondaryDivision: string | null;
+  secondaryDivisionId: string | null;
   startYear: number | null;
   endYear: number | null;
   teamId: string | null;
@@ -153,7 +164,9 @@ function normalizeOptional(value: string | null | undefined): string | null {
   return trimmed.length === 0 ? null : trimmed;
 }
 
-function toComparableStage(stage: CareerStageInput & { divisionId?: string | null }): ComparableStage {
+function toComparableStage(
+  stage: CareerStageInput & { divisionId?: string | null; secondaryDivisionId?: string | null },
+): ComparableStage {
   const proposed = stage.proposedTeam
     ? {
         name: normalizeOptional(stage.proposedTeam.name ?? null),
@@ -170,6 +183,8 @@ function toComparableStage(stage: CareerStageInput & { divisionId?: string | nul
     club: stage.club.trim(),
     division: normalizeOptional(stage.division ?? null),
     divisionId: stage.divisionId ?? null,
+    secondaryDivision: normalizeOptional(stage.secondaryDivision ?? null),
+    secondaryDivisionId: stage.secondaryDivisionId ?? null,
     startYear: stage.startYear ?? null,
     endYear: stage.endYear ?? null,
     teamId: stage.teamId ?? null,
@@ -196,6 +211,8 @@ function comparableStagesEqual(a: ComparableStage, b: ComparableStage): boolean 
     a.club === b.club &&
     a.division === b.division &&
     a.divisionId === b.divisionId &&
+    a.secondaryDivision === b.secondaryDivision &&
+    a.secondaryDivisionId === b.secondaryDivisionId &&
     a.startYear === b.startYear &&
     a.endYear === b.endYear &&
     a.teamId === b.teamId &&
