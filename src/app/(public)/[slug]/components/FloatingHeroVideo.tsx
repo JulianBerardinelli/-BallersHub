@@ -79,7 +79,7 @@ export default function FloatingHeroVideo({
 
   const { state, dismiss } = useFloatingVideoVisibility({
     hideSelector,
-    initialDelayMs: 1400,
+    revealAfterScrollMs: 1000,
     enabled,
     dismissKey: `bh:floatingVideoDismissed:${slug}`,
   });

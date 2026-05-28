@@ -10,25 +10,31 @@ export type FloatingVideoState =
 
 type Options = {
   hideSelector: string;
-  initialDelayMs?: number;
+  /** Delay after the user's FIRST scroll before the morph reveals. */
+  revealAfterScrollMs?: number;
   enabled?: boolean;
   dismissKey?: string;
 };
 
 const HIDE_TRIGGER_FRACTION = 0.4;
+// A real user scroll has to move at least this far before it counts as the
+// "first scroll" — filters out sub-pixel jitter / momentum settle noise.
+const FIRST_SCROLL_THRESHOLD_PX = 8;
 
 export function useFloatingVideoVisibility({
   hideSelector,
-  initialDelayMs = 1200,
+  revealAfterScrollMs = 1000,
   enabled = true,
   dismissKey,
 }: Options): { state: FloatingVideoState; dismiss: () => void } {
   const [state, setState] = React.useState<FloatingVideoState>("hidden_initial");
   const inHideZoneRef = React.useRef(false);
   const evaluateRef = React.useRef<(() => void) | null>(null);
+  const revealCheckRef = React.useRef<(() => void) | null>(null);
 
   useLenis(() => {
     evaluateRef.current?.();
+    revealCheckRef.current?.();
   });
 
   React.useEffect(() => {
@@ -125,18 +131,45 @@ export function useFloatingVideoVisibility({
     };
   }, [enabled, hideSelector]);
 
+  // Reveal trigger — the morph appears `revealAfterScrollMs` after the user's
+  // FIRST real scroll (gives them time to take in the hero image first), not
+  // on a fixed mount timer. If they never scroll, it never shows (the video is
+  // also available in the tactics section). The reveal is still gated on the
+  // hide zone at fire time, so a fast scroll straight into tactics won't pop
+  // the morph just to collapse it.
   React.useEffect(() => {
     if (!enabled) return;
     if (state !== "hidden_initial") return;
-    const id = window.setTimeout(() => {
-      setState((curr) => {
-        if (curr !== "hidden_initial") return curr;
-        if (inHideZoneRef.current) return "hidden_permanent";
-        return "open";
-      });
-    }, initialDelayMs);
-    return () => window.clearTimeout(id);
-  }, [enabled, state, initialDelayMs]);
+
+    let revealTimer = 0;
+    let armed = false;
+
+    const arm = () => {
+      if (armed) return;
+      if (window.scrollY <= FIRST_SCROLL_THRESHOLD_PX) return;
+      armed = true;
+      window.removeEventListener("scroll", arm);
+      revealCheckRef.current = null;
+      revealTimer = window.setTimeout(() => {
+        setState((curr) => {
+          if (curr !== "hidden_initial") return curr;
+          if (inHideZoneRef.current) return "hidden_permanent";
+          return "open";
+        });
+      }, revealAfterScrollMs);
+    };
+
+    // Catch both native scroll (Lenis updates window.scrollY + fires it) and
+    // the Lenis callback (wired above via revealCheckRef) for resilience.
+    window.addEventListener("scroll", arm, { passive: true });
+    revealCheckRef.current = arm;
+
+    return () => {
+      window.removeEventListener("scroll", arm);
+      revealCheckRef.current = null;
+      if (revealTimer) window.clearTimeout(revealTimer);
+    };
+  }, [enabled, state, revealAfterScrollMs]);
 
   const dismiss = React.useCallback(() => {
     setState("hidden_permanent");
