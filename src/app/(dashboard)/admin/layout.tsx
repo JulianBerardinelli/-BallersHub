@@ -45,6 +45,15 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: "SEO",
+    items: [
+      { href: "/admin/seo", label: "Overview", roles: ["admin", "analyst"] },
+      { href: "/admin/seo/players", label: "KPI: players ranking", roles: ["admin", "analyst"] },
+      { href: "/admin/seo/queries", label: "Top queries", roles: ["admin", "analyst"] },
+      { href: "/admin/seo/pages", label: "Top pages", roles: ["admin", "analyst"] },
+    ],
+  },
+  {
     title: "Marketing",
     items: [
       { href: "/admin/marketing", label: "Campañas", roles: ["admin"] },

@@ -549,17 +549,24 @@ const MORPH_CSS = `
 .bh-morph-blob-content {
   height: 60px;
   opacity: 0;
+  transform: scale(0.96);
   transform-origin: 50% 0%;
   transition:
-    height 620ms cubic-bezier(0.5, 0, 0.75, 0),
-    opacity 240ms cubic-bezier(0.5, 0, 0.75, 0);
+    height 520ms cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 200ms cubic-bezier(0.5, 0, 0.75, 0),
+    transform 460ms cubic-bezier(0.5, 0, 0.75, 0);
 }
+/* Open: the panel height-reveals the video while a subtle scale bloom with a
+   soft overshoot makes it deploy organically (not a rigid box-grow). Anchored
+   at the top so it blooms out of the header. */
 .bh-morph-stage.is-open .bh-morph-blob-content {
   height: 248px;
   opacity: 1;
+  transform: scale(1);
   transition:
-    height 880ms cubic-bezier(0.16, 1, 0.3, 1),
-    opacity 220ms ease-out;
+    height 720ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 240ms ease-out,
+    transform 660ms cubic-bezier(0.34, 1.32, 0.5, 1);
 }
 .bh-morph-icon:not([data-active="true"]):hover {
   color: rgba(255, 255, 255, 1);

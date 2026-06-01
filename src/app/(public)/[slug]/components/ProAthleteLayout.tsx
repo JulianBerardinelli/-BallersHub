@@ -9,15 +9,20 @@ import type { PublicProfileData } from "./LayoutResolver";
 import ProPlayerHeader from "./ProPlayerHeader";
 import { formatPlayerPositions } from "@/lib/format";
 
-// Code-split FloatingHeroVideo: it pulls in a YouTube iframe + an SVG gooey
-// filter that paints over a large area, so we don't want any of its JS or
-// CSS in the initial bundle. ssr:false keeps it out of SSR — the server
-// already returns null for it (isMobile is always false on the server), so
-// removing SSR here only changes WHERE we skip the render, not whether.
+// Code-split the floating-video components: each pulls in a YouTube iframe +
+// its own CSS, so we keep them out of the initial bundle. ssr:false keeps
+// them out of SSR — both already return null on the server (they gate on
+// useIsMobile, false on the server), so this only changes WHERE we skip the
+// render, not whether. FloatingHeroVideo is the mobile morph header;
+// HeroVideoIslandDesktop is the bottom-right island for desktop.
 const FloatingHeroVideo = dynamic(() => import("./FloatingHeroVideo"), {
   ssr: false,
   loading: () => null,
 });
+const HeroVideoIslandDesktop = dynamic(
+  () => import("./HeroVideoIslandDesktop"),
+  { ssr: false, loading: () => null },
+);
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player } = data;
@@ -133,12 +138,22 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
       <ProPlayerHeader player={player} hideOnMobile={!!heroFloatingVideo} />
 
       {heroFloatingVideo && playerSlug && (
-        <FloatingHeroVideo
-          video={heroFloatingVideo}
-          slug={playerSlug}
-          player={{ fullName: player.fullName, avatarUrl: player.avatarUrl ?? null }}
-          accentColor={accentColor}
-        />
+        <>
+          {/* Mobile (<1024px): morph header that deploys the video. */}
+          <FloatingHeroVideo
+            video={heroFloatingVideo}
+            slug={playerSlug}
+            player={{ fullName: player.fullName, avatarUrl: player.avatarUrl ?? null }}
+            accentColor={accentColor}
+          />
+          {/* Desktop (>=1024px): bottom-right floating island. Each component
+              gates itself on viewport, so only one renders at a time. */}
+          <HeroVideoIslandDesktop
+            video={heroFloatingVideo}
+            slug={playerSlug}
+            accentColor={accentColor}
+          />
+        </>
       )}
 
       {/*
@@ -178,9 +193,25 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
         />
         
         {/* Color de acento reaccionando dinámicamente como luz */}
-        <div 
+        <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px] opacity-20 pointer-events-none z-10 mix-blend-screen"
           style={{ backgroundColor: accentColor }}
+        />
+
+        {/* Segunda luz ambiente: "color primario" (luces principales) del theme.
+            Descentrada hacia arriba-izquierda y animada (drift + respiración
+            lenta) como las demás capas del fondo, para que el hero combine los
+            dos tonos elegidos por el usuario (primario + acento). */}
+        <motion.div
+          className="absolute rounded-full blur-[140px] pointer-events-none z-10 mix-blend-screen w-[560px] h-[560px] md:w-[680px] md:h-[680px] opacity-20"
+          style={{ backgroundColor: primaryColor, top: '14%', left: '8%', willChange: 'transform, opacity' }}
+          initial={{ opacity: 0.18 }}
+          animate={{
+            x: ['-6%', '9%', '-6%'],
+            y: ['-5%', '7%', '-5%'],
+            opacity: [0.16, 0.28, 0.16],
+          }}
+          transition={{ duration: 19, repeat: Infinity, ease: 'easeInOut' }}
         />
 
         {/* ======================= EFECTO SANDWICH (Z-INDEX MAGIC) ======================= */}
@@ -257,8 +288,10 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
               >
                 {player.positions && player.positions.length > 0 && (
                   <div className="text-white tracking-[0.1em] md:tracking-[0.2em] uppercase font-bold text-[10px] md:text-sm lg:text-base opacity-95 drop-shadow-md whitespace-nowrap">
-                    {/* Toma la última posición después de filtrarla */}
-                    {formatPlayerPositions(player.positions).split(" / ").pop()}
+                    {/* Muestra la PRIMERA posición (la principal) tras filtrar
+                        los roles padre. El orden lo preserva
+                        formatPlayerPositions desde player.positions. */}
+                    {formatPlayerPositions(player.positions).split(" / ")[0]}
                   </div>
                 )}
 
@@ -372,10 +405,15 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
           className="absolute z-30 bottom-[-2vh] md:bottom-0 top-[8vh] md:top-[15vh] w-full max-w-[1200px] flex justify-center items-end"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* Mobile: fixed bottom-anchored box (consistent footprint across
+              profiles regardless of the source PNG's aspect). We dropped the
+              old `h-full scale-[1.18]` (~111vh, overflowed under the header and
+              read as "exageradamente grande"). Now a capped 92vh box, feet on
+              the baseline. Desktop (md:) keeps the original h-full / scale-100. */}
           <img
             src={player.heroUrl || undefined}
             alt={player.fullName}
-            className="h-full w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 scale-[1.18] md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
+            className="h-[92vh] max-h-[840px] md:h-full md:max-h-none w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
           />
         </motion.div>
 
