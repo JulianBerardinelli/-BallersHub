@@ -65,6 +65,7 @@ export default async function MultimediaPage() {
     .from("player_media")
     .select("*")
     .eq("player_id", profile.id)
+    .order("position", { ascending: true })
     .order("created_at", { ascending: false });
 
   // Hide pro assets AND the avatar row from the catalog list so the
@@ -81,6 +82,7 @@ export default async function MultimediaPage() {
     .from("player_articles")
     .select("*")
     .eq("player_id", profile.id)
+    .order("position", { ascending: true })
     .order("published_at", { ascending: false, nullsFirst: false });
 
   // Persisted layout for the public Press & Notes module. Lives in
@@ -118,6 +120,7 @@ export default async function MultimediaPage() {
     tags: item.tags,
     provider: item.provider,
     seasonYear: item.season_year ?? null,
+    position: item.position ?? 0,
     isPrimary: item.is_primary,
     isApproved: item.is_approved,
     isFlagged: item.is_flagged,

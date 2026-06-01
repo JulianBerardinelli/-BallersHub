@@ -3,14 +3,28 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@heroui/react";
-import { ImageOff } from "lucide-react";
+import { ImageOff, ChevronUp, ChevronDown } from "lucide-react";
 import type { PlayerMedia } from "@/db/schema/media";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { bhChip } from "@/lib/ui/heroui-brand";
 
-export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
+export default function MediaGalleryGrid({
+  items,
+  reorderable = false,
+  onMoveUp,
+  onMoveDown,
+  isReordering = false,
+}: {
+  items: PlayerMedia[];
+  /** Show up/down controls to reorder items (videos only). */
+  reorderable?: boolean;
+  onMoveUp?: (id: string) => void;
+  onMoveDown?: (id: string) => void;
+  /** Disables all reorder controls while a save is in flight. */
+  isReordering?: boolean;
+}) {
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -51,9 +65,10 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => {
+      {items.map((item, index) => {
         const isFlagged = item.isFlagged;
         const isPending = !item.isApproved && !item.isFlagged;
+        const showReorder = reorderable && items.length > 1 && !!onMoveUp && !!onMoveDown;
 
         return (
           <div
@@ -134,12 +149,34 @@ export default function MediaGalleryGrid({ items }: { items: PlayerMedia[] }) {
               </div>
 
               <div className="mt-auto flex items-center gap-2 border-t border-white/[0.06] pt-3">
+                {showReorder && (
+                  <>
+                    <button
+                      type="button"
+                      aria-label="Subir video"
+                      disabled={index === 0 || isReordering}
+                      onClick={() => onMoveUp?.(item.id)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-bh-md border border-white/[0.08] text-bh-fg-3 transition-colors hover:border-white/[0.18] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08]"
+                    >
+                      <ChevronUp className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Bajar video"
+                      disabled={index === items.length - 1 || isReordering}
+                      onClick={() => onMoveDown?.(item.id)}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-bh-md border border-white/[0.08] text-bh-fg-3 transition-colors hover:border-white/[0.18] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08]"
+                    >
+                      <ChevronDown className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
                 <Button
                   size="sm"
                   variant="flat"
                   onPress={() => handleDelete(item.id)}
                   isLoading={deletingId === item.id}
-                  className={bhButtonClass({ variant: "danger-soft", size: "sm", className: "w-full flex-1" })}
+                  className={bhButtonClass({ variant: "danger-soft", size: "sm", className: "flex-1" })}
                 >
                   {deletingId === item.id ? "Borrando..." : "Eliminar"}
                 </Button>
