@@ -5,6 +5,7 @@ import { Button, Tabs, Tab } from "@heroui/react";
 import { Lock, Plus } from "lucide-react";
 import MediaUploadModal from "./MediaUploadModal";
 import MediaGalleryGrid from "./MediaGalleryGrid";
+import { useReorderable } from "./useReorderable";
 import type { PlayerMedia } from "@/db/schema/media";
 
 import { bhButtonClass } from "@/components/ui/BhButton";
@@ -37,6 +38,14 @@ export default function MultimediaManagerClient({
 
   const photos = media.filter((m) => m.type === "photo");
   const videos = media.filter((m) => m.type === "video");
+
+  // Manual ordering for video highlights. Photos aren't reorderable.
+  const {
+    ordered: orderedVideos,
+    isSaving: videoReordering,
+    moveUp: moveVideoUp,
+    moveDown: moveVideoDown,
+  } = useReorderable(videos, "/api/media/reorder");
 
   // Free hard-cap: 2 videos in the catalog (matrix §B "Videos de YouTube"
   // is counted as `player_media` rows of type='video'). Pro is unlimited.
@@ -156,7 +165,18 @@ export default function MultimediaManagerClient({
             }
           >
             <div className="pt-4">
-              <MediaGalleryGrid items={videos} />
+              {orderedVideos.length > 1 && (
+                <p className="mb-3 text-[12px] text-bh-fg-4">
+                  Usá las flechas para ordenar tus videos. El primero aparece destacado en tu perfil público.
+                </p>
+              )}
+              <MediaGalleryGrid
+                items={orderedVideos}
+                reorderable
+                onMoveUp={moveVideoUp}
+                onMoveDown={moveVideoDown}
+                isReordering={videoReordering}
+              />
               {!isPro && videosAtCap && (
                 <div className="mt-4 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
                   <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">

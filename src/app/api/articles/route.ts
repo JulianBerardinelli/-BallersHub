@@ -64,6 +64,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Title and URL are required" }, { status: 400 });
     }
 
+    // Append the new note at the end of the player's manual ordering.
+    const { data: maxRow } = await supabase
+      .from("player_articles")
+      .select("position")
+      .eq("player_id", profile.id)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ position: number }>();
+    const nextPosition = (maxRow?.position ?? -1) + 1;
+
     const { data: inserted, error } = await supabase
       .from("player_articles")
       .insert({
@@ -73,6 +83,7 @@ export async function POST(req: Request) {
         image_url: imageUrl || null,
         publisher: publisher || null,
         published_at: publishedAt || null,
+        position: nextPosition,
       })
       .select()
       .single();

@@ -3,10 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, useDisclosure } from "@heroui/react";
-import { Plus, Newspaper } from "lucide-react";
+import { Plus, Newspaper, ChevronUp, ChevronDown } from "lucide-react";
 import ArticleModal, { Article } from "./ArticleModal";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import NotesLayoutPicker, { type NotesLayout } from "./NotesLayoutPicker";
+import { useReorderable } from "./useReorderable";
 
 import BhEmptyState from "@/components/ui/BhEmptyState";
 import { bhButtonClass } from "@/components/ui/BhButton";
@@ -33,6 +34,7 @@ export default function ArticlesManager({
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
   const { access } = usePlanAccess();
   const upgradeModal = useUpgradeModal();
+  const { ordered, isSaving, moveUp, moveDown } = useReorderable(articles, "/api/articles/reorder");
 
   // Free hard-cap: 3 articles (matrix §B "Links a noticias / prensa" =
   // player_articles entity). Editing existing rows is always allowed.
@@ -90,28 +92,52 @@ export default function ArticlesManager({
           />
         ) : (
           <div className="space-y-2">
-            {articles.map((item) => (
+            {ordered.map((item, index) => (
               <div
                 key={item.id}
                 className="bh-card-lift flex items-center justify-between rounded-bh-md border border-white/[0.06] bg-bh-surface-1/60 p-4"
               >
-                <div className="flex flex-col gap-1 overflow-hidden pr-4">
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="truncate font-bh-heading text-[14px] font-semibold text-bh-fg-1 transition-colors hover:text-bh-lime"
-                  >
-                    {item.title}
-                  </a>
-                  <div className="flex items-center gap-2 text-[11px] text-bh-fg-4">
-                    {item.publisher && <span>{item.publisher}</span>}
-                    {item.publisher && item.published_at && <span>•</span>}
-                    {item.published_at && (
-                      <span className="font-bh-mono">
-                        {new Date(item.published_at).toLocaleDateString()}
-                      </span>
-                    )}
+                <div className="flex min-w-0 items-center gap-2">
+                  {ordered.length > 1 && (
+                    <div className="flex shrink-0 flex-col -my-1">
+                      <button
+                        type="button"
+                        aria-label="Subir nota"
+                        disabled={index === 0 || isSaving}
+                        onClick={() => moveUp(item.id)}
+                        className="rounded-bh-md p-0.5 text-bh-fg-3 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Bajar nota"
+                        disabled={index === ordered.length - 1 || isSaving}
+                        onClick={() => moveDown(item.id)}
+                        className="rounded-bh-md p-0.5 text-bh-fg-3 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex min-w-0 flex-col gap-1 overflow-hidden pr-4">
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate font-bh-heading text-[14px] font-semibold text-bh-fg-1 transition-colors hover:text-bh-lime"
+                    >
+                      {item.title}
+                    </a>
+                    <div className="flex items-center gap-2 text-[11px] text-bh-fg-4">
+                      {item.publisher && <span>{item.publisher}</span>}
+                      {item.publisher && item.published_at && <span>•</span>}
+                      {item.published_at && (
+                        <span className="font-bh-mono">
+                          {new Date(item.published_at).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
