@@ -41,6 +41,29 @@ export const billingEnv = {
   mpPublicKey: () => optional("MP_PUBLIC_KEY"),
   mpWebhookSecret: () => require("MP_WEBHOOK_SECRET"),
 
+  /**
+   * Pre-provisioned MP `preapproval_plan` ids per (planId × currency).
+   * Format: `MP_PLAN_<PLAN_ID>_<CURRENCY>` (e.g. `MP_PLAN_PRO_PLAYER_ARS`).
+   * Mirrors the Stripe Price ID pattern.
+   *
+   * When set, `createMpCheckout` references the plan via
+   * `preapproval_plan_id` instead of sending inline `auto_recurring`. The
+   * plan owns the trial config (`free_trial`), so MP postpones the first
+   * charge until after the trial — matching the Stripe `trial_period_days`
+   * behaviour.
+   *
+   * When not set, the checkout falls back to direct `/preapproval` with
+   * inline `auto_recurring` — NO trial. Useful for dev environments where
+   * plans haven't been provisioned yet. Log a warning so it's visible.
+   */
+  mpPreApprovalPlanId: (
+    planId: string,
+    currency: "ARS",
+  ): string | undefined => {
+    const norm = planId.toUpperCase().replace(/-/g, "_");
+    return optional(`MP_PLAN_${norm}_${currency}`);
+  },
+
   // ----- Generic -----
   appUrl: (): string => {
     // Used to build success_url / cancel_url / back_urls. MP rejects
