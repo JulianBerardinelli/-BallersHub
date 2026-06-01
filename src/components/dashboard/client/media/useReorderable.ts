@@ -8,26 +8,37 @@ import { useEffect, useState } from "react";
  * and the video-highlights grid in the multimedia dashboard.
  *
  * Local order is the source of truth while mounted: a successful move is
- * shown instantly and persisted in the background. The list only re-seeds
- * from props when the SET of ids changes (an add or delete), so a
- * router.refresh() after those operations syncs cleanly without clobbering
- * an in-progress manual order.
+ * shown instantly and persisted in the background. When the `items` prop
+ * changes (an add, delete, or edit that triggered a router.refresh()) we
+ * reconcile WITHOUT clobbering the current manual order:
+ *   - ids still present keep their current position but pick up refreshed
+ *     field data, so an edited title/url shows immediately;
+ *   - newly added ids are appended at the end (mirrors the server's max+1);
+ *   - removed ids are dropped.
+ * A pure reorder never mutates `items`, so it never triggers this effect and
+ * the optimistic order stays put.
  */
 export function useReorderable<T extends { id: string }>(items: T[], endpoint: string) {
   const [ordered, setOrdered] = useState<T[]>(items);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Re-seed only when the id set changes (add/delete). A pure reorder keeps
-  // the same set, so the effect is a no-op and the optimistic order stays.
-  const idSetKey = items
-    .map((i) => i.id)
-    .slice()
-    .sort()
-    .join(",");
+  // Re-run whenever the items payload changes by id OR by content. A pure
+  // reorder leaves `items` untouched, so the optimistic order is preserved.
+  const itemsKey = JSON.stringify(items);
   useEffect(() => {
-    setOrdered(items);
+    setOrdered((prev) => {
+      const byId = new Map(items.map((it) => [it.id, it] as const));
+      // Keep the current manual order for surviving ids, refreshing their data.
+      const kept = prev
+        .filter((it) => byId.has(it.id))
+        .map((it) => byId.get(it.id) as T);
+      // Append any newly added ids (in incoming order) at the end.
+      const keptIds = new Set(kept.map((it) => it.id));
+      const added = items.filter((it) => !keptIds.has(it.id));
+      return [...kept, ...added];
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idSetKey]);
+  }, [itemsKey]);
 
   const persist = async (next: T[], prev: T[]) => {
     setIsSaving(true);
