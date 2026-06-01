@@ -1,7 +1,10 @@
 // KPI primario: "Pro players winning their own name SERP".
 //
-// Por cada Pro player aprobado y público, query GSC por SU NOMBRE EXACTO
-// como search query y devolvemos:
+// Por cada Pro player aprobado y público, query GSC filtrando POR:
+//   - query EXACTA = SU NOMBRE
+//   - page EXACTA = URL canónica de SU portfolio (/<slug>)
+//
+// Y devolvemos:
 //   - position promedio de los últimos 28 días (1 = top, lower es mejor)
 //   - impressions / clicks
 //   - estado: "winning" si position <= 3, "fighting" si <= 10, "missing" si nada
@@ -12,6 +15,12 @@
 //   - position 4-10 → primera página de Google. Sigue siendo bueno.
 //   - position > 10 / sin data → todavía no aparece o tiene poca impresión.
 //
+// Por qué filtramos por page además de query: sin el filter de page, un
+// nombre que rankea otra página del sitio (post del blog que menciona al
+// jugador, página de su agencia, etc.) marcaría al player como "winning"
+// aunque su portfolio personal NO esté rankeando. El KPI es sobre el
+// portfolio, no sobre el sitio.
+//
 // Performance:
 //   - 1 query a GSC por player. Con ≤ 200 Pro players estamos lejos de la
 //     quota (1.200 queries/min, 50.000/día). En el futuro, si crecemos a
@@ -21,7 +30,8 @@ import { unstable_cache as cache } from "next/cache";
 import { db } from "@/lib/db";
 import { playerProfiles, subscriptions } from "@/db/schema";
 import { eq, and, inArray } from "drizzle-orm";
-import { getMetricsForQuery } from "./gsc-queries";
+import { getMetricsForQueryAndPage } from "./gsc-queries";
+import { toCanonicalUrl } from "./baseUrl";
 
 export type PlayerRankRow = {
   userId: string;
@@ -105,14 +115,32 @@ export const getProPlayersRankTable = cache(
     const players = await listProPlayers();
     if (players.length === 0) return [];
 
-    // Query GSC por cada player en paralelo. Promise.allSettled para que
-    // un fallo en uno no rompa la tabla entera.
+    // Query GSC por cada player en paralelo, filtrando query=fullName +
+    // page=URL canónica del portfolio. Esto evita falsos "winning" si el
+    // nombre rankea otra página del sitio (post de blog, agencia, etc).
+    //
+    // Promise.allSettled para que 1 fallo aislado no rompa la tabla entera.
+    // Si TODOS los queries fallan (signo de GSC mal configurado o API caída),
+    // propagamos el último error para que safeGsc en el caller renderice el
+    // banner de error en lugar de "no Pro players".
     const results = await Promise.allSettled(
       players.map(async (p) => {
-        const metrics = await getMetricsForQuery(p.fullName, days);
+        const pageUrl = toCanonicalUrl(`/${p.slug}`);
+        const metrics = await getMetricsForQueryAndPage(p.fullName, pageUrl, days);
         return { player: p, metrics };
       }),
     );
+
+    const rejected = results.filter(
+      (r): r is PromiseRejectedResult => r.status === "rejected",
+    );
+    if (rejected.length === results.length) {
+      // Todos fallaron — no es "no hay players", es config rota / API down.
+      const reason = rejected[0].reason;
+      throw reason instanceof Error
+        ? reason
+        : new Error(typeof reason === "string" ? reason : "GSC API failed for all players");
+    }
 
     return results
       .map((r): PlayerRankRow | null => {
