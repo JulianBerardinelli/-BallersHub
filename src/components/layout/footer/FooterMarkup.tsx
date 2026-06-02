@@ -100,14 +100,14 @@ const DEFAULT_STATS: NonNullable<FooterProps["stats"]> = [
 
 const PRODUCT_LINKS = [
   { label: "Crear perfil", href: "/onboarding/start" },
-  { label: "Validación", href: "/players" },
+  { label: "Validación", href: "/jugadores" },
   { label: "Trayectoria", href: "/dashboard/edit-profile/football-data" },
   { label: "Plantillas Pro", href: "/dashboard/edit-template/styles" },
 ];
 
 const CLUB_LINKS = [
   { label: "Scouting AI", href: "/scouting", badge: "Beta" },
-  { label: "Shortlists", href: "/players" },
+  { label: "Shortlists", href: "/jugadores" },
   { label: "Reseñas", href: "/about" },
   { label: "Demo", href: "/about" },
 ];

@@ -25,6 +25,7 @@ import { PersonJsonLd } from "@/lib/seo/personJsonLd";
 import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
 import { formatPlayerPositions } from "@/lib/format";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
 
 // Public portfolios are cached for an hour. Crawlers hit these
 // frequently and we don't need second-by-second freshness — the
@@ -135,10 +136,12 @@ function buildSeoDescription(p: {
   return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en 'BallersHub.`;
 }
 
-// Below this bio length we soft-noindex Free portfolios so thin profiles
-// don't drag the whole site quality score. Pro portfolios are always
-// indexable — they pay for the SERP slot. See seo-strategy.md §5 Track C.
-const FREE_BIO_INDEX_MIN_CHARS = 100;
+// `FREE_BIO_INDEX_MIN_CHARS` (imported from `@/lib/seo/indexable-profiles`)
+// is the bio floor below which we soft-noindex Free portfolios so thin
+// profiles don't drag the whole site quality score. Pro portfolios are
+// always indexable — they pay for the SERP slot. The constant lives in
+// the shared helper so this page, the sitemap, and the /jugadores index
+// all gate on the exact same number. See seo-strategy.md §5 Track C.
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;

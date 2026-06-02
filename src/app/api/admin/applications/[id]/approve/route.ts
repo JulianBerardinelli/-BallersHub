@@ -34,6 +34,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
+import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
 
 function slugify(input: string) {
   return (input || "player")
@@ -224,6 +225,13 @@ export async function POST(req: Request, ctx: { params: Params }) {
     })
     .eq("id", id);
   if (e4) return NextResponse.json({ error: `mark approved failed: ${e4.message}` }, { status: 400 });
+
+  // 7.5) Bust the public caches so the freshly-approved profile shows up
+  // immediately: its own page, the /jugadores directory that links it,
+  // and sitemap.xml/llms.txt. Without this the new profile would stay
+  // invisible (orphan) until the 1h ISR window expires — exactly the
+  // page we most want Google to discover right away.
+  revalidatePlayerPublicProfile(slug);
 
   // 8) response JSON in AJAX context
   return NextResponse.json({ success: true, slug });

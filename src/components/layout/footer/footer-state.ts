@@ -89,7 +89,7 @@ export function buildLinkColumns(state: FooterCTAState): FooterLinkColumn[] {
       ...(showCreatePlayer
         ? [{ label: "Crear perfil", href: "/onboarding/start" }]
         : []),
-      { label: "Ver perfiles validados", href: "/players" },
+      { label: "Ver perfiles validados", href: "/jugadores" },
       { label: "Editar trayectoria", href: "/dashboard/edit-profile/football-data" },
       { label: "Plantillas Pro", href: "/dashboard/edit-template/styles" },
     ],
@@ -101,6 +101,7 @@ export function buildLinkColumns(state: FooterCTAState): FooterLinkColumn[] {
       ...(showCreateAgency
         ? [{ label: "Crear agencia", href: "/onboarding/start" }]
         : []),
+      { label: "Ver agencias", href: "/agencias" },
       { label: "Mi cartera", href: "/dashboard/players" },
       { label: "Verificación oficial", href: "/dashboard/agency" },
       { label: "Demo", href: "/about" },

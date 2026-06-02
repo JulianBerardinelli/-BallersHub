@@ -25,6 +25,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * Surfaces invalidated:
  *   • `/<slug>` — the portfolio page itself (1h ISR)
+ *   • `/jugadores` — the public directory that lists this player, so a
+ *     newly-approved or edited profile appears/updates immediately
+ *     instead of lagging up to an hour behind the ISR window
  *   • `/sitemap.xml` — `lastModified` shifts, Google should re-crawl
  *   • `/llms.txt` — same reasoning for AI crawlers
  *
@@ -33,6 +36,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export function revalidatePlayerPublicProfile(slug: string | null | undefined): void {
   if (!slug || slug.length === 0) return;
   revalidatePath(`/${slug}`);
+  revalidatePath("/jugadores");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }
@@ -63,11 +67,14 @@ export async function revalidatePlayerPublicProfileById(
 }
 
 /**
- * Same as the player helper but for agency portfolios.
+ * Same as the player helper but for agency portfolios. Also busts
+ * `/agencias` (the public agency directory) so approvals/edits surface
+ * there immediately rather than waiting out the ISR window.
  */
 export function revalidateAgencyPublicProfile(slug: string | null | undefined): void {
   if (!slug || slug.length === 0) return;
   revalidatePath(`/agency/${slug}`);
+  revalidatePath("/agencias");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }
