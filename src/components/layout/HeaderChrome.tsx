@@ -9,7 +9,7 @@ type NavItem = { href: string; label: string };
 
 const NAV: NavItem[] = [
   { href: "/players", label: "Jugadores" },
-  { href: "/scouting", label: "Scouting" },
+  { href: "/agencies", label: "Agencias" },
   { href: "/pricing", label: "Planes" },
   { href: "/about", label: "Nosotros" },
 ];

@@ -106,7 +106,7 @@ const PRODUCT_LINKS = [
 ];
 
 const CLUB_LINKS = [
-  { label: "Scouting AI", href: "/scouting", badge: "Beta" },
+  { label: "Scouting AI", href: "/players", badge: "Beta" },
   { label: "Shortlists", href: "/players" },
   { label: "Reseñas", href: "/about" },
   { label: "Demo", href: "/about" },

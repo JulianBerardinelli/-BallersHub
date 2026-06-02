@@ -101,6 +101,7 @@ export function buildLinkColumns(state: FooterCTAState): FooterLinkColumn[] {
       ...(showCreateAgency
         ? [{ label: "Crear agencia", href: "/onboarding/start" }]
         : []),
+      { label: "Ver agencias", href: "/agencies" },
       { label: "Mi cartera", href: "/dashboard/players" },
       { label: "Verificación oficial", href: "/dashboard/agency" },
       { label: "Demo", href: "/about" },
