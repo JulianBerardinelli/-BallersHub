@@ -1,0 +1,211 @@
+"use client";
+
+// BallersHub /players (Scouting) — dense, sortable table.
+//
+// Ported from `table.jsx`, mapped to real columns (no rating/league/metric —
+// we don't have that data; market value takes the headline-number slot). Each
+// row is a real <Link> to the player's profile: that's what makes the table
+// double as the crawlable internal-link surface the SEO fix needs, AND the
+// primary navigation for a scout.
+
+import Link from "next/link";
+
+import { ClubCrest, ContractTag, Flag, PlayerAvatar } from "./atoms";
+import { countryName, flagEmoji } from "@/lib/scouting/taxonomies";
+import type {
+  ScoutPlayer,
+  ScoutSort,
+  ScoutSortKey,
+} from "@/lib/scouting/types";
+
+type Density = "compact" | "comfortable";
+
+type Column = {
+  key: ScoutSortKey;
+  label: string;
+  width: string;
+  align?: "right" | "center";
+  mono?: boolean;
+};
+
+const COLUMNS: Column[] = [
+  { key: "name", label: "Jugador", width: "minmax(220px, 1.5fr)" },
+  { key: "posCode", label: "Pos", width: "64px" },
+  { key: "age", label: "Edad", width: "58px", align: "right", mono: true },
+  { key: "club", label: "Club", width: "minmax(220px, 1.3fr)" },
+  { key: "nationality", label: "Nac.", width: "104px" },
+  { key: "contract", label: "Estado", width: "120px" },
+  { key: "foot", label: "Pie", width: "54px", align: "center" },
+  { key: "heightCm", label: "Alt.", width: "66px", align: "right", mono: true },
+  { key: "marketValueEur", label: "Valor", width: "92px", align: "right", mono: true },
+];
+
+function formatValue(v: number | null): string {
+  if (v == null) return "—";
+  if (v >= 1_000_000) {
+    const m = v / 1_000_000;
+    return `€${m % 1 === 0 ? m.toFixed(0) : m.toFixed(1)}M`;
+  }
+  if (v >= 1_000) return `€${Math.round(v / 1000)}K`;
+  return `€${v}`;
+}
+
+function SortIcon({ dir }: { dir: "asc" | "desc" }) {
+  return (
+    <svg width="9" height="9" viewBox="0 0 9 9" style={{ marginLeft: 4 }} aria-hidden>
+      <path
+        d={dir === "asc" ? "M2 6 L4.5 3 L7 6" : "M2 3 L4.5 6 L7 3"}
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export function PlayersTable({
+  players,
+  sort,
+  onSort,
+  density,
+}: {
+  players: ScoutPlayer[];
+  sort: ScoutSort;
+  onSort: (key: ScoutSortKey) => void;
+  density: Density;
+}) {
+  const colsTpl = COLUMNS.map((c) => c.width).join(" ");
+  const rowH = density === "compact" ? 50 : 64;
+  const avatarSize = density === "compact" ? 34 : 42;
+
+  return (
+    <div className="players-table">
+      <div className="pt-head" style={{ gridTemplateColumns: colsTpl }}>
+        {COLUMNS.map((c) => (
+          <button
+            key={c.key}
+            type="button"
+            className="pt-h"
+            data-align={c.align ?? "left"}
+            data-active={sort.key === c.key}
+            onClick={() => onSort(c.key)}
+            aria-label={`Ordenar por ${c.label}`}
+          >
+            <span>{c.label}</span>
+            {sort.key === c.key && <SortIcon dir={sort.dir} />}
+          </button>
+        ))}
+      </div>
+
+      <div className="pt-body">
+        {players.length === 0 ? (
+          <div className="pt-empty">
+            <div className="pt-empty-title">Ningún jugador coincide</div>
+            <div className="pt-empty-sub">
+              Probá ajustar los filtros para ampliar la búsqueda.
+            </div>
+          </div>
+        ) : (
+          players.map((p) => (
+            <Link
+              key={p.id}
+              href={`/${p.slug}`}
+              className="pt-row"
+              data-status={p.contract}
+              style={{ gridTemplateColumns: colsTpl, height: rowH }}
+            >
+              <div className="pt-c name">
+                <PlayerAvatar player={p} size={avatarSize} />
+                <div className="pt-name-wrap">
+                  <div className="pt-name">
+                    {p.name}
+                    {p.isPro && <span className="pt-pro">Pro</span>}
+                  </div>
+                  <div className="pt-sub">@{p.slug}</div>
+                </div>
+              </div>
+
+              <div className="pt-c">
+                {p.posCode ? (
+                  <span className="pos-tag" data-group={p.posGroup ?? undefined}>
+                    {p.posCode}
+                  </span>
+                ) : (
+                  <span className="value-dash">—</span>
+                )}
+              </div>
+
+              <div className="pt-c" data-align="right" data-mono>
+                {p.age ?? "—"}
+              </div>
+
+              <div className="pt-c club">
+                {p.club ? (
+                  <>
+                    <ClubCrest club={p.club} crestUrl={p.clubCrestUrl} size={28} />
+                    <div className="pt-club-block">
+                      <div className="pt-club">{p.club}</div>
+                      {p.clubCountryCode && (
+                        <div className="pt-club-country">
+                          <span className="pt-cc-flag">
+                            {flagEmoji(p.clubCountryCode)}
+                          </span>
+                          <span className="pt-cc-name">
+                            {p.clubCountry ?? countryName(p.clubCountryCode)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <span className="value-dash">Sin club</span>
+                )}
+              </div>
+
+              <div className="pt-c">
+                {p.nationality ? (
+                  <Flag cc={p.nationality} withCode />
+                ) : (
+                  <span className="value-dash">—</span>
+                )}
+              </div>
+
+              <div className="pt-c">
+                <ContractTag status={p.contract} />
+              </div>
+
+              <div className="pt-c" data-align="center">
+                {p.foot ? (
+                  <span className="foot-pill">{p.foot}</span>
+                ) : (
+                  <span className="value-dash">—</span>
+                )}
+              </div>
+
+              <div className="pt-c" data-align="right" data-mono>
+                {p.heightCm ? (
+                  <>
+                    {p.heightCm}
+                    <span className="pt-unit">cm</span>
+                  </>
+                ) : (
+                  <span className="value-dash">—</span>
+                )}
+              </div>
+
+              <div className="pt-c value" data-align="right" data-mono>
+                {p.marketValueEur != null ? (
+                  <span className="value-num">{formatValue(p.marketValueEur)}</span>
+                ) : (
+                  <span className="value-dash">—</span>
+                )}
+              </div>
+            </Link>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
