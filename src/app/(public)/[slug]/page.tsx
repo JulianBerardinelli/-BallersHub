@@ -140,7 +140,7 @@ function buildSeoDescription(p: {
 // is the bio floor below which we soft-noindex Free portfolios so thin
 // profiles don't drag the whole site quality score. Pro portfolios are
 // always indexable — they pay for the SERP slot. The constant lives in
-// the shared helper so this page, the sitemap, and the /jugadores index
+// the shared helper so this page, the sitemap, and the /players index
 // all gate on the exact same number. See seo-strategy.md §5 Track C.
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {

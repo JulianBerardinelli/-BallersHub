@@ -120,7 +120,7 @@ export async function approveManagerApplication(applicationId: string) {
   revalidatePath("/admin/manager-applications");
   revalidateAdminCounters();
   // Bust the public caches so the new agency appears immediately in its
-  // own portfolio, the /agencias directory, and sitemap.xml/llms.txt —
+  // own portfolio, the /agencies directory, and sitemap.xml/llms.txt —
   // instead of staying an orphan until the 1h ISR window expires.
   revalidateAgencyPublicProfile(newAgency.slug);
 }

@@ -8,9 +8,8 @@ import { Wordmark } from "@/components/brand/Wordmark";
 type NavItem = { href: string; label: string };
 
 const NAV: NavItem[] = [
-  { href: "/jugadores", label: "Jugadores" },
-  { href: "/agencias", label: "Agencias" },
-  { href: "/scouting", label: "Scouting" },
+  { href: "/players", label: "Jugadores" },
+  { href: "/agencies", label: "Agencias" },
   { href: "/pricing", label: "Planes" },
   { href: "/about", label: "Nosotros" },
 ];

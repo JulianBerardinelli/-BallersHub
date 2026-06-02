@@ -1,6 +1,6 @@
-// /agencias — public, crawlable directory of every approved agency.
+// /agencies — public, crawlable directory of every approved agency.
 //
-// Same purpose as /jugadores: agency portfolios (/agency/<slug>) were
+// Same purpose as /players: agency portfolios (/agency/<slug>) were
 // orphan pages reachable only through sitemap.xml, a prime cause of
 // "Discovered – currently not indexed". This page links to each approved
 // agency with a plain crawlable <a href>, giving Googlebot an internal
@@ -18,7 +18,7 @@ import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
 // `revalidateAgencyPublicProfile`.
 export const revalidate = 3600;
 
-const PAGE_PATH = "/agencias";
+const PAGE_PATH = "/agencies";
 const PAGE_NAME = "Agencias";
 const PAGE_DESCRIPTION =
   "Directorio de agencias de representación de futbolistas verificadas en 'BallersHub. Accedé a la cartera oficial de jugadores de cada agencia.";
@@ -37,13 +37,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AgenciasIndexPage() {
+export default async function AgenciesIndexPage() {
   let agencies: Awaited<ReturnType<typeof getIndexableAgencies>> = [];
   try {
     agencies = await getIndexableAgencies();
   } catch (err) {
     // Degrade to an empty state rather than 500 the directory.
-    console.error("[/agencias] failed to load agencies:", err);
+    console.error("[/agencies] failed to load agencies:", err);
   }
 
   const jsonLdItems: DirectoryItem[] = agencies.map((a) => ({

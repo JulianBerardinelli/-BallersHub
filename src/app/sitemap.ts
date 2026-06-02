@@ -2,7 +2,7 @@
 //
 // Composition:
 //   • Static marketing pages (home, pricing, about, blog).
-//   • Public directory hubs (/jugadores, /agencias).
+//   • Public directory hubs (/players, /agencies).
 //   • Every INDEXABLE player profile.
 //   • Every approved agency profile.
 //   • Published blog posts + author hubs with ≥1 published post.
@@ -64,13 +64,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
-      url: `${base}/jugadores`,
+      url: `${base}/players`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,
     },
     {
-      url: `${base}/agencias`,
+      url: `${base}/agencies`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,

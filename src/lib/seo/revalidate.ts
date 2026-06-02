@@ -3,7 +3,7 @@
 // Centralizes the set of paths that must be revalidated after a
 // player/agency mutation so callers don't drift apart. Today the set
 // is small (the public profile + sitemap + llms.txt), but as we add
-// directory hubs (`/jugadores/por-club/[club]`, etc.) this is the
+// directory hubs (`/players/por-club/[club]`, etc.) this is the
 // single place to expand.
 //
 // Why this is critical (and was buggy before this branch):
@@ -25,7 +25,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * Surfaces invalidated:
  *   • `/<slug>` — the portfolio page itself (1h ISR)
- *   • `/jugadores` — the public directory that lists this player, so a
+ *   • `/players` — the public directory that lists this player, so a
  *     newly-approved or edited profile appears/updates immediately
  *     instead of lagging up to an hour behind the ISR window
  *   • `/sitemap.xml` — `lastModified` shifts, Google should re-crawl
@@ -36,7 +36,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export function revalidatePlayerPublicProfile(slug: string | null | undefined): void {
   if (!slug || slug.length === 0) return;
   revalidatePath(`/${slug}`);
-  revalidatePath("/jugadores");
+  revalidatePath("/players");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }
@@ -68,13 +68,13 @@ export async function revalidatePlayerPublicProfileById(
 
 /**
  * Same as the player helper but for agency portfolios. Also busts
- * `/agencias` (the public agency directory) so approvals/edits surface
+ * `/agencies` (the public agency directory) so approvals/edits surface
  * there immediately rather than waiting out the ISR window.
  */
 export function revalidateAgencyPublicProfile(slug: string | null | undefined): void {
   if (!slug || slug.length === 0) return;
   revalidatePath(`/agency/${slug}`);
-  revalidatePath("/agencias");
+  revalidatePath("/agencies");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }

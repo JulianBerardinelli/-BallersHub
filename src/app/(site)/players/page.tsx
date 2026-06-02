@@ -1,4 +1,4 @@
-// /jugadores — public, crawlable directory of every indexable player.
+// /players — public, crawlable directory of every indexable player.
 //
 // This page exists to fix "Discovered – currently not indexed": player
 // portfolios used to be reachable ONLY via sitemap.xml, which makes them
@@ -24,7 +24,7 @@ import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
 // this path immediately via `revalidatePlayerPublicProfile`.
 export const revalidate = 3600;
 
-const PAGE_PATH = "/jugadores";
+const PAGE_PATH = "/players";
 const PAGE_NAME = "Jugadores";
 const PAGE_DESCRIPTION =
   "Directorio de futbolistas con perfil profesional verificado en 'BallersHub. Trayectoria, posición y club actual de cada jugador, con acceso a su portfolio completo.";
@@ -43,14 +43,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function JugadoresIndexPage() {
+export default async function PlayersIndexPage() {
   let players: Awaited<ReturnType<typeof getIndexablePlayers>> = [];
   try {
     players = await getIndexablePlayers();
   } catch (err) {
     // Never let a DB hiccup 500 the directory — degrade to an empty
     // state. A reachable empty page beats a broken internal-link hub.
-    console.error("[/jugadores] failed to load players:", err);
+    console.error("[/players] failed to load players:", err);
   }
 
   const jsonLdItems: DirectoryItem[] = players.map((p) => ({

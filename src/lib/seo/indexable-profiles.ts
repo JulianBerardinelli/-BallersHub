@@ -4,7 +4,7 @@
 // signals (the classic "Discovered – currently not indexed" trap):
 //
 //   1. /sitemap.xml          — what we *submit* to Google
-//   2. /jugadores, /agencias — the crawlable index pages (internal links)
+//   2. /players, /agencies  — the crawlable index pages (internal links)
 //   3. /<slug> robots meta   — the per-page index/noindex directive
 //
 // Before this module those three drifted: the sitemap listed every

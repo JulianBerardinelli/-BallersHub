@@ -1,4 +1,4 @@
-// JSON-LD for the public directory/index pages (/jugadores, /agencias).
+// JSON-LD for the public directory/index pages (/players, /agencies).
 //
 // Emits a `@graph` of three nodes:
 //   • CollectionPage  — declares the page IS a curated collection, with
@@ -33,7 +33,7 @@ export function DirectoryJsonLd({
   description,
   items,
 }: {
-  /** Root-relative path of THIS index page, e.g. "/jugadores". */
+  /** Root-relative path of THIS index page, e.g. "/players". */
   path: string;
   /** Human title of the collection, e.g. "Jugadores". */
   name: string;
