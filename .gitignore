@@ -50,3 +50,4 @@ supabase/backups/
 # local agent / tool artifacts (Claude Code, Junie, etc.)
 .claude/
 .junie/
+scripts/out/
