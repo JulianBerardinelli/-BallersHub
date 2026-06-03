@@ -16,13 +16,14 @@
   --pos-verde: #45d483;
   color: var(--bh-fg-1);
   font-family: var(--font-bh-body);
-  background: var(--bh-black);
-  /* Break out of the (site) <main> px-6 gutter so the panels run edge-to-edge
-     within the 1200px column (and full-bleed on mobile). Kept in sync with the
-     layout's horizontal padding. */
+  /* No background of its own — the globe floats on the page background; only
+     the table carries a surface color. */
+  /* Break out of the (site) <main> px-6 gutter so the content runs edge-to-edge
+     within the 1200px column (and full-bleed on mobile). */
   margin-inline: -1.5rem;
-  border-radius: 0;
-  overflow: hidden;
+  /* overflow MUST stay visible: the globe hover card sits above its pin and
+     would otherwise be clipped when the pin is near the top edge. */
+  overflow: visible;
 }
 .scouting-root *,
 .scouting-root *::before,
@@ -35,7 +36,6 @@
    ============================================================ */
 .scouting-root .hero-v2 {
   position: relative;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   min-height: 640px;
   display: flex;
 }
@@ -45,21 +45,10 @@
 }
 .scouting-root .globe-wrap {
   position: relative;
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(204, 255, 0, 0.04), transparent 55%),
-    #050505;
-  overflow: hidden;
-}
-.scouting-root .globe-wrap::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+  /* Transparent — the canvas renders its own atmosphere/glow, so the hero has
+     no panel box. overflow visible lets the hover card escape the globe bounds. */
+  background: transparent;
+  overflow: visible;
 }
 .scouting-root .globe-canvas-wrap {
   position: absolute;
@@ -338,8 +327,9 @@
   gap: 8px;
   flex-wrap: wrap;
   padding: 18px clamp(16px, 4vw, 36px);
-  background: #0a0a0a;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  /* Transparent — only the table carries a surface; the controls have their
+     own chips/buttons so they read fine on the page background. */
+  background: transparent;
   z-index: 20;
 }
 .scouting-root .status-seg {
