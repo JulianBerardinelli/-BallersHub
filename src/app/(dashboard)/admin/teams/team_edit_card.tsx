@@ -196,6 +196,13 @@ export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: 
                 setLatitude(sel.latitude);
                 setLongitude(sel.longitude);
               }}
+              onCityChange={(text) => {
+                // Free typing / clearing keeps the name but drops the coords,
+                // so we never save a city label pointing at a stale pin.
+                setCity(text);
+                setLatitude(null);
+                setLongitude(null);
+              }}
             />
             {latitude != null && longitude != null && (
               <p className="text-[10px] text-bh-fg-4">

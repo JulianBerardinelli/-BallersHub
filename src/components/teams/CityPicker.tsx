@@ -29,19 +29,32 @@ export default function CityPicker({
   countryCode,
   city,
   onSelect,
+  onCityChange,
   isDisabled,
 }: {
   /** ISO-2 of the team's country. Empty → picker disabled. */
   countryCode: string | null | undefined;
   /** Currently stored city name (initial input value). */
   city: string | null | undefined;
+  /** A city (with coords) was picked from the list. */
   onSelect: (selection: CitySelection) => void;
+  /**
+   * The text changed to something that is NOT a committed selection (free
+   * typing or clearing). The caller should keep the text as the city name but
+   * DROP any previously-selected coordinates, so a stale pin is never saved
+   * after the admin edits/clears the field without re-picking.
+   */
+  onCityChange?: (city: string) => void;
   isDisabled?: boolean;
 }) {
   const cc = (countryCode ?? "").toUpperCase().slice(0, 2);
   const [items, setItems] = React.useState<CityOption[]>([]);
   const [loading, setLoading] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Name of the city whose coords are currently committed. Lets us tell a
+  // genuine user edit apart from HeroUI echoing the selected item's text back
+  // through onInputChange (same value → no divergence → keep coords).
+  const selectedNameRef = React.useRef<string | null>(city ?? null);
 
   const search = React.useCallback(
     (q: string) => {
@@ -80,11 +93,21 @@ export default function CityPicker({
       isLoading={loading}
       items={items}
       allowsCustomValue
-      onInputChange={search}
+      onInputChange={(value) => {
+        search(value);
+        // A real edit (text no longer equals the committed selection) drops
+        // the stale coords. HeroUI echoes the picked item's text back here on
+        // selection — that matches selectedNameRef, so coords are preserved.
+        if (value !== selectedNameRef.current) {
+          selectedNameRef.current = null;
+          onCityChange?.(value);
+        }
+      }}
       onSelectionChange={(key) => {
         if (key == null) return;
         const sel = items.find((c) => cityKey(c) === key);
         if (sel) {
+          selectedNameRef.current = sel.name;
           onSelect({
             city: sel.name,
             latitude: sel.latitude,
