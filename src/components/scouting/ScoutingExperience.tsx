@@ -15,6 +15,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FilterBar } from "./FilterBar";
 import { PlayersTable } from "./PlayersTable";
 import { ScoutingHero } from "./ScoutingHero";
+import { MobileScouting, useIsMobile } from "./mobile/MobileScouting";
 import { matchPlayer, sortPlayers } from "@/lib/scouting/filter";
 import { buildScoutCities, cityKeyOf } from "@/lib/scouting/cities";
 import { buildCountryOptions, countryName } from "@/lib/scouting/taxonomies";
@@ -51,6 +52,9 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     dir: "desc",
   });
   const [density, setDensity] = useState<"compact" | "comfortable">("compact");
+  // SSR-safe: false on the server + first paint (desktop tree, which carries
+  // the crawlable table), flips to true on small viewports after mount.
+  const isMobile = useIsMobile();
 
   // Globe ↔ table sync.
   const [hoverPlayerId, setHoverPlayerId] = useState<string | null>(null);
@@ -164,49 +168,66 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
 
   return (
     <div className="scouting-root">
-      <ScoutingHero
-        cities={cities}
-        countryDensity={countryDensity}
-        focusCity={focusCity}
-        hoverPin={activeCityKey}
-        onHoverPin={setHoverPinKey}
-        onClickPin={onPinClick}
-        onCountryClick={onCountryClick}
-        pinPositionsRef={pinPositionsRef}
-        cardPlayer={cardPlayer}
-        cardCityKey={activeCityKey}
-        cardCityName={activeCity?.name ?? null}
-        stackedCount={activeCity?.players.length ?? 0}
-        topCountries={topCountries}
-        liveCount={filtered.length}
-        liveCountries={liveCountries}
-        stats={{ total: players.length, pro: proCount, geo: geoCount }}
-      />
-
-      <FilterBar
-        filters={filters}
-        setFilters={setFilters}
-        onClear={onClear}
-        count={filtered.length}
-        density={density}
-        setDensity={setDensity}
-        nationalityOptions={nationalityOptions}
-        playCountryOptions={playCountryOptions}
-        ageBounds={AGE_BOUNDS}
-        heightBounds={HEIGHT_BOUNDS}
-      />
-
-      <div className="table-stage">
-        <PlayersTable
-          players={filtered}
-          sort={sort}
-          onSort={onSort}
-          density={density}
-          hoverPlayerId={hoverPlayerId}
-          onRowHover={setHoverPlayerId}
-          highlightCityKey={activeCityKey}
+      {isMobile ? (
+        <MobileScouting
+          players={players}
+          filtered={filtered}
+          filters={filters}
+          setFilters={setFilters}
+          onClear={onClear}
+          cities={cities}
+          countryDensity={countryDensity}
+          topCountries={topCountries}
+          nationalityOptions={nationalityOptions}
+          onCountryClick={onCountryClick}
         />
-      </div>
+      ) : (
+        <>
+          <ScoutingHero
+            cities={cities}
+            countryDensity={countryDensity}
+            focusCity={focusCity}
+            hoverPin={activeCityKey}
+            onHoverPin={setHoverPinKey}
+            onClickPin={onPinClick}
+            onCountryClick={onCountryClick}
+            pinPositionsRef={pinPositionsRef}
+            cardPlayer={cardPlayer}
+            cardCityKey={activeCityKey}
+            cardCityName={activeCity?.name ?? null}
+            stackedCount={activeCity?.players.length ?? 0}
+            topCountries={topCountries}
+            liveCount={filtered.length}
+            liveCountries={liveCountries}
+            stats={{ total: players.length, pro: proCount, geo: geoCount }}
+          />
+
+          <FilterBar
+            filters={filters}
+            setFilters={setFilters}
+            onClear={onClear}
+            count={filtered.length}
+            density={density}
+            setDensity={setDensity}
+            nationalityOptions={nationalityOptions}
+            playCountryOptions={playCountryOptions}
+            ageBounds={AGE_BOUNDS}
+            heightBounds={HEIGHT_BOUNDS}
+          />
+
+          <div className="table-stage">
+            <PlayersTable
+              players={filtered}
+              sort={sort}
+              onSort={onSort}
+              density={density}
+              hoverPlayerId={hoverPlayerId}
+              onRowHover={setHoverPlayerId}
+              highlightCityKey={activeCityKey}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }
