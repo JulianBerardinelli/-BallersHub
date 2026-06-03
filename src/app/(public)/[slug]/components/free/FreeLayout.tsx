@@ -7,13 +7,17 @@
 //   1. Sticky pill header
 //   2. Hero (eyebrows · avatar · name · vital stats)
 //   3. § 01 Mindset & Bio (+ identidad card)
-//   4. 🔒 LockedBanner — Análisis táctico
+//   4. Pro slot 1 — owner: 🔒 Análisis táctico · visitor: 📣 invitación
 //   5. § 02 Trayectoria (totals + career rows)
-//   6. 🔒 LockedBanner — Galería editorial
+//   6. Pro slot 2 — owner: 🔒 Galería editorial · visitor: 📣 showcase
 //   7. § 03 Perfiles externos
-//   8. 🔒 LockedBanner — Prensa & notas
+//   8. Pro slot 3 — owner: 🔒 Prensa & notas · visitor: 📣 agencias
 //   9. § 04 Conectá con … (lead-capture stub)
 //   10. Footer (logo + copyright + Pro upsell)
+//
+// The three Pro slots swap content by viewer (see ProSpot): the profile owner
+// gets the "Activar Pro" LockedBanner upsell, everyone else gets BallersHub
+// advertising (PromoBanner) inviting them to create their own profile.
 
 import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
@@ -28,6 +32,8 @@ import {
   VitalCell,
 } from "./atoms";
 import LockedBanner from "./LockedBanner";
+import ProSpot from "./ProSpot";
+import PromoBanner from "./PromoBanner";
 import CountUp, { CountBar } from "./CountUp";
 import { pillsFromPositions, type PositionPill } from "./positions";
 import FreeHeader from "./FreeHeader";
@@ -137,9 +143,19 @@ export type FreeLayoutData = {
 
 export default function FreeLayout({
   data,
+  ownerUserId = null,
   ownerProUpgradeNudgeUserId = null,
 }: {
   data: FreeLayoutData;
+  /**
+   * The profile owner's user id. Drives the owner/visitor switch on the
+   * interleaved Pro slots (see ProSpot): the owner sees their "Activar Pro"
+   * upsell, every other viewer sees BallersHub advertising inviting them to
+   * create their own profile. Ownership is resolved against the viewer's
+   * session client-side because the page is ISR-cached. Null disables the
+   * switch entirely — everyone gets the advertising.
+   */
+  ownerUserId?: string | null;
   /**
    * Renders a floating owner-only invitation to switch back to the Pro
    * Athlete layout. Pass the owner's userId only when the profile is
@@ -204,54 +220,72 @@ export default function FreeLayout({
         {/* ---------- Video destacado (Free plan = 1 video) ---------- */}
         {video && <VideoFeature video={video} firstName={firstName} />}
 
-        {/* ---------- 🔒 Banner 1 — Análisis táctico ---------- */}
-        <LockedBanner
-          side="right"
-          eyebrow="Análisis táctico"
-          title={
-            <>
-              Cancha 3D &<br />
-              reporte scouting
-            </>
+        {/* ---------- Slot 1 — owner: 🔒 Análisis táctico · visitante: 📣 invitación ---------- */}
+        <ProSpot
+          ownerUserId={ownerUserId}
+          promo={<PromoBanner variant="player" side="right" />}
+          locked={
+            <LockedBanner
+              side="right"
+              eyebrow="Análisis táctico"
+              title={
+                <>
+                  Cancha 3D &<br />
+                  reporte scouting
+                </>
+              }
+              subtitle="Posiciones marcadas en una cancha 3D interactiva, perfil mental, físico y técnico, y reporte de scouting firmado por agencia. Solo en Pro."
+              preview="tactics"
+            />
           }
-          subtitle="Posiciones marcadas en una cancha 3D interactiva, perfil mental, físico y técnico, y reporte de scouting firmado por agencia. Solo en Pro."
-          preview="tactics"
         />
 
         {/* ---------- § 02 Trayectoria ---------- */}
         {career.length > 0 && <Career career={career} totals={totals} />}
 
-        {/* ---------- 🔒 Banner 2 — Galería editorial ---------- */}
-        <LockedBanner
-          side="left"
-          eyebrow="Galería editorial"
-          title={
-            <>
-              Hasta 30 fotos
-              <br />
-              con lightbox
-            </>
+        {/* ---------- Slot 2 — owner: 🔒 Galería editorial · visitante: 📣 showcase ---------- */}
+        <ProSpot
+          ownerUserId={ownerUserId}
+          promo={<PromoBanner variant="showcase" side="left" />}
+          locked={
+            <LockedBanner
+              side="left"
+              eyebrow="Galería editorial"
+              title={
+                <>
+                  Hasta 30 fotos
+                  <br />
+                  con lightbox
+                </>
+              }
+              subtitle="Galería con detección automática de orientación, lightbox y navegación con flechas. El jugador decide qué muestra y qué no."
+              preview="gallery"
+            />
           }
-          subtitle="Galería con detección automática de orientación, lightbox y navegación con flechas. El jugador decide qué muestra y qué no."
-          preview="gallery"
         />
 
         {/* ---------- § 03 Perfiles externos ---------- */}
         <ExternalLinks player={player} />
 
-        {/* ---------- 🔒 Banner 3 — Prensa & notas ---------- */}
-        <LockedBanner
-          side="right"
-          eyebrow="Prensa & notas"
-          title={
-            <>
-              Cards estilo
-              <br />
-              periódico vintage
-            </>
+        {/* ---------- Slot 3 — owner: 🔒 Prensa & notas · visitante: 📣 agencias ---------- */}
+        <ProSpot
+          ownerUserId={ownerUserId}
+          promo={<PromoBanner variant="agency" side="right" />}
+          locked={
+            <LockedBanner
+              side="right"
+              eyebrow="Prensa & notas"
+              title={
+                <>
+                  Cards estilo
+                  <br />
+                  periódico vintage
+                </>
+              }
+              subtitle="Notas y artículos de prensa agrupados por publicación, con layout asimétrico tipo diario. Llegan curados desde tu agencia."
+              preview="press"
+            />
           }
-          subtitle="Notas y artículos de prensa agrupados por publicación, con layout asimétrico tipo diario. Llegan curados desde tu agencia."
-          preview="press"
         />
 
         {/* ---------- § 04 Contact lead-capture stub ---------- */}
