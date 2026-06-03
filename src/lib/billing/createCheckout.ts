@@ -273,41 +273,81 @@ async function createMpCheckout(args: {
   const testBuyerEmail = process.env.MP_TEST_BUYER_EMAIL?.trim();
   const payerEmail = testBuyerEmail || args.email;
 
+  // Native 7-day trial requires a pre-provisioned `preapproval_plan` (the
+  // /preapproval direct endpoint silently drops `free_trial`). When the
+  // plan id is configured for this (planId × currency), reference it and
+  // let MP honor the trial. Otherwise fall back to inline `auto_recurring`
+  // — no trial, immediate first charge. The fallback is intentional for
+  // dev environments without provisioned plans; production MUST set the
+  // plan ids (see `scripts/provision-mp-plans.ts`).
+  const preApprovalPlanId = billingEnv.mpPreApprovalPlanId(args.planId, "ARS");
+
   // back_url MUST NOT carry a query string. MP appends `?preapproval_id=...`
   // by literally pasting `?...` even when the URL already has a `?` — the
   // result is `?internal=<x>?preapproval_id=<y>` which the browser parses
   // as a single `internal` value containing the rest. The /processing page
   // resolves the internal id from the MP-appended preapproval_id instead
   // (via /api/billing/resolve-checkout).
-  const result = await preapproval.create({
-    body: {
-      reason: planLabel(args.planId),
-      external_reference: args.internalSessionId,
-      payer_email: payerEmail,
-      back_url: `${baseUrl}/checkout/processing`,
-      auto_recurring: {
-        frequency: 12,
-        frequency_type: "months",
-        transaction_amount: args.price.amount,
-        currency_id: "ARS",
-      },
-      // status: "pending" is required for the redirect flow (no card
-      // token capture). Confirmed against goncy/next-mercadopago which
-      // is a known-working reference for MP Subscriptions.
-      status: "pending",
-    },
-  }).catch((err: unknown) => {
-    // Re-throw with a richer message so the action layer can log the
-    // MP API body (signal, message, error). Plain `throw err` loses
-    // the MP-specific detail because the SDK doesn't always serialize
-    // its error payload via `Error#message`.
-    if (tokenIsLegacyTest) {
-      console.warn(
-        "[mp-create] Hint: MP_ACCESS_TOKEN starts with `TEST-` (deprecated sandbox format). Subscriptions require an APP_USR-* token from a test seller account.",
-      );
-    }
-    throw err;
-  });
+  const backUrl = `${baseUrl}/checkout/processing`;
+
+  type PreApprovalCreateBody = {
+    reason?: string;
+    external_reference: string;
+    payer_email: string;
+    back_url: string;
+    auto_recurring?: {
+      frequency: number;
+      frequency_type: string;
+      transaction_amount: number;
+      currency_id: string;
+    };
+    status: "pending";
+    preapproval_plan_id?: string;
+  };
+
+  const body: PreApprovalCreateBody = preApprovalPlanId
+    ? {
+        // Plan path: the plan defines reason + recurrence + trial. The
+        // preapproval just binds the payer to the plan.
+        preapproval_plan_id: preApprovalPlanId,
+        external_reference: args.internalSessionId,
+        payer_email: payerEmail,
+        back_url: backUrl,
+        // status: "pending" still required even with plan_id — without
+        // it MP doesn't return an init_point for the redirect flow.
+        status: "pending",
+      }
+    : {
+        // Fallback inline path: dev / pre-launch. NO trial.
+        reason: planLabel(args.planId),
+        external_reference: args.internalSessionId,
+        payer_email: payerEmail,
+        back_url: backUrl,
+        auto_recurring: {
+          frequency: 12,
+          frequency_type: "months",
+          transaction_amount: args.price.amount,
+          currency_id: "ARS",
+        },
+        status: "pending",
+      };
+
+  if (!preApprovalPlanId) {
+    console.warn(
+      `[mp-create] No MP_PLAN_${args.planId.toUpperCase().replace(/-/g, "_")}_ARS env var — using inline auto_recurring (NO trial). Provision a plan via scripts/provision-mp-plans.ts for production.`,
+    );
+  }
+
+  const result = await preapproval
+    .create({ body: body as Parameters<typeof preapproval.create>[0]["body"] })
+    .catch((err: unknown) => {
+      if (tokenIsLegacyTest) {
+        console.warn(
+          "[mp-create] Hint: MP_ACCESS_TOKEN starts with `TEST-` (deprecated sandbox format). Subscriptions require an APP_USR-* token from a test seller account.",
+        );
+      }
+      throw err;
+    });
 
   const url = result.init_point;
   if (!url || !result.id) {

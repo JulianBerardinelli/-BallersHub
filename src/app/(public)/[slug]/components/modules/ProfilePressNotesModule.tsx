@@ -11,6 +11,7 @@ type Article = {
   imageUrl?: string | null;
   publisher?: string | null;
   publishedAt?: string | null;
+  position?: number | null;
 };
 
 const NEWSPAPER_BASE_WIDTH = 760;
@@ -82,8 +83,12 @@ export default function ProfilePressNotesModule({
   // If no articles, don't render the section
   if (!articles || articles.length === 0) return null;
 
-  // Sort articles by published_at (most recent first)
+  // Sort by the player's manual order (position asc). publishedAt (most
+  // recent first) is the tiebreaker for legacy rows that share position 0.
   const sortedArticles = [...articles].sort((a, b) => {
+    const pa = a.position ?? 0;
+    const pb = b.position ?? 0;
+    if (pa !== pb) return pa - pb;
     if (!a.publishedAt) return 1;
     if (!b.publishedAt) return -1;
     return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();

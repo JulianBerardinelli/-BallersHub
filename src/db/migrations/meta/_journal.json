@@ -57,6 +57,13 @@
       "when": 1780001675804,
       "tag": "0007_easy_nighthawk",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780445417200,
+      "tag": "0008_spotty_moira_mactaggert",
+      "breakpoints": true
     }
   ]
 }

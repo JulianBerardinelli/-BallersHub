@@ -220,6 +220,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "File or external URL is required" }, { status: 400 });
     }
 
+    // Append new videos at the end of the player's manual ordering. Photos
+    // are never reordered, so they stay at position 0 and keep sorting by
+    // createdAt (newest first) everywhere they're listed.
+    let nextPosition = 0;
+    if (type === "video") {
+      const { data: maxRow } = await supabase
+        .from("player_media")
+        .select("position")
+        .eq("player_id", profile.id)
+        .eq("type", "video")
+        .order("position", { ascending: false })
+        .limit(1)
+        .maybeSingle<{ position: number }>();
+      nextPosition = (maxRow?.position ?? -1) + 1;
+    }
+
     // Insert record
     const { data: mediaRecord, error: insertError } = await supabase
       .from("player_media")
@@ -232,6 +248,7 @@ export async function POST(req: Request) {
         tags,
         provider,
         season_year: seasonYear,
+        position: nextPosition,
         is_primary: isPrimary,
         is_approved: true, // Reactive mode
         is_flagged: false,

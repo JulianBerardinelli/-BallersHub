@@ -18,6 +18,10 @@ export const playerMedia = pgTable("player_media", {
   // first. NULL for photos and for legacy videos uploaded before this field
   // existed.
   seasonYear: integer("season_year"),
+  // Manual ordering set by the player from the dashboard (videos only). Lower
+  // sorts first. Default 0 keeps legacy rows in their pre-reorder relative
+  // order via createdAt tiebreaker until the player drags them.
+  position: integer("position").notNull().default(0),
   isPrimary: boolean("is_primary").default(false).notNull(),
   isApproved: boolean("is_approved").default(true).notNull(),
   isFlagged: boolean("is_flagged").default(false).notNull(),
@@ -36,6 +40,9 @@ export const playerArticles = pgTable("player_articles", {
   imageUrl: text("image_url"),
   publisher: text("publisher"),
   publishedAt: date("published_at"),
+  // Manual ordering set by the player from the dashboard. Lower sorts first.
+  // Default 0 keeps legacy rows in publishedAt order until the player reorders.
+  position: integer("position").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 

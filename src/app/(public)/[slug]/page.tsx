@@ -13,7 +13,7 @@ import {
   playerProfiles,
   profileThemeSettings,
 } from "@/db/schema";
-import { and, eq, desc, inArray } from "drizzle-orm";
+import { and, eq, asc, desc, inArray } from "drizzle-orm";
 import LayoutResolver from "./components/LayoutResolver";
 import type {
   FreeLayoutCareerRow,
@@ -25,6 +25,7 @@ import { PersonJsonLd } from "@/lib/seo/personJsonLd";
 import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
 import { formatPlayerPositions } from "@/lib/format";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
 
 // Public portfolios are cached for an hour. Crawlers hit these
 // frequently and we don't need second-by-second freshness — the
@@ -135,10 +136,12 @@ function buildSeoDescription(p: {
   return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en 'BallersHub.`;
 }
 
-// Below this bio length we soft-noindex Free portfolios so thin profiles
-// don't drag the whole site quality score. Pro portfolios are always
-// indexable — they pay for the SERP slot. See seo-strategy.md §5 Track C.
-const FREE_BIO_INDEX_MIN_CHARS = 100;
+// `FREE_BIO_INDEX_MIN_CHARS` (imported from `@/lib/seo/indexable-profiles`)
+// is the bio floor below which we soft-noindex Free portfolios so thin
+// profiles don't drag the whole site quality score. Pro portfolios are
+// always indexable — they pay for the SERP slot. The constant lives in
+// the shared helper so this page, the sitemap, and the /players index
+// all gate on the exact same number. See seo-strategy.md §5 Track C.
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
@@ -343,7 +346,7 @@ export default async function PlayerPublicPage({
         .select()
         .from(playerArticles)
         .where(eq(playerArticles.playerId, player.id))
-        .orderBy(desc(playerArticles.publishedAt)),
+        .orderBy(asc(playerArticles.position), desc(playerArticles.publishedAt)),
       // Free layout needs personal + career + stats + links. Cheaper to
       // fetch them unconditionally than to gate behind `isFree` and
       // refetch later if the plan check resolves differently.
@@ -418,14 +421,17 @@ export default async function PlayerPublicPage({
     : [];
   const divisionById = new Map(divisionRows.map((d) => [d.id, d]));
 
-  // Order videos in the Pro layout so the most recent season appears first
-  // (NULL season_year sinks to the bottom). Primary stays on top, and within
-  // the same year we fall back to upload recency. Keep this in sync with the
-  // Free-layout video sort below.
+  // Order videos by the player's manual position (set from the dashboard).
+  // Legacy rows share position 0, so the original tiebreakers apply: primary
+  // on top, then most recent season (NULL sinks), then upload recency. Keep
+  // this in sync with the Free-layout video sort below.
   const sortedVideos = rawMedia
     .filter((m) => m.type === "video")
     .slice()
     .sort((a, b) => {
+      const pa = a.position ?? 0;
+      const pb = b.position ?? 0;
+      if (pa !== pb) return pa - pb;
       if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
       const ay = a.seasonYear ?? null;
       const by = b.seasonYear ?? null;
@@ -513,12 +519,16 @@ export default async function PlayerPublicPage({
       label: l.label ?? null,
     }));
 
-  // Free plan = 1 video. Prefer the approved isPrimary video, then the most
-  // recent season_year (DESC, nulls last), then the most recently uploaded
-  // approved video. If the player has no video in player_media, fall back
-  // to a `kind=highlight` URL from player_links.
+  // Free plan = 1 video. Honor the player's manual order first (position asc),
+  // so the video they put first is the one featured. Legacy rows share
+  // position 0 and fall back to isPrimary, then most recent season_year
+  // (DESC, nulls last), then upload recency. If the player has no video in
+  // player_media, fall back to a `kind=highlight` URL from player_links.
   const videos = rawMedia.filter((m) => m.type === "video" && m.isApproved);
   videos.sort((a, b) => {
+    const pa = a.position ?? 0;
+    const pb = b.position ?? 0;
+    if (pa !== pb) return pa - pb;
     if (a.isPrimary !== b.isPrimary) return a.isPrimary ? -1 : 1;
     const ay = a.seasonYear ?? null;
     const by = b.seasonYear ?? null;

@@ -16,6 +16,7 @@ export type Article = {
   image_url: string | null;
   publisher: string | null;
   published_at: string | null;
+  position: number;
   created_at: string;
 };
 
