@@ -1,21 +1,23 @@
 "use client";
 
-// BallersHub /players (Scouting) — decorative globe (Phase 1).
+// BallersHub /players (Scouting Phase 2) — interactive globe with city pins.
 //
-// Ported from `globe.jsx`, reduced to the decorative scope the data supports
-// today: a rotating black sphere with lime-glow continents, tinted by REAL
-// nationality density (ISO-2 from each player), draggable, and click-a-country
-// to toggle that nationality filter. The Phase-2 layer — city pins, fly-to,
-// hover card, globe↔table sync — is intentionally omitted because the app has
-// no team→city geo yet (see DISEÑO.md / INTEGRACION.md).
+// Now that teams carry coordinates, the globe is the real "map of talent":
+//   • continents tinted by nationality density (lime → white-hot)
+//   • a luminous pin per city with players, sized by how many
+//   • drag to rotate / auto-rotate when idle / click a country to filter
+//   • hover a pin → highlight it + report to the table (bidirectional sync)
+//   • fly-to: when the table asks (focusCity), the camera eases to that city
 //
-// Canvas 2D + d3-geo orthographic projection. world-atlas + d3 are bundled
-// (no CDN). The component is dynamically imported with `ssr: false` by the
-// hero, so its ~100KB chunk never touches the server HTML or the SEO path.
+// Each frame it writes every visible pin's screen position into
+// `pinPositionsRef` so the HoverCard can glide glued to its pin without
+// triggering React re-renders. Canvas 2D + d3-geo orthographic, world-atlas
+// bundled. Dynamically imported (ssr:false) by the hero.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MutableRefObject } from "react";
 import {
   geoContains,
+  geoDistance,
   geoGraticule10,
   geoOrthographic,
   geoPath,
@@ -26,8 +28,8 @@ import { feature } from "topojson-client";
 import worldAtlas from "world-atlas/countries-110m.json";
 
 import { isoNumericToAlpha2 } from "@/lib/scouting/isoNumeric";
+import type { PinPos, ScoutCity } from "@/lib/scouting/types";
 
-// Build the static geometry once (module scope) — it never changes.
 type AtlasTopology = Parameters<typeof feature>[0];
 const TOPO = worldAtlas as unknown as AtlasTopology;
 const COUNTRIES = feature(
@@ -36,44 +38,99 @@ const COUNTRIES = feature(
 ) as unknown as FeatureCollection;
 const GRATICULE = geoGraticule10();
 
-type RotState = {
+type GlobeState = {
   rot: [number, number, number];
+  targetRot: { from: [number, number, number]; to: [number, number, number]; t0: number; dur: number } | null;
   autoRot: boolean;
   dragging: boolean;
   lastT: number;
   lastInteraction: number;
+  pinHits: { key: string; x: number; y: number }[];
 };
 
+const easeInOut = (t: number) =>
+  t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
 export default function ScoutGlobe({
+  cities,
   countryDensity,
+  focusCity = null,
+  hoverPin = null,
+  onHoverPin,
+  onClickPin,
   onCountryClick,
   onReady,
   reduceMotion = false,
+  pinPositionsRef,
 }: {
-  /** ISO-2 → player count, for the heat tint. */
+  cities: ScoutCity[];
   countryDensity: Record<string, number>;
+  focusCity?: string | null;
+  hoverPin?: string | null;
+  onHoverPin?: (key: string | null) => void;
+  onClickPin?: (key: string) => void;
   onCountryClick?: (iso2: string) => void;
   onReady?: () => void;
   reduceMotion?: boolean;
+  pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Latest props for the render loop to read without restarting.
+  const citiesRef = useRef(cities);
+  citiesRef.current = cities;
   const densityRef = useRef(countryDensity);
   densityRef.current = countryDensity;
+  const hoverPinRef = useRef(hoverPin);
+  hoverPinRef.current = hoverPin;
   const reduceRef = useRef(reduceMotion);
   reduceRef.current = reduceMotion;
-  const onCountryClickRef = useRef(onCountryClick);
-  onCountryClickRef.current = onCountryClick;
+  const onHoverPinRef = useRef(onHoverPin);
+  onHoverPinRef.current = onHoverPin;
+  const onClickPinRef = useRef(onClickPin);
+  onClickPinRef.current = onClickPin;
+  const onClickCountryRef = useRef(onCountryClick);
+  onClickCountryRef.current = onCountryClick;
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
 
-  const stateRef = useRef<RotState>({
-    rot: [-50, -15, 0],
+  const stateRef = useRef<GlobeState>({
+    rot: [-58, -18, 0],
+    targetRot: null,
     autoRot: true,
     dragging: false,
     lastT: 0,
     lastInteraction: 0,
+    pinHits: [],
   });
+
+  // Fly-to: when the parent sets a focus city, ease the camera to it.
+  useEffect(() => {
+    if (!focusCity) return;
+    const city = citiesRef.current.find((c) => c.key === focusCity);
+    if (!city) return;
+    const s = stateRef.current;
+    const target: [number, number, number] = [
+      -city.longitude,
+      Math.max(-80, Math.min(80, -city.latitude)),
+      0,
+    ];
+    const norm = (a: number, b: number) => {
+      let d = b - a;
+      while (d > 180) d -= 360;
+      while (d < -180) d += 360;
+      return a + d;
+    };
+    s.targetRot = {
+      from: [...s.rot],
+      to: [norm(s.rot[0], target[0]), target[1], 0],
+      t0: performance.now(),
+      dur: 1100,
+    };
+    s.autoRot = false;
+    s.lastInteraction = performance.now();
+  }, [focusCity]);
 
   // Render loop + sizing.
   useEffect(() => {
@@ -113,7 +170,7 @@ export default function ScoutGlobe({
         .clipAngle(90);
       const path = geoPath(projection, ctx);
 
-      // Outer atmosphere glow.
+      // Atmosphere glow.
       const glow = ctx.createRadialGradient(cx, cy, R * 0.95, cx, cy, R * 1.25);
       glow.addColorStop(0, "rgba(204,255,0,0.10)");
       glow.addColorStop(1, "rgba(204,255,0,0)");
@@ -122,7 +179,7 @@ export default function ScoutGlobe({
       ctx.arc(cx, cy, R * 1.25, 0, Math.PI * 2);
       ctx.fill();
 
-      // Sphere fill.
+      // Sphere.
       const sphereFill = ctx.createRadialGradient(
         cx - R * 0.35,
         cy - R * 0.35,
@@ -146,7 +203,7 @@ export default function ScoutGlobe({
       ctx.lineWidth = 0.6;
       ctx.stroke();
 
-      // Continents — lime → white-hot ramp by nationality density.
+      // Continents — heat by nationality density.
       const density = densityRef.current;
       const maxN = Math.max(1, ...Object.values(density));
       for (const f of COUNTRIES.features) {
@@ -154,20 +211,18 @@ export default function ScoutGlobe({
         const count = iso ? density[iso] ?? 0 : 0;
         const tHeat = Math.min(1, count / maxN);
         const r = Math.round(204 + (255 - 204) * tHeat);
-        const g = 255;
         const b = Math.round(255 * tHeat);
         const a = count > 0 ? 0.18 + tHeat * 0.55 : 0.06;
         ctx.beginPath();
         path(f as unknown as GeoPermissibleObjects);
-        ctx.fillStyle = `rgba(${r},${g},${b},${a})`;
+        ctx.fillStyle = `rgba(${r},255,${b},${a})`;
         ctx.fill();
         ctx.lineWidth = count > 0 ? 0.9 : 0.5;
         ctx.strokeStyle =
           count > 0
-            ? `rgba(${r},${g},${b},${Math.min(0.9, 0.4 + tHeat * 0.5)})`
+            ? `rgba(${r},255,${b},${Math.min(0.9, 0.4 + tHeat * 0.5)})`
             : "rgba(204,255,0,0.18)";
         ctx.stroke();
-
         if (count > 0) {
           ctx.save();
           ctx.shadowColor = `rgba(204,255,0,${0.35 + tHeat * 0.4})`;
@@ -186,6 +241,53 @@ export default function ScoutGlobe({
       ctx.strokeStyle = "rgba(204,255,0,0.4)";
       ctx.lineWidth = 1.2;
       ctx.stroke();
+
+      // City pins.
+      const hits: GlobeState["pinHits"] = [];
+      const positions = pinPositionsRef?.current;
+      const center: [number, number] = [-s.rot[0], -s.rot[1]];
+      for (const city of citiesRef.current) {
+        const proj = projection([city.longitude, city.latitude]);
+        if (!proj) continue;
+        const dist = geoDistance([city.longitude, city.latitude], center);
+        const onFront = dist < Math.PI / 2 - 0.02;
+        const [x, y] = proj;
+        if (positions) positions.set(city.key, { x, y, onFront });
+        if (!onFront) continue;
+
+        const isHover = city.key === hoverPinRef.current;
+        const sz = 2 + Math.min(6, city.players.length) * 0.9;
+
+        ctx.save();
+        const haloR = isHover ? sz * 6 : sz * 3.2;
+        const halo = ctx.createRadialGradient(x, y, 0, x, y, haloR);
+        halo.addColorStop(0, isHover ? "rgba(255,255,255,0.55)" : "rgba(204,255,0,0.55)");
+        halo.addColorStop(1, "rgba(204,255,0,0)");
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(x, y, haloR, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.beginPath();
+        ctx.arc(x, y, sz, 0, Math.PI * 2);
+        ctx.fillStyle = isHover ? "#FFFFFF" : "#CCFF00";
+        ctx.shadowColor = isHover ? "#FFFFFF" : "#CCFF00";
+        ctx.shadowBlur = isHover ? 14 : 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        if (isHover) {
+          ctx.strokeStyle = "rgba(255,255,255,0.7)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x, y - 22);
+          ctx.stroke();
+        }
+        hits.push({ key: city.key, x, y });
+      }
+      s.pinHits = hits;
     };
 
     const tick = (now: number) => {
@@ -196,11 +298,18 @@ export default function ScoutGlobe({
       const dt = Math.min(60, now - s.lastT);
       s.lastT = now;
 
-      if (s.autoRot && !s.dragging && !reduceRef.current) {
-        s.rot[0] += (dt / 1000) * 4.5; // ~0.75 RPM
+      if (s.autoRot && !s.dragging && !s.targetRot && !reduceRef.current) {
+        s.rot[0] += (dt / 1000) * 4.5;
       }
-      if (!s.autoRot && !s.dragging && now - s.lastInteraction > 4000) {
+      if (!s.autoRot && !s.dragging && !s.targetRot && now - s.lastInteraction > 4000) {
         s.autoRot = true;
+      }
+      if (s.targetRot) {
+        const t = Math.min(1, (now - s.targetRot.t0) / s.targetRot.dur);
+        const e = easeInOut(t);
+        s.rot[0] = s.targetRot.from[0] + (s.targetRot.to[0] - s.targetRot.from[0]) * e;
+        s.rot[1] = s.targetRot.from[1] + (s.targetRot.to[1] - s.targetRot.from[1]) * e;
+        if (t >= 1) s.targetRot = null;
       }
       while (s.rot[0] > 180) s.rot[0] -= 360;
       while (s.rot[0] < -180) s.rot[0] += 360;
@@ -214,10 +323,6 @@ export default function ScoutGlobe({
     };
 
     raf = requestAnimationFrame(tick);
-
-    // Some embedded contexts mount with visibilityState === 'hidden', which
-    // halts rAF; re-arm on visibility + a setTimeout kickstart so the canvas
-    // paints at least once.
     const onVisible = () => {
       if (document.visibilityState === "visible") {
         cancelAnimationFrame(raf);
@@ -235,64 +340,92 @@ export default function ScoutGlobe({
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisible);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Pointer interactions: drag to rotate, click a country to filter.
+  // Pointer interactions: drag, pin hover, click pin / country.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const s = stateRef.current;
-    let drag0: { x: number; y: number; rot: [number, number, number] } | null =
-      null;
+    let drag0: { x: number; y: number; rot: [number, number, number] } | null = null;
 
     const onDown = (e: PointerEvent) => {
       drag0 = { x: e.clientX, y: e.clientY, rot: [...s.rot] };
       s.dragging = true;
       s.autoRot = false;
+      s.targetRot = null;
       s.lastInteraction = performance.now();
       canvas.setPointerCapture?.(e.pointerId);
     };
     const onMove = (e: PointerEvent) => {
-      if (!s.dragging || !drag0) return;
-      const dx = e.clientX - drag0.x;
-      const dy = e.clientY - drag0.y;
-      s.rot = [
-        drag0.rot[0] + dx * 0.35,
-        Math.max(-80, Math.min(80, drag0.rot[1] - dy * 0.3)),
-        0,
-      ];
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left;
+      const my = e.clientY - r.top;
+      if (s.dragging && drag0) {
+        const dx = e.clientX - drag0.x;
+        const dy = e.clientY - drag0.y;
+        s.rot = [
+          drag0.rot[0] + dx * 0.35,
+          Math.max(-80, Math.min(80, drag0.rot[1] - dy * 0.3)),
+          0,
+        ];
+        return;
+      }
+      // Hover detection on pins.
+      let best: string | null = null;
+      let bestD = 18;
+      for (const h of s.pinHits) {
+        const d = Math.hypot(h.x - mx, h.y - my);
+        if (d < bestD) {
+          best = h.key;
+          bestD = d;
+        }
+      }
+      onHoverPinRef.current?.(best);
     };
     const onUp = (e: PointerEvent) => {
-      const moved =
-        drag0 && Math.hypot(e.clientX - drag0.x, e.clientY - drag0.y) > 4;
-      const wasDrag = drag0;
+      const moved = drag0 && Math.hypot(e.clientX - drag0.x, e.clientY - drag0.y) > 4;
+      const had = drag0;
       drag0 = null;
       s.dragging = false;
       s.lastInteraction = performance.now();
+      if (moved || !had) return;
 
-      if (!moved && wasDrag && onCountryClickRef.current) {
-        const r = canvas.getBoundingClientRect();
-        const mx = e.clientX - r.left;
-        const my = e.clientY - r.top;
-        const W = canvas.clientWidth;
-        const H = canvas.clientHeight;
-        const R = Math.min(W, H) * 0.46;
-        const projection = geoOrthographic()
-          .scale(R)
-          .translate([W / 2, H / 2])
-          .rotate(s.rot)
-          .clipAngle(90);
-        const inv = projection.invert?.([mx, my]);
-        if (inv) {
-          for (const f of COUNTRIES.features as Feature[]) {
-            if (geoContains(f as unknown as GeoPermissibleObjects as never, inv)) {
-              const iso = isoNumericToAlpha2(
-                f.id as string | number | undefined,
-              );
-              if (iso) onCountryClickRef.current(iso);
-              break;
-            }
-          }
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left;
+      const my = e.clientY - r.top;
+
+      // Pin tap takes precedence over country tap.
+      let bestPin: string | null = null;
+      let bestD = 22;
+      for (const h of s.pinHits) {
+        const d = Math.hypot(h.x - mx, h.y - my);
+        if (d < bestD) {
+          bestPin = h.key;
+          bestD = d;
+        }
+      }
+      if (bestPin && onClickPinRef.current) {
+        onClickPinRef.current(bestPin);
+        return;
+      }
+      if (!onClickCountryRef.current) return;
+      const W = canvas.clientWidth;
+      const H = canvas.clientHeight;
+      const R = Math.min(W, H) * 0.46;
+      const projection = geoOrthographic()
+        .scale(R)
+        .translate([W / 2, H / 2])
+        .rotate(s.rot)
+        .clipAngle(90);
+      const inv = projection.invert?.([mx, my]);
+      if (!inv) return;
+      for (const f of COUNTRIES.features as Feature[]) {
+        if (geoContains(f as unknown as GeoPermissibleObjects as never, inv)) {
+          const iso = isoNumericToAlpha2(f.id as string | number | undefined);
+          if (iso) onClickCountryRef.current(iso);
+          break;
         }
       }
     };

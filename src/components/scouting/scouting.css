@@ -1141,6 +1141,209 @@
   border: 0;
 }
 
+/* ============================================================
+   PHASE 2 — globe↔table sync row highlight + player hover card
+   ============================================================ */
+.scouting-root .pt-row[data-globe-hover="true"] {
+  background: rgba(204, 255, 0, 0.08);
+  border-bottom-color: rgba(204, 255, 0, 0.25);
+}
+.scouting-root .pt-row[data-globe-hover="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--bh-lime-200);
+  box-shadow: 0 0 8px rgba(204, 255, 0, 0.6);
+}
+
+/* Hover card — outer anchors to the pin's screen x/y via translate3d (set
+   imperatively each frame); inner plays the enter/exit animation. */
+.scouting-root .hover-card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 8;
+  will-change: transform;
+}
+.scouting-root .hc-inner {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  width: 290px;
+  transform: translate(-50%, 0) scale(0.94);
+  transform-origin: 50% calc(100% + 12px);
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(12, 12, 12, 0.96));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(204, 255, 0, 0.32);
+  border-radius: 14px;
+  padding: 14px 14px 12px;
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 0 32px rgba(204, 255, 0, 0.18);
+  opacity: 0;
+  pointer-events: auto;
+  filter: blur(2px);
+  transition:
+    opacity 180ms cubic-bezier(0.4, 0, 1, 1),
+    transform 200ms cubic-bezier(0.4, 0, 1, 1),
+    filter 220ms ease;
+}
+.scouting-root .hover-card[data-visible="true"] .hc-inner {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+  filter: blur(0);
+  transition:
+    opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1) 30ms,
+    transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1) 30ms,
+    filter 240ms cubic-bezier(0.22, 0.61, 0.36, 1) 30ms;
+}
+.scouting-root .hc-stack-pill {
+  position: absolute;
+  top: -10px;
+  right: 12px;
+  font-family: var(--font-bh-mono);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--bh-lime-200);
+  color: #000;
+  padding: 3px 8px;
+  border-radius: 999px;
+  box-shadow: 0 4px 12px rgba(204, 255, 0, 0.35);
+}
+.scouting-root .hc-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.scouting-root .hc-name-block {
+  flex: 1;
+  min-width: 0;
+}
+.scouting-root .hc-name {
+  font-family: var(--font-bh-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 17px;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scouting-root .hc-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--bh-fg-2);
+  margin-top: 5px;
+}
+.scouting-root .hc-rating {
+  text-align: right;
+  flex-shrink: 0;
+}
+.scouting-root .hc-rating-n {
+  font-family: var(--font-bh-display);
+  font-weight: 900;
+  font-size: 22px;
+  line-height: 1;
+}
+.scouting-root .hc-rating-n[data-status="free"] {
+  color: var(--bh-lime-200);
+  text-shadow: 0 0 14px rgba(204, 255, 0, 0.45);
+}
+.scouting-root .hc-rating-n[data-status="contracted"] {
+  color: var(--bh-blue-100);
+  text-shadow: 0 0 14px rgba(0, 194, 255, 0.4);
+}
+.scouting-root .hc-rating-l {
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bh-fg-3);
+  margin-top: 3px;
+}
+.scouting-root .hc-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.scouting-root .hc-meta-text {
+  color: rgba(255, 255, 255, 0.6);
+}
+.scouting-root .hc-age {
+  margin-left: auto;
+  font-family: var(--font-bh-mono);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.scouting-root .hc-club {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.scouting-root .hc-club-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bh-fg-3);
+  font-weight: 600;
+  margin-bottom: 7px;
+}
+.scouting-root .hc-club-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.scouting-root .hc-club-info {
+  flex: 1;
+  min-width: 0;
+}
+.scouting-root .hc-club-name {
+  font-family: var(--font-bh-display);
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+.scouting-root .hc-club-loc {
+  font-size: 10.5px;
+  color: var(--bh-fg-3);
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.scouting-root .hc-arrow {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 12px;
+  height: 12px;
+  background: linear-gradient(135deg, transparent 50%, rgba(12, 12, 12, 0.96) 50%);
+  border-right: 1px solid rgba(204, 255, 0, 0.32);
+  border-bottom: 1px solid rgba(204, 255, 0, 0.32);
+}
+
 /* Reduced motion — kill the decorative loops */
 @media (prefers-reduced-motion: reduce) {
   .scouting-root .live-count .lc-dot,

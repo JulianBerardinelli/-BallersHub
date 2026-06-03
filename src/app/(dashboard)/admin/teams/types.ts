@@ -5,6 +5,9 @@ export type TeamRow = {
   slug: string | null;
   country: string | null;
   country_code: string | null;
+  city: string | null;
+  latitude: number | null;
+  longitude: number | null;
   category: string | null;
   transfermarkt_url: string | null;
   status: "pending" | "approved" | "rejected";

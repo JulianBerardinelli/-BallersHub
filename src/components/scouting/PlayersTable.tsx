@@ -11,6 +11,7 @@
 import Link from "next/link";
 
 import { ClubCrest, ContractTag, Flag, PlayerAvatar } from "./atoms";
+import { cityKeyOf } from "@/lib/scouting/cities";
 import { countryName, flagEmoji } from "@/lib/scouting/taxonomies";
 import type {
   ScoutPlayer,
@@ -70,11 +71,20 @@ export function PlayersTable({
   sort,
   onSort,
   density,
+  hoverPlayerId,
+  onRowHover,
+  highlightCityKey,
 }: {
   players: ScoutPlayer[];
   sort: ScoutSort;
   onSort: (key: ScoutSortKey) => void;
   density: Density;
+  /** Row currently hovered (mirrors globe sync). */
+  hoverPlayerId?: string | null;
+  /** Report row hover so the globe can fly to that player's city. */
+  onRowHover?: (id: string | null) => void;
+  /** City key active on the globe — rows in that city get highlighted. */
+  highlightCityKey?: string | null;
 }) {
   const colsTpl = COLUMNS.map((c) => c.width).join(" ");
   const rowH = density === "compact" ? 50 : 64;
@@ -113,7 +123,14 @@ export function PlayersTable({
               key={p.id}
               href={`/${p.slug}`}
               className="pt-row"
+              data-pid={p.id}
               data-status={p.contract}
+              data-hover={hoverPlayerId === p.id}
+              data-globe-hover={
+                highlightCityKey != null && cityKeyOf(p) === highlightCityKey
+              }
+              onMouseEnter={() => onRowHover?.(p.id)}
+              onMouseLeave={() => onRowHover?.(null)}
               style={{ gridTemplateColumns: colsTpl, height: rowH }}
             >
               <div className="pt-c name">

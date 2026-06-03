@@ -71,6 +71,9 @@ async function doUpdate(req: Request, params: Params) {
     "slug",
     "country",
     "country_code",
+    "city",
+    "latitude",
+    "longitude",
     "category",
     "transfermarkt_url",
     "tags",
@@ -88,6 +91,16 @@ async function doUpdate(req: Request, params: Params) {
   // Normalizaciones
   if ("country_code" in update && update.country_code) {
     update.country_code = String(update.country_code).toUpperCase().slice(0, 2);
+  }
+  if ("city" in update) {
+    const c = update.city == null ? "" : String(update.city).trim();
+    update.city = c || null;
+  }
+  for (const k of ["latitude", "longitude"] as const) {
+    if (k in update) {
+      const n = update[k] == null ? null : Number(update[k]);
+      update[k] = n != null && Number.isFinite(n) ? n : null;
+    }
   }
   if ("tags" in update && !Array.isArray(update.tags)) update.tags = [];
   if ("alt_names" in update && !Array.isArray(update.alt_names)) update.alt_names = [];

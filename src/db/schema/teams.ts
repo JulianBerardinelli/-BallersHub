@@ -1,5 +1,13 @@
 // src/db/schema/team.ts
-import { pgTable, uuid, text, timestamp, boolean, char } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  boolean,
+  char,
+  doublePrecision,
+} from "drizzle-orm/pg-core";
 import { teamStatusEnum, teamKindEnum, visibilityEnum } from "./enums";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -9,6 +17,12 @@ export const teams = pgTable("teams", {
   name: text("name").notNull(),                    // ej: Club Atlético Independiente
   country: text("country"),                        // ISO2/país libre por ahora
   countryCode: char("country_code", { length: 2 }),
+  // Sede del club (Fase 2 scouting — geolocalización en el globo). Nullable:
+  // los equipos existentes se completan vía backfill / CityPicker. `city` es
+  // el nombre legible; lat/lon alimentan los pins + heat por ciudad.
+  city: text("city"),
+  latitude: doublePrecision("latitude"),
+  longitude: doublePrecision("longitude"),
   kind: teamKindEnum("kind").notNull().default("club"),
   visibility: visibilityEnum("visibility").notNull().default("public"),
   status: teamStatusEnum("status").notNull().default("pending"),

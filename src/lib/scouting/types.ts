@@ -59,6 +59,36 @@ export interface ScoutPlayer {
   isPro: boolean;
   /** 1–2 letter initials for the avatar fallback. */
   initials: string;
+  // --- Phase 2 geo (inherited from the player's club / `teams` relation) ---
+  /** Club city name; null until the team is backfilled with a location. */
+  city: string | null;
+  /** Club latitude (the player's pin on the globe); null when unknown. */
+  latitude: number | null;
+  /** Club longitude; null when unknown. */
+  longitude: number | null;
+}
+
+/** A pin's projected position within the globe canvas (px, wrap-relative). */
+export interface PinPos {
+  x: number;
+  y: number;
+  /** True when the pin is on the near hemisphere (not behind the globe). */
+  onFront: boolean;
+}
+
+/**
+ * A globe pin: a city that has ≥1 indexable player, with its coordinates and
+ * the players located there. Derived client-side from the filtered set.
+ */
+export interface ScoutCity {
+  /** Stable key (normalized "city|country"). */
+  key: string;
+  name: string;
+  countryCode: string | null;
+  latitude: number;
+  longitude: number;
+  /** Players whose club is in this city (within the current filter). */
+  players: ScoutPlayer[];
 }
 
 /** Live filter state held by the client island. Mirrors the prototype's `sel`. */
