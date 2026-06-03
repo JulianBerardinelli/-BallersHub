@@ -19,6 +19,7 @@ import { teams } from "@/db/schema/teams";
 import { subscriptions } from "@/db/schema/subscriptions";
 import { isPlayerIndexable } from "@/lib/seo/indexable-profiles";
 import {
+  alpha2FromLegacyNationality,
   nameInitials,
   normalizeContract,
   normalizeFoot,
@@ -93,6 +94,7 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
       fullName: playerProfiles.fullName,
       birthDate: playerProfiles.birthDate,
       nationalityCodes: playerProfiles.nationalityCodes,
+      nationality: playerProfiles.nationality,
       foot: playerProfiles.foot,
       heightCm: playerProfiles.heightCm,
       positions: playerProfiles.positions,
@@ -139,7 +141,13 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
         clubCountryCode: r.teamCountryCode ?? null,
         clubCountry: r.teamCountry ?? null,
         clubCrestUrl: cleanCrest(r.teamCrestUrl),
-        nationality: r.nationalityCodes?.[0]?.toUpperCase() ?? null,
+        // Prefer the ISO-2 code; fall back to deriving it from the legacy
+        // Spanish country name (profiles approved via onboarding store names
+        // in `nationality` and leave `nationality_codes` null).
+        nationality:
+          r.nationalityCodes?.[0]?.toUpperCase() ??
+          alpha2FromLegacyNationality(r.nationality?.[0]) ??
+          null,
         contract: normalizeContract(r.contractStatus),
         foot: normalizeFoot(r.foot),
         heightCm: r.heightCm ?? null,

@@ -272,6 +272,55 @@ export function countryName(cc: string | null | undefined): string {
   return COUNTRY_NAME_ES[cc.toUpperCase()] ?? cc.toUpperCase();
 }
 
+// Reverse map: normalized Spanish country name → ISO-2. Built from
+// `COUNTRY_NAME_ES` plus common alternate spellings. Used to recover a flag
+// for legacy profiles that store country NAMES in `player_profiles.nationality`
+// but left `nationality_codes` null (the onboarding approval flow writes names
+// only — see `approve/route.ts`). Without this those players would have no
+// flag, fall off the globe, and be unfilterable by nationality.
+const NAME_TO_ALPHA2: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  for (const [code, name] of Object.entries(COUNTRY_NAME_ES)) {
+    m[normalizeText(name)] = code;
+  }
+  const aliases: Record<string, string> = {
+    "reino unido": "GB",
+    "gran bretana": "GB",
+    inglaterra: "GB",
+    escocia: "GB",
+    gales: "GB",
+    "irlanda del norte": "GB",
+    eeuu: "US",
+    "ee uu": "US",
+    usa: "US",
+    "estados unidos de america": "US",
+    brazil: "BR",
+    "republica checa": "CZ",
+    chequia: "CZ",
+    holanda: "NL",
+    "paises bajos": "NL",
+    corea: "KR",
+    "corea del sur": "KR",
+    rusia: "RU",
+  };
+  return { ...m, ...aliases };
+})();
+
+/**
+ * Resolve a legacy `nationality` entry (a Spanish country name, or sometimes
+ * already an ISO-2 code) to ISO-2. Returns null when unrecognized so callers
+ * degrade gracefully (no flag rather than a wrong one).
+ */
+export function alpha2FromLegacyNationality(
+  value: string | null | undefined,
+): string | null {
+  if (!value) return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/^[A-Za-z]{2}$/.test(trimmed)) return trimmed.toUpperCase();
+  return NAME_TO_ALPHA2[normalizeText(trimmed)] ?? null;
+}
+
 /**
  * Build the country option list for the nationality / play-country filters
  * from whatever ISO-2 codes actually appear in the dataset — only relevant
