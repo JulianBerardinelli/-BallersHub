@@ -612,6 +612,12 @@ export default async function PlayerPublicPage({
       },
     plan,
     heroFloatingVideo,
+    // Owner identity for the Free layout's interleaved Pro slots. Exposed for
+    // every Free render so the client-side switch can tell the owner (→ sees
+    // the "Activar Pro" upsell) apart from visitors (→ see BallersHub
+    // advertising inviting them to create their own profile). Null on Pro
+    // layouts, which don't render those slots.
+    ownerUserId: isFree ? player.userId : null,
     // Owner-only upgrade nudge: when the player has a Pro subscription but
     // is currently rendering Free (because they chose theme.layout='free'),
     // we expose their userId to the client so the floating banner can

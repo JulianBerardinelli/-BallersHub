@@ -67,6 +67,14 @@ export type PublicProfileData = {
     currentDivisionCrestUrl: string | null;
   } | null;
   /**
+   * The Free profile owner's user id (always set when `plan === 'free'`).
+   * Drives the owner/visitor switch on the Free layout's interleaved Pro
+   * slots: the owner sees the "Activar Pro" upsell, every other viewer sees
+   * BallersHub advertising. Resolved against the viewer's session client-side
+   * (the page is ISR-cached). Null on Pro layouts, which don't use it.
+   */
+  ownerUserId?: string | null;
+  /**
    * Owner-only nudge eligibility signal. When the profile owner has a Pro
    * subscription AND is currently rendering Free (theme.layout === "free"),
    * page.tsx sets this to `player.userId`. The Free layout then mounts a
@@ -90,7 +98,7 @@ export type PublicProfileData = {
 };
 
 export default function LayoutResolver({ data }: { data: PublicProfileData }) {
-  const { player, theme, limits, articles, plan, freeData, pressLayout, ownerProUpgradeNudgeUserId } = data;
+  const { player, theme, limits, articles, plan, freeData, pressLayout, ownerUserId, ownerProUpgradeNudgeUserId } = data;
 
   // Free-tier players ALWAYS get the editorial dossier, regardless of
   // whatever `theme.layout` they had selected. The pro variants are
@@ -142,6 +150,7 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
           career: freeData?.career ?? [],
           video: freeData?.video ?? null,
         }}
+        ownerUserId={ownerUserId ?? null}
         ownerProUpgradeNudgeUserId={ownerProUpgradeNudgeUserId ?? null}
       />
     );
