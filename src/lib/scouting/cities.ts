@@ -7,12 +7,19 @@
 
 import type { ScoutCity, ScoutPlayer } from "./types";
 
-/** Stable city key: normalized name + country, or coords when name is blank. */
+/**
+ * Stable city key. Always includes the (rounded) coordinates so that two
+ * distinct cities sharing a name within one country — e.g. two "Springfield"s
+ * with different coords — never collapse onto a single pin (which would show
+ * one city's players at the other's location). 2 decimals ≈ 1.1km, so the same
+ * city picked from the cities dataset still groups together. The name is kept
+ * in the key (and on `ScoutCity`) purely for display.
+ */
 export function cityKeyOf(p: ScoutPlayer): string | null {
   if (p.latitude == null || p.longitude == null) return null;
+  const coords = `${p.latitude.toFixed(2)},${p.longitude.toFixed(2)}`;
   const name = (p.city ?? "").trim().toLowerCase();
-  if (name) return `${name}|${p.clubCountryCode ?? ""}`;
-  return `${p.latitude.toFixed(3)},${p.longitude.toFixed(3)}`;
+  return name ? `${name}|${p.clubCountryCode ?? ""}|${coords}` : coords;
 }
 
 /**

@@ -11,13 +11,18 @@
 
 import "server-only";
 
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { teams } from "@/db/schema/teams";
-import { subscriptions } from "@/db/schema/subscriptions";
-import { isPlayerIndexable } from "@/lib/seo/indexable-profiles";
+// Single source of truth for the Pro predicate — shared with the sitemap and
+// the `/players` directory so the three never drift (and so the `plan_id`
+// fallback is applied everywhere, not just here).
+import {
+  isPlayerIndexable,
+  resolveProUserIds,
+} from "@/lib/seo/indexable-profiles";
 import {
   alpha2FromLegacyNationality,
   nameInitials,
@@ -28,29 +33,6 @@ import {
 import type { ScoutPlayer } from "./types";
 
 const DEFAULT_CREST = "/images/team-default";
-
-/** Lenient Pro predicate, mirroring `sitemap.ts` / `indexable-profiles.ts`. */
-async function resolveProUserIds(userIds: string[]): Promise<Set<string>> {
-  if (userIds.length === 0) return new Set();
-  const subs = await db
-    .select({
-      userId: subscriptions.userId,
-      plan: subscriptions.plan,
-      statusV2: subscriptions.statusV2,
-    })
-    .from(subscriptions)
-    .where(inArray(subscriptions.userId, userIds));
-
-  return new Set(
-    subs
-      .filter(
-        (s) =>
-          (s.plan === "pro" || s.plan === "pro_plus") &&
-          (s.statusV2 === "trialing" || s.statusV2 === "active"),
-      )
-      .map((s) => s.userId),
-  );
-}
 
 function computeAge(birthDate: string | null): number | null {
   if (!birthDate) return null;

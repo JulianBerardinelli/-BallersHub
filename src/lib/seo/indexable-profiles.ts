@@ -75,16 +75,29 @@ export function isPlayerIndexable(input: {
 }
 
 /**
- * Resolve the set of Pro userIds for a batch of players. Lenient
- * predicate matching `sitemap.ts`: plan in (pro, pro_plus) AND
- * status_v2 in (trialing, active).
+ * Resolve the set of Pro userIds for a batch of players. Exported as the
+ * single source of truth so the sitemap, the `/players` directory, and the
+ * scouting data all agree (and don't drift like the duplicated copy that used
+ * to live in `lib/scouting/data.ts`).
+ *
+ * A user is Pro when `status_v2 IN (trialing, active)` AND EITHER the legacy
+ * coarse `plan` is `pro`/`pro_plus` OR the granular `plan_id` is
+ * `pro-player`/`pro-agency`. The `plan_id` arm mirrors `resolvePlanAccess`
+ * (the per-profile-page source of truth): without it, a subscription whose
+ * legacy `plan` cache is stale at `free` but whose `plan_id` is a paid tier
+ * would render as Pro on its own page yet be dropped from the directory and
+ * sitemap. (No such rows exist in prod today — this keeps the two in lockstep
+ * if the cache ever drifts.)
  */
-async function resolveProUserIds(userIds: string[]): Promise<Set<string>> {
+export async function resolveProUserIds(
+  userIds: string[],
+): Promise<Set<string>> {
   if (userIds.length === 0) return new Set();
   const subs = await db
     .select({
       userId: subscriptions.userId,
       plan: subscriptions.plan,
+      planId: subscriptions.planId,
       statusV2: subscriptions.statusV2,
     })
     .from(subscriptions)
@@ -92,11 +105,15 @@ async function resolveProUserIds(userIds: string[]): Promise<Set<string>> {
 
   return new Set(
     subs
-      .filter(
-        (s) =>
-          (s.plan === "pro" || s.plan === "pro_plus") &&
-          (s.statusV2 === "trialing" || s.statusV2 === "active"),
-      )
+      .filter((s) => {
+        const activeOrTrial =
+          s.statusV2 === "trialing" || s.statusV2 === "active";
+        if (!activeOrTrial) return false;
+        const legacyPro = s.plan === "pro" || s.plan === "pro_plus";
+        const planIdPro =
+          s.planId === "pro-player" || s.planId === "pro-agency";
+        return legacyPro || planIdPro;
+      })
       .map((s) => s.userId),
   );
 }
