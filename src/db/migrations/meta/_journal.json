@@ -57,6 +57,13 @@
       "when": 1780320471923,
       "tag": "0007_oval_kree",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1780449922057,
+      "tag": "0008_hot_black_queen",
+      "breakpoints": true
     }
   ]
 }

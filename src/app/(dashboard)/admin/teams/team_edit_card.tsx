@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Card, CardHeader, CardBody, Input, Textarea, Select, SelectItem, Button, Chip, Switch, Autocomplete, AutocompleteItem } from "@heroui/react";
 import TeamCrest from "@/components/teams/TeamCrest";
+import CityPicker from "@/components/teams/CityPicker";
 import { supabase } from "@/lib/supabase/client";
 
 export type TeamEditableInput = {
@@ -11,6 +12,9 @@ export type TeamEditableInput = {
   slug?: string | null;
   country?: string | null;
   country_code?: string | null;
+  city?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
   category?: string | null;
   transfermarkt_url?: string | null;
   tags?: string[] | null;
@@ -54,6 +58,9 @@ export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: 
   const [slug, setSlug] = React.useState(team.slug ?? "");
   const [country, setCountry] = React.useState(team.country ?? "");
   const [countryCode, setCountryCode] = React.useState(team.country_code ?? "");
+  const [city, setCity] = React.useState(team.city ?? "");
+  const [latitude, setLatitude] = React.useState<number | null>(team.latitude ?? null);
+  const [longitude, setLongitude] = React.useState<number | null>(team.longitude ?? null);
   const [category, setCategory] = React.useState(team.category ?? "");
   const [divisionId, setDivisionId] = React.useState<string | null>(team.division?.id ?? null);
   const [tmUrl, setTmUrl] = React.useState(team.transfermarkt_url ?? "");
@@ -112,6 +119,9 @@ export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: 
         slug: slug.trim() || null,
         country: country.trim() || null,
         country_code: countryCode.trim().toUpperCase() || null,
+        city: city.trim() || null,
+        latitude,
+        longitude,
         category: category.trim() || null,
         transfermarkt_url: tmUrl.trim() || null,
         tags: csvToArr(tags),
@@ -164,8 +174,36 @@ export default function TeamEditCard({ team, allDivisions, onSaved, onCancel }: 
           <Input size="sm" label="Slug (opcional)" value={slug} onChange={(e) => setSlug(e.target.value)}
             description="Vacío: se regenera automáticamente." />
           <Input size="sm" label="País" value={country} onChange={(e) => setCountry(e.target.value)} />
-          <Input size="sm" label="Código país (ISO-2)" value={countryCode ?? ""} onChange={(e) => setCountryCode(e.target.value.toUpperCase())} placeholder="AR, ES, FI…" />
-          <Autocomplete 
+          <Input
+            size="sm"
+            label="Código país (ISO-2)"
+            value={countryCode ?? ""}
+            onChange={(e) => {
+              // Changing the country invalidates the city + coords.
+              setCountryCode(e.target.value.toUpperCase());
+              setCity("");
+              setLatitude(null);
+              setLongitude(null);
+            }}
+            placeholder="AR, ES, FI…"
+          />
+          <div className="flex flex-col gap-1">
+            <CityPicker
+              countryCode={countryCode}
+              city={city}
+              onSelect={(sel) => {
+                setCity(sel.city);
+                setLatitude(sel.latitude);
+                setLongitude(sel.longitude);
+              }}
+            />
+            {latitude != null && longitude != null && (
+              <p className="text-[10px] text-bh-fg-4">
+                📍 {city} · {latitude.toFixed(4)}, {longitude.toFixed(4)}
+              </p>
+            )}
+          </div>
+          <Autocomplete
             size="sm" 
             label="Categoría / División" 
             placeholder="Primera / Sub-20 / Amateur…"

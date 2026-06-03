@@ -2,31 +2,57 @@
 
 // BallersHub /players (Scouting) — hero.
 //
-// Globe centered, with floating overlays (title, density legend, stats) — the
-// layout the user landed on in chat. The globe is dynamically imported with
-// `ssr: false` so its heavy chunk loads only on the client; a skeleton holds
-// the space until its first paint. Respects `prefers-reduced-motion`.
+// Globe centered, with floating overlays (title, density legend, stats) and the
+// player hover card. The globe is dynamically imported with `ssr: false` so its
+// heavy chunk loads only on the client; a skeleton holds the space until first
+// paint. Respects `prefers-reduced-motion`.
 
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useState, type MutableRefObject } from "react";
 import { useReducedMotion } from "framer-motion";
 
 import { GlobeLegend, type TopCountry } from "./GlobeLegend";
+import { HoverCard } from "./HoverCard";
+import type { PinPos, ScoutCity, ScoutPlayer } from "@/lib/scouting/types";
 
 const ScoutGlobe = dynamic(() => import("./ScoutGlobe"), { ssr: false });
 
-export type HeroStats = { total: number; countries: number; pro: number };
+export type HeroStats = {
+  total: number;
+  pro: number;
+  geo: number;
+};
 
 export function ScoutingHero({
+  cities,
   countryDensity,
+  focusCity,
+  hoverPin,
+  onHoverPin,
+  onClickPin,
   onCountryClick,
+  pinPositionsRef,
+  cardPlayer,
+  cardCityKey,
+  cardCityName,
+  stackedCount,
   topCountries,
   liveCount,
   liveCountries,
   stats,
 }: {
+  cities: ScoutCity[];
   countryDensity: Record<string, number>;
+  focusCity: string | null;
+  hoverPin: string | null;
+  onHoverPin: (key: string | null) => void;
+  onClickPin: (key: string) => void;
   onCountryClick: (iso2: string) => void;
+  pinPositionsRef: MutableRefObject<Map<string, PinPos>>;
+  cardPlayer: ScoutPlayer | null;
+  cardCityKey: string | null;
+  cardCityName: string | null;
+  stackedCount: number;
   topCountries: TopCountry[];
   liveCount: number;
   liveCountries: number;
@@ -46,8 +72,14 @@ export function ScoutingHero({
         )}
 
         <ScoutGlobe
+          cities={cities}
           countryDensity={countryDensity}
+          focusCity={focusCity}
+          hoverPin={hoverPin}
+          onHoverPin={onHoverPin}
+          onClickPin={onClickPin}
           onCountryClick={onCountryClick}
+          pinPositionsRef={pinPositionsRef}
           onReady={() => setReady(true)}
           reduceMotion={reduceMotion}
         />
@@ -78,11 +110,11 @@ export function ScoutingHero({
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
-            <div className="fs-num">{stats.countries}</div>
+            <div className="fs-num">{stats.geo}</div>
             <div className="fs-lbl">
-              Países
+              En el
               <br />
-              representados
+              mapa
             </div>
           </div>
           <div className="fs-divider" />
@@ -95,6 +127,15 @@ export function ScoutingHero({
             </div>
           </div>
         </div>
+
+        {/* Player hover card — glides glued to its pin */}
+        <HoverCard
+          player={cardPlayer}
+          cityKey={cardCityKey}
+          cityName={cardCityName}
+          stackedCount={stackedCount}
+          pinPositionsRef={pinPositionsRef}
+        />
       </div>
     </div>
   );

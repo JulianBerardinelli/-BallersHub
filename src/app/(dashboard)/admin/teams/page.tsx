@@ -23,7 +23,8 @@ export default async function AdminTeamsPage() {
   const { data: teams, error } = await supabase
     .from("teams")
     .select(`
-      id, name, slug, country, country_code, category, transfermarkt_url,
+      id, name, slug, country, country_code, city, latitude, longitude,
+      category, transfermarkt_url,
       status, crest_url, created_at, updated_at, requested_in_application_id,
       division_id
     `)
@@ -39,6 +40,9 @@ export default async function AdminTeamsPage() {
       slug: t.slug ?? null,
       country: t.country ?? null,
       country_code: t.country_code ?? null,
+      city: t.city ?? null,
+      latitude: t.latitude ?? null,
+      longitude: t.longitude ?? null,
       category: t.category ?? null,
       transfermarkt_url: t.transfermarkt_url ?? null,
       status: t.status as TeamRow["status"],

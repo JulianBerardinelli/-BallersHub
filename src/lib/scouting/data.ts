@@ -108,6 +108,9 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
       teamCountry: teams.country,
       teamCountryCode: teams.countryCode,
       teamCrestUrl: teams.crestUrl,
+      teamCity: teams.city,
+      teamLat: teams.latitude,
+      teamLon: teams.longitude,
     })
     .from(playerProfiles)
     .leftJoin(teams, eq(playerProfiles.currentTeamId, teams.id))
@@ -155,6 +158,9 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
         avatarUrl: cleanAvatar(r.avatarUrl),
         isPro: r.isPro,
         initials: nameInitials(r.fullName),
+        city: r.teamCity ?? null,
+        latitude: toNumber(r.teamLat),
+        longitude: toNumber(r.teamLon),
         // Carry updatedAt only for the default ordering below.
         _updatedAt: r.updatedAt,
       } as ScoutPlayer & { _updatedAt: Date };
