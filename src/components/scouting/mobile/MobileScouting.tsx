@@ -25,6 +25,7 @@ import {
 } from "@/lib/scouting/taxonomies";
 import {
   AGE_BOUNDS,
+  HEIGHT_BOUNDS,
   type CountryOption,
   type FootCode,
   type ScoutCity,
@@ -322,7 +323,7 @@ function MFilterSheet({
               Nacionalidad <span className="m-sheet-count">{filters.nationality.length}</span>
             </div>
             <div className="m-nat-grid">
-              {nationalityOptions.slice(0, 12).map((c) => (
+              {nationalityOptions.map((c) => (
                 <button
                   key={c.code}
                   type="button"
@@ -539,10 +540,18 @@ export function MobileScouting({
   const filterCount =
     filters.positions.length +
     filters.nationality.length +
+    filters.playCountry.length +
     (filters.status !== "all" ? 1 : 0) +
     (filters.foot.length ? 1 : 0) +
-    (filters.age[0] !== AGE_BOUNDS[0] || filters.age[1] !== AGE_BOUNDS[1] ? 1 : 0);
+    (filters.age[0] !== AGE_BOUNDS[0] || filters.age[1] !== AGE_BOUNDS[1] ? 1 : 0) +
+    (filters.height[0] !== HEIGHT_BOUNDS[0] || filters.height[1] !== HEIGHT_BOUNDS[1]
+      ? 1
+      : 0);
 
+  // Chips surface EVERY active facet — including play-country and height, which
+  // the compact mobile sheet has no dedicated control for. Without them a
+  // desktop-set filter would silently narrow the list with no way to see or
+  // remove it on mobile (Codex review). They remain removable here.
   const chips: Chip[] = [];
   if (filters.status !== "all")
     chips.push({
@@ -566,11 +575,25 @@ export function MobileScouting({
         setFilters((s) => ({ ...s, nationality: s.nationality.filter((x) => x !== c) })),
     }),
   );
+  filters.playCountry.forEach((c) =>
+    chips.push({
+      key: `pc-${c}`,
+      label: `Juega en ${countryName(c)}`,
+      onRemove: () =>
+        setFilters((s) => ({ ...s, playCountry: s.playCountry.filter((x) => x !== c) })),
+    }),
+  );
   if (filters.age[0] !== AGE_BOUNDS[0] || filters.age[1] !== AGE_BOUNDS[1])
     chips.push({
       key: "age",
       label: `${filters.age[0]}–${filters.age[1]} años`,
       onRemove: () => setFilters((s) => ({ ...s, age: [...AGE_BOUNDS] })),
+    });
+  if (filters.height[0] !== HEIGHT_BOUNDS[0] || filters.height[1] !== HEIGHT_BOUNDS[1])
+    chips.push({
+      key: "height",
+      label: `${filters.height[0]}–${filters.height[1]} cm`,
+      onRemove: () => setFilters((s) => ({ ...s, height: [...HEIGHT_BOUNDS] })),
     });
   filters.foot.forEach((f) =>
     chips.push({
