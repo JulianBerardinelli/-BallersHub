@@ -61,6 +61,7 @@ export default function ScoutGlobe({
   onCountryClick,
   onReady,
   reduceMotion = false,
+  quality = "high",
   pinPositionsRef,
 }: {
   cities: ScoutCity[];
@@ -72,6 +73,8 @@ export default function ScoutGlobe({
   onCountryClick?: (iso2: string) => void;
   onReady?: () => void;
   reduceMotion?: boolean;
+  /** "low" trims per-frame cost (dpr + glow passes) for smooth mobile drag. */
+  quality?: "high" | "low";
   pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -86,6 +89,8 @@ export default function ScoutGlobe({
   hoverPinRef.current = hoverPin;
   const reduceRef = useRef(reduceMotion);
   reduceRef.current = reduceMotion;
+  const qualityRef = useRef(quality);
+  qualityRef.current = quality;
   const onHoverPinRef = useRef(onHoverPin);
   onHoverPinRef.current = onHoverPin;
   const onClickPinRef = useRef(onClickPin);
@@ -96,7 +101,9 @@ export default function ScoutGlobe({
   onReadyRef.current = onReady;
 
   const stateRef = useRef<GlobeState>({
-    rot: [-58, -18, 0],
+    // Start framed on Latin America (center ≈ 70°W, 18°S — the core market),
+    // not the Middle East/Asia. d3 centers on (−λ, −φ), so [70, 18] ⇒ (−70, −18).
+    rot: [70, 18, 0],
     targetRot: null,
     autoRot: true,
     dragging: false,
@@ -145,7 +152,10 @@ export default function ScoutGlobe({
 
     const fit = () => {
       const r = wrap.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(
+        window.devicePixelRatio || 1,
+        qualityRef.current === "low" ? 1.5 : 2,
+      );
       canvas.width = Math.floor(r.width * dpr);
       canvas.height = Math.floor(r.height * dpr);
       canvas.style.width = `${r.width}px`;
@@ -223,7 +233,9 @@ export default function ScoutGlobe({
             ? `rgba(${r},255,${b},${Math.min(0.9, 0.4 + tHeat * 0.5)})`
             : "rgba(204,255,0,0.18)";
         ctx.stroke();
-        if (count > 0) {
+        // The shadow-blurred glow pass is the priciest part of the frame; skip
+        // it on low quality (mobile) so dragging stays at 60fps.
+        if (count > 0 && qualityRef.current !== "low") {
           ctx.save();
           ctx.shadowColor = `rgba(204,255,0,${0.35 + tHeat * 0.4})`;
           ctx.shadowBlur = 14 + tHeat * 16;
@@ -299,7 +311,9 @@ export default function ScoutGlobe({
       s.lastT = now;
 
       if (s.autoRot && !s.dragging && !s.targetRot && !reduceRef.current) {
-        s.rot[0] += (dt / 1000) * 4.5;
+        // Auto-rotate rightward (reversed from the old leftward drift), so the
+        // map opens on Latin America and spins toward the right.
+        s.rot[0] -= (dt / 1000) * 4.5;
       }
       if (!s.autoRot && !s.dragging && !s.targetRot && now - s.lastInteraction > 4000) {
         s.autoRot = true;

@@ -54,6 +54,11 @@
   position: absolute;
   inset: 0;
   cursor: grab;
+  /* Own the drag gesture: without this, touch-dragging the globe also scrolls
+     the page, which made rotation feel janky/locked on mobile. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 .scouting-root .globe-canvas-wrap:active {
   cursor: grabbing;
@@ -1353,5 +1358,264 @@
     right: 16px;
     bottom: 16px;
     min-width: 0;
+  }
+}
+
+/* Position list — the table cell shows every position a player lists */
+.scouting-root .pt-pos-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+/* ── City roster (desktop) — all players at a clicked pin, side by side ── */
+.scouting-root .city-roster-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.scouting-root .cr-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(5, 5, 5, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: cr-fade 200ms ease;
+}
+@keyframes cr-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.scouting-root .city-roster {
+  position: relative;
+  z-index: 1;
+  max-width: min(960px, 94%);
+  max-height: 86%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, rgba(18, 18, 18, 0.98), rgba(11, 11, 11, 0.98));
+  border: 1px solid rgba(204, 255, 0, 0.28);
+  border-radius: 18px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.7), 0 0 40px rgba(204, 255, 0, 0.12);
+  padding: 16px;
+  animation: cr-pop 240ms cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+@keyframes cr-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.scouting-root .cr-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.scouting-root .cr-eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bh-lime-200);
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.scouting-root .cr-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-bh-display);
+  font-weight: 800;
+  font-size: 22px;
+  text-transform: uppercase;
+  color: #fff;
+  line-height: 1;
+}
+.scouting-root .cr-close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--bh-fg-2);
+  cursor: pointer;
+  transition: background 160ms, color 160ms;
+}
+.scouting-root .cr-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+.scouting-root .cr-cards {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px;
+  scrollbar-width: thin;
+}
+.scouting-root .cr-cards::-webkit-scrollbar {
+  height: 8px;
+}
+.scouting-root .cr-cards::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+.scouting-root .cr-card {
+  flex: 0 0 248px;
+  width: 248px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #121212;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform 160ms var(--bh-ease-snappy),
+    border-color 160ms,
+    box-shadow 160ms;
+}
+.scouting-root .cr-card[data-status="free"] {
+  border-color: rgba(204, 255, 0, 0.18);
+}
+.scouting-root .cr-card[data-status="contracted"] {
+  border-color: rgba(0, 194, 255, 0.16);
+}
+.scouting-root .cr-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(204, 255, 0, 0.4);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(204, 255, 0, 0.12);
+}
+.scouting-root .cr-card-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+.scouting-root .cr-card-name-block {
+  flex: 1;
+  min-width: 0;
+}
+.scouting-root .cr-card-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-bh-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scouting-root .cr-card-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--bh-fg-2);
+  margin-top: 5px;
+}
+.scouting-root .cr-card-rating {
+  text-align: right;
+  flex-shrink: 0;
+}
+.scouting-root .cr-card-rating-n {
+  font-family: var(--font-bh-display);
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+}
+.scouting-root .cr-card-rating-n[data-status="free"] {
+  color: var(--bh-lime-200);
+}
+.scouting-root .cr-card-rating-n[data-status="contracted"] {
+  color: var(--bh-blue-100);
+}
+.scouting-root .cr-card-rating-l {
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bh-fg-3);
+  margin-top: 3px;
+}
+.scouting-root .cr-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  color: var(--bh-fg-2);
+}
+.scouting-root .cr-card-mini {
+  color: var(--bh-fg-3);
+  font-family: var(--font-bh-mono);
+  font-size: 10.5px;
+}
+.scouting-root .cr-card-club {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 0;
+}
+.scouting-root .cr-card-club-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scouting-root .cr-card-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 2px;
+  padding: 8px;
+  border-radius: 9px;
+  background: rgba(204, 255, 0, 0.1);
+  border: 1px solid rgba(204, 255, 0, 0.22);
+  color: var(--bh-lime-200);
+  font-family: var(--font-bh-display);
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.scouting-root .cr-card:hover .cr-card-cta {
+  background: rgba(204, 255, 0, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scouting-root .cr-backdrop,
+  .scouting-root .city-roster,
+  .scouting-root .cr-card {
+    animation: none;
+    transition: none;
   }
 }

@@ -97,11 +97,15 @@ export function HoverCard({
         </div>
 
         <div className="hc-meta">
-          {display.posCode && (
-            <span className="pos-tag" data-group={display.posGroup ?? undefined}>
-              {display.posCode}
+          {display.positions.map((pos) => (
+            <span
+              key={pos.code}
+              className="pos-tag"
+              data-group={pos.group ?? undefined}
+            >
+              {pos.code}
             </span>
-          )}
+          ))}
           <span className="hc-meta-text">{display.posLabel}</span>
           {display.age != null && <span className="hc-age">{display.age}a</span>}
         </div>

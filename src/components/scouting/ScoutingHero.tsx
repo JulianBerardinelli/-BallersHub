@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import { useState, type MutableRefObject } from "react";
 import { useReducedMotion } from "framer-motion";
 
+import { CityRoster } from "./CityRoster";
 import { GlobeLegend, type TopCountry } from "./GlobeLegend";
 import { HoverCard } from "./HoverCard";
 import type { PinPos, ScoutCity, ScoutPlayer } from "@/lib/scouting/types";
@@ -36,6 +37,8 @@ export function ScoutingHero({
   cardCityKey,
   cardCityName,
   stackedCount,
+  rosterCity,
+  onCloseRoster,
   topCountries,
   liveCount,
   liveCountries,
@@ -53,6 +56,9 @@ export function ScoutingHero({
   cardCityKey: string | null;
   cardCityName: string | null;
   stackedCount: number;
+  /** City whose full roster is open (pin click); null when closed. */
+  rosterCity: ScoutCity | null;
+  onCloseRoster: () => void;
   topCountries: TopCountry[];
   liveCount: number;
   liveCountries: number;
@@ -136,6 +142,9 @@ export function ScoutingHero({
           stackedCount={stackedCount}
           pinPositionsRef={pinPositionsRef}
         />
+
+        {/* City roster — every player at a clicked pin, side by side */}
+        <CityRoster city={rosterCity} onClose={onCloseRoster} />
       </div>
     </div>
   );

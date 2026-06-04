@@ -100,9 +100,23 @@ function MTopBar({
 }
 
 // ── Card row ─────────────────────────────────────────────────
-function MPlayerRow({ player }: { player: ScoutPlayer }) {
+// Tapping opens the detail sheet (the "tag") rather than jumping straight to
+// the profile — the sheet carries the "Ver perfil completo" CTA. (SEO is
+// unaffected: the crawlable links live in the server-rendered desktop table.)
+function MPlayerRow({
+  player,
+  onOpen,
+}: {
+  player: ScoutPlayer;
+  onOpen: (p: ScoutPlayer) => void;
+}) {
   return (
-    <Link className="m-prow" href={`/${player.slug}`} data-status={player.contract}>
+    <button
+      type="button"
+      className="m-prow"
+      data-status={player.contract}
+      onClick={() => onOpen(player)}
+    >
       <PlayerAvatar player={player} size={42} />
       <div className="m-prow-body">
         <div className="m-prow-name">
@@ -110,11 +124,15 @@ function MPlayerRow({ player }: { player: ScoutPlayer }) {
           {player.isPro && <span className="pt-pro">Pro</span>}
         </div>
         <div className="m-prow-meta">
-          {player.posCode && (
-            <span className="pos-tag" data-group={player.posGroup ?? undefined}>
-              {player.posCode}
+          {player.positions.map((pos) => (
+            <span
+              key={pos.code}
+              className="pos-tag"
+              data-group={pos.group ?? undefined}
+            >
+              {pos.code}
             </span>
-          )}
+          ))}
           {player.age != null && <span className="m-prow-mini">{player.age}a</span>}
           {player.heightCm && <span className="m-prow-mini">{player.heightCm}cm</span>}
         </div>
@@ -133,7 +151,7 @@ function MPlayerRow({ player }: { player: ScoutPlayer }) {
           {player.contract === "free" ? "Libre" : "Contrato"}
         </div>
       </div>
-    </Link>
+    </button>
   );
 }
 
@@ -393,7 +411,55 @@ function MFilterSheet({
   );
 }
 
-// ── Player detail sheet (globe pin tap) ──────────────────────
+// ── City roster sheet (globe pin tap, >1 player) ─────────────
+// When a pin holds several players, list them all; tapping one opens its
+// detail sheet on top.
+function MCitySheet({
+  city: cityProp,
+  open,
+  onClose,
+  onOpenPlayer,
+}: {
+  city: ScoutCity | null;
+  open: boolean;
+  onClose: () => void;
+  onOpenPlayer: (p: ScoutPlayer) => void;
+}) {
+  const [latched, setLatched] = useState<ScoutCity | null>(cityProp);
+  useEffect(() => {
+    if (cityProp) setLatched(cityProp);
+  }, [cityProp]);
+  const city = cityProp ?? latched;
+  if (!city) return null;
+
+  return (
+    <div className={`m-sheet m-citysheet ${open ? "open" : ""}`} aria-hidden={!open}>
+      <div className="m-sheet-grabber" onClick={onClose} />
+      <div className="m-sheet-head">
+        <div>
+          <div className="m-sheet-eyebrow">{city.players.length} jugadores</div>
+          <div className="m-sheet-title">
+            {city.name || countryName(city.countryCode)}
+          </div>
+        </div>
+        <button type="button" className="m-sheet-close" onClick={onClose} aria-label="Cerrar">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+            <path d="M1 1 L13 13 M13 1 L1 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div className="m-sheet-body">
+        <div className="m-citysheet-list">
+          {city.players.map((p) => (
+            <MPlayerRow key={p.id} player={p} onOpen={onOpenPlayer} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Player detail sheet (list row or single-player pin tap) ───
 function MPlayerSheet({
   player: playerProp,
   open,
@@ -428,11 +494,15 @@ function MPlayerSheet({
           </div>
           <div className="m-psheet-name">{player.name}</div>
           <div className="m-psheet-meta">
-            {player.posCode && (
-              <span className="pos-tag" data-group={player.posGroup ?? undefined}>
-                {player.posCode}
+            {player.positions.map((pos) => (
+              <span
+                key={pos.code}
+                className="pos-tag"
+                data-group={pos.group ?? undefined}
+              >
+                {pos.code}
               </span>
-            )}
+            ))}
             <span>{player.posLabel}</span>
             {player.age != null && (
               <>
@@ -529,6 +599,7 @@ export function MobileScouting({
   const reduceMotion = useReducedMotion() ?? false;
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<ScoutPlayer | null>(null);
+  const [selectedCity, setSelectedCity] = useState<ScoutCity | null>(null);
   const [ready, setReady] = useState(false);
 
   const cityByKey = useMemo(() => new Map(cities.map((c) => [c.key, c])), [cities]);
@@ -603,19 +674,52 @@ export function MobileScouting({
     }),
   );
 
+  // Tapping a list row (or a single-player pin) opens the detail sheet; a pin
+  // with several players opens the city roster first.
+  const openPlayer = (p: ScoutPlayer) => {
+    setFilterOpen(false);
+    setSelectedPlayer(p);
+  };
   const onClickPin = (cityKey: string) => {
     const city = cityByKey.get(cityKey);
-    if (city?.players.length) {
-      setFilterOpen(false);
+    if (!city?.players.length) return;
+    setFilterOpen(false);
+    if (city.players.length === 1) {
+      setSelectedCity(null);
       setSelectedPlayer(city.players[0]);
+    } else {
+      setSelectedPlayer(null);
+      setSelectedCity(city);
     }
   };
+  const closeAll = () => {
+    setFilterOpen(false);
+    setSelectedPlayer(null);
+    setSelectedCity(null);
+  };
 
-  const sheetOpen = filterOpen || !!selectedPlayer;
+  const sheetOpen = filterOpen || !!selectedPlayer || !!selectedCity;
+
+  // Lock the page behind any open sheet so the background list doesn't scroll.
+  useEffect(() => {
+    if (!sheetOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sheetOpen]);
 
   return (
     <div className="m-screen">
-      <MTopBar filterCount={filterCount} onFilters={() => { setSelectedPlayer(null); setFilterOpen(true); }} />
+      <MTopBar
+        filterCount={filterCount}
+        onFilters={() => {
+          setSelectedPlayer(null);
+          setSelectedCity(null);
+          setFilterOpen(true);
+        }}
+      />
 
       <div className="m-hero">
         <div className="m-hero-globe">
@@ -626,6 +730,7 @@ export function MobileScouting({
             onClickPin={onClickPin}
             onReady={() => setReady(true)}
             reduceMotion={reduceMotion}
+            quality="low"
           />
           {!ready && (
             <div className="skel-globe">
@@ -685,7 +790,9 @@ export function MobileScouting({
             </button>
           </div>
         ) : (
-          filtered.map((p) => <MPlayerRow key={p.id} player={p} />)
+          filtered.map((p) => (
+            <MPlayerRow key={p.id} player={p} onOpen={openPlayer} />
+          ))
         )}
       </div>
 
@@ -694,10 +801,7 @@ export function MobileScouting({
         className={`m-backdrop ${sheetOpen ? "open" : ""}`}
         aria-label="Cerrar"
         tabIndex={sheetOpen ? 0 : -1}
-        onClick={() => {
-          setFilterOpen(false);
-          setSelectedPlayer(null);
-        }}
+        onClick={closeAll}
       />
       <MFilterSheet
         open={filterOpen}
@@ -708,6 +812,12 @@ export function MobileScouting({
         onApply={() => setFilterOpen(false)}
         onClear={onClear}
         onClose={() => setFilterOpen(false)}
+      />
+      <MCitySheet
+        city={selectedCity}
+        open={!!selectedCity}
+        onClose={() => setSelectedCity(null)}
+        onOpenPlayer={openPlayer}
       />
       <MPlayerSheet
         player={selectedPlayer}

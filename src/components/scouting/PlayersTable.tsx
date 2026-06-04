@@ -31,7 +31,7 @@ type Column = {
 
 const COLUMNS: Column[] = [
   { key: "name", label: "Jugador", width: "minmax(220px, 1.5fr)" },
-  { key: "posCode", label: "Pos", width: "64px" },
+  { key: "posCode", label: "Pos", width: "92px" },
   { key: "age", label: "Edad", width: "58px", align: "right", mono: true },
   { key: "club", label: "Club", width: "minmax(220px, 1.3fr)" },
   { key: "nationality", label: "Nac.", width: "104px" },
@@ -145,10 +145,18 @@ export function PlayersTable({
               </div>
 
               <div className="pt-c">
-                {p.posCode ? (
-                  <span className="pos-tag" data-group={p.posGroup ?? undefined}>
-                    {p.posCode}
-                  </span>
+                {p.positions.length > 0 ? (
+                  <div className="pt-pos-list">
+                    {p.positions.map((pos) => (
+                      <span
+                        key={pos.code}
+                        className="pos-tag"
+                        data-group={pos.group ?? undefined}
+                      >
+                        {pos.code}
+                      </span>
+                    ))}
+                  </div>
                 ) : (
                   <span className="value-dash">—</span>
                 )}

@@ -13,6 +13,7 @@ import type {
   FootCode,
   PositionGroup,
   PositionOption,
+  ScoutPosition,
 } from "./types";
 
 /** Parent role (stored as the first `positions` entry) → group. */
@@ -113,53 +114,83 @@ function normalizeText(s: string): string {
 }
 
 /**
- * Resolve a player's `positions` array to a primary `{ code, label, group }`.
- * Strategy: skip the parent role, take the first sub-entry; resolve it whether
- * it's already a code or a Spanish label. The parent role still seeds the group
- * as a fallback when the sub is unmappable.
+ * Resolve a player's `positions` array to EVERY position it represents.
+ *
+ * The column stores `[role?, ...subs]` where `role ∈ ARQ|DEF|MID|DEL` and the
+ * subs are codes ("DFC") or Spanish labels ("Lateral derecho") — and sometimes
+ * there's no parent role at all (e.g. `["Segundo Delantero","Centrodelantero"]`).
+ * Parent roles are dropped when at least one sub resolves (the sub implies the
+ * role); the role only seeds the group color as a fallback. Results are
+ * de-duplicated by code, preserving order. This is what lets a two-position
+ * player be filtered/surfaced by BOTH positions, not just the first.
  */
-export function resolvePrimaryPosition(positions: string[] | null | undefined): {
-  code: string;
-  label: string;
-  group: PositionGroup | null;
-} {
-  if (!positions || positions.length === 0) {
-    return { code: "", label: "", group: null };
-  }
+export function resolveAllPositions(
+  positions: string[] | null | undefined,
+): ScoutPosition[] {
+  if (!positions || positions.length === 0) return [];
 
   // Parent role group fallback (first entry is often ARQ/DEF/MID/DEL).
   const parentGroup =
     ROLE_TO_GROUP[(positions[0] ?? "").toUpperCase().trim()] ?? null;
 
-  // Find the first entry that resolves to a known sub-position code.
+  const out: ScoutPosition[] = [];
+  const seen = new Set<string>();
+
   for (const raw of positions) {
     const trimmed = (raw ?? "").trim();
     if (!trimmed) continue;
     const upper = trimmed.toUpperCase();
-    // Already a code?
+    // Parent role: skip — it's implied by its sub-positions (group already
+    // seeded above for the unmappable fallback).
+    if (ROLE_TO_GROUP[upper]) continue;
+
+    let resolved: ScoutPosition;
     if (CODE_TO_LABEL[upper]) {
-      return {
+      resolved = {
         code: upper,
         label: CODE_TO_LABEL[upper],
         group: CODE_TO_GROUP[upper] ?? parentGroup,
       };
+    } else {
+      const code = LABEL_TO_CODE[normalizeText(trimmed)];
+      resolved = code
+        ? { code, label: CODE_TO_LABEL[code], group: CODE_TO_GROUP[code] }
+        : // Unknown sub — surface the raw value, keep the parent group color.
+          { code: upper.slice(0, 4), label: trimmed, group: parentGroup };
     }
-    // A Spanish label?
-    const code = LABEL_TO_CODE[normalizeText(trimmed)];
-    if (code) {
-      return { code, label: CODE_TO_LABEL[code], group: CODE_TO_GROUP[code] };
+
+    if (seen.has(resolved.code)) continue;
+    seen.add(resolved.code);
+    out.push(resolved);
+  }
+
+  // Only parent role(s) present (no subs) — surface the parent so the tag isn't
+  // empty, matching the old primary-resolution fallback.
+  if (out.length === 0) {
+    const first = (positions[0] ?? "").trim();
+    if (first) {
+      const upper = first.toUpperCase();
+      out.push({
+        code: upper.slice(0, 4),
+        label: first,
+        group: ROLE_TO_GROUP[upper] ?? parentGroup,
+      });
     }
   }
 
-  // Nothing mapped — surface the raw value but keep the parent group color.
-  const fallback = (positions.find((p) => p && !ROLE_TO_GROUP[p.toUpperCase()]) ??
-    positions[0] ??
-    "").trim();
-  return {
-    code: fallback.toUpperCase().slice(0, 4),
-    label: fallback,
-    group: parentGroup,
-  };
+  return out;
+}
+
+/**
+ * The primary position — the first of {@link resolveAllPositions}. Kept for the
+ * table's sort key, the headline tag color, and any single-tag display.
+ */
+export function resolvePrimaryPosition(
+  positions: string[] | null | undefined,
+): ScoutPosition {
+  return (
+    resolveAllPositions(positions)[0] ?? { code: "", label: "", group: null }
+  );
 }
 
 /** Normalize the free-text `foot` column to D / I / A (or null if unknown). */

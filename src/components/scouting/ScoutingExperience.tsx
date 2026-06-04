@@ -60,6 +60,8 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const [hoverPlayerId, setHoverPlayerId] = useState<string | null>(null);
   const [hoverPinKey, setHoverPinKey] = useState<string | null>(null);
   const [focusCity, setFocusCity] = useState<string | null>(null);
+  // City whose full roster panel is open (set by clicking a pin).
+  const [selectedCityKey, setSelectedCityKey] = useState<string | null>(null);
   // Shared each-frame pin screen positions (globe writes, HoverCard reads).
   const pinPositionsRef = useRef<Map<string, PinPos>>(new Map());
 
@@ -164,7 +166,14 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const onPinClick = useCallback((key: string) => {
     setHoverPinKey(key);
     setFocusCity(key);
+    setSelectedCityKey(key);
   }, []);
+  const closeRoster = useCallback(() => setSelectedCityKey(null), []);
+
+  // The city behind the open roster panel — null when closed or filtered out.
+  const rosterCity = selectedCityKey
+    ? cityByKey.get(selectedCityKey) ?? null
+    : null;
 
   return (
     <div className="scouting-root">
@@ -196,6 +205,8 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
             cardCityKey={activeCityKey}
             cardCityName={activeCity?.name ?? null}
             stackedCount={activeCity?.players.length ?? 0}
+            rosterCity={rosterCity}
+            onCloseRoster={closeRoster}
             topCountries={topCountries}
             liveCount={filtered.length}
             liveCountries={liveCountries}
