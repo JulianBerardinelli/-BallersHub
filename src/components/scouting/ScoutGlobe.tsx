@@ -45,8 +45,13 @@ type GlobeState = {
   dragging: boolean;
   lastT: number;
   lastInteraction: number;
+  /** Camera zoom multiplier (1 = default framing). */
+  zoom: number;
   pinHits: { key: string; x: number; y: number }[];
 };
+
+const ZOOM_MIN = 0.7;
+const ZOOM_MAX = 3.5;
 
 const easeInOut = (t: number) =>
   t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -62,6 +67,8 @@ export default function ScoutGlobe({
   onReady,
   reduceMotion = false,
   quality = "high",
+  showZoomControls = false,
+  freezeRotation = false,
   pinPositionsRef,
 }: {
   cities: ScoutCity[];
@@ -75,6 +82,10 @@ export default function ScoutGlobe({
   reduceMotion?: boolean;
   /** "low" trims per-frame cost (dpr + glow passes) for smooth mobile drag. */
   quality?: "high" | "low";
+  /** Render the +/- zoom buttons (top-right). */
+  showZoomControls?: boolean;
+  /** Hold the globe still (no auto-rotate) — used while a card panel is open. */
+  freezeRotation?: boolean;
   pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -91,6 +102,8 @@ export default function ScoutGlobe({
   reduceRef.current = reduceMotion;
   const qualityRef = useRef(quality);
   qualityRef.current = quality;
+  const freezeRef = useRef(freezeRotation);
+  freezeRef.current = freezeRotation;
   const onHoverPinRef = useRef(onHoverPin);
   onHoverPinRef.current = onHoverPin;
   const onClickPinRef = useRef(onClickPin);
@@ -101,14 +114,17 @@ export default function ScoutGlobe({
   onReadyRef.current = onReady;
 
   const stateRef = useRef<GlobeState>({
-    // Start framed on Latin America (center ≈ 70°W, 18°S — the core market),
-    // not the Middle East/Asia. d3 centers on (−λ, −φ), so [70, 18] ⇒ (−70, −18).
-    rot: [70, 18, 0],
+    // Open on the Atlantic-facing view (center ≈ 45°W, 12°N): Latin America to
+    // the left, Europe/Africa to the right, tilted north so the northern
+    // hemisphere reads and pins don't ride up under the hero title. d3 centers
+    // on (−λ, −φ), so [45, -12] ⇒ (−45, 12).
+    rot: [45, -12, 0],
     targetRot: null,
     autoRot: true,
     dragging: false,
     lastT: 0,
     lastInteraction: 0,
+    zoom: 1,
     pinHits: [],
   });
 
@@ -171,7 +187,7 @@ export default function ScoutGlobe({
       ctx.clearRect(0, 0, W, H);
       const cx = W / 2;
       const cy = H / 2;
-      const R = Math.min(W, H) * 0.46;
+      const R = Math.min(W, H) * 0.46 * s.zoom;
 
       const projection = geoOrthographic()
         .scale(R)
@@ -310,12 +326,18 @@ export default function ScoutGlobe({
       const dt = Math.min(60, now - s.lastT);
       s.lastT = now;
 
-      if (s.autoRot && !s.dragging && !s.targetRot && !reduceRef.current) {
+      if (s.autoRot && !s.dragging && !s.targetRot && !reduceRef.current && !freezeRef.current) {
         // Auto-rotate rightward (reversed from the old leftward drift), so the
         // map opens on Latin America and spins toward the right.
         s.rot[0] -= (dt / 1000) * 4.5;
       }
-      if (!s.autoRot && !s.dragging && !s.targetRot && now - s.lastInteraction > 4000) {
+      if (
+        !freezeRef.current &&
+        !s.autoRot &&
+        !s.dragging &&
+        !s.targetRot &&
+        now - s.lastInteraction > 4000
+      ) {
         s.autoRot = true;
       }
       if (s.targetRot) {
@@ -427,7 +449,7 @@ export default function ScoutGlobe({
       if (!onClickCountryRef.current) return;
       const W = canvas.clientWidth;
       const H = canvas.clientHeight;
-      const R = Math.min(W, H) * 0.46;
+      const R = Math.min(W, H) * 0.46 * s.zoom;
       const projection = geoOrthographic()
         .scale(R)
         .translate([W / 2, H / 2])
@@ -454,9 +476,29 @@ export default function ScoutGlobe({
     };
   }, []);
 
+  // Mutating the ref is enough — the rAF loop reads s.zoom every frame.
+  const applyZoom = (factor: number) => {
+    const s = stateRef.current;
+    s.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, s.zoom * factor));
+  };
+
   return (
     <div ref={wrapRef} className="globe-canvas-wrap">
       <canvas ref={canvasRef} />
+      {showZoomControls && (
+        <div className="globe-controls">
+          <button type="button" aria-label="Acercar el mapa" onClick={() => applyZoom(1.25)}>
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+              <path d="M7 2.5v9 M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+          <button type="button" aria-label="Alejar el mapa" onClick={() => applyZoom(0.8)}>
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+              <path d="M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

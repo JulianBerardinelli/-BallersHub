@@ -14,6 +14,9 @@
   --pos-rojo: #ff5c5c;
   --pos-celeste: #4fc3ff;
   --pos-verde: #45d483;
+  /* Single horizontal inset shared by the filter bar and the table so their
+     content bands line up edge-to-edge at every viewport. */
+  --scout-inset: clamp(16px, 4vw, 28px);
   color: var(--bh-fg-1);
   font-family: var(--font-bh-body);
   /* No background of its own — the globe floats on the page background; only
@@ -331,7 +334,8 @@
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  padding: 18px clamp(16px, 4vw, 36px);
+  /* Same inset as the table rows → controls align with the table's edges. */
+  padding: 18px var(--scout-inset);
   /* Transparent — only the table carries a surface; the controls have their
      own chips/buttons so they read fine on the page background. */
   background: transparent;
@@ -730,7 +734,7 @@
 .scouting-root .pt-head {
   display: grid;
   gap: 0;
-  padding: 0 clamp(16px, 4vw, 28px);
+  padding: 0 var(--scout-inset);
   background: #0d0d0d;
   border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   height: 36px;
@@ -787,7 +791,7 @@
 .scouting-root .pt-row {
   display: grid;
   align-items: center;
-  padding: 0 clamp(16px, 4vw, 28px);
+  padding: 0 var(--scout-inset);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   cursor: pointer;
   transition:
@@ -1154,35 +1158,28 @@
   box-shadow: 0 0 8px rgba(204, 255, 0, 0.6);
 }
 
-/* Hover card — outer anchors to the pin's screen x/y via translate3d (set
-   imperatively each frame); inner plays the enter/exit animation. */
-.scouting-root .hover-card {
+/* ── City card panel — every player at the active pin, as a row above it ──
+   The outer anchors to the pin's screen x/y via translate3d (set imperatively
+   each frame, clamped on-screen); the row plays the enter/exit animation and
+   flips below the pin when there's no room above. */
+.scouting-root .pin-cards {
   position: absolute;
   top: 0;
   left: 0;
   width: 0;
   height: 0;
   pointer-events: none;
-  z-index: 8;
+  z-index: 9;
   will-change: transform;
 }
-.scouting-root .hc-inner {
+.scouting-root .pc-row {
   position: absolute;
-  bottom: 22px;
   left: 50%;
-  width: 290px;
-  transform: translate(-50%, 0) scale(0.94);
-  transform-origin: 50% calc(100% + 12px);
-  background: linear-gradient(180deg, rgba(20, 20, 20, 0.96), rgba(12, 12, 12, 0.96));
-  backdrop-filter: blur(20px) saturate(140%);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  border: 1px solid rgba(204, 255, 0, 0.32);
-  border-radius: 14px;
-  padding: 14px 14px 12px;
-  box-shadow:
-    0 18px 48px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(0, 0, 0, 0.4),
-    0 0 32px rgba(204, 255, 0, 0.18);
+  bottom: 22px;
+  display: flex;
+  gap: 8px;
+  transform: translate(-50%, 6px) scale(0.96);
+  transform-origin: 50% calc(100% + 14px);
   opacity: 0;
   pointer-events: auto;
   filter: blur(2px);
@@ -1191,152 +1188,168 @@
     transform 200ms cubic-bezier(0.4, 0, 1, 1),
     filter 220ms ease;
 }
-.scouting-root .hover-card[data-visible="true"] .hc-inner {
+.scouting-root .pin-cards[data-flip="down"] .pc-row {
+  bottom: auto;
+  top: 22px;
+  transform-origin: 50% -14px;
+}
+.scouting-root .pin-cards[data-visible="true"] .pc-row {
   opacity: 1;
   transform: translate(-50%, 0) scale(1);
   filter: blur(0);
   transition:
-    opacity 260ms cubic-bezier(0.22, 0.61, 0.36, 1) 30ms,
-    transform 320ms cubic-bezier(0.34, 1.4, 0.64, 1) 30ms,
-    filter 240ms cubic-bezier(0.22, 0.61, 0.36, 1) 30ms;
+    opacity 240ms cubic-bezier(0.22, 0.61, 0.36, 1) 20ms,
+    transform 300ms cubic-bezier(0.34, 1.4, 0.64, 1) 20ms,
+    filter 220ms cubic-bezier(0.22, 0.61, 0.36, 1) 20ms;
 }
-.scouting-root .hc-stack-pill {
-  position: absolute;
-  top: -10px;
-  right: 12px;
-  font-family: var(--font-bh-mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  background: var(--bh-lime-200);
-  color: #000;
-  padding: 3px 8px;
-  border-radius: 999px;
-  box-shadow: 0 4px 12px rgba(204, 255, 0, 0.35);
+.scouting-root .pc-card {
+  flex: 0 0 190px;
+  width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 11px 12px 10px;
+  border-radius: 13px;
+  background: linear-gradient(180deg, rgba(20, 20, 20, 0.97), rgba(12, 12, 12, 0.97));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid rgba(204, 255, 0, 0.3);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55), 0 0 28px rgba(204, 255, 0, 0.12);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 150ms var(--bh-ease-snappy), border-color 150ms;
 }
-.scouting-root .hc-row {
+.scouting-root .pc-card[data-status="contracted"] {
+  border-color: rgba(0, 194, 255, 0.28);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55), 0 0 28px rgba(0, 194, 255, 0.1);
+}
+.scouting-root .pc-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(204, 255, 0, 0.55);
+}
+.scouting-root .pc-card-top {
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 9px;
 }
-.scouting-root .hc-name-block {
+.scouting-root .pc-card-id {
   flex: 1;
   min-width: 0;
 }
-.scouting-root .hc-name {
+.scouting-root .pc-card-name {
   font-family: var(--font-bh-display);
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 17px;
+  font-size: 14px;
   line-height: 1;
   color: #fff;
-  letter-spacing: 0.005em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.scouting-root .hc-sub {
+.scouting-root .pc-card-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  color: var(--bh-fg-2);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.scouting-root .pc-card-val {
+  font-family: var(--font-bh-display);
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.scouting-root .pc-card-val[data-status="free"] {
+  color: var(--bh-lime-200);
+}
+.scouting-root .pc-card-val[data-status="contracted"] {
+  color: var(--bh-blue-100);
+}
+.scouting-root .pc-card-pos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+.scouting-root .pc-card-age {
+  margin-left: auto;
+  font-family: var(--font-bh-mono);
+  font-size: 10px;
+  color: var(--bh-fg-3);
+}
+.scouting-root .pc-card-club {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  color: var(--bh-fg-2);
-  margin-top: 5px;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.7);
+  min-width: 0;
 }
-.scouting-root .hc-rating {
-  text-align: right;
-  flex-shrink: 0;
+.scouting-root .pc-card-club-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.scouting-root .hc-rating-n {
+.scouting-root .pc-more {
+  flex: 0 0 96px;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 13px;
+  background: rgba(204, 255, 0, 0.08);
+  border: 1px dashed rgba(204, 255, 0, 0.4);
+  color: var(--bh-lime-200);
+  cursor: pointer;
+  transition: background 150ms;
+}
+.scouting-root .pc-more:hover {
+  background: rgba(204, 255, 0, 0.16);
+}
+.scouting-root .pc-more-n {
   font-family: var(--font-bh-display);
   font-weight: 900;
   font-size: 22px;
   line-height: 1;
 }
-.scouting-root .hc-rating-n[data-status="free"] {
-  color: var(--bh-lime-200);
-  text-shadow: 0 0 14px rgba(204, 255, 0, 0.45);
-}
-.scouting-root .hc-rating-n[data-status="contracted"] {
-  color: var(--bh-blue-100);
-  text-shadow: 0 0 14px rgba(0, 194, 255, 0.4);
-}
-.scouting-root .hc-rating-l {
+.scouting-root .pc-more-l {
   font-size: 8.5px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--bh-fg-3);
-  margin-top: 3px;
 }
-.scouting-root .hc-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.7);
-}
-.scouting-root .hc-meta-text {
-  color: rgba(255, 255, 255, 0.6);
-}
-.scouting-root .hc-age {
-  margin-left: auto;
-  font-family: var(--font-bh-mono);
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.55);
-}
-.scouting-root .hc-club {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-.scouting-root .hc-club-eyebrow {
-  font-size: 9px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--bh-fg-3);
-  font-weight: 600;
-  margin-bottom: 7px;
-}
-.scouting-root .hc-club-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.scouting-root .hc-club-info {
-  flex: 1;
-  min-width: 0;
-}
-.scouting-root .hc-club-name {
-  font-family: var(--font-bh-display);
-  font-weight: 700;
-  font-size: 13px;
-  color: #fff;
-  line-height: 1;
-  text-transform: uppercase;
-  letter-spacing: 0.01em;
-}
-.scouting-root .hc-club-loc {
-  font-size: 10.5px;
-  color: var(--bh-fg-3);
-  margin-top: 4px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.scouting-root .hc-arrow {
+.scouting-root .pc-arrow {
   position: absolute;
-  bottom: -7px;
-  left: 50%;
+  bottom: -6px;
+  left: calc(50% + var(--arrow-dx, 0px));
   transform: translateX(-50%) rotate(45deg);
   width: 12px;
   height: 12px;
-  background: linear-gradient(135deg, transparent 50%, rgba(12, 12, 12, 0.96) 50%);
-  border-right: 1px solid rgba(204, 255, 0, 0.32);
-  border-bottom: 1px solid rgba(204, 255, 0, 0.32);
+  background: rgba(14, 14, 14, 0.97);
+  border-right: 1px solid rgba(204, 255, 0, 0.3);
+  border-bottom: 1px solid rgba(204, 255, 0, 0.3);
+}
+.scouting-root .pin-cards[data-flip="down"] .pc-arrow {
+  bottom: auto;
+  top: -6px;
+  transform: translateX(-50%) rotate(225deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scouting-root .pc-row {
+    transition: none;
+  }
+  .scouting-root .pc-card {
+    transition: none;
+  }
 }
 
 /* Reduced motion — kill the decorative loops */

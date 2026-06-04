@@ -19,9 +19,9 @@ import type { PinPos, ScoutCity, ScoutPlayer } from "@/lib/scouting/types";
 const ScoutGlobe = dynamic(() => import("./ScoutGlobe"), { ssr: false });
 
 export type HeroStats = {
-  total: number;
-  pro: number;
-  geo: number;
+  players: number;
+  countries: number;
+  cities: number;
 };
 
 export function ScoutingHero({
@@ -33,10 +33,12 @@ export function ScoutingHero({
   onClickPin,
   onCountryClick,
   pinPositionsRef,
-  cardPlayer,
+  cardPlayers,
   cardCityKey,
-  cardCityName,
-  stackedCount,
+  onCardOverflow,
+  onPanelEnter,
+  onPanelLeave,
+  freezeRotation,
   rosterCity,
   onCloseRoster,
   topCountries,
@@ -52,11 +54,15 @@ export function ScoutingHero({
   onClickPin: (key: string) => void;
   onCountryClick: (iso2: string) => void;
   pinPositionsRef: MutableRefObject<Map<string, PinPos>>;
-  cardPlayer: ScoutPlayer | null;
+  /** Players of the active city — the card panel renders all of them. */
+  cardPlayers: ScoutPlayer[];
   cardCityKey: string | null;
-  cardCityName: string | null;
-  stackedCount: number;
-  /** City whose full roster is open (pin click); null when closed. */
+  onCardOverflow: () => void;
+  onPanelEnter: () => void;
+  onPanelLeave: () => void;
+  /** Hold the globe still while a card panel is open. */
+  freezeRotation: boolean;
+  /** City whose full roster modal is open (>5 players); null when closed. */
   rosterCity: ScoutCity | null;
   onCloseRoster: () => void;
   topCountries: TopCountry[];
@@ -88,6 +94,8 @@ export function ScoutingHero({
           pinPositionsRef={pinPositionsRef}
           onReady={() => setReady(true)}
           reduceMotion={reduceMotion}
+          showZoomControls
+          freezeRotation={freezeRotation}
         />
 
         {/* Floating title — top center */}
@@ -107,43 +115,32 @@ export function ScoutingHero({
         {/* Floating stats — bottom right */}
         <div className="float-stats">
           <div className="fs-row">
-            <div className="fs-num">{stats.total}</div>
-            <div className="fs-lbl">
-              Jugadores
-              <br />
-              indexados
-            </div>
+            <div className="fs-num">{stats.players}</div>
+            <div className="fs-lbl">Jugadores</div>
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
-            <div className="fs-num">{stats.geo}</div>
-            <div className="fs-lbl">
-              En el
-              <br />
-              mapa
-            </div>
+            <div className="fs-num">{stats.countries}</div>
+            <div className="fs-lbl">Países</div>
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
-            <div className="fs-num">{stats.pro}</div>
-            <div className="fs-lbl">
-              Perfiles
-              <br />
-              Pro
-            </div>
+            <div className="fs-num">{stats.cities}</div>
+            <div className="fs-lbl">Ciudades</div>
           </div>
         </div>
 
-        {/* Player hover card — glides glued to its pin */}
+        {/* City cards — every player at the active pin, in a row above it */}
         <HoverCard
-          player={cardPlayer}
+          players={cardPlayers}
           cityKey={cardCityKey}
-          cityName={cardCityName}
-          stackedCount={stackedCount}
           pinPositionsRef={pinPositionsRef}
+          onOverflow={onCardOverflow}
+          onPanelEnter={onPanelEnter}
+          onPanelLeave={onPanelLeave}
         />
 
-        {/* City roster — every player at a clicked pin, side by side */}
+        {/* Roster modal — only as the >5 overflow fallback */}
         <CityRoster city={rosterCity} onClose={onCloseRoster} />
       </div>
     </div>
