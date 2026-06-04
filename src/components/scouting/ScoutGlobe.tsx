@@ -68,6 +68,7 @@ export default function ScoutGlobe({
   reduceMotion = false,
   quality = "high",
   showZoomControls = false,
+  freezeRotation = false,
   pinPositionsRef,
 }: {
   cities: ScoutCity[];
@@ -83,6 +84,8 @@ export default function ScoutGlobe({
   quality?: "high" | "low";
   /** Render the +/- zoom buttons (top-right). */
   showZoomControls?: boolean;
+  /** Hold the globe still (no auto-rotate) — used while a card panel is open. */
+  freezeRotation?: boolean;
   pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -99,6 +102,8 @@ export default function ScoutGlobe({
   reduceRef.current = reduceMotion;
   const qualityRef = useRef(quality);
   qualityRef.current = quality;
+  const freezeRef = useRef(freezeRotation);
+  freezeRef.current = freezeRotation;
   const onHoverPinRef = useRef(onHoverPin);
   onHoverPinRef.current = onHoverPin;
   const onClickPinRef = useRef(onClickPin);
@@ -109,9 +114,11 @@ export default function ScoutGlobe({
   onReadyRef.current = onReady;
 
   const stateRef = useRef<GlobeState>({
-    // Start framed on Latin America (center ≈ 70°W, 18°S — the core market),
-    // not the Middle East/Asia. d3 centers on (−λ, −φ), so [70, 18] ⇒ (−70, −18).
-    rot: [70, 18, 0],
+    // Open on the Atlantic-facing view (center ≈ 45°W, 12°N): Latin America to
+    // the left, Europe/Africa to the right, tilted north so the northern
+    // hemisphere reads and pins don't ride up under the hero title. d3 centers
+    // on (−λ, −φ), so [45, -12] ⇒ (−45, 12).
+    rot: [45, -12, 0],
     targetRot: null,
     autoRot: true,
     dragging: false,
@@ -319,12 +326,18 @@ export default function ScoutGlobe({
       const dt = Math.min(60, now - s.lastT);
       s.lastT = now;
 
-      if (s.autoRot && !s.dragging && !s.targetRot && !reduceRef.current) {
+      if (s.autoRot && !s.dragging && !s.targetRot && !reduceRef.current && !freezeRef.current) {
         // Auto-rotate rightward (reversed from the old leftward drift), so the
         // map opens on Latin America and spins toward the right.
         s.rot[0] -= (dt / 1000) * 4.5;
       }
-      if (!s.autoRot && !s.dragging && !s.targetRot && now - s.lastInteraction > 4000) {
+      if (
+        !freezeRef.current &&
+        !s.autoRot &&
+        !s.dragging &&
+        !s.targetRot &&
+        now - s.lastInteraction > 4000
+      ) {
         s.autoRot = true;
       }
       if (s.targetRot) {

@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { FilterBar } from "./FilterBar";
+import { MAX_INLINE } from "./HoverCard";
 import { PlayersTable } from "./PlayersTable";
 import { ScoutingHero } from "./ScoutingHero";
 import { MobileScouting, useIsMobile } from "./mobile/MobileScouting";
@@ -44,6 +45,8 @@ function freshFilters(): ScoutFilters {
 }
 
 const DESC_FIRST = new Set<ScoutSortKey>(["age", "heightCm", "marketValueEur"]);
+/** Stable empty array so the idle card panel doesn't get a new ref each render. */
+const EMPTY_PLAYERS: ScoutPlayer[] = [];
 
 export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const [filters, setFilters] = useState<ScoutFilters>(freshFilters);
@@ -60,8 +63,16 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const [hoverPlayerId, setHoverPlayerId] = useState<string | null>(null);
   const [hoverPinKey, setHoverPinKey] = useState<string | null>(null);
   const [focusCity, setFocusCity] = useState<string | null>(null);
-  // City whose full roster panel is open (set by clicking a pin).
+  // City whose full roster MODAL is open (only the >5 overflow fallback).
   const [selectedCityKey, setSelectedCityKey] = useState<string | null>(null);
+  // True while the pointer is over the card panel — keeps it open when moving
+  // from the pin onto the cards.
+  const [panelHover, setPanelHover] = useState(false);
+  // Last real (pin/row) active city, retained while the panel itself is hovered.
+  const activeKeyRef = useRef<string | null>(null);
+  // Hover-intent grace timer so the pointer can bridge the gap pin → panel
+  // without it flickering shut.
+  const clearTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // Shared each-frame pin screen positions (globe writes, HoverCard reads).
   const pinPositionsRef = useRef<Map<string, PinPos>>(new Map());
 
@@ -139,16 +150,17 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     setFocusCity(cityKeyOf(hoverPlayer));
   }, [hoverPlayer]);
 
-  // The pin that's "active": an explicit pin hover wins; otherwise the city of
-  // the row being hovered. Drives globe highlight, table highlight, and card.
-  const activeCityKey =
+  // The "real" active city: a pin hover wins, else the hovered row's city.
+  const baseCityKey =
     hoverPinKey ?? (hoverPlayer ? cityKeyOf(hoverPlayer) : null);
+  // Remember it so panel-hover can retain the panel after the pin/row hover ends.
+  if (baseCityKey) activeKeyRef.current = baseCityKey;
+  const activeCityKey =
+    baseCityKey ?? (panelHover ? activeKeyRef.current : null);
 
-  const cardPlayer = useMemo(() => {
-    if (hoverPinKey) return cityByKey.get(hoverPinKey)?.players[0] ?? null;
-    return hoverPlayer;
-  }, [hoverPinKey, hoverPlayer, cityByKey]);
   const activeCity = activeCityKey ? cityByKey.get(activeCityKey) ?? null : null;
+  // The panel renders ALL of the active city's players (up to MAX_INLINE).
+  const cardPlayers = activeCity?.players ?? EMPTY_PLAYERS;
 
   const onSort = useCallback((key: ScoutSortKey) => {
     setSort((s) =>
@@ -169,14 +181,60 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     });
   }, []);
 
-  const onPinClick = useCallback((key: string) => {
-    setHoverPinKey(key);
-    setFocusCity(key);
-    setSelectedCityKey(key);
+  const cancelClear = useCallback(() => {
+    if (clearTimer.current) clearTimeout(clearTimer.current);
   }, []);
-  const closeRoster = useCallback(() => setSelectedCityKey(null), []);
+  // Globe pin hover — delayed clear so the pointer can travel onto the panel.
+  const onHoverPin = useCallback(
+    (key: string | null) => {
+      cancelClear();
+      if (key) setHoverPinKey(key);
+      else clearTimer.current = setTimeout(() => setHoverPinKey(null), 160);
+    },
+    [cancelClear],
+  );
+  // Table-row hover — same grace period.
+  const onRowHover = useCallback(
+    (id: string | null) => {
+      cancelClear();
+      if (id) setHoverPlayerId(id);
+      else clearTimer.current = setTimeout(() => setHoverPlayerId(null), 160);
+    },
+    [cancelClear],
+  );
+  const onPanelEnter = useCallback(() => {
+    cancelClear();
+    setPanelHover(true);
+  }, [cancelClear]);
+  const onPanelLeave = useCallback(() => {
+    setPanelHover(false);
+    setHoverPinKey(null);
+    setHoverPlayerId(null);
+  }, []);
 
-  // The city behind the open roster panel — null when closed or filtered out.
+  // Clicking a pin: ≤MAX_INLINE players already show in the hover panel, so just
+  // activate it and fly there; more than that opens the roster modal.
+  const onPinClick = useCallback(
+    (key: string) => {
+      cancelClear();
+      setFocusCity(key);
+      const city = cityByKey.get(key);
+      if (city && city.players.length > MAX_INLINE) {
+        setHoverPinKey(null);
+        setSelectedCityKey(key);
+      } else {
+        setHoverPinKey(key);
+      }
+    },
+    [cancelClear, cityByKey],
+  );
+  const closeRoster = useCallback(() => setSelectedCityKey(null), []);
+  // The panel's "+N ver todos" tile opens the full roster modal.
+  const openRoster = useCallback(() => {
+    if (activeKeyRef.current) setSelectedCityKey(activeKeyRef.current);
+  }, []);
+
+  // The city behind the open roster modal — null when closed or filtered out.
   const rosterCity = selectedCityKey
     ? cityByKey.get(selectedCityKey) ?? null
     : null;
@@ -203,14 +261,16 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
             countryDensity={countryDensity}
             focusCity={focusCity}
             hoverPin={activeCityKey}
-            onHoverPin={setHoverPinKey}
+            onHoverPin={onHoverPin}
             onClickPin={onPinClick}
             onCountryClick={onCountryClick}
             pinPositionsRef={pinPositionsRef}
-            cardPlayer={cardPlayer}
+            cardPlayers={cardPlayers}
             cardCityKey={activeCityKey}
-            cardCityName={activeCity?.name ?? null}
-            stackedCount={activeCity?.players.length ?? 0}
+            onCardOverflow={openRoster}
+            onPanelEnter={onPanelEnter}
+            onPanelLeave={onPanelLeave}
+            freezeRotation={activeCityKey != null || selectedCityKey != null}
             rosterCity={rosterCity}
             onCloseRoster={closeRoster}
             topCountries={topCountries}
@@ -243,7 +303,7 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
               onSort={onSort}
               density={density}
               hoverPlayerId={hoverPlayerId}
-              onRowHover={setHoverPlayerId}
+              onRowHover={onRowHover}
               highlightCityKey={activeCityKey}
             />
           </div>

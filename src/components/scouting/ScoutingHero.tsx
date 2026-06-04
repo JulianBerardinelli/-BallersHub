@@ -33,10 +33,12 @@ export function ScoutingHero({
   onClickPin,
   onCountryClick,
   pinPositionsRef,
-  cardPlayer,
+  cardPlayers,
   cardCityKey,
-  cardCityName,
-  stackedCount,
+  onCardOverflow,
+  onPanelEnter,
+  onPanelLeave,
+  freezeRotation,
   rosterCity,
   onCloseRoster,
   topCountries,
@@ -52,11 +54,15 @@ export function ScoutingHero({
   onClickPin: (key: string) => void;
   onCountryClick: (iso2: string) => void;
   pinPositionsRef: MutableRefObject<Map<string, PinPos>>;
-  cardPlayer: ScoutPlayer | null;
+  /** Players of the active city — the card panel renders all of them. */
+  cardPlayers: ScoutPlayer[];
   cardCityKey: string | null;
-  cardCityName: string | null;
-  stackedCount: number;
-  /** City whose full roster is open (pin click); null when closed. */
+  onCardOverflow: () => void;
+  onPanelEnter: () => void;
+  onPanelLeave: () => void;
+  /** Hold the globe still while a card panel is open. */
+  freezeRotation: boolean;
+  /** City whose full roster modal is open (>5 players); null when closed. */
   rosterCity: ScoutCity | null;
   onCloseRoster: () => void;
   topCountries: TopCountry[];
@@ -89,6 +95,7 @@ export function ScoutingHero({
           onReady={() => setReady(true)}
           reduceMotion={reduceMotion}
           showZoomControls
+          freezeRotation={freezeRotation}
         />
 
         {/* Floating title — top center */}
@@ -123,16 +130,17 @@ export function ScoutingHero({
           </div>
         </div>
 
-        {/* Player hover card — glides glued to its pin */}
+        {/* City cards — every player at the active pin, in a row above it */}
         <HoverCard
-          player={cardPlayer}
+          players={cardPlayers}
           cityKey={cardCityKey}
-          cityName={cardCityName}
-          stackedCount={stackedCount}
           pinPositionsRef={pinPositionsRef}
+          onOverflow={onCardOverflow}
+          onPanelEnter={onPanelEnter}
+          onPanelLeave={onPanelLeave}
         />
 
-        {/* City roster — every player at a clicked pin, side by side */}
+        {/* Roster modal — only as the >5 overflow fallback */}
         <CityRoster city={rosterCity} onClose={onCloseRoster} />
       </div>
     </div>
