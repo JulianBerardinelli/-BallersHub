@@ -60,6 +60,25 @@
 html, body { min-height: 100%; }
 
 /* ============================================================
+   Mobile UX hardening (app-wide).
+
+   1) Sin scroll horizontal de página. `overflow-x: clip` en el root recorta
+      cualquier desborde horizontal (orbs decorativos en `vw`, secciones
+      full-bleed `w-screen`, nombres largos del hero) SIN crear un scroll
+      container — por eso `position: sticky`, el scroll-jacking del template
+      Pro de /[slug] y el smooth-scroll de Lenis siguen funcionando. Respalda
+      al `overflow-x: hidden` del body y, a diferencia de éste, también
+      contiene elementos `position: absolute` anclados al initial containing
+      block, que eran la fuga real del scrollbar horizontal en /[slug] mobile.
+
+   2) Sin doble-tap para zoom (y sin el delay de 300ms al tocar). El pinch-zoom
+      se bloquea con el viewport meta (Android) + <ZoomLock/> (iOS). Los
+      carruseles con scroll horizontal interno siguen andando porque
+      `manipulation` permite el paneo. */
+html { overflow-x: clip; }
+body { touch-action: manipulation; }
+
+/* ============================================================
    BallersHub — Color & Motion Primitives (opt-in).
    No afectan al pro template porque todo lo de aquí o vive
    bajo namespace --bh-* / .bh-* / clases utilitarias bh-*,
