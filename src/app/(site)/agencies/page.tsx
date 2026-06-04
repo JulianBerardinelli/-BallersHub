@@ -1,20 +1,25 @@
-// /agencies — public, crawlable directory of every approved agency.
+// /agencies — marketing landing for agencies + crawlable directory.
 //
-// Same purpose as /players: agency portfolios (/agency/<slug>) were
-// orphan pages reachable only through sitemap.xml, a prime cause of
-// "Discovered – currently not indexed". This page links to each approved
-// agency with a plain crawlable <a href>, giving Googlebot an internal
-// path in. Approval is the editorial bar, so there's no thin-content
-// gate here — `getIndexableAgencies()` returns every approved agency.
+// Two jobs in one server-rendered page (no "use client"):
+//   1. Marketing: a hero, value props and a CTA aimed at agencies/representatives.
+//   2. SEO: the JSON-LD `CollectionPage + ItemList` and a grid of real
+//      <Link href="/agency/<slug>"> cards — the internal-link surface that keeps
+//      agency portfolios from being orphan pages ("Discovered – not indexed").
+//
+// The agency set comes from `getApprovedAgencies()` (isApproved = true), the same
+// predicate as the sitemap, so the rendered links + JSON-LD never drift from it.
 
 import type { Metadata } from "next";
-import Link from "next/link";
 
-import { getIndexableAgencies } from "@/lib/seo/indexable-profiles";
+import { getApprovedAgencies } from "@/lib/agencies/directory";
 import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
+import { AgenciesHero } from "@/components/site/agencies/AgenciesHero";
+import { AgencyValueProps } from "@/components/site/agencies/AgencyValueProps";
+import { AgencyGrid } from "@/components/site/agencies/AgencyGrid";
+import { AgenciesCta } from "@/components/site/agencies/AgenciesCta";
 
-// Hourly ISR — same cadence as the sitemap and agency pages. New
-// approvals surface within the hour and an edit busts this path via
+// Hourly ISR — same cadence as the sitemap and agency pages. New approvals
+// surface within the hour; an edit busts this path via
 // `revalidateAgencyPublicProfile`.
 export const revalidate = 3600;
 
@@ -37,12 +42,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AgenciesIndexPage() {
-  let agencies: Awaited<ReturnType<typeof getIndexableAgencies>> = [];
+export default async function AgenciesPage() {
+  let agencies: Awaited<ReturnType<typeof getApprovedAgencies>> = [];
   try {
-    agencies = await getIndexableAgencies();
+    agencies = await getApprovedAgencies();
   } catch (err) {
-    // Degrade to an empty state rather than 500 the directory.
+    // Degrade to an empty state rather than 500 the landing.
     console.error("[/agencies] failed to load agencies:", err);
   }
 
@@ -60,51 +65,12 @@ export default async function AgenciesIndexPage() {
         items={jsonLdItems}
       />
 
-      <header className="mb-10 space-y-3">
-        <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-          Directorio
-        </span>
-        <h1 className="font-bh-display text-4xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-5xl">
-          Agencias de representación
-        </h1>
-        <p className="max-w-2xl text-sm leading-[1.6] text-bh-fg-3 md:text-base">
-          {PAGE_DESCRIPTION}
-        </p>
-        {agencies.length > 0 && (
-          <p className="text-sm text-bh-fg-3">
-            {agencies.length} {agencies.length === 1 ? "agencia" : "agencias"}
-          </p>
-        )}
-      </header>
-
-      {agencies.length === 0 ? (
-        <div className="rounded-bh-lg border border-dashed border-bh-fg-4 bg-bh-surface-1 p-10 text-center">
-          <p className="font-bh-display text-2xl font-bold uppercase tracking-tight text-bh-fg-2">
-            Todavía no hay agencias publicadas
-          </p>
-          <p className="mt-2 text-sm text-bh-fg-3">
-            Volvé pronto: las agencias verificadas aparecen acá apenas se aprueban.
-          </p>
-        </div>
-      ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {agencies.map((a) => (
-            <li key={a.slug}>
-              <Link
-                href={`/agency/${a.slug}`}
-                className="group flex h-full flex-col rounded-bh-lg border border-bh-fg-4 bg-bh-surface-1 p-4 transition-colors hover:border-bh-lime/40 hover:bg-bh-surface-2"
-              >
-                <span className="font-semibold text-bh-fg-1 transition-colors group-hover:text-bh-lime">
-                  {a.name}
-                </span>
-                <span className="mt-1 text-sm text-bh-fg-3">
-                  Ver cartera de jugadores
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="space-y-16 pb-4 md:space-y-20">
+        <AgenciesHero count={agencies.length} />
+        <AgencyValueProps />
+        <AgencyGrid agencies={agencies} />
+        <AgenciesCta />
+      </div>
     </>
   );
 }
