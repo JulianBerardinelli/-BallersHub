@@ -1,7 +1,8 @@
 // BallersHub /players (Scouting) — globe density legend.
 //
 // Ported from `extras.jsx` `GlobeLegend`. Shows the lime→white heat ramp and
-// the top countries by nationality density in the current filtered set.
+// the top countries by PLAY-country density (where players play, i.e. their
+// club's country) in the current filtered set — matching the globe heat/pins.
 
 export type TopCountry = { code: string; name: string; count: number };
 

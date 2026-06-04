@@ -90,10 +90,12 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     [cities],
   );
 
+  // Heat map = how many players PLAY in each country (their club's country),
+  // mirroring the city pins ("more pins → more color"). NOT player nationality.
   const countryDensity = useMemo(() => {
     const m: Record<string, number> = {};
     for (const p of filtered) {
-      if (p.nationality) m[p.nationality] = (m[p.nationality] ?? 0) + 1;
+      if (p.clubCountryCode) m[p.clubCountryCode] = (m[p.clubCountryCode] ?? 0) + 1;
     }
     return m;
   }, [filtered]);
@@ -121,14 +123,16 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     [players],
   );
 
+  // "Países" everywhere on the map = countries where players play (club country),
+  // consistent with the heat + pins. Nationality stays as the flag + its filter.
   const liveCountries = useMemo(
-    () => new Set(filtered.map((p) => p.nationality).filter(Boolean)).size,
+    () => new Set(filtered.map((p) => p.clubCountryCode).filter(Boolean)).size,
     [filtered],
   );
   // Coverage stats for the bottom-right card — over the whole indexable set
   // (distinct from the live counts in the floating title).
   const countriesCount = useMemo(
-    () => new Set(players.map((p) => p.nationality).filter(Boolean)).size,
+    () => new Set(players.map((p) => p.clubCountryCode).filter(Boolean)).size,
     [players],
   );
   const citiesCount = useMemo(() => {
@@ -160,8 +164,13 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   // Remember it so panel-hover can retain the panel after the pin/row hover ends.
   if (baseCityKey) activeKeyRef.current = baseCityKey;
   const hoverCityKey = baseCityKey ?? (panelHover ? activeKeyRef.current : null);
-  // Hover wins for the live preview; otherwise the pinned (clicked) city sticks.
-  const activeCityKey = hoverCityKey ?? pinnedCityKey;
+  // Hover wins for the live preview; otherwise the pinned (clicked) city sticks —
+  // but only while that city still exists in the filtered set. Without this guard
+  // a pinned city removed by a filter would keep the globe frozen with no visible
+  // panel (Codex review on #147).
+  const validPinnedKey =
+    pinnedCityKey && cityByKey.has(pinnedCityKey) ? pinnedCityKey : null;
+  const activeCityKey = hoverCityKey ?? validPinnedKey;
 
   const activeCity = activeCityKey ? cityByKey.get(activeCityKey) ?? null : null;
   // The panel renders ALL of the active city's players (up to MAX_INLINE).
@@ -178,14 +187,15 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const onClear = useCallback(() => setFilters(freshFilters()), []);
 
   const onCountryClick = useCallback((iso: string) => {
-    // Clicking the map (off a pin) dismisses any pinned panel and toggles the
-    // nationality filter.
+    // The heat now encodes WHERE players play, so clicking a country toggles the
+    // play-country ("País de juego") filter — matching what the color means.
+    // It also dismisses any pinned panel. Nationality keeps its own filter.
     setPinnedCityKey(null);
     setFilters((f) => {
-      const s = new Set(f.nationality);
+      const s = new Set(f.playCountry);
       if (s.has(iso)) s.delete(iso);
       else s.add(iso);
-      return { ...f, nationality: [...s] };
+      return { ...f, playCountry: [...s] };
     });
   }, []);
 
@@ -198,6 +208,12 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [pinnedCityKey]);
+
+  // Drop a pinned city once a filter removes it from the set, so the globe never
+  // stays frozen pointing at an invisible panel (Codex review on #147).
+  useEffect(() => {
+    if (pinnedCityKey && !cityByKey.has(pinnedCityKey)) setPinnedCityKey(null);
+  }, [pinnedCityKey, cityByKey]);
 
   const cancelClear = useCallback(() => {
     if (clearTimer.current) clearTimeout(clearTimer.current);

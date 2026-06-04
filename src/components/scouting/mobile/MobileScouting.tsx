@@ -603,8 +603,9 @@ export function MobileScouting({
   const [ready, setReady] = useState(false);
 
   const cityByKey = useMemo(() => new Map(cities.map((c) => [c.key, c])), [cities]);
+  // Países = where players play (club country), consistent with the heat/pins.
   const liveCountries = useMemo(
-    () => new Set(filtered.map((p) => p.nationality).filter(Boolean)).size,
+    () => new Set(filtered.map((p) => p.clubCountryCode).filter(Boolean)).size,
     [filtered],
   );
 
