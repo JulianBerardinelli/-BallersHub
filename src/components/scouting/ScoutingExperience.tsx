@@ -65,6 +65,9 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const [focusCity, setFocusCity] = useState<string | null>(null);
   // City whose full roster MODAL is open (only the >5 overflow fallback).
   const [selectedCityKey, setSelectedCityKey] = useState<string | null>(null);
+  // City pinned by CLICKING its pin — keeps the card panel + table highlight
+  // open after the pointer leaves, so you can scroll to the highlighted rows.
+  const [pinnedCityKey, setPinnedCityKey] = useState<string | null>(null);
   // True while the pointer is over the card panel — keeps it open when moving
   // from the pin onto the cards.
   const [panelHover, setPanelHover] = useState(false);
@@ -150,13 +153,15 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     setFocusCity(cityKeyOf(hoverPlayer));
   }, [hoverPlayer]);
 
-  // The "real" active city: a pin hover wins, else the hovered row's city.
+  // The transient hovered city: a pin hover wins, else the hovered row's city,
+  // retained briefly while the pointer is over the panel itself.
   const baseCityKey =
     hoverPinKey ?? (hoverPlayer ? cityKeyOf(hoverPlayer) : null);
   // Remember it so panel-hover can retain the panel after the pin/row hover ends.
   if (baseCityKey) activeKeyRef.current = baseCityKey;
-  const activeCityKey =
-    baseCityKey ?? (panelHover ? activeKeyRef.current : null);
+  const hoverCityKey = baseCityKey ?? (panelHover ? activeKeyRef.current : null);
+  // Hover wins for the live preview; otherwise the pinned (clicked) city sticks.
+  const activeCityKey = hoverCityKey ?? pinnedCityKey;
 
   const activeCity = activeCityKey ? cityByKey.get(activeCityKey) ?? null : null;
   // The panel renders ALL of the active city's players (up to MAX_INLINE).
@@ -173,6 +178,9 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const onClear = useCallback(() => setFilters(freshFilters()), []);
 
   const onCountryClick = useCallback((iso: string) => {
+    // Clicking the map (off a pin) dismisses any pinned panel and toggles the
+    // nationality filter.
+    setPinnedCityKey(null);
     setFilters((f) => {
       const s = new Set(f.nationality);
       if (s.has(iso)) s.delete(iso);
@@ -180,6 +188,16 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
       return { ...f, nationality: [...s] };
     });
   }, []);
+
+  // Escape unpins the panel.
+  useEffect(() => {
+    if (!pinnedCityKey) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPinnedCityKey(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pinnedCityKey]);
 
   const cancelClear = useCallback(() => {
     if (clearTimer.current) clearTimeout(clearTimer.current);
@@ -212,8 +230,9 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     setHoverPlayerId(null);
   }, []);
 
-  // Clicking a pin: ≤MAX_INLINE players already show in the hover panel, so just
-  // activate it and fly there; more than that opens the roster modal.
+  // Clicking a pin PINS the panel open (so it survives the pointer leaving and
+  // you can scroll to the highlighted rows). Re-clicking the same pin unpins;
+  // more than MAX_INLINE players opens the roster modal instead.
   const onPinClick = useCallback(
     (key: string) => {
       cancelClear();
@@ -221,9 +240,11 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
       const city = cityByKey.get(key);
       if (city && city.players.length > MAX_INLINE) {
         setHoverPinKey(null);
+        setPinnedCityKey(null);
         setSelectedCityKey(key);
       } else {
         setHoverPinKey(key);
+        setPinnedCityKey((prev) => (prev === key ? null : key));
       }
     },
     [cancelClear, cityByKey],
