@@ -732,6 +732,7 @@ export function MobileScouting({
             onReady={() => setReady(true)}
             reduceMotion={reduceMotion}
             quality="low"
+            selectedCountries={filters.playCountry}
           />
           {!ready && (
             <div className="skel-globe">

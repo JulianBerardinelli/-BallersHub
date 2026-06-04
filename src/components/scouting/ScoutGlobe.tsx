@@ -69,6 +69,7 @@ export default function ScoutGlobe({
   quality = "high",
   showZoomControls = false,
   freezeRotation = false,
+  selectedCountries = [],
   pinPositionsRef,
 }: {
   cities: ScoutCity[];
@@ -86,6 +87,8 @@ export default function ScoutGlobe({
   showZoomControls?: boolean;
   /** Hold the globe still (no auto-rotate) — used while a card panel is open. */
   freezeRotation?: boolean;
+  /** ISO-2 codes in the play-country filter — drawn with a pulsing selection. */
+  selectedCountries?: string[];
   pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -104,6 +107,8 @@ export default function ScoutGlobe({
   qualityRef.current = quality;
   const freezeRef = useRef(freezeRotation);
   freezeRef.current = freezeRotation;
+  const selectedRef = useRef(selectedCountries);
+  selectedRef.current = selectedCountries;
   const onHoverPinRef = useRef(onHoverPin);
   onHoverPinRef.current = onHoverPin;
   const onClickPinRef = useRef(onClickPin);
@@ -182,7 +187,7 @@ export default function ScoutGlobe({
     const ro = new ResizeObserver(fit);
     ro.observe(wrap);
 
-    const draw = (W: number, H: number) => {
+    const draw = (W: number, H: number, now: number) => {
       const s = stateRef.current;
       ctx.clearRect(0, 0, W, H);
       const cx = W / 2;
@@ -229,9 +234,12 @@ export default function ScoutGlobe({
       ctx.lineWidth = 0.6;
       ctx.stroke();
 
-      // Continents — heat by nationality density.
+      // Continents — heat by how many players PLAY in each country.
       const density = densityRef.current;
       const maxN = Math.max(1, ...Object.values(density));
+      // Countries selected by the play-country filter pulse, even with 0 players.
+      const selectedSet = new Set(selectedRef.current.map((c) => c.toUpperCase()));
+      const pulse = reduceRef.current ? 0.6 : 0.5 + 0.5 * Math.sin(now / 600);
       for (const f of COUNTRIES.features) {
         const iso = isoNumericToAlpha2(f.id as string | number | undefined);
         const count = iso ? density[iso] ?? 0 : 0;
@@ -259,6 +267,22 @@ export default function ScoutGlobe({
           path(f as unknown as GeoPermissibleObjects);
           ctx.fillStyle = `rgba(204,255,0,${0.05 + tHeat * 0.15})`;
           ctx.fill();
+          ctx.restore();
+        }
+
+        // Selected (play-country filter): pulsing fill + glowing border so a
+        // click clearly registers as "filter applied" — even with 0 players.
+        if (iso && selectedSet.has(iso)) {
+          ctx.save();
+          ctx.beginPath();
+          path(f as unknown as GeoPermissibleObjects);
+          ctx.fillStyle = `rgba(204,255,0,${0.16 + 0.2 * pulse})`;
+          ctx.fill();
+          ctx.shadowColor = `rgba(204,255,0,${0.5 + 0.4 * pulse})`;
+          ctx.shadowBlur = 10 + 14 * pulse;
+          ctx.lineWidth = 1.6;
+          ctx.strokeStyle = `rgba(222,255,130,${0.7 + 0.3 * pulse})`;
+          ctx.stroke();
           ctx.restore();
         }
       }
@@ -350,7 +374,7 @@ export default function ScoutGlobe({
       while (s.rot[0] > 180) s.rot[0] -= 360;
       while (s.rot[0] < -180) s.rot[0] += 360;
 
-      draw(W, H);
+      draw(W, H, now);
       if (!started) {
         started = true;
         onReadyRef.current?.();
