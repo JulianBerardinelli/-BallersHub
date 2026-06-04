@@ -144,18 +144,10 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     return keys.size;
   }, [players]);
 
-  // Hovering a table row flies the camera to that player's city.
   const hoverPlayer = useMemo(
     () => filtered.find((p) => p.id === hoverPlayerId) ?? null,
     [filtered, hoverPlayerId],
   );
-  useEffect(() => {
-    if (!hoverPlayer) {
-      setFocusCity(null);
-      return;
-    }
-    setFocusCity(cityKeyOf(hoverPlayer));
-  }, [hoverPlayer]);
 
   // The transient hovered city: a pin hover wins, else the hovered row's city,
   // retained briefly while the pointer is over the panel itself.
@@ -171,6 +163,12 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const validPinnedKey =
     pinnedCityKey && cityByKey.has(pinnedCityKey) ? pinnedCityKey : null;
   const activeCityKey = hoverCityKey ?? validPinnedKey;
+
+  // Hovering a pin OR a table row eases the globe to center that city — the same
+  // "approach the point" motion as a click (rotation only, no zoom).
+  useEffect(() => {
+    setFocusCity(hoverCityKey);
+  }, [hoverCityKey]);
 
   const activeCity = activeCityKey ? cityByKey.get(activeCityKey) ?? null : null;
   // The panel renders ALL of the active city's players (up to MAX_INLINE).
@@ -214,6 +212,23 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   useEffect(() => {
     if (pinnedCityKey && !cityByKey.has(pinnedCityKey)) setPinnedCityKey(null);
   }, [pinnedCityKey, cityByKey]);
+
+  // Auto-release a pinned city after a few seconds, so a player never stays
+  // active forever and the globe returns to its normal (rotating) state.
+  // Engaging the panel (hover) defers the countdown so you can read it.
+  useEffect(() => {
+    if (!pinnedCityKey || panelHover) return;
+    const t = setTimeout(() => {
+      // Clear the hover/focus too: if the cursor is resting on the just-clicked
+      // pin, hoverPinKey would otherwise keep the card + freeze alive until the
+      // pointer moves, so the release wouldn't visibly happen (Codex on #149).
+      // A later pointer move re-triggers hover as a fresh interaction.
+      setPinnedCityKey(null);
+      setHoverPinKey(null);
+      setHoverPlayerId(null);
+    }, 6000);
+    return () => clearTimeout(t);
+  }, [pinnedCityKey, panelHover]);
 
   const cancelClear = useCallback(() => {
     if (clearTimer.current) clearTimeout(clearTimer.current);
@@ -308,6 +323,7 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
             onPanelEnter={onPanelEnter}
             onPanelLeave={onPanelLeave}
             freezeRotation={activeCityKey != null || selectedCityKey != null}
+            selectedCountries={filters.playCountry}
             rosterCity={rosterCity}
             onCloseRoster={closeRoster}
             topCountries={topCountries}

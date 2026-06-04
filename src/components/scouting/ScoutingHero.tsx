@@ -39,6 +39,7 @@ export function ScoutingHero({
   onPanelEnter,
   onPanelLeave,
   freezeRotation,
+  selectedCountries,
   rosterCity,
   onCloseRoster,
   topCountries,
@@ -62,6 +63,8 @@ export function ScoutingHero({
   onPanelLeave: () => void;
   /** Hold the globe still while a card panel is open. */
   freezeRotation: boolean;
+  /** ISO-2 codes in the play-country filter — pulsed on the globe. */
+  selectedCountries: string[];
   /** City whose full roster modal is open (>5 players); null when closed. */
   rosterCity: ScoutCity | null;
   onCloseRoster: () => void;
@@ -96,6 +99,7 @@ export function ScoutingHero({
           reduceMotion={reduceMotion}
           showZoomControls
           freezeRotation={freezeRotation}
+          selectedCountries={selectedCountries}
         />
 
         {/* Floating title — top center */}

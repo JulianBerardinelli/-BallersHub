@@ -1178,15 +1178,15 @@
   bottom: 22px;
   display: flex;
   gap: 8px;
-  transform: translate(-50%, 6px) scale(0.96);
+  transform: translate(-50%, 8px) scale(0.94);
   transform-origin: 50% calc(100% + 14px);
   opacity: 0;
   pointer-events: auto;
-  filter: blur(2px);
+  filter: blur(3px);
   transition:
-    opacity 180ms cubic-bezier(0.4, 0, 1, 1),
-    transform 200ms cubic-bezier(0.4, 0, 1, 1),
-    filter 220ms ease;
+    opacity 200ms cubic-bezier(0.4, 0, 1, 1),
+    transform 220ms cubic-bezier(0.4, 0, 1, 1),
+    filter 240ms ease;
 }
 .scouting-root .pin-cards[data-flip="down"] .pc-row {
   bottom: auto;
@@ -1198,9 +1198,9 @@
   transform: translate(-50%, 0) scale(1);
   filter: blur(0);
   transition:
-    opacity 240ms cubic-bezier(0.22, 0.61, 0.36, 1) 20ms,
-    transform 300ms cubic-bezier(0.34, 1.4, 0.64, 1) 20ms,
-    filter 220ms cubic-bezier(0.22, 0.61, 0.36, 1) 20ms;
+    opacity 300ms cubic-bezier(0.22, 0.61, 0.36, 1) 40ms,
+    transform 380ms cubic-bezier(0.34, 1.35, 0.64, 1) 40ms,
+    filter 300ms cubic-bezier(0.22, 0.61, 0.36, 1) 40ms;
 }
 .scouting-root .pc-card {
   flex: 0 0 190px;
