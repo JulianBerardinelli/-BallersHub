@@ -119,6 +119,17 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
         );
       }
 
+      case "city":
+        // City comes from the geo backfill (migration 0008); "—" flags a team
+        // still without a location → spot the ungeocoded ones at a glance.
+        return t.city ? (
+          <span className="truncate block" title={t.city}>
+            {t.city}
+          </span>
+        ) : (
+          <span className="text-bh-fg-4">—</span>
+        );
+
       case "category":
         return (
           <div className="flex items-center gap-2 max-w-[200px]">
@@ -250,7 +261,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
               <div className="min-w-0">
                 <div className="truncate font-medium">{t.name}</div>
                 <div className="text-[11px] text-bh-fg-4 truncate">
-                  {t.country ?? "—"}{t.category ? ` · ${t.category}` : ""}
+                  {t.country ?? "—"}{t.city ? ` · ${t.city}` : ""}{t.category ? ` · ${t.category}` : ""}
                 </div>
               </div>
               <div className="ml-auto">
@@ -409,6 +420,12 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
                           <p className="text-xs text-bh-fg-3 mb-1">País</p>
                           <p className="font-medium text-bh-fg-2">
                             {openItem.country ?? "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-bh-fg-3 mb-1">Ciudad</p>
+                          <p className="font-medium text-bh-fg-2">
+                            {openItem.city ?? "—"}
                           </p>
                         </div>
                         <div>
