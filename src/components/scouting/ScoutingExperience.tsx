@@ -65,6 +65,9 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const [focusCity, setFocusCity] = useState<string | null>(null);
   // City whose full roster MODAL is open (only the >5 overflow fallback).
   const [selectedCityKey, setSelectedCityKey] = useState<string | null>(null);
+  // City pinned by CLICKING its pin — keeps the card panel + table highlight
+  // open after the pointer leaves, so you can scroll to the highlighted rows.
+  const [pinnedCityKey, setPinnedCityKey] = useState<string | null>(null);
   // True while the pointer is over the card panel — keeps it open when moving
   // from the pin onto the cards.
   const [panelHover, setPanelHover] = useState(false);
@@ -87,10 +90,12 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     [cities],
   );
 
+  // Heat map = how many players PLAY in each country (their club's country),
+  // mirroring the city pins ("more pins → more color"). NOT player nationality.
   const countryDensity = useMemo(() => {
     const m: Record<string, number> = {};
     for (const p of filtered) {
-      if (p.nationality) m[p.nationality] = (m[p.nationality] ?? 0) + 1;
+      if (p.clubCountryCode) m[p.clubCountryCode] = (m[p.clubCountryCode] ?? 0) + 1;
     }
     return m;
   }, [filtered]);
@@ -118,14 +123,16 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     [players],
   );
 
+  // "Países" everywhere on the map = countries where players play (club country),
+  // consistent with the heat + pins. Nationality stays as the flag + its filter.
   const liveCountries = useMemo(
-    () => new Set(filtered.map((p) => p.nationality).filter(Boolean)).size,
+    () => new Set(filtered.map((p) => p.clubCountryCode).filter(Boolean)).size,
     [filtered],
   );
   // Coverage stats for the bottom-right card — over the whole indexable set
   // (distinct from the live counts in the floating title).
   const countriesCount = useMemo(
-    () => new Set(players.map((p) => p.nationality).filter(Boolean)).size,
+    () => new Set(players.map((p) => p.clubCountryCode).filter(Boolean)).size,
     [players],
   );
   const citiesCount = useMemo(() => {
@@ -150,13 +157,20 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     setFocusCity(cityKeyOf(hoverPlayer));
   }, [hoverPlayer]);
 
-  // The "real" active city: a pin hover wins, else the hovered row's city.
+  // The transient hovered city: a pin hover wins, else the hovered row's city,
+  // retained briefly while the pointer is over the panel itself.
   const baseCityKey =
     hoverPinKey ?? (hoverPlayer ? cityKeyOf(hoverPlayer) : null);
   // Remember it so panel-hover can retain the panel after the pin/row hover ends.
   if (baseCityKey) activeKeyRef.current = baseCityKey;
-  const activeCityKey =
-    baseCityKey ?? (panelHover ? activeKeyRef.current : null);
+  const hoverCityKey = baseCityKey ?? (panelHover ? activeKeyRef.current : null);
+  // Hover wins for the live preview; otherwise the pinned (clicked) city sticks —
+  // but only while that city still exists in the filtered set. Without this guard
+  // a pinned city removed by a filter would keep the globe frozen with no visible
+  // panel (Codex review on #147).
+  const validPinnedKey =
+    pinnedCityKey && cityByKey.has(pinnedCityKey) ? pinnedCityKey : null;
+  const activeCityKey = hoverCityKey ?? validPinnedKey;
 
   const activeCity = activeCityKey ? cityByKey.get(activeCityKey) ?? null : null;
   // The panel renders ALL of the active city's players (up to MAX_INLINE).
@@ -173,13 +187,33 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const onClear = useCallback(() => setFilters(freshFilters()), []);
 
   const onCountryClick = useCallback((iso: string) => {
+    // The heat now encodes WHERE players play, so clicking a country toggles the
+    // play-country ("País de juego") filter — matching what the color means.
+    // It also dismisses any pinned panel. Nationality keeps its own filter.
+    setPinnedCityKey(null);
     setFilters((f) => {
-      const s = new Set(f.nationality);
+      const s = new Set(f.playCountry);
       if (s.has(iso)) s.delete(iso);
       else s.add(iso);
-      return { ...f, nationality: [...s] };
+      return { ...f, playCountry: [...s] };
     });
   }, []);
+
+  // Escape unpins the panel.
+  useEffect(() => {
+    if (!pinnedCityKey) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setPinnedCityKey(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [pinnedCityKey]);
+
+  // Drop a pinned city once a filter removes it from the set, so the globe never
+  // stays frozen pointing at an invisible panel (Codex review on #147).
+  useEffect(() => {
+    if (pinnedCityKey && !cityByKey.has(pinnedCityKey)) setPinnedCityKey(null);
+  }, [pinnedCityKey, cityByKey]);
 
   const cancelClear = useCallback(() => {
     if (clearTimer.current) clearTimeout(clearTimer.current);
@@ -212,8 +246,9 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     setHoverPlayerId(null);
   }, []);
 
-  // Clicking a pin: ≤MAX_INLINE players already show in the hover panel, so just
-  // activate it and fly there; more than that opens the roster modal.
+  // Clicking a pin PINS the panel open (so it survives the pointer leaving and
+  // you can scroll to the highlighted rows). Re-clicking the same pin unpins;
+  // more than MAX_INLINE players opens the roster modal instead.
   const onPinClick = useCallback(
     (key: string) => {
       cancelClear();
@@ -221,9 +256,11 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
       const city = cityByKey.get(key);
       if (city && city.players.length > MAX_INLINE) {
         setHoverPinKey(null);
+        setPinnedCityKey(null);
         setSelectedCityKey(key);
       } else {
         setHoverPinKey(key);
+        setPinnedCityKey((prev) => (prev === key ? null : key));
       }
     },
     [cancelClear, cityByKey],
