@@ -9,7 +9,12 @@ import type { ScoutFilters, ScoutPlayer, ScoutSort } from "./types";
 /** True when `p` passes every active facet of `f`. */
 export function matchPlayer(p: ScoutPlayer, f: ScoutFilters): boolean {
   if (f.status !== "all" && p.contract !== f.status) return false;
-  if (f.positions.length && (!p.posCode || !f.positions.includes(p.posCode)))
+  // A player matches the position facet if ANY of its positions is selected —
+  // a CB who also plays RB shows up under both, not just the primary.
+  if (
+    f.positions.length &&
+    !p.positions.some((pos) => f.positions.includes(pos.code))
+  )
     return false;
   if (
     f.nationality.length &&

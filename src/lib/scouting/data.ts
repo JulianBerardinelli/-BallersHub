@@ -28,7 +28,7 @@ import {
   nameInitials,
   normalizeContract,
   normalizeFoot,
-  resolvePrimaryPosition,
+  resolveAllPositions,
 } from "./taxonomies";
 import type { ScoutPlayer } from "./types";
 
@@ -112,7 +112,8 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
     // Same indexability gate as the sitemap + per-page robots meta.
     .filter((r) => isPlayerIndexable({ isPro: r.isPro, bio: r.bio }))
     .map<ScoutPlayer>((r) => {
-      const pos = resolvePrimaryPosition(r.positions);
+      const allPos = resolveAllPositions(r.positions);
+      const pos = allPos[0] ?? { code: "", label: "", group: null };
       const club = r.teamName ?? r.currentClub ?? null;
       return {
         id: r.id,
@@ -122,6 +123,7 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
         posCode: pos.code,
         posLabel: pos.label,
         posGroup: pos.group,
+        positions: allPos,
         club,
         clubCountryCode: r.teamCountryCode ?? null,
         clubCountry: r.teamCountry ?? null,

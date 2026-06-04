@@ -18,6 +18,16 @@ export type FootCode = "D" | "I" | "A";
 /** Parent position group — drives the table's position-tag color. */
 export type PositionGroup = "Arquero" | "Defensa" | "Mediocampo" | "Ataque";
 
+/** A single resolved position: short code, readable label, parent group. */
+export interface ScoutPosition {
+  /** Short code, e.g. "DC", "MCO". */
+  code: string;
+  /** Readable label, e.g. "Delantero centro". */
+  label: string;
+  /** Parent group for coloring; null when unmappable. */
+  group: PositionGroup | null;
+}
+
 /**
  * A player as the scouting UI consumes it. This is the contract the client
  * island (`ScoutingExperience`) and the server fetch (`getScoutingPlayers`)
@@ -38,6 +48,13 @@ export interface ScoutPlayer {
   posLabel: string;
   /** Parent group for coloring; null when unmappable. */
   posGroup: PositionGroup | null;
+  /**
+   * EVERY resolved position the player lists (most play 1–2). The first mirrors
+   * the primary `posCode/posLabel/posGroup`. The filter matches a player when
+   * ANY of these codes is selected, and the cards surface every tag — a CB who
+   * also plays RB shows both, instead of silently dropping the second.
+   */
+  positions: ScoutPosition[];
   /** Club name (team relation preferred, legacy free-text fallback). */
   club: string | null;
   /** ISO-2 of the club's country (from the `teams` relation), for the flag. */
@@ -94,7 +111,7 @@ export interface ScoutCity {
 /** Live filter state held by the client island. Mirrors the prototype's `sel`. */
 export interface ScoutFilters {
   status: "all" | ContractStatus;
-  /** Selected position codes (matches `ScoutPlayer.posCode`). */
+  /** Selected position codes — a player matches if ANY of its positions hits. */
   positions: string[];
   /** Selected player nationalities (ISO-2). */
   nationality: string[];

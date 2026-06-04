@@ -350,13 +350,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px 14px;
   background: #121212;
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 14px;
   cursor: pointer;
+  text-align: left;
   text-decoration: none;
   color: inherit;
+  font: inherit;
+  appearance: none;
+  -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
   transition: transform 140ms var(--bh-ease-snappy), background 160ms;
 }
@@ -774,6 +780,8 @@
 
 /* Player detail sheet */
 .scouting-root .m-psheet {
+  /* Above the city roster sheet so tapping a roster row stacks on top of it. */
+  z-index: 70;
   background:
     radial-gradient(ellipse at 50% 0%, rgba(204, 255, 0, 0.08), transparent 50%),
     #0d0d0d;
@@ -972,4 +980,12 @@
   .scouting-root .m-status-dot {
     animation: none;
   }
+}
+
+/* City roster sheet — list of every player at a tapped multi-player pin */
+.scouting-root .m-citysheet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px));
 }
