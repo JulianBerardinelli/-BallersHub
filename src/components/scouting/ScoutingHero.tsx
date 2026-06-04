@@ -19,9 +19,9 @@ import type { PinPos, ScoutCity, ScoutPlayer } from "@/lib/scouting/types";
 const ScoutGlobe = dynamic(() => import("./ScoutGlobe"), { ssr: false });
 
 export type HeroStats = {
-  total: number;
-  pro: number;
-  geo: number;
+  players: number;
+  countries: number;
+  cities: number;
 };
 
 export function ScoutingHero({
@@ -88,6 +88,7 @@ export function ScoutingHero({
           pinPositionsRef={pinPositionsRef}
           onReady={() => setReady(true)}
           reduceMotion={reduceMotion}
+          showZoomControls
         />
 
         {/* Floating title — top center */}
@@ -107,30 +108,18 @@ export function ScoutingHero({
         {/* Floating stats — bottom right */}
         <div className="float-stats">
           <div className="fs-row">
-            <div className="fs-num">{stats.total}</div>
-            <div className="fs-lbl">
-              Jugadores
-              <br />
-              indexados
-            </div>
+            <div className="fs-num">{stats.players}</div>
+            <div className="fs-lbl">Jugadores</div>
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
-            <div className="fs-num">{stats.geo}</div>
-            <div className="fs-lbl">
-              En el
-              <br />
-              mapa
-            </div>
+            <div className="fs-num">{stats.countries}</div>
+            <div className="fs-lbl">Países</div>
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
-            <div className="fs-num">{stats.pro}</div>
-            <div className="fs-lbl">
-              Perfiles
-              <br />
-              Pro
-            </div>
+            <div className="fs-num">{stats.cities}</div>
+            <div className="fs-lbl">Ciudades</div>
           </div>
         </div>
 

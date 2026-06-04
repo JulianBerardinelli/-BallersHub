@@ -45,8 +45,13 @@ type GlobeState = {
   dragging: boolean;
   lastT: number;
   lastInteraction: number;
+  /** Camera zoom multiplier (1 = default framing). */
+  zoom: number;
   pinHits: { key: string; x: number; y: number }[];
 };
+
+const ZOOM_MIN = 0.7;
+const ZOOM_MAX = 3.5;
 
 const easeInOut = (t: number) =>
   t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
@@ -62,6 +67,7 @@ export default function ScoutGlobe({
   onReady,
   reduceMotion = false,
   quality = "high",
+  showZoomControls = false,
   pinPositionsRef,
 }: {
   cities: ScoutCity[];
@@ -75,6 +81,8 @@ export default function ScoutGlobe({
   reduceMotion?: boolean;
   /** "low" trims per-frame cost (dpr + glow passes) for smooth mobile drag. */
   quality?: "high" | "low";
+  /** Render the +/- zoom buttons (top-right). */
+  showZoomControls?: boolean;
   pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -109,6 +117,7 @@ export default function ScoutGlobe({
     dragging: false,
     lastT: 0,
     lastInteraction: 0,
+    zoom: 1,
     pinHits: [],
   });
 
@@ -171,7 +180,7 @@ export default function ScoutGlobe({
       ctx.clearRect(0, 0, W, H);
       const cx = W / 2;
       const cy = H / 2;
-      const R = Math.min(W, H) * 0.46;
+      const R = Math.min(W, H) * 0.46 * s.zoom;
 
       const projection = geoOrthographic()
         .scale(R)
@@ -427,7 +436,7 @@ export default function ScoutGlobe({
       if (!onClickCountryRef.current) return;
       const W = canvas.clientWidth;
       const H = canvas.clientHeight;
-      const R = Math.min(W, H) * 0.46;
+      const R = Math.min(W, H) * 0.46 * s.zoom;
       const projection = geoOrthographic()
         .scale(R)
         .translate([W / 2, H / 2])
@@ -454,9 +463,29 @@ export default function ScoutGlobe({
     };
   }, []);
 
+  // Mutating the ref is enough — the rAF loop reads s.zoom every frame.
+  const applyZoom = (factor: number) => {
+    const s = stateRef.current;
+    s.zoom = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, s.zoom * factor));
+  };
+
   return (
     <div ref={wrapRef} className="globe-canvas-wrap">
       <canvas ref={canvasRef} />
+      {showZoomControls && (
+        <div className="globe-controls">
+          <button type="button" aria-label="Acercar el mapa" onClick={() => applyZoom(1.25)}>
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+              <path d="M7 2.5v9 M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+          <button type="button" aria-label="Alejar el mapa" onClick={() => applyZoom(0.8)}>
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
+              <path d="M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

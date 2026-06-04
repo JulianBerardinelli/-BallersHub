@@ -111,14 +111,20 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     () => new Set(filtered.map((p) => p.nationality).filter(Boolean)).size,
     [filtered],
   );
-  const proCount = useMemo(
-    () => players.filter((p) => p.isPro).length,
+  // Coverage stats for the bottom-right card — over the whole indexable set
+  // (distinct from the live counts in the floating title).
+  const countriesCount = useMemo(
+    () => new Set(players.map((p) => p.nationality).filter(Boolean)).size,
     [players],
   );
-  const geoCount = useMemo(
-    () => filtered.filter((p) => p.latitude != null).length,
-    [filtered],
-  );
+  const citiesCount = useMemo(() => {
+    const keys = new Set<string>();
+    for (const p of players) {
+      const k = cityKeyOf(p);
+      if (k) keys.add(k);
+    }
+    return keys.size;
+  }, [players]);
 
   // Hovering a table row flies the camera to that player's city.
   const hoverPlayer = useMemo(
@@ -210,7 +216,11 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
             topCountries={topCountries}
             liveCount={filtered.length}
             liveCountries={liveCountries}
-            stats={{ total: players.length, pro: proCount, geo: geoCount }}
+            stats={{
+              players: players.length,
+              countries: countriesCount,
+              cities: citiesCount,
+            }}
           />
 
           <FilterBar
