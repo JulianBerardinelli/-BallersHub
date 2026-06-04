@@ -218,7 +218,15 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   // Engaging the panel (hover) defers the countdown so you can read it.
   useEffect(() => {
     if (!pinnedCityKey || panelHover) return;
-    const t = setTimeout(() => setPinnedCityKey(null), 6000);
+    const t = setTimeout(() => {
+      // Clear the hover/focus too: if the cursor is resting on the just-clicked
+      // pin, hoverPinKey would otherwise keep the card + freeze alive until the
+      // pointer moves, so the release wouldn't visibly happen (Codex on #149).
+      // A later pointer move re-triggers hover as a fresh interaction.
+      setPinnedCityKey(null);
+      setHoverPinKey(null);
+      setHoverPlayerId(null);
+    }, 6000);
     return () => clearTimeout(t);
   }, [pinnedCityKey, panelHover]);
 
