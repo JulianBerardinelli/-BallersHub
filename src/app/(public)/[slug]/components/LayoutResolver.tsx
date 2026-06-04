@@ -183,7 +183,15 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
 
   return (
     <SmoothScrollProvider>
-      <div style={customStyles} className="min-h-screen w-full relative font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black">
+      {/*
+        `overflow-x-clip` recorta el desborde horizontal del template Pro
+        (orbs decorativos en vw, nombres del hero, marquees) a nivel de ESTE
+        wrapper — NO en <html>. Clip no crea scroll container, así que el
+        scroll-jacking (position: sticky) de Tácticas y el smooth-scroll de
+        Lenis siguen intactos. Es la misma técnica que usa el módulo de
+        tácticas y equivale al `overflow-hidden` del root de FreeLayout.
+      */}
+      <div style={customStyles} className="min-h-screen w-full relative overflow-x-clip font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black">
         <div className="relative z-10 w-full">
           <ProAthleteLayout data={data}>
             {/*

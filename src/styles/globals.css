@@ -62,20 +62,17 @@ html, body { min-height: 100%; }
 /* ============================================================
    Mobile UX hardening (app-wide).
 
-   1) Sin scroll horizontal de página. `overflow-x: clip` en el root recorta
-      cualquier desborde horizontal (orbs decorativos en `vw`, secciones
-      full-bleed `w-screen`, nombres largos del hero) SIN crear un scroll
-      container — por eso `position: sticky`, el scroll-jacking del template
-      Pro de /[slug] y el smooth-scroll de Lenis siguen funcionando. Respalda
-      al `overflow-x: hidden` del body y, a diferencia de éste, también
-      contiene elementos `position: absolute` anclados al initial containing
-      block, que eran la fuga real del scrollbar horizontal en /[slug] mobile.
+   Sin doble-tap para zoom (y sin el delay de 300ms al tocar). El pinch-zoom se
+   bloquea con el viewport meta (Android) + <ZoomLock/> (iOS). `manipulation`
+   permite el paneo, así que el scroll vertical y los carruseles siguen andando.
 
-   2) Sin doble-tap para zoom (y sin el delay de 300ms al tocar). El pinch-zoom
-      se bloquea con el viewport meta (Android) + <ZoomLock/> (iOS). Los
-      carruseles con scroll horizontal interno siguen andando porque
-      `manipulation` permite el paneo. */
-html { overflow-x: clip; }
+   ⚠️ El recorte del scroll horizontal NO va acá. Probar `overflow-x: clip` en
+   <html> ROMPE el scroll-jacking (position: sticky) de la sección de tácticas
+   del template Pro: el overflow en el root se propaga al viewport / scroll
+   container y desarma el pin. En su lugar cada layout recorta en su PROPIO
+   wrapper (FreeLayout: `overflow-hidden` en su root; Pro: `overflow-x-clip` en
+   el wrapper de LayoutResolver), que es la misma técnica que ya usa el módulo
+   de tácticas (`overflow: clip` en la sección, sin crear scroll container). */
 body { touch-action: manipulation; }
 
 /* ============================================================
