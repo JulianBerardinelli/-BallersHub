@@ -184,6 +184,51 @@ export const getMetricsForQuery = cache(
   { revalidate: 3600, tags: ["gsc"] },
 );
 
+/**
+ * Métricas filtradas por query exacta + page exacta. Usado por el KPI
+ * primario para no atribuir "winning" a un player cuando su nombre rankea
+ * una página distinta de su portfolio (ej. un post del blog que lo menciona,
+ * la home de una agencia, etc.).
+ */
+export const getMetricsForQueryAndPage = cache(
+  async (
+    query: string,
+    page: string,
+    days = 28,
+  ): Promise<GscMetrics | null> => {
+    if (!query.trim() || !page.trim()) return null;
+    const client = getSearchConsoleClient();
+    const siteUrl = getGscSiteUrl();
+    const res = await client.searchanalytics.query({
+      siteUrl,
+      requestBody: {
+        startDate: dateNDaysAgo(days),
+        endDate: today(),
+        dimensions: [],
+        dimensionFilterGroups: [
+          {
+            filters: [
+              { dimension: "query", operator: "equals", expression: query },
+              { dimension: "page", operator: "equals", expression: page },
+            ],
+          },
+        ],
+        rowLimit: 1,
+      },
+    });
+    const row = res.data.rows?.[0];
+    if (!row) return null;
+    return {
+      clicks: row.clicks ?? 0,
+      impressions: row.impressions ?? 0,
+      ctr: row.ctr ?? 0,
+      position: row.position ?? 0,
+    };
+  },
+  ["gsc-metrics-for-query-and-page"],
+  { revalidate: 3600, tags: ["gsc"] },
+);
+
 // ============================================================================
 // URL Inspection (estado de indexación de una URL específica)
 // ============================================================================
