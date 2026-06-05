@@ -31,7 +31,7 @@ type Column = {
 
 const COLUMNS: Column[] = [
   { key: "name", label: "Jugador", width: "minmax(220px, 1.5fr)" },
-  { key: "posCode", label: "Pos", width: "124px" },
+  { key: "posCode", label: "Pos", width: "132px" },
   { key: "age", label: "Edad", width: "58px", align: "right", mono: true },
   { key: "club", label: "Club", width: "minmax(220px, 1.3fr)" },
   { key: "nationality", label: "Nac.", width: "104px" },
@@ -147,7 +147,11 @@ export function PlayersTable({
               <div className="pt-c">
                 {p.positions.length > 0 ? (
                   <div className="pt-pos-list">
-                    {p.positions.slice(0, 2).map((pos) => (
+                    {/* Up to 3 compact chips on one line; 4+ → 2 chips + "+N". */}
+                    {(p.positions.length > 3
+                      ? p.positions.slice(0, 2)
+                      : p.positions
+                    ).map((pos) => (
                       <span
                         key={pos.code}
                         className="pos-tag"
@@ -156,7 +160,7 @@ export function PlayersTable({
                         {pos.code}
                       </span>
                     ))}
-                    {p.positions.length > 2 && (
+                    {p.positions.length > 3 && (
                       <span
                         className="pos-tag pos-more"
                         title={p.positions.map((x) => x.code).join(" · ")}
