@@ -55,16 +55,23 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
     return c;
   }, [posts]);
 
+  const isDefaultView = active === "all" && !query.trim();
+  const showFeatured = isDefaultView && Boolean(featured);
+
   const filtered = useMemo(() => {
-    let list = rest;
+    // The default view promotes the featured post to the hero, so the grid
+    // lists `rest`. Under any filter/search we scan the FULL list so the
+    // featured post stays findable and category counts stay consistent.
+    let list = showFeatured ? rest : posts;
     if (active !== "all") list = list.filter((p) => p.cluster === active);
     const q = query.trim().toLowerCase();
     if (q) list = list.filter((p) => (p.title + " " + p.description).toLowerCase().includes(q));
     return list;
-  }, [rest, active, query]);
+  }, [posts, rest, active, query, showFeatured]);
 
-  const showFeatured = active === "all" && !query.trim() && Boolean(featured);
   const activeLabel = CATEGORIES.find((c) => c.slug === active)?.label;
+  // In the default view, if the featured post is the only one there's no grid.
+  const showGridSection = !isDefaultView || rest.length > 0;
 
   return (
     <div>
@@ -117,44 +124,48 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
         </div>
       )}
 
-      {/* Section heading */}
-      <div className="mx-auto max-w-[1320px] px-7 pt-10 max-md:px-5">
-        <div className="mb-6 flex items-center gap-3.5">
-          <h2 className="m-0 font-bh-display text-[26px] font-bold uppercase tracking-[-0.01em] text-bh-fg-1">
-            {active === "all" && !query.trim()
-              ? "Últimas notas"
-              : `${filtered.length} ${filtered.length === 1 ? "nota" : "notas"}`}
-            {active !== "all" && <span className="text-bh-fg-3"> · {activeLabel}</span>}
-          </h2>
-          <span className="h-px flex-1 bg-white/10" />
-        </div>
-      </div>
+      {showGridSection && (
+        <>
+          {/* Section heading */}
+          <div className="mx-auto max-w-[1320px] px-7 pt-10 max-md:px-5">
+            <div className="mb-6 flex items-center gap-3.5">
+              <h2 className="m-0 font-bh-display text-[26px] font-bold uppercase tracking-[-0.01em] text-bh-fg-1">
+                {isDefaultView
+                  ? "Últimas notas"
+                  : `${filtered.length} ${filtered.length === 1 ? "nota" : "notas"}`}
+                {active !== "all" && <span className="text-bh-fg-3"> · {activeLabel}</span>}
+              </h2>
+              <span className="h-px flex-1 bg-white/10" />
+            </div>
+          </div>
 
-      {/* Grid + inline ad */}
-      <div className="mx-auto max-w-[1320px] px-7 pb-5 max-md:px-5">
-        {filtered.length === 0 ? (
-          <div className="py-20 text-center font-bh-body text-bh-fg-3">
-            {query.trim()
-              ? `No encontramos artículos para “${query}”.`
-              : "Todavía no hay notas en esta categoría."}
+          {/* Grid + inline ad */}
+          <div className="mx-auto max-w-[1320px] px-7 pb-5 max-md:px-5">
+            {filtered.length === 0 ? (
+              <div className="py-20 text-center font-bh-body text-bh-fg-3">
+                {query.trim()
+                  ? `No encontramos artículos para “${query}”.`
+                  : "Todavía no hay notas en esta categoría."}
+              </div>
+            ) : (
+              <div key={`${active}|${query}`} className="grid grid-cols-1 gap-[22px] sm:grid-cols-2 lg:grid-cols-3">
+                {filtered.map((post, i) => (
+                  <Fragment key={post.id}>
+                    <div className={`bh-animate-in ${["", "bh-animate-d1", "bh-animate-d2", "bh-animate-d3"][i % 4]}`}>
+                      <BlogCard post={post} />
+                    </div>
+                    {i === 2 && (
+                      <div className="col-span-full">
+                        <AdBanner variant="horizontal" label="Sponsor" />
+                      </div>
+                    )}
+                  </Fragment>
+                ))}
+              </div>
+            )}
           </div>
-        ) : (
-          <div key={`${active}|${query}`} className="grid grid-cols-1 gap-[22px] sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((post, i) => (
-              <Fragment key={post.id}>
-                <div className={`bh-animate-in ${["", "bh-animate-d1", "bh-animate-d2", "bh-animate-d3"][i % 4]}`}>
-                  <BlogCard post={post} />
-                </div>
-                {i === 2 && (
-                  <div className="col-span-full">
-                    <AdBanner variant="horizontal" label="Sponsor" />
-                  </div>
-                )}
-              </Fragment>
-            ))}
-          </div>
-        )}
-      </div>
+        </>
+      )}
 
       {/* Closing CTA (the design's newsletter block, repurposed as conversion) */}
       <div id="crear-perfil" className="mx-auto mt-14 max-w-[1320px] px-7 max-md:px-5">
