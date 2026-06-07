@@ -47,5 +47,10 @@
     "signOut": "Esci",
     "signOutConfirm": "Sei sicuro di voler uscire da 'BallersHub?",
     "signingOut": "Uscita in corso..."
+  },
+  "org": {
+    "description": "Piattaforma di portfolio professionali per calciatori e agenzie di rappresentanza. Ogni giocatore e ogni agenzia ottiene un link unico, ottimizzato per la SEO, che centralizza carriera, statistiche, dati fisici e media verificati.",
+    "appDescription": "App web per creare portfolio professionali di calciatori e agenzie: link unico, dati centralizzati, pronta per la SEO dal primo giorno.",
+    "slogan": "Profili professionali di calciatori"
   }
 }

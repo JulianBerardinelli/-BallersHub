@@ -39,6 +39,7 @@ import { db } from "@/lib/db";
 import { blogPosts } from "@/db/schema/blog";
 import { eq } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
+import { sitemapLanguages } from "@/lib/seo/hreflang";
 import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 import {
   getIndexablePlayers,
@@ -86,6 +87,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
+      // /about is fully translated in all 4 locales → emit hreflang
+      // alternates. Other marketing pages join as they get localized.
+      alternates: { languages: sitemapLanguages("/about") },
     },
     {
       url: `${base}/blog`,

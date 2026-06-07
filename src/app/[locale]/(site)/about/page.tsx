@@ -5,6 +5,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { localizedAlternates } from "@/lib/seo/hreflang";
+import type { Locale } from "@/i18n/routing";
 import {
   AboutCTA,
   AboutHero,
@@ -19,14 +21,19 @@ import {
 } from "@/components/site/about";
 import { AboutPageJsonLd } from "@/lib/seo/aboutPageJsonLd";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations("about");
   const title = t("meta.title");
   const description = t("meta.description");
   return {
     title,
     description,
-    alternates: { canonical: "/about" },
+    alternates: localizedAlternates(locale as Locale, "/about"),
     openGraph: {
       title: `${title} · 'BallersHub`,
       description,

@@ -16,20 +16,25 @@
 // Next.js pattern for structured data; React 19 does not escape script
 // children, so the alternative would silently fail to render valid JSON.
 
+import { getLocale, getTranslations } from "next-intl/server";
+
 import { getSiteBaseUrl } from "./baseUrl";
+import { HTML_LANG } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 
 const ORG_HANDLES = {
   instagram: "https://www.instagram.com/ballershub_",
   twitter: "https://x.com/ballershub_",
 } as const;
 
-const ORG_DESCRIPTION =
-  "Plataforma de portfolios profesionales para futbolistas y agencias de representación. Cada jugador y cada agencia obtiene un link único optimizado para SEO que centraliza trayectoria, estadísticas, datos físicos y media verificada.";
+export async function OrganizationJsonLd() {
+  const locale = (await getLocale()) as Locale;
+  const t = await getTranslations("common");
+  const lang = HTML_LANG[locale];
+  const orgDescription = t("org.description");
+  const appDescription = t("org.appDescription");
+  const slogan = t("org.slogan");
 
-const APP_DESCRIPTION =
-  "Aplicación web para crear portfolios profesionales de futbolistas y agencias: link único, datos centralizados, SEO listo desde el primer día.";
-
-export function OrganizationJsonLd() {
   const base = getSiteBaseUrl();
   const orgId = `${base}#organization`;
   const siteId = `${base}#website`;
@@ -51,20 +56,20 @@ export function OrganizationJsonLd() {
         url: base,
         // Founded August 2025 — sourced from docs/about MILESTONES.
         foundingDate: "2025-08",
-        description: ORG_DESCRIPTION,
+        description: orgDescription,
         logo: {
           "@type": "ImageObject",
           url: `${base}/images/logo/imagotipo-full_lime.svg`,
         },
         sameAs: [ORG_HANDLES.instagram, ORG_HANDLES.twitter],
-        slogan: "Perfiles profesionales de futbolistas",
+        slogan,
       },
       {
         "@type": "WebSite",
         "@id": siteId,
         url: base,
         name: "'BallersHub",
-        inLanguage: "es-AR",
+        inLanguage: lang,
         publisher: { "@id": orgId },
         potentialAction: {
           "@type": "SearchAction",
@@ -83,8 +88,8 @@ export function OrganizationJsonLd() {
         url: base,
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
-        inLanguage: "es-AR",
-        description: APP_DESCRIPTION,
+        inLanguage: lang,
+        description: appDescription,
         publisher: { "@id": orgId },
         // Offers live on /pricing as their own Product+Offer graph; we
         // link to that page so crawlers can follow the trail without us
