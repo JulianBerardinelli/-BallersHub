@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
   images: {
@@ -33,4 +34,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// next-intl plugin — wires src/i18n/request.ts as the per-request message
+// provider. Inert until a component under app/[locale]/ actually consumes
+// translations (Phase 0c), so it does not change routing behaviour yet.
+const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+
+export default withNextIntl(nextConfig);

@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "players": "Giocatori",
+    "agencies": "Agenzie",
+    "pricing": "Prezzi",
+    "blog": "Blog",
+    "about": "Chi siamo",
+    "signIn": "Accedi",
+    "signUp": "Registrati"
+  },
+  "actions": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "edit": "Modifica",
+    "delete": "Elimina"
+  },
+  "localeSwitcher": {
+    "label": "Lingua"
+  }
+}
