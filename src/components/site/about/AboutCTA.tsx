@@ -2,12 +2,16 @@
 // CTA final de la página /about — gemelo en lenguaje del CallToActionBanner del home,
 // pero con dos acciones (registro + contacto) y textura de cancha sutil.
 
-import Link from "next/link";
 import { ArrowRightCircle, MessageCircle } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-import { ABOUT_CTA } from "./data";
+import { Link } from "@/i18n/navigation";
+import { getAboutCta } from "./data";
 
-export default function AboutCTA() {
+export default async function AboutCTA() {
+  const t = await getTranslations("about");
+  const cta = getAboutCta(t);
+
   return (
     <section className="relative overflow-hidden rounded-bh-xl border border-[rgba(204,255,0,0.18)] bg-bh-surface-1 p-8 md:p-12">
       {/* Glow corporativo */}
@@ -33,29 +37,29 @@ export default function AboutCTA() {
       <div className="relative z-10 flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
         <div className="space-y-3">
           <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-            {ABOUT_CTA.eyebrow}
+            {cta.eyebrow}
           </span>
           <h2 className="font-bh-display text-3xl font-black uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-            {ABOUT_CTA.title}
+            {cta.title}
           </h2>
           <p className="max-w-[560px] text-sm leading-[1.6] text-bh-fg-3">
-            {ABOUT_CTA.description}
+            {cta.description}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href={ABOUT_CTA.primaryCta.href}
+            href={cta.primaryCta.href}
             className="inline-flex shrink-0 items-center gap-2 rounded-bh-md bg-bh-lime px-6 py-3 text-sm font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
           >
-            {ABOUT_CTA.primaryCta.label}
+            {cta.primaryCta.label}
             <ArrowRightCircle className="h-5 w-5" />
           </Link>
           <Link
-            href={ABOUT_CTA.secondaryCta.href}
+            href={cta.secondaryCta.href}
             className="inline-flex shrink-0 items-center gap-2 rounded-bh-md border border-bh-fg-4 px-6 py-3 text-sm font-semibold text-bh-fg-1 transition-colors duration-150 hover:bg-white/[0.06]"
           >
-            {ABOUT_CTA.secondaryCta.label}
+            {cta.secondaryCta.label}
             <MessageCircle className="h-4 w-4" />
           </Link>
         </div>

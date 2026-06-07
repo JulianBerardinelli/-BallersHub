@@ -3,34 +3,35 @@
 // Cada card tiene textura sutil + accent + hover lift.
 
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 
-import { ACCENT_STYLES, TEAM, type TeamMember } from "./data";
+import { ACCENT_STYLES, getTeam, type TeamMember } from "./data";
 
-export default function TeamGrid() {
+export default async function TeamGrid() {
+  const t = await getTranslations("about");
+  const team = getTeam(t);
+
   return (
     <section className="space-y-10">
       {/* Header con slogan shimmer (Hero display — shimmer del DS) */}
       <header className="flex max-w-2xl flex-col items-start gap-4">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-          El equipo
+          {t("sections.team.eyebrow")}
         </span>
         <h2 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          Personas reales detrás de{" "}
-          <span className="text-bh-lime">cada validación</span>
+          {t("sections.team.titlePlain")}{" "}
+          <span className="text-bh-lime">{t("sections.team.titleHighlight")}</span>
         </h2>
         <p className="bh-shimmer-text font-bh-display text-2xl font-black uppercase italic leading-none tracking-[-0.01em] md:text-3xl">
-          &ldquo;De Jugadores, para Jugadores.&rdquo;
+          {t("sections.team.slogan")}
         </p>
         <p className="text-sm leading-[1.65] text-bh-fg-3 md:text-[15px]">
-          No somos un equipo de oficina mirando el fútbol desde afuera. Somos
-          jugadores en actividad, ex-jugadores y analistas que entendemos lo que
-          necesita un futbolista para venderse — porque lo vivimos en carne
-          propia.
+          {t("sections.team.description")}
         </p>
       </header>
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {TEAM.map((member) => (
+        {team.map((member) => (
           <TeamCard key={member.name} member={member} />
         ))}
       </div>

@@ -13,12 +13,18 @@
 //   • Each TeamMember becomes a Person node referenced from
 //     Organization.founder / Organization.employee.
 //
-// Data source: `src/components/site/about/data.ts` (TEAM, MILESTONES,
-// ABOUT_HERO). Pulling from the same module the UI consumes guarantees
-// the schema never drifts from the visible page content.
+// Data source: getTeam(t)/getMilestones(t) from the about module — same
+// source the UI consumes, so the schema never drifts. Text is localized
+// via next-intl; `inLanguage` follows the active locale.
+// NOTE: ORG_DESCRIPTION/slogan stay es for now — sitewide Organization
+// schema localization is handled in Phase 3 (organizationJsonLd).
+
+import { getTranslations, getLocale } from "next-intl/server";
 
 import { getSiteBaseUrl, toCanonicalUrl } from "./baseUrl";
-import { TEAM, MILESTONES, type TeamMember } from "@/components/site/about/data";
+import { getTeam, getMilestones, type TeamMember } from "@/components/site/about/data";
+import { HTML_LANG } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 
 const ORG_HANDLES = {
   instagram: "https://www.instagram.com/ballershub_",
@@ -29,10 +35,6 @@ const ORG_DESCRIPTION =
   "Plataforma de portfolios profesionales para futbolistas y agencias de representación. Cada jugador y cada agencia obtiene un link único optimizado para SEO que centraliza trayectoria, estadísticas, datos físicos y media verificada.";
 
 function personIdFor(member: TeamMember, base: string): string {
-  // Stable id derived from the member name slug. We don't have
-  // individual /team/[slug] pages yet, so each Person id is anchored to
-  // /about with a hash fragment — schema.org accepts that as long as
-  // the @id is unique within the graph.
   const slug = member.name
     .toLowerCase()
     .normalize("NFD")
@@ -42,8 +44,8 @@ function personIdFor(member: TeamMember, base: string): string {
   return `${base}/about#person-${slug}`;
 }
 
-function buildPersonNodes(base: string): Array<Record<string, unknown>> {
-  return TEAM.map((member) => ({
+function buildPersonNodes(team: TeamMember[], base: string): Array<Record<string, unknown>> {
+  return team.map((member) => ({
     "@type": "Person",
     "@id": personIdFor(member, base),
     name: member.name,
@@ -54,17 +56,22 @@ function buildPersonNodes(base: string): Array<Record<string, unknown>> {
   }));
 }
 
-export function AboutPageJsonLd() {
+export async function AboutPageJsonLd() {
+  const t = await getTranslations("about");
+  const locale = (await getLocale()) as Locale;
+  const team = getTeam(t);
+  const milestones = getMilestones(t);
+
   const base = getSiteBaseUrl();
   const aboutUrl = toCanonicalUrl("/about");
   const aboutId = `${aboutUrl}#aboutpage`;
   const orgId = `${base}#organization`;
   const breadcrumbId = `${aboutUrl}#breadcrumb`;
 
-  const founder = TEAM.find((m) => /co.?founder|founder/i.test(m.role));
+  const founder = team.find((m) => /co.?founder|founder/i.test(m.role));
   const founderId = founder ? personIdFor(founder, base) : null;
 
-  const personNodes = buildPersonNodes(base);
+  const personNodes = buildPersonNodes(team, base);
 
   const orgExtension = {
     "@type": "Organization",
@@ -87,12 +94,12 @@ export function AboutPageJsonLd() {
     "@type": "AboutPage",
     "@id": aboutId,
     url: aboutUrl,
-    name: "Nosotros · 'BallersHub",
-    inLanguage: "es-AR",
+    name: `${t("meta.title")} · 'BallersHub`,
+    inLanguage: HTML_LANG[locale],
     isPartOf: { "@id": `${base}#website` },
     mainEntity: { "@id": orgId },
     breadcrumb: { "@id": breadcrumbId },
-    significantLink: MILESTONES.slice(0, 5).map(() => aboutUrl),
+    significantLink: milestones.slice(0, 5).map(() => aboutUrl),
   };
 
   const breadcrumb = {
@@ -100,7 +107,7 @@ export function AboutPageJsonLd() {
     "@id": breadcrumbId,
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Inicio", item: base },
-      { "@type": "ListItem", position: 2, name: "Nosotros", item: aboutUrl },
+      { "@type": "ListItem", position: 2, name: t("meta.title"), item: aboutUrl },
     ],
   };
 

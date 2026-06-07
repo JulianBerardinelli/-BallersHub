@@ -3,10 +3,14 @@
 // Diseño edge-to-edge dentro del contenedor principal, respetando el grid del DS.
 
 import { Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
-import { ACCENT_STYLES, IMPACT_STATS, type Stat } from "./data";
+import { ACCENT_STYLES, getImpactStats, type Stat } from "./data";
 
-export default function ImpactStats() {
+export default async function ImpactStats() {
+  const t = await getTranslations("about");
+  const stats = getImpactStats(t);
+
   return (
     <section className="relative overflow-hidden rounded-bh-xl border border-white/[0.08] bg-bh-surface-1 px-6 py-12 md:px-10 md:py-14">
       {/* Glow corporativo de fondo */}
@@ -38,21 +42,20 @@ export default function ImpactStats() {
           <div className="max-w-2xl space-y-2">
             <span className="inline-flex items-center gap-2 rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
               <Sparkles className="h-3 w-3" />
-              Estado del proyecto
+              {t("sections.impact.eyebrow")}
             </span>
             <h2 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-              En camino al{" "}
-              <span className="text-bh-lime">lanzamiento</span>
+              {t("sections.impact.titlePlain")}{" "}
+              <span className="text-bh-lime">{t("sections.impact.titleHighlight")}</span>
             </h2>
           </div>
           <p className="max-w-md text-sm leading-[1.6] text-bh-fg-3">
-            Construimos en silencio durante 8 meses con jugadores y agencias
-            piloto. En junio de 2026 abrimos la plataforma para LATAM y España.
+            {t("sections.impact.description")}
           </p>
         </header>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {IMPACT_STATS.map((stat) => (
+          {stats.map((stat) => (
             <StatTile key={stat.label} stat={stat} />
           ))}
         </div>
