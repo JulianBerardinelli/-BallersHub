@@ -21,7 +21,7 @@ import {
   createDraft,
   saveDraft,
   submitForReview,
-} from "@/app/(site)/blog/write/actions";
+} from "@/app/[locale]/(site)/blog/write/actions";
 
 type Mode =
   | { kind: "create" }

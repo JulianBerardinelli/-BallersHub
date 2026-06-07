@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Form, Button, Checkbox, Chip } from "@heroui/react";
-import KycUploader from "@/app/(onboarding)/onboarding/KycUploader";
+import KycUploader from "@/app/[locale]/(onboarding)/onboarding/KycUploader";
 import type { CountryPick } from "@/components/common/CountryMultiPicker";
 import { supabase } from "@/lib/supabase/client";
 import { onboardingNotification, useNotificationContext } from "@/modules/notifications";
