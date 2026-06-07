@@ -1,8 +1,9 @@
 // src/app/(auth)/layout.tsx
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
+import { Link } from "@/i18n/navigation";
 import { Wordmark } from "@/components/brand/Wordmark";
 
 export const metadata: Metadata = {
@@ -10,7 +11,8 @@ export const metadata: Metadata = {
   description: "Accedé a tu cuenta 'BallersHub",
 };
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const t = await getTranslations("common");
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bh-black selection:bg-bh-lime selection:text-bh-black">
       {/* Ambient orbs — lime + blue */}
@@ -53,7 +55,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         className="absolute left-8 top-8 z-10 flex items-center gap-2 text-sm text-bh-fg-3 transition-colors hover:text-bh-fg-1"
       >
         <ArrowLeft className="h-4 w-4" />
-        Volver
+        {t("back")}
       </Link>
 
       <main className="relative z-10 mx-4 w-full max-w-[420px] rounded-bh-xl border border-white/10 bg-bh-surface-1/70 p-8 shadow-2xl shadow-black/60 backdrop-blur-2xl">
