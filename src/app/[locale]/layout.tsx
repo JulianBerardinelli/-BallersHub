@@ -1,9 +1,15 @@
-// app/layout.tsx
+// app/[locale]/layout.tsx — root layout. With next-intl + the [locale]
+// segment THIS file owns <html>/<body>; there is no app/layout.tsx.
 import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed, DM_Mono, DM_Sans, Geist, Geist_Mono } from "next/font/google";
+import { notFound } from "next/navigation";
+import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { setRequestLocale } from "next-intl/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { Providers } from "./providers";
+import { Providers } from "@/app/providers";
+import { routing } from "@/i18n/routing";
+import { HTML_LANG } from "@/i18n/config";
 import { zuume } from "@/lib/fonts";
 import { getSiteBaseUrlObject } from "@/lib/seo/baseUrl";
 import { OrganizationJsonLd } from "@/lib/seo/organizationJsonLd";
@@ -103,9 +109,30 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Pre-render the four locales at build time (works with setRequestLocale
+// below to keep these pages statically rendered).
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function RootLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  // 404 on unknown locales (e.g. /xx/...) instead of rendering a broken
+  // default — keeps the [locale] segment strict.
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+  // Opt into static rendering for this locale.
+  setRequestLocale(locale);
+
   return (
-    <html lang="es-AR" className="dark">
+    <html lang={HTML_LANG[locale]} className="dark">
       <body className={`relative min-h-screen overflow-x-hidden overflow-y-scroll bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
         {/*
           Sitewide structured data: Organization + WebSite (with
@@ -125,11 +152,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           aria-hidden
           className="pointer-events-none fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(125%_125%_at_50%_10%,#0a0a0a_40%,#000000_100%)]"
         />
-        <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            {children}
-          </div>
-        </Providers>
+        <NextIntlClientProvider>
+          <Providers>
+            <div className="relative flex min-h-screen flex-col">
+              {children}
+            </div>
+          </Providers>
+        </NextIntlClientProvider>
         {/*
           Vercel observability — only emit beacons in production so we
           don't pollute the dashboard with dev/preview traffic. Speed

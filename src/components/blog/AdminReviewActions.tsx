@@ -6,7 +6,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { reviewPost, unpublishPost, deletePost } from "@/app/(dashboard)/admin/blog/actions";
+import { reviewPost, unpublishPost, deletePost } from "@/app/[locale]/(dashboard)/admin/blog/actions";
 import type { BlogStatus } from "@/db/schema";
 
 type Props = {
