@@ -6,7 +6,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BRAND, FONT_STACK } from "../../lib/brand";
+import { BRAND } from "../../lib/brand";
+import { FONTS } from "../../lib/fonts";
 import type { ReelData } from "../../lib/data";
 
 export type PortfolioReelProps = {
@@ -80,7 +81,7 @@ export const PortfolioReel = ({
   ];
 
   return (
-    <AbsoluteFill style={{ backgroundColor: background, fontFamily: FONT_STACK }}>
+    <AbsoluteFill style={{ backgroundColor: background, fontFamily: FONTS.display }}>
       {/* Glow radial de marca (lime arriba, blue abajo). */}
       <AbsoluteFill
         style={{
@@ -161,9 +162,12 @@ export const PortfolioReel = ({
             style={{
               margin: 0,
               color: BRAND.white,
-              fontSize: 104,
-              lineHeight: 1.02,
-              fontWeight: 800,
+              fontSize: 112,
+              lineHeight: 0.98,
+              fontWeight: 900,
+              fontStyle: "italic",
+              fontFamily: FONTS.name,
+              textTransform: "uppercase",
             }}
           >
             {data.fullName}

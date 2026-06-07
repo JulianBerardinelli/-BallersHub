@@ -9,7 +9,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BRAND, FONT_STACK } from "../../lib/brand";
+import { BRAND } from "../../lib/brand";
+import { FONTS } from "../../lib/fonts";
 import { drawGlobe, type DrawCity } from "./drawGlobe";
 import type { GlobeCity } from "./cities";
 
@@ -99,7 +100,7 @@ export const ScoutGlobeFlyover = ({
     );
 
   return (
-    <AbsoluteFill style={{ backgroundColor: BRAND.black, fontFamily: FONT_STACK }}>
+    <AbsoluteFill style={{ backgroundColor: BRAND.black, fontFamily: FONTS.display }}>
       <AbsoluteFill
         style={{ background: `radial-gradient(60% 50% at 50% 42%, ${BRAND.lime}14, transparent 70%)` }}
       />
@@ -195,7 +196,7 @@ const Stat = ({ n, label, accent }: { n: number; label: string; accent?: boolean
     <div style={{ fontSize: 60, fontWeight: 800, lineHeight: 1, color: accent ? BRAND.lime : BRAND.white }}>
       {n.toLocaleString("es-AR")}
     </div>
-    <div style={{ fontSize: 22, color: BRAND.muted, textTransform: "uppercase", letterSpacing: 1, marginTop: 6 }}>
+    <div style={{ fontFamily: FONTS.body, fontSize: 22, color: BRAND.muted, textTransform: "uppercase", letterSpacing: 1, marginTop: 6 }}>
       {label}
     </div>
   </div>

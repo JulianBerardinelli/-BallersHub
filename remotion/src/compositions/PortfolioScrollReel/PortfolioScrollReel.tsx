@@ -7,7 +7,8 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BRAND, FONT_STACK } from "../../lib/brand";
+import { BRAND } from "../../lib/brand";
+import { FONTS } from "../../lib/fonts";
 
 export type PortfolioScrollReelProps = {
   /** Ruta del clip dentro de public/ (lo genera `npm run capture:portfolio`). */
@@ -47,7 +48,7 @@ export const PortfolioScrollReel = ({
   });
 
   return (
-    <AbsoluteFill style={{ backgroundColor: BRAND.black, fontFamily: FONT_STACK, opacity: outro }}>
+    <AbsoluteFill style={{ backgroundColor: BRAND.black, fontFamily: FONTS.display, opacity: outro }}>
       <OffthreadVideo
         src={staticFile(clip)}
         trimBefore={Math.round(trimStartSeconds * fps)}

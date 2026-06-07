@@ -14,5 +14,4 @@ export const BRAND = {
   muted: "#9CA3AF",
 } as const;
 
-export const FONT_STACK =
-  '"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+// Las fonts del design system se cargan en `./fonts` (FONTS.display / body / name).

@@ -20,7 +20,8 @@ import {
   MOCK_DENSITY,
   MOCK_TOTALS,
 } from "../ScoutGlobeFlyover/cities";
-import { BRAND, FONT_STACK } from "../../lib/brand";
+import { BRAND } from "../../lib/brand";
+import { FONTS } from "../../lib/fonts";
 
 export type HybridReelProps = {
   clip: string;
@@ -42,7 +43,7 @@ const ScrollScene = ({
   const { fps } = useVideoConfig();
   const kicker = spring({ frame: frame - 4, fps, config: { damping: 200 } });
   return (
-    <AbsoluteFill style={{ backgroundColor: BRAND.black, fontFamily: FONT_STACK }}>
+    <AbsoluteFill style={{ backgroundColor: BRAND.black, fontFamily: FONTS.display }}>
       <OffthreadVideo
         src={staticFile(clip)}
         trimBefore={Math.round(trimStartSeconds * fps)}
@@ -79,7 +80,7 @@ const OutroScene = () => {
     <AbsoluteFill
       style={{
         backgroundColor: BRAND.black,
-        fontFamily: FONT_STACK,
+        fontFamily: FONTS.display,
         alignItems: "center",
         justifyContent: "center",
       }}
