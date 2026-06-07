@@ -2,25 +2,30 @@
 // Tres pilares: Misión, Visión, Propósito.
 // Cada bloque usa el accent del DS (lime/blue) y tarjetas con bh-card-lift.
 
-import SectionHeader from "./SectionHeader";
-import { ACCENT_STYLES, PILLARS, type Pillar } from "./data";
+import { getTranslations } from "next-intl/server";
 
-export default function MissionVision() {
+import SectionHeader from "./SectionHeader";
+import { ACCENT_STYLES, getPillars, type Pillar } from "./data";
+
+export default async function MissionVision() {
+  const t = await getTranslations("about");
+  const pillars = getPillars(t);
+
   return (
     <section className="space-y-10">
       <SectionHeader
-        eyebrow="Misión · Visión · Objetivos"
+        eyebrow={t("sections.missionVision.eyebrow")}
         title={
           <>
-            Tres pilares que sostienen{" "}
-            <span className="text-bh-lime">cada decisión</span>
+            {t("sections.missionVision.titlePlain")}{" "}
+            <span className="text-bh-lime">{t("sections.missionVision.titleHighlight")}</span>
           </>
         }
-        description="Misión, visión y objetivos no son frases en una pared: son el filtro con el que decidimos qué construir, qué priorizar y cómo acompañar a jugadores y agencias."
+        description={t("sections.missionVision.description")}
       />
 
       <div className="grid gap-5 md:grid-cols-3">
-        {PILLARS.map((pillar) => (
+        {pillars.map((pillar) => (
           <PillarCard key={pillar.title} pillar={pillar} />
         ))}
       </div>

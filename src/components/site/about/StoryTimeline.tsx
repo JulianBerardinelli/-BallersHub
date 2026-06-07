@@ -3,21 +3,26 @@
 // - Mobile: timeline a la izquierda, cards a la derecha.
 // - Desktop: timeline central con cards alternadas (zig-zag).
 
-import SectionHeader from "./SectionHeader";
-import { ACCENT_STYLES, MILESTONES, type Milestone } from "./data";
+import { getTranslations } from "next-intl/server";
 
-export default function StoryTimeline() {
+import SectionHeader from "./SectionHeader";
+import { ACCENT_STYLES, getMilestones, type Milestone } from "./data";
+
+export default async function StoryTimeline() {
+  const t = await getTranslations("about");
+  const milestones = getMilestones(t);
+
   return (
     <section className="space-y-12">
       <SectionHeader
-        eyebrow="Nuestra historia"
+        eyebrow={t("sections.story.eyebrow")}
         title={
           <>
-            De una idea en cancha a una red{" "}
-            <span className="text-bh-lime">en expansión</span>
+            {t("sections.story.titlePlain")}{" "}
+            <span className="text-bh-lime">{t("sections.story.titleHighlight")}</span>
           </>
         }
-        description="Cada hito está marcado por feedback real de la comunidad. Iteramos rápido, escuchamos primero y construimos a largo plazo."
+        description={t("sections.story.description")}
       />
 
       {/* Timeline */}
@@ -28,7 +33,7 @@ export default function StoryTimeline() {
           className="absolute left-3 top-1 h-full w-px bg-gradient-to-b from-bh-lime/40 via-white/[0.10] to-bh-blue/40 md:left-1/2 md:-translate-x-1/2"
         />
         <div className="space-y-10 md:space-y-14">
-          {MILESTONES.map((milestone, index) => (
+          {milestones.map((milestone, index) => (
             <MilestoneItem
               key={milestone.year}
               milestone={milestone}

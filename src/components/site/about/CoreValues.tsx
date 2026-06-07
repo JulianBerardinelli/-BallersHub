@@ -1,25 +1,30 @@
 // src/components/site/about/CoreValues.tsx
 // Grid 3x2 de valores fundamentales con micro-iconografía y tarjetas glass.
 
-import SectionHeader from "./SectionHeader";
-import { ACCENT_STYLES, VALUES, type Value } from "./data";
+import { getTranslations } from "next-intl/server";
 
-export default function CoreValues() {
+import SectionHeader from "./SectionHeader";
+import { ACCENT_STYLES, getValues, type Value } from "./data";
+
+export default async function CoreValues() {
+  const t = await getTranslations("about");
+  const values = getValues(t);
+
   return (
     <section className="space-y-10">
       <SectionHeader
-        eyebrow="Qué nos hace distintos"
+        eyebrow={t("sections.values.eyebrow")}
         title={
           <>
-            Lo que vas a encontrar en{" "}
-            <span className="text-bh-blue">tu portfolio</span>
+            {t("sections.values.titlePlain")}{" "}
+            <span className="text-bh-blue">{t("sections.values.titleHighlight")}</span>
           </>
         }
-        description="No es otra ficha de jugador en PDF. Es una plataforma diseñada para que tu carrera o tu agencia se vendan profesionalmente en internet — con identidad propia, datos centralizados y conexión real con el ecosistema."
+        description={t("sections.values.description")}
       />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {VALUES.map((value) => (
+        {values.map((value) => (
           <ValueCard key={value.title} value={value} />
         ))}
       </div>
