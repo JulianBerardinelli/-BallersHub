@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { supabase } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@heroui/react";
 import { Lock, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
+import { useRouter } from "@/i18n/navigation";
 import FormField from "@/components/dashboard/client/FormField";
 
 export default function UpdatePasswordPage() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,7 +24,7 @@ export default function UpdatePasswordPage() {
   async function handleUpdatePassword(e: React.FormEvent) {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+      setError(t("update.mismatch"));
       return;
     }
 
@@ -54,10 +56,10 @@ export default function UpdatePasswordPage() {
           <CheckCircle2 className="w-8 h-8" />
         </div>
         <h2 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-          Contraseña actualizada
+          {t("update.successTitle")}
         </h2>
         <p className="text-sm text-bh-fg-3">
-          Tu contraseña fue cambiada de forma segura. Redirigiendo al panel...
+          {t("update.successText")}
         </p>
       </div>
     );
@@ -67,10 +69,10 @@ export default function UpdatePasswordPage() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center mb-6">
         <h2 className="font-bh-display text-3xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 mb-2">
-          Nueva <span className="text-bh-lime">contraseña</span>
+          {t.rich("update.title", { hl: (c) => <span className="text-bh-lime">{c}</span> })}
         </h2>
         <p className="text-sm text-bh-fg-3">
-          Ingresá tu nueva contraseña a continuación.
+          {t("update.subtitle")}
         </p>
       </div>
 
@@ -78,7 +80,7 @@ export default function UpdatePasswordPage() {
         <FormField
           id="bh-password"
           type={isVisible ? "text" : "password"}
-          label="Nueva contraseña"
+          label={t("update.newPassword")}
           placeholder="••••••••"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -90,7 +92,7 @@ export default function UpdatePasswordPage() {
               className="text-bh-fg-3 transition-colors hover:text-bh-fg-1 focus:outline-none"
               type="button"
               onClick={toggleVisibility}
-              aria-label={isVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+              aria-label={isVisible ? t("fields.hidePassword") : t("fields.showPassword")}
             >
               {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -100,7 +102,7 @@ export default function UpdatePasswordPage() {
         <FormField
           id="bh-confirm-password"
           type={isVisible ? "text" : "password"}
-          label="Confirmar contraseña"
+          label={t("update.confirmPassword")}
           placeholder="••••••••"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
@@ -120,7 +122,7 @@ export default function UpdatePasswordPage() {
           isLoading={loading}
           className="w-full bg-bh-lime text-bh-black font-semibold text-base py-6 rounded-xl shadow-[0_2px_12px_rgba(204,255,0,0.35)] hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] transition-all"
         >
-          {loading ? "Actualizando..." : "Actualizar contraseña"}
+          {loading ? t("update.submitting") : t("update.submit")}
         </Button>
       </form>
     </div>
