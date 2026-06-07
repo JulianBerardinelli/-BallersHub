@@ -1,19 +1,19 @@
-import { Composition, type CalculateMetadataFunction } from "remotion";
+import { Composition, Folder, type CalculateMetadataFunction } from "remotion";
 import {
   PortfolioReel,
   type PortfolioReelProps,
 } from "./compositions/PortfolioReel/PortfolioReel";
+import { ScoutGlobeFlyover } from "./compositions/ScoutGlobeFlyover/ScoutGlobeFlyover";
+import { MOCK_CITIES, MOCK_DENSITY, MOCK_TOTALS } from "./compositions/ScoutGlobeFlyover/cities";
 import { MOCK_REEL, getReelData } from "./lib/data";
 import { BRAND } from "./lib/brand";
 
 const FPS = 30;
-const DURATION_SECONDS = 6;
 
 /**
  * Corre ANTES del render. Trae los datos reales del jugador por `slug` y los
  * inyecta en props. Si falla (o no hay endpoint configurado todavía), cae al
  * mock de `defaultProps` así Studio nunca queda en blanco.
- * También fija el nombre de archivo de salida: `reel-<slug>.mp4`.
  */
 const calcReel: CalculateMetadataFunction<PortfolioReelProps> = async ({
   props,
@@ -29,22 +29,44 @@ const calcReel: CalculateMetadataFunction<PortfolioReelProps> = async ({
 
 export const RemotionRoot = () => {
   return (
-    <Composition
-      id="PortfolioReel"
-      component={PortfolioReel}
-      durationInFrames={DURATION_SECONDS * FPS}
-      fps={FPS}
-      width={1080}
-      height={1920}
-      defaultProps={
-        {
-          slug: MOCK_REEL.slug,
-          accent: BRAND.lime,
-          background: BRAND.black,
-          data: MOCK_REEL,
-        } satisfies PortfolioReelProps
-      }
-      calculateMetadata={calcReel}
-    />
+    <>
+      {/* Piezas del PRODUCTO en movimiento (lo que se comparte en redes). */}
+      <Folder name="Producto">
+        <Composition
+          id="ScoutGlobeFlyover"
+          component={ScoutGlobeFlyover}
+          durationInFrames={12 * FPS}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          defaultProps={{
+            cities: MOCK_CITIES,
+            density: MOCK_DENSITY,
+            totals: MOCK_TOTALS,
+          }}
+        />
+      </Folder>
+
+      {/* Reels de datos (tarjetas animadas — pieza secundaria). */}
+      <Folder name="Reels">
+        <Composition
+          id="PortfolioReel"
+          component={PortfolioReel}
+          durationInFrames={6 * FPS}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          defaultProps={
+            {
+              slug: MOCK_REEL.slug,
+              accent: BRAND.lime,
+              background: BRAND.black,
+              data: MOCK_REEL,
+            } satisfies PortfolioReelProps
+          }
+          calculateMetadata={calcReel}
+        />
+      </Folder>
+    </>
   );
 };
