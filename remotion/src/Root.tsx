@@ -4,6 +4,7 @@ import {
   type PortfolioReelProps,
 } from "./compositions/PortfolioReel/PortfolioReel";
 import { ScoutGlobeFlyover } from "./compositions/ScoutGlobeFlyover/ScoutGlobeFlyover";
+import { PortfolioScrollReel } from "./compositions/PortfolioScrollReel/PortfolioScrollReel";
 import { MOCK_CITIES, MOCK_DENSITY, MOCK_TOTALS } from "./compositions/ScoutGlobeFlyover/cities";
 import { MOCK_REEL, getReelData } from "./lib/data";
 import { BRAND } from "./lib/brand";
@@ -42,6 +43,20 @@ export const RemotionRoot = () => {
             cities: MOCK_CITIES,
             density: MOCK_DENSITY,
             totals: MOCK_TOTALS,
+          }}
+        />
+        <Composition
+          id="PortfolioScrollReel"
+          component={PortfolioScrollReel}
+          durationInFrames={8 * FPS}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          defaultProps={{
+            clip: "captures/portfolio-julian-berardinelli.webm",
+            name: "Julián Berardinelli",
+            slug: "julian-berardinelli",
+            trimStartSeconds: 3.5,
           }}
         />
       </Folder>
