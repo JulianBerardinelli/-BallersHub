@@ -43,22 +43,30 @@ function ProcessingInner() {
   const router = useRouter();
   const params = useSearchParams();
 
-  // Resolve the internal session id from URL params. There are 3 cases:
-  //  1. Clean: `?internal=<uuid>` (Stripe + new MP back_url path)
+  // Resolve the internal session id from URL params. There are 4 cases:
+  //  1. Clean: `?internal=<uuid>` (Stripe + legacy MP back_url path)
   //  2. Malformed legacy MP: `?internal=<uuid>?preapproval_id=<id>`
   //     where MP appended `?` to a URL that already had `?`. The browser
   //     parses `internal` as the literal string `<uuid>?preapproval_id=<id>`.
-  //  3. Pure MP redirect: `?preapproval_id=<id>` (no internal). We resolve
-  //     the internal id via `/api/billing/resolve-checkout` first.
+  //  3. Plan-based MP redirect (new): MP appends `?external_reference=<uuid>`
+  //     to the back_url. external_reference IS our internalSessionId
+  //     (we set it on the init_point), so we can use it directly.
+  //  4. Pure preapproval_id redirect: `?preapproval_id=<id>` (no internal).
+  //     We resolve the internal id via `/api/billing/resolve-checkout` first.
   const rawInternal = params.get("internal");
   // Strip anything after the first `?` to defend against case (2).
   const internalFromUrl = rawInternal ? rawInternal.split("?")[0] : null;
+  // Case (3): external_reference is our UUID; use it as `internal` directly.
+  const externalRefFromUrl = params.get("external_reference");
   const preapprovalIdFromUrl =
     params.get("preapproval_id") ??
     extractFromMalformedInternal(rawInternal, "preapproval_id");
   const stripeSessionIdFromUrl = params.get("cs_id");
 
-  const [internal, setInternal] = useState<string | null>(internalFromUrl);
+  // Initial internal: explicit `?internal=` wins; fall back to
+  // `?external_reference=` (which IS our UUID for MP plan-based flow).
+  const initialInternal = internalFromUrl ?? externalRefFromUrl ?? null;
+  const [internal, setInternal] = useState<string | null>(initialInternal);
   const [elapsed, setElapsed] = useState(0);
   const [statusLabel, setStatusLabel] = useState("Confirmando con el procesador…");
 
