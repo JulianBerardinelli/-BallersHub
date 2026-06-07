@@ -28,7 +28,14 @@ export function LocaleSwitcher() {
 
   function onSelect(next: Locale) {
     if (next === locale) return;
-    router.replace(pathname, { locale: next });
+    // Preserve query string + hash so switching language never drops
+    // filters/search context (e.g. /players?position=GK, /search?q=agent).
+    // Read from window in the click handler instead of useSearchParams,
+    // which would force dynamic rendering / a Suspense boundary on the
+    // header across every page.
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    router.replace(`${pathname}${search}${hash}`, { locale: next });
   }
 
   return (
