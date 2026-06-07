@@ -1,0 +1,30 @@
+{
+  "name": "@ballershub/remotion",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Estudio de video de 'BallersHub (Remotion) — reels y piezas para redes, data-driven desde los portfolios. Sub-package aislado: NO se importa desde la app Next.",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render",
+    "still": "remotion still",
+    "typecheck": "tsc --noEmit",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.473",
+    "d3-geo": "^3.1.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "4.0.473",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/d3-geo": "^3.1.0",
+    "@types/geojson": "^7946.0.14",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/topojson-client": "^3.1.5",
+    "typescript": "^5.7.0"
+  }
+}

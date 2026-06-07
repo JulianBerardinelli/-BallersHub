@@ -11,6 +11,11 @@
 !.yarn/versions
 .agents
 
+# remotion video studio — deps y renders son regenerables; los templates (src/) SÍ se versionan
+/remotion/node_modules
+/remotion/out
+/remotion/.remotion
+
 # testing
 /coverage
 

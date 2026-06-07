@@ -1,0 +1,2 @@
+# Assets estáticos del video (logos, fuentes, música, clips livianos).
+# Referencialos con staticFile("archivo.ext"). Assets pesados → Supabase Storage / Git LFS.
