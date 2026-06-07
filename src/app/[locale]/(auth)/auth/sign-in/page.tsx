@@ -1,15 +1,16 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Tabs, Tab, Checkbox } from "@heroui/react";
 import { Mail, Lock, Eye, EyeOff, LogIn, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
 
+import { Link, useRouter } from "@/i18n/navigation";
 import FormField from "@/components/dashboard/client/FormField";
 
 export default function SignInPage() {
+  const t = useTranslations("auth");
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -57,7 +58,7 @@ export default function SignInPage() {
     setError(null);
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const redirectTo = `${origin}/auth/callback?redirect=/dashboard`;
-  
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo },
@@ -71,12 +72,15 @@ export default function SignInPage() {
         <div className="w-16 h-16 bg-[rgba(0,194,255,0.12)] rounded-full flex items-center justify-center text-bh-blue mb-2 border border-[rgba(0,194,255,0.25)]">
           <CheckCircle2 className="w-8 h-8" />
         </div>
-        <h2 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Revisá tu correo</h2>
+        <h2 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">{t("signIn.magicSuccessTitle")}</h2>
         <p className="text-sm text-bh-fg-3">
-          Enviamos un enlace de acceso rápido a <strong className="text-bh-fg-1 font-medium">{email}</strong>.
+          {t.rich("signIn.magicSuccessText", {
+            email,
+            strong: (c) => <strong className="text-bh-fg-1 font-medium">{c}</strong>,
+          })}
         </p>
         <button onClick={() => setSuccessMagicLink(false)} className="mt-8 text-sm text-bh-fg-3 hover:text-bh-fg-1 transition-colors">
-          Usar otra cuenta
+          {t("signIn.useAnotherAccount")}
         </button>
       </div>
     );
@@ -86,19 +90,19 @@ export default function SignInPage() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="text-center mb-6">
         <h2 className="font-bh-display text-3xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 mb-2">
-          Bienvenido <span className="text-bh-lime">de vuelta</span>
+          {t.rich("signIn.title", { hl: (c) => <span className="text-bh-lime">{c}</span> })}
         </h2>
         <p className="text-sm text-bh-fg-3">
-          Ingresá para gestionar tu carrera.
+          {t("signIn.subtitle")}
         </p>
       </div>
 
       <form onSubmit={signInWithEmail} className="space-y-4">
-        <Tabs 
-          fullWidth 
-          size="md" 
-          aria-label="Opciones de acceso" 
-          selectedKey={selectedTab.toString()} 
+        <Tabs
+          fullWidth
+          size="md"
+          aria-label={t("signIn.tabsAriaLabel")}
+          selectedKey={selectedTab.toString()}
           onSelectionChange={setSelectedTab}
           classNames={{
             tabList: "rounded-bh-md border border-white/[0.06] bg-bh-surface-1 p-1",
@@ -106,13 +110,13 @@ export default function SignInPage() {
             tab: "text-bh-fg-3 data-[selected=true]:text-bh-fg-1 transition-colors",
           }}
         >
-          <Tab key="password" title="Contraseña">
+          <Tab key="password" title={t("signIn.tabPassword")}>
             <div className="space-y-4 pt-2 animate-in slide-in-from-left-2 duration-300">
               <FormField
                 id="bh-si-email"
                 type="email"
-                label="Correo electrónico"
-                placeholder="tu@email.com"
+                label={t("fields.email")}
+                placeholder={t("fields.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 isRequired
@@ -122,7 +126,7 @@ export default function SignInPage() {
                 <FormField
                   id="bh-si-password"
                   type={isVisible ? "text" : "password"}
-                  label="Contraseña"
+                  label={t("fields.password")}
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -133,7 +137,7 @@ export default function SignInPage() {
                       className="text-bh-fg-3 transition-colors hover:text-bh-fg-1 focus:outline-none"
                       type="button"
                       onClick={toggleVisibility}
-                      aria-label={isVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      aria-label={isVisible ? t("fields.hidePassword") : t("fields.showPassword")}
                     >
                       {isVisible ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -150,34 +154,33 @@ export default function SignInPage() {
                     }}
                     size="sm"
                   >
-                    Mantener sesión iniciada
+                    {t("signIn.rememberMe")}
                   </Checkbox>
 
                   <Link
                     href="/auth/forgot-password"
                     className="text-[11px] text-bh-fg-3 transition-colors hover:text-bh-lime"
                   >
-                    ¿Olvidaste tu contraseña?
+                    {t("signIn.forgotPassword")}
                   </Link>
                 </div>
               </div>
             </div>
           </Tab>
-          <Tab key="magic" title="Enlace Mágico">
+          <Tab key="magic" title={t("signIn.tabMagic")}>
             <div className="space-y-4 pt-2 animate-in slide-in-from-right-2 duration-300">
               <FormField
                 id="bh-si-magic-email"
                 type="email"
-                label="Correo electrónico"
-                placeholder="tu@email.com"
+                label={t("fields.email")}
+                placeholder={t("fields.emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 isRequired
                 startContent={<Mail className="w-4 h-4" />}
               />
               <p className="px-2 text-center text-[11px] leading-relaxed text-bh-fg-4">
-                Recibirás un enlace por correo que te permitirá entrar sin usar
-                contraseña.
+                {t("signIn.magicHint")}
               </p>
             </div>
           </Tab>
@@ -195,13 +198,13 @@ export default function SignInPage() {
           startContent={!loading && <LogIn className="w-4 h-4" />}
           className="w-full bg-bh-lime text-bh-black font-semibold text-base py-6 rounded-xl shadow-[0_2px_12px_rgba(204,255,0,0.35)] hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] transition-all"
         >
-          {loading ? "Ingresando..." : (selectedTab === "magic" ? "Recibir enlace" : "Iniciar sesión")}
+          {loading ? t("signIn.submitting") : (selectedTab === "magic" ? t("signIn.submitMagic") : t("signIn.submit"))}
         </Button>
       </form>
 
       <div className="flex items-center gap-3 my-6">
         <span className="flex-1 h-px bg-white/10" />
-        <span className="text-xs font-medium text-neutral-500 uppercase tracking-widest">o continúa con</span>
+        <span className="text-xs font-medium text-neutral-500 uppercase tracking-widest">{t("oauth.divider")}</span>
         <span className="flex-1 h-px bg-white/10" />
       </div>
 
@@ -213,21 +216,21 @@ export default function SignInPage() {
             <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.16C1.43 8.55 1 10.22 1 12s.43 3.45 1.16 4.93l3.68-2.84z" fill="#FBBC05"/>
             <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.16 7.07l3.68 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
           </svg>
-          <span className="text-sm font-medium text-white">Google</span>
+          <span className="text-sm font-medium text-white">{t("oauth.google")}</span>
         </button>
-        <button type="button" disabled aria-disabled="true" title="Próximamente" className="flex items-center justify-center gap-2 w-full rounded-xl border border-white/10 bg-white/5 py-3 opacity-40 cursor-not-allowed">
+        <button type="button" disabled aria-disabled="true" title={t("oauth.comingSoon")} className="flex items-center justify-center gap-2 w-full rounded-xl border border-white/10 bg-white/5 py-3 opacity-40 cursor-not-allowed">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
             <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.05 2.25.68 2.92.68.66 0 1.91-.76 3.47-.63 1.39.06 2.54.58 3.23 1.5-3.41 1.76-2.73 6.03.45 7.2-.68 1.63-1.39 3.09-2.07 4.22-.05.07-.05.07 0 0zm-5.18-13.6c-.19-1.93 1.4-3.76 3.37-4.05.34 2.13-1.63 3.86-3.37 4.05z" />
           </svg>
-          <span className="text-sm font-medium text-white">Apple</span>
+          <span className="text-sm font-medium text-white">{t("oauth.apple")}</span>
         </button>
       </div>
 
       <div className="mt-8 text-center">
         <p className="text-sm text-neutral-400">
-          ¿No tienes cuenta?{" "}
+          {t("signIn.noAccount")}{" "}
           <Link href="/auth/sign-up" className="text-white hover:underline transition-all">
-            Crear cuenta gratis
+            {t("signIn.createAccountCta")}
           </Link>
         </p>
       </div>
