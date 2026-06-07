@@ -77,44 +77,52 @@ export async function resolveFooterCTAState(): Promise<FooterCTAState> {
   }
 }
 
-export function buildLinkColumns(state: FooterCTAState): FooterLinkColumn[] {
+// Translator type — the subset of next-intl's `t` we use here (plain key
+// lookups). Accepting this instead of the full type keeps the helper
+// decoupled from next-intl internals.
+type Translator = (key: string) => string;
+
+export function buildLinkColumns(
+  state: FooterCTAState,
+  t: Translator,
+): FooterLinkColumn[] {
   // "Crear perfil de jugador" only when the user does not already have one.
   const showCreatePlayer = state.kind !== "player";
   // "Crear agencia" only when the user is not a manager already.
   const showCreateAgency = state.kind !== "manager";
 
   const players: FooterLinkColumn = {
-    title: "Para Jugadores",
+    title: t("columns.playersTitle"),
     links: [
       ...(showCreatePlayer
-        ? [{ label: "Crear perfil", href: "/onboarding/start" }]
+        ? [{ label: t("columns.createProfile"), href: "/onboarding/start" }]
         : []),
-      { label: "Ver perfiles validados", href: "/players" },
-      { label: "Editar trayectoria", href: "/dashboard/edit-profile/football-data" },
-      { label: "Plantillas Pro", href: "/dashboard/edit-template/styles" },
+      { label: t("columns.viewValidated"), href: "/players" },
+      { label: t("columns.editCareer"), href: "/dashboard/edit-profile/football-data" },
+      { label: t("columns.proTemplates"), href: "/dashboard/edit-template/styles" },
     ],
   };
 
   const agencies: FooterLinkColumn = {
-    title: "Para Agencias",
+    title: t("columns.agenciesTitle"),
     links: [
       ...(showCreateAgency
-        ? [{ label: "Crear agencia", href: "/onboarding/start" }]
+        ? [{ label: t("columns.createAgency"), href: "/onboarding/start" }]
         : []),
-      { label: "Ver agencias", href: "/agencies" },
-      { label: "Mi cartera", href: "/dashboard/players" },
-      { label: "Verificación oficial", href: "/dashboard/agency" },
-      { label: "Demo", href: "/about" },
+      { label: t("columns.viewAgencies"), href: "/agencies" },
+      { label: t("columns.myRoster"), href: "/dashboard/players" },
+      { label: t("columns.officialVerification"), href: "/dashboard/agency" },
+      { label: t("columns.demo"), href: "/about" },
     ],
   };
 
   const work: FooterLinkColumn = {
-    title: "Trabajar",
+    title: t("columns.workTitle"),
     links: [
-      { label: "Carreras", href: "/about", badge: "Hiring" },
-      { label: "Partners", href: "/about" },
-      { label: "Embajadores", href: "/about" },
-      { label: "Prensa", href: "/about" },
+      { label: t("columns.careers"), href: "/about", badge: "Hiring" },
+      { label: t("columns.partners"), href: "/about" },
+      { label: t("columns.ambassadors"), href: "/about" },
+      { label: t("columns.press"), href: "/about" },
     ],
   };
 
