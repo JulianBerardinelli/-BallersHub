@@ -5,6 +5,7 @@ import {
 } from "./compositions/PortfolioReel/PortfolioReel";
 import { ScoutGlobeFlyover } from "./compositions/ScoutGlobeFlyover/ScoutGlobeFlyover";
 import { PortfolioScrollReel } from "./compositions/PortfolioScrollReel/PortfolioScrollReel";
+import { HybridReel } from "./compositions/HybridReel/HybridReel";
 import { MOCK_CITIES, MOCK_DENSITY, MOCK_TOTALS } from "./compositions/ScoutGlobeFlyover/cities";
 import { MOCK_REEL, getReelData } from "./lib/data";
 import { BRAND } from "./lib/brand";
@@ -32,6 +33,19 @@ export const RemotionRoot = () => {
     <>
       {/* Piezas del PRODUCTO en movimiento (lo que se comparte en redes). */}
       <Folder name="Producto">
+        <Composition
+          id="HybridReel"
+          component={HybridReel}
+          durationInFrames={Math.round(13.5 * FPS)}
+          fps={FPS}
+          width={1080}
+          height={1920}
+          defaultProps={{
+            clip: "captures/portfolio-julian-berardinelli.webm",
+            slug: "julian-berardinelli",
+            trimStartSeconds: 3.5,
+          }}
+        />
         <Composition
           id="ScoutGlobeFlyover"
           component={ScoutGlobeFlyover}
