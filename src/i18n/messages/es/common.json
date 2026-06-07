@@ -18,5 +18,34 @@
   },
   "localeSwitcher": {
     "label": "Cambiar idioma"
+  },
+  "authButtons": {
+    "access": "Acceder",
+    "create": "Crear cuenta"
+  },
+  "back": "Volver",
+  "userMenu": {
+    "openMenu": "Abrir menú de usuario",
+    "userActions": "Acciones de usuario",
+    "signedInAs": "Sesión iniciada como",
+    "defaultName": "Mi cuenta",
+    "viewPublicProfile": "Ver perfil público",
+    "agencyInReview": "Agencia en revisión",
+    "viewApplication": "Ver solicitud en revisión",
+    "continueApplication": "Continuar solicitud",
+    "applyPro": "Solicitar cuenta de profesional",
+    "dashboard": "Dashboard",
+    "viewAgencyPublic": "Ver perfil público de Agencia",
+    "agencySettings": "Configuración de Agencia",
+    "managerProfile": "Mi Perfil Manager",
+    "personalData": "Datos personales",
+    "footballData": "Datos futbolísticos",
+    "media": "Multimedia",
+    "template": "Plantilla",
+    "subscription": "Suscripción",
+    "settings": "Configuración general",
+    "signOut": "Cerrar sesión",
+    "signOutConfirm": "¿Estás seguro que deseas cerrar tu sesión en 'BallersHub?",
+    "signingOut": "Saliendo..."
   }
 }
