@@ -275,11 +275,9 @@ async function createMpCheckout(args: {
 
   // Native 7-day trial requires a pre-provisioned `preapproval_plan` (the
   // /preapproval direct endpoint silently drops `free_trial`). When the
-  // plan id is configured for this (planId × currency), reference it and
-  // let MP honor the trial. Otherwise fall back to inline `auto_recurring`
-  // — no trial, immediate first charge. The fallback is intentional for
-  // dev environments without provisioned plans; production MUST set the
-  // plan ids (see `scripts/provision-mp-plans.ts`).
+  // plan id is configured for this (planId × currency), use the plan's
+  // hosted checkout URL. Otherwise fall back to inline `auto_recurring`
+  // — no trial, immediate first charge.
   const preApprovalPlanId = billingEnv.mpPreApprovalPlanId(args.planId, "ARS");
 
   // back_url MUST NOT carry a query string. MP appends `?preapproval_id=...`
@@ -290,35 +288,57 @@ async function createMpCheckout(args: {
   // (via /api/billing/resolve-checkout).
   const backUrl = `${baseUrl}/checkout/processing`;
 
-  type PreApprovalCreateBody = {
-    reason?: string;
-    external_reference: string;
-    payer_email: string;
-    back_url: string;
-    auto_recurring?: {
-      frequency: number;
-      frequency_type: string;
-      transaction_amount: number;
-      currency_id: string;
-    };
-    status: "pending";
-    preapproval_plan_id?: string;
-  };
+  // ===== PLAN PATH (with native trial) =====
+  //
+  // When the plan id is set, we DO NOT call `POST /preapproval`. That
+  // endpoint REQUIRES `card_token_id` when combined with
+  // `preapproval_plan_id` (tokenized card from Bricks/Cards SDK). For
+  // the redirect flow, MP wants you to send the user directly to the
+  // plan's hosted checkout URL. MP creates the preapproval server-side
+  // when the user authorizes there, honoring the plan's `free_trial`,
+  // and notifies us via the `subscription_preapproval` webhook with the
+  // external_reference linked back to our checkout_sessions row.
+  //
+  // We pass `external_reference` as a query param on the init_point so
+  // MP propagates it to:
+  //   1. The created preapproval (visible via /preapproval/{id} fetch)
+  //   2. The back_url redirect (MP appends `?external_reference=...`)
+  // The `/checkout/processing` page resolves us by that external_ref
+  // OR by the appended `?preapproval_id=...` once the webhook lands.
+  if (preApprovalPlanId) {
+    const initPoint =
+      `https://www.mercadopago.com.ar/subscriptions/checkout?` +
+      `preapproval_plan_id=${encodeURIComponent(preApprovalPlanId)}` +
+      `&external_reference=${encodeURIComponent(args.internalSessionId)}`;
 
-  const body: PreApprovalCreateBody = preApprovalPlanId
-    ? {
-        // Plan path: the plan defines reason + recurrence + trial. The
-        // preapproval just binds the payer to the plan.
-        preapproval_plan_id: preApprovalPlanId,
-        external_reference: args.internalSessionId,
-        payer_email: payerEmail,
-        back_url: backUrl,
-        // status: "pending" still required even with plan_id — without
-        // it MP doesn't return an init_point for the redirect flow.
-        status: "pending",
-      }
-    : {
-        // Fallback inline path: dev / pre-launch. NO trial.
+    // Store the plan id (prefixed) as a placeholder for processorSessionId
+    // — the actual preapproval id arrives via webhook and `onPreApproval`
+    // upserts the subscriptions row keyed by external_reference. Until
+    // that happens, the /processing page resolves via external_reference.
+    await db
+      .update(checkoutSessions)
+      .set({
+        status: "redirected",
+        processorSessionId: `plan:${preApprovalPlanId}`,
+        processorSessionUrl: initPoint,
+      })
+      .where(eqId(args.internalSessionId));
+
+    return {
+      checkoutSessionId: args.internalSessionId,
+      redirectUrl: initPoint,
+      processor: "mercado_pago",
+    };
+  }
+
+  // ===== INLINE PATH (NO trial) — dev / pre-launch fallback =====
+  console.warn(
+    `[mp-create] No MP_PLAN_${args.planId.toUpperCase().replace(/-/g, "_")}_ARS env var — using inline auto_recurring (NO trial). Provision a plan via scripts/provision-mp-plans.ts for production.`,
+  );
+
+  const result = await preapproval
+    .create({
+      body: {
         reason: planLabel(args.planId),
         external_reference: args.internalSessionId,
         payer_email: payerEmail,
@@ -330,16 +350,8 @@ async function createMpCheckout(args: {
           currency_id: "ARS",
         },
         status: "pending",
-      };
-
-  if (!preApprovalPlanId) {
-    console.warn(
-      `[mp-create] No MP_PLAN_${args.planId.toUpperCase().replace(/-/g, "_")}_ARS env var — using inline auto_recurring (NO trial). Provision a plan via scripts/provision-mp-plans.ts for production.`,
-    );
-  }
-
-  const result = await preapproval
-    .create({ body: body as Parameters<typeof preapproval.create>[0]["body"] })
+      },
+    })
     .catch((err: unknown) => {
       if (tokenIsLegacyTest) {
         console.warn(

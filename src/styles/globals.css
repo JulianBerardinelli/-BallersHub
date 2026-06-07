@@ -554,23 +554,17 @@ body { touch-action: manipulation; }
   .bh-cine-inner { animation: none !important; opacity: 1 !important; transform: none !important; }
 }
 
-/* Article body grid: [left ad] [TOC] [article] [right ad]. */
+/* Article body grid: [TOC] [article]. Wide reading column, no ad rails. */
 .bh-article-layout {
   display: grid;
-  gap: 40px;
+  gap: 56px;
   align-items: start;
   justify-content: center;
-  grid-template-columns: 200px 220px minmax(0, 680px) 300px;
-}
-@media (max-width: 1280px) {
-  .bh-article-layout { grid-template-columns: 220px minmax(0, 720px) 300px; }
-  .bh-article-layout .bh-ad-left { display: none; }
+  grid-template-columns: 240px minmax(0, 900px);
 }
 @media (max-width: 1040px) {
-  .bh-article-layout { grid-template-columns: minmax(0, 760px); }
-  .bh-article-layout .bh-toc,
-  .bh-article-layout .bh-ad-left,
-  .bh-article-layout .bh-ad-right { display: none !important; }
+  .bh-article-layout { grid-template-columns: minmax(0, 820px); }
+  .bh-article-layout .bh-toc { display: none !important; }
 }
 
 /* Prose — styles the sanitized TipTap content_html.

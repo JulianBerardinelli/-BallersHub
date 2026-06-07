@@ -128,11 +128,82 @@ async function reconcileStripe(session: CheckoutSession): Promise<ReconcileOutco
 // Mercado Pago
 // ---------------------------------------------------------------
 
+/**
+ * Plan-based MP flow stores `processor_session_id` as `plan:<plan_id>`
+ * because the real preapproval id is only known *after* the user
+ * authorizes (and arrives via webhook). When the webhook is delayed and
+ * `reconcileMercadoPago` runs, we can't fetch the preapproval by that
+ * placeholder. Resolve it via MP's `preapproval/search?external_reference`
+ * endpoint, which returns the preapproval(s) created from a given session.
+ *
+ * Returns the real preapproval id, or null if MP has no preapproval yet
+ * (user didn't authorize, abandoned, etc.).
+ */
+async function searchMpPreapprovalByExternalReference(
+  externalReference: string,
+): Promise<string | null> {
+  try {
+    const { billingEnv } = await import("./env");
+    const token = billingEnv.mpAccessToken();
+    const res = await fetch(
+      `https://api.mercadopago.com/preapproval/search?external_reference=${encodeURIComponent(externalReference)}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      },
+    );
+    if (!res.ok) return null;
+    const body = (await res.json()) as {
+      results?: Array<{ id?: string; status?: string; date_created?: string }>;
+    };
+    if (!body.results || body.results.length === 0) return null;
+    // If there are multiple (unusual — should be at most 1 per session),
+    // prefer the most recently created one.
+    const sorted = [...body.results].sort((a, b) => {
+      const da = a.date_created ? new Date(a.date_created).getTime() : 0;
+      const dbt = b.date_created ? new Date(b.date_created).getTime() : 0;
+      return dbt - da;
+    });
+    return sorted[0]?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function reconcileMercadoPago(
   session: CheckoutSession,
 ): Promise<ReconcileOutcome> {
   try {
-    const sub = await getMpPreApproval().get({ id: session.processorSessionId! });
+    // Plan-based flow: the row was created with `plan:<plan_id>` because we
+    // don't know the real preapproval id until the user authorizes on MP's
+    // hosted page. Resolve via MP's preapproval/search by external_reference
+    // (which is our session.id) and persist the real id for future calls.
+    let preapprovalId = session.processorSessionId;
+    if (preapprovalId?.startsWith("plan:")) {
+      const real = await searchMpPreapprovalByExternalReference(session.id);
+      if (!real) {
+        // No preapproval yet — user hasn't authorized. Leave session
+        // alone and let polling keep waiting. The /processing page
+        // bounces to /pending after its overall timeout.
+        return { ok: true, status: session.status, refreshed: false };
+      }
+      preapprovalId = real;
+      // Persist the resolved id so subsequent reconcile / handler calls
+      // can find it directly via processor_session_id lookups.
+      await db
+        .update(checkoutSessions)
+        .set({ processorSessionId: real })
+        .where(eq(checkoutSessions.id, session.id));
+    }
+
+    if (!preapprovalId) {
+      return { ok: false, error: "MP preapproval id missing" };
+    }
+
+    const sub = await getMpPreApproval().get({ id: preapprovalId });
     if (!sub) return { ok: false, error: "MP preapproval not found" };
 
     // MP `/preapproval` enum: pending | authorized | paused | cancelled |
@@ -154,7 +225,7 @@ async function reconcileMercadoPago(
         await handleMercadoPagoEvent(
           {
             type: "subscription_preapproval",
-            data: { id: session.processorSessionId! },
+            data: { id: preapprovalId },
           },
           new URLSearchParams(),
         );

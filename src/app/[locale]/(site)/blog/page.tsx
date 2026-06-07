@@ -11,7 +11,6 @@ import { listPublishedPosts } from "@/lib/blog/posts";
 import { hydrateAuthors } from "@/lib/blog/authors";
 import { getBlogActor } from "@/lib/blog/permissions";
 import { toCardVM } from "@/lib/blog/view";
-import { BlogMasthead } from "@/components/blog/BlogMasthead";
 import { BlogIndexClient } from "@/components/blog/BlogIndexClient";
 
 export const revalidate = 3600;
@@ -78,8 +77,6 @@ export default async function BlogIndexPage() {
           </div>
         </div>
       )}
-
-      <BlogMasthead />
 
       {cards.length === 0 ? (
         <div className="mx-auto max-w-[1320px] px-7 py-20 max-md:px-5">

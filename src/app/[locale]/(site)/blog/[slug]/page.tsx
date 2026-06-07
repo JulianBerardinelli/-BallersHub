@@ -1,6 +1,6 @@
 // Public /blog/[slug] post detail — editorial redesign (Claude Design
-// handoff): cinematic cover, reading progress, sticky TOC + side ad rails,
-// styled prose, share, author bio, conversion CTA and related posts.
+// handoff): cinematic cover, reading progress, sticky TOC, wide styled
+// prose, author bio, conversion CTA and related posts.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -17,8 +17,6 @@ import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { ArticleCover } from "@/components/blog/ArticleCover";
 import { ArticleToc } from "@/components/blog/ArticleToc";
-import { AdBanner } from "@/components/blog/AdBanner";
-import { ShareRail } from "@/components/blog/ShareRail";
 import { AuthorBio } from "@/components/blog/AuthorBio";
 import { BlogCta } from "@/components/blog/BlogCta";
 import { CommentsPlaceholder } from "@/components/blog/CommentsPlaceholder";
@@ -104,7 +102,6 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   const tone = toneForCluster(post.cluster);
   const categoryLabel = CLUSTER_LABELS[post.cluster];
   const wordCount = estimateWordCount(post.contentHtml);
-  const shareUrl = toCanonicalUrl(`/blog/${slug}`);
 
   return (
     <>
@@ -131,13 +128,6 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       <div style={fullBleed}>
         <div className="mx-auto max-w-[1320px] px-7 pt-11 max-md:px-5">
           <div className="bh-article-layout">
-            {/* Left ad */}
-            <aside className="bh-ad-left">
-              <div className="sticky top-24">
-                <AdBanner variant="vertical" />
-              </div>
-            </aside>
-
             {/* TOC */}
             <aside className="bh-toc">
               <ArticleToc headings={headings} accent={accent} />
@@ -171,31 +161,20 @@ export default async function BlogPostPage({ params }: { params: Params }) {
                 dangerouslySetInnerHTML={{ __html: html }}
               />
 
-              {/* Tags + inline share */}
-              <div className="my-10 flex flex-wrap items-center justify-between gap-5 border-y border-white/[0.09] py-6">
-                <div className="flex flex-wrap gap-2">
-                  <BlogBadge tone={tone}>{categoryLabel}</BlogBadge>
-                  {post.tags.slice(0, 4).map((tag) => (
-                    <BlogBadge key={tag} tone="neutral">
-                      {tag}
-                    </BlogBadge>
-                  ))}
-                </div>
-                <ShareRail url={shareUrl} title={post.title} />
+              {/* Tags */}
+              <div className="my-10 flex flex-wrap items-center gap-2 border-y border-white/[0.09] py-6">
+                <BlogBadge tone={tone}>{categoryLabel}</BlogBadge>
+                {post.tags.slice(0, 4).map((tag) => (
+                  <BlogBadge key={tag} tone="neutral">
+                    {tag}
+                  </BlogBadge>
+                ))}
               </div>
 
               <AuthorBio author={author} bio={authorBio} accent={accent} />
               <BlogCta cluster={post.cluster} />
               <CommentsPlaceholder />
             </article>
-
-            {/* Right ad + vertical share */}
-            <aside className="bh-ad-right">
-              <div className="sticky top-24 flex flex-col gap-[18px]">
-                <ShareRail url={shareUrl} title={post.title} vertical />
-                <AdBanner variant="vertical" />
-              </div>
-            </aside>
           </div>
 
           {/* Related */}
