@@ -11,20 +11,19 @@ import { BRAND } from "./lib/brand";
 const FPS = 30;
 
 /**
- * Corre ANTES del render. Trae los datos reales del jugador por `slug` y los
- * inyecta en props. Si falla (o no hay endpoint configurado todavía), cae al
- * mock de `defaultProps` así Studio nunca queda en blanco.
+ * Corre ANTES del render. Trae los datos del jugador por `slug` y los inyecta
+ * en props. `getReelData` devuelve el mock cuando NO hay `REMOTION_REEL_API_BASE`
+ * (dev). Cuando SÍ hay base configurada y el API falla (404/500/timeout),
+ * dejamos propagar el error a propósito (Codex P2): es preferible fallar el
+ * render antes que generar un `reel-<slug>` con datos del mock que no son del
+ * jugador pedido.
  */
 const calcReel: CalculateMetadataFunction<PortfolioReelProps> = async ({
   props,
   abortSignal,
 }) => {
-  try {
-    const data = await getReelData(props.slug, abortSignal);
-    return { props: { ...props, data }, defaultOutName: `reel-${props.slug}` };
-  } catch {
-    return { props, defaultOutName: `reel-${props.slug}` };
-  }
+  const data = await getReelData(props.slug, abortSignal);
+  return { props: { ...props, data }, defaultOutName: `reel-${props.slug}` };
 };
 
 export const RemotionRoot = () => {
