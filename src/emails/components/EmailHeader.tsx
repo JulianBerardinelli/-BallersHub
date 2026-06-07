@@ -4,17 +4,17 @@ import { emailColors, emailFonts, siteUrl } from "../tokens";
 /**
  * Brand header — hosted lime isotipo + text wordmark.
  *
- * The isotipo is served from `/public/images/logo/isotipo-lime.svg`.
- * Modern web/mobile clients (Gmail web, Apple Mail, Outlook 365 web,
- * iOS Mail, Android Gmail) render SVG fine; Outlook desktop falls back
- * to the alt text — and we keep the text wordmark next to it so the
+ * The isotipo is served as **PNG** from `/public/images/logo/isotipo-lime.png`
+ * (rendered 2x at 56×52, displayed at 28×26). PNG — not SVG — because Gmail
+ * (web + app) and Outlook strip inline SVG entirely, which would show a broken
+ * image for most recipients. We also keep the text wordmark next to it so the
  * header always *says something* even when images are blocked.
  *
  * Mirrors `src/components/brand/Wordmark.tsx`: `'BALLERSHUB` with the
  * apostrophe and "BALLERS" in lime, "HUB" in white.
  */
 export function EmailHeader() {
-  const logoUrl = `${siteUrl}/images/logo/isotipo-lime.svg`;
+  const logoUrl = `${siteUrl}/images/logo/isotipo-lime.png`;
 
   return (
     <Section style={wrapStyle}>
