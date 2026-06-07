@@ -1,23 +1,40 @@
-// Public /blog/[slug] post detail.
+// Public /blog/[slug] post detail — editorial redesign (Claude Design
+// handoff): cinematic cover, reading progress, sticky TOC + side ad rails,
+// styled prose, share, author bio, conversion CTA and related posts.
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getPostBySlug } from "@/lib/blog/posts";
-import {
-  hydrateAuthors,
-  authorSameAs,
-  fallbackDisplayName,
-} from "@/lib/blog/authors";
+import { getPostBySlug, listPublishedPosts } from "@/lib/blog/posts";
+import { hydrateAuthors, authorSameAs } from "@/lib/blog/authors";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import { estimateWordCount } from "@/lib/blog/reading-time";
+import { processArticleHtml } from "@/lib/blog/toc";
+import { buildAuthorVM, toCardVM } from "@/lib/blog/view";
+import { accentForCluster, toneForCluster } from "@/lib/blog/clusterAccent";
 import { ArticleJsonLd } from "@/lib/seo/articleJsonLd";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
+import { ReadingProgress } from "@/components/blog/ReadingProgress";
+import { ArticleCover } from "@/components/blog/ArticleCover";
+import { ArticleToc } from "@/components/blog/ArticleToc";
+import { AdBanner } from "@/components/blog/AdBanner";
+import { ShareRail } from "@/components/blog/ShareRail";
+import { AuthorBio } from "@/components/blog/AuthorBio";
+import { BlogCta } from "@/components/blog/BlogCta";
+import { CommentsPlaceholder } from "@/components/blog/CommentsPlaceholder";
+import { RelatedPosts } from "@/components/blog/RelatedPosts";
+import { BlogBadge } from "@/components/blog/primitives";
 
 export const revalidate = 3600;
 
 type Params = Promise<{ slug: string }>;
+
+// Full-bleed escape from the layout's max-w-[1200px] main.
+const fullBleed = {
+  marginLeft: "calc(50% - 50vw)",
+  marginRight: "calc(50% - 50vw)",
+  width: "100vw",
+} as const;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { slug } = await params;
@@ -64,130 +81,144 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   const post = await getPostBySlug(slug);
   if (!post) return notFound();
 
-  const authorsMap = await hydrateAuthors([post.authorUserId]);
-  const hydrated = authorsMap.get(post.authorUserId);
-  const blogAuthor = hydrated?.blogAuthor ?? null;
+  // Related: same cluster first, then the rest, excluding the current post.
+  const pool = await listPublishedPosts(10);
+  const relatedRaw = [
+    ...pool.filter((p) => p.id !== post.id && p.cluster === post.cluster),
+    ...pool.filter((p) => p.id !== post.id && p.cluster !== post.cluster),
+  ].slice(0, 3);
 
-  // Cuando hay blog_authors row, todo viene de ahí (slug real, display
-  // name editorial, bio, sameAs). Cuando no, fallback al display por
-  // role — mismo comportamiento que MVP-1 para no romper posts viejos.
-  const authorName = blogAuthor?.displayName ?? fallbackDisplayName(hydrated?.role);
-  const authorSlug = blogAuthor?.slug ?? post.authorUserId.slice(0, 8);
+  const authorIds = [...new Set([post.authorUserId, ...relatedRaw.map((p) => p.authorUserId)])];
+  const authors = await hydrateAuthors(authorIds);
+
+  const hydrated = authors.get(post.authorUserId);
+  const blogAuthor = hydrated?.blogAuthor ?? null;
+  const author = buildAuthorVM(post.authorUserId, hydrated);
   const authorBio = blogAuthor?.bio ?? null;
   const authorSameAsUrls = blogAuthor ? authorSameAs(blogAuthor) : [];
 
+  const related = relatedRaw.map((p) => toCardVM(p, authors));
+
+  const { html, headings } = processArticleHtml(post.contentHtml);
+  const accent = accentForCluster(post.cluster).color;
+  const tone = toneForCluster(post.cluster);
+  const categoryLabel = CLUSTER_LABELS[post.cluster];
   const wordCount = estimateWordCount(post.contentHtml);
+  const shareUrl = toCanonicalUrl(`/blog/${slug}`);
 
   return (
-    <article className="mx-auto w-full max-w-3xl px-4 py-12 md:py-16">
-      <ArticleJsonLd
-        article={{
-          slug: post.slug,
-          title: post.title,
-          description: post.description,
-          heroImageUrl: post.heroImageUrl
-            ? toCanonicalUrl(post.heroImageUrl)
-            : null,
-          publishedAt: post.publishedAt,
-          updatedAt: post.updatedAt,
-          cluster: post.cluster,
-          wordCount,
-          author: {
-            slug: authorSlug,
-            name: authorName,
-            bio: authorBio,
-            sameAs: authorSameAsUrls,
-          },
-        }}
-      />
+    <>
+      <ReadingProgress accent={accent} />
 
-      <nav aria-label="Breadcrumbs" className="mb-6 text-[11px] uppercase tracking-[0.12em] text-bh-fg-3">
-        <Link href="/" className="hover:text-bh-fg-2">Inicio</Link>
-        <span aria-hidden className="mx-2">/</span>
-        <Link href="/blog" className="hover:text-bh-fg-2">Blog</Link>
-        <span aria-hidden className="mx-2">/</span>
-        <span className="text-bh-fg-2">{CLUSTER_LABELS[post.cluster]}</span>
-      </nav>
+      {/* Cinematic cover — full-bleed, pulled up under the fixed header. */}
+      <div style={{ ...fullBleed, marginTop: "-6.5rem" }}>
+        <ArticleCover
+          slug={post.slug}
+          cluster={post.cluster}
+          title={post.title}
+          description={post.description}
+          heroImageUrl={post.heroImageUrl}
+          author={author}
+          categoryLabel={categoryLabel}
+          dateLabel={post.publishedAt ? new Intl.DateTimeFormat("es-AR", { year: "numeric", month: "long", day: "numeric" }).format(post.publishedAt) : null}
+          publishedISO={post.publishedAt ? post.publishedAt.toISOString() : null}
+          readingTimeMin={post.readingTimeMin}
+          accent={accent}
+        />
+      </div>
 
-      <header className="mb-8 space-y-4">
-        <span className="inline-flex items-center rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-bh-lime">
-          {CLUSTER_LABELS[post.cluster]}
-        </span>
-        <h1 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          {post.title}
-        </h1>
-        <p className="text-base leading-[1.6] text-bh-fg-2 md:text-lg">
-          {post.description}
-        </p>
-        <div className="flex flex-wrap items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-bh-fg-3">
-          {blogAuthor ? (
-            <Link
-              href={`/blog/authors/${blogAuthor.slug}`}
-              className="text-bh-fg-2 underline-offset-4 transition-colors hover:text-bh-lime hover:underline"
-            >
-              {authorName}
-            </Link>
-          ) : (
-            <span>{authorName}</span>
+      {/* Body */}
+      <div style={fullBleed}>
+        <div className="mx-auto max-w-[1320px] px-7 pt-11 max-md:px-5">
+          <div className="bh-article-layout">
+            {/* Left ad */}
+            <aside className="bh-ad-left">
+              <div className="sticky top-24">
+                <AdBanner variant="vertical" />
+              </div>
+            </aside>
+
+            {/* TOC */}
+            <aside className="bh-toc">
+              <ArticleToc headings={headings} accent={accent} />
+            </aside>
+
+            {/* Article */}
+            <article className="bh-article-col">
+              <ArticleJsonLd
+                article={{
+                  slug: post.slug,
+                  title: post.title,
+                  description: post.description,
+                  heroImageUrl: post.heroImageUrl ? toCanonicalUrl(post.heroImageUrl) : null,
+                  publishedAt: post.publishedAt,
+                  updatedAt: post.updatedAt,
+                  cluster: post.cluster,
+                  wordCount,
+                  author: {
+                    slug: author.slug ?? post.authorUserId.slice(0, 8),
+                    name: author.name,
+                    bio: authorBio,
+                    sameAs: authorSameAsUrls,
+                  },
+                }}
+              />
+
+              <div
+                id="bh-article-body"
+                className="bh-article-prose"
+                style={{ ["--acc" as string]: accent }}
+                dangerouslySetInnerHTML={{ __html: html }}
+              />
+
+              {/* Tags + inline share */}
+              <div className="my-10 flex flex-wrap items-center justify-between gap-5 border-y border-white/[0.09] py-6">
+                <div className="flex flex-wrap gap-2">
+                  <BlogBadge tone={tone}>{categoryLabel}</BlogBadge>
+                  {post.tags.slice(0, 4).map((tag) => (
+                    <BlogBadge key={tag} tone="neutral">
+                      {tag}
+                    </BlogBadge>
+                  ))}
+                </div>
+                <ShareRail url={shareUrl} title={post.title} />
+              </div>
+
+              <AuthorBio author={author} bio={authorBio} accent={accent} />
+              <BlogCta cluster={post.cluster} />
+              <CommentsPlaceholder />
+            </article>
+
+            {/* Right ad + vertical share */}
+            <aside className="bh-ad-right">
+              <div className="sticky top-24 flex flex-col gap-[18px]">
+                <ShareRail url={shareUrl} title={post.title} vertical />
+                <AdBanner variant="vertical" />
+              </div>
+            </aside>
+          </div>
+
+          {/* Related */}
+          {related.length > 0 && (
+            <div className="mt-[70px]">
+              <div className="mb-6 flex items-center gap-3.5">
+                <h2 className="m-0 font-bh-display text-[clamp(28px,3vw,40px)] font-extrabold uppercase text-bh-fg-1">
+                  Seguí leyendo
+                </h2>
+                <span className="h-px flex-1 bg-white/10" />
+                <Link
+                  href="/blog"
+                  className="whitespace-nowrap font-bh-body text-[13.5px] font-semibold"
+                  style={{ color: accent }}
+                >
+                  Ver todo →
+                </Link>
+              </div>
+              <RelatedPosts posts={related} />
+            </div>
           )}
-          <span aria-hidden>·</span>
-          <span>{post.readingTimeMin} min de lectura</span>
-          {post.publishedAt && (
-            <>
-              <span aria-hidden>·</span>
-              <time dateTime={post.publishedAt.toISOString()}>
-                {formatDate(post.publishedAt)}
-              </time>
-            </>
-          )}
         </div>
-      </header>
-
-      {post.heroImageUrl && (
-        <div className="relative mb-10 aspect-[16/9] overflow-hidden rounded-bh-lg bg-bh-surface-2">
-          {/*
-            Tras MVP-2 #3, los autores suben imágenes via /api/blog/media/upload
-            → bucket blog-media (host *.supabase.co whitelisted en next.config).
-            unoptimized fallback cubre posts MVP-1 con URLs externas que el
-            optimizer no puede tocar.
-          */}
-          <Image
-            src={post.heroImageUrl}
-            alt={post.title}
-            fill
-            sizes="(min-width: 768px) 768px, 100vw"
-            priority
-            unoptimized={!post.heroImageUrl.includes(".supabase.co")}
-            className="object-cover"
-          />
-        </div>
-      )}
-
-      <div
-        className="prose prose-invert prose-headings:font-bh-display prose-headings:uppercase prose-headings:tracking-tight prose-a:text-bh-lime prose-a:no-underline hover:prose-a:underline max-w-none text-bh-fg-1"
-        dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-      />
-
-      {post.tags.length > 0 && (
-        <div className="mt-12 flex flex-wrap gap-2 border-t border-bh-fg-4 pt-6">
-          {post.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-bh-pill border border-bh-fg-4 bg-bh-surface-1 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.08em] text-bh-fg-3"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-    </article>
+      </div>
+    </>
   );
-}
-
-function formatDate(d: Date): string {
-  return new Intl.DateTimeFormat("es-AR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(d);
 }

@@ -497,3 +497,274 @@ body { touch-action: manipulation; }
   .bh-glow-border::before { animation: none !important; }
 }
 
+/* ============================================================
+   BLOG — editorial surfaces (Claude Design handoff).
+   Scoped under .bh-blog-card / .bh-featured / .bh-cine /
+   .bh-article-layout / .bh-article-prose so nothing leaks.
+   ============================================================ */
+
+/* Card hover (overlay + classic + featured). Border brightens to the
+   per-card accent via --bh-card-border; the cover image zooms slightly. */
+.bh-blog-card,
+.bh-featured {
+  border-color: rgba(255, 255, 255, 0.08);
+  transition: transform 260ms var(--bh-ease-snappy),
+    border-color 260ms var(--bh-ease-snappy), box-shadow 260ms var(--bh-ease-snappy);
+}
+.bh-blog-card:hover,
+.bh-featured:hover {
+  transform: translateY(-5px);
+  border-color: var(--bh-card-border, rgba(255, 255, 255, 0.22));
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5);
+}
+.bh-cover-zoom { transition: transform 600ms var(--bh-ease-snappy); }
+.bh-blog-card:hover .bh-cover-zoom,
+.bh-featured:hover .bh-cover-zoom { transform: scale(1.06); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bh-blog-card,
+  .bh-featured,
+  .bh-cover-zoom { transition: none !important; transform: none !important; }
+}
+
+/* Cinematic article cover. Base state is VISIBLE; the entrance is a pure
+   CSS animation that ENDS visible (fill-mode both) so content is always
+   readable even if it never plays — the explicit post-bug requirement. */
+.bh-cine-veil {
+  background: linear-gradient(
+    to top,
+    #080808 3%,
+    rgba(8, 8, 8, 0.78) 32%,
+    rgba(8, 8, 8, 0.28) 64%,
+    rgba(8, 8, 8, 0.5) 100%
+  );
+}
+.bh-cine-art { animation: bh-cine-zoom 1.4s var(--bh-ease-snappy) both; }
+.bh-cine-inner { animation: bh-cine-up 0.8s var(--bh-ease-snappy) 0.1s both; }
+@keyframes bh-cine-zoom {
+  from { transform: scale(1.06); opacity: 0.5; }
+  to { transform: scale(1); opacity: 1; }
+}
+@keyframes bh-cine-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bh-cine-art,
+  .bh-cine-inner { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+/* Article body grid: [left ad] [TOC] [article] [right ad]. */
+.bh-article-layout {
+  display: grid;
+  gap: 40px;
+  align-items: start;
+  justify-content: center;
+  grid-template-columns: 200px 220px minmax(0, 680px) 300px;
+}
+@media (max-width: 1280px) {
+  .bh-article-layout { grid-template-columns: 220px minmax(0, 720px) 300px; }
+  .bh-article-layout .bh-ad-left { display: none; }
+}
+@media (max-width: 1040px) {
+  .bh-article-layout { grid-template-columns: minmax(0, 760px); }
+  .bh-article-layout .bh-toc,
+  .bh-article-layout .bh-ad-left,
+  .bh-article-layout .bh-ad-right { display: none !important; }
+}
+
+/* Prose — styles the sanitized TipTap content_html.
+   --acc is set inline per article (cluster accent). */
+.bh-article-prose {
+  font-family: var(--font-bh-body), sans-serif;
+  color: rgba(255, 255, 255, 0.74);
+}
+.bh-article-prose > p:first-of-type {
+  font-size: 20px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+}
+.bh-article-prose > p:first-of-type::first-letter {
+  font-family: var(--font-bh-display), sans-serif;
+  font-weight: 800;
+  font-size: 4.2em;
+  line-height: 0.74;
+  float: left;
+  margin: 8px 14px 0 0;
+  color: var(--acc, #ccff00);
+  text-transform: uppercase;
+}
+.bh-article-prose h2 {
+  font-family: var(--font-bh-display), sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 32px;
+  line-height: 1.05;
+  color: #fff;
+  margin: 44px 0 18px;
+  padding-left: 16px;
+  border-left: 3px solid var(--acc, #ccff00);
+  scroll-margin-top: 100px;
+}
+.bh-article-prose h3 {
+  font-family: var(--font-bh-heading), sans-serif;
+  font-weight: 700;
+  font-size: 21px;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin: 32px 0 12px;
+  scroll-margin-top: 100px;
+}
+.bh-article-prose h4 {
+  font-family: var(--font-bh-heading), sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: #fff;
+  margin: 26px 0 10px;
+}
+.bh-article-prose p {
+  font-size: 17px;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.74);
+  margin: 0 0 20px;
+  text-wrap: pretty;
+}
+.bh-article-prose a {
+  color: var(--acc, #ccff00);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.bh-article-prose a:hover { text-decoration: underline; }
+.bh-article-prose strong,
+.bh-article-prose b { color: rgba(255, 255, 255, 0.92); font-weight: 700; }
+.bh-article-prose em,
+.bh-article-prose i { font-style: italic; }
+.bh-article-prose ul {
+  margin: 0 0 24px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.bh-article-prose ul li {
+  position: relative;
+  padding-left: 28px;
+  font-size: 16.5px;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.74);
+}
+.bh-article-prose ul li::before {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: var(--acc, #ccff00);
+  transform: rotate(45deg);
+}
+.bh-article-prose ol {
+  counter-reset: bh-ol;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bh-article-prose ol li {
+  counter-increment: bh-ol;
+  position: relative;
+  padding-left: 48px;
+  font-size: 16.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.76);
+}
+.bh-article-prose ol li::before {
+  content: counter(bh-ol, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--font-bh-display), sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  color: var(--acc, #ccff00);
+  line-height: 1.1;
+}
+.bh-article-prose blockquote {
+  margin: 38px 0;
+  padding: 4px 0 4px 26px;
+  border-left: 3px solid var(--acc, #ccff00);
+}
+.bh-article-prose blockquote p {
+  font-family: var(--font-bh-display), sans-serif;
+  font-weight: 600;
+  font-size: clamp(24px, 3vw, 33px);
+  line-height: 1.12;
+  letter-spacing: -0.005em;
+  color: #fff;
+  margin: 0;
+}
+.bh-article-prose img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 38px 0;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+}
+.bh-article-prose figure { margin: 38px 0; }
+.bh-article-prose figure img { margin: 0; }
+.bh-article-prose figcaption {
+  margin-top: 13px;
+  padding-left: 14px;
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.45);
+}
+.bh-article-prose hr {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 36px 0;
+}
+.bh-article-prose code {
+  font-family: var(--font-bh-mono), monospace;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.bh-article-prose pre {
+  margin: 28px 0;
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: #0c0c0c;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+}
+.bh-article-prose pre code { background: none; border: none; padding: 0; }
+.bh-article-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 28px 0;
+  font-size: 15px;
+}
+.bh-article-prose th,
+.bh-article-prose td {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 14px;
+  text-align: left;
+}
+.bh-article-prose th {
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-bh-heading), sans-serif;
+  color: #fff;
+}
+

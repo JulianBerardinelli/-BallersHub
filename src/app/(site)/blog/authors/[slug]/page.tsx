@@ -19,6 +19,8 @@ import { listPublishedPostsByAuthorUserId } from "@/lib/blog/posts";
 import { ProfilePageJsonLd } from "@/lib/seo/profilePageJsonLd";
 import { getPortfolioSlugForUser } from "@/lib/seo/cross-ref";
 import { BlogCard } from "@/components/blog/BlogCard";
+import { toCardVM } from "@/lib/blog/view";
+import type { HydratedAuthor } from "@/lib/blog/authors";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 
 export const revalidate = 3600;
@@ -83,6 +85,13 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
     getPortfolioSlugForUser(author.userId),
   ]);
   const sameAs = authorSameAs(author);
+
+  // All posts here are by this one author → build view-models from a
+  // single-entry hydrated map (matches the new BlogCard contract).
+  const authorsMap = new Map<string, HydratedAuthor>([
+    [author.userId, { userId: author.userId, blogAuthor: author, role: "" }],
+  ]);
+  const authorCards = posts.map((p) => toCardVM(p, authorsMap));
 
   // Para JSON-LD necesitamos URLs absolutas en image/sameAs.
   const authorForSchema = {
@@ -184,8 +193,8 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
           </p>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <BlogCard key={post.id} post={post} />
+            {authorCards.map((card) => (
+              <BlogCard key={card.id} post={card} />
             ))}
           </div>
         )}

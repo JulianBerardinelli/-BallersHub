@@ -1,14 +1,18 @@
-// Public /blog listing.
+// Public /blog listing — editorial redesign (Claude Design handoff).
 //
-// Lists every post with status='published', ordered by published_at DESC.
-// MVP-1: simple grid, no pagination (we cap at 20 posts; reasonable for
-// early stage). Pagination + filters by cluster land in MVP-3.
+// Lists every status='published' post (cap 20, newest first). The most
+// recent post becomes the full-bleed featured hero; the rest fall into the
+// grid. Category filter + live search run client-side over this list.
+// Pagination + cluster hubs land in MVP-3.
 
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listPublishedPosts } from "@/lib/blog/posts";
+import { hydrateAuthors } from "@/lib/blog/authors";
 import { getBlogActor } from "@/lib/blog/permissions";
-import { BlogCard } from "@/components/blog/BlogCard";
+import { toCardVM } from "@/lib/blog/view";
+import { BlogMasthead } from "@/components/blog/BlogMasthead";
+import { BlogIndexClient } from "@/components/blog/BlogIndexClient";
 
 export const revalidate = 3600;
 
@@ -32,65 +36,65 @@ export const metadata: Metadata = {
   },
 };
 
+// Break out of the layout's max-w-[1200px] main into a true full-bleed band
+// (same technique as the pricing detail panel).
+const fullBleed = {
+  marginLeft: "calc(50% - 50vw)",
+  marginRight: "calc(50% - 50vw)",
+  width: "100vw",
+} as const;
+
 export default async function BlogIndexPage() {
   const [posts, actor] = await Promise.all([listPublishedPosts(20), getBlogActor()]);
-  const isContributor = actor?.isBlogger || actor?.isAdmin;
+  const isContributor = Boolean(actor?.isBlogger || actor?.isAdmin);
+
+  const authorIds = [...new Set(posts.map((p) => p.authorUserId))];
+  const authors = await hydrateAuthors(authorIds);
+  const cards = posts.map((p) => toCardVM(p, authors));
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-12 md:py-16">
-      <header className="mb-10 flex flex-wrap items-end justify-between gap-4">
-        <div className="space-y-2">
-          <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-            Editorial
-          </span>
-          <h1 className="font-bh-display text-4xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-5xl">
-            Blog de &apos;BallersHub
-          </h1>
-          <p className="max-w-2xl text-sm leading-[1.6] text-bh-fg-3 md:text-base">
-            Carrera del jugador, operaciones de agencia, mercado AR. Escrito por
-            jugadores, scouts y periodistas que viven el fútbol desde adentro.
-          </p>
-        </div>
-        {isContributor && (
-          <div className="flex gap-2">
+    <div style={fullBleed} className="-mt-2">
+      {/* SEO/a11y: the masthead uses the wordmark (a span), so keep a real
+          h1 for the page — visually hidden, no layout impact. */}
+      <h1 className="sr-only">
+        Blog de &apos;BallersHub — carrera del jugador, operaciones de agencia y mercado del fútbol
+      </h1>
+
+      {isContributor && (
+        <div className="border-b border-white/[0.06]">
+          <div className="mx-auto flex max-w-[1320px] items-center justify-end gap-2 px-7 py-2.5 max-md:px-5">
             <Link
               href="/blog/drafts"
-              className="rounded-bh-md border border-bh-fg-4 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-bh-fg-2 transition-colors hover:border-bh-fg-3 hover:text-bh-fg-1"
+              className="rounded-bh-md border border-white/[0.14] px-3.5 py-1.5 font-bh-body text-xs font-semibold uppercase tracking-[0.06em] text-bh-fg-2 transition-colors hover:border-white/30 hover:text-bh-fg-1"
             >
               Mis borradores
             </Link>
             <Link
               href="/blog/write"
-              className="rounded-bh-md bg-bh-lime px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-bh-black transition-opacity hover:opacity-90"
+              className="rounded-bh-md bg-bh-lime px-3.5 py-1.5 font-bh-body text-xs font-semibold uppercase tracking-[0.06em] text-bh-black transition-opacity hover:opacity-90"
             >
               Escribir artículo
             </Link>
           </div>
-        )}
-      </header>
-
-      {posts.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <BlogCard key={post.id} post={post} />
-          ))}
         </div>
       )}
-    </main>
-  );
-}
 
-function EmptyState() {
-  return (
-    <div className="rounded-bh-lg border border-dashed border-bh-fg-4 bg-bh-surface-1 p-10 text-center">
-      <p className="font-bh-display text-2xl font-bold uppercase tracking-tight text-bh-fg-2">
-        Pronto vas a leer las primeras notas
-      </p>
-      <p className="mt-2 text-sm text-bh-fg-3">
-        Estamos curando contenido editorial. Volvé en unos días.
-      </p>
+      <BlogMasthead />
+
+      {cards.length === 0 ? (
+        <div className="mx-auto max-w-[1320px] px-7 py-20 max-md:px-5">
+          <div className="rounded-bh-lg border border-dashed border-white/[0.18] bg-bh-surface-1 p-10 text-center">
+            <p className="font-bh-display text-2xl font-bold uppercase tracking-tight text-bh-fg-2">
+              Pronto vas a leer las primeras notas
+            </p>
+            <p className="mt-2 font-bh-body text-sm text-bh-fg-3">
+              Estamos curando contenido editorial. Volvé en unos días.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <BlogIndexClient posts={cards} />
+      )}
     </div>
   );
 }
