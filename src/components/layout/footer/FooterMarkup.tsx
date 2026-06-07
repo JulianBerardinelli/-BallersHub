@@ -1,5 +1,6 @@
-import Link from "next/link";
-import { ArrowUpRight, Globe, Instagram, Linkedin } from "lucide-react";
+import { ArrowUpRight, Instagram, Linkedin } from "lucide-react";
+
+import { Link } from "@/i18n/navigation";
 
 import AnimatedStat from "./AnimatedStat";
 import NewsletterForm from "./NewsletterForm";
@@ -89,6 +90,12 @@ export type FooterProps = {
    * otherwise visually clash. The portfolio footer leaves this off.
    */
   showTopBorder?: boolean;
+  /** Brand tagline under the wordmark (defaults to es copy). */
+  tagline?: string;
+  /** Legal links row in the bottom bar (defaults to es labels). */
+  legalLinks?: Array<{ label: string; href: string }>;
+  /** Credits label, e.g. "Desarrollado por" (defaults to es). */
+  creditsLabel?: string;
 };
 
 const DEFAULT_STATS: NonNullable<FooterProps["stats"]> = [
@@ -286,6 +293,13 @@ export default function FooterMarkup({
   showCredits = true,
   linkColumns = DEFAULT_LINK_COLUMNS,
   showTopBorder = false,
+  tagline = "El ecosistema digital del fútbol profesional.",
+  legalLinks = [
+    { label: "Términos", href: "/legal/terms" },
+    { label: "Privacidad", href: "/legal/privacy" },
+    { label: "Cookies", href: "/legal/cookies" },
+  ],
+  creditsLabel = "Desarrollado por",
 }: FooterProps) {
   const newsletterColor = newsletterAccent || theme.accent2;
   const megaCols = `minmax(0, 1.4fr) ${"minmax(0, 1fr) ".repeat(linkColumns.length)}minmax(0, 1fr)`;
@@ -578,7 +592,7 @@ export default function FooterMarkup({
                 maxWidth: 280,
               }}
             >
-              El ecosistema digital del fútbol profesional.
+              {tagline}
             </p>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <SocialButton
@@ -645,7 +659,7 @@ export default function FooterMarkup({
               <>
                 <span style={{ color: theme.fg4 }}>·</span>
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  Desarrollado por
+                  {creditsLabel}
                   <a
                     href="https://www.julianberardinelli.com/"
                     target="_blank"
@@ -672,14 +686,10 @@ export default function FooterMarkup({
             )}
           </div>
           <div className="bh-fmark-bottom-links">
-            {[
-              { label: "Términos", href: "/legal/terms" },
-              { label: "Privacidad", href: "/legal/privacy" },
-              { label: "Cookies", href: "/legal/cookies" },
-            ].map((t) => (
+            {legalLinks.map((l) => (
               <Link
-                key={t.label}
-                href={t.href}
+                key={l.label}
+                href={l.href}
                 style={{
                   fontFamily: theme.bodyFont,
                   fontSize: 12,
@@ -687,28 +697,9 @@ export default function FooterMarkup({
                   textDecoration: "none",
                 }}
               >
-                {t.label}
+                {l.label}
               </Link>
             ))}
-            <div
-              title="Próximamente"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 6,
-                padding: "5px 10px",
-                borderRadius: 6,
-                background: "rgba(255,255,255,0.04)",
-                border: `1px solid ${theme.border2}`,
-                fontFamily: theme.monoFont,
-                fontSize: 11,
-                color: theme.fg2,
-                opacity: 0.5,
-                whiteSpace: "nowrap",
-              }}
-            >
-              <Globe size={12} /> ES <span style={{ color: theme.fg4 }}>/ EN</span>
-            </div>
           </div>
         </div>
       </div>

@@ -2,9 +2,11 @@
   "nav": {
     "players": "Jogadores",
     "agencies": "Agências",
-    "pricing": "Preços",
-    "blog": "Blog",
+    "plans": "Planos",
     "about": "Sobre",
+    "blog": "Blog"
+  },
+  "auth": {
     "signIn": "Entrar",
     "signUp": "Cadastrar-se"
   },
@@ -15,6 +17,6 @@
     "delete": "Excluir"
   },
   "localeSwitcher": {
-    "label": "Idioma"
+    "label": "Mudar idioma"
   }
 }

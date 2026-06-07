@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+
 import FooterMarkup, {
   type FooterCTA,
   type FooterTheme,
@@ -55,7 +57,11 @@ export default async function PortfolioFooter({
   ownerKind = "player",
 }: PortfolioFooterProps) {
   const state = await resolveFooterCTAState();
-  const linkColumns = buildLinkColumns(state);
+  // Footer link columns are localized; the portfolio's own hero copy
+  // (CTAs/headline below) stays es for now — localized in F5 when the
+  // public profile becomes multilingual.
+  const t = await getTranslations("footer");
+  const linkColumns = buildLinkColumns(state, t);
 
   // Decide the primary CTA according to who's reading.
   // If the visitor already has a player profile, no point in pushing them to
