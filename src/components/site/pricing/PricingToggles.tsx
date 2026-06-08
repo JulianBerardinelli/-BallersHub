@@ -5,14 +5,16 @@
 // compact on the right.
 
 import { Building2, User } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePricing } from "./PricingContext";
 import type { Audience, Currency } from "./data";
 
-const AUDIENCES: { id: Audience; label: string; Icon: typeof User }[] = [
-  { id: "player", label: "Jugador", Icon: User },
-  { id: "agency", label: "Agencia", Icon: Building2 },
+const AUDIENCES: { id: Audience; labelKey: "player" | "agency"; Icon: typeof User }[] = [
+  { id: "player", labelKey: "player", Icon: User },
+  { id: "agency", labelKey: "agency", Icon: Building2 },
 ];
 
+// Currency codes are international symbols — not translated.
 const CURRENCIES: { id: Currency; label: string }[] = [
   { id: "USD", label: "USD" },
   { id: "ARS", label: "ARS" },
@@ -20,6 +22,7 @@ const CURRENCIES: { id: Currency; label: string }[] = [
 ];
 
 export default function PricingToggles() {
+  const t = useTranslations("pricing");
   const { audience, currency, setAudience, setCurrency } = usePricing();
 
   return (
@@ -27,14 +30,11 @@ export default function PricingToggles() {
       {/* Audience — primary */}
       <div className="flex flex-col items-center gap-1.5 md:items-start">
         <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-bh-fg-4">
-          Soy
+          {t("toggles.audienceLabel")}
         </span>
         <div className="inline-flex items-center gap-1 rounded-bh-pill border border-white/[0.08] bg-white/[0.03] p-1 backdrop-blur-md">
           {AUDIENCES.map((a) => {
             const active = a.id === audience;
-            // Each audience pill previews its own accent so the toggle
-            // doubles as an "accent picker" — Player turns lime, Agency
-            // turns blue.
             const activeStyle =
               a.id === "agency"
                 ? "bg-bh-blue text-bh-black shadow-[0_2px_10px_rgba(0,194,255,0.30)]"
@@ -50,7 +50,7 @@ export default function PricingToggles() {
                 }`}
               >
                 <a.Icon className="h-3.5 w-3.5" />
-                {a.label}
+                {t(`toggles.${a.labelKey}`)}
               </button>
             );
           })}
@@ -60,7 +60,7 @@ export default function PricingToggles() {
       {/* Currency — secondary */}
       <div className="flex flex-col items-center gap-1.5 md:items-end">
         <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-bh-fg-4">
-          Moneda
+          {t("toggles.currencyLabel")}
         </span>
         <div className="inline-flex items-center gap-1 rounded-bh-pill border border-white/[0.08] bg-white/[0.03] p-1 backdrop-blur-md">
           {CURRENCIES.map((c) => {

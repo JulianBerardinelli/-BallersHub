@@ -1,0 +1,56 @@
+{
+  "hero": {
+    "badge": "Planos e preços",
+    "title": "Escolha o plano que acelera sua carreira",
+    "description": "Duas formas de potencializar sua visibilidade no 'BallersHub. Comece grátis e, quando estiver pronto, adicione o Pro para desbloquear o template pro, métricas, avaliações e muito mais."
+  },
+  "toggles": {
+    "audienceLabel": "Sou",
+    "currencyLabel": "Moeda",
+    "player": "Jogador",
+    "agency": "Agência"
+  },
+  "valueGrid": {
+    "badge": "Incluído em todos os planos",
+    "title": "Tudo o que você precisa para profissionalizar seu jogo",
+    "validationTitle": "Validação humana",
+    "validationDesc": "Cada perfil passa por um controle de identidade e trajetória feito pela nossa equipe.",
+    "metricsTitle": "Métricas acionáveis",
+    "metricsDesc": "Visitas, contatos e avaliações medidos em tempo real para entender seu impacto.",
+    "communityTitle": "Comunidade ativa",
+    "communityDesc": "Clubes, empresários e comissões técnicas que já usam o 'BallersHub para descobrir talentos.",
+    "setupTitle": "Setup imediato",
+    "setupDesc": "Templates prontos e cadastro guiado: seu primeiro perfil fica montado em minutos."
+  },
+  "faq": {
+    "badge": "Perguntas frequentes",
+    "title": "Tudo o que você precisa saber",
+    "q1": "Posso testar antes de pagar?",
+    "a1": "Sim. Todos os planos pagos incluem 14 dias de teste sem compromisso e você pode cancelar a qualquer momento pelo seu painel.",
+    "q2": "Como funciona a validação do meu perfil?",
+    "a2": "Nossa equipe verifica identidade, trajetória e referências antes de mostrar o selo de perfil validado. O processo normalmente leva de 24 a 72 horas.",
+    "q3": "Posso mudar de plano depois?",
+    "a3": "Você pode subir ou descer de plano quando quiser. As diferenças são calculadas proporcionalmente na próxima cobrança.",
+    "q4": "Existe um plano para clubes com vários usuários?",
+    "a4": "O plano Elite Scouting inclui acessos para a comissão. Se a sua organização precisa de uma configuração sob medida, escreva para nós e montamos uma proposta."
+  },
+  "cta": {
+    "badge": "Precisa de algo sob medida?",
+    "title": "Vamos falar do seu projeto",
+    "description": "Para clubes, federações e agências montamos propostas sob medida com volume de contas, integrações e suporte dedicado.",
+    "signup": "Criar conta grátis",
+    "contact": "Falar com vendas"
+  },
+  "mocks": {
+    "desktop": "Desktop",
+    "verified": "Verificado",
+    "pro": "Pro",
+    "mockupDefault": "Mockup padrão"
+  },
+  "meta": {
+    "title": "Planos e preços",
+    "description": "Escolha o plano que potencializa sua carreira ou agência. O Free inclui perfil verificado e URL pública. O Pro adiciona galeria estendida, imprensa, SEO avançado e schema em JSON-LD.",
+    "ogTitle": "Planos e preços — 'BallersHub",
+    "ogDescription": "Free vs Pro para jogadores e agências. Assinatura anual com teste de 7 dias no Pro."
+  }
+}
