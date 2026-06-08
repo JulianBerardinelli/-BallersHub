@@ -66,7 +66,7 @@ const LAY: { d: LayMap; m: LayMap } = {
     box: [DESIGN_W, DESIGN_H],
     s1pc: { l: 26, t: 132, w: 640 }, s1phone: { l: 505, t: 214, s: 1 }, s1txt: { x: 812, y: 176, w: 400 },
     s2pc: { l: 726, t: 168, w: 520 }, s2c1: { l: 398, t: 130, s: 0.46 }, s2c2: { l: 400, t: 480, s: 0.46 }, s2c3: { l: 520, t: 306, s: 0.4 }, s2txt: { x: 40, y: 138, w: 340 },
-    s3pc: { l: 28, t: 162, w: 640 }, s3phone: { l: 556, t: 232, s: 1 }, s3txt: { x: 804, y: 186, w: 400 },
+    s3pc: { l: 28, t: 128, w: 640 }, s3phone: { l: 506, t: 198, s: 1 }, s3txt: { x: 804, y: 152, w: 400 },
   },
   m: {
     box: [420, 904],
