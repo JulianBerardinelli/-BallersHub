@@ -20,9 +20,9 @@ import {
   BrowserMock,
   DashboardScreen,
   type MediaConfig,
+  MockVideo,
   PagePreviewPhone,
   PhoneMock,
-  ProfilePhone,
   ProfileScreen,
 } from "./DashUI";
 import { BrandColorsCard, StatsCard, TrayectoriaCard } from "./DashCards";
@@ -224,7 +224,6 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
   const pRef = React.useRef(0);
   const dotRefs = React.useRef<(HTMLSpanElement | null)[]>([]);
   const guideRef = React.useRef<HTMLDivElement>(null);
-  const [previewAccent, setPreviewAccent] = React.useState(LIME);
 
   const set = (k: string, transform?: string | null, opacity?: number | string | null) => {
     const n = N.current[k];
@@ -355,10 +354,10 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
           {/* SCENE 1 · PRODUCTO */}
           <div ref={reg("s1")} className="dj-scene" style={{ opacity: 0 }}>
             <div ref={reg("s1pc")} className="dj-float" style={{ position: "absolute", left: L.s1pc.l, top: L.s1pc.t, width: L.s1pc.w }}>
-              <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} glow={!limeStep1}><ProfileScreen accent={LIME} h={430} media={MEDIA.profile} /></BrowserMock></div>
+              <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} glow={!limeStep1}><MockVideo name="desktop-3" ar="1280/800" /></BrowserMock></div>
             </div>
             <div ref={reg("s1phone")} className="dj-float" style={{ position: "absolute", left: L.s1phone.l, top: L.s1phone.t, transformOrigin: isMobile ? "top left" : "center" }}>
-              <div className="dj-idle dj-idle-b"><PhoneMock accent={LIME}><ProfilePhone accent={LIME} media={MEDIA.profile} /></PhoneMock></div>
+              <div className="dj-idle dj-idle-b"><PhoneMock accent={LIME}><MockVideo name="mobile-1" fill /></PhoneMock></div>
             </div>
             <Txt reg={reg} idp="s1" copy={C[0]} accent={limeStep1 ? "#0a0a0a" : LIME} x={L.s1txt.x} y={L.s1txt.y} w={L.s1txt.w} dark={limeStep1} mob={isMobile} />
           </div>
@@ -366,7 +365,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
           {/* SCENE 2 · DASHBOARD */}
           <div ref={reg("s2")} className="dj-scene" style={{ opacity: 0 }}>
             <div ref={reg("s2pc")} className="dj-float" style={{ position: "absolute", left: L.s2pc.l, top: L.s2pc.t, width: L.s2pc.w, zIndex: 2 }}>
-              <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} url="ballershub.com/dashboard" glow><DashboardScreen accent={LIME} previewAccent={previewAccent} h={440} media={MEDIA.dashPreview} /></BrowserMock></div>
+              <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} url="ballershub.com/dashboard" glow><MockVideo name="dashboard" ar="1280/720" /></BrowserMock></div>
             </div>
             {nCardsEff >= 3 && (
               <div ref={reg("s2c2")} className="dj-float dj-card-wrap" style={{ position: "absolute", left: L.s2c2.l, top: L.s2c2.t, transform: `scale(${L.s2c2.s})`, transformOrigin: "top left", zIndex: 4 }}>
@@ -380,7 +379,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
             )}
             {nCardsEff >= 1 && (
               <div ref={reg("s2c1")} className="dj-float dj-card-wrap" style={{ position: "absolute", left: L.s2c1.l, top: L.s2c1.t, transform: `scale(${L.s2c1.s})`, transformOrigin: "top left", zIndex: 6 }}>
-                <div className="dj-idle dj-idle-c"><BrandColorsCard accent={LIME} onPick={setPreviewAccent} /></div>
+                <div className="dj-idle dj-idle-c"><BrandColorsCard accent={LIME} /></div>
               </div>
             )}
             <Txt reg={reg} idp="s2" copy={C[1]} accent={LIME} x={L.s2txt.x} y={L.s2txt.y} w={L.s2txt.w} narrow mob={isMobile} />

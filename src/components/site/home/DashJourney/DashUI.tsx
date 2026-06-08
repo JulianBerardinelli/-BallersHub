@@ -126,6 +126,22 @@ const Bar = ({ w = "100%", h = 9, c = "rgba(255,255,255,0.1)", r = 4 }: { w?: nu
   <span style={{ display: "block", width: w, height: h, borderRadius: r, background: c, flexShrink: 0 }} />
 );
 
+/* A real screen-recording filling a mock (replaces the stylised screen). webm
+   (AV1) + mp4 (H.264) sources + poster, muted-autoplay loop. `ar` sets the
+   browser aspect ("1280/800"); `fill` covers a positioned parent (the phone). */
+export const MockVideo = ({ name, ar, fill, radius = 0 }: { name: string; ar?: string; fill?: boolean; radius?: number }) => {
+  const b = `/videos/${name}`;
+  const style: CSS = fill
+    ? { position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block", borderRadius: radius }
+    : { display: "block", width: "100%", aspectRatio: ar, objectFit: "cover", background: "#0a0b0d", borderRadius: radius };
+  return (
+    <video autoPlay muted loop playsInline preload="metadata" poster={`${b}.jpg`} style={style}>
+      <source src={`${b}.webm`} type={`video/webm; codecs="av01.0.05M.08"`} />
+      <source src={`${b}.mp4`} type={`video/mp4; codecs="avc1.640028"`} />
+    </video>
+  );
+};
+
 /* ── 1 · public profile (browser, step 1) ── */
 export const ProfileScreen = ({ accent = "#CCFF00", h = 460, media = {} }: { accent?: string; h?: number; media?: MediaConfig }) => (
   <div style={{ height: h, background: "radial-gradient(120% 80% at 50% -10%, rgba(255,255,255,0.05), transparent 60%), #0a0b0d", overflow: "hidden" }}>
