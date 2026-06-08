@@ -45,11 +45,11 @@ const MEDIA: { profile: MediaConfig; dashPreview: MediaConfig; page: MediaConfig
   page: {},
 };
 
-type StepCopy = { eye: string; t1: string; t2: string; p: string; tags: string[]; accent?: string };
+type StepCopy = { eye: string; t1: string; t2: string; p: string; tags: string[]; accent?: string; cta?: boolean };
 const STEP_COPY: StepCopy[] = [
-  { eye: "El producto · 01", t1: "Un perfil.", t2: "Cada pantalla.", p: "Tu trayectoria se ve impecable en el celular del scout y en la pantalla del director deportivo. Pensado para que te tomen en serio desde el primer vistazo.", tags: ["Perfil público", "Responsive real", "Verificado"] },
+  { eye: "El producto · 01", t1: "Tu portfolio web", t2: "automatizado.", p: "Plug and play: subís tus datos, los validamos y en segundos tenés tu portfolio profesional 100% automático, online e indexado en Google, listo para enviar a agentes, directivos y clubes.", tags: ["Indexado en Google", "Responsive real", "Listo en segundos"], cta: true },
   { eye: "El dashboard · 02", t1: "Armá tu carrera,", t2: "paso a paso.", p: "Cargá clubes, temporadas y estadísticas con formularios hechos para futbolistas. Elegí tu identidad visual y publicá. Sin diseñadores, sin fricción.", tags: ["Trayectoria", "Estadísticas", "Identidad visual"] },
-  { eye: "Cuentas de agente · 03", t1: "Gestioná tu", t2: "cartera completa.", p: "Una central para todos tus representados. Seguí su rendimiento, compartí dossiers verificados y publicá su página profesional en un clic.", tags: ["Cartera", "Dossiers", "Página pública"], accent: BLUE },
+  { eye: "Cuentas de agente · 03", t1: "¿Sos agente?", t2: "Cargá tu roster.", p: "Una central para todos tus representados. Sumá tus licencias, colaboraciones y los clubes con los que trabajaste, y publicá tu página de agente profesional en un clic.", tags: ["Licencias", "Colaboraciones", "Página pública"], accent: BLUE, cta: true },
 ];
 
 // Each scene's elements are absolutely placed inside a design box scaled to fit.
@@ -104,6 +104,37 @@ const WaveLayer = ({ z, fill, crest, mainReg, crestReg }: { z: number; fill: str
 
 type RegFn = (k: string) => (el: HTMLElement | SVGElement | null) => void;
 
+/* trust row under steps 1 & 3 — a "Datos verificados" pill in the design's
+   verified green (#22C55E) + a "¿Cómo validamos?" outline button with a shield
+   (mirrors the hero CTA). Styling adapts to the lime (dark) vs dark surface. */
+const IconShieldCheck = ({ color }: { color: string }) => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);
+const IconShield = ({ color }: { color: string }) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" aria-hidden="true">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
+const CtaRow = ({ dark, mob }: { dark?: boolean; mob?: boolean }) => {
+  const VERIFIED = "#22C55E";
+  const base: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 8, fontFamily: FONT_BODY, fontWeight: 600, fontSize: mob ? 12.5 : 13.5, padding: mob ? "9px 14px" : "10px 16px", borderRadius: 10, whiteSpace: "nowrap" };
+  const verified: React.CSSProperties = dark
+    ? { ...base, background: "#0a0a0a", color: "#fff", border: "1px solid #0a0a0a", boxShadow: "0 10px 26px -12px rgba(0,0,0,0.6)" }
+    : { ...base, background: `${VERIFIED}1f`, color: VERIFIED, border: `1px solid ${VERIFIED}66` };
+  const how: React.CSSProperties = dark
+    ? { ...base, background: "transparent", color: "#0a0a0a", border: "1px solid rgba(0,0,0,0.28)", cursor: "pointer" }
+    : { ...base, background: "rgba(255,255,255,0.04)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", cursor: "pointer" };
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
+      <span style={verified}><IconShieldCheck color={VERIFIED} />Datos verificados</span>
+      <button type="button" style={how}>¿Cómo validamos?<IconShield color={dark ? "#0a0a0a" : "#fff"} /></button>
+    </div>
+  );
+};
+
 /* text block (eyebrow + 2-line title + paragraph + tag chips) */
 const Txt = ({ reg, idp, copy, accent, x, y = 188, narrow, dark, w, mob }: { reg: RegFn; idp: string; copy: StepCopy; accent: string; x: number; y?: number; narrow?: boolean; dark?: boolean; w?: number; mob?: boolean }) => {
   const width = w || (narrow ? 340 : 400);
@@ -128,12 +159,15 @@ const Txt = ({ reg, idp, copy, accent, x, y = 188, narrow, dark, w, mob }: { reg
         <span style={{ display: "block", overflow: "hidden" }}><span ref={reg(idp + "t2")} style={{ display: "block", color: dark ? "#0a0a0a" : accent }}>{copy.t2}</span></span>
       </h2>
       <p ref={reg(idp + "p")} style={{ fontFamily: FONT_BODY, fontSize: pSize, color: sub, lineHeight: 1.6, margin: mob ? "16px 0 18px" : "20px 0 22px", maxWidth: pMax, fontWeight: dark ? 500 : 400 }}>{copy.p}</p>
-      <div ref={reg(idp + "tags")} style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
-        {copy.tags.map((tg) => (
-          <span key={tg} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, padding: "7px 13px", borderRadius: 9, whiteSpace: "nowrap", ...chip }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: dark ? "#0a0a0a" : accent }} />{tg}
-          </span>
-        ))}
+      <div ref={reg(idp + "tags")} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: mob ? 14 : 18 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
+          {copy.tags.map((tg) => (
+            <span key={tg} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, padding: "7px 13px", borderRadius: 9, whiteSpace: "nowrap", ...chip }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: dark ? "#0a0a0a" : accent }} />{tg}
+            </span>
+          ))}
+        </div>
+        {copy.cta && <CtaRow dark={dark} mob={mob} />}
       </div>
     </div>
   );
@@ -155,6 +189,7 @@ const DashJourneyStatic = ({ accent }: { accent: string }) => (
             <Eyebrow color={ac}>{s.eye}</Eyebrow>
             <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 52, lineHeight: 0.96, textTransform: "uppercase", margin: "14px 0 18px", color: "#fff" }}>{s.t1}<br />{s.t2}</h2>
             <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 440 }}>{s.p}</p>
+            {s.cta && <div style={{ marginTop: 20 }}><CtaRow /></div>}
           </div>
         </div>
       );
