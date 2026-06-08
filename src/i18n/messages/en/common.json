@@ -47,5 +47,10 @@
     "signOut": "Sign out",
     "signOutConfirm": "Are you sure you want to sign out of 'BallersHub?",
     "signingOut": "Signing out..."
+  },
+  "org": {
+    "description": "Professional portfolio platform for footballers and representation agencies. Every player and agency gets a unique, SEO-optimized link that centralizes career history, stats, physical data and verified media.",
+    "appDescription": "Web app to build professional portfolios for footballers and agencies: a unique link, centralized data, SEO-ready from day one.",
+    "slogan": "Professional footballer profiles"
   }
 }
