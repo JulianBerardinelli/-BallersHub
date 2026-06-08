@@ -10,6 +10,8 @@
 
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { playerProfiles } from "@/db/schema/players";
+import { agencyProfiles } from "@/db/schema/agencies";
 import {
   playerProfileTranslations,
   agencyProfileTranslations,
@@ -179,4 +181,56 @@ export function mergeAgencyContent(
     description: pick(translation.description, base.description),
     tagline: pick(translation.tagline, base.tagline),
   };
+}
+
+// ============================ sitemap bulk ============================
+//
+// One-query maps of slug → real translation locales, for the sitemap to emit
+// per-entry hreflang alternates without N round-trips. ES is implicit (the
+// base URL); these return only the en/it/pt that actually exist.
+
+export async function getTranslatedPlayerLocalesBySlug(): Promise<
+  Map<string, ContentLocale[]>
+> {
+  const rows = await db
+    .select({
+      slug: playerProfiles.slug,
+      locale: playerProfileTranslations.locale,
+    })
+    .from(playerProfileTranslations)
+    .innerJoin(
+      playerProfiles,
+      eq(playerProfiles.id, playerProfileTranslations.playerId),
+    );
+  const map = new Map<string, ContentLocale[]>();
+  for (const r of rows) {
+    if (!isContentLocale(r.locale)) continue;
+    const arr = map.get(r.slug) ?? [];
+    arr.push(r.locale);
+    map.set(r.slug, arr);
+  }
+  return map;
+}
+
+export async function getTranslatedAgencyLocalesBySlug(): Promise<
+  Map<string, ContentLocale[]>
+> {
+  const rows = await db
+    .select({
+      slug: agencyProfiles.slug,
+      locale: agencyProfileTranslations.locale,
+    })
+    .from(agencyProfileTranslations)
+    .innerJoin(
+      agencyProfiles,
+      eq(agencyProfiles.id, agencyProfileTranslations.agencyId),
+    );
+  const map = new Map<string, ContentLocale[]>();
+  for (const r of rows) {
+    if (!isContentLocale(r.locale)) continue;
+    const arr = map.get(r.slug) ?? [];
+    arr.push(r.locale);
+    map.set(r.slug, arr);
+  }
+  return map;
 }

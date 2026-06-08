@@ -39,12 +39,16 @@ import { db } from "@/lib/db";
 import { blogPosts } from "@/db/schema/blog";
 import { eq } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
-import { sitemapLanguages } from "@/lib/seo/hreflang";
+import { sitemapLanguages, conditionalSitemapLanguages } from "@/lib/seo/hreflang";
 import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 import {
   getIndexablePlayers,
   getIndexableAgencies,
 } from "@/lib/seo/indexable-profiles";
+import {
+  getTranslatedPlayerLocalesBySlug,
+  getTranslatedAgencyLocalesBySlug,
+} from "@/lib/i18n/profile-content";
 
 // Revalidate hourly. Sitemap doesn't need to be live-fresh — Google
 // crawls it at most every few hours anyway. 1h keeps DB load minimal.
@@ -106,24 +110,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // ----- Players + Agencies (shared indexability source of truth) -----
-    const [players, agencies] = await Promise.all([
+    // The two *LocalesBySlug maps tell us which profiles have REAL en/it/pt
+    // translations so we emit per-entry hreflang alternates only for those
+    // (F5.2c). A profile with no translations stays a single es URL.
+    const [players, agencies, playerLocales, agencyLocales] = await Promise.all([
       getIndexablePlayers(),
       getIndexableAgencies(),
+      getTranslatedPlayerLocalesBySlug(),
+      getTranslatedAgencyLocalesBySlug(),
     ]);
 
-    playerEntries = players.map((p) => ({
-      url: `${base}/${p.slug}`,
-      lastModified: p.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: p.isPro ? 0.9 : 0.6,
-    }));
+    playerEntries = players.map((p) => {
+      const locs = playerLocales.get(p.slug);
+      return {
+        url: `${base}/${p.slug}`,
+        lastModified: p.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: p.isPro ? 0.9 : 0.6,
+        ...(locs && locs.length > 0
+          ? {
+              alternates: {
+                languages: conditionalSitemapLanguages(`/${p.slug}`, [
+                  "es",
+                  ...locs,
+                ]),
+              },
+            }
+          : {}),
+      };
+    });
 
-    agencyEntries = agencies.map((a) => ({
-      url: `${base}/agency/${a.slug}`,
-      lastModified: a.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
+    agencyEntries = agencies.map((a) => {
+      const locs = agencyLocales.get(a.slug);
+      return {
+        url: `${base}/agency/${a.slug}`,
+        lastModified: a.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: 0.7,
+        ...(locs && locs.length > 0
+          ? {
+              alternates: {
+                languages: conditionalSitemapLanguages(`/agency/${a.slug}`, [
+                  "es",
+                  ...locs,
+                ]),
+              },
+            }
+          : {}),
+      };
+    });
 
     // ----- Blog posts -----
     // Solo posts publicados. updated_at refleja la última edición

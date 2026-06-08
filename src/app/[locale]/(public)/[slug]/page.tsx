@@ -688,6 +688,7 @@ export default async function PlayerPublicPage({
         with team + agency + breadcrumb) based on the player's plan.
       */}
       <PersonJsonLd
+        locale={locale as Locale}
         plan={plan}
         player={{
           slug: player.slug,

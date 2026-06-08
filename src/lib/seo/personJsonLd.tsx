@@ -7,21 +7,20 @@
 // facts (birthDate, height, nationality, current club) so Google can
 // resolve the player as the same real-world entity across sites.
 //
+// Locale-aware (F5.2c): jobTitle, position labels (knowsAbout), the
+// breadcrumb home label, the canonical/@id URLs and inLanguage all follow
+// the page locale, so `/en/<slug>` declares `Footballer` + `inLanguage: en`
+// rather than the es-AR defaults (HANDOFF §8). The `bio`/description is
+// already localized by the route before it reaches this component.
+//
 // Tier gating (pricing matrix §E):
-//
 //   • Free → minimal Person (name, url, image, nationality, jobTitle).
-//     No sameAs to competitors, no affiliation/memberOf — the lean
-//     payload still helps the page rank for the player's exact name
-//     but doesn't give Google enough to link out to other sites.
-//
 //   • Pro / pro_plus → full @graph with Person + SportsTeam +
-//     SportsOrganization (agency), cross-referenced via @id. sameAs
-//     enumerates every external profile the player has registered.
-//
-// Mounted from `[slug]/page.tsx` after data fetching, server-rendered
-// so the JSON-LD is in the initial HTML response.
+//     SportsOrganization (agency), cross-referenced via @id.
 
 import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
+import type { Locale } from "@/i18n/routing";
+import { HTML_LANG } from "@/i18n/config";
 
 type PlanTier = "free" | "pro" | "pro_plus";
 
@@ -44,41 +43,60 @@ export type PersonJsonLdPlayer = {
   youtubeUrl?: string | null;
   tiktokUrl?: string | null;
   agency?: { name: string; slug: string } | null;
-  /**
-   * Slug del author hub del jugador en `/blog/authors/<slug>` si
-   * tiene blog_authors row. Cuando está presente, se agrega al
-   * sameAs[] para que Google consolide la identidad entre Person
-   * como futbolista (este portfolio) y Person como autor del blog.
-   * Ver src/lib/seo/cross-ref.ts.
-   */
   authorHubSlug?: string | null;
 };
 
 type Props = {
   player: PersonJsonLdPlayer;
   plan: PlanTier;
+  locale: Locale;
 };
 
-/**
- * Map position codes to Spanish full names for `knowsAbout`. Spanish
- * matches `inLanguage: es-AR` declared in the sitewide WebSite schema
- * and avoids the previous English-on-Spanish-locale inconsistency
- * flagged by the schema audit. Falls back to the original code if
- * unknown — a meaningful free-text value beats nothing.
- */
-const POSITION_LABELS: Record<string, string> = {
-  POR: "Arquero",
-  ARQ: "Arquero",
-  DFC: "Defensor central",
-  LD: "Lateral derecho",
-  LI: "Lateral izquierdo",
-  MC: "Mediocampista central",
-  MCD: "Mediocampista defensivo",
-  MCO: "Mediocampista ofensivo",
-  ED: "Extremo derecho",
-  EI: "Extremo izquierdo",
-  DC: "Delantero centro",
-  SD: "Segundo delantero",
+const JOB_TITLE: Record<Locale, string> = {
+  es: "Futbolista",
+  en: "Footballer",
+  it: "Calciatore",
+  pt: "Futebolista",
+};
+
+const HOME_LABEL: Record<Locale, string> = {
+  es: "Inicio",
+  en: "Home",
+  it: "Home",
+  pt: "Início",
+};
+
+// Position codes → full label per locale (knowsAbout). Falls back to the raw
+// code if unknown — a meaningful free-text value beats nothing.
+const POSITION_LABELS: Record<Locale, Record<string, string>> = {
+  es: {
+    POR: "Arquero", ARQ: "Arquero", DFC: "Defensor central",
+    LD: "Lateral derecho", LI: "Lateral izquierdo", MC: "Mediocampista central",
+    MCD: "Mediocampista defensivo", MCO: "Mediocampista ofensivo",
+    ED: "Extremo derecho", EI: "Extremo izquierdo", DC: "Delantero centro",
+    SD: "Segundo delantero",
+  },
+  en: {
+    POR: "Goalkeeper", ARQ: "Goalkeeper", DFC: "Center back",
+    LD: "Right back", LI: "Left back", MC: "Central midfielder",
+    MCD: "Defensive midfielder", MCO: "Attacking midfielder",
+    ED: "Right winger", EI: "Left winger", DC: "Striker",
+    SD: "Second striker",
+  },
+  it: {
+    POR: "Portiere", ARQ: "Portiere", DFC: "Difensore centrale",
+    LD: "Terzino destro", LI: "Terzino sinistro", MC: "Centrocampista centrale",
+    MCD: "Mediano", MCO: "Trequartista",
+    ED: "Esterno destro", EI: "Esterno sinistro", DC: "Centravanti",
+    SD: "Seconda punta",
+  },
+  pt: {
+    POR: "Goleiro", ARQ: "Goleiro", DFC: "Zagueiro",
+    LD: "Lateral direito", LI: "Lateral esquerdo", MC: "Meio-campo central",
+    MCD: "Volante", MCO: "Meia-atacante",
+    ED: "Ponta direita", EI: "Ponta esquerda", DC: "Centroavante",
+    SD: "Segundo atacante",
+  },
 };
 
 function buildSameAs(p: PersonJsonLdPlayer): string[] {
@@ -91,10 +109,6 @@ function buildSameAs(p: PersonJsonLdPlayer): string[] {
     p.youtubeUrl,
     p.tiktokUrl,
   ];
-  // Cross-reference al author hub interno: si este jugador también
-  // escribe en el blog, le decimos a Google que son la misma persona.
-  // URL absoluta (vs path relativo) para que el sameAs sea válido y
-  // resolvible — Schema.org sameAs requiere URLs canónicas.
   if (p.authorHubSlug) {
     sameAs.push(`${base}/blog/authors/${p.authorHubSlug}`);
   }
@@ -103,23 +117,25 @@ function buildSameAs(p: PersonJsonLdPlayer): string[] {
   );
 }
 
-function buildKnowsAbout(positions: string[] | null | undefined): string[] {
+function buildKnowsAbout(
+  positions: string[] | null | undefined,
+  locale: Locale,
+): string[] {
   if (!positions || positions.length === 0) return [];
-  return positions.map((p) => POSITION_LABELS[p] ?? p);
+  const labels = POSITION_LABELS[locale];
+  return positions.map((p) => labels[p] ?? p);
 }
 
-export function PersonJsonLd({ player, plan }: Props) {
+export function PersonJsonLd({ player, plan, locale }: Props) {
   const isPro = plan === "pro" || plan === "pro_plus";
-  const canonical = toCanonicalUrl(`/${player.slug}`);
+  // Self-referential canonical per locale (es has no prefix).
+  const localePath =
+    locale === "es" ? `/${player.slug}` : `/${locale}/${player.slug}`;
+  const canonical = toCanonicalUrl(localePath);
   const base = getSiteBaseUrl();
+  const lang = HTML_LANG[locale];
 
-  // Both tiers share these properties. Keeping the Free payload lean is
-  // deliberate — it still wins the player's exact-name query but doesn't
-  // hand competitors a free graph to scrape.
   const personId = `${canonical}#person`;
-  // Only emit `image` when we have a real avatar. Google's Rich Results
-  // Test penalizes generic placeholder images as low-quality — better
-  // to omit the property entirely than to emit a default silhouette.
   const realImage = player.avatarUrl ? toCanonicalUrl(player.avatarUrl) : null;
 
   const personBase = {
@@ -128,7 +144,7 @@ export function PersonJsonLd({ player, plan }: Props) {
     name: player.fullName,
     url: canonical,
     ...(realImage && { image: realImage }),
-    jobTitle: "Futbolista",
+    jobTitle: JOB_TITLE[locale],
     ...(player.birthDate && { birthDate: player.birthDate }),
     ...(player.nationality &&
       player.nationality.length > 0 && {
@@ -144,14 +160,12 @@ export function PersonJsonLd({ player, plan }: Props) {
   };
 
   if (!isPro) {
-    // Free tier — minimal Person, no graph nesting, no sameAs to
-    // competitor sites.
     const free = {
       "@context": "https://schema.org",
       ...personBase,
       ...(player.positions &&
         player.positions.length > 0 && {
-          knowsAbout: buildKnowsAbout(player.positions),
+          knowsAbout: buildKnowsAbout(player.positions, locale),
         }),
     };
     return (
@@ -162,12 +176,8 @@ export function PersonJsonLd({ player, plan }: Props) {
     );
   }
 
-  // Pro tier — full @graph. Cross-references via @id let Google merge
-  // the Person ↔ Team ↔ Agency triangle.
   const sameAs = buildSameAs(player);
-  const teamId = player.currentClub
-    ? `${canonical}#current-team`
-    : null;
+  const teamId = player.currentClub ? `${canonical}#current-team` : null;
   const agencyId = player.agency
     ? toCanonicalUrl(`/agency/${player.agency.slug}#organization`)
     : null;
@@ -185,8 +195,8 @@ export function PersonJsonLd({ player, plan }: Props) {
     {
       ...personBase,
       ...(sameAs.length > 0 && { sameAs }),
-      ...(buildKnowsAbout(player.positions).length > 0 && {
-        knowsAbout: buildKnowsAbout(player.positions),
+      ...(buildKnowsAbout(player.positions, locale).length > 0 && {
+        knowsAbout: buildKnowsAbout(player.positions, locale),
       }),
       ...(heightQty && { height: heightQty }),
       ...(weightQty && { weight: weightQty }),
@@ -197,10 +207,10 @@ export function PersonJsonLd({ player, plan }: Props) {
       ...(agencyId && {
         worksFor: { "@id": agencyId },
       }),
-      // BreadcrumbList lives in the same @graph for crawl economy.
       mainEntityOfPage: {
         "@type": "WebPage",
         "@id": canonical,
+        inLanguage: lang,
         breadcrumb: { "@id": `${canonical}#breadcrumb` },
       },
     },
@@ -231,8 +241,8 @@ export function PersonJsonLd({ player, plan }: Props) {
         {
           "@type": "ListItem",
           position: 1,
-          name: "Inicio",
-          item: base,
+          name: HOME_LABEL[locale],
+          item: locale === "es" ? base : `${base}/${locale}`,
         },
         {
           "@type": "ListItem",
