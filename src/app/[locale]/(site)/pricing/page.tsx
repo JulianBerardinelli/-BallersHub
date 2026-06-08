@@ -1,6 +1,7 @@
 // app/(site)/pricing/page.tsx
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import {
   PricingCTA,
   PricingComparisonTable,
@@ -13,19 +14,22 @@ import {
 } from "@/components/site/pricing";
 import { OfferJsonLd } from "@/lib/seo/offerJsonLd";
 
-export const metadata: Metadata = {
-  title: "Planes y precios",
-  description:
-    "Elegí el plan que potencia tu carrera o agencia. Free incluye perfil verificado y URL pública. Pro suma galería extendida, prensa, SEO avanzado y schema en JSON-LD.",
-  alternates: { canonical: "/pricing" },
-  openGraph: {
-    title: "Planes y precios — 'BallersHub",
-    description:
-      "Free vs Pro para jugadores y agencias. Suscripción anual con trial de 7 días en Pro.",
-    url: "/pricing",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("pricing");
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    // canonical only for now; hreflang alternates land once the F3 helper
+    // (localizedAlternates) is in main and the plan core is localized too.
+    alternates: { canonical: "/pricing" },
+    openGraph: {
+      title: t("meta.ogTitle"),
+      description: t("meta.ogDescription"),
+      url: "/pricing",
+      type: "website",
+    },
+  };
+}
 
 export default async function PricingPage({
   searchParams,

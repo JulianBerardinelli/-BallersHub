@@ -1,17 +1,20 @@
 "use client";
 
 // Audience-aware feature comparison: shows Free vs Pro of the currently
-// selected audience (player or agency). Source of truth is the matrix below
-// — must stay in sync with `docs/pricing-matrix.md`.
+// selected audience (player or agency). The matrix text lives in
+// messages/<locale>/pricing.json under `comparison.<audience>` (read via
+// t.raw); must stay in sync with docs/pricing-matrix.md.
 
 import { Check, Minus } from "lucide-react";
+import { useTranslations } from "next-intl";
+
 import { Reveal } from "./Reveal";
 import { usePricing } from "./PricingContext";
 import {
   accentClasses,
   audienceAccent,
   type AccentClasses,
-  type Audience,
+  type PricingT,
 } from "./data";
 
 type CellValue = boolean | string;
@@ -27,160 +30,28 @@ type FeatureGroup = {
   rows: Row[];
 };
 
-const PLAYER_GROUPS: FeatureGroup[] = [
-  {
-    title: "Identidad y perfil",
-    rows: [
-      { label: "Perfil profesional verificado", values: [true, true] },
-      { label: "URL pública personalizable", values: [true, true] },
-      { label: "Plantilla del perfil", values: ["Default", "Pro Portfolio"] },
-      { label: "Galería catálogo (imágenes)", values: ["—", "5"] },
-      { label: "Avatar", values: ["1", "1"] },
-    ],
-  },
-  {
-    title: "Multimedia y links",
-    rows: [
-      { label: "Videos de catálogo (player_media)", values: ["2", "Ilimitados"] },
-      { label: "Redes sociales", values: ["3", "Ilimitadas"] },
-      { label: "Notas de prensa", values: ["3", "Ilimitadas"] },
-      {
-        label: "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)",
-        values: ["Sin cap", "Sin cap"],
-      },
-    ],
-  },
-  {
-    title: "Información profesional",
-    rows: [
-      { label: "Datos básicos (posición, club, edad)", values: [true, true] },
-      { label: "Trayectoria / clubes", values: [true, true] },
-      { label: "Estadísticas por temporada (PJ/G/A)", values: [true, true] },
-      { label: "Valor de mercado", values: [false, true] },
-      { label: "Palmarés / reconocimientos", values: [false, true] },
-      {
-        label: "Análisis de scouting (táctico, físico, mental, técnico)",
-        values: [false, true],
-      },
-      { label: "Descripciones por etapa de carrera", values: [false, true] },
-    ],
-  },
-  {
-    title: "Validación social",
-    rows: [
-      { label: "Reviews recibidas (con invitación)", values: [false, true] },
-      { label: "Contactos de referencia", values: [false, true] },
-    ],
-  },
-  {
-    title: "Soporte",
-    rows: [
-      {
-        label: "Solicitudes de corrección por rubro / semana",
-        values: ["2", "5"],
-      },
-      { label: "Soporte humano prioritario", values: [false, true] },
-    ],
-  },
-  {
-    title: "SEO",
-    rows: [
-      { label: "Meta tags básicos + OG mínimo", values: [true, true] },
-      { label: "Schema.org + sitemap dedicado + OG dinámico", values: [false, true] },
-    ],
-  },
-];
-
-const AGENCY_GROUPS: FeatureGroup[] = [
-  {
-    title: "Identidad y perfil",
-    rows: [
-      { label: "URL pública personalizable", values: [true, true] },
-      { label: "Plantilla del perfil", values: ["Default", "Pro Portfolio (agency)"] },
-      { label: "Galería catálogo (imágenes)", values: ["—", "5"] },
-    ],
-  },
-  {
-    title: "Equipo y cartera",
-    rows: [
-      { label: "Members del equipo (incluye owner)", values: ["2", "Ilimitados"] },
-      { label: "Cartera de jugadores representados", values: ["5 max", "Ilimitada"] },
-      { label: "Slots de Pro Player otorgables", values: ["—", "5"] },
-    ],
-  },
-  {
-    title: "Multimedia y links",
-    rows: [
-      { label: "Videos de catálogo (player_media)", values: ["2", "Ilimitados"] },
-      { label: "Redes sociales", values: ["3", "Ilimitadas"] },
-      { label: "Notas de prensa", values: ["3", "Ilimitadas"] },
-      {
-        label: "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)",
-        values: ["Sin cap", "Sin cap"],
-      },
-    ],
-  },
-  {
-    title: "Información profesional",
-    rows: [
-      { label: "Datos básicos de la agencia", values: [true, true] },
-      { label: "Servicios y alcance operativo", values: [true, true] },
-      { label: "Valores de mercado de jugadores", values: [false, true] },
-      { label: "Palmarés / reconocimientos", values: [false, true] },
-    ],
-  },
-  {
-    title: "Validación social",
-    rows: [
-      { label: "Reviews recibidas (con invitación)", values: [false, true] },
-      { label: "Contactos de referencia", values: [false, true] },
-    ],
-  },
-  {
-    title: "Soporte",
-    rows: [
-      {
-        label: "Solicitudes de corrección por rubro / semana",
-        values: ["2", "5"],
-      },
-      { label: "Soporte humano prioritario", values: [false, true] },
-    ],
-  },
-  {
-    title: "SEO",
-    rows: [
-      { label: "Meta tags básicos + OG mínimo", values: [true, true] },
-      { label: "Schema.org + sitemap dedicado + OG dinámico", values: [false, true] },
-    ],
-  },
-];
-
-function groupsFor(audience: Audience) {
-  return audience === "agency" ? AGENCY_GROUPS : PLAYER_GROUPS;
-}
-
 export default function PricingComparisonTable() {
+  const t = useTranslations("pricing");
   const { audience } = usePricing();
-  const groups = groupsFor(audience);
+  const groups = t.raw(`comparison.${audience}`) as FeatureGroup[];
   const accent = audienceAccent(audience);
   const accentCls = accentClasses(accent);
-  const audienceLabel = audience === "agency" ? "Agencia" : "Jugador";
+  const audienceLabel = t(`toggles.${audience}`);
 
   return (
     <section className="relative" aria-labelledby="pricing-comparison-title">
       <Reveal className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 bg-white/[0.03] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3 backdrop-blur-md">
-          Comparativa detallada · {audienceLabel}
+          {t("comparison.badge")} · {audienceLabel}
         </span>
         <h2
           id="pricing-comparison-title"
           className="mt-4 font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-[2.5rem]"
         >
-          Todo lo que cada plan incluye
+          {t("comparison.title")}
         </h2>
         <p className="mt-3 text-sm leading-[1.6] text-bh-fg-3">
-          Las funciones agrupadas por área. La columna de la derecha es la
-          opción Pro recomendada para sacarle todo al producto.
+          {t("comparison.description")}
         </p>
       </Reveal>
 
@@ -197,23 +68,23 @@ export default function PricingComparisonTable() {
                     scope="col"
                     className="bg-black/30 px-5 py-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-4"
                   >
-                    Característica
+                    {t("comparison.feature")}
                   </th>
                   <th
                     scope="col"
                     className="bg-black/30 px-5 py-4 text-center text-[11px] font-bold uppercase tracking-[0.14em] text-bh-fg-2"
                   >
-                    Free
+                    {t("comparison.free")}
                   </th>
                   <th
                     scope="col"
                     className={`${accentCls.bgVeryFaint} px-5 py-4 text-center text-[11px] font-bold uppercase tracking-[0.14em] ${accentCls.text}`}
                   >
-                    Pro
+                    {t("comparison.pro")}
                     <span
                       className={`ml-1.5 rounded-bh-pill border ${accentCls.borderStrong} ${accentCls.bgSoft} px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.14em] ${accentCls.text}`}
                     >
-                      Top
+                      {t("comparison.top")}
                     </span>
                   </th>
                 </tr>
@@ -225,6 +96,7 @@ export default function PricingComparisonTable() {
                     group={group}
                     firstGroup={gi === 0}
                     accentCls={accentCls}
+                    t={t}
                   />
                 ))}
               </tbody>
@@ -240,10 +112,12 @@ function FeatureGroupRows({
   group,
   firstGroup,
   accentCls,
+  t,
 }: {
   group: FeatureGroup;
   firstGroup: boolean;
   accentCls: AccentClasses;
+  t: PricingT;
 }) {
   return (
     <>
@@ -271,7 +145,7 @@ function FeatureGroupRows({
                 ci === 1 ? accentCls.bgColumnTint : ""
               }`}
             >
-              <CompareCell value={v} highlight={ci === 1} accentCls={accentCls} />
+              <CompareCell value={v} highlight={ci === 1} accentCls={accentCls} t={t} />
             </td>
           ))}
         </tr>
@@ -284,10 +158,12 @@ function CompareCell({
   value,
   highlight,
   accentCls,
+  t,
 }: {
   value: CellValue;
   highlight: boolean;
   accentCls: AccentClasses;
+  t: PricingT;
 }) {
   if (value === true) {
     const cls = highlight
@@ -296,7 +172,7 @@ function CompareCell({
     return (
       <span
         className={`inline-flex h-5 w-5 items-center justify-center rounded-full border ${cls}`}
-        aria-label="Incluido"
+        aria-label={t("comparison.included")}
       >
         <Check className="h-3 w-3" strokeWidth={3} />
       </span>
@@ -306,7 +182,7 @@ function CompareCell({
     return (
       <span
         className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-white/[0.10] bg-white/[0.03] text-bh-fg-4"
-        aria-label="No incluido"
+        aria-label={t("comparison.notIncluded")}
       >
         <Minus className="h-3 w-3" strokeWidth={3} />
       </span>
