@@ -137,5 +137,88 @@
         "SEO Pro"
       ]
     }
+  },
+  "comparison": {
+    "badge": "Confronto dettagliato",
+    "title": "Tutto ciò che ogni piano include",
+    "description": "Le funzioni raggruppate per area. La colonna a destra è l'opzione Pro consigliata per sfruttare al massimo il prodotto.",
+    "feature": "Funzione",
+    "free": "Free",
+    "pro": "Pro",
+    "top": "Top",
+    "included": "Incluso",
+    "notIncluded": "Non incluso",
+    "player": [
+      { "title": "Identità e profilo", "rows": [
+        { "label": "Profilo professionale verificato", "values": [true, true] },
+        { "label": "URL pubblico personalizzabile", "values": [true, true] },
+        { "label": "Template del profilo", "values": ["Default", "Pro Portfolio"] },
+        { "label": "Galleria catalogo (immagini)", "values": ["—", "5"] },
+        { "label": "Avatar", "values": ["1", "1"] }
+      ]},
+      { "title": "Multimedia e link", "rows": [
+        { "label": "Video di catalogo (player_media)", "values": ["2", "Illimitati"] },
+        { "label": "Social network", "values": ["3", "Illimitati"] },
+        { "label": "Rassegne stampa", "values": ["3", "Illimitate"] },
+        { "label": "Profili esterni (Transfermarkt, BeSoccer, Flashscore)", "values": ["Senza limiti", "Senza limiti"] }
+      ]},
+      { "title": "Informazioni professionali", "rows": [
+        { "label": "Dati base (ruolo, club, età)", "values": [true, true] },
+        { "label": "Carriera / club", "values": [true, true] },
+        { "label": "Statistiche per stagione (PG/G/A)", "values": [true, true] },
+        { "label": "Valore di mercato", "values": [false, true] },
+        { "label": "Palmarès / riconoscimenti", "values": [false, true] },
+        { "label": "Analisi di scouting (tattica, fisica, mentale, tecnica)", "values": [false, true] },
+        { "label": "Descrizioni per fase di carriera", "values": [false, true] }
+      ]},
+      { "title": "Validazione sociale", "rows": [
+        { "label": "Recensioni ricevute (con invito)", "values": [false, true] },
+        { "label": "Contatti di riferimento", "values": [false, true] }
+      ]},
+      { "title": "Supporto", "rows": [
+        { "label": "Richieste di correzione per area / settimana", "values": ["2", "5"] },
+        { "label": "Supporto umano prioritario", "values": [false, true] }
+      ]},
+      { "title": "SEO", "rows": [
+        { "label": "Meta tag base + OG minimo", "values": [true, true] },
+        { "label": "Schema.org + sitemap dedicata + OG dinamico", "values": [false, true] }
+      ]}
+    ],
+    "agency": [
+      { "title": "Identità e profilo", "rows": [
+        { "label": "URL pubblico personalizzabile", "values": [true, true] },
+        { "label": "Template del profilo", "values": ["Default", "Pro Portfolio (agency)"] },
+        { "label": "Galleria catalogo (immagini)", "values": ["—", "5"] }
+      ]},
+      { "title": "Team e rosa", "rows": [
+        { "label": "Membri del team (incluso owner)", "values": ["2", "Illimitati"] },
+        { "label": "Rosa di giocatori rappresentati", "values": ["5 max", "Illimitata"] },
+        { "label": "Slot Pro Player assegnabili", "values": ["—", "5"] }
+      ]},
+      { "title": "Multimedia e link", "rows": [
+        { "label": "Video di catalogo (player_media)", "values": ["2", "Illimitati"] },
+        { "label": "Social network", "values": ["3", "Illimitati"] },
+        { "label": "Rassegne stampa", "values": ["3", "Illimitate"] },
+        { "label": "Profili esterni (Transfermarkt, BeSoccer, Flashscore)", "values": ["Senza limiti", "Senza limiti"] }
+      ]},
+      { "title": "Informazioni professionali", "rows": [
+        { "label": "Dati base dell'agenzia", "values": [true, true] },
+        { "label": "Servizi e copertura operativa", "values": [true, true] },
+        { "label": "Valori di mercato dei giocatori", "values": [false, true] },
+        { "label": "Palmarès / riconoscimenti", "values": [false, true] }
+      ]},
+      { "title": "Validazione sociale", "rows": [
+        { "label": "Recensioni ricevute (con invito)", "values": [false, true] },
+        { "label": "Contatti di riferimento", "values": [false, true] }
+      ]},
+      { "title": "Supporto", "rows": [
+        { "label": "Richieste di correzione per area / settimana", "values": ["2", "5"] },
+        { "label": "Supporto umano prioritario", "values": [false, true] }
+      ]},
+      { "title": "SEO", "rows": [
+        { "label": "Meta tag base + OG minimo", "values": [true, true] },
+        { "label": "Schema.org + sitemap dedicata + OG dinamico", "values": [false, true] }
+      ]}
+    ]
   }
 }

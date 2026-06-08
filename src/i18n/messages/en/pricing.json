@@ -137,5 +137,88 @@
         "Pro SEO"
       ]
     }
+  },
+  "comparison": {
+    "badge": "Detailed comparison",
+    "title": "Everything each plan includes",
+    "description": "Features grouped by area. The right column is the recommended Pro option to get the most out of the product.",
+    "feature": "Feature",
+    "free": "Free",
+    "pro": "Pro",
+    "top": "Top",
+    "included": "Included",
+    "notIncluded": "Not included",
+    "player": [
+      { "title": "Identity & profile", "rows": [
+        { "label": "Verified professional profile", "values": [true, true] },
+        { "label": "Customizable public URL", "values": [true, true] },
+        { "label": "Profile template", "values": ["Default", "Pro Portfolio"] },
+        { "label": "Catalog gallery (images)", "values": ["—", "5"] },
+        { "label": "Avatar", "values": ["1", "1"] }
+      ]},
+      { "title": "Media & links", "rows": [
+        { "label": "Catalog videos (player_media)", "values": ["2", "Unlimited"] },
+        { "label": "Social networks", "values": ["3", "Unlimited"] },
+        { "label": "Press notes", "values": ["3", "Unlimited"] },
+        { "label": "External profiles (Transfermarkt, BeSoccer, Flashscore)", "values": ["No cap", "No cap"] }
+      ]},
+      { "title": "Professional info", "rows": [
+        { "label": "Basic data (position, club, age)", "values": [true, true] },
+        { "label": "Career / clubs", "values": [true, true] },
+        { "label": "Per-season stats (GP/G/A)", "values": [true, true] },
+        { "label": "Market value", "values": [false, true] },
+        { "label": "Honours / awards", "values": [false, true] },
+        { "label": "Scouting analysis (tactical, physical, mental, technical)", "values": [false, true] },
+        { "label": "Career-stage descriptions", "values": [false, true] }
+      ]},
+      { "title": "Social validation", "rows": [
+        { "label": "Reviews received (by invitation)", "values": [false, true] },
+        { "label": "Reference contacts", "values": [false, true] }
+      ]},
+      { "title": "Support", "rows": [
+        { "label": "Correction requests per area / week", "values": ["2", "5"] },
+        { "label": "Priority human support", "values": [false, true] }
+      ]},
+      { "title": "SEO", "rows": [
+        { "label": "Basic meta tags + minimal OG", "values": [true, true] },
+        { "label": "Schema.org + dedicated sitemap + dynamic OG", "values": [false, true] }
+      ]}
+    ],
+    "agency": [
+      { "title": "Identity & profile", "rows": [
+        { "label": "Customizable public URL", "values": [true, true] },
+        { "label": "Profile template", "values": ["Default", "Pro Portfolio (agency)"] },
+        { "label": "Catalog gallery (images)", "values": ["—", "5"] }
+      ]},
+      { "title": "Team & roster", "rows": [
+        { "label": "Team members (owner included)", "values": ["2", "Unlimited"] },
+        { "label": "Roster of represented players", "values": ["5 max", "Unlimited"] },
+        { "label": "Grantable Pro Player slots", "values": ["—", "5"] }
+      ]},
+      { "title": "Media & links", "rows": [
+        { "label": "Catalog videos (player_media)", "values": ["2", "Unlimited"] },
+        { "label": "Social networks", "values": ["3", "Unlimited"] },
+        { "label": "Press notes", "values": ["3", "Unlimited"] },
+        { "label": "External profiles (Transfermarkt, BeSoccer, Flashscore)", "values": ["No cap", "No cap"] }
+      ]},
+      { "title": "Professional info", "rows": [
+        { "label": "Basic agency data", "values": [true, true] },
+        { "label": "Services & operational reach", "values": [true, true] },
+        { "label": "Players' market values", "values": [false, true] },
+        { "label": "Honours / awards", "values": [false, true] }
+      ]},
+      { "title": "Social validation", "rows": [
+        { "label": "Reviews received (by invitation)", "values": [false, true] },
+        { "label": "Reference contacts", "values": [false, true] }
+      ]},
+      { "title": "Support", "rows": [
+        { "label": "Correction requests per area / week", "values": ["2", "5"] },
+        { "label": "Priority human support", "values": [false, true] }
+      ]},
+      { "title": "SEO", "rows": [
+        { "label": "Basic meta tags + minimal OG", "values": [true, true] },
+        { "label": "Schema.org + dedicated sitemap + dynamic OG", "values": [false, true] }
+      ]}
+    ]
   }
 }
