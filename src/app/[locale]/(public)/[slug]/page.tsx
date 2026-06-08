@@ -26,6 +26,14 @@ import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
 import { formatPlayerPositions } from "@/lib/format";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import { FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
+import { conditionalAlternates } from "@/lib/seo/hreflang";
+import {
+  getAvailablePlayerLocales,
+  getPlayerTranslation,
+  mergePlayerContent,
+} from "@/lib/i18n/profile-content";
+import { OG_LOCALE } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 
 // Public portfolios are cached for an hour. Crawlers hit these
 // frequently and we don't need second-by-second freshness — the
@@ -37,7 +45,7 @@ import { FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
 // re-querying Postgres on every bot hit.
 export const revalidate = 3600;
 
-type Params = Promise<{ slug: string }>;
+type Params = Promise<{ locale: string; slug: string }>;
 
 /**
  * Lee el background color del theme del jugador (configurable desde el
@@ -144,11 +152,12 @@ function buildSeoDescription(p: {
 // all gate on the exact same number. See seo-strategy.md §5 Track C.
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const player = await db.query.playerProfiles.findFirst({
     where: (p, { and, eq }) =>
       and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
     columns: {
+      id: true,
       userId: true,
       fullName: true,
       bio: true,
@@ -165,10 +174,21 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     };
   }
 
-  // Resolve Pro vs Free to decide whether thin Free profiles should be
-  // noindexed. We only run the subscription query when the bio is
-  // actually short — common case is "bio is fine, no extra query".
-  const bioLen = player.bio?.trim().length ?? 0;
+  // F5: which locales have a real translation (ES always). Drives the
+  // conditional hreflang set and the noindex-on-missing-translation rule.
+  const available = await getAvailablePlayerLocales(player.id);
+  const thisLocaleExists = available.includes(locale as Locale);
+  // ES uses base fields; a non-default locale pulls its translation row.
+  // The bio drives the meta description; title stays name+position (proper
+  // nouns; position labels get localized in JSON-LD, F5.2c).
+  const translation = await getPlayerTranslation(player.id, locale);
+  const localizedBio =
+    translation?.bio && translation.bio.trim() !== "" ? translation.bio : player.bio;
+  const playerForSeo = { ...player, bio: localizedBio };
+
+  // Soft-noindex thin Free bios (existing rule), querying subscriptions only
+  // when the (localized) bio is short.
+  const bioLen = localizedBio?.trim().length ?? 0;
   let softNoindex = false;
   if (bioLen < FREE_BIO_INDEX_MIN_CHARS) {
     const sub = await db.query.subscriptions.findFirst({
@@ -206,21 +226,28 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   }
 
   const title = buildSeoTitle(player);
-  const description = buildSeoDescription(player);
-  const canonical = `/${slug}`;
+  const description = buildSeoDescription(playerForSeo);
+  const { canonical, languages } = conditionalAlternates(
+    locale as Locale,
+    `/${slug}`,
+    available,
+  );
+  // noindex when this locale has no real translation (fallback-ES render) OR
+  // the thin-Free-bio rule fires. Stays follow:true so equity flows.
+  const noindex = !thisLocaleExists || softNoindex;
 
   return {
     title,
     description,
-    alternates: { canonical },
-    ...(softNoindex && { robots: { index: false, follow: true } }),
+    alternates: { canonical, languages },
+    ...(noindex && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
       url: canonical,
       type: "profile",
       siteName: "'BallersHub",
-      locale: "es_AR",
+      locale: OG_LOCALE[locale as Locale],
       images: player.avatarUrl
         ? [{ url: player.avatarUrl, alt: player.fullName }]
         : undefined,
@@ -241,11 +268,11 @@ export default async function PlayerPublicPage({
   params: Params;
   searchParams?: Promise<{ force_free?: string }>;
 }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
   const sp = (await searchParams) ?? {};
 
   // 1) Jugador público
-  const player = await db.query.playerProfiles.findFirst({
+  const rawPlayer = await db.query.playerProfiles.findFirst({
     where: (p, { and, eq }) =>
       and(
         eq(p.slug, slug),
@@ -257,7 +284,14 @@ export default async function PlayerPublicPage({
     },
   });
 
-  if (!player) return notFound();
+  if (!rawPlayer) return notFound();
+
+  // F5: override the 8 free-text fields with this locale's translation row
+  // (fallback ES per field). Everything downstream — LayoutResolver, modules,
+  // PersonJsonLd — reads the already-localized `player`, so no module needs
+  // to know about locales.
+  const translation = await getPlayerTranslation(rawPlayer.id, locale);
+  const player = { ...rawPlayer, ...mergePlayerContent(rawPlayer, translation) };
 
   // 2) Plan y límites (Para limitar fotos - o enviarlo completo y limitar ahi)
   //    IMPORTANTE: usamos resolvePlanAccess (mira statusV2 + plan_id) y NO
@@ -654,6 +688,7 @@ export default async function PlayerPublicPage({
         with team + agency + breadcrumb) based on the player's plan.
       */}
       <PersonJsonLd
+        locale={locale as Locale}
         plan={plan}
         player={{
           slug: player.slug,

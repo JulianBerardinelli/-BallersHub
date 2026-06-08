@@ -15,12 +15,20 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import AgencyLayoutResolver, { type AgencyPublicData } from "./components/AgencyLayoutResolver";
 import { AgencyJsonLd } from "@/lib/seo/agencyJsonLd";
+import { conditionalAlternates } from "@/lib/seo/hreflang";
+import {
+  getAvailableAgencyLocales,
+  getAgencyTranslation,
+  mergeAgencyContent,
+} from "@/lib/i18n/profile-content";
+import { OG_LOCALE } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 
 // Public agency portfolios cache for an hour. See the matching note in
 // `[slug]/page.tsx` — the previous `revalidate = 0` was a dev hack.
 export const revalidate = 3600;
 
-type Params = Promise<{ slug: string }>;
+type Params = Promise<{ locale: string; slug: string }>;
 
 function buildAgencyDescription(agency: {
   name: string;
@@ -37,7 +45,7 @@ function buildAgencyDescription(agency: {
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { slug } = await params;
+  const { locale, slug } = await params;
 
   if (!slug) {
     return {
@@ -48,7 +56,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const agency = await db.query.agencyProfiles.findFirst({
     where: eq(agencyProfiles.slug, slug),
-    columns: { name: true, description: true, logoUrl: true },
+    columns: { id: true, name: true, description: true, logoUrl: true },
   });
 
   if (!agency) {
@@ -58,21 +66,38 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     };
   }
 
+  // F5: conditional hreflang (only real translations) + localized description.
+  const available = await getAvailableAgencyLocales(agency.id);
+  const thisLocaleExists = available.includes(locale as Locale);
+  const translation = await getAgencyTranslation(agency.id, locale);
+  const localizedDescription =
+    translation?.description && translation.description.trim() !== ""
+      ? translation.description
+      : agency.description;
+
   const title = `${agency.name} — Agencia de representación`;
-  const description = buildAgencyDescription(agency);
-  const canonical = `/agency/${slug}`;
+  const description = buildAgencyDescription({
+    name: agency.name,
+    description: localizedDescription,
+  });
+  const { canonical, languages } = conditionalAlternates(
+    locale as Locale,
+    `/agency/${slug}`,
+    available,
+  );
 
   return {
     title,
     description,
-    alternates: { canonical },
+    alternates: { canonical, languages },
+    ...(!thisLocaleExists && { robots: { index: false, follow: true } }),
     openGraph: {
       title,
       description,
       url: canonical,
       type: "website",
       siteName: "'BallersHub",
-      locale: "es_AR",
+      locale: OG_LOCALE[locale as Locale],
       images: agency.logoUrl
         ? [{ url: agency.logoUrl, alt: agency.name }]
         : undefined,
@@ -87,15 +112,20 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function AgencyPublicPage({ params }: { params: Params }) {
-  const { slug } = await params;
+  const { locale, slug } = await params;
 
   if (!slug) return notFound();
 
-  const agency = await db.query.agencyProfiles.findFirst({
+  const rawAgency = await db.query.agencyProfiles.findFirst({
     where: eq(agencyProfiles.slug, slug),
   });
 
-  if (!agency) return notFound();
+  if (!rawAgency) return notFound();
+
+  // F5: override description + tagline with this locale's translation
+  // (fallback ES). Downstream modules read the already-localized `agency`.
+  const agencyTranslation = await getAgencyTranslation(rawAgency.id, locale);
+  const agency = { ...rawAgency, ...mergeAgencyContent(rawAgency, agencyTranslation) };
 
   const [theme, sections, players, staffLicensesRows, countryProfiles, teamRelations] = await Promise.all([
     db.query.agencyThemeSettings.findFirst({

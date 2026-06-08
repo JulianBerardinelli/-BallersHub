@@ -64,6 +64,13 @@
       "when": 1780449922057,
       "tag": "0008_hot_black_queen",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1780934272741,
+      "tag": "0009_supreme_wolfpack",
+      "breakpoints": true
     }
   ]
 }

@@ -52,3 +52,59 @@ export function sitemapLanguages(pathname: string): Record<string, string> {
   }
   return languages;
 }
+
+// ---------------------------------------------------------------------------
+// CONDITIONAL hreflang — per-player / per-agency pages (Phase 5).
+//
+// Unlike the marketing helpers above, these emit hreflang ONLY for the
+// locales that actually exist for THIS entity (rows in
+// player_profile_translations / agency_profile_translations). Emitting a
+// hreflang to a locale with no real translation degrades the whole cluster
+// (HANDOFF §17.7). ES is always present (native). canonical stays
+// self-referential even for a locale with no translation — that URL renders
+// fallback-ES + robots:noindex (set separately in the route).
+// ---------------------------------------------------------------------------
+
+export function conditionalAlternates(
+  locale: Locale,
+  pathname: string,
+  availableLocales: readonly Locale[],
+) {
+  const base = getSiteBaseUrl();
+  const clean = pathname === "/" ? "" : pathname;
+  const urlFor = (l: Locale) =>
+    l === routing.defaultLocale ? `${base}${clean || "/"}` : `${base}/${l}${clean}`;
+
+  const languages: Record<string, string> = {};
+  for (const l of routing.locales) {
+    if (availableLocales.includes(l)) {
+      languages[HREFLANG_CODE[l]] = urlFor(l);
+    }
+  }
+  // x-default → the prefix-less default (es); es is always available (native).
+  if (availableLocales.includes(routing.defaultLocale)) {
+    languages["x-default"] = urlFor(routing.defaultLocale);
+  }
+
+  return {
+    canonical: urlFor(locale), // self-referential per locale (HANDOFF §17.5)
+    languages,
+  };
+}
+
+/** Sitemap-shaped conditional languages (only real translations). */
+export function conditionalSitemapLanguages(
+  pathname: string,
+  availableLocales: readonly Locale[],
+): Record<string, string> {
+  const base = getSiteBaseUrl();
+  const clean = pathname === "/" ? "" : pathname;
+  const languages: Record<string, string> = {};
+  for (const l of routing.locales) {
+    if (availableLocales.includes(l)) {
+      languages[HREFLANG_CODE[l]] =
+        l === routing.defaultLocale ? `${base}${clean || "/"}` : `${base}/${l}${clean}`;
+    }
+  }
+  return languages;
+}
