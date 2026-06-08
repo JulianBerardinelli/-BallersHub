@@ -71,6 +71,13 @@ const PLAYER_NAVIGATION: ClientDashboardNavSection[] = [
         href: "/dashboard/edit-profile/multimedia",
         description: "Fotos, videos y notas de prensa.",
       },
+      {
+        kind: "link",
+        id: "translations",
+        title: "Idiomas",
+        href: "/dashboard/edit-profile/translations",
+        description: "Publicá tu perfil en inglés, italiano y portugués (Pro).",
+      },
     ],
   },
   {
