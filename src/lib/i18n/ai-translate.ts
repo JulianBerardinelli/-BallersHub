@@ -13,9 +13,12 @@
 import { generateObject } from "ai";
 import { z } from "zod";
 
-// Sonnet is the right tier for translation (HANDOFF §5). 4.6 is the newest
-// sonnet on the gateway as of 2026-06. Override via env if a newer one ships.
-const MODEL = process.env.AI_TRANSLATION_MODEL ?? "anthropic/claude-sonnet-4.6";
+// Gemini 2.5 Flash: strong multilingual quality + structured-output capable +
+// ~7x cheaper than Sonnet — the right tier for assisted translation that the
+// player edits anyway (chosen by the owner over the HANDOFF's Sonnet default).
+// Override via AI_TRANSLATION_MODEL. Verify ids with
+// `curl https://ai-gateway.vercel.sh/v1/models`.
+const MODEL = process.env.AI_TRANSLATION_MODEL ?? "google/gemini-2.5-flash";
 
 const LOCALE_NAME: Record<TargetLocale, string> = {
   en: "English",
