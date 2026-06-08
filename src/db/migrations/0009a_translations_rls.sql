@@ -33,7 +33,11 @@ CREATE TRIGGER player_profile_translations_set_updated_at
   BEFORE UPDATE ON public.player_profile_translations
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
--- SELECT: público si el perfil padre es público; el dueño y admin siempre.
+-- SELECT: público SOLO si el perfil padre está publicado (public + approved),
+-- igual que el filtro del render en (public)/[slug]/page.tsx — sin el gate de
+-- status, un draft/pending (visibility default = public) filtraría su bio /
+-- scouting traducido vía el client API antes de aprobación. El dueño ve su
+-- traducción en cualquier estado (la edita en draft); admin siempre.
 DROP POLICY IF EXISTS player_profile_translations_read
   ON public.player_profile_translations;
 CREATE POLICY player_profile_translations_read
@@ -43,7 +47,12 @@ CREATE POLICY player_profile_translations_read
     exists (
       select 1 from public.player_profiles p
       where p.id = player_id
-        and (p.visibility = 'public'::visibility or p.user_id = auth.uid())
+        and p.visibility = 'public'::visibility
+        and p.status = 'approved'::player_status
+    )
+    or exists (
+      select 1 from public.player_profiles p
+      where p.id = player_id and p.user_id = auth.uid()
     )
     or public.is_admin(auth.uid())
   );

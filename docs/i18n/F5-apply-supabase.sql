@@ -107,7 +107,12 @@ CREATE POLICY player_profile_translations_read
     exists (
       select 1 from public.player_profiles p
       where p.id = player_id
-        and (p.visibility = 'public'::visibility or p.user_id = auth.uid())
+        and p.visibility = 'public'::visibility
+        and p.status = 'approved'::player_status
+    )
+    or exists (
+      select 1 from public.player_profiles p
+      where p.id = player_id and p.user_id = auth.uid()
     )
     or public.is_admin(auth.uid())
   );
