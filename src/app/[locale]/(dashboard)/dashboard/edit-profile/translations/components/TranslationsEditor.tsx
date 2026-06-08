@@ -2,13 +2,22 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe, Lock, Save, Trash2 } from "lucide-react";
+import {
+  Check,
+  Globe,
+  Lock,
+  RefreshCw,
+  Save,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
 import {
   savePlayerTranslation,
   deletePlayerTranslation,
+  generateTranslationDraft,
   type TranslationFields,
 } from "../actions";
 
@@ -25,6 +34,7 @@ export type LocaleFields = {
 
 type EditableLocale = "en" | "it" | "pt";
 type AnyLocale = "es" | EditableLocale;
+type Block = "bio" | "scouting";
 
 const LOCALES: { code: AnyLocale; label: string; flag: string; native?: boolean }[] = [
   { code: "es", label: "Español", flag: "🇦🇷", native: true },
@@ -43,6 +53,17 @@ const FIELD_KEYS: (keyof LocaleFields)[] = [
   "techniqueAnalysis",
   "analysisAuthor",
 ];
+
+const BLOCK_FIELDS: Record<Block, (keyof LocaleFields)[]> = {
+  bio: ["bio", "careerObjectives", "topCharacteristics"],
+  scouting: [
+    "tacticsAnalysis",
+    "physicalAnalysis",
+    "mentalAnalysis",
+    "techniqueAnalysis",
+    "analysisAuthor",
+  ],
+};
 
 function emptyFields(): LocaleFields {
   return {
@@ -87,7 +108,9 @@ export default function TranslationsEditor({
   const [feedback, setFeedback] = useState<
     { type: "success" | "danger"; message: string } | null
   >(null);
-  const [isPending, startTransition] = useTransition();
+  const [isSaving, startSave] = useTransition();
+  const [genBlock, setGenBlock] = useState<Block | null>(null);
+  const [isGenerating, startGen] = useTransition();
 
   const fieldsByLocale = useMemo<Record<AnyLocale, LocaleFields>>(
     () => ({ es: baseEs, ...drafts }),
@@ -106,7 +129,7 @@ export default function TranslationsEditor({
   function onSave() {
     if (active === "es") return;
     const locale = active as EditableLocale;
-    startTransition(async () => {
+    startSave(async () => {
       const res = await savePlayerTranslation({
         playerId,
         locale,
@@ -120,13 +143,34 @@ export default function TranslationsEditor({
   function onDelete() {
     if (active === "es") return;
     const locale = active as EditableLocale;
-    startTransition(async () => {
+    startSave(async () => {
       const res = await deletePlayerTranslation({ playerId, locale });
       setFeedback({ type: res.success ? "success" : "danger", message: res.message });
       if (res.success) {
         setAvailable(res.availableLocales);
         setDrafts((prev) => ({ ...prev, [locale]: emptyFields() }));
       }
+    });
+  }
+
+  function onGenerate(block: Block, force: boolean) {
+    if (active === "es") return;
+    const locale = active as EditableLocale;
+    setGenBlock(block);
+    startGen(async () => {
+      const res = await generateTranslationDraft({ playerId, locale, block, force });
+      setGenBlock(null);
+      if (!res.success) {
+        setFeedback({ type: "danger", message: res.message });
+        return;
+      }
+      if (res.draft) {
+        setDrafts((prev) => ({
+          ...prev,
+          [locale]: { ...prev[locale], ...(res.draft as Partial<LocaleFields>) },
+        }));
+      }
+      setFeedback({ type: "success", message: res.message });
     });
   }
 
@@ -176,7 +220,6 @@ export default function TranslationsEditor({
                   </span>
                 </span>
 
-                {/* completeness bar */}
                 <span className="relative h-1.5 flex-1 overflow-hidden rounded-bh-pill bg-white/[0.06]">
                   <span
                     className={`absolute inset-y-0 left-0 rounded-bh-pill ${accent} transition-[width] duration-300`}
@@ -187,7 +230,6 @@ export default function TranslationsEditor({
                   {pct}%
                 </span>
 
-                {/* status chip */}
                 {l.native ? (
                   <Chip size="sm" variant="flat" className="bg-white/[0.06] text-bh-fg-3">
                     base
@@ -234,7 +276,10 @@ export default function TranslationsEditor({
           onPatch={patch}
           onSave={onSave}
           onDelete={onDelete}
-          isPending={isPending}
+          onGenerate={onGenerate}
+          genBlock={genBlock}
+          isGenerating={isGenerating}
+          isSaving={isSaving}
           published={available.includes(active)}
           feedback={feedback}
         />
@@ -256,6 +301,56 @@ const LABELS: Record<keyof LocaleFields, { label: string; multiline?: boolean }>
   analysisAuthor: { label: "Autor del análisis" },
 };
 
+function blockHasContent(fields: LocaleFields, block: Block): boolean {
+  return BLOCK_FIELDS[block].some((k) => {
+    const v = fields[k];
+    return Array.isArray(v) ? v.length > 0 : v.trim().length > 0;
+  });
+}
+
+function AssistButton({
+  block,
+  hasContent,
+  loading,
+  disabled,
+  onGenerate,
+}: {
+  block: Block;
+  hasContent: boolean;
+  loading: boolean;
+  disabled: boolean;
+  onGenerate: (block: Block, force: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <Button
+        size="sm"
+        variant="flat"
+        startContent={loading ? undefined : <Sparkles className="size-3.5" />}
+        isLoading={loading}
+        isDisabled={disabled}
+        onPress={() => onGenerate(block, false)}
+        className="bg-bh-lime/[0.10] text-bh-lime hover:bg-bh-lime/[0.18]"
+      >
+        Auto-completar
+      </Button>
+      {hasContent ? (
+        <Button
+          size="sm"
+          variant="light"
+          isIconOnly
+          isDisabled={disabled || loading}
+          onPress={() => onGenerate(block, true)}
+          aria-label="Regenerar otra versión"
+          className="text-bh-fg-3"
+        >
+          <RefreshCw className="size-3.5" />
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
 function LocaleForm({
   locale,
   fields,
@@ -263,7 +358,10 @@ function LocaleForm({
   onPatch,
   onSave,
   onDelete,
-  isPending,
+  onGenerate,
+  genBlock,
+  isGenerating,
+  isSaving,
   published,
   feedback,
 }: {
@@ -273,11 +371,15 @@ function LocaleForm({
   onPatch: (field: keyof LocaleFields, value: string | string[]) => void;
   onSave: () => void;
   onDelete: () => void;
-  isPending: boolean;
+  onGenerate: (block: Block, force: boolean) => void;
+  genBlock: Block | null;
+  isGenerating: boolean;
+  isSaving: boolean;
   published: boolean;
   feedback: { type: "success" | "danger"; message: string } | null;
 }) {
   const localeLabel = LOCALES.find((l) => l.code === locale)?.label ?? locale;
+  const busy = isSaving || isGenerating;
 
   const renderField = (key: keyof LocaleFields) => {
     const meta = LABELS[key];
@@ -326,7 +428,16 @@ function LocaleForm({
             Biografía y objetivos · {localeLabel}
           </span>
         }
-        description="Escribí cada campo en el idioma de destino. Debajo de cada uno ves el texto en español como referencia."
+        description="Traducí cada campo o autocompletá con Claude desde tu español; siempre podés editar antes de guardar."
+        actions={
+          <AssistButton
+            block="bio"
+            hasContent={blockHasContent(fields, "bio")}
+            loading={isGenerating && genBlock === "bio"}
+            disabled={busy}
+            onGenerate={onGenerate}
+          />
+        }
       >
         <div className="grid gap-5">
           {renderField("bio")}
@@ -338,6 +449,15 @@ function LocaleForm({
       <SectionCard
         title={`Análisis de scouting · ${localeLabel}`}
         description="Las cuatro dimensiones del análisis + el autor."
+        actions={
+          <AssistButton
+            block="scouting"
+            hasContent={blockHasContent(fields, "scouting")}
+            loading={isGenerating && genBlock === "scouting"}
+            disabled={busy}
+            onGenerate={onGenerate}
+          />
+        }
       >
         <div className="grid gap-5">
           {renderField("tacticsAnalysis")}
@@ -366,7 +486,7 @@ function LocaleForm({
                 size="sm"
                 startContent={<Trash2 className="size-4" />}
                 onPress={onDelete}
-                isDisabled={isPending}
+                isDisabled={busy}
                 className="text-bh-fg-3"
               >
                 Quitar idioma
@@ -376,14 +496,20 @@ function LocaleForm({
               color="primary"
               startContent={<Save className="size-4" />}
               onPress={onSave}
-              isLoading={isPending}
-              isDisabled={isPending}
+              isLoading={isSaving}
+              isDisabled={busy}
             >
               Guardar versión {locale.toUpperCase()}
             </Button>
           </div>
         </div>
       </SectionCard>
+
+      <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
+        Las versiones autocompletadas son borradores: nada se publica hasta que
+        tocás «Guardar». Tenés hasta 40 regeneraciones por mes; la primera
+        traducción de cada bloque no cuenta.
+      </p>
     </>
   );
 }
