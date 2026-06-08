@@ -182,121 +182,73 @@ export const PRO_AGENCY_PRICES: Record<Currency, PriceConfig> = {
 // Plans
 // --------------------------------------------------------------------
 
-export const PLANS: Plan[] = [
-  // ------------------------ PLAYER ------------------------
-  {
-    id: "free-player",
-    audience: "player",
-    tier: "free",
-    name: "Free",
-    tagline: "Empezá tu identidad",
-    description:
-      "Construí tu perfil esencial con identidad verificable. Lo necesario para que clubes y agentes te encuentren.",
-    pricing: null,
-    features: [
-      { label: "Perfil profesional verificado", included: true },
-      { label: "URL pública personalizable", included: true },
-      { label: "Plantilla default", included: true },
-      { label: "2 videos de catálogo · 3 redes · 3 notas de prensa", included: true },
-      { label: "Trayectoria + estadísticas por temporada", included: true },
-      { label: "2 solicitudes de corrección por rubro / semana", included: true },
-      { label: "Plantilla Pro Portfolio (motions + assets)", included: false },
-      { label: "Galería catálogo (5 imágenes)", included: false },
-      { label: "Valor de mercado y palmarés", included: false },
-      { label: "Análisis de scouting (táctico, físico, mental, técnico)", included: false },
-      { label: "Reviews y contactos de referencia", included: false },
-    ],
-    ctaLabel: "Empezar gratis",
-    // /onboarding/player/apply tiene server gate: si no logueado redirige a
-    // sign-in con redirect back, si ya tiene profile va a /dashboard.
-    ctaHref: "/onboarding/player/apply",
-  },
-  {
-    id: "pro-player",
-    audience: "player",
-    tier: "pro",
-    name: "Pro",
-    tagline: "Visibilidad real",
-    description:
-      "Plantilla pro, multimedia ilimitada y la información completa para impulsar tu próxima transferencia.",
-    pricing: PRO_PLAYER_PRICES,
-    features: [
-      { label: "Todo lo del Free", included: true },
-      { label: "Plantilla Pro Portfolio (motions + assets pro)", included: true },
-      { label: "Galería catálogo de 5 imágenes", included: true },
-      { label: "Videos · redes · notas de prensa ilimitados", included: true },
-      { label: "Valor de mercado y palmarés visibles", included: true },
-      { label: "Análisis de scouting (táctico, físico, mental, técnico)", included: true },
-      { label: "Descripciones por etapa de carrera", included: true },
-      { label: "Reviews con invitación + contactos de referencia", included: true },
-      { label: "5 solicitudes de corrección por rubro / semana", included: true },
-      { label: "Soporte humano prioritario · SEO Pro", included: true },
-    ],
-    ctaLabel: "Probar 7 días gratis",
-    ctaHref: "/auth/sign-up?audience=player&plan=pro",
-    highlight: true,
-    badge: "Más elegido",
-  },
+// Subset of the next-intl translator — compatible with both
+// useTranslations (client) and getTranslations (server).
+export type PricingT = {
+  (key: string, values?: Record<string, string | number | Date>): string;
+  raw: (key: string) => unknown;
+};
 
-  // ------------------------ AGENCY ------------------------
+// Non-text structure of each plan. Text (name/tagline/description/
+// features/ctaLabel/badge) lives in messages/<locale>/pricing.json under
+// `plans.<key>`; `included[]` is parallel to that `features` array.
+type PlanMeta = {
+  id: PlanId;
+  audience: Audience;
+  tier: PlanTier;
+  key: string;
+  pricing: Record<Currency, PriceConfig> | null;
+  ctaHref: string;
+  highlight?: boolean;
+  hasBadge?: boolean;
+  included: boolean[];
+};
+
+const PLAN_META: PlanMeta[] = [
   {
-    id: "free-agency",
-    audience: "agency",
-    tier: "free",
-    name: "Free",
-    tagline: "Mostrá tu agencia",
-    description:
-      "Presencia esencial para tu agencia. Cartera limitada y plantilla default para empezar a operar.",
-    pricing: null,
-    features: [
-      { label: "URL pública personalizable", included: true },
-      { label: "Plantilla default", included: true },
-      { label: "Hasta 2 members del equipo (incluye owner)", included: true },
-      { label: "Cartera de hasta 5 jugadores representados", included: true },
-      { label: "2 videos de catálogo · 3 redes · 3 notas de prensa", included: true },
-      { label: "2 solicitudes de corrección por rubro / semana", included: true },
-      { label: "Plantilla Pro Portfolio (versión agency)", included: false },
-      { label: "Members ilimitados", included: false },
-      { label: "5 slots de Pro otorgables a representados", included: false },
-      { label: "Reviews y contactos de referencia", included: false },
-    ],
-    ctaLabel: "Crear cuenta gratis",
-    // /onboarding/manager/info gate via parent layout (see below). If not
-    // authenticated, redirected to sign-in with redirect back.
-    ctaHref: "/onboarding/manager/info",
+    id: "free-player", audience: "player", tier: "free", key: "freePlayer",
+    pricing: null, ctaHref: "/onboarding/player/apply",
+    included: [true, true, true, true, true, true, false, false, false, false, false],
   },
   {
-    id: "pro-agency",
-    audience: "agency",
-    tier: "pro",
-    name: "Pro",
-    tagline: "Stack profesional",
-    description:
-      "Cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados. El stack completo de la agencia.",
-    pricing: PRO_AGENCY_PRICES,
-    features: [
-      { label: "Todo lo del Free Agency", included: true },
-      { label: "Plantilla Pro Portfolio (versión agency)", included: true },
-      { label: "Members del equipo ilimitados", included: true },
-      { label: "Cartera ilimitada de jugadores representados", included: true },
-      { label: "5 slots de Pro Player para tus representados", included: true },
-      { label: "Galería catálogo de 5 imágenes", included: true },
-      { label: "Reviews con invitación", included: true },
-      { label: "Contactos de referencia", included: true },
-      { label: "Soporte humano prioritario", included: true },
-      { label: "SEO Pro", included: true },
-    ],
-    ctaLabel: "Probar 7 días gratis",
-    ctaHref: "/auth/sign-up?audience=agency&plan=pro",
-    highlight: true,
-    badge: "Recomendado",
+    id: "pro-player", audience: "player", tier: "pro", key: "proPlayer",
+    pricing: PRO_PLAYER_PRICES, ctaHref: "/auth/sign-up?audience=player&plan=pro",
+    highlight: true, hasBadge: true,
+    included: [true, true, true, true, true, true, true, true, true, true],
+  },
+  {
+    id: "free-agency", audience: "agency", tier: "free", key: "freeAgency",
+    pricing: null, ctaHref: "/onboarding/manager/info",
+    included: [true, true, true, true, true, true, false, false, false, false],
+  },
+  {
+    id: "pro-agency", audience: "agency", tier: "pro", key: "proAgency",
+    pricing: PRO_AGENCY_PRICES, ctaHref: "/auth/sign-up?audience=agency&plan=pro",
+    highlight: true, hasBadge: true,
+    included: [true, true, true, true, true, true, true, true, true, true],
   },
 ];
 
-export function plansFor(audience: Audience): Plan[] {
-  return PLANS.filter((p) => p.audience === audience);
+export function getPlans(t: PricingT): Plan[] {
+  return PLAN_META.map((m) => ({
+    id: m.id,
+    audience: m.audience,
+    tier: m.tier,
+    name: t(`plans.${m.key}.name`),
+    tagline: t(`plans.${m.key}.tagline`),
+    description: t(`plans.${m.key}.description`),
+    pricing: m.pricing,
+    features: (t.raw(`plans.${m.key}.features`) as string[]).map((label, i) => ({
+      label,
+      included: m.included[i] ?? false,
+    })),
+    ctaLabel: t(`plans.${m.key}.ctaLabel`),
+    ctaHref: m.ctaHref,
+    highlight: m.highlight,
+    ...(m.hasBadge ? { badge: t(`plans.${m.key}.badge`) } : {}),
+  }));
 }
 
-export function planById(id: PlanId): Plan | undefined {
-  return PLANS.find((p) => p.id === id);
+export function plansForT(t: PricingT, audience: Audience): Plan[] {
+  return getPlans(t).filter((p) => p.audience === audience);
 }

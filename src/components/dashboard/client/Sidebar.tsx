@@ -24,7 +24,7 @@ import type {
   ClientDashboardNavSection,
   ClientDashboardNavItem,
   ClientDashboardNavBadge,
-} from "@/app/(dashboard)/dashboard/navigation";
+} from "@/app/[locale]/(dashboard)/dashboard/navigation";
 import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
 
 const MAX_BADGE_COUNT = 99;

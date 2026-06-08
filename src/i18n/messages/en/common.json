@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "players": "Players",
+    "agencies": "Agencies",
+    "plans": "Plans",
+    "about": "About",
+    "blog": "Blog"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "localeSwitcher": {
+    "label": "Change language"
+  },
+  "authButtons": {
+    "access": "Sign in",
+    "create": "Sign up"
+  },
+  "back": "Back",
+  "userMenu": {
+    "openMenu": "Open user menu",
+    "userActions": "User actions",
+    "signedInAs": "Signed in as",
+    "defaultName": "My account",
+    "viewPublicProfile": "View public profile",
+    "agencyInReview": "Agency under review",
+    "viewApplication": "View application under review",
+    "continueApplication": "Continue application",
+    "applyPro": "Apply for a professional account",
+    "dashboard": "Dashboard",
+    "viewAgencyPublic": "View agency public profile",
+    "agencySettings": "Agency settings",
+    "managerProfile": "My manager profile",
+    "personalData": "Personal data",
+    "footballData": "Football data",
+    "media": "Media",
+    "template": "Template",
+    "subscription": "Subscription",
+    "settings": "General settings",
+    "signOut": "Sign out",
+    "signOutConfirm": "Are you sure you want to sign out of 'BallersHub?",
+    "signingOut": "Signing out..."
+  },
+  "org": {
+    "description": "Professional portfolio platform for footballers and representation agencies. Every player and agency gets a unique, SEO-optimized link that centralizes career history, stats, physical data and verified media.",
+    "appDescription": "Web app to build professional portfolios for footballers and agencies: a unique link, centralized data, SEO-ready from day one.",
+    "slogan": "Professional footballer profiles"
+  }
+}

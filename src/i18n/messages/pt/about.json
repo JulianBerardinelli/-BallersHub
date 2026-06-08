@@ -1,0 +1,231 @@
+{
+  "hero": {
+    "eyebrow": "Quem somos",
+    "titleLine1": "Onde os jogadores",
+    "titleHighlight": "se vendem",
+    "titleLine2": "e conquistam seus objetivos.",
+    "description": "Centralizamos trajetória, estatísticas, dados e mídia de cada jogador e agência em um portfólio web com link próprio, otimizado para SEO. Estamos construindo a plataforma de referência mundial — começando pela América Latina e Espanha.",
+    "primaryCta": "Criar meu portfólio",
+    "secondaryCta": "Falar com a equipe",
+    "imageAlt": "Equipe 'BallersHub durante um dia de scouting"
+  },
+  "pillars": {
+    "mission": {
+      "title": "Missão",
+      "tag": "Nosso foco",
+      "description": "Transformar cada jogador —profissional, semi-profissional ou amador— e cada agência em um portfólio web profissional: um único link onde centralizam trajetória, estatísticas, dados e mídia para se venderem e impulsionarem sua carreira na internet."
+    },
+    "vision": {
+      "title": "Visão",
+      "tag": "Para onde vamos",
+      "description": "Ser a página número um do mundo onde os jogadores se apresentam, mostram seus dados e conquistam seus objetivos. A referência global quando um clube, jornalista ou scout busca talento — em qualquer nível competitivo."
+    },
+    "objectives": {
+      "title": "Objetivos",
+      "tag": "O que queremos alcançar",
+      "description": "Começar pela América Latina e Espanha e escalar para mercados globais. Que qualquer jogador ou agência possa se vender online com um portfólio escalável, pronto para SEO, com avaliações verificadas (próxima beta) e conectado a uma futura rede ativa de scouting."
+    }
+  },
+  "audiencesHeader": {
+    "eyebrow": "Para quem construímos",
+    "titlePlain": "Construído para todo o",
+    "titleHighlight": "ecossistema do futebol",
+    "description": "O produto é projetado para que o jogador seja o protagonista, as agências escalem seu elenco e o ecossistema (clubes, comunidade e imprensa) descubra talento com dados reais.",
+    "primaryGroupTitle": "Criam seu portfólio",
+    "secondaryGroupTitle": "Descobrem talento e conteúdo"
+  },
+  "audiences": {
+    "players": {
+      "title": "Jogadores e atletas",
+      "subtitle": "Público principal — o protagonista",
+      "description": "Você é o centro da plataforma. Profissional, semi-profissional ou amador: monta seu portfólio em minutos e começa a se vender com um link próprio, pronto para compartilhar.",
+      "bullets": [
+        "Trajetória, estatísticas e dados físicos centralizados",
+        "Galeria de mídia (fotos, clipes, partidas)",
+        "Um único link otimizado para SEO",
+        "Avaliações verificadas (próxima beta)"
+      ],
+      "cta": "Criar meu portfólio"
+    },
+    "agencies": {
+      "title": "Agências e empresários",
+      "subtitle": "Persona aliada — escalam seu elenco",
+      "description": "Mostre todo o elenco de jogadores que você representa com um site profissional, identidade própria e dados consolidados. Posicione-se na internet como uma agência séria.",
+      "bullets": [
+        "Portfólio de agência com sua marca",
+        "Elenco completo de representados",
+        "Painel com métricas agregadas",
+        "Onboarding assistido para seus jogadores"
+      ],
+      "cta": "Sou uma agência"
+    },
+    "clubs": {
+      "title": "Clubes profissionais",
+      "subtitle": "Buscam talento real",
+      "description": "Departamentos esportivos e comissões técnicas que filtram candidatos por posição, idade, métricas e disponibilidade — com dados verificados, não boatos."
+    },
+    "fans": {
+      "title": "Comunidade e torcedores",
+      "subtitle": "Acompanham carreiras de perto",
+      "description": "O futebol é do povo. Torcedores que querem conhecer a carreira completa de cada jogador, sua trajetória e seus números — sem filtros editoriais."
+    },
+    "journalists": {
+      "title": "Jornalistas esportivos",
+      "subtitle": "Cobertura com dados",
+      "description": "Uma fonte confiável e sempre atualizada para investigações, matérias e coberturas — com estatísticas, trajetória e referências verificáveis a um link de distância."
+    }
+  },
+  "values": {
+    "ownLink": {
+      "title": "Link próprio para se vender",
+      "description": "Cada jogador e cada agência tem sua URL única. Compartilhe pelo WhatsApp, e-mail ou redes e abra a porta para clubes e empresários."
+    },
+    "seo": {
+      "title": "Otimizado para SEO",
+      "description": "Construído para aparecer no Google quando alguém busca seu nome, sua posição ou seu clube. Seu portfólio trabalha por você 24/7."
+    },
+    "centralized": {
+      "title": "Toda a sua carreira centralizada",
+      "description": "Trajetória, estatísticas, dados físicos e mídia (fotos, clipes, partidas) em um único lugar — fácil de manter, pronto para apresentar."
+    },
+    "reviews": {
+      "title": "Avaliações verificadas",
+      "description": "Avaliações assinadas por contas verificadas (comissão técnica, scouts, ex-companheiros) que respaldam sua trajetória. Próxima beta."
+    },
+    "agencies": {
+      "title": "Pensado para agências",
+      "description": "Adicione todo o seu elenco de jogadores, mostre dados consolidados e posicione a identidade da sua agência com um site profissional."
+    },
+    "scouting": {
+      "title": "Rede de scouting (em breve)",
+      "description": "Um banco de dados vivo onde clubes e scouts descobrem talento por filtros reais: posição, idade, métricas e disponibilidade."
+    }
+  },
+  "milestones": {
+    "start": {
+      "year": "Ago 2025",
+      "title": "Começa o projeto",
+      "description": "Detectamos o mesmo problema em jogadores e agências: fichas em PDF, links quebrados para vídeos do YouTube, redes informais. Nenhum portfólio profissional com identidade própria. Decidimos construir a solução."
+    },
+    "prototype": {
+      "year": "Nov 2025",
+      "title": "Primeiro protótipo do portfólio",
+      "description": "Montamos a primeira versão do produto: portfólio com link único, upload de trajetória, dados físicos e mídia. Testes internos com jogadores e agências próximas."
+    },
+    "beta": {
+      "year": "Mar 2026",
+      "title": "Beta fechada · pilotos na América Latina + Espanha",
+      "description": "Validamos o produto com um grupo restrito de jogadores e agências piloto na América Latina e Espanha. Cada portfólio nasce otimizado para SEO e pronto para ser compartilhado com seu link próprio."
+    },
+    "launch": {
+      "year": "Jun 2026",
+      "title": "Lançamento oficial",
+      "description": "Abertura pública para jogadores e agências na América Latina e Espanha. Acesso livre ao portfólio com link único, dados centralizados e posicionamento na internet desde o primeiro dia."
+    },
+    "next": {
+      "year": "Em breve",
+      "title": "Avaliações verificadas + rede de scouting global",
+      "description": "Avaliações assinadas por contas verificadas (comissão técnica, scouts, ex-companheiros) e um banco de dados ativo onde clubes descobrem talento por posição, idade e métricas. O caminho para ser a página #1 do mundo."
+    }
+  },
+  "stats": {
+    "projectStart": {
+      "value": "Ago 2025",
+      "label": "Início do projeto",
+      "description": "8 meses construindo com jogadores e agências piloto."
+    },
+    "launch": {
+      "value": "Jun 2026",
+      "label": "Lançamento oficial",
+      "description": "Abertura pública na América Latina e Espanha com SEO desde o dia 1."
+    },
+    "seo": {
+      "value": "100%",
+      "label": "Otimizados para SEO",
+      "description": "Cada portfólio nasce pronto para aparecer no Google."
+    },
+    "reviews": {
+      "value": "Beta",
+      "label": "Avaliações verificadas",
+      "description": "Avaliações assinadas por contas verificadas — em breve."
+    }
+  },
+  "team": {
+    "julian": {
+      "role": "Co-Founder & Desenvolvedor",
+      "bio": "Jogador profissional de futebol, idealizador e desenvolvedor do 'BallersHub. Viveu na pele a falta de uma plataforma séria para um jogador se vender profissionalmente — então decidiu construí-la. Combina campo, código e produto para que cada portfólio pareça feito por alguém que entende o esporte por dentro."
+    },
+    "validation": {
+      "name": "Equipe de validação",
+      "role": "Scouting esportivo",
+      "bio": "Jogadores em atividade, ex-jogadores e analistas que verificam cada perfil. Conhecem o ofício porque o vivem ou viveram — sabem distinguir um dado real de um dado inflado e mantêm a qualidade da rede."
+    },
+    "operations": {
+      "name": "Equipe de operações",
+      "role": "Suporte · Onboarding",
+      "bio": "Acompanham jogadores e agências em cada passo da entrada na plataforma. Onboarding assistido, suporte humano e resposta rápida."
+    }
+  },
+  "partners": {
+    "techPartner": "Parceiro de tecnologia",
+    "federation": "Federação",
+    "alliedClub": "Clube aliado"
+  },
+  "cta": {
+    "eyebrow": "Junte-se ao 'BallersHub",
+    "title": "Seu portfólio. Seu link. Sua carreira.",
+    "description": "Centralize sua trajetória, mostre seus dados e posicione-se na internet. Para jogadores que querem se vender profissionalmente e para agências que querem escalar sua identidade.",
+    "primaryCta": "Criar meu portfólio",
+    "secondaryCta": "Sou uma agência"
+  },
+  "meta": {
+    "title": "Quem somos",
+    "description": "Conheça a equipe, a missão, a visão e os valores por trás do 'BallersHub: o hub onde o talento do futebol ganha visibilidade real e verificada."
+  },
+  "sections": {
+    "missionVision": {
+      "eyebrow": "Missão · Visão · Objetivos",
+      "titlePlain": "Três pilares por trás de",
+      "titleHighlight": "cada decisão",
+      "description": "Missão, visão e objetivos não são frases numa parede: são o filtro com que decidimos o que construir, o que priorizar e como apoiar jogadores e agências."
+    },
+    "values": {
+      "eyebrow": "O que nos diferencia",
+      "titlePlain": "O que você vai encontrar no",
+      "titleHighlight": "seu portfólio",
+      "description": "Não é mais uma ficha de jogador em PDF. É uma plataforma feita para que sua carreira ou sua agência se vendam profissionalmente na internet — com identidade própria, dados centralizados e conexão real com o ecossistema."
+    },
+    "impact": {
+      "eyebrow": "Status do projeto",
+      "titlePlain": "A caminho do",
+      "titleHighlight": "lançamento",
+      "description": "Construímos em silêncio durante 8 meses com jogadores e agências piloto. Em junho de 2026 abrimos a plataforma para a América Latina e Espanha."
+    },
+    "story": {
+      "eyebrow": "Nossa história",
+      "titlePlain": "De uma ideia em campo a uma rede",
+      "titleHighlight": "em expansão",
+      "description": "Cada marco é definido por feedback real da comunidade. Iteramos rápido, ouvimos primeiro e construímos para o longo prazo."
+    },
+    "team": {
+      "eyebrow": "A equipe",
+      "titlePlain": "Pessoas reais por trás de",
+      "titleHighlight": "cada verificação",
+      "slogan": "“De jogadores, para jogadores.”",
+      "description": "Não somos uma equipe de escritório assistindo futebol de fora. Somos jogadores em atividade, ex-jogadores e analistas que entendem o que um jogador precisa para se vender — porque vivemos isso na pele."
+    },
+    "partners": {
+      "eyebrow": "Parceiros e aliados",
+      "titlePlain": "Confiam no"
+    }
+  },
+  "heroExtra": {
+    "betaBadge": "Beta · Lançamento Jun 2026",
+    "humanBadge": "Verificados por humanos",
+    "photoBadge": "Foto da equipe",
+    "figureStartValue": "Ago 2025",
+    "figureStartLabel": "Início do projeto",
+    "figureLaunchValue": "Jun 2026",
+    "figureLaunchLabel": "Lançamento oficial"
+  }
+}

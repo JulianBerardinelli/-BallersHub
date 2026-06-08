@@ -1,0 +1,51 @@
+{
+  "headline": {
+    "anonymous": { "eyebrow": "Live · 86 club attivi", "lead": "Carica, fatti validare e ", "highlight": "gioca dove conta.", "sub": "Oltre 1.200 profili validati. Recensioni dello staff tecnico. Il tuo prossimo club ti sta cercando." },
+    "player": { "eyebrow": "La tua carriera, in movimento", "lead": "Mantieni il tuo profilo ", "highlight": "sempre aggiornato.", "sub": "Carica nuove foto, perfeziona i tuoi dati calcistici e fatti trovare dai club con le informazioni giuste." },
+    "manager": { "eyebrow": "La tua agenzia, senza attriti", "lead": "Gestisci la tua scuderia ", "highlight": "con precisione.", "sub": "Aggiungi giocatori, valida i profili e condividi la rosa ufficiale della tua agenzia con i club di tutto il mondo." },
+    "applicant": { "eyebrow": "La tua richiesta è in corso", "lead": "Sei a un passo ", "highlight": "dal tuo account professionale.", "sub": "Mentre esaminiamo i tuoi dati, continua a esplorare profili validati, storie di successo e novità sul prodotto." },
+    "member": { "eyebrow": "Pronto quando vuoi tu", "lead": "Trasforma il tuo account in ", "highlight": "un profilo professionale.", "sub": "Richiedi il tuo account da giocatore o agenzia e inizia a operare nell'ecosistema con verifica ufficiale." }
+  },
+  "cta": {
+    "playerDashboard": "Vai al mio pannello",
+    "playerViewProfile": "Vedi il mio profilo pubblico",
+    "playerEditProfile": "Modifica il mio profilo",
+    "managerManage": "Gestisci agenzia",
+    "managerViewAgency": "Vedi profilo agenzia",
+    "managerSetup": "Configura agenzia",
+    "applicantContinue": "Continua la richiesta",
+    "applicantStatus": "Vedi stato richiesta",
+    "applicantDashboard": "Vai al pannello",
+    "memberRequest": "Richiedi un account professionale",
+    "memberDashboard": "Vai al pannello",
+    "anonCreate": "Crea il mio profilo",
+    "anonAgency": "Sono un'agenzia"
+  },
+  "columns": {
+    "playersTitle": "Per Giocatori",
+    "agenciesTitle": "Per Agenzie",
+    "workTitle": "Lavora con noi",
+    "createProfile": "Crea profilo",
+    "viewValidated": "Sfoglia profili validati",
+    "editCareer": "Modifica carriera",
+    "proTemplates": "Template Pro",
+    "createAgency": "Crea agenzia",
+    "viewAgencies": "Sfoglia agenzie",
+    "myRoster": "La mia scuderia",
+    "officialVerification": "Verifica ufficiale",
+    "demo": "Demo",
+    "careers": "Carriere",
+    "partners": "Partner",
+    "ambassadors": "Ambassador",
+    "press": "Stampa"
+  },
+  "stats": {
+    "profiles": "Profili validati",
+    "clubs": "Club attivi",
+    "reviews": "Recensioni verificate",
+    "countries": "Paesi"
+  },
+  "tagline": "L'ecosistema digitale del calcio professionistico.",
+  "legal": { "terms": "Termini", "privacy": "Privacy", "cookies": "Cookie" },
+  "credits": "Sviluppato da"
+}

@@ -4,7 +4,7 @@ import { timingSafeEqual } from "node:crypto";
 import { db } from "@/lib/db";
 import { marketingCampaigns } from "@/db/schema";
 import { processDueEnrollments } from "@/lib/marketing";
-import { dispatchCampaignNow } from "@/app/(dashboard)/admin/marketing/actions";
+import { dispatchCampaignNow } from "@/app/[locale]/(dashboard)/admin/marketing/actions";
 
 /**
  * Cron entrypoint — fires both:

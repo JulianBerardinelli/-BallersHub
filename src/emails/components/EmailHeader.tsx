@@ -1,44 +1,26 @@
 import { Img, Section } from "@react-email/components";
-import { emailColors, emailFonts, siteUrl } from "../tokens";
+import { siteUrl } from "../tokens";
 
 /**
- * Brand header — hosted lime isotipo + text wordmark.
+ * Brand header — full 'BallersHub imagotipo (isotipo + wordmark lockup).
  *
- * The isotipo is served from `/public/images/logo/isotipo-lime.svg`.
- * Modern web/mobile clients (Gmail web, Apple Mail, Outlook 365 web,
- * iOS Mail, Android Gmail) render SVG fine; Outlook desktop falls back
- * to the alt text — and we keep the text wordmark next to it so the
- * header always *says something* even when images are blocked.
+ * Served as **PNG** from `/public/images/logo/imagotipo-lime.png` (rasterized
+ * 2x from `imagotipo-lime.svg`, the two-tone lockup: lime isotipo + 'BALLERS in
+ * lime + HUB in white). Two reasons it's a rasterized image, not SVG + live text:
+ *   - Gmail and Outlook strip inline SVG → a broken image for most recipients.
+ *   - The wordmark is Barlow Condensed Black (see `src/components/brand/Wordmark.tsx`),
+ *     a font email clients can't load. Live text fell back to Helvetica and looked
+ *     lighter than the real logo; rasterizing bakes the exact weight in.
  *
- * Mirrors `src/components/brand/Wordmark.tsx`: `'BALLERSHUB` with the
- * apostrophe and "BALLERS" in lime, "HUB" in white.
+ * `alt` keeps the brand name visible if images are blocked.
  */
 export function EmailHeader() {
-  const logoUrl = `${siteUrl}/images/logo/isotipo-lime.svg`;
+  const logoUrl = `${siteUrl}/images/logo/imagotipo-lime.png`;
 
   return (
     <Section style={wrapStyle}>
       <a href={siteUrl} style={linkStyle}>
-        <table cellPadding={0} cellSpacing={0} border={0} role="presentation" style={tableStyle}>
-          <tbody>
-            <tr>
-              <td valign="middle" style={isotipoCellStyle}>
-                <Img
-                  src={logoUrl}
-                  alt="'BallersHub"
-                  width="28"
-                  height="26"
-                  style={isotipoStyle}
-                />
-              </td>
-              <td valign="middle" style={wordmarkCellStyle}>
-                <span aria-hidden style={apostropheStyle}>&apos;</span>
-                <span style={baseWordStyle}>BALLERS</span>
-                <span style={{ ...baseWordStyle, color: emailColors.fg1 }}>HUB</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <Img src={logoUrl} alt="'BallersHub" width="200" height="32" style={logoStyle} />
       </a>
     </Section>
   );
@@ -52,41 +34,13 @@ const wrapStyle: React.CSSProperties = {
 const linkStyle: React.CSSProperties = {
   display: "inline-block",
   textDecoration: "none",
-  letterSpacing: "0.5px",
 };
 
-const tableStyle: React.CSSProperties = {
-  borderCollapse: "collapse",
-};
-
-const isotipoCellStyle: React.CSSProperties = {
-  paddingRight: "10px",
-  verticalAlign: "middle",
-};
-
-const isotipoStyle: React.CSSProperties = {
+const logoStyle: React.CSSProperties = {
   display: "block",
+  width: "200px",
+  height: "32px",
   border: 0,
   outline: "none",
   textDecoration: "none",
-};
-
-const wordmarkCellStyle: React.CSSProperties = {
-  verticalAlign: "middle",
-  whiteSpace: "nowrap",
-};
-
-const baseWordStyle: React.CSSProperties = {
-  fontFamily: emailFonts.display,
-  fontWeight: 900,
-  fontSize: "22px",
-  lineHeight: 1,
-  color: emailColors.lime,
-  textTransform: "uppercase",
-};
-
-const apostropheStyle: React.CSSProperties = {
-  ...baseWordStyle,
-  color: emailColors.lime,
-  marginRight: "1px",
 };

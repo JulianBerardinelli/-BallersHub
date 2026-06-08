@@ -1,17 +1,18 @@
 "use client";
 
-import Link from "next/link";
 import { useRef } from "react";
 import { m, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { ArrowRight, ChevronRight, Check, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
 import {
   DeviceFrame,
   PlaceholderScreen,
   type DeviceKind,
   type Accent,
 } from "./PricingMocks";
-import type { Audience, PlanId, PlanTier } from "./data";
+import type { Audience, PlanId, PlanTier, PricingT } from "./data";
 
 export type DetailPanelPlan = {
   id: PlanId;
@@ -33,183 +34,15 @@ type Scene = {
   caption: string;
 };
 
-type Detail = {
-  pitch: string;
-  benefits: string[];
-  scenes: Scene[];
-};
-
-const PRICING_DETAIL: Record<PlanId, Detail> = {
-  // ----------------- PLAYER -----------------
-  "free-player": {
-    pitch:
-      "Lo necesario para presentarte profesionalmente. URL pública, datos básicos, trayectoria y estadísticas por temporada — en cualquier dispositivo.",
-    benefits: [
-      "URL pública personalizable",
-      "Trayectoria + estadísticas por temporada",
-      "2 videos · 3 redes · 3 notas de prensa",
-      "Compartilo por WhatsApp en un toque",
-    ],
-    scenes: [
-      {
-        eyebrow: "Vista 01 · Perfil público",
-        title: "Tu identidad pública, en una URL",
-        description:
-          "Datos clave, foto profesional y trayectoria a la vista. La presentación más limpia para clubes que recién te descubren.",
-        device: "desktop",
-        variant: "profile",
-        caption: "ballershub.app/perfil/jose-talleres",
-      },
-      {
-        eyebrow: "Vista 02 · Tablet",
-        title: "Cómo se ve en tablet",
-        description:
-          "El perfil se adapta al formato vertical sin perder jerarquía. Pensado para presentaciones rápidas en reuniones presenciales.",
-        device: "tablet",
-        variant: "profile",
-        caption: "iPad · 1024×1366",
-      },
-      {
-        eyebrow: "Vista 03 · Mobile",
-        title: "En el bolsillo de cada scout",
-        description:
-          "Layout mobile-first para compartir por WhatsApp o redes. Lo importante arriba, todo accesible con una mano.",
-        device: "mobile",
-        variant: "profile",
-        caption: "iPhone · 390×844",
-      },
-    ],
-  },
-
-  "pro-player": {
-    pitch:
-      "El plan que usa la mayoría: plantilla pro, valor de mercado, palmarés, scouting analítico y soporte humano. Pensado para impulsar tu próxima transferencia.",
-    benefits: [
-      "Plantilla Pro Portfolio con motions y assets",
-      "Multimedia ilimitada y galería de 5 imágenes",
-      "Valor de mercado y palmarés visibles",
-      "Análisis de scouting (táctico, físico, mental, técnico)",
-      "Reviews con invitación + contactos de referencia",
-      "5 solicitudes de corrección/semana · soporte humano · SEO Pro",
-    ],
-    scenes: [
-      {
-        eyebrow: "Vista 01 · Dashboard",
-        title: "Tus métricas reales, en vivo",
-        description:
-          "Visitas, contactos y rating actualizados al minuto. Cuatro indicadores de impacto y una vista de actividad reciente.",
-        device: "desktop",
-        variant: "dashboard",
-        caption: "dashboard.ballershub.app/insights",
-      },
-      {
-        eyebrow: "Vista 02 · Agenda",
-        title: "Coordiná directamente con clubes",
-        description:
-          "Tu calendario sincronizado: partidos, entrenamientos y reuniones. Los clubes pueden coordinar visitas en tiempo real.",
-        device: "desktop",
-        variant: "dashboard",
-        caption: "agenda.ballershub.app · Mayo 2026",
-      },
-      {
-        eyebrow: "Vista 03 · Mobile",
-        title: "Notificaciones en el bolsillo",
-        description:
-          "Tu actividad y nuevas oportunidades sincronizadas con tu móvil. Sabés cuándo alguien vuelve a tu perfil.",
-        device: "mobile",
-        variant: "dashboard",
-        caption: "iOS · App nativa próximamente",
-      },
-    ],
-  },
-
-  // ----------------- AGENCY -----------------
-  "free-agency": {
-    pitch:
-      "Presencia esencial para tu agencia. Hasta 2 members, cartera limitada y plantilla default — lo necesario para empezar a operar.",
-    benefits: [
-      "URL pública personalizable",
-      "Hasta 2 members del equipo",
-      "Cartera de hasta 5 jugadores",
-      "2 videos · 3 redes · 3 notas de prensa",
-    ],
-    scenes: [
-      {
-        eyebrow: "Vista 01 · Agencia",
-        title: "Tu agencia, presentada con identidad",
-        description:
-          "Información de la agencia, equipo visible y cartera de hasta 5 representados. Plantilla default, lista en minutos.",
-        device: "desktop",
-        variant: "profile",
-        caption: "ballershub.app/agency/norte-srl",
-      },
-      {
-        eyebrow: "Vista 02 · Tablet",
-        title: "Trabajo presencial sin fricción",
-        description:
-          "El perfil de agencia adaptado a tablet: ideal para presentar al staff técnico de un club o llevar a reuniones de cuerpo técnico.",
-        device: "tablet",
-        variant: "profile",
-        caption: "iPad · 1024×1366",
-      },
-      {
-        eyebrow: "Vista 03 · Mobile",
-        title: "Tu agencia en el bolsillo",
-        description:
-          "Para que clubes y jugadores libres encuentren tu información de contacto desde cualquier dispositivo.",
-        device: "mobile",
-        variant: "profile",
-        caption: "iPhone · 390×844",
-      },
-    ],
-  },
-
-  "pro-agency": {
-    pitch:
-      "El stack completo para tu agencia: cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados — todo con plantilla pro.",
-    benefits: [
-      "Plantilla Pro Portfolio para agencias",
-      "Members ilimitados con roles",
-      "Cartera ilimitada de jugadores",
-      "5 slots de Pro Player otorgables",
-      "Multimedia y notas de prensa ilimitadas",
-      "Reviews con invitación + contactos de referencia",
-      "SEO Pro · soporte humano prioritario",
-    ],
-    scenes: [
-      {
-        eyebrow: "Vista 01 · Cartera",
-        title: "Cartera ilimitada con búsqueda",
-        description:
-          "Filtrá tu cartera por edad, posición o estado contractual. Cada jugador con su perfil pro listo para compartir.",
-        device: "desktop",
-        variant: "search",
-        caption: "agency.ballershub.app/roster",
-      },
-      {
-        eyebrow: "Vista 02 · Equipo",
-        title: "Coordiná con tu staff",
-        description:
-          "Members ilimitados con roles diferenciados (representante principal, asistente, scout). Cada uno con permisos sobre la cartera.",
-        device: "desktop",
-        variant: "dashboard",
-        caption: "agency.ballershub.app/team",
-      },
-      {
-        eyebrow: "Vista 03 · Mobile",
-        title: "Tu agencia, móvil-first",
-        description:
-          "Toda la cartera y notificaciones de actividad disponibles desde cualquier dispositivo del equipo.",
-        device: "mobile",
-        variant: "dashboard",
-        caption: "iOS · App nativa próximamente",
-      },
-    ],
-  },
+// plan.id -> namespace key under pricing.json `detailPanel`.
+const DETAIL_KEY: Record<PlanId, string> = {
+  "free-player": "freePlayer",
+  "pro-player": "proPlayer",
+  "free-agency": "freeAgency",
+  "pro-agency": "proAgency",
 };
 
 // 2 cards in md:grid-cols-2 inside max-w-1200 with gap-6.
-// Card centers sit ~300px off-centre from the container midline.
 function cardOriginX(idx: number): string {
   const offset = idx === 0 ? -300 : 300;
   return offset < 0
@@ -226,7 +59,12 @@ export default function PricingDetailPanel({
   plan: DetailPanelPlan;
   activeIdx: number;
 }) {
-  const detail = PRICING_DETAIL[plan.id];
+  const t = useTranslations("pricing");
+  const key = DETAIL_KEY[plan.id];
+  const pitch = t(`detailPanel.${key}.pitch`);
+  const benefits = t.raw(`detailPanel.${key}.benefits`) as string[];
+  const scenes = t.raw(`detailPanel.${key}.scenes`) as Scene[];
+
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -261,7 +99,6 @@ export default function PricingDetailPanel({
       className="relative mt-16"
     >
       <div className="bh-tex-mesh bh-noise relative border-y border-white/[0.08]">
-        {/* Top accent strip — full-bleed, brightest at the active card column */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-x-0 top-0 h-px"
@@ -271,16 +108,17 @@ export default function PricingDetailPanel({
         />
 
         <div className="relative mx-auto max-w-[1440px] px-6 pb-24 pt-14 md:px-10 md:pt-20">
-          <PanelHeader plan={plan} pitch={detail.pitch} />
+          <PanelHeader plan={plan} pitch={pitch} t={t} />
 
           <ScrolljackSection
             ref={sectionRef}
             scrollYProgress={scrollYProgress}
-            scenes={detail.scenes}
+            scenes={scenes}
             accent={plan.accent}
+            t={t}
           />
 
-          <PanelFooter plan={plan} benefits={detail.benefits} />
+          <PanelFooter plan={plan} benefits={benefits} t={t} />
         </div>
       </div>
     </m.div>
@@ -292,9 +130,11 @@ export default function PricingDetailPanel({
 function PanelHeader({
   plan,
   pitch,
+  t,
 }: {
   plan: DetailPanelPlan;
   pitch: string;
+  t: PricingT;
 }) {
   const accentText =
     plan.accent === "blue"
@@ -309,34 +149,30 @@ function PanelHeader({
         ? "bg-bh-lime"
         : "bg-white/40";
 
-  const audienceLabel = plan.audience === "agency" ? "Agencia" : "Jugador";
+  const audienceLabel = t(`toggles.${plan.audience}`);
 
   return (
     <m.header
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.5,
-        delay: 0.18,
-        ease: CONTAINER_EASE,
-      }}
+      transition={{ duration: 0.5, delay: 0.18, ease: CONTAINER_EASE }}
       className="mx-auto max-w-3xl text-center"
     >
       <span className="inline-flex items-center gap-2 rounded-bh-pill border border-bh-fg-4 bg-white/[0.03] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3 backdrop-blur-md">
         <span className={`h-1.5 w-1.5 rounded-full ${accentDot}`} />
-        {audienceLabel} · {plan.tagline} · qué incluye
+        {audienceLabel} · {plan.tagline} · {t("detailPanel.header.suffix")}
       </span>
       <h3
         className={`mt-4 font-bh-display text-4xl font-black uppercase leading-[0.95] md:text-5xl lg:text-6xl ${accentText}`}
       >
-        Plan {plan.name}
+        {t("detailPanel.header.planPrefix")} {plan.name}
       </h3>
       <p className="mx-auto mt-4 max-w-xl text-[14px] leading-[1.6] text-bh-fg-2">
         {pitch}
       </p>
       <p className="mt-3 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-bh-fg-4">
         <Sparkles className="h-3 w-3" />
-        Hacé scroll para recorrer las vistas
+        {t("detailPanel.header.scrollHint")}
       </p>
     </m.header>
   );
@@ -349,27 +185,22 @@ const ScrolljackSection = ({
   scrollYProgress,
   scenes,
   accent,
+  t,
 }: {
   ref: React.RefObject<HTMLDivElement | null>;
   scrollYProgress: MotionValue<number>;
   scenes: Scene[];
   accent: Accent;
+  t: PricingT;
 }) => {
   const total = scenes.length;
   const outerHeight = `${total * 120}vh`;
 
   return (
-    <section
-      ref={ref}
-      className="relative mt-12"
-      style={{ minHeight: outerHeight }}
-    >
+    <section ref={ref} className="relative mt-12" style={{ minHeight: outerHeight }}>
       <div className="sticky top-24 flex h-[calc(100vh-7rem)] items-center">
         <div className="relative h-full w-full">
-          <ScrollProgressRail
-            scrollYProgress={scrollYProgress}
-            total={total}
-          />
+          <ScrollProgressRail scrollYProgress={scrollYProgress} total={total} />
 
           {scenes.map((scene, i) => (
             <SceneSlide
@@ -379,6 +210,7 @@ const ScrolljackSection = ({
               scrollYProgress={scrollYProgress}
               scene={scene}
               accent={accent}
+              t={t}
             />
           ))}
         </div>
@@ -393,16 +225,15 @@ function SceneSlide({
   scrollYProgress,
   scene,
   accent,
+  t,
 }: {
   index: number;
   total: number;
   scrollYProgress: MotionValue<number>;
   scene: Scene;
   accent: Accent;
+  t: PricingT;
 }) {
-  // Range must stay inside [0, 1] (WAAPI requires offsets in that range) and be
-  // monotonically non-decreasing. Cap fadeWidth at a fraction of slot so
-  // adjacent scenes don't overlap-invert when total is high.
   const slot = 1 / total;
   const fadeWidth = Math.min(0.12, slot * 0.6);
   const half = fadeWidth / 2;
@@ -421,8 +252,6 @@ function SceneSlide({
 
   const range: number[] = [fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd];
 
-  // For first/last we want the scene to be fully visible at scroll edges,
-  // so the in/out values collapse to the "visible" state for those edges.
   const opacity = useTransform(scrollYProgress, range, [isFirst ? 1 : 0, 1, 1, isLast ? 1 : 0]);
   const y = useTransform(scrollYProgress, range, [isFirst ? 0 : 56, 0, 0, isLast ? 0 : -48]);
   const scale = useTransform(scrollYProgress, range, [isFirst ? 1 : 0.94, 1, 1, isLast ? 1 : 0.965]);
@@ -443,15 +272,9 @@ function SceneSlide({
         : "border-white/[0.10] bg-white/[0.04] text-bh-fg-2";
 
   return (
-    <m.div
-      style={{ opacity, y, scale }}
-      className="absolute inset-0 flex items-center"
-    >
+    <m.div style={{ opacity, y, scale }} className="absolute inset-0 flex items-center">
       <div className="grid h-full w-full grid-cols-12 items-center gap-8">
-        <m.div
-          style={{ x: captionX }}
-          className="col-span-12 self-center lg:col-span-4"
-        >
+        <m.div style={{ x: captionX }} className="col-span-12 self-center lg:col-span-4">
           <span
             className={`inline-flex items-center rounded-bh-pill border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${accentBorder}`}
           >
@@ -476,30 +299,15 @@ function SceneSlide({
                       : "bg-bh-fg-3"
                 }`}
               />
-              {scene.device === "desktop"
-                ? "Desktop · 1440×900"
-                : scene.device === "tablet"
-                  ? "Tablet · 1024×1366"
-                  : "Mobile · 390×844"}
+              {t(`detailPanel.device.${scene.device}`)}
             </li>
-            <li>Reemplazable por screenshot real</li>
+            <li>{t("detailPanel.device.placeholder")}</li>
           </ul>
         </m.div>
 
-        <m.div
-          style={{ x: mockX }}
-          className="col-span-12 lg:col-span-8"
-        >
-          <DeviceFrame
-            kind={scene.device}
-            accent={accent}
-            caption={scene.caption}
-          >
-            <PlaceholderScreen
-              accent={accent}
-              variant={scene.variant}
-              device={scene.device}
-            />
+        <m.div style={{ x: mockX }} className="col-span-12 lg:col-span-8">
+          <DeviceFrame kind={scene.device} accent={accent} caption={scene.caption}>
+            <PlaceholderScreen accent={accent} variant={scene.variant} device={scene.device} />
           </DeviceFrame>
         </m.div>
       </div>
@@ -532,22 +340,17 @@ function RailDot({
   total: number;
   progress: MotionValue<number>;
 }) {
-  // Fade window must stay inside [0, 1] (WAAPI requires offsets in that range)
-  // and must be strictly monotonically non-decreasing. We also cap `fadeWidth`
-  // to a fraction of `slot` so adjacent dots never invert (slot < fadeWidth).
   const slot = 1 / total;
   const fadeWidth = Math.min(0.12, slot * 0.6);
   const half = fadeWidth / 2;
   const isFirst = index === 0;
   const isLast = index === total - 1;
 
-  // First dot is already visible at scroll 0; last dot stays visible at scroll 1.
   const rawFadeInStart = isFirst ? 0 : index * slot - half;
   const rawFadeInEnd = isFirst ? 0 : index * slot + half;
   const rawFadeOutStart = isLast ? 1 : (index + 1) * slot - half;
   const rawFadeOutEnd = isLast ? 1 : (index + 1) * slot + half;
 
-  // Clamp into [0, 1] and enforce non-decreasing using a running max.
   const fadeInStart = Math.max(0, Math.min(1, rawFadeInStart));
   const fadeInEnd = Math.max(fadeInStart, Math.min(1, rawFadeInEnd));
   const fadeOutStart = Math.max(fadeInEnd, Math.min(1, rawFadeOutStart));
@@ -572,9 +375,11 @@ function RailDot({
 function PanelFooter({
   plan,
   benefits,
+  t,
 }: {
   plan: DetailPanelPlan;
   benefits: string[];
+  t: PricingT;
 }) {
   const accentText =
     plan.accent === "blue"
@@ -587,29 +392,19 @@ function PanelFooter({
     <m.footer
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.5,
-        delay: 0.32,
-        ease: CONTAINER_EASE,
-      }}
+      transition={{ duration: 0.5, delay: 0.32, ease: CONTAINER_EASE }}
       className="mx-auto mt-12 max-w-5xl"
     >
       <div className="rounded-bh-xl border border-white/[0.08] bg-black/30 p-6 backdrop-blur-md md:p-8">
         <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-bh-fg-4">
-              También incluye
+              {t("detailPanel.footer.alsoIncludes")}
             </p>
             <ul className="grid gap-2 sm:grid-cols-2">
               {benefits.map((b) => (
-                <li
-                  key={b}
-                  className="flex items-start gap-2 text-[13px] text-bh-fg-2"
-                >
-                  <Check
-                    className={`mt-1 h-3 w-3 shrink-0 ${accentText}`}
-                    strokeWidth={3}
-                  />
+                <li key={b} className="flex items-start gap-2 text-[13px] text-bh-fg-2">
+                  <Check className={`mt-1 h-3 w-3 shrink-0 ${accentText}`} strokeWidth={3} />
                   {b}
                 </li>
               ))}
@@ -628,7 +423,7 @@ function PanelFooter({
               href="/contact"
               className="inline-flex items-center justify-center gap-2 rounded-bh-md border border-white/[0.12] px-6 py-3 text-[13px] font-semibold text-bh-fg-2 transition-colors duration-150 hover:bg-white/[0.06] hover:text-bh-fg-1"
             >
-              Tengo dudas
+              {t("detailPanel.footer.questions")}
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>

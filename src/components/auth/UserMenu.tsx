@@ -15,8 +15,10 @@ import {
   Button,
   useDisclosure,
 } from "@heroui/react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useTransition } from "react";
+
+import { Link } from "@/i18n/navigation";
 import {
   hasActiveApplication,
   isApplicationDraft,
@@ -50,6 +52,7 @@ export default function UserMenuHero({
   onboardingHref?: string;
   onSignOut: () => Promise<void>;
 }) {
+  const t = useTranslations("common");
   const [pending, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
@@ -71,16 +74,16 @@ export default function UserMenuHero({
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="font-bh-display uppercase tracking-[-0.005em] text-bh-fg-1">Cerrar sesión</ModalHeader>
+              <ModalHeader className="font-bh-display uppercase tracking-[-0.005em] text-bh-fg-1">{t("userMenu.signOut")}</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en &apos;BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">{t("userMenu.signOutConfirm")}</p>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose} isDisabled={pending} className="text-bh-fg-3">
-                  Cancelar
+                  {t("actions.cancel")}
                 </Button>
                 <Button color="danger" isLoading={pending} onPress={handleSignOut}>
-                  {pending ? "Saliendo..." : "Cerrar sesión"}
+                  {pending ? t("userMenu.signingOut") : t("userMenu.signOut")}
                 </Button>
               </ModalFooter>
             </>
@@ -96,7 +99,7 @@ export default function UserMenuHero({
         }}
       >
         <DropdownTrigger>
-          <button aria-label="Abrir menú de usuario" className="rounded-bh-md transition-colors hover:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-bh-lime/40">
+          <button aria-label={t("userMenu.openMenu")} className="rounded-bh-md transition-colors hover:bg-white/[0.06] focus:outline-none focus:ring-1 focus:ring-bh-lime/40">
             <HeroUser
               as="div"
               name={displayName}
@@ -118,7 +121,7 @@ export default function UserMenuHero({
         </DropdownTrigger>
 
         <DropdownMenu
-          aria-label="Acciones de usuario"
+          aria-label={t("userMenu.userActions")}
           variant="flat"
           itemClasses={{
             base:
@@ -132,7 +135,7 @@ export default function UserMenuHero({
             isReadOnly
           >
             <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
-              Sesión iniciada como
+              {t("userMenu.signedInAs")}
             </p>
             <p className="truncate text-[12px] text-bh-fg-2">{email}</p>
           </DropdownItem>
@@ -140,67 +143,67 @@ export default function UserMenuHero({
           {role === "manager" ? (
             managerApplicationStatus === "pending" || managerApplicationStatus === "draft" ? (
               <DropdownItem key="manager-status" color="primary" className="cursor-default" isReadOnly>
-                Agencia en revisión
+                {t("userMenu.agencyInReview")}
               </DropdownItem>
             ) : null
           ) : hasPlayerProfile && playerSlug ? (
             <DropdownItem key="public-profile" as={Link} href={`/${playerSlug}`}>
-              Ver perfil público
+              {t("userMenu.viewPublicProfile")}
             </DropdownItem>
           ) : activeApplication ? (
             <DropdownItem key="application-status" as={Link} href="/onboarding/player/apply" color="primary">
-              Ver solicitud en revisión
+              {t("userMenu.viewApplication")}
             </DropdownItem>
           ) : draftApplication ? (
             <DropdownItem key="application-draft" as={Link} href="/onboarding/player/apply" color="primary">
-              Continuar solicitud
+              {t("userMenu.continueApplication")}
             </DropdownItem>
           ) : (
             <DropdownItem key="apply" as={Link} href={onboardingHref} color="primary">
-              Solicitar cuenta de profesional
+              {t("userMenu.applyPro")}
             </DropdownItem>
           )}
 
           <DropdownItem key="dashboard" as={Link} href="/dashboard">
-            Dashboard
+            {t("userMenu.dashboard")}
           </DropdownItem>
 
           {role === "manager" ? (
             <>
               {agencySlug && (
                  <DropdownItem key="agency-public" as={Link} href={`/agency/${agencySlug}`}>
-                   Ver perfil público de Agencia
+                   {t("userMenu.viewAgencyPublic")}
                  </DropdownItem>
               )}
               <DropdownItem key="agency-settings" as={Link} href="/dashboard/agency">
-                Configuración de Agencia
+                {t("userMenu.agencySettings")}
               </DropdownItem>
               <DropdownItem key="manager-profile" as={Link} href="/dashboard/profile">
-                Mi Perfil Manager
+                {t("userMenu.managerProfile")}
               </DropdownItem>
             </>
           ) : (
             <>
               <DropdownItem key="profile" as={Link} href="/dashboard/edit-profile/personal-data">
-                Datos personales
+                {t("userMenu.personalData")}
               </DropdownItem>
               <DropdownItem key="football" as={Link} href="/dashboard/edit-profile/football-data">
-                Datos futbolísticos
+                {t("userMenu.footballData")}
               </DropdownItem>
               <DropdownItem key="media" as={Link} href="/dashboard/edit-profile/multimedia">
-                Multimedia
+                {t("userMenu.media")}
               </DropdownItem>
               <DropdownItem key="template" as={Link} href="/dashboard/edit-template/styles">
-                Plantilla
+                {t("userMenu.template")}
               </DropdownItem>
             </>
           )}
 
           <DropdownItem key="billing" as={Link} href="/dashboard/settings/subscription">
-            Suscripción
+            {t("userMenu.subscription")}
           </DropdownItem>
           <DropdownItem key="settings" as={Link} href="/dashboard/settings/account">
-            Configuración general
+            {t("userMenu.settings")}
           </DropdownItem>
           <DropdownItem
             key="logout"
@@ -208,7 +211,7 @@ export default function UserMenuHero({
             className="text-bh-danger data-[hover=true]:!bg-[rgba(239,68,68,0.08)] data-[hover=true]:!text-bh-danger border-t border-white/[0.06] !rounded-none mt-1"
             onPress={onOpen}
           >
-            Cerrar sesión
+            {t("userMenu.signOut")}
           </DropdownItem>
         </DropdownMenu>
       </Dropdown>

@@ -1,4 +1,5 @@
 import type { User } from "@supabase/supabase-js";
+import { getTranslations } from "next-intl/server";
 
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
@@ -22,6 +23,7 @@ import { db } from "@/lib/db";
 // The success path is unchanged.
 
 export default async function AuthGate() {
+  const t = await getTranslations("common");
   let user: User | null = null;
   try {
     const supabase = await createSupabaseServerRSC();
@@ -70,7 +72,7 @@ export default async function AuthGate() {
       isManager && up?.agency?.name ? up.agency.name :
       (user.user_metadata?.full_name as string | undefined) ??
       user.email?.split("@")[0] ??
-      "Mi cuenta";
+      t("userMenu.defaultName");
 
     const handle = isManager && up?.agency?.slug
       ? `@${up.agency.slug}`
@@ -104,7 +106,7 @@ export default async function AuthGate() {
     const fallbackName =
       (user.user_metadata?.full_name as string | undefined) ??
       user.email?.split("@")[0] ??
-      "Mi cuenta";
+      t("userMenu.defaultName");
 
     return (
       <UserMenu

@@ -1,20 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
 import { Wordmark } from "@/components/brand/Wordmark";
+import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 
-type NavItem = { href: string; label: string };
+type NavItem = { href: string; key: string };
 
+// Labels resolve from messages/<locale>/common.json (nav.*). Hrefs are
+// locale-agnostic — the Link from @/i18n/navigation injects the active
+// locale prefix (none for the es default).
 const NAV: NavItem[] = [
-  { href: "/players", label: "Jugadores" },
-  { href: "/agencies", label: "Agencias" },
-  { href: "/pricing", label: "Planes" },
-  { href: "/about", label: "Nosotros" },
+  { href: "/players", key: "players" },
+  { href: "/agencies", key: "agencies" },
+  { href: "/pricing", key: "plans" },
+  { href: "/about", key: "about" },
 ];
 
 export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }) {
+  const t = useTranslations("common");
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -56,14 +62,17 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
                 href={i.href}
                 className="text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:text-bh-lime"
               >
-                {i.label}
+                {t(`nav.${i.key}`)}
               </Link>
             ))}
           </nav>
           <div className="flex-1 md:hidden" />
 
-          {/* Right — search + auth */}
-          <div className="flex shrink-0 items-center gap-2">{authSlot}</div>
+          {/* Right — search + auth + locale */}
+          <div className="flex shrink-0 items-center gap-2">
+            {authSlot}
+            <LocaleSwitcher />
+          </div>
         </div>
       </div>
     </header>

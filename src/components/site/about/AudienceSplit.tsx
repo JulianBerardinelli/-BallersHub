@@ -2,44 +2,43 @@
 // Sección "Para quién lo construimos" — dos grupos:
 //   1. PRIMARY (crean portfolio): Jugadores (audiencia principal, card grande) + Agencias.
 //   2. SECONDARY (descubren talento): Clubes, Fans, Periodistas.
-// Toda la copy vive en data.ts → tocar contenido nunca toca la UI.
+// El texto vive en messages/<locale>/about.json; la estructura en data.ts.
 
-import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
+import { Link } from "@/i18n/navigation";
 import SectionHeader from "./SectionHeader";
 import {
   ACCENT_STYLES,
-  AUDIENCES_HEADER,
-  AUDIENCES_PRIMARY,
-  AUDIENCES_SECONDARY,
+  getAudiencesHeader,
+  getAudiencesPrimary,
+  getAudiencesSecondary,
   type Audience,
 } from "./data";
 
-export default function AudienceSplit() {
-  const [hero, agency] = AUDIENCES_PRIMARY;
+export default async function AudienceSplit() {
+  const t = await getTranslations("about");
+  const header = getAudiencesHeader(t);
+  const [hero, agency] = getAudiencesPrimary(t);
+  const secondary = getAudiencesSecondary(t);
 
   return (
     <section className="space-y-12">
       <SectionHeader
-        eyebrow={AUDIENCES_HEADER.eyebrow}
+        eyebrow={header.eyebrow}
         title={
           <>
-            {AUDIENCES_HEADER.title.plain}{" "}
-            <span className="text-bh-lime">
-              {AUDIENCES_HEADER.title.highlight}
-            </span>
+            {header.title.plain}{" "}
+            <span className="text-bh-lime">{header.title.highlight}</span>
           </>
         }
-        description={AUDIENCES_HEADER.description}
+        description={header.description}
       />
 
       {/* Group 1: Crean portfolio (usuarios) */}
       <div className="space-y-5">
-        <GroupLabel
-          label={AUDIENCES_HEADER.primaryGroupTitle}
-          accent="lime"
-        />
+        <GroupLabel label={header.primaryGroupTitle} accent="lime" />
 
         <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
           <PrimaryCard audience={hero} hero />
@@ -49,13 +48,10 @@ export default function AudienceSplit() {
 
       {/* Group 2: Descubren talento (audiencias secundarias) */}
       <div className="space-y-5">
-        <GroupLabel
-          label={AUDIENCES_HEADER.secondaryGroupTitle}
-          accent="blue"
-        />
+        <GroupLabel label={header.secondaryGroupTitle} accent="blue" />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {AUDIENCES_SECONDARY.map((audience) => (
+          {secondary.map((audience) => (
             <SecondaryCard key={audience.id} audience={audience} />
           ))}
         </div>

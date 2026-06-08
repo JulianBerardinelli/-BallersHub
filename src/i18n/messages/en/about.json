@@ -1,0 +1,231 @@
+{
+  "hero": {
+    "eyebrow": "Who we are",
+    "titleLine1": "Where footballers",
+    "titleHighlight": "sell themselves",
+    "titleLine2": "and achieve their goals.",
+    "description": "We centralize the career history, stats, data and media of every player and agency into a web portfolio with its own link, optimized for SEO. We're building the world's reference platform — starting with LATAM and Spain.",
+    "primaryCta": "Create my portfolio",
+    "secondaryCta": "Talk to the team",
+    "imageAlt": "The 'BallersHub team during a scouting day"
+  },
+  "pillars": {
+    "mission": {
+      "title": "Mission",
+      "tag": "Our focus",
+      "description": "Turn every footballer —professional, semi-professional or amateur— and every agency into a professional web portfolio: a single link where they centralize career history, stats, data and media to sell themselves and drive their career online."
+    },
+    "vision": {
+      "title": "Vision",
+      "tag": "Where we're headed",
+      "description": "To be the number one page in the world where footballers present themselves, show their data and achieve their goals. The global reference when a club, journalist or scout looks for talent — at any competitive level."
+    },
+    "objectives": {
+      "title": "Objectives",
+      "tag": "What we want to achieve",
+      "description": "Start with LATAM and Spain and scale to global markets. So any footballer or agency can sell themselves online with a scalable, SEO-ready portfolio, with verified reviews (coming beta) and connected to a future active scouting network."
+    }
+  },
+  "audiencesHeader": {
+    "eyebrow": "Who we built it for",
+    "titlePlain": "Built for the entire",
+    "titleHighlight": "football ecosystem",
+    "description": "The product is designed so the player is the protagonist, agencies scale their roster, and the ecosystem (clubs, community and press) discovers talent with real data.",
+    "primaryGroupTitle": "Create their portfolio",
+    "secondaryGroupTitle": "Discover talent and content"
+  },
+  "audiences": {
+    "players": {
+      "title": "Players and athletes",
+      "subtitle": "Primary audience — the protagonist",
+      "description": "You're the center of the platform. Professional, semi-professional or amateur: build your portfolio in minutes and start selling yourself with your own link, ready to share.",
+      "bullets": [
+        "Career history, stats and physical data centralized",
+        "Media gallery (photos, clips, matches)",
+        "A single link optimized for SEO",
+        "Verified reviews (coming beta)"
+      ],
+      "cta": "Create my portfolio"
+    },
+    "agencies": {
+      "title": "Agencies and agents",
+      "subtitle": "Ally persona — they scale their roster",
+      "description": "Showcase the full roster of players you represent with a professional site, your own identity and consolidated data. Position yourself online as a serious agency.",
+      "bullets": [
+        "Agency portfolio with your brand",
+        "Full roster of represented players",
+        "Dashboard with aggregated metrics",
+        "Assisted onboarding for your players"
+      ],
+      "cta": "I'm an agency"
+    },
+    "clubs": {
+      "title": "Professional clubs",
+      "subtitle": "Looking for real talent",
+      "description": "Sporting departments and coaching staff that filter candidates by position, age, metrics and availability — with verified data, not rumors."
+    },
+    "fans": {
+      "title": "Community and fans",
+      "subtitle": "Following careers closely",
+      "description": "Football belongs to the people. Fans who want to know each player's full career, history and numbers — without editorial filters."
+    },
+    "journalists": {
+      "title": "Sports journalists",
+      "subtitle": "Coverage backed by data",
+      "description": "A reliable, always up-to-date source for investigations, articles and coverage — with stats, career history and verifiable references one link away."
+    }
+  },
+  "values": {
+    "ownLink": {
+      "title": "Your own link to sell yourself",
+      "description": "Every player and every agency has a unique URL. Share it via WhatsApp, email or social media and open the door to clubs and agents."
+    },
+    "seo": {
+      "title": "Optimized for SEO",
+      "description": "Built to show up on Google when someone searches your name, your position or your club. Your portfolio works for you 24/7."
+    },
+    "centralized": {
+      "title": "Your whole career, centralized",
+      "description": "Career history, stats, physical data and media (photos, clips, matches) in one place — easy to maintain, ready to present."
+    },
+    "reviews": {
+      "title": "Verified reviews",
+      "description": "Reviews signed by verified accounts (coaching staff, scouts, former teammates) that back your track record. Coming beta."
+    },
+    "agencies": {
+      "title": "Built for agencies",
+      "description": "Add your full roster of players, show consolidated data and position your agency's identity with a professional site."
+    },
+    "scouting": {
+      "title": "Scouting network (coming)",
+      "description": "A living database where clubs and scouts discover talent by real filters: position, age, metrics and availability."
+    }
+  },
+  "milestones": {
+    "start": {
+      "year": "Aug 2025",
+      "title": "The project begins",
+      "description": "We spotted the same problem in players and agencies: PDF profiles, broken YouTube video links, informal social media. No professional portfolio with its own identity. We decided to build the solution."
+    },
+    "prototype": {
+      "year": "Nov 2025",
+      "title": "First portfolio prototype",
+      "description": "We built the first version of the product: a portfolio with a unique link, career, physical data and media upload. Internal testing with nearby players and agencies."
+    },
+    "beta": {
+      "year": "Mar 2026",
+      "title": "Closed beta · pilots in LATAM + Spain",
+      "description": "We validated the product with a small group of pilot players and agencies in Latin America and Spain. Every portfolio is born SEO-optimized and ready to share with its own link."
+    },
+    "launch": {
+      "year": "Jun 2026",
+      "title": "Official launch",
+      "description": "Public opening for players and agencies in LATAM and Spain. Free access to the portfolio with a unique link, centralized data and online positioning from day one."
+    },
+    "next": {
+      "year": "Next",
+      "title": "Verified reviews + global scouting network",
+      "description": "Reviews signed by verified accounts (coaching staff, scouts, former teammates) and an active database where clubs discover talent by position, age and metrics. The road to being the #1 page in the world."
+    }
+  },
+  "stats": {
+    "projectStart": {
+      "value": "Aug 2025",
+      "label": "Project start",
+      "description": "8 months building with pilot players and agencies."
+    },
+    "launch": {
+      "value": "Jun 2026",
+      "label": "Official launch",
+      "description": "Public opening in LATAM and Spain with SEO from day 1."
+    },
+    "seo": {
+      "value": "100%",
+      "label": "SEO-optimized",
+      "description": "Every portfolio is born ready to show up on Google."
+    },
+    "reviews": {
+      "value": "Beta",
+      "label": "Verified reviews",
+      "description": "Reviews signed by verified accounts — coming soon."
+    }
+  },
+  "team": {
+    "julian": {
+      "role": "Co-Founder & Developer",
+      "bio": "Professional footballer, creator and developer of 'BallersHub. He experienced first-hand the lack of a serious platform for a player to sell themselves professionally — so he decided to build it. He combines pitch, code and product so every portfolio feels made by someone who understands the sport from the inside."
+    },
+    "validation": {
+      "name": "Validation team",
+      "role": "Sports scouting",
+      "bio": "Active players, former players and analysts who verify every profile. They know the craft because they live it or lived it — they can tell real data from inflated data and keep the network's quality high."
+    },
+    "operations": {
+      "name": "Operations team",
+      "role": "Support · Onboarding",
+      "bio": "They guide players and agencies through every step of joining the platform. Assisted onboarding, human support and fast responses."
+    }
+  },
+  "partners": {
+    "techPartner": "Technology partner",
+    "federation": "Federation",
+    "alliedClub": "Allied club"
+  },
+  "cta": {
+    "eyebrow": "Join 'BallersHub",
+    "title": "Your portfolio. Your link. Your career.",
+    "description": "Centralize your career history, show your data and position yourself online. For players who want to sell themselves professionally and for agencies that want to scale their identity.",
+    "primaryCta": "Create my portfolio",
+    "secondaryCta": "I'm an agency"
+  },
+  "meta": {
+    "title": "About",
+    "description": "Meet the team, mission, vision and values behind 'BallersHub: the hub where football talent gains real, verified visibility."
+  },
+  "sections": {
+    "missionVision": {
+      "eyebrow": "Mission · Vision · Objectives",
+      "titlePlain": "Three pillars behind",
+      "titleHighlight": "every decision",
+      "description": "Mission, vision and objectives aren't words on a wall: they're the filter we use to decide what to build, what to prioritize and how to support players and agencies."
+    },
+    "values": {
+      "eyebrow": "What sets us apart",
+      "titlePlain": "What you'll find in",
+      "titleHighlight": "your portfolio",
+      "description": "It's not another player PDF. It's a platform designed so your career or your agency sells itself professionally online — with its own identity, centralized data and a real connection to the ecosystem."
+    },
+    "impact": {
+      "eyebrow": "Project status",
+      "titlePlain": "On the road to",
+      "titleHighlight": "launch",
+      "description": "We built quietly for 8 months with pilot players and agencies. In June 2026 we open the platform for LATAM and Spain."
+    },
+    "story": {
+      "eyebrow": "Our story",
+      "titlePlain": "From an idea on the pitch to a network",
+      "titleHighlight": "in expansion",
+      "description": "Every milestone is marked by real community feedback. We iterate fast, listen first and build for the long term."
+    },
+    "team": {
+      "eyebrow": "The team",
+      "titlePlain": "Real people behind",
+      "titleHighlight": "every verification",
+      "slogan": "“By players, for players.”",
+      "description": "We're not an office team watching football from the outside. We're active players, former players and analysts who understand what a footballer needs to sell themselves — because we've lived it firsthand."
+    },
+    "partners": {
+      "eyebrow": "Partners and allies",
+      "titlePlain": "Trusted by"
+    }
+  },
+  "heroExtra": {
+    "betaBadge": "Beta · Launching Jun 2026",
+    "humanBadge": "Human-verified",
+    "photoBadge": "Team photo",
+    "figureStartValue": "Aug 2025",
+    "figureStartLabel": "Project kickoff",
+    "figureLaunchValue": "Jun 2026",
+    "figureLaunchLabel": "Official launch"
+  }
+}

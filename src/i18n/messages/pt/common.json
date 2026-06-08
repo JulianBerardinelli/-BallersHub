@@ -1,0 +1,56 @@
+{
+  "nav": {
+    "players": "Jogadores",
+    "agencies": "Agências",
+    "plans": "Planos",
+    "about": "Sobre",
+    "blog": "Blog"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signUp": "Cadastrar-se"
+  },
+  "actions": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir"
+  },
+  "localeSwitcher": {
+    "label": "Mudar idioma"
+  },
+  "authButtons": {
+    "access": "Entrar",
+    "create": "Criar conta"
+  },
+  "back": "Voltar",
+  "userMenu": {
+    "openMenu": "Abrir menu do usuário",
+    "userActions": "Ações do usuário",
+    "signedInAs": "Sessão iniciada como",
+    "defaultName": "Minha conta",
+    "viewPublicProfile": "Ver perfil público",
+    "agencyInReview": "Agência em revisão",
+    "viewApplication": "Ver solicitação em revisão",
+    "continueApplication": "Continuar solicitação",
+    "applyPro": "Solicitar conta profissional",
+    "dashboard": "Painel",
+    "viewAgencyPublic": "Ver perfil público da agência",
+    "agencySettings": "Configurações da agência",
+    "managerProfile": "Meu perfil de empresário",
+    "personalData": "Dados pessoais",
+    "footballData": "Dados futebolísticos",
+    "media": "Multimídia",
+    "template": "Modelo",
+    "subscription": "Assinatura",
+    "settings": "Configurações gerais",
+    "signOut": "Sair",
+    "signOutConfirm": "Tem certeza de que deseja sair do 'BallersHub?",
+    "signingOut": "Saindo..."
+  },
+  "org": {
+    "description": "Plataforma de portfólios profissionais para jogadores e agências de representação. Cada jogador e cada agência ganha um link único, otimizado para SEO, que centraliza trajetória, estatísticas, dados físicos e mídia verificada.",
+    "appDescription": "App web para criar portfólios profissionais de jogadores e agências: link único, dados centralizados, pronto para SEO desde o primeiro dia.",
+    "slogan": "Perfis profissionais de jogadores"
+  }
+}

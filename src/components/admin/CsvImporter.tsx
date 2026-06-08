@@ -8,7 +8,7 @@ import {
 } from "@heroui/react";
 import { Upload, AlertCircle, CheckCircle2 } from "lucide-react";
 import Papa from "papaparse";
-import { useAdminModalPreset } from "@/app/(dashboard)/admin/ui/modalPresets";
+import { useAdminModalPreset } from "@/app/[locale]/(dashboard)/admin/ui/modalPresets";
 
 interface Props {
   buttonLabel?: string;
