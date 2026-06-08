@@ -1,0 +1,40 @@
+{
+  "label": {
+    "current": "Current club",
+    "club": "Club"
+  },
+  "freeAgent": "Free agent",
+  "placeholder": {
+    "search": "Type your club's name",
+    "searchTeam": "Type to search for a team",
+    "disabledFree": "Disabled — free agent"
+  },
+  "hint": {
+    "signpost": "Can't find your club? You'll be able to add it."
+  },
+  "option": {
+    "add": "Add “{name}”",
+    "addHint": "Not in the list · we'll verify it"
+  },
+  "badge": {
+    "new": "New"
+  },
+  "modal": {
+    "title": "Add your club",
+    "intro": "We couldn't find it in our database. Fill in these details and we'll verify it so it stays on your profile.",
+    "country": "Club's country",
+    "countryRequired": "Choose a country",
+    "tm": "Transfermarkt (optional)",
+    "tmInvalid": "Invalid URL (https://...)",
+    "cancel": "Cancel",
+    "save": "Add club"
+  },
+  "chip": {
+    "selected": "Selected: {name}",
+    "added": "Added: {name} · pending verification",
+    "free": "Free agent"
+  },
+  "details": {
+    "edit": "Edit club details"
+  }
+}

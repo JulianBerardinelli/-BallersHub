@@ -1,0 +1,40 @@
+{
+  "label": {
+    "current": "Club actual",
+    "club": "Club"
+  },
+  "freeAgent": "Jugador libre",
+  "placeholder": {
+    "search": "Escribí el nombre de tu club",
+    "searchTeam": "Escribí para buscar un equipo",
+    "disabledFree": "Deshabilitado por jugador libre"
+  },
+  "hint": {
+    "signpost": "¿No encontrás tu club? Vas a poder agregarlo."
+  },
+  "option": {
+    "add": "Agregar “{name}”",
+    "addHint": "No está en la lista · lo verificamos"
+  },
+  "badge": {
+    "new": "Nuevo"
+  },
+  "modal": {
+    "title": "Agregar tu club",
+    "intro": "No lo encontramos en nuestra base. Completá estos datos y lo verificamos para dejarlo cargado en tu perfil.",
+    "country": "País del club",
+    "countryRequired": "Elegí un país",
+    "tm": "Transfermarkt (opcional)",
+    "tmInvalid": "URL inválida (https://...)",
+    "cancel": "Cancelar",
+    "save": "Agregar club"
+  },
+  "chip": {
+    "selected": "Seleccionado: {name}",
+    "added": "Agregado: {name} · pendiente de verificación",
+    "free": "Jugador libre"
+  },
+  "details": {
+    "edit": "Editar detalles del club"
+  }
+}

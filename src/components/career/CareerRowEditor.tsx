@@ -7,21 +7,17 @@ import {
   Autocomplete,
   AutocompleteItem,
   Chip,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Switch,
 } from "@heroui/react";
 import { supabase } from "@/lib/supabase/client";
-import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
+import { type CountryPick } from "@/components/common/CountrySinglePicker";
 import CountryFlag from "@/components/common/CountryFlag";
 import { validateYears, YEAR_MIN, YEAR_MAX } from "./career-utils";
 
 import FormField from "@/components/dashboard/client/FormField";
 import { bhButtonClass } from "@/components/ui/BhButton";
-import { bhChip, bhModalClassNames, bhSwitchClassNames } from "@/lib/ui/heroui-brand";
+import { bhChip, bhSwitchClassNames } from "@/lib/ui/heroui-brand";
+import TeamCombobox, { type TeamComboboxValue } from "@/components/teams/TeamCombobox";
 
 export type TeamLite = {
   id: string;
@@ -74,15 +70,50 @@ export default function CareerRowEditor({
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (selected: boolean) => boolean | void;
 }) {
-  // --- Autocomplete club ---
-  const [q, setQ] = React.useState(value.club ?? "");
-  const [items, setItems] = React.useState<TeamLite[]>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [selectedKey, setSelectedKey] = React.useState<string | null>(
-    value.team_id ? value.team_id : value.proposed ? `new:${value.club}` : null
-  );
-  const [selectedTeam, setSelectedTeam] = React.useState<TeamLite | null>(null);
-  const selectedLabelRef = React.useRef<string | null>(value.club || null);
+  // --- Club: shared search-or-propose combobox ---
+  const teamValue: TeamComboboxValue = value.team_id
+    ? {
+        mode: "approved",
+        teamId: value.team_id,
+        teamName: value.club,
+        country: null,
+        countryCode: value.team_meta?.country_code ?? null,
+        teamCrest: value.team_meta?.crest_url ?? null,
+      }
+    : value.proposed
+    ? {
+        mode: "new",
+        name: value.club,
+        country: value.proposed.country?.name ?? null,
+        countryCode: value.proposed.country?.code ?? null,
+        tmUrl: value.proposed.tmUrl ?? null,
+      }
+    : null;
+
+  function handleTeamChange(v: TeamComboboxValue) {
+    if (!v) {
+      onPatch({ club: "", team_id: null, team_meta: null, proposed: null });
+      return;
+    }
+    if (v.mode === "approved") {
+      onPatch({
+        club: v.teamName,
+        team_id: v.teamId,
+        team_meta: { slug: undefined, country_code: v.countryCode ?? null, crest_url: v.teamCrest ?? null },
+        proposed: null,
+      });
+    } else {
+      onPatch({
+        club: v.name,
+        team_id: null,
+        team_meta: null,
+        proposed: {
+          country: v.countryCode ? { code: v.countryCode, name: v.country ?? v.countryCode } : null,
+          tmUrl: v.tmUrl ?? null,
+        },
+      });
+    }
+  }
 
   // --- Autocomplete Division (principal) ---
   const [divQ, setDivQ] = React.useState(value.division ?? "");
@@ -169,65 +200,6 @@ export default function CareerRowEditor({
   React.useEffect(() => { setStartStr(value.start_year ? String(value.start_year) : ""); }, [value.start_year]);
   React.useEffect(() => { setEndStr(value.end_year ? String(value.end_year) : ""); }, [value.end_year]);
 
-  // --- Modal detalles de equipo propuesto ---
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const [tmpCountry, setTmpCountry] = React.useState<CountryPick | null>(value.proposed?.country ?? null);
-  const [tmpTm, setTmpTm] = React.useState<string>(value.proposed?.tmUrl ?? "");
-
-  // Buscar equipos (debounce)
-  React.useEffect(() => {
-    if (!q.trim()) { setItems([]); return; }
-    let cancelled = false;
-    const t = setTimeout(async () => {
-      setLoading(true);
-      const { data, error } = await supabase.rpc("search_teams", { p_q: q.trim(), p_limit: 8 });
-      if (cancelled) return;
-      setLoading(false);
-      if (error) { console.error("search_teams:", error.message); setItems([]); return; }
-      const list = (data ?? []) as TeamLite[];
-      setItems(list);
-      if (selectedKey && !String(selectedKey).startsWith("new:") && !selectedTeam) {
-        const found = list.find((i) => i.id === selectedKey);
-        if (found) setSelectedTeam(found);
-      }
-    }, 250);
-    return () => { cancelled = true; clearTimeout(t); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q]);
-
-  function selectApproved(t: TeamLite) {
-    setSelectedKey(t.id);
-    selectedLabelRef.current = t.name;
-    setSelectedTeam(t);
-    setQ(t.name);
-    onPatch({
-      club: t.name,
-      team_id: t.id,
-      team_meta: { slug: t.slug, country_code: t.country_code, crest_url: t.crest_url },
-      proposed: null,
-    });
-  }
-
-  function selectCreate() {
-    const label = q.trim();
-    const key = `new:${label}`;
-    setSelectedKey(key);
-    selectedLabelRef.current = label;
-    setSelectedTeam(null);
-    onPatch({ club: label, team_id: null, team_meta: null, proposed: { country: tmpCountry, tmUrl: tmpTm || null } });
-    setModalOpen(true);
-  }
-
-  function handleInputChange(v: string) {
-    setQ(v);
-    if (selectedKey && selectedLabelRef.current && v !== selectedLabelRef.current) {
-      setSelectedKey(null);
-      setSelectedTeam(null);
-      onPatch({ team_id: null, team_meta: null, proposed: null });
-    }
-    onPatch({ club: v });
-  }
-
   // Si el usuario tipea texto que matchea exacto (case-insensitive) con una
   // división del catálogo, auto-linkeamos el id para que la fila quede
   // enlazada al catálogo (crest en portfolio, filtros por liga, etc).
@@ -296,11 +268,6 @@ export default function CareerRowEditor({
     }
   }
 
-  function saveModal() {
-    onPatch({ proposed: { country: tmpCountry ?? null, tmUrl: tmpTm || null } });
-    setModalOpen(false);
-  }
-
   // Validaciones de años
   const yMsgs = validateYears(
     startStr.length === 4 ? Number(startStr) : null,
@@ -310,7 +277,6 @@ export default function CareerRowEditor({
   const startInvalid = showErrors && yMsgs.some(m => m.toLowerCase().includes("desde"));
   const endInvalid   = !value.lockEnd && showErrors && yMsgs.some(m => m.toLowerCase().includes("hasta"));
 
-  const urlOk = !tmpTm || /^https?:\/\/[^ "]+$/i.test(tmpTm);
   const canConfirm =
     (value.club?.trim()?.length ?? 0) > 1 &&
     yMsgs.length === 0 &&
@@ -371,67 +337,13 @@ export default function CareerRowEditor({
       }`}
     >
       <div className="lg:col-span-2">
-        <Autocomplete
+        <TeamCombobox
+          variant="field"
           label="Club"
-          labelPlacement="outside"
-          menuTrigger="input"
-          {...autocompleteBrandProps}
-          inputValue={q}
-          onInputChange={handleInputChange}
-          isLoading={loading}
-          selectedKey={selectedKey ?? undefined}
-          onSelectionChange={(key) => {
-            const k = String(key || "");
-            if (!k) return;
-            if (k.startsWith("new:")) selectCreate();
-            else {
-              const t = items.find((i) => i.id === k);
-              if (t) selectApproved(t);
-            }
-          }}
-          items={[
-            ...(!loading && q.trim().length > 1 && items.length === 0
-              ? ([{ id: `new:${q.trim()}`, name: q.trim(), slug: "", country: null, country_code: null, crest_url: null }] as any)
-              : []),
-            ...items,
-          ]}
-          startContent={
-            selectedKey && !String(selectedKey).startsWith("new:") && selectedTeam
-              ? <Image src={selectedTeam.crest_url || "/images/team-default.svg"} width={18} height={18} unoptimized={!selectedTeam.crest_url} className="h-5 w-5 object-contain" alt="" />
-              : null
-          }
-        >
-          {(item: any) => {
-            const isNew = String(item.id).startsWith("new:");
-            if (isNew) {
-              return (
-                <AutocompleteItem key={item.id} textValue={`Crear ${item.name}`}>
-                  <div className="flex flex-col">
-                    <span>“{item.name}” no está en la base</span>
-                    <span className="text-bh-fg-4 text-xs">Proponer nuevo equipo</span>
-                  </div>
-                </AutocompleteItem>
-              );
-            }
-            return (
-              <AutocompleteItem
-                key={item.id}
-                textValue={`${item.name} ${item.slug}`}
-                startContent={
-                  <Image src={item.crest_url || "/images/team-default.svg"} width={18} height={18} unoptimized={!item.crest_url} className="h-5 w-5 object-contain" alt="" />
-                }
-                description={
-                  <div className="flex items-center gap-1 text-bh-fg-4">
-                    {item.country_code && <CountryFlag code={item.country_code} size={12} />}
-                    {item.country_code ? `(${item.country_code})` : null} · @{item.slug}
-                  </div>
-                }
-              >
-                {item.name}
-              </AutocompleteItem>
-            );
-          }}
-        </Autocomplete>
+          value={teamValue}
+          seedText={value.club}
+          onChange={handleTeamChange}
+        />
       </div>
 
       <Autocomplete
@@ -665,16 +577,6 @@ export default function CareerRowEditor({
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-2">
-            {!value.team_id && (
-              <Button
-                size="sm"
-                variant="flat"
-                onPress={() => setModalOpen(true)}
-                className={bhButtonClass({ variant: "outline", size: "sm" })}
-              >
-                {value.proposed?.country || value.proposed?.tmUrl ? "Editar detalles" : "Completar detalles"}
-              </Button>
-            )}
             {!value.lockDelete && (
               <Button
                 size="sm"
@@ -705,54 +607,6 @@ export default function CareerRowEditor({
           </div>
         </div>
       </div>
-
-      <Modal
-        isOpen={modalOpen}
-        onOpenChange={(o) => !o && setModalOpen(false)}
-        size="md"
-        backdrop="blur"
-        scrollBehavior="inside"
-        classNames={bhModalClassNames}
-      >
-        <ModalContent>
-          <ModalHeader className="pr-12">
-            Equipo propuesto: {value.club || "Nuevo equipo"}
-          </ModalHeader>
-          <ModalBody className="grid gap-3">
-            <CountrySinglePicker
-              label="País"
-              value={tmpCountry}
-              onChange={setTmpCountry}
-              isInvalid={!!value.club && !tmpCountry}
-              errorMessage="Elegí un país"
-            />
-            <FormField
-              label="Transfermarkt (opcional)"
-              value={tmpTm}
-              onChange={(e) => setTmpTm(e.target.value)}
-              isInvalid={!!tmpTm && !/^https?:\/\/[^ "]+$/i.test(tmpTm)}
-              errorMessage="URL inválida (https://...)"
-              placeholder="https://www.transfermarkt.com/..."
-            />
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="flat"
-              onPress={() => setModalOpen(false)}
-              className={bhButtonClass({ variant: "ghost", size: "sm" })}
-            >
-              Cancelar
-            </Button>
-            <Button
-              onPress={saveModal}
-              isDisabled={!urlOk || !tmpCountry}
-              className={bhButtonClass({ variant: "lime", size: "sm" })}
-            >
-              Guardar
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </div>
   );
 }
