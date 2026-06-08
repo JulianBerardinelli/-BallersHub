@@ -220,5 +220,46 @@
         { "label": "Schema.org + sitemap dedicata + OG dinamico", "values": [false, true] }
       ]}
     ]
+  },
+  "detailPanel": {
+    "header": { "suffix": "cosa include", "planPrefix": "Piano", "scrollHint": "Scorri per sfogliare le viste" },
+    "device": { "desktop": "Desktop · 1440×900", "tablet": "Tablet · 1024×1366", "mobile": "Mobile · 390×844", "placeholder": "Sostituibile con uno screenshot reale" },
+    "footer": { "alsoIncludes": "Include anche", "questions": "Ho dei dubbi" },
+    "freePlayer": {
+      "pitch": "L'essenziale per presentarti professionalmente. URL pubblico, dati base, carriera e statistiche per stagione — su qualsiasi dispositivo.",
+      "benefits": ["URL pubblico personalizzabile", "Carriera + statistiche per stagione", "2 video · 3 social · 3 rassegne stampa", "Condividilo su WhatsApp con un tocco"],
+      "scenes": [
+        { "eyebrow": "Vista 01 · Profilo pubblico", "title": "La tua identità pubblica, in un URL", "description": "Dati chiave, foto professionale e carriera in primo piano. La presentazione più pulita per i club che ti scoprono per la prima volta.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/perfil/jose-talleres" },
+        { "eyebrow": "Vista 02 · Tablet", "title": "Come appare su tablet", "description": "Il profilo si adatta al formato verticale senza perdere gerarchia. Pensato per presentazioni rapide in riunioni di persona.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
+        { "eyebrow": "Vista 03 · Mobile", "title": "Nella tasca di ogni scout", "description": "Layout mobile-first da condividere su WhatsApp o social. L'importante in alto, tutto accessibile con una mano.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
+      ]
+    },
+    "proPlayer": {
+      "pitch": "Il piano che usa la maggioranza: template pro, valore di mercato, palmarès, scouting analitico e supporto umano. Pensato per spingere il tuo prossimo trasferimento.",
+      "benefits": ["Template Pro Portfolio con motions e assets", "Multimedia illimitati e galleria di 5 immagini", "Valore di mercato e palmarès visibili", "Analisi di scouting (tattica, fisica, mentale, tecnica)", "Recensioni con invito + contatti di riferimento", "5 richieste di correzione/settimana · supporto umano · SEO Pro"],
+      "scenes": [
+        { "eyebrow": "Vista 01 · Dashboard", "title": "Le tue metriche reali, in tempo reale", "description": "Visite, contatti e rating aggiornati al minuto. Quattro indicatori di impatto e una vista dell'attività recente.", "device": "desktop", "variant": "dashboard", "caption": "dashboard.ballershub.app/insights" },
+        { "eyebrow": "Vista 02 · Agenda", "title": "Coordinati direttamente con i club", "description": "Il tuo calendario sincronizzato: partite, allenamenti e riunioni. I club possono coordinare le visite in tempo reale.", "device": "desktop", "variant": "dashboard", "caption": "agenda.ballershub.app · Maggio 2026" },
+        { "eyebrow": "Vista 03 · Mobile", "title": "Notifiche in tasca", "description": "La tua attività e le nuove opportunità sincronizzate con il tuo cellulare. Sai quando qualcuno torna sul tuo profilo.", "device": "mobile", "variant": "dashboard", "caption": "iOS · App nativa in arrivo" }
+      ]
+    },
+    "freeAgency": {
+      "pitch": "Presenza essenziale per la tua agenzia. Fino a 2 membri, rosa limitata e template predefinito — il necessario per iniziare a operare.",
+      "benefits": ["URL pubblico personalizzabile", "Fino a 2 membri del team", "Rosa fino a 5 giocatori", "2 video · 3 social · 3 rassegne stampa"],
+      "scenes": [
+        { "eyebrow": "Vista 01 · Agenzia", "title": "La tua agenzia, presentata con identità", "description": "Informazioni dell'agenzia, team visibile e rosa fino a 5 rappresentati. Template predefinito, pronto in pochi minuti.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/agency/norte-srl" },
+        { "eyebrow": "Vista 02 · Tablet", "title": "Lavoro in presenza senza attriti", "description": "Il profilo dell'agenzia adattato al tablet: ideale per presentarlo allo staff tecnico di un club o portarlo a riunioni tecniche.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
+        { "eyebrow": "Vista 03 · Mobile", "title": "La tua agenzia in tasca", "description": "Così club e giocatori svincolati possono trovare le tue informazioni di contatto da qualsiasi dispositivo.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
+      ]
+    },
+    "proAgency": {
+      "pitch": "Lo stack completo per la tua agenzia: rosa illimitata, team senza limiti e 5 slot Pro Player per i tuoi rappresentati — tutto con template pro.",
+      "benefits": ["Template Pro Portfolio per agenzie", "Membri illimitati con ruoli", "Rosa illimitata di giocatori", "5 slot Pro Player assegnabili", "Multimedia e rassegne stampa illimitate", "Recensioni con invito + contatti di riferimento", "SEO Pro · supporto umano prioritario"],
+      "scenes": [
+        { "eyebrow": "Vista 01 · Rosa", "title": "Rosa illimitata con ricerca", "description": "Filtra la tua rosa per età, ruolo o stato contrattuale. Ogni giocatore con il suo profilo pro pronto da condividere.", "device": "desktop", "variant": "search", "caption": "agency.ballershub.app/roster" },
+        { "eyebrow": "Vista 02 · Team", "title": "Coordinati con il tuo staff", "description": "Membri illimitati con ruoli differenziati (procuratore principale, assistente, scout). Ognuno con permessi sulla rosa.", "device": "desktop", "variant": "dashboard", "caption": "agency.ballershub.app/team" },
+        { "eyebrow": "Vista 03 · Mobile", "title": "La tua agenzia, mobile-first", "description": "Tutta la rosa e le notifiche di attività disponibili da qualsiasi dispositivo del team.", "device": "mobile", "variant": "dashboard", "caption": "iOS · App nativa in arrivo" }
+      ]
+    }
   }
 }
