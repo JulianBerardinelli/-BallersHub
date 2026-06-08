@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { AnimatePresence, m } from "framer-motion";
 import { ArrowRight, Check, ChevronDown, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
+import { Link } from "@/i18n/navigation";
 import PricingDetailPanel, {
   type DetailPanelPlan,
 } from "./PricingDetailPanel";
@@ -12,36 +13,37 @@ import {
   CURRENCY_GLYPH,
   accentClasses,
   audienceAccent,
-  plansFor,
+  plansForT,
   type AccentClasses,
   type AccentColor,
   type Currency,
   type Plan,
   type PlanId,
+  type PricingT,
 } from "./data";
 import { usePricing } from "./PricingContext";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export default function PricingPlans() {
+  const t = useTranslations("pricing");
   const { audience, currency } = usePricing();
-  const plans = plansFor(audience);
+  const plans = plansForT(t, audience);
   const accent = audienceAccent(audience);
   const accentCls = accentClasses(accent);
 
   // Default-open the highlighted plan (Pro). When AUDIENCE changes, re-anchor
   // to that audience's highlighted plan. We deliberately do NOT include
-  // `plans` in the deps — the array reference changes every render, which
-  // would re-fire this effect on every state change and overwrite manual
-  // toggle clicks (the bug that broke "ocultar detalles" / Free scrolljack).
+  // `plans` in the deps — the array reference changes every render.
   const [activeId, setActiveId] = useState<PlanId | null>(() => {
-    const next = plansFor("player");
+    const next = plansForT(t, "player");
     return next.find((p) => p.highlight)?.id ?? next[0]?.id ?? null;
   });
 
   useEffect(() => {
-    const next = plansFor(audience);
+    const next = plansForT(t, audience);
     setActiveId(next.find((p) => p.highlight)?.id ?? next[0]?.id ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audience]);
 
   const activePlanIdx = activeId
@@ -52,7 +54,7 @@ export default function PricingPlans() {
   return (
     <section aria-labelledby="pricing-plans-title" className="relative">
       <h2 id="pricing-plans-title" className="sr-only">
-        Planes disponibles
+        {t("plans.srTitle")}
       </h2>
 
       <AnimatePresence mode="wait">
@@ -73,6 +75,7 @@ export default function PricingPlans() {
               accentCls={accentCls}
               active={plan.id === activeId}
               cardIndex={idx}
+              t={t}
               onToggle={() =>
                 setActiveId((cur) => (cur === plan.id ? null : plan.id))
               }
@@ -92,8 +95,7 @@ export default function PricingPlans() {
       </AnimatePresence>
 
       <p className="mt-10 text-center text-[11px] uppercase tracking-[0.14em] text-bh-fg-4">
-        Cobro anual · Cancelable sin cargo dentro de los 3 días posteriores al
-        fin del trial
+        {t("plans.disclaimer")}
       </p>
     </section>
   );
@@ -134,6 +136,7 @@ function PlanCard({
   accentCls,
   active,
   cardIndex,
+  t,
   onToggle,
 }: {
   plan: Plan;
@@ -142,6 +145,7 @@ function PlanCard({
   accentCls: AccentClasses;
   active: boolean;
   cardIndex: number;
+  t: PricingT;
   onToggle: () => void;
 }) {
   const accentText = plan.highlight ? accentCls.text : "text-bh-fg-1";
@@ -151,13 +155,11 @@ function PlanCard({
     : "bh-glass";
 
   const cta = plan.highlight
-    ? `${accentCls.bg} ${accent === "blue" ? "text-bh-black" : "text-bh-black"} ${accentCls.shadow} ${accentCls.hoverBg} ${accentCls.hoverShadow} hover:-translate-y-px`
+    ? `${accentCls.bg} text-bh-black ${accentCls.shadow} ${accentCls.hoverBg} ${accentCls.hoverShadow} hover:-translate-y-px`
     : "border border-white/[0.14] text-bh-fg-1 hover:bg-white/[0.06]";
 
   const delay = ["bh-animate-d1", "bh-animate-d2"][cardIndex] ?? "";
 
-  // Demo button hover/active state mirrors the audience accent so it stays
-  // visually consistent with the rest of the card.
   const demoHover =
     accent === "blue"
       ? "hover:border-bh-blue/30 hover:bg-bh-blue/[0.04] hover:text-bh-blue"
@@ -170,8 +172,6 @@ function PlanCard({
     ? demoActive
     : `border-white/[0.10] bg-white/[0.02] text-bh-fg-2 ${demoHover}`;
 
-  // Highlighted card's ambient gradient — accent on top, the opposite tone
-  // softly on the bottom for depth.
   const ambientGradient =
     accent === "blue"
       ? "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,194,255,0.10) 0%, transparent 70%), radial-gradient(ellipse 80% 60% at 50% 100%, rgba(204,255,0,0.05) 0%, transparent 70%)"
@@ -209,7 +209,7 @@ function PlanCard({
         )}
       </header>
 
-      <PriceBlock plan={plan} currency={currency} accentCls={accentCls} />
+      <PriceBlock plan={plan} currency={currency} accentCls={accentCls} t={t} />
 
       <p className="mt-3 text-[12.5px] leading-[1.55] text-bh-fg-2">
         {plan.description}
@@ -253,7 +253,7 @@ function PlanCard({
           aria-controls={`plan-detail-${plan.id}`}
           className={`group inline-flex w-full items-center justify-center gap-2 rounded-bh-md border px-4 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all duration-200 ${demoBtnClass}`}
         >
-          Ver demo
+          {t("plans.viewDemo")}
           <ChevronDown
             className={`h-3.5 w-3.5 transition-transform duration-200 ${
               active ? "rotate-180" : ""
@@ -269,19 +269,21 @@ function PriceBlock({
   plan,
   currency,
   accentCls,
+  t,
 }: {
   plan: Plan;
   currency: Currency;
   accentCls: AccentClasses;
+  t: PricingT;
 }) {
   if (!plan.pricing) {
     return (
       <div className="mt-5">
         <span className="font-bh-display text-[2.5rem] font-black leading-none text-bh-fg-1">
-          Gratis
+          {t("plans.priceFree")}
         </span>
         <p className="mt-2 text-[10px] uppercase tracking-[0.14em] text-bh-fg-4">
-          Para siempre · sin tarjeta
+          {t("plans.forever")}
         </p>
       </div>
     );
@@ -306,15 +308,15 @@ function PriceBlock({
         <span className="pb-1.5 font-bh-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3">
           {price.symbol}
         </span>
-        <span className="pb-1.5 text-sm text-bh-fg-3">/mes</span>
+        <span className="pb-1.5 text-sm text-bh-fg-3">{t("plans.perMonth")}</span>
       </div>
       <p className="mt-2 text-[11px] text-bh-fg-3">
-        Facturado anualmente ·{" "}
+        {t("plans.billedAnnually")}
         <span className="font-semibold text-bh-fg-2">
           {glyph}
           {price.annualDisplay} {price.symbol}
         </span>{" "}
-        / año
+        {t("plans.perYear")}
       </p>
     </div>
   );
@@ -342,7 +344,6 @@ function FeatureIcon({
       </span>
     );
   }
-  // Excluded — red X to make the missing feature unmistakable.
   return (
     <span
       aria-hidden

@@ -52,5 +52,90 @@
     "description": "Pick the plan that boosts your career or agency. Free includes a verified profile and public URL. Pro adds an extended gallery, press, advanced SEO and JSON-LD schema.",
     "ogTitle": "Plans & pricing — 'BallersHub",
     "ogDescription": "Free vs Pro for players and agencies. Annual subscription with a 7-day trial on Pro."
+  },
+  "plans": {
+    "srTitle": "Available plans",
+    "priceFree": "Free",
+    "forever": "Forever · no card",
+    "perMonth": "/mo",
+    "billedAnnually": "Billed annually · ",
+    "perYear": "/ year",
+    "viewDemo": "View demo",
+    "disclaimer": "Annual billing · Cancellable at no charge within 3 days after the trial ends",
+    "freePlayer": {
+      "name": "Free",
+      "tagline": "Start your identity",
+      "description": "Build your essential profile with verifiable identity. The basics so clubs and agents can find you.",
+      "ctaLabel": "Start free",
+      "features": [
+        "Verified professional profile",
+        "Customizable public URL",
+        "Default template",
+        "2 catalog videos · 3 socials · 3 press notes",
+        "Career history + per-season stats",
+        "2 correction requests per area / week",
+        "Pro Portfolio template (motions + assets)",
+        "Catalog gallery (5 images)",
+        "Market value and honours",
+        "Scouting analysis (tactical, physical, mental, technical)",
+        "Reviews and reference contacts"
+      ]
+    },
+    "proPlayer": {
+      "name": "Pro",
+      "tagline": "Real visibility",
+      "description": "Pro template, unlimited media and the complete information to drive your next transfer.",
+      "ctaLabel": "Try 7 days free",
+      "badge": "Most picked",
+      "features": [
+        "Everything in Free",
+        "Pro Portfolio template (motions + pro assets)",
+        "Catalog gallery of 5 images",
+        "Unlimited videos · socials · press notes",
+        "Market value and honours visible",
+        "Scouting analysis (tactical, physical, mental, technical)",
+        "Career-stage descriptions",
+        "Reviews by invitation + reference contacts",
+        "5 correction requests per area / week",
+        "Priority human support · Pro SEO"
+      ]
+    },
+    "freeAgency": {
+      "name": "Free",
+      "tagline": "Showcase your agency",
+      "description": "Essential presence for your agency. Limited roster and default template to start operating.",
+      "ctaLabel": "Create free account",
+      "features": [
+        "Customizable public URL",
+        "Default template",
+        "Up to 2 team members (owner included)",
+        "Roster of up to 5 represented players",
+        "2 catalog videos · 3 socials · 3 press notes",
+        "2 correction requests per area / week",
+        "Pro Portfolio template (agency version)",
+        "Unlimited members",
+        "5 Pro slots grantable to represented players",
+        "Reviews and reference contacts"
+      ]
+    },
+    "proAgency": {
+      "name": "Pro",
+      "tagline": "Professional stack",
+      "description": "Unlimited roster, unlimited team and 5 Pro Player slots for your represented players. The agency's complete stack.",
+      "ctaLabel": "Try 7 days free",
+      "badge": "Recommended",
+      "features": [
+        "Everything in Free Agency",
+        "Pro Portfolio template (agency version)",
+        "Unlimited team members",
+        "Unlimited roster of represented players",
+        "5 Pro Player slots for your represented players",
+        "Catalog gallery of 5 images",
+        "Reviews by invitation",
+        "Reference contacts",
+        "Priority human support",
+        "Pro SEO"
+      ]
+    }
   }
 }

@@ -52,5 +52,90 @@
     "description": "Elegí el plan que potencia tu carrera o agencia. Free incluye perfil verificado y URL pública. Pro suma galería extendida, prensa, SEO avanzado y schema en JSON-LD.",
     "ogTitle": "Planes y precios — 'BallersHub",
     "ogDescription": "Free vs Pro para jugadores y agencias. Suscripción anual con trial de 7 días en Pro."
+  },
+  "plans": {
+    "srTitle": "Planes disponibles",
+    "priceFree": "Gratis",
+    "forever": "Para siempre · sin tarjeta",
+    "perMonth": "/mes",
+    "billedAnnually": "Facturado anualmente · ",
+    "perYear": "/ año",
+    "viewDemo": "Ver demo",
+    "disclaimer": "Cobro anual · Cancelable sin cargo dentro de los 3 días posteriores al fin del trial",
+    "freePlayer": {
+      "name": "Free",
+      "tagline": "Empezá tu identidad",
+      "description": "Construí tu perfil esencial con identidad verificable. Lo necesario para que clubes y agentes te encuentren.",
+      "ctaLabel": "Empezar gratis",
+      "features": [
+        "Perfil profesional verificado",
+        "URL pública personalizable",
+        "Plantilla default",
+        "2 videos de catálogo · 3 redes · 3 notas de prensa",
+        "Trayectoria + estadísticas por temporada",
+        "2 solicitudes de corrección por rubro / semana",
+        "Plantilla Pro Portfolio (motions + assets)",
+        "Galería catálogo (5 imágenes)",
+        "Valor de mercado y palmarés",
+        "Análisis de scouting (táctico, físico, mental, técnico)",
+        "Reviews y contactos de referencia"
+      ]
+    },
+    "proPlayer": {
+      "name": "Pro",
+      "tagline": "Visibilidad real",
+      "description": "Plantilla pro, multimedia ilimitada y la información completa para impulsar tu próxima transferencia.",
+      "ctaLabel": "Probar 7 días gratis",
+      "badge": "Más elegido",
+      "features": [
+        "Todo lo del Free",
+        "Plantilla Pro Portfolio (motions + assets pro)",
+        "Galería catálogo de 5 imágenes",
+        "Videos · redes · notas de prensa ilimitados",
+        "Valor de mercado y palmarés visibles",
+        "Análisis de scouting (táctico, físico, mental, técnico)",
+        "Descripciones por etapa de carrera",
+        "Reviews con invitación + contactos de referencia",
+        "5 solicitudes de corrección por rubro / semana",
+        "Soporte humano prioritario · SEO Pro"
+      ]
+    },
+    "freeAgency": {
+      "name": "Free",
+      "tagline": "Mostrá tu agencia",
+      "description": "Presencia esencial para tu agencia. Cartera limitada y plantilla default para empezar a operar.",
+      "ctaLabel": "Crear cuenta gratis",
+      "features": [
+        "URL pública personalizable",
+        "Plantilla default",
+        "Hasta 2 members del equipo (incluye owner)",
+        "Cartera de hasta 5 jugadores representados",
+        "2 videos de catálogo · 3 redes · 3 notas de prensa",
+        "2 solicitudes de corrección por rubro / semana",
+        "Plantilla Pro Portfolio (versión agency)",
+        "Members ilimitados",
+        "5 slots de Pro otorgables a representados",
+        "Reviews y contactos de referencia"
+      ]
+    },
+    "proAgency": {
+      "name": "Pro",
+      "tagline": "Stack profesional",
+      "description": "Cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados. El stack completo de la agencia.",
+      "ctaLabel": "Probar 7 días gratis",
+      "badge": "Recomendado",
+      "features": [
+        "Todo lo del Free Agency",
+        "Plantilla Pro Portfolio (versión agency)",
+        "Members del equipo ilimitados",
+        "Cartera ilimitada de jugadores representados",
+        "5 slots de Pro Player para tus representados",
+        "Galería catálogo de 5 imágenes",
+        "Reviews con invitación",
+        "Contactos de referencia",
+        "Soporte humano prioritario",
+        "SEO Pro"
+      ]
+    }
   }
 }
