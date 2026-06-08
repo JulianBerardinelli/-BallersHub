@@ -1,0 +1,40 @@
+{
+  "label": {
+    "current": "Club attuale",
+    "club": "Club"
+  },
+  "freeAgent": "Svincolato",
+  "placeholder": {
+    "search": "Scrivi il nome del tuo club",
+    "searchTeam": "Scrivi per cercare una squadra",
+    "disabledFree": "Disabilitato — svincolato"
+  },
+  "hint": {
+    "signpost": "Non trovi il tuo club? Potrai aggiungerlo."
+  },
+  "option": {
+    "add": "Aggiungi “{name}”",
+    "addHint": "Non è nella lista · lo verifichiamo"
+  },
+  "badge": {
+    "new": "Nuovo"
+  },
+  "modal": {
+    "title": "Aggiungi il tuo club",
+    "intro": "Non l'abbiamo trovato nel nostro database. Compila questi dati e lo verifichiamo per mantenerlo sul tuo profilo.",
+    "country": "Paese del club",
+    "countryRequired": "Scegli un paese",
+    "tm": "Transfermarkt (opzionale)",
+    "tmInvalid": "URL non valido (https://...)",
+    "cancel": "Annulla",
+    "save": "Aggiungi club"
+  },
+  "chip": {
+    "selected": "Selezionato: {name}",
+    "added": "Aggiunto: {name} · in attesa di verifica",
+    "free": "Svincolato"
+  },
+  "details": {
+    "edit": "Modifica i dettagli del club"
+  }
+}

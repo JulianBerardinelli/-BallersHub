@@ -1,0 +1,40 @@
+{
+  "label": {
+    "current": "Clube atual",
+    "club": "Clube"
+  },
+  "freeAgent": "Sem clube",
+  "placeholder": {
+    "search": "Digite o nome do seu clube",
+    "searchTeam": "Digite para buscar um time",
+    "disabledFree": "Desativado — sem clube"
+  },
+  "hint": {
+    "signpost": "Não encontra seu clube? Você vai poder adicioná-lo."
+  },
+  "option": {
+    "add": "Adicionar “{name}”",
+    "addHint": "Não está na lista · nós verificamos"
+  },
+  "badge": {
+    "new": "Novo"
+  },
+  "modal": {
+    "title": "Adicionar seu clube",
+    "intro": "Não encontramos no nosso banco de dados. Preencha estes dados e nós verificamos para deixá-lo no seu perfil.",
+    "country": "País do clube",
+    "countryRequired": "Escolha um país",
+    "tm": "Transfermarkt (opcional)",
+    "tmInvalid": "URL inválida (https://...)",
+    "cancel": "Cancelar",
+    "save": "Adicionar clube"
+  },
+  "chip": {
+    "selected": "Selecionado: {name}",
+    "added": "Adicionado: {name} · aguardando verificação",
+    "free": "Sem clube"
+  },
+  "details": {
+    "edit": "Editar detalhes do clube"
+  }
+}
