@@ -1,0 +1,54 @@
+// Pricing plans on the home, right below the video grid. Reuses the EXACT
+// /pricing UI — audience (Jugador ↔ Agencia) + currency (USD/ARS/EUR) toggles
+// and the plan cards — so the two stay in sync. Condensed: just the heading +
+// toggles + cards (the full comparison table / FAQ live on /pricing).
+//
+// Server component composing the client pricing pieces (same pattern as the
+// /pricing page), so the cards SSR. `m` animations work via the (site) layout's
+// SiteMotionProvider (LazyMotion).
+
+import { ArrowRight, Sparkles } from "lucide-react";
+import Link from "next/link";
+
+import { PricingPlans, PricingProvider, PricingToggles } from "@/components/site/pricing";
+
+export default function HomePricing() {
+  return (
+    <PricingProvider initialAudience="player" initialCurrency="USD">
+      <section aria-labelledby="home-pricing-title" className="relative">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="bh-animate-in inline-flex items-center gap-1.5 rounded-bh-pill border border-bh-fg-4 bg-white/[0.03] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3 backdrop-blur-md">
+            <Sparkles className="h-3 w-3 text-bh-lime" />
+            Planes &amp; precios
+          </span>
+
+          <h2
+            id="home-pricing-title"
+            className="bh-animate-in bh-animate-d1 mt-5 font-bh-display text-[2rem] font-black uppercase leading-[0.95] tracking-[-0.01em] text-bh-fg-1 md:text-[2.75rem]"
+          >
+            Elegí el plan que <span className="bh-text-shimmer">acelera tu carrera</span>
+          </h2>
+
+          <p className="bh-animate-in bh-animate-d2 mx-auto mt-4 max-w-[520px] text-[15px] leading-[1.6] text-bh-fg-3">
+            Empezá gratis y, cuando estés listo, sumá Pro. Para jugadores y agencias.
+          </p>
+        </div>
+
+        <div className="mt-10 space-y-10">
+          <PricingToggles />
+          <PricingPlans />
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-bh-fg-3 transition-colors duration-150 hover:text-bh-fg-1"
+          >
+            Ver comparación completa y FAQ
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </section>
+    </PricingProvider>
+  );
+}

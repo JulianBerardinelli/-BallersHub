@@ -1,0 +1,136 @@
+/* ============================================================================
+ *  VideoWall — styles  ·  ported from Claude Design (claude.ai/design)
+ * ----------------------------------------------------------------------------
+ *  Namespaced (vw-* / rec-*) so it never collides with the rest of the app.
+ *  Imported once from VideoWall.tsx (SSR-friendly — no runtime <head> inject).
+ *
+ *  Only change from the design export: font-family declarations now point at
+ *  the BallersHub fonts (loaded via next/font in src/app/layout.tsx). Each
+ *  chains design-system token -> raw next/font variable (always set on <body>)
+ *  -> literal family, so it resolves regardless of Tailwind `@theme inline`.
+ *    'Barlow Condensed'  -> var(--font-bh-display, var(--font-barlow-condensed, ...))
+ *    'DM Sans'           -> var(--font-bh-body,    var(--font-dm-sans, ...))
+ *    'DM Mono'           -> var(--font-bh-mono,    var(--font-dm-mono, ...))
+ * ========================================================================== */
+
+.vw-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+/* justified rows */
+.video-wall-stage { position: relative; width: 100%; will-change: transform, opacity, filter; transform-origin: center center; }
+.vw-rows { display: flex; flex-direction: column; gap: 14px; width: 100%; margin: 0; }
+.vw-row { display: flex; gap: 14px; align-items: center; }
+/* Full-bleed: tiles grow to fill 100% width while keeping their real aspect-ratio.
+   That makes rows taller than the viewport, so the sticky frame clips top/bottom. */
+.vtile { position: relative; flex: var(--ar) 1 0; aspect-ratio: var(--ar); min-width: 0; will-change: transform, opacity; }
+@media (max-width: 820px) { .vw-rows { gap: 10px; } .vw-row { gap: 10px; } }
+.vtile[data-kind="desktop"] { --ar: 1.6; }      /* 16:10  desktop */
+.vtile[data-kind="mobile"]  { --ar: 0.46154; }  /* 9:19.5 mobile (modern phone) */
+.vtile-inner { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); background: #0a0b0d; box-shadow: 0 18px 44px rgba(0,0,0,0.55); transform-origin: center bottom; will-change: transform; }
+.vtile:hover .vtile-inner { border-color: rgba(255,255,255,0.22); }
+.vmedia { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.vtile-vig { position: absolute; inset: 0; pointer-events: none; z-index: 2; box-shadow: inset 0 0 70px rgba(0,0,0,0.45); background: radial-gradient(ellipse at 50% 28%, transparent 55%, rgba(0,0,0,0.28)); }
+/* spot label (placeholder only — hidden once a real <video> fills the spot) */
+.vw-slot { position: absolute; top: 10px; left: 10px; z-index: 4; font-family: var(--font-bh-mono, var(--font-dm-mono, 'DM Mono')), ui-monospace, monospace; font-size: 10px; font-weight: 500; letter-spacing: 0.08em; padding: 3px 7px; border-radius: 5px; border: 1px solid; background: rgba(8,8,8,0.55); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+
+/* auto glass sheen sweep */
+.vsheen { position: absolute; inset: 0; background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.08) 48%, transparent 62%); transform: translateX(-130%); pointer-events: none; z-index: 3; }
+.vw-ready .vsheen { animation: vsheen 5.5s ease-in-out infinite; }
+@keyframes vsheen { 0%, 66% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+.vw-row:nth-child(2) .vsheen { animation-delay: 1.9s; }
+.vw-row:nth-child(3) .vsheen { animation-delay: 3.4s; }
+.vw-row .vtile:nth-child(2) .vsheen { animation-delay: 2.6s; }
+.vw-row .vtile:nth-child(3) .vsheen { animation-delay: 4.3s; }
+
+/* time bar */
+.vprog { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(255,255,255,0.14); z-index: 4; }
+.vprog-fill { display: block; height: 100%; width: 30%; }
+.vw-ready .vprog-fill { animation: vprog 11s linear infinite; }
+@keyframes vprog { 0% { width: 0; } 100% { width: 100%; } }
+
+/* dim veil + centered overlay copy */
+.vw-dim { position: absolute; inset: 0; opacity: 0; pointer-events: none; z-index: 3; background: radial-gradient(ellipse 85% 85% at 50% 50%, rgba(8,8,8,0.45), rgba(8,8,8,0.94)); }
+.vw-ov { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 28px; z-index: 5; pointer-events: none; }
+.vw-eyebrow { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 999px; border: 1px solid; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); margin-bottom: 26px; }
+.vw-dot { width: 7px; height: 7px; border-radius: 50%; }
+.vw-eyebrow-t { font-family: var(--font-bh-body, var(--font-dm-sans, 'DM Sans')), sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; }
+.vw-title { font-family: var(--font-bh-display, var(--font-barlow-condensed, 'Barlow Condensed')), sans-serif; font-weight: 900; font-size: clamp(40px, 6vw, 82px); color: #fff; text-transform: uppercase; line-height: 0.96; letter-spacing: -0.01em; margin: 0; text-shadow: 0 8px 44px rgba(0,0,0,0.75); }
+.vw-title em { font-style: normal; }
+.vw-line { display: block; overflow: hidden; padding: 0.04em 0; }
+.vw-line > span { display: inline-block; }
+.vw-pwrap { margin-top: 22px; }
+.vw-p { display: inline-block; max-width: 580px; font-family: var(--font-bh-body, var(--font-dm-sans, 'DM Sans')), sans-serif; font-size: clamp(15px, 1.4vw, 19px); color: rgba(255,255,255,0.85); line-height: 1.6; text-shadow: 0 2px 24px rgba(0,0,0,0.9); }
+.vw-ctawrap { margin-top: 32px; }
+.vw-cta { pointer-events: auto; display: inline-flex; align-items: center; gap: 9px; font-family: var(--font-bh-body, var(--font-dm-sans, 'DM Sans')), sans-serif; font-weight: 600; font-size: 15px; color: #080808; border: none; border-radius: 10px; padding: 14px 28px; cursor: pointer; transition: transform 180ms cubic-bezier(0.25,0,0,1), box-shadow 180ms cubic-bezier(0.25,0,0,1), filter 180ms; }
+.vw-cta:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.vw-cta:active { transform: translateY(0) scale(0.98); }
+.vw-cta:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+/* shared recording shell */
+.rec { position: absolute; inset: 0; overflow: hidden; }
+@keyframes recScroll  { 0%,16% { transform: translateY(0); } 54%,66% { transform: translateY(-15%); } 100% { transform: translateY(0); } }
+@keyframes recScrollM { 0%,16% { transform: translateY(0); } 54%,66% { transform: translateY(-17%); } 100% { transform: translateY(0); } }
+@keyframes recBar { 0%,100% { transform: scaleY(0.38); } 50% { transform: scaleY(1); } }
+@keyframes recCur { 0% { left: 26%; top: 36%; } 22% { left: 60%; top: 46%; } 44% { left: 38%; top: 76%; } 66% { left: 74%; top: 62%; } 88%,100% { left: 26%; top: 36%; } }
+
+/* desktop screen-recording */
+.rec-d { background: #0b0c0e; display: flex; flex-direction: column; }
+.rec-d-bar { height: 9%; min-height: 16px; display: flex; align-items: center; gap: 4px; padding: 0 10px; background: #15161a; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.rec-d-bar i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.18); flex-shrink: 0; }
+.rec-d-url { margin-left: 10px; flex: 1; max-width: 58%; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.07); }
+.rec-d-main { flex: 1; display: flex; min-height: 0; }
+.rec-d-side { width: 15%; min-width: 32px; padding: 10px 8px; display: flex; flex-direction: column; gap: 8px; background: #101114; border-right: 1px solid rgba(255,255,255,0.05); }
+.rec-d-side b { height: 7px; border-radius: 4px; background: rgba(255,255,255,0.08); }
+.rec-d-side b.on { background: var(--ac); box-shadow: 0 0 10px -1px var(--ac); }
+.rec-d-content { flex: 1; overflow: hidden; }
+.rec-d-scroll { padding: 13px; display: flex; flex-direction: column; gap: 12px; }
+.vw-ready .rec-d-scroll { animation: recScroll 10s ease-in-out infinite; }
+.rec-d-head { display: flex; flex-direction: column; gap: 6px; }
+.rec-d-head span { height: 13px; width: 52%; border-radius: 5px; background: rgba(255,255,255,0.24); }
+.rec-d-head span.sm { height: 7px; width: 36%; background: rgba(255,255,255,0.08); }
+.rec-d-stats { display: flex; gap: 8px; }
+.rec-d-stats div { flex: 1; height: 38px; border-radius: 7px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); }
+.rec-d-stats div:first-child { border-color: var(--ac); box-shadow: inset 0 0 18px -8px var(--ac); }
+.rec-d-chart { display: flex; align-items: flex-end; gap: 6px; height: 66px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.05); }
+.rec-d-chart b { flex: 1; height: 100%; border-radius: 3px 3px 1px 1px; background: rgba(255,255,255,0.16); transform-origin: bottom; transform: scaleY(0.4); }
+.rec-d-chart b:nth-child(5) { background: var(--ac); }
+.vw-ready .rec-d-chart b { animation: recBar 2.6s ease-in-out infinite; }
+.rec-d-chart b:nth-child(1){animation-delay:-.2s} .rec-d-chart b:nth-child(2){animation-delay:-.6s} .rec-d-chart b:nth-child(3){animation-delay:-1s} .rec-d-chart b:nth-child(4){animation-delay:-1.4s} .rec-d-chart b:nth-child(5){animation-delay:-.4s} .rec-d-chart b:nth-child(6){animation-delay:-1.8s} .rec-d-chart b:nth-child(7){animation-delay:-2.2s}
+.rec-d-rows { display: flex; flex-direction: column; gap: 7px; }
+.rec-d-rows span { height: 9px; border-radius: 4px; background: rgba(255,255,255,0.05); }
+.rec-d-rows span:nth-child(even) { width: 88%; }
+.rec-cursor { position: absolute; left: 26%; top: 36%; z-index: 2; pointer-events: none; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6)); }
+.vw-ready .rec-cursor { animation: recCur 7.5s cubic-bezier(0.5,0,0.2,1) infinite; }
+
+/* mobile screen-recording */
+.rec-m { background: #0b0c0e; display: flex; flex-direction: column; }
+.rec-m-status { height: 5%; min-height: 12px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; }
+.rec-m-status span { width: 22px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25); }
+.rec-m-status span.dots { width: 28px; }
+.rec-m-head { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.rec-m-head .logo { width: 54px; height: 13px; border-radius: 4px; background: var(--ac); box-shadow: 0 0 10px -2px var(--ac); }
+.rec-m-head .ico { width: 15px; height: 15px; border-radius: 5px; background: rgba(255,255,255,0.1); }
+.rec-m-scroll { flex: 1; overflow: hidden; }
+.rec-m-feed { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.vw-ready .rec-m-feed { animation: recScrollM 10s ease-in-out infinite; }
+.rec-m-card { display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--ac); box-shadow: 0 0 18px -7px var(--ac); }
+.rec-m-card .av { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid var(--ac); flex-shrink: 0; }
+.rec-m-ct { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+.rec-m-ct span { height: 9px; width: 78%; border-radius: 4px; background: rgba(255,255,255,0.24); }
+.rec-m-ct span.sm { height: 6px; width: 48%; background: rgba(255,255,255,0.08); }
+.rec-m-card .val { width: 36px; height: 17px; border-radius: 5px; background: var(--ac); flex-shrink: 0; }
+.rec-m-chips { display: flex; gap: 6px; }
+.rec-m-chips u { width: 36px; height: 15px; border-radius: 5px; background: rgba(255,255,255,0.06); }
+.rec-m-chips u:first-child { background: var(--ac); opacity: 0.85; }
+.rec-m-list { display: flex; flex-direction: column; gap: 8px; }
+.rec-m-row { display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.025); }
+.rec-m-row i { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.08); flex-shrink: 0; }
+.rec-m-row span { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.1); }
+.rec-m-row b { width: 26px; height: 10px; border-radius: 4px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
+.rec-m-tab { height: 8%; min-height: 22px; display: flex; align-items: center; justify-content: space-around; border-top: 1px solid rgba(255,255,255,0.06); background: #101114; }
+.rec-m-tab s { width: 16px; height: 16px; border-radius: 5px; background: rgba(255,255,255,0.08); }
+.rec-m-tab s.on { background: var(--ac); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vw-ready .vsheen, .vw-ready .vprog-fill, .vw-ready .rec-d-scroll, .vw-ready .rec-d-chart b,
+  .vw-ready .rec-cursor, .vw-ready .rec-m-feed { animation: none !important; }
+}

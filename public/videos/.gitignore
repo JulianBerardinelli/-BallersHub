@@ -1,0 +1,8 @@
+# Working dirs for the encode script — never commit raw footage or scratch output.
+raw/
+out/
+
+# Keep this folder + its docs tracked; commit the final encoded clips explicitly
+# (or host them in a bucket and reference the URLs from videos.ts instead).
+!README.md
+!.gitignore
