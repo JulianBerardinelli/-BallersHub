@@ -21,6 +21,7 @@
 import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
 import type { Locale } from "@/i18n/routing";
 import { HTML_LANG } from "@/i18n/config";
+import { resolveAllPositions } from "@/lib/scouting/taxonomies";
 
 type PlanTier = "free" | "pro" | "pro_plus";
 
@@ -66,34 +67,46 @@ const HOME_LABEL: Record<Locale, string> = {
   pt: "Início",
 };
 
-// Position codes → full label per locale (knowsAbout). Falls back to the raw
-// code if unknown — a meaningful free-text value beats nothing.
+// Position codes → full label per locale (knowsAbout). Keyed by the canonical
+// codes that `resolveAllPositions` (scouting taxonomy) emits, so a player's
+// messy free-text `positions` (codes like "EI", Spanish labels like "Extremo
+// izquierdo", or a parent role like "DEL") all resolve to a localized label.
+// Covers the full scouting code space; falls back to the resolved Spanish label
+// for any unmapped code — a clean human label beats a raw code.
 const POSITION_LABELS: Record<Locale, Record<string, string>> = {
   es: {
     POR: "Arquero", ARQ: "Arquero", DFC: "Defensor central",
-    LD: "Lateral derecho", LI: "Lateral izquierdo", MC: "Mediocampista central",
-    MCD: "Mediocampista defensivo", MCO: "Mediocampista ofensivo",
+    LD: "Lateral derecho", LI: "Lateral izquierdo", CAR: "Carrilero",
+    MC: "Mediocampista central", MCD: "Mediocampista defensivo",
+    MCO: "Mediocampista ofensivo", INT: "Interior",
+    MD: "Volante derecho", MI: "Volante izquierdo",
     ED: "Extremo derecho", EI: "Extremo izquierdo", DC: "Delantero centro",
     SD: "Segundo delantero",
   },
   en: {
     POR: "Goalkeeper", ARQ: "Goalkeeper", DFC: "Center back",
-    LD: "Right back", LI: "Left back", MC: "Central midfielder",
-    MCD: "Defensive midfielder", MCO: "Attacking midfielder",
+    LD: "Right back", LI: "Left back", CAR: "Wing-back",
+    MC: "Central midfielder", MCD: "Defensive midfielder",
+    MCO: "Attacking midfielder", INT: "Inside midfielder",
+    MD: "Right midfielder", MI: "Left midfielder",
     ED: "Right winger", EI: "Left winger", DC: "Striker",
     SD: "Second striker",
   },
   it: {
     POR: "Portiere", ARQ: "Portiere", DFC: "Difensore centrale",
-    LD: "Terzino destro", LI: "Terzino sinistro", MC: "Centrocampista centrale",
-    MCD: "Mediano", MCO: "Trequartista",
+    LD: "Terzino destro", LI: "Terzino sinistro", CAR: "Tornante",
+    MC: "Centrocampista centrale", MCD: "Mediano",
+    MCO: "Trequartista", INT: "Mezzala",
+    MD: "Centrocampista destro", MI: "Centrocampista sinistro",
     ED: "Esterno destro", EI: "Esterno sinistro", DC: "Centravanti",
     SD: "Seconda punta",
   },
   pt: {
     POR: "Goleiro", ARQ: "Goleiro", DFC: "Zagueiro",
-    LD: "Lateral direito", LI: "Lateral esquerdo", MC: "Meio-campo central",
-    MCD: "Volante", MCO: "Meia-atacante",
+    LD: "Lateral direito", LI: "Lateral esquerdo", CAR: "Ala",
+    MC: "Meio-campo central", MCD: "Volante",
+    MCO: "Meia-atacante", INT: "Meia interior",
+    MD: "Meia direita", MI: "Meia esquerda",
     ED: "Ponta direita", EI: "Ponta esquerda", DC: "Centroavante",
     SD: "Segundo atacante",
   },
@@ -123,7 +136,22 @@ function buildKnowsAbout(
 ): string[] {
   if (!positions || positions.length === 0) return [];
   const labels = POSITION_LABELS[locale];
-  return positions.map((p) => labels[p] ?? p);
+  // `positions` is messy free-text: a parent role (ARQ/DEF/MID/DEL) mixed with
+  // sub-position codes ("EI") AND Spanish labels ("Extremo izquierdo").
+  // `resolveAllPositions` (scouting taxonomy) normalizes all of that to
+  // canonical codes and drops the redundant parent role, so we can map each
+  // code → localized label. Before this, a stored label ("Mediapunta") or a
+  // raw role code ("DEL") leaked verbatim into EVERY locale — never translating.
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const pos of resolveAllPositions(positions)) {
+    const label = labels[pos.code] ?? pos.label;
+    if (label && !seen.has(label)) {
+      seen.add(label);
+      out.push(label);
+    }
+  }
+  return out;
 }
 
 export function PersonJsonLd({ player, plan, locale }: Props) {
