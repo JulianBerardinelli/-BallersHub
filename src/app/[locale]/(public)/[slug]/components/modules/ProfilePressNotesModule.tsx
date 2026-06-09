@@ -3,6 +3,9 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { dateLocaleTag } from "@/lib/i18n/dates";
+import type { Locale } from "@/i18n/routing";
 
 type Article = {
   id: string;
@@ -79,6 +82,7 @@ export default function ProfilePressNotesModule({
   layout?: PressNotesLayout;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations("portfolio");
 
   // If no articles, don't render the section
   if (!articles || articles.length === 0) return null;
@@ -128,10 +132,10 @@ export default function ProfilePressNotesModule({
           className="w-full mb-12 flex flex-col md:items-center md:text-center"
         >
           <h2 className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-2">
-            Publicaciones
+            {t("modules.press.eyebrow")}
           </h2>
           <h3 className="text-3xl md:text-5xl lg:text-6xl font-black font-heading text-white uppercase drop-shadow-2xl leading-[0.9]">
-            Prensa & Notas
+            {t("modules.press.title")}
           </h3>
         </motion.div>
 
@@ -290,6 +294,7 @@ function NewspaperCarousel({ articles }: { articles: Article[] }) {
 }
 
 function CardsGrid({ articles }: { articles: Article[] }) {
+  const locale = useLocale() as Locale;
   const count = articles.length;
 
   // Adapt the column count to the actual number of articles so we never get
@@ -360,7 +365,7 @@ function CardsGrid({ articles }: { articles: Article[] }) {
               )}
               {article.publishedAt && (
                 <time className="text-white/45">
-                  {new Date(article.publishedAt).toLocaleDateString("es-AR", {
+                  {new Date(article.publishedAt).toLocaleDateString(dateLocaleTag(locale), {
                     day: "2-digit",
                     month: "short",
                     year: "numeric",

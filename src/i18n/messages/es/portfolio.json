@@ -195,6 +195,10 @@
     "enlargedImage": "Ampliada"
   },
   "modules": {
+    "press": {
+      "eyebrow": "Publicaciones",
+      "title": "Prensa & Notas"
+    },
     "career": {
       "eyebrow": "Historial Deportivo",
       "title": "Trayectoria",

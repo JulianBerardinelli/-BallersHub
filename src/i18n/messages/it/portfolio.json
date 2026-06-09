@@ -195,6 +195,10 @@
     "enlargedImage": "Ingrandita"
   },
   "modules": {
+    "press": {
+      "eyebrow": "Pubblicazioni",
+      "title": "Stampa & Articoli"
+    },
     "career": {
       "eyebrow": "Storia sportiva",
       "title": "Carriera",

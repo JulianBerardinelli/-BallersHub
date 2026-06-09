@@ -195,6 +195,10 @@
     "enlargedImage": "Enlarged"
   },
   "modules": {
+    "press": {
+      "eyebrow": "Publications",
+      "title": "Press & Coverage"
+    },
     "career": {
       "eyebrow": "Sporting record",
       "title": "Career history",

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { dateLocaleTag } from "@/lib/i18n/dates";
+import type { Locale } from "@/i18n/routing";
 import { motion, useScroll, useTransform, useMotionValueEvent, animate, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -677,6 +679,7 @@ function MarqueeClubTitle({ text, isActive }: { text: string; isActive: boolean 
 
 function HonourModal({ honour, onClose }: { honour: any, onClose: () => void }) {
   const t = useTranslations("portfolio");
+  const locale = useLocale() as Locale;
   const isTrophy = isHonourTrophy(honour.title);
   
   return (
@@ -728,7 +731,7 @@ function HonourModal({ honour, onClose }: { honour: any, onClose: () => void }) 
         
         {honour.awardedOn && (
            <div className="mt-4 text-xs text-white/40 font-medium tracking-widest uppercase relative z-10">
-              {t("modules.career.awardedOn", { date: new Date(honour.awardedOn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) })}
+              {t("modules.career.awardedOn", { date: new Date(honour.awardedOn).toLocaleDateString(dateLocaleTag(locale), { month: 'long', year: 'numeric' }) })}
            </div>
         )}
       </motion.div>
