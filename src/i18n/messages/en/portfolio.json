@@ -1,4 +1,18 @@
 {
+  "bioCard": {
+    "mindsetBio": "Mindset & Bio",
+    "bioFallback": "Searching confidential biographical information...",
+    "age": "Age",
+    "years": "Years",
+    "physical": "Physique",
+    "club": "Current club",
+    "freeAgent": "Free agent",
+    "passport": "Passport",
+    "citizen": "Citizen",
+    "residence": "Currently based in",
+    "languages": "Languages",
+    "education": "Education"
+  },
   "nav": {
     "bio": "Bio",
     "video": "Video",

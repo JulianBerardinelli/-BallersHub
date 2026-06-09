@@ -1,4 +1,18 @@
 {
+  "bioCard": {
+    "mindsetBio": "Mentalità & Bio",
+    "bioFallback": "Ricerca di informazioni biografiche riservate...",
+    "age": "Età",
+    "years": "Anni",
+    "physical": "Fisico",
+    "club": "Squadra attuale",
+    "freeAgent": "Svincolato",
+    "passport": "Passaporto",
+    "citizen": "Cittadino",
+    "residence": "Attualmente residente a",
+    "languages": "Lingue",
+    "education": "Istruzione"
+  },
   "nav": {
     "bio": "Bio",
     "video": "Video",

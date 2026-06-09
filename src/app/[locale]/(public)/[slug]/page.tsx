@@ -24,7 +24,7 @@ import type {
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
 import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
-import { formatPlayerPositions } from "@/lib/format";
+import { localizePlayerPositions } from "@/lib/i18n/positions";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import { FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
 import { conditionalAlternates } from "@/lib/seo/hreflang";
@@ -111,25 +111,34 @@ export async function generateViewport({ params }: { params: Params }): Promise<
  *     ending at a word boundary, not mid-word). Falls back to a
  *     composed sentence using whatever fields exist.
  */
-function buildSeoTitle(p: {
-  fullName: string;
-  positions: string[] | null;
-  currentClub: string | null;
-}): string {
+function buildSeoTitle(
+  p: {
+    fullName: string;
+    positions: string[] | null;
+    currentClub: string | null;
+  },
+  locale: Locale,
+): string {
   const parts: string[] = [p.fullName];
-  const pos = p.positions && p.positions.length > 0 ? formatPlayerPositions(p.positions) : null;
+  const pos =
+    p.positions && p.positions.length > 0
+      ? localizePlayerPositions(p.positions, locale)
+      : null;
   if (pos) parts.push(pos);
   if (p.currentClub) parts.push(p.currentClub);
   return parts.join(" — ");
 }
 
-function buildSeoDescription(p: {
-  fullName: string;
-  bio: string | null;
-  positions: string[] | null;
-  currentClub: string | null;
-  nationality: string[] | null;
-}): string {
+function buildSeoDescription(
+  p: {
+    fullName: string;
+    bio: string | null;
+    positions: string[] | null;
+    currentClub: string | null;
+    nationality: string[] | null;
+  },
+  locale: Locale,
+): string {
   if (p.bio && p.bio.trim().length > 0) {
     const clean = p.bio.replace(/\s+/g, " ").trim();
     if (clean.length <= 158) return clean;
@@ -139,7 +148,8 @@ function buildSeoDescription(p: {
     return `${cut.slice(0, lastSpace > 0 ? lastSpace : 158)}…`;
   }
   const segments: string[] = [`Perfil profesional de ${p.fullName}`];
-  if (p.positions && p.positions.length > 0) segments.push(formatPlayerPositions(p.positions));
+  if (p.positions && p.positions.length > 0)
+    segments.push(localizePlayerPositions(p.positions, locale));
   if (p.currentClub) segments.push(p.currentClub);
   if (p.nationality && p.nationality.length > 0) segments.push(p.nationality.join(" / "));
   return `${segments.join(" — ")}. Trayectoria, estadísticas, galería y contacto en 'BallersHub.`;
@@ -226,8 +236,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
     softNoindex = planAccess.isFree;
   }
 
-  const title = buildSeoTitle(player);
-  const description = buildSeoDescription(playerForSeo);
+  const title = buildSeoTitle(player, locale as Locale);
+  const description = buildSeoDescription(playerForSeo, locale as Locale);
   const { canonical, languages } = conditionalAlternates(
     locale as Locale,
     `/${slug}`,
