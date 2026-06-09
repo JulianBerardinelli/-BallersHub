@@ -71,7 +71,7 @@ const LAY: { d: LayMap; m: LayMap } = {
   m: {
     box: [420, 904],
     s1pc: { l: 14, t: 372, w: 392 }, s1phone: { l: 226, t: 470, s: 0.8 }, s1txt: { x: 28, y: 54, w: 364 },
-    s2pc: { l: 18, t: 386, w: 388 }, s2c1: { l: 4, t: 352, s: 0.36 }, s2c2: { l: 60, t: 600, s: 0.36 }, s2c3: { l: 176, t: 640, s: 0.3 }, s2txt: { x: 28, y: 46, w: 364 },
+    s2pc: { l: 18, t: 386, w: 388 }, s2c1: { l: 4, t: 352, s: 0.36 }, s2c2: { l: 60, t: 600, s: 0.36 }, s2c3: { l: 176, t: 640, s: 0.3 }, s2txt: { x: 28, y: 90, w: 364 },
     s3pc: { l: 14, t: 378, w: 392 }, s3phone: { l: 228, t: 492, s: 0.74 }, s3txt: { x: 28, y: 54, w: 364 },
   },
 };
@@ -160,13 +160,17 @@ const Txt = ({ reg, idp, copy, accent, x, y = 188, narrow, dark, w, mob }: { reg
       </h2>
       <p ref={reg(idp + "p")} style={{ fontFamily: FONT_BODY, fontSize: pSize, color: sub, lineHeight: 1.6, margin: mob ? "16px 0 18px" : "20px 0 22px", maxWidth: pMax, fontWeight: dark ? 500 : 400 }}>{copy.p}</p>
       <div ref={reg(idp + "tags")} style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: mob ? 14 : 18 }}>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
-          {copy.tags.map((tg) => (
-            <span key={tg} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, padding: "7px 13px", borderRadius: 9, whiteSpace: "nowrap", ...chip }}>
-              <span style={{ width: 5, height: 5, borderRadius: "50%", background: dark ? "#0a0a0a" : accent }} />{tg}
-            </span>
-          ))}
-        </div>
+        {/* chips hidden on mobile — they ate vertical space and pushed the CTA
+            onto the mocks; the copy already carries the same points */}
+        {!mob && (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 9 }}>
+            {copy.tags.map((tg) => (
+              <span key={tg} style={{ display: "inline-flex", alignItems: "center", gap: 7, fontFamily: FONT_BODY, fontSize: 13, fontWeight: 600, padding: "7px 13px", borderRadius: 9, whiteSpace: "nowrap", ...chip }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: dark ? "#0a0a0a" : accent }} />{tg}
+              </span>
+            ))}
+          </div>
+        )}
         {copy.cta && <CtaRow dark={dark} mob={mob} />}
       </div>
     </div>

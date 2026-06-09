@@ -22,7 +22,16 @@
 /* Full-bleed: tiles grow to fill 100% width while keeping their real aspect-ratio.
    That makes rows taller than the viewport, so the sticky frame clips top/bottom. */
 .vtile { position: relative; flex: var(--ar) 1 0; aspect-ratio: var(--ar); min-width: 0; will-change: transform, opacity; }
-@media (max-width: 820px) { .vw-rows { gap: 10px; } .vw-row { gap: 10px; } }
+/* Mobile: fill the whole canvas. Instead of the width-justified, aspect-locked
+   grid (short + letterboxed on a phone), the wall fills 100vh as 3 rows of equal
+   cells; videos object-fit:cover (crop) — overlap is fine, the point is to occupy
+   the full screen. apply() only sets transforms, so this layout holds. */
+@media (max-width: 820px) {
+  .video-wall-stage { height: 100%; }
+  .vw-rows { height: 100%; gap: 8px; }
+  .vw-row { flex: 1 1 0; min-height: 0; align-items: stretch; gap: 8px; }
+  .vtile { flex: 1 1 0; aspect-ratio: auto; min-height: 0; }
+}
 .vtile[data-kind="desktop"] { --ar: 1.6; }      /* 16:10  desktop */
 .vtile[data-kind="mobile"]  { --ar: 0.46154; }  /* 9:19.5 mobile (modern phone) */
 .vtile-inner { position: absolute; inset: 0; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.12); background: #0a0b0d; box-shadow: 0 18px 44px rgba(0,0,0,0.55); transform-origin: center bottom; will-change: transform; }
