@@ -8,6 +8,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { subscriptions } from "@/db/schema/subscriptions";
+import { userProfiles } from "@/db/schema/users";
 import { eq } from "drizzle-orm";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import {
@@ -158,7 +159,15 @@ export default async function TranslationsPage() {
     );
   }
 
-  // Pro → editor.
+  // Pro → editor. The editor adapts to the player's native language:
+  // preferred_locale is shown first ("tu idioma") and is the source the AI
+  // assistant translates FROM (model B1). es stays the canonical /slug.
+  const userProfile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+    columns: { preferredLocale: true },
+  });
+  const preferredLocale = (userProfile?.preferredLocale ?? "es") as ContentLocale;
+
   const baseEs = toFields(player as unknown as PlayerLocalizedFields);
   const translationsMap = await getPlayerTranslations(player.id);
   const translations: Partial<Record<ContentLocale, LocaleFields>> = {};
@@ -178,6 +187,7 @@ export default async function TranslationsPage() {
         baseEs={baseEs}
         translations={translations}
         initialAvailable={available}
+        preferredLocale={preferredLocale}
       />
     </div>
   );

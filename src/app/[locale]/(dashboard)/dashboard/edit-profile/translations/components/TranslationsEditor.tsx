@@ -1,16 +1,8 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import {
-  Check,
-  Globe,
-  Lock,
-  RefreshCw,
-  Save,
-  Sparkles,
-  Trash2,
-} from "lucide-react";
+import { Check, Globe, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
@@ -36,12 +28,14 @@ type EditableLocale = "en" | "it" | "pt";
 type AnyLocale = "es" | EditableLocale;
 type Block = "bio" | "scouting";
 
-const LOCALES: { code: AnyLocale; label: string; flag: string; native?: boolean }[] = [
-  { code: "es", label: "Español", flag: "🇦🇷", native: true },
-  { code: "en", label: "English", flag: "🇬🇧" },
-  { code: "it", label: "Italiano", flag: "🇮🇹" },
-  { code: "pt", label: "Português", flag: "🇧🇷" },
-];
+const BASE_ORDER: AnyLocale[] = ["es", "en", "it", "pt"];
+
+const LOCALE_META: Record<AnyLocale, { label: string; flag: string }> = {
+  es: { label: "Español", flag: "🇦🇷" },
+  en: { label: "English", flag: "🇬🇧" },
+  it: { label: "Italiano", flag: "🇮🇹" },
+  pt: { label: "Português", flag: "🇧🇷" },
+};
 
 const FIELD_KEYS: (keyof LocaleFields)[] = [
   "bio",
@@ -87,20 +81,35 @@ function completeness(f: LocaleFields | undefined): number {
   return Math.round((filled / FIELD_KEYS.length) * 100);
 }
 
+function normalizeLocale(value: string): AnyLocale {
+  return (BASE_ORDER as string[]).includes(value) ? (value as AnyLocale) : "es";
+}
+
 export default function TranslationsEditor({
   playerId,
   baseEs,
   translations,
   initialAvailable,
+  preferredLocale,
 }: {
   playerId: string;
   baseEs: LocaleFields;
   translations: Partial<Record<EditableLocale, LocaleFields>>;
   initialAvailable: string[];
+  preferredLocale: string;
 }) {
-  const [active, setActive] = useState<AnyLocale>("en");
+  // The player's native language leads the list and is the source the AI
+  // assistant translates FROM (model B1). es stays the canonical /slug.
+  const native = normalizeLocale(preferredLocale);
+  const orderedLocales: AnyLocale[] = [
+    native,
+    ...BASE_ORDER.filter((l) => l !== native),
+  ];
+
+  const [active, setActive] = useState<AnyLocale>(native);
   const [available, setAvailable] = useState<string[]>(initialAvailable);
-  const [drafts, setDrafts] = useState<Record<EditableLocale, LocaleFields>>({
+  const [drafts, setDrafts] = useState<Record<AnyLocale, LocaleFields>>({
+    es: baseEs,
     en: translations.en ?? emptyFields(),
     it: translations.it ?? emptyFields(),
     pt: translations.pt ?? emptyFields(),
@@ -112,23 +121,16 @@ export default function TranslationsEditor({
   const [genBlock, setGenBlock] = useState<Block | null>(null);
   const [isGenerating, startGen] = useTransition();
 
-  const fieldsByLocale = useMemo<Record<AnyLocale, LocaleFields>>(
-    () => ({ es: baseEs, ...drafts }),
-    [baseEs, drafts],
-  );
-
   function patch(field: keyof LocaleFields, value: string | string[]) {
-    if (active === "es") return;
     setDrafts((prev) => ({
       ...prev,
-      [active]: { ...prev[active as EditableLocale], [field]: value },
+      [active]: { ...prev[active], [field]: value },
     }));
     setFeedback(null);
   }
 
   function onSave() {
-    if (active === "es") return;
-    const locale = active as EditableLocale;
+    const locale = active;
     startSave(async () => {
       const res = await savePlayerTranslation({
         playerId,
@@ -141,8 +143,8 @@ export default function TranslationsEditor({
   }
 
   function onDelete() {
-    if (active === "es") return;
-    const locale = active as EditableLocale;
+    if (active === "es") return; // es is the canonical base, never deletable
+    const locale = active;
     startSave(async () => {
       const res = await deletePlayerTranslation({ playerId, locale });
       setFeedback({ type: res.success ? "success" : "danger", message: res.message });
@@ -154,8 +156,8 @@ export default function TranslationsEditor({
   }
 
   function onGenerate(block: Block, force: boolean) {
-    if (active === "es") return;
-    const locale = active as EditableLocale;
+    if (active === native) return; // can't translate the source into itself
+    const locale = active;
     setGenBlock(block);
     startGen(async () => {
       const res = await generateTranslationDraft({ playerId, locale, block, force });
@@ -179,21 +181,24 @@ export default function TranslationsEditor({
       {/* ---------- Overview / language switch + completeness ---------- */}
       <SectionCard
         title="Versiones del perfil"
-        description="Elegí un idioma para editarlo. El español es tu versión nativa; los demás se publican solo cuando los guardás."
+        description="Elegí un idioma para editarlo. Marcamos tu idioma nativo; el español es tu versión canónica — la que ve Google en tu perfil público."
       >
         <div className="grid gap-2">
-          {LOCALES.map((l) => {
-            const pct = completeness(fieldsByLocale[l.code]);
-            const isActive = l.code === active;
-            const published = available.includes(l.code);
+          {orderedLocales.map((code) => {
+            const meta = LOCALE_META[code];
+            const pct = completeness(drafts[code]);
+            const isActive = code === active;
+            const isNativeRow = code === native;
+            const isEs = code === "es";
+            const published = available.includes(code);
             const accent =
               pct === 100 ? "bg-bh-lime" : pct > 0 ? "bg-bh-blue" : "bg-white/15";
             return (
               <button
-                key={l.code}
+                key={code}
                 type="button"
                 onClick={() => {
-                  setActive(l.code);
+                  setActive(code);
                   setFeedback(null);
                 }}
                 aria-pressed={isActive}
@@ -204,19 +209,19 @@ export default function TranslationsEditor({
                 }`}
               >
                 <span className="text-base leading-none" aria-hidden>
-                  {l.flag}
+                  {meta.flag}
                 </span>
                 <span className="flex min-w-[120px] flex-col">
                   <span className="text-[13px] font-semibold text-bh-fg-1">
-                    {l.label}
-                    {l.native ? (
-                      <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-bh-fg-4">
-                        nativo
+                    {meta.label}
+                    {isNativeRow ? (
+                      <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-bh-lime">
+                        tu idioma
                       </span>
                     ) : null}
                   </span>
                   <span className="font-bh-mono text-[10px] uppercase tracking-[0.14em] text-bh-fg-4">
-                    {l.code}
+                    {code}
                   </span>
                 </span>
 
@@ -230,7 +235,7 @@ export default function TranslationsEditor({
                   {pct}%
                 </span>
 
-                {l.native ? (
+                {isEs ? (
                   <Chip size="sm" variant="flat" className="bg-white/[0.06] text-bh-fg-3">
                     base
                   </Chip>
@@ -255,35 +260,24 @@ export default function TranslationsEditor({
       </SectionCard>
 
       {/* ---------- Active locale editor ---------- */}
-      {active === "es" ? (
-        <SectionCard
-          title={
-            <span className="flex items-center gap-2">
-              <Lock className="size-4 text-bh-fg-3" />
-              Versión nativa (Español)
-            </span>
-          }
-          description="El contenido en español es tu base. Editalo desde Datos personales y Football data — acá lo ves de referencia mientras traducís."
-        >
-          <ReadOnlyPreview fields={baseEs} />
-        </SectionCard>
-      ) : (
-        <LocaleForm
-          key={active}
-          locale={active}
-          fields={drafts[active as EditableLocale]}
-          base={baseEs}
-          onPatch={patch}
-          onSave={onSave}
-          onDelete={onDelete}
-          onGenerate={onGenerate}
-          genBlock={genBlock}
-          isGenerating={isGenerating}
-          isSaving={isSaving}
-          published={available.includes(active)}
-          feedback={feedback}
-        />
-      )}
+      <LocaleForm
+        key={active}
+        locale={active}
+        fields={drafts[active]}
+        source={drafts[native]}
+        sourceLabel={native.toUpperCase()}
+        isNative={active === native}
+        canDelete={active !== "es"}
+        onPatch={patch}
+        onSave={onSave}
+        onDelete={onDelete}
+        onGenerate={onGenerate}
+        genBlock={genBlock}
+        isGenerating={isGenerating}
+        isSaving={isSaving}
+        published={available.includes(active)}
+        feedback={feedback}
+      />
     </div>
   );
 }
@@ -354,7 +348,10 @@ function AssistButton({
 function LocaleForm({
   locale,
   fields,
-  base,
+  source,
+  sourceLabel,
+  isNative,
+  canDelete,
   onPatch,
   onSave,
   onDelete,
@@ -365,9 +362,12 @@ function LocaleForm({
   published,
   feedback,
 }: {
-  locale: EditableLocale;
+  locale: AnyLocale;
   fields: LocaleFields;
-  base: LocaleFields;
+  source: LocaleFields;
+  sourceLabel: string;
+  isNative: boolean;
+  canDelete: boolean;
   onPatch: (field: keyof LocaleFields, value: string | string[]) => void;
   onSave: () => void;
   onDelete: () => void;
@@ -378,14 +378,19 @@ function LocaleForm({
   published: boolean;
   feedback: { type: "success" | "danger"; message: string } | null;
 }) {
-  const localeLabel = LOCALES.find((l) => l.code === locale)?.label ?? locale;
+  const localeLabel = LOCALE_META[locale]?.label ?? locale;
   const busy = isSaving || isGenerating;
 
   const renderField = (key: keyof LocaleFields) => {
     const meta = LABELS[key];
-    const esHint = Array.isArray(base[key])
-      ? (base[key] as string[]).join(" · ")
-      : (base[key] as string);
+    // The source-language reference, shown to help while translating. Hidden
+    // on the native tab — there it IS the source.
+    const sourceHint = isNative
+      ? undefined
+      : Array.isArray(source[key])
+        ? (source[key] as string[]).join(" · ")
+        : (source[key] as string);
+    const description = sourceHint ? `${sourceLabel}: ${sourceHint}` : undefined;
     if (key === "topCharacteristics") {
       return (
         <FormField
@@ -395,7 +400,7 @@ function LocaleForm({
           label={meta.label}
           rows={4}
           value={(fields.topCharacteristics ?? []).join("\n")}
-          description={esHint ? `ES: ${esHint}` : undefined}
+          description={description}
           onValueChange={(v) =>
             onPatch(
               "topCharacteristics",
@@ -413,7 +418,7 @@ function LocaleForm({
         label={meta.label}
         rows={meta.multiline ? 4 : undefined}
         value={fields[key] as string}
-        description={esHint ? `ES: ${esHint}` : undefined}
+        description={description}
         onValueChange={(v) => onPatch(key, v)}
       />
     );
@@ -428,15 +433,21 @@ function LocaleForm({
             Biografía y objetivos · {localeLabel}
           </span>
         }
-        description="Traducí cada campo o autocompletá con Claude desde tu español; siempre podés editar antes de guardar."
+        description={
+          isNative
+            ? "Tu idioma nativo: escribí libremente. Desde acá el asistente traduce hacia los demás idiomas."
+            : "Traducí cada campo o autocompletá desde tu idioma; siempre podés editar antes de guardar."
+        }
         actions={
-          <AssistButton
-            block="bio"
-            hasContent={blockHasContent(fields, "bio")}
-            loading={isGenerating && genBlock === "bio"}
-            disabled={busy}
-            onGenerate={onGenerate}
-          />
+          isNative ? undefined : (
+            <AssistButton
+              block="bio"
+              hasContent={blockHasContent(fields, "bio")}
+              loading={isGenerating && genBlock === "bio"}
+              disabled={busy}
+              onGenerate={onGenerate}
+            />
+          )
         }
       >
         <div className="grid gap-5">
@@ -450,13 +461,15 @@ function LocaleForm({
         title={`Análisis de scouting · ${localeLabel}`}
         description="Las cuatro dimensiones del análisis + el autor."
         actions={
-          <AssistButton
-            block="scouting"
-            hasContent={blockHasContent(fields, "scouting")}
-            loading={isGenerating && genBlock === "scouting"}
-            disabled={busy}
-            onGenerate={onGenerate}
-          />
+          isNative ? undefined : (
+            <AssistButton
+              block="scouting"
+              hasContent={blockHasContent(fields, "scouting")}
+              loading={isGenerating && genBlock === "scouting"}
+              disabled={busy}
+              onGenerate={onGenerate}
+            />
+          )
         }
       >
         <div className="grid gap-5">
@@ -480,7 +493,7 @@ function LocaleForm({
             ) : null}
           </div>
           <div className="flex gap-2">
-            {published ? (
+            {canDelete && published ? (
               <Button
                 variant="light"
                 size="sm"
@@ -505,40 +518,19 @@ function LocaleForm({
         </div>
       </SectionCard>
 
-      <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
-        Las versiones autocompletadas son borradores: nada se publica hasta que
-        tocás «Guardar». Tenés hasta 40 regeneraciones por mes; la primera
-        traducción de cada bloque no cuenta.
-      </p>
+      {isNative ? (
+        <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
+          {locale === "es"
+            ? "El español es tu contenido canónico: se publica en tu perfil principal apenas guardás."
+            : "Guardá tu versión nativa antes de autocompletar los otros idiomas — el asistente traduce desde lo último que guardaste."}
+        </p>
+      ) : (
+        <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
+          Las versiones autocompletadas son borradores: nada se publica hasta que
+          tocás «Guardar». Tenés hasta 40 regeneraciones por mes; la primera
+          traducción de cada bloque no cuenta.
+        </p>
+      )}
     </>
-  );
-}
-
-// --------------------------- ES read-only preview ---------------------------
-
-function ReadOnlyPreview({ fields }: { fields: LocaleFields }) {
-  const rows: { label: string; value: string }[] = [
-    { label: "Biografía", value: fields.bio },
-    { label: "Objetivos de carrera", value: fields.careerObjectives },
-    { label: "Características", value: (fields.topCharacteristics ?? []).join(" · ") },
-    { label: "Análisis táctico", value: fields.tacticsAnalysis },
-    { label: "Análisis físico", value: fields.physicalAnalysis },
-    { label: "Análisis mental", value: fields.mentalAnalysis },
-    { label: "Análisis técnico", value: fields.techniqueAnalysis },
-    { label: "Autor del análisis", value: fields.analysisAuthor },
-  ];
-  return (
-    <div className="grid gap-4">
-      {rows.map((r) => (
-        <div key={r.label} className="space-y-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-3">
-            {r.label}
-          </p>
-          <p className="whitespace-pre-line text-[13px] leading-[1.55] text-bh-fg-2">
-            {r.value?.trim() ? r.value : <span className="text-bh-fg-4">— sin completar —</span>}
-          </p>
-        </div>
-      ))}
-    </div>
   );
 }

@@ -16,7 +16,7 @@ import {
 import {
   translateBlock,
   type TranslationBlock,
-  type TargetLocale,
+  type TranslateLocale,
 } from "@/lib/i18n/ai-translate";
 
 // Monthly auto-translation regen quota PER PROFILE (HANDOFF §5.1).
@@ -37,8 +37,10 @@ const fieldsSchema = z.object({
 
 const saveSchema = z.object({
   playerId: z.string().uuid(),
-  // Native ES is edited in the normal editors, never here.
-  locale: z.enum(["en", "it", "pt"]),
+  // es too: the adaptive editor lets a Pro whose native language ISN'T es
+  // edit/generate the canonical Spanish here. es writes to player_profiles;
+  // en/it/pt write to player_profile_translations.
+  locale: z.enum(["es", "en", "it", "pt"]),
   fields: fieldsSchema,
 });
 
@@ -163,6 +165,46 @@ export async function savePlayerTranslation(input: {
   const { owned, error } = await ensureProOwner(playerId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
+  const norm = (v: string | undefined) => {
+    const t = v?.trim();
+    return t && t.length > 0 ? t : null;
+  };
+  const chars =
+    fields.topCharacteristics && fields.topCharacteristics.length > 0
+      ? fields.topCharacteristics
+      : null;
+
+  // es is the canonical content rendered at /<slug> — write the 8 free-text
+  // fields straight to player_profiles (NOT *_translations). Only these
+  // free-text columns are touched; structured data stays intact. es is always
+  // "available" so it never counts against the tier cap.
+  if (locale === "es") {
+    const { error: updateError } = await owned.supabase
+      .from("player_profiles")
+      .update({
+        bio: norm(fields.bio),
+        career_objectives: norm(fields.careerObjectives),
+        top_characteristics: chars,
+        tactics_analysis: norm(fields.tacticsAnalysis),
+        physical_analysis: norm(fields.physicalAnalysis),
+        mental_analysis: norm(fields.mentalAnalysis),
+        technique_analysis: norm(fields.techniqueAnalysis),
+        analysis_author: norm(fields.analysisAuthor),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", playerId);
+
+    if (updateError) return { success: false, message: mapPostgrestError(updateError) };
+
+    revalidateAllLocales(owned.slug);
+    return {
+      success: true,
+      message: "Versión en español guardada. Es tu contenido canónico, ya visible en tu perfil público.",
+      availableLocales: await getAvailablePlayerLocales(playerId),
+    };
+  }
+
+  // en/it/pt → player_profile_translations.
   // Tier-limit guard (HANDOFF §6): Pro = native + up to 3 (4 total),
   // Free = 1. A brand-new locale only counts against the cap.
   const available = await getAvailablePlayerLocales(playerId);
@@ -170,11 +212,6 @@ export async function savePlayerTranslation(input: {
   if (!available.includes(locale as never) && available.length >= tierLimit) {
     return { success: false, message: "Alcanzaste el límite de idiomas de tu plan." };
   }
-
-  const norm = (v: string | undefined) => {
-    const t = v?.trim();
-    return t && t.length > 0 ? t : null;
-  };
 
   const { error: upsertError } = await owned.supabase
     .from("player_profile_translations")
@@ -184,10 +221,7 @@ export async function savePlayerTranslation(input: {
         locale,
         bio: norm(fields.bio),
         career_objectives: norm(fields.careerObjectives),
-        top_characteristics:
-          fields.topCharacteristics && fields.topCharacteristics.length > 0
-            ? fields.topCharacteristics
-            : null,
+        top_characteristics: chars,
         tactics_analysis: norm(fields.tacticsAnalysis),
         physical_analysis: norm(fields.physicalAnalysis),
         mental_analysis: norm(fields.mentalAnalysis),
@@ -261,10 +295,48 @@ export type DraftResult =
 
 const draftSchema = z.object({
   playerId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  // TARGET locale — es included (translating, e.g., pt → es).
+  locale: z.enum(["es", "en", "it", "pt"]),
   block: z.enum(["bio", "scouting"]),
   force: z.boolean().optional(),
 });
+
+// The 8 free-text columns, as stored (snake_case) on either player_profiles
+// (es) or player_profile_translations (en/it/pt).
+type RawFreeText = {
+  bio: string | null;
+  career_objectives: string | null;
+  top_characteristics: string[] | null;
+  tactics_analysis: string | null;
+  physical_analysis: string | null;
+  mental_analysis: string | null;
+  technique_analysis: string | null;
+  analysis_author: string | null;
+};
+
+const FREE_TEXT_COLS =
+  "bio, career_objectives, top_characteristics, tactics_analysis, physical_analysis, mental_analysis, technique_analysis, analysis_author";
+
+/** Shape one editor block's source object (camelCase keys) from a raw row. */
+function buildBlockSource(
+  raw: RawFreeText | null,
+  block: "bio" | "scouting",
+): Record<string, unknown> {
+  const r = raw ?? ({} as Partial<RawFreeText>);
+  return block === "bio"
+    ? {
+        bio: r.bio ?? "",
+        careerObjectives: r.career_objectives ?? "",
+        topCharacteristics: r.top_characteristics ?? [],
+      }
+    : {
+        tacticsAnalysis: r.tactics_analysis ?? "",
+        physicalAnalysis: r.physical_analysis ?? "",
+        mentalAnalysis: r.mental_analysis ?? "",
+        techniqueAnalysis: r.technique_analysis ?? "",
+        analysisAuthor: r.analysis_author ?? "",
+      };
+}
 
 export async function generateTranslationDraft(input: {
   playerId: string;
@@ -278,42 +350,50 @@ export async function generateTranslationDraft(input: {
 
   const { owned, error } = await ensureProOwner(playerId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
-  const { supabase } = owned;
+  const { supabase, userId } = owned;
 
-  // Source = the player's REAL es fields for this block. Never trust the client
-  // for the source text — it's what the hash + the translation are built from.
-  const { data: p } = await supabase
-    .from("player_profiles")
-    .select(
-      "bio, career_objectives, top_characteristics, tactics_analysis, physical_analysis, mental_analysis, technique_analysis, analysis_author",
-    )
-    .eq("id", playerId)
-    .maybeSingle<{
-      bio: string | null;
-      career_objectives: string | null;
-      top_characteristics: string[] | null;
-      tactics_analysis: string | null;
-      physical_analysis: string | null;
-      mental_analysis: string | null;
-      technique_analysis: string | null;
-      analysis_author: string | null;
-    }>();
-  if (!p) return { success: false, message: "No encontramos el perfil." };
+  // Source language = the player's preferred_locale (model B1). The assistant
+  // translates FROM the player's own language; es stays the canonical /slug
+  // but is itself a valid TARGET when the player writes in another language.
+  const { data: up } = await supabase
+    .from("user_profiles")
+    .select("preferred_locale")
+    .eq("user_id", userId)
+    .maybeSingle<{ preferred_locale: string | null }>();
+  const sourceLocale = (up?.preferred_locale ?? "es") as TranslateLocale;
 
-  const source: Record<string, unknown> =
-    block === "bio"
-      ? {
-          bio: p.bio ?? "",
-          careerObjectives: p.career_objectives ?? "",
-          topCharacteristics: p.top_characteristics ?? [],
-        }
-      : {
-          tacticsAnalysis: p.tactics_analysis ?? "",
-          physicalAnalysis: p.physical_analysis ?? "",
-          mentalAnalysis: p.mental_analysis ?? "",
-          techniqueAnalysis: p.technique_analysis ?? "",
-          analysisAuthor: p.analysis_author ?? "",
-        };
+  if (locale === sourceLocale) {
+    return {
+      success: false,
+      message:
+        "Ese ya es tu idioma. Escribilo directamente; el asistente traduce hacia los demás.",
+    };
+  }
+
+  // Load the SOURCE content for this block from the preferred locale. Never
+  // trust the client for the source — it's what the hash + the translation
+  // are built from. es lives on player_profiles; en/it/pt on *_translations
+  // (no row yet = native not saved → empty source).
+  let raw: RawFreeText | null = null;
+  if (sourceLocale === "es") {
+    const { data } = await supabase
+      .from("player_profiles")
+      .select(FREE_TEXT_COLS)
+      .eq("id", playerId)
+      .maybeSingle<RawFreeText>();
+    if (!data) return { success: false, message: "No encontramos el perfil." };
+    raw = data;
+  } else {
+    const { data } = await supabase
+      .from("player_profile_translations")
+      .select(FREE_TEXT_COLS)
+      .eq("player_id", playerId)
+      .eq("locale", sourceLocale)
+      .maybeSingle<RawFreeText>();
+    raw = data ?? null;
+  }
+
+  const source = buildBlockSource(raw, block);
 
   const hasContent = Object.values(source).some((v) =>
     Array.isArray(v) ? v.length > 0 : String(v).trim().length > 0,
@@ -321,7 +401,8 @@ export async function generateTranslationDraft(input: {
   if (!hasContent) {
     return {
       success: false,
-      message: "Completá primero el contenido en español de este bloque.",
+      message:
+        "Completá y guardá primero el contenido en tu idioma para poder traducirlo.",
     };
   }
 
@@ -345,15 +426,15 @@ export async function generateTranslationDraft(input: {
     // First translation of this block→locale is free (HANDOFF §5.1.3).
     kind = "initial";
   } else {
-    // Idempotent: same ES as last generation and not forcing → no model call,
-    // no quota burn ($0). The client still holds its draft.
+    // Idempotent: same source as last generation and not forcing → no model
+    // call, no quota burn ($0). The client still holds its draft.
     if (!force && lastHash === sourceHash) {
       return {
         success: true,
         cached: true,
         draft: null,
         message:
-          "El español no cambió desde tu última generación. Editá el borrador actual o tocá Regenerar para otra versión.",
+          "Tu idioma no cambió desde la última generación. Editá el borrador actual o tocá Regenerar para otra versión.",
       };
     }
     kind = "regen";
@@ -380,7 +461,8 @@ export async function generateTranslationDraft(input: {
     draft = (await translateBlock(
       block as TranslationBlock,
       source,
-      locale as TargetLocale,
+      sourceLocale,
+      locale as TranslateLocale,
     )) as Record<string, unknown>;
   } catch {
     return {
