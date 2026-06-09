@@ -22,6 +22,7 @@ import type {
   FreeLayoutVideo,
 } from "./components/free/FreeLayout";
 import { PersonJsonLd } from "@/lib/seo/personJsonLd";
+import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
 import { getAuthorHubSlugForUser } from "@/lib/seo/cross-ref";
 import { formatPlayerPositions } from "@/lib/format";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
@@ -292,6 +293,9 @@ export default async function PlayerPublicPage({
   // to know about locales.
   const translation = await getPlayerTranslation(rawPlayer.id, locale);
   const player = { ...rawPlayer, ...mergePlayerContent(rawPlayer, translation) };
+  // Locales this profile is really translated into → public language switcher
+  // (renders only when there's more than one).
+  const availableLocales = await getAvailablePlayerLocales(rawPlayer.id);
 
   // 2) Plan y límites (Para limitar fotos - o enviarlo completo y limitar ahi)
   //    IMPORTANTE: usamos resolvePlanAccess (mira statusV2 + plan_id) y NO
@@ -681,6 +685,11 @@ export default async function PlayerPublicPage({
 
   return (
     <>
+      <PortfolioLocaleSwitcher
+        basePath={`/${slug}`}
+        available={availableLocales}
+        current={locale}
+      />
       {/*
         JSON-LD Person/Athlete schema. Streamed in the initial HTML
         response so crawlers see the entity graph immediately. The

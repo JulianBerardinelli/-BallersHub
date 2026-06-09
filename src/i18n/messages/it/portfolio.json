@@ -1,0 +1,28 @@
+{
+  "nav": {
+    "bio": "Bio",
+    "video": "Video",
+    "career": "Carriera",
+    "links": "Link",
+    "contact": "Contatto",
+    "tactics": "Tattica",
+    "press": "Stampa",
+    "gallery": "Galleria"
+  },
+  "a11y": {
+    "backTo": "Torna a",
+    "backToHome": "Torna a 'BallersHub",
+    "profileNav": "Navigazione del profilo",
+    "home": "Home",
+    "shareProfile": "Condividi profilo",
+    "poweredBy": "Powered BY"
+  },
+  "share": {
+    "title": "Profilo di {name}",
+    "text": "Guarda il profilo professionale di {name} su 'BallersHub."
+  },
+  "switcher": {
+    "label": "Lingua",
+    "aria": "Cambia la lingua del profilo"
+  }
+}
