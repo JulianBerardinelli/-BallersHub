@@ -123,7 +123,7 @@
     "subStatusInactive": "Nessun abbonamento",
     "compAccountTitle": "Account omaggio",
     "compAccountDescription": "Il tuo accesso Pro è stato attivato dal team di BallersHub — non ci sono addebiti associati.",
-    "compAccountBody": "Questo abbonamento è gestito direttamente dal team di BallersHub. Se hai dubbi sulla scadenza o vuoi prolungarlo, scrivici a <link>billing@ballershub.app</link>.",
+    "compAccountBody": "Questo abbonamento è gestito direttamente dal team di BallersHub. Se hai dubbi sulla scadenza o vuoi prolungarlo, scrivici a <link>info@ballershub.co</link>.",
     "subActionsTitle": "Azioni sull'abbonamento",
     "subActionsStripeDescription": "Stripe gestisce il portale di fatturazione: aggiorna la carta, scarica le fatture o annulla da un unico posto.",
     "subActionsMpDescription": "Mercado Pago non offre un portale self-service. Da qui annulli direttamente — l'accesso si chiude all'istante.",
@@ -142,7 +142,7 @@
     "viewPlans": "Vedi i piani",
     "billingSupportTitle": "Supporto fatturazione",
     "billingSupportDescription": "Un problema con un addebito o una fattura?",
-    "billingSupportBody": "Scrivici a <link>billing@ballershub.app</link> e ti risponderemo lo stesso giorno lavorativo.",
+    "billingSupportBody": "Scrivici a <link>info@ballershub.co</link> e ti risponderemo lo stesso giorno lavorativo.",
     "accountTitle": "Impostazioni dell'account",
     "accountDescription": "Gestisci le tue credenziali, la sicurezza e le preferenze generali del pannello.",
     "securityTitle": "Sicurezza",
@@ -167,7 +167,7 @@
     "currentSessionLabel": "Sessione attuale",
     "currentSessionDescription": "Dispositivo attuale (dettagli disponibili a breve)",
     "sessionsIntegrationNote": "Il dettaglio dei dispositivi e l'opzione per chiudere le sessioni saranno integrati con Supabase Auth Management.",
-    "suspiciousActivity": "Se rilevi attività sospette, contattaci all'indirizzo <link>soporte@ballershub.com</link>."
+    "suspiciousActivity": "Se rilevi attività sospette, contattaci all'indirizzo <link>info@ballershub.co</link>."
   },
   "editProfile": {
     "personalDataTitle": "Dati personali",

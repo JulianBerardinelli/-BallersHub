@@ -138,10 +138,10 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
                 <span>
                   Si en 5 minutos no ves el email de confirmación, escribinos a{" "}
                   <Link
-                    href="mailto:soporte@ballershub.app"
+                    href="mailto:info@ballershub.co"
                     className="text-bh-lime underline-offset-4 hover:underline"
                   >
-                    soporte@ballershub.app
+                    info@ballershub.co
                   </Link>
                   .
                 </span>

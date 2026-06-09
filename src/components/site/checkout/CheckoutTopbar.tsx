@@ -28,7 +28,7 @@ export default function CheckoutTopbar() {
             Pago seguro · SSL 256-bit
           </span>
           <Link
-            href="mailto:soporte@ballershub.app"
+            href="mailto:info@ballershub.co"
             className="inline-flex items-center gap-1.5 rounded-bh-md border border-transparent px-2.5 py-1.5 text-[12px] font-semibold text-bh-fg-3 transition-colors duration-150 hover:text-bh-fg-1"
           >
             <MessageCircleQuestion className="h-3.5 w-3.5" />

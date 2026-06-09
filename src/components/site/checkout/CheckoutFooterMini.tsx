@@ -7,7 +7,7 @@ const LINKS = [
   { href: "/legal/terms", label: "Términos" },
   { href: "/legal/privacy", label: "Privacidad" },
   { href: "/legal/refunds", label: "Reembolsos" },
-  { href: "mailto:soporte@ballershub.app", label: "Soporte" },
+  { href: "mailto:info@ballershub.co", label: "Soporte" },
 ];
 
 export default function CheckoutFooterMini() {

@@ -264,10 +264,10 @@ export default function ApplicationReviewModal({
                   <strong className="text-bh-fg-1">24 a 72 horas hábiles</strong>.
                   Si necesitás corregir un dato urgente, escribinos a{" "}
                   <a
-                    href="mailto:soporte@ballershub.co"
+                    href="mailto:info@ballershub.co"
                     className="text-bh-blue underline-offset-4 hover:underline"
                   >
-                    soporte@ballershub.co
+                    info@ballershub.co
                   </a>{" "}
                   citando el ID de arriba.
                 </div>

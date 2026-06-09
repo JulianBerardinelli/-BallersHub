@@ -233,7 +233,7 @@ export default async function SubscriptionSettingsPage({
                   {t.rich("settings.compAccountBody", {
                     link: (chunks) => (
                       <Link
-                        href="mailto:billing@ballershub.app"
+                        href="mailto:info@ballershub.co"
                         className="font-semibold text-bh-lime underline-offset-4 hover:underline"
                       >
                         {chunks}
@@ -300,7 +300,7 @@ export default async function SubscriptionSettingsPage({
           {t.rich("settings.billingSupportBody", {
             link: (chunks) => (
               <Link
-                href="mailto:billing@ballershub.app"
+                href="mailto:info@ballershub.co"
                 className="font-semibold text-bh-lime underline-offset-4 hover:underline"
               >
                 {chunks}

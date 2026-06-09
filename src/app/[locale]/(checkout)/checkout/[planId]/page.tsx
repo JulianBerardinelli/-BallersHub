@@ -164,10 +164,10 @@ function ProcessorNotReadyBanner({
             </Link>
             , o escribirnos a{" "}
             <Link
-              href="mailto:soporte@ballershub.app"
+              href="mailto:info@ballershub.co"
               className="font-semibold text-bh-fg-1 underline-offset-4 hover:underline"
             >
-              soporte@ballershub.app
+              info@ballershub.co
             </Link>{" "}
             para que te avisemos cuando esté listo.
           </p>

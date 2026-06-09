@@ -122,7 +122,7 @@ export default async function PortfolioFooter({
     primaryCTA,
     {
       label: "Solicitar contacto",
-      href: ownerSlug ? `mailto:contact@ballershub.com?subject=${encodeURIComponent(ownerSlug)}` : "/about",
+      href: ownerSlug ? `mailto:info@ballershub.co?subject=${encodeURIComponent(ownerSlug)}` : "/about",
       variant: "outline",
     },
   ];
