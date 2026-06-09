@@ -49,6 +49,16 @@ function toFields(src: {
   };
 }
 
+// Which AI provider powers the "Auto-completar" assistant, derived from the
+// configured model so the button can show the matching brand glyph. Mirrors
+// the default in src/lib/i18n/ai-translate.ts (gemini).
+function deriveAiProvider(model: string | undefined): "gemini" | "claude" | null {
+  const m = (model ?? "google/gemini-2.5-flash").toLowerCase();
+  if (m.includes("gemini") || m.startsWith("google/")) return "gemini";
+  if (m.includes("claude") || m.includes("anthropic")) return "claude";
+  return null;
+}
+
 export default async function TranslationsPage() {
   const supabase = await createSupabaseServerRSC();
   const {
@@ -188,6 +198,7 @@ export default async function TranslationsPage() {
         translations={translations}
         initialAvailable={available}
         preferredLocale={preferredLocale}
+        aiProvider={deriveAiProvider(process.env.AI_TRANSLATION_MODEL)}
       />
     </div>
   );

@@ -27,6 +27,8 @@ export type LocaleFields = {
 type EditableLocale = "en" | "it" | "pt";
 type AnyLocale = "es" | EditableLocale;
 type Block = "bio" | "scouting";
+// Which model powers the assistant — drives the brand glyph on the button.
+type AiProvider = "gemini" | "claude" | null;
 
 const BASE_ORDER: AnyLocale[] = ["es", "en", "it", "pt"];
 
@@ -91,12 +93,14 @@ export default function TranslationsEditor({
   translations,
   initialAvailable,
   preferredLocale,
+  aiProvider,
 }: {
   playerId: string;
   baseEs: LocaleFields;
   translations: Partial<Record<EditableLocale, LocaleFields>>;
   initialAvailable: string[];
   preferredLocale: string;
+  aiProvider: AiProvider;
 }) {
   // The player's native language leads the list and is the source the AI
   // assistant translates FROM (model B1). es stays the canonical /slug.
@@ -268,6 +272,7 @@ export default function TranslationsEditor({
         sourceLabel={native.toUpperCase()}
         isNative={active === native}
         canDelete={active !== "es"}
+        aiProvider={aiProvider}
         onPatch={patch}
         onSave={onSave}
         onDelete={onDelete}
@@ -302,17 +307,33 @@ function blockHasContent(fields: LocaleFields, block: Block): boolean {
   });
 }
 
+// Brand glyph of the model powering the assistant (Gemini today). Falls back
+// to the generic sparkle when the configured model maps to no known provider.
+function AssistGlyph({ provider }: { provider: AiProvider }) {
+  if (provider === "gemini" || provider === "claude") {
+    const src =
+      provider === "gemini" ? "/brands/gemini-icon.svg" : "/brands/claude-icon.svg";
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- tiny static brand glyph; no optimization needed
+      <img src={src} alt="" aria-hidden width={14} height={14} className="size-3.5 shrink-0" />
+    );
+  }
+  return <Sparkles className="size-3.5" />;
+}
+
 function AssistButton({
   block,
   hasContent,
   loading,
   disabled,
+  provider,
   onGenerate,
 }: {
   block: Block;
   hasContent: boolean;
   loading: boolean;
   disabled: boolean;
+  provider: AiProvider;
   onGenerate: (block: Block, force: boolean) => void;
 }) {
   return (
@@ -320,7 +341,7 @@ function AssistButton({
       <Button
         size="sm"
         variant="flat"
-        startContent={loading ? undefined : <Sparkles className="size-3.5" />}
+        startContent={loading ? undefined : <AssistGlyph provider={provider} />}
         isLoading={loading}
         isDisabled={disabled}
         onPress={() => onGenerate(block, false)}
@@ -352,6 +373,7 @@ function LocaleForm({
   sourceLabel,
   isNative,
   canDelete,
+  aiProvider,
   onPatch,
   onSave,
   onDelete,
@@ -368,6 +390,7 @@ function LocaleForm({
   sourceLabel: string;
   isNative: boolean;
   canDelete: boolean;
+  aiProvider: AiProvider;
   onPatch: (field: keyof LocaleFields, value: string | string[]) => void;
   onSave: () => void;
   onDelete: () => void;
@@ -445,6 +468,7 @@ function LocaleForm({
               hasContent={blockHasContent(fields, "bio")}
               loading={isGenerating && genBlock === "bio"}
               disabled={busy}
+              provider={aiProvider}
               onGenerate={onGenerate}
             />
           )
@@ -467,6 +491,7 @@ function LocaleForm({
               hasContent={blockHasContent(fields, "scouting")}
               loading={isGenerating && genBlock === "scouting"}
               disabled={busy}
+              provider={aiProvider}
               onGenerate={onGenerate}
             />
           )
