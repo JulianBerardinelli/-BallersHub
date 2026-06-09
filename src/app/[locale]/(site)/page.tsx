@@ -1,6 +1,6 @@
 // app/(site)/page.tsx
 
-import { CallToActionBanner, FeatureHighlights, HomeHeroJourney, HomePricing, TestimonialsPreview } from "@/components/site/home";
+import { CallToActionBanner, FeatureHighlights, HomeDashJourney, HomeHeroJourney, HomePricing, TestimonialsPreview } from "@/components/site/home";
 import { buildHeroGlobeData } from "@/components/site/home/HeroJourney/buildGlobeData";
 import { getScoutingPlayers } from "@/lib/scouting/data";
 
@@ -25,7 +25,12 @@ export default async function Home() {
         journey, so it is not mounted separately here.
       */}
       <HomeHeroJourney data={globeData} />
-      {/* Pricing plans right below the video grid — same UI as /pricing. */}
+      {/*
+        Product tour: liquid-wave scrolljack — Producto → Dashboard → Agente
+        (device mocks + interactive cards). Flows directly out of the videowall.
+      */}
+      <HomeDashJourney />
+      {/* Pricing plans right below the product tour — same UI as /pricing. */}
       <HomePricing />
       <FeatureHighlights />
       <TestimonialsPreview />

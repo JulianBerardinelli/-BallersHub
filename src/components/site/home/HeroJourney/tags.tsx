@@ -31,7 +31,7 @@ export const Flag = ({ cc, size = 16 }: { cc?: string | null; size?: number }) =
   );
 };
 
-const ClubCrest = ({ club, size = 28, accent = "#00C2FF", crestUrl }: { club: string; size?: number; accent?: string; crestUrl?: string | null }) => {
+export const ClubCrest = ({ club, size = 28, accent = "#00C2FF", crestUrl }: { club: string; size?: number; accent?: string; crestUrl?: string | null }) => {
   if (crestUrl) {
     return (
       <div style={{ position: "relative", width: size, height: size, flexShrink: 0, borderRadius: 6, overflow: "hidden", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>

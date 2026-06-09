@@ -15,7 +15,7 @@ import { PricingPlans, PricingProvider, PricingToggles } from "@/components/site
 export default function HomePricing() {
   return (
     <PricingProvider initialAudience="player" initialCurrency="USD">
-      <section aria-labelledby="home-pricing-title" className="relative">
+      <section id="planes" aria-labelledby="home-pricing-title" className="relative scroll-mt-24">
         <div className="mx-auto max-w-2xl text-center">
           <span className="bh-animate-in inline-flex items-center gap-1.5 rounded-bh-pill border border-bh-fg-4 bg-white/[0.03] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-3 backdrop-blur-md">
             <Sparkles className="h-3 w-3 text-bh-lime" />
