@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { siteUrl } from "@/emails/tokens";
 import type { TemplateKey } from "@/emails";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * Resolve the per-recipient props a template needs at SEND TIME.
@@ -56,14 +57,19 @@ async function resolvePlayerOnboardingProps(recipient: RecipientLookup) {
 
   // For `profile_completion`, surface how many sections are still
   // missing so the email leads with a concrete number. Cheap query
-  // that returns 0 if no profile exists yet.
-  const missing = await fetchMissingSectionsForUser(recipient);
+  // that returns 0 if no profile exists yet. `locale` (F6) drives the
+  // localized template copy.
+  const [missing, locale] = await Promise.all([
+    fetchMissingSectionsForUser(recipient),
+    fetchPreferredLocale(recipient),
+  ]);
 
   return {
     firstName,
     playerName: firstName, // alias used by welcome_player
     dashboardUrl,
     missingSections: missing,
+    locale,
   };
 }
 
@@ -71,7 +77,8 @@ async function resolveAgencyOnboardingProps(recipient: RecipientLookup) {
   const dashboardUrl = `${siteUrl}/dashboard`;
   const userRow = await fetchAuthUserMeta(recipient);
   const managerName = pickFirstName(userRow, recipient.email);
-  return { managerName, dashboardUrl };
+  const locale = await fetchPreferredLocale(recipient);
+  return { managerName, dashboardUrl, locale };
 }
 
 // ----------------------------------------------------------------------------
@@ -92,6 +99,23 @@ async function fetchAuthUserMeta(recipient: RecipientLookup): Promise<AuthUserMe
     sql`select raw_user_meta_data, email from auth.users where ${where} limit 1`,
   );
   return rows.rows[0] ?? null;
+}
+
+/** The recipient's preferred_locale (user_profiles), defaulting to es. */
+async function fetchPreferredLocale(recipient: RecipientLookup): Promise<Locale> {
+  const rows = recipient.userId
+    ? await db.execute<{ preferred_locale: string | null }>(
+        sql`select preferred_locale from public.user_profiles where user_id = ${recipient.userId} limit 1`,
+      )
+    : await db.execute<{ preferred_locale: string | null }>(
+        sql`select up.preferred_locale
+            from public.user_profiles up
+            join auth.users au on au.id = up.user_id
+            where lower(au.email) = lower(${recipient.email})
+            limit 1`,
+      );
+  const loc = rows.rows[0]?.preferred_locale;
+  return loc === "en" || loc === "it" || loc === "pt" ? loc : "es";
 }
 
 function pickFirstName(row: AuthUserMetaRow | null, fallbackEmail: string): string {
