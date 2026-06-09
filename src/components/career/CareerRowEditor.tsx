@@ -19,6 +19,10 @@ import { bhButtonClass } from "@/components/ui/BhButton";
 import { bhChip, bhSwitchClassNames } from "@/lib/ui/heroui-brand";
 import TeamCombobox, { type TeamComboboxValue } from "@/components/teams/TeamCombobox";
 
+// Accent- and case-insensitive normalization for client-side league filtering.
+const normText = (s: string) =>
+  (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
 export type TeamLite = {
   id: string;
   name: string;
@@ -330,6 +334,29 @@ export default function CareerRowEditor({
     },
   };
 
+  // HeroUI's Autocomplete does NOT filter a controlled `items` list, so we
+  // filter the catalogue ourselves as the user types — mirroring the club
+  // search. Empty query (or a query still equal to the current selection)
+  // shows every league of the country; typing narrows it live.
+  const divFiltered = React.useMemo(() => {
+    const q = normText(divQ.trim());
+    const selName = selectedDivKey
+      ? normText(divs.find((d) => d.id === selectedDivKey)?.name ?? "")
+      : "";
+    if (!q || q === selName) return divs;
+    return divs.filter((d) => normText(d.name as string).includes(q));
+  }, [divQ, divs, selectedDivKey]);
+
+  const secondaryDivFiltered = React.useMemo(() => {
+    const base = divs.filter((d) => d.id !== selectedDivKey);
+    const q = normText(secondaryDivQ.trim());
+    const selName = selectedSecondaryDivKey
+      ? normText(divs.find((d) => d.id === selectedSecondaryDivKey)?.name ?? "")
+      : "";
+    if (!q || q === selName) return base;
+    return base.filter((d) => normText(d.name as string).includes(q));
+  }, [secondaryDivQ, divs, selectedDivKey, selectedSecondaryDivKey]);
+
   return (
     <div
       className={`grid grid-cols-1 items-end gap-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4 ${
@@ -375,7 +402,7 @@ export default function CareerRowEditor({
             ...(!divLoading && divQ.trim().length > 1 && !divs.some(d => d.name.toLowerCase() === divQ.toLowerCase())
               ? ([{ id: `new:${divQ.trim()}`, name: divQ.trim() }] as any)
               : []),
-            ...divs,
+            ...divFiltered,
           ]}
           placeholder="Primera / Sub-20…"
         >
@@ -392,7 +419,7 @@ export default function CareerRowEditor({
             }
             return (
               <AutocompleteItem key={item.id} textValue={item.name} startContent={
-                  <Image src={item.crest_url || "/images/team-default.svg"} width={16} height={16} unoptimized={!item.crest_url} className="h-4 w-4 object-contain" alt="" />
+                  <Image src={item.crest_url || "/images/team-default.svg"} width={16} height={16} unoptimized className="h-4 w-4 object-contain" alt="" />
               }>
                 {item.name}
               </AutocompleteItem>
@@ -440,7 +467,7 @@ export default function CareerRowEditor({
               !divs.some((d) => d.name.toLowerCase() === secondaryDivQ.toLowerCase())
                 ? ([{ id: `new:${secondaryDivQ.trim()}`, name: secondaryDivQ.trim() }] as any)
                 : []),
-              ...divs.filter((d) => d.id !== selectedDivKey),
+              ...secondaryDivFiltered,
             ]}
             placeholder="Reserva / U20 / Segunda…"
           >
@@ -464,7 +491,7 @@ export default function CareerRowEditor({
                       src={item.crest_url || "/images/team-default.svg"}
                       width={16}
                       height={16}
-                      unoptimized={!item.crest_url}
+                      unoptimized
                       className="h-4 w-4 object-contain"
                       alt=""
                     />
