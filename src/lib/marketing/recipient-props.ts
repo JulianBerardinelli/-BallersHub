@@ -61,7 +61,7 @@ async function resolvePlayerOnboardingProps(recipient: RecipientLookup) {
   // localized template copy.
   const [missing, locale] = await Promise.all([
     fetchMissingSectionsForUser(recipient),
-    fetchPreferredLocale(recipient),
+    resolvePreferredLocale(recipient),
   ]);
 
   return {
@@ -77,7 +77,7 @@ async function resolveAgencyOnboardingProps(recipient: RecipientLookup) {
   const dashboardUrl = `${siteUrl}/dashboard`;
   const userRow = await fetchAuthUserMeta(recipient);
   const managerName = pickFirstName(userRow, recipient.email);
-  const locale = await fetchPreferredLocale(recipient);
+  const locale = await resolvePreferredLocale(recipient);
   return { managerName, dashboardUrl, locale };
 }
 
@@ -102,7 +102,9 @@ async function fetchAuthUserMeta(recipient: RecipientLookup): Promise<AuthUserMe
 }
 
 /** The recipient's preferred_locale (user_profiles), defaulting to es. */
-async function fetchPreferredLocale(recipient: RecipientLookup): Promise<Locale> {
+export async function resolvePreferredLocale(
+  recipient: RecipientLookup,
+): Promise<Locale> {
   const rows = recipient.userId
     ? await db.execute<{ preferred_locale: string | null }>(
         sql`select preferred_locale from public.user_profiles where user_id = ${recipient.userId} limit 1`,

@@ -26,3 +26,6 @@ export {
   type TemplateKey,
   type TemplatePropsMap,
 } from "./templates/_registry";
+
+// Localized inbox subjects (F6).
+export { localizedSubject } from "./subjects";
