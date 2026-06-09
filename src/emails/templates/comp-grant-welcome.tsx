@@ -6,7 +6,9 @@ import {
   EmailLayout,
   EmailParagraph,
   EmailStep,
+  formatEmailDate,
 } from "@/emails";
+import type { Locale } from "@/i18n/routing";
 
 export type CompGrantWelcomeProps = {
   /** Display name shown in the greeting; falls back to email handle. */
@@ -21,12 +23,141 @@ export type CompGrantWelcomeProps = {
   dashboardUrl: string;
   manageSubscriptionUrl: string;
   recipientEmail?: string;
+  /** Recipient's preferred_locale (F6). Defaults to es. */
+  locale?: Locale;
+};
+
+type Variant = "grant" | "extend";
+
+type Copy = {
+  eyebrow: string;
+  heading: (name: string, variant: Variant) => string;
+  preheader: (name: string, plan: string) => string;
+  intro: (plan: string, variant: Variant) => string;
+  expiryLine: (date: string | null) => string;
+  step1: { title: string; body: string };
+  step2: { title: string; badge: string; body: string };
+  ctaDashboard: string;
+  ctaManage: string;
+  help: string;
+};
+
+const COPY: Record<Locale, Copy> = {
+  es: {
+    eyebrow: "Cuenta de cortesía",
+    heading: (n, v) =>
+      v === "extend" ? `Extendimos tu acceso, ${n}` : `Activamos tu acceso, ${n}`,
+    preheader: (n, p) => `${n}, tu acceso a ${p} ya está activo.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `El equipo de 'BallersHub extendió tu cuenta de cortesía a ${p}.`
+        : `El equipo de 'BallersHub te activó una cuenta de cortesía a ${p} — sin cargo.`,
+    expiryLine: (d) =>
+      d
+        ? `Tu acceso es válido hasta el ${d}.`
+        : "Tu acceso es permanente — sin fecha de vencimiento.",
+    step1: {
+      title: "Tenés todas las features Pro disponibles",
+      body: "Plantilla Pro Athlete, valoraciones, palmarés, valor de mercado, scouting analítico, galería catálogo y más. Aprovechalas para destacar tu perfil.",
+    },
+    step2: {
+      title: "No hay tarjeta ni facturación involucrada",
+      badge: "Sin cargo",
+      body: "Esta cuenta está gestionada directamente por el equipo de 'BallersHub. No vas a recibir cobros ni necesitás registrar un método de pago.",
+    },
+    ctaDashboard: "Ir a mi dashboard",
+    ctaManage: "Ver mi suscripción",
+    help: "¿Dudas o problemas? Respondé este email y te ayudamos.",
+  },
+  en: {
+    eyebrow: "Complimentary account",
+    heading: (n, v) =>
+      v === "extend" ? `We've extended your access, ${n}` : `Your access is live, ${n}`,
+    preheader: (n, p) => `${n}, your access to ${p} is now active.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `The 'BallersHub team extended your complimentary ${p} account.`
+        : `The 'BallersHub team set up a complimentary ${p} account for you — at no charge.`,
+    expiryLine: (d) =>
+      d
+        ? `Your access is valid until ${d}.`
+        : "Your access is permanent — no expiry date.",
+    step1: {
+      title: "You have every Pro feature available",
+      body: "Pro Athlete layout, ratings, honours, market value, analytical scouting, catalog gallery and more. Use them to make your profile stand out.",
+    },
+    step2: {
+      title: "No card or billing involved",
+      badge: "No charge",
+      body: "This account is managed directly by the 'BallersHub team. You won't be charged and you don't need to register a payment method.",
+    },
+    ctaDashboard: "Go to my dashboard",
+    ctaManage: "View my subscription",
+    help: "Questions or issues? Just reply to this email and we'll help.",
+  },
+  it: {
+    eyebrow: "Account omaggio",
+    heading: (n, v) =>
+      v === "extend"
+        ? `Abbiamo esteso il tuo accesso, ${n}`
+        : `Abbiamo attivato il tuo accesso, ${n}`,
+    preheader: (n, p) => `${n}, il tuo accesso a ${p} è ora attivo.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `Il team di 'BallersHub ha esteso il tuo account omaggio ${p}.`
+        : `Il team di 'BallersHub ti ha attivato un account omaggio ${p} — senza alcun costo.`,
+    expiryLine: (d) =>
+      d
+        ? `Il tuo accesso è valido fino al ${d}.`
+        : "Il tuo accesso è permanente — senza data di scadenza.",
+    step1: {
+      title: "Hai tutte le funzionalità Pro disponibili",
+      body: "Layout Pro Athlete, valutazioni, palmarès, valore di mercato, scouting analitico, galleria catalogo e altro. Sfruttale per far risaltare il tuo profilo.",
+    },
+    step2: {
+      title: "Nessuna carta né fatturazione",
+      badge: "Senza costo",
+      body: "Questo account è gestito direttamente dal team di 'BallersHub. Non riceverai addebiti e non devi registrare un metodo di pagamento.",
+    },
+    ctaDashboard: "Vai alla mia dashboard",
+    ctaManage: "Vedi il mio abbonamento",
+    help: "Domande o problemi? Rispondi a questa email e ti aiutiamo.",
+  },
+  pt: {
+    eyebrow: "Conta cortesia",
+    heading: (n, v) =>
+      v === "extend" ? `Estendemos seu acesso, ${n}` : `Ativamos seu acesso, ${n}`,
+    preheader: (n, p) => `${n}, seu acesso ao ${p} já está ativo.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `A equipe da 'BallersHub estendeu sua conta cortesia ${p}.`
+        : `A equipe da 'BallersHub ativou uma conta cortesia ${p} para você — sem custo.`,
+    expiryLine: (d) =>
+      d
+        ? `Seu acesso é válido até ${d}.`
+        : "Seu acesso é permanente — sem data de expiração.",
+    step1: {
+      title: "Você tem todas as features Pro disponíveis",
+      body: "Layout Pro Athlete, avaliações, títulos, valor de mercado, scouting analítico, galeria catálogo e mais. Aproveite para destacar seu perfil.",
+    },
+    step2: {
+      title: "Sem cartão nem cobrança",
+      badge: "Sem custo",
+      body: "Esta conta é gerenciada diretamente pela equipe da 'BallersHub. Você não receberá cobranças e não precisa registrar um método de pagamento.",
+    },
+    ctaDashboard: "Ir para meu painel",
+    ctaManage: "Ver minha assinatura",
+    help: "Dúvidas ou problemas? Responda este e-mail e te ajudamos.",
+  },
 };
 
 /**
  * Sent when an admin grants Pro access without payment (cuenta de cortesía)
  * or extends an existing comp. The copy avoids billing language since
  * there's no charge involved — this is a gift from the team.
+ *
+ * Localized (F6): copy + expiry date follow the recipient's preferred_locale
+ * (resolved in resend.ts); falls back to es.
  */
 export default function CompGrantWelcomeEmail({
   displayName,
@@ -36,76 +167,53 @@ export default function CompGrantWelcomeEmail({
   dashboardUrl,
   manageSubscriptionUrl,
   recipientEmail,
+  locale = "es",
 }: CompGrantWelcomeProps) {
   const firstName = (displayName || "").split(" ")[0] || displayName;
+  const c = COPY[locale] ?? COPY.es;
   const planLabel =
     planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
-
-  const expiryLine = expiresAt
-    ? `Tu acceso es válido hasta el ${formatDate(expiresAt)}.`
-    : "Tu acceso es permanente — sin fecha de vencimiento.";
-
-  const heading = variant === "extend"
-    ? `Extendimos tu acceso, ${firstName}`
-    : `Activamos tu acceso, ${firstName}`;
-
-  const intro = variant === "extend"
-    ? `El equipo de 'BallersHub extendió tu cuenta de cortesía a ${planLabel}.`
-    : `El equipo de 'BallersHub te activó una cuenta de cortesía a ${planLabel} — sin cargo.`;
+  const expiryLine = c.expiryLine(
+    expiresAt ? formatEmailDate(expiresAt, locale) : null,
+  );
 
   return (
     <EmailLayout
-      preheader={`${firstName}, tu acceso a ${planLabel} ya está activo.`}
+      preheader={c.preheader(firstName, planLabel)}
       recipientEmail={recipientEmail}
     >
-      <EmailEyebrow>Cuenta de cortesía</EmailEyebrow>
-      <EmailHeading level={1}>{heading}</EmailHeading>
+      <EmailEyebrow>{c.eyebrow}</EmailEyebrow>
+      <EmailHeading level={1}>{c.heading(firstName, variant)}</EmailHeading>
 
       <EmailParagraph>
-        {intro} {expiryLine}
+        {c.intro(planLabel, variant)} {expiryLine}
       </EmailParagraph>
 
       <EmailDivider tone="subtle" spacing={20} />
 
-      <EmailStep index={1} title="Tenés todas las features Pro disponibles">
-        Plantilla Pro Athlete, valoraciones, palmarés, valor de mercado, scouting analítico,
-        galería catálogo y más. Aprovechalas para destacar tu perfil.
+      <EmailStep index={1} title={c.step1.title}>
+        {c.step1.body}
       </EmailStep>
 
-      <EmailStep index={2} title="No hay tarjeta ni facturación involucrada" badge="Sin cargo">
-        Esta cuenta está gestionada directamente por el equipo de &apos;BallersHub. No vas a recibir
-        cobros ni necesitás registrar un método de pago.
+      <EmailStep index={2} title={c.step2.title} badge={c.step2.badge}>
+        {c.step2.body}
       </EmailStep>
 
       <div style={{ marginTop: 24, marginBottom: 8 }}>
         <EmailButton href={dashboardUrl} variant="lime">
-          Ir a mi dashboard
+          {c.ctaDashboard}
         </EmailButton>
       </div>
 
       <div style={{ marginTop: 12, marginBottom: 8 }}>
         <EmailButton href={manageSubscriptionUrl} variant="outline">
-          Ver mi suscripción
+          {c.ctaManage}
         </EmailButton>
       </div>
 
       <EmailDivider tone="subtle" spacing={28} />
 
-      <EmailParagraph tone="muted">
-        ¿Dudas o problemas? Respondé este email y te ayudamos.
-      </EmailParagraph>
+      <EmailParagraph tone="muted">{c.help}</EmailParagraph>
     </EmailLayout>
   );
-}
-
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString("es-AR", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return iso;
-  }
 }
