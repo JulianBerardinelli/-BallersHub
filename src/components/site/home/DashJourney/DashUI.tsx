@@ -48,10 +48,12 @@ export const BrowserMock = ({
 );
 
 /* ── phone chrome ── */
-export const PhoneMock = ({ children, style }: { accent?: string; children?: React.ReactNode; style?: CSS }) => (
+export const PhoneMock = ({ children, style, noNotch, screenRatio = "9/19" }: { accent?: string; children?: React.ReactNode; style?: CSS; noNotch?: boolean; screenRatio?: string }) => (
   <div style={{ width: 248, borderRadius: 38, padding: 9, background: "linear-gradient(160deg,#1a1c20,#070708)", border: "1px solid rgba(255,255,255,0.14)", boxShadow: "0 44px 80px -30px rgba(0,0,0,0.9), inset 0 1px 0 rgba(255,255,255,0.08)", ...style }}>
-    <div style={{ borderRadius: 30, overflow: "hidden", background: "#0a0b0d", position: "relative", aspectRatio: "9/19" }}>
-      <div style={{ position: "absolute", top: 9, left: "50%", transform: "translateX(-50%)", width: 78, height: 19, borderRadius: 999, background: "#000", zIndex: 5 }} />
+    <div style={{ borderRadius: 30, overflow: "hidden", background: "#0a0b0d", position: "relative", aspectRatio: screenRatio }}>
+      {/* The fake Dynamic Island — hidden via noNotch when the screen content (a real
+          phone recording) already includes its own status bar + island. */}
+      {!noNotch && <div style={{ position: "absolute", top: 9, left: "50%", transform: "translateX(-50%)", width: 78, height: 19, borderRadius: 999, background: "#000", zIndex: 5 }} />}
       {children}
     </div>
   </div>

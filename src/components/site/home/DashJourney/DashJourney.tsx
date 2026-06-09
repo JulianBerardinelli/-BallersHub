@@ -64,7 +64,7 @@ type LayMap = {
 const LAY: { d: LayMap; m: LayMap } = {
   d: {
     box: [DESIGN_W, DESIGN_H],
-    s1pc: { l: 26, t: 132, w: 640 }, s1phone: { l: 505, t: 214, s: 1 }, s1txt: { x: 812, y: 176, w: 400 },
+    s1pc: { l: 26, t: 132, w: 640 }, s1phone: { l: 505, t: 200, s: 1 }, s1txt: { x: 812, y: 176, w: 400 },
     s2pc: { l: 726, t: 168, w: 520 }, s2c1: { l: 398, t: 130, s: 0.46 }, s2c2: { l: 400, t: 480, s: 0.46 }, s2c3: { l: 520, t: 306, s: 0.4 }, s2txt: { x: 40, y: 138, w: 340 },
     s3pc: { l: 28, t: 128, w: 640 }, s3phone: { l: 506, t: 198, s: 1 }, s3txt: { x: 804, y: 152, w: 400 },
   },
@@ -357,7 +357,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
               <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} glow={!limeStep1}><MockVideo name="desktop-1" ar="1280/800" /></BrowserMock></div>
             </div>
             <div ref={reg("s1phone")} className="dj-float" style={{ position: "absolute", left: L.s1phone.l, top: L.s1phone.t, transformOrigin: isMobile ? "top left" : "center" }}>
-              <div className="dj-idle dj-idle-b"><PhoneMock accent={LIME}><MockVideo name="mobile-1" fill /></PhoneMock></div>
+              <div className="dj-idle dj-idle-b"><PhoneMock accent={LIME} noNotch screenRatio="600/1304"><MockVideo name="profile-mobile" fill /></PhoneMock></div>
             </div>
             <Txt reg={reg} idp="s1" copy={C[0]} accent={limeStep1 ? "#0a0a0a" : LIME} x={L.s1txt.x} y={L.s1txt.y} w={L.s1txt.w} dark={limeStep1} mob={isMobile} />
           </div>
