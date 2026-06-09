@@ -354,7 +354,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
           {/* SCENE 1 · PRODUCTO */}
           <div ref={reg("s1")} className="dj-scene" style={{ opacity: 0 }}>
             <div ref={reg("s1pc")} className="dj-float" style={{ position: "absolute", left: L.s1pc.l, top: L.s1pc.t, width: L.s1pc.w }}>
-              <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} glow={!limeStep1}><MockVideo name="desktop-3" ar="1280/800" /></BrowserMock></div>
+              <div className="dj-idle dj-idle-a"><BrowserMock accent={LIME} glow={!limeStep1}><MockVideo name="desktop-1" ar="1280/800" /></BrowserMock></div>
             </div>
             <div ref={reg("s1phone")} className="dj-float" style={{ position: "absolute", left: L.s1phone.l, top: L.s1phone.t, transformOrigin: isMobile ? "top left" : "center" }}>
               <div className="dj-idle dj-idle-b"><PhoneMock accent={LIME}><MockVideo name="mobile-1" fill /></PhoneMock></div>
