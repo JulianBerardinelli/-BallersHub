@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
+import { Check, Globe, Languages, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
+import { useLocale } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
@@ -12,6 +13,7 @@ import {
   generateTranslationDraft,
   type TranslationFields,
 } from "../actions";
+import { setPreferredLocale } from "../../../settings/account/actions";
 
 export type LocaleFields = {
   bio: string;
@@ -103,14 +105,16 @@ export default function TranslationsEditor({
   aiProvider: AiProvider;
 }) {
   // The player's native language leads the list and is the source the AI
-  // assistant translates FROM (model B1). es stays the canonical /slug.
-  const native = normalizeLocale(preferredLocale);
+  // assistant translates FROM (model B1). es stays the canonical /slug. It's
+  // state so the "write in your language?" prompt can switch it in place.
+  const uiLocale = useLocale();
+  const [native, setNative] = useState<AnyLocale>(normalizeLocale(preferredLocale));
   const orderedLocales: AnyLocale[] = [
     native,
     ...BASE_ORDER.filter((l) => l !== native),
   ];
 
-  const [active, setActive] = useState<AnyLocale>(native);
+  const [active, setActive] = useState<AnyLocale>(normalizeLocale(preferredLocale));
   const [available, setAvailable] = useState<string[]>(initialAvailable);
   const [drafts, setDrafts] = useState<Record<AnyLocale, LocaleFields>>({
     es: baseEs,
@@ -124,6 +128,47 @@ export default function TranslationsEditor({
   const [isSaving, startSave] = useTransition();
   const [genBlock, setGenBlock] = useState<Block | null>(null);
   const [isGenerating, startGen] = useTransition();
+
+  // First-visit nudge: if the player browses in another language but their
+  // native is still es (the default), offer to switch — catches users the
+  // sign-up auto-seed missed. localStorage-gated so it asks at most once.
+  const promptLocale: EditableLocale | null =
+    uiLocale === "en" || uiLocale === "it" || uiLocale === "pt" ? uiLocale : null;
+  const [promptReady, setPromptReady] = useState(false);
+  const [promptDismissed, setPromptDismissed] = useState(false);
+  const [isSettingNative, startSetNative] = useTransition();
+  useEffect(() => {
+    setPromptReady(true);
+    try {
+      if (localStorage.getItem(`bh:nativePrompt:${playerId}`) === "1") {
+        setPromptDismissed(true);
+      }
+    } catch {}
+  }, [playerId]);
+  const showNativePrompt =
+    promptReady && !promptDismissed && native === "es" && promptLocale !== null;
+
+  function rememberPromptHandled() {
+    setPromptDismissed(true);
+    try {
+      localStorage.setItem(`bh:nativePrompt:${playerId}`, "1");
+    } catch {}
+  }
+
+  function acceptNative() {
+    if (!promptLocale) return;
+    const loc = promptLocale;
+    startSetNative(async () => {
+      const res = await setPreferredLocale({ locale: loc });
+      if (res.success) {
+        setNative(loc);
+        setActive(loc);
+        rememberPromptHandled();
+      } else {
+        setFeedback({ type: "danger", message: res.message });
+      }
+    });
+  }
 
   function patch(field: keyof LocaleFields, value: string | string[]) {
     setDrafts((prev) => ({
@@ -182,6 +227,43 @@ export default function TranslationsEditor({
 
   return (
     <div className="space-y-6">
+      {showNativePrompt && promptLocale ? (
+        <div className="flex flex-col gap-3 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-2.5">
+            <Languages className="mt-0.5 size-4 shrink-0 text-bh-blue" />
+            <p className="text-[13px] leading-[1.5] text-bh-fg-2">
+              Estás navegando en{" "}
+              <span className="font-semibold text-bh-fg-1">
+                {LOCALE_META[promptLocale].label}
+              </span>
+              . ¿Escribís tu perfil en ese idioma? Lo ponemos como tu idioma
+              nativo y traducimos el resto —incluido el español canónico— desde
+              ahí.
+            </p>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <Button
+              size="sm"
+              variant="light"
+              onPress={rememberPromptHandled}
+              isDisabled={isSettingNative}
+              className="text-bh-fg-3"
+            >
+              No, en español
+            </Button>
+            <Button
+              size="sm"
+              color="primary"
+              onPress={acceptNative}
+              isLoading={isSettingNative}
+              isDisabled={isSettingNative}
+            >
+              Sí, {LOCALE_META[promptLocale].label}
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
       {/* ---------- Overview / language switch + completeness ---------- */}
       <SectionCard
         title="Versiones del perfil"
