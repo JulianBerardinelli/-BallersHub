@@ -13,16 +13,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-type SectionItem = { id: string; label: string; Icon: LucideIcon };
+type SectionItem = { id: string; labelKey: string; Icon: LucideIcon };
 
 const PORTFOLIO_SECTIONS: SectionItem[] = [
-  { id: "biography",       label: "Bio",     Icon: User2 },
-  { id: "tactics",         label: "Táctica", Icon: Target },
-  { id: "career-timeline", label: "Carrera", Icon: TrendingUp },
-  { id: "press",           label: "Prensa",  Icon: Newspaper },
-  { id: "gallery",         label: "Galería", Icon: ImageIcon },
+  { id: "biography",       labelKey: "nav.bio",     Icon: User2 },
+  { id: "tactics",         labelKey: "nav.tactics", Icon: Target },
+  { id: "career-timeline", labelKey: "nav.career",  Icon: TrendingUp },
+  { id: "press",           labelKey: "nav.press",   Icon: Newspaper },
+  { id: "gallery",         labelKey: "nav.gallery", Icon: ImageIcon },
 ];
 
 export default function ProPlayerHeader({
@@ -32,14 +33,15 @@ export default function ProPlayerHeader({
   player: any;
   hideOnMobile?: boolean;
 }) {
+  const t = useTranslations("portfolio");
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const handleShare = async () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: `Perfil de ${player.fullName}`,
-          text: `Mira el perfil profesional de ${player.fullName} en 'BallersHub.`,
+          title: t("share.title", { name: player.fullName }),
+          text: t("share.text", { name: player.fullName }),
           url: window.location.href,
         });
       } else if (navigator.clipboard) {
@@ -98,12 +100,12 @@ export default function ProPlayerHeader({
         {/* LEFT: Back to 'BallersHub */}
         <Link
           href="/"
-          aria-label="Volver a 'BallersHub"
+          aria-label={t("a11y.backToHome")}
           className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-start group"
         >
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold flex items-center gap-1.5 group-hover:text-white/80 transition-colors">
             <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
-            Volver a
+            {t("a11y.backTo")}
           </span>
           <Wordmark
             size="nav"
@@ -120,7 +122,7 @@ export default function ProPlayerHeader({
           layoutId compartido.
         */}
         <nav
-          aria-label="Navegación del perfil"
+          aria-label={t("a11y.profileNav")}
           className="pointer-events-auto bg-black/40 backdrop-blur-xl border border-white/10 rounded-full pl-2 pr-2 py-2 flex items-center gap-0.5 md:gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all max-w-[calc(100vw-1.5rem)]"
         >
           {/* Avatar */}
@@ -128,7 +130,7 @@ export default function ProPlayerHeader({
             <button
               type="button"
               onClick={scrollToTop}
-              aria-label="Inicio"
+              aria-label={t("a11y.home")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white/20 shadow-inner shrink-0 pointer-events-auto"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -144,13 +146,14 @@ export default function ProPlayerHeader({
           {PORTFOLIO_SECTIONS.map((item) => {
             const isActive = activeId === item.id;
             const Icon = item.Icon;
+            const label = t(item.labelKey);
             return (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => scrollToSection(item.id)}
-                aria-label={item.label}
-                title={item.label}
+                aria-label={label}
+                title={label}
                 className={`relative pointer-events-auto rounded-full font-semibold uppercase tracking-widest transition-colors whitespace-nowrap flex items-center justify-center shrink-0 px-2 py-1.5 md:px-3 md:text-xs ${
                   isActive
                     ? "text-[var(--theme-background,#050505)]"
@@ -171,7 +174,7 @@ export default function ProPlayerHeader({
                 )}
                 <span className="relative z-10 flex items-center gap-1.5">
                   <Icon className="w-4 h-4 md:hidden" aria-hidden="true" />
-                  <span className="hidden md:inline">{item.label}</span>
+                  <span className="hidden md:inline">{label}</span>
                 </span>
               </button>
             );
@@ -184,7 +187,7 @@ export default function ProPlayerHeader({
           <button
             type="button"
             onClick={handleShare}
-            aria-label="Compartir perfil"
+            aria-label={t("a11y.shareProfile")}
             className="text-white hover:text-[var(--theme-accent,#34d399)] transition-colors pointer-events-auto px-1.5 md:px-2 shrink-0"
           >
             <Share2 className="w-4 h-4" />
@@ -194,7 +197,7 @@ export default function ProPlayerHeader({
         {/* RIGHT: Powered BY 'BallersHub */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">
-            Powered BY
+            {t("a11y.poweredBy")}
           </span>
           <Wordmark size="nav" className="text-base leading-none" />
         </div>

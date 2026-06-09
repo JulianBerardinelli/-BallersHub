@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "framer-motion";
 import GalleryPhotoCard from "./GalleryPhotoCard";
 import GalleryLightbox from "./GalleryLightbox";
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function PortfolioGallery({ photos, playerName }: Props) {
+  const t = useTranslations("portfolio");
   const sectionRef = useRef<HTMLElement>(null);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [orientations, setOrientations] = useState<Map<string, Orientation>>(new Map());
@@ -104,7 +106,7 @@ export default function PortfolioGallery({ photos, playerName }: Props) {
     <section
       ref={sectionRef}
       id="gallery"
-      aria-label={`Galería de fotos de ${playerName}`}
+      aria-label={t("modules.gallery.sectionAria", { name: playerName })}
       className="relative -mt-24 md:-mt-56 z-30 w-full pt-16 md:pt-28 pb-16 md:pb-32"
     >
       <div className="absolute inset-0 pointer-events-none z-0">
@@ -118,10 +120,10 @@ export default function PortfolioGallery({ photos, playerName }: Props) {
         >
           <div className="flex flex-col">
             <span className="text-[10px] md:text-xs font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-1.5">
-              {String(photoCount).padStart(2, "0")} {photoCount === 1 ? "captura" : "capturas"}
+              {String(photoCount).padStart(2, "0")} {t("modules.gallery.captureNoun", { count: photoCount })}
             </span>
             <h2 className="text-3xl md:text-5xl lg:text-6xl font-black font-heading text-white uppercase leading-[0.85]">
-              Galería
+              {t("modules.gallery.title")}
             </h2>
           </div>
           <motion.div

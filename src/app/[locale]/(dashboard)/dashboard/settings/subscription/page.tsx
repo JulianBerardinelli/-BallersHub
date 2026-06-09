@@ -11,6 +11,7 @@
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { and, desc, eq } from "drizzle-orm";
 
 import PageHeader from "@/components/dashboard/client/PageHeader";
@@ -42,38 +43,39 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-const STATUS_COPY: Record<
+const STATUS_CONFIG: Record<
   string,
-  { label: string; tone: "success" | "warning" | "danger" | "muted" }
+  { key: string; tone: "success" | "warning" | "danger" | "muted" }
 > = {
-  trialing: { label: "Período de prueba", tone: "success" },
-  active: { label: "Activa", tone: "success" },
-  past_due: { label: "Pago pendiente", tone: "warning" },
-  paused: { label: "Pausada", tone: "warning" },
-  canceled: { label: "Cancelada", tone: "danger" },
-  incomplete: { label: "Incompleta", tone: "warning" },
-  inactive: { label: "Sin suscripción", tone: "muted" },
+  trialing: { key: "settings.subStatusTrialing", tone: "success" },
+  active: { key: "settings.subStatusActive", tone: "success" },
+  past_due: { key: "settings.subStatusPastDue", tone: "warning" },
+  paused: { key: "settings.subStatusPaused", tone: "warning" },
+  canceled: { key: "settings.subStatusCanceled", tone: "danger" },
+  incomplete: { key: "settings.subStatusIncomplete", tone: "warning" },
+  inactive: { key: "settings.subStatusInactive", tone: "muted" },
 };
-
-const PRO_PLAYER_FEATURES = [
-  "Plantillas premium y personalización avanzada",
-  "Dominio personalizado y branding libre",
-  "Secciones multimedia ilimitadas",
-  "Prioridad en soporte y revisiones de perfil",
-];
-
-const PRO_AGENCY_FEATURES = [
-  "Panel multi-jugador con métricas comparadas",
-  "Invitaciones ilimitadas y staff colaborador",
-  "Branding de agencia en cada portfolio publicado",
-  "Soporte prioritario para campañas y outreach",
-];
 
 export default async function SubscriptionSettingsPage({
   searchParams,
 }: PageProps) {
+  const t = await getTranslations("dashboard");
   const { already_subscribed, plan: planFromQuery, canceled } =
     await searchParams;
+
+  const PRO_PLAYER_FEATURES = [
+    t("settings.proPlayerFeature1"),
+    t("settings.proPlayerFeature2"),
+    t("settings.proPlayerFeature3"),
+    t("settings.proPlayerFeature4"),
+  ];
+
+  const PRO_AGENCY_FEATURES = [
+    t("settings.proAgencyFeature1"),
+    t("settings.proAgencyFeature2"),
+    t("settings.proAgencyFeature3"),
+    t("settings.proAgencyFeature4"),
+  ];
 
   const supabase = await createSupabaseServerRSC();
   const {
@@ -97,7 +99,8 @@ export default async function SubscriptionSettingsPage({
     sub.processorSubscriptionId.startsWith("admin_grant:");
 
   const statusKey = sub?.statusV2 ?? sub?.status ?? "inactive";
-  const statusConfig = STATUS_COPY[statusKey] ?? STATUS_COPY.inactive;
+  const statusConfig = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.inactive;
+  const statusLabel = t(statusConfig.key);
 
   const planId = sub?.planId ?? planFromQuery ?? null;
   const planLabel =
@@ -137,54 +140,56 @@ export default async function SubscriptionSettingsPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Suscripción"
-        description="Gestioná tu plan, descargas, métodos de pago y cancelaciones."
+        title={t("settings.subscriptionTitle")}
+        description={t("settings.subscriptionDescription")}
       />
 
       {already_subscribed === "1" && (
         <Banner tone="warning">
-          Ya tenés un plan {planLabel} activo. Si querés cambiar, podés
-          gestionarlo desde acá o cancelar primero el actual.
+          {t("settings.alreadySubscribed", { plan: planLabel })}
         </Banner>
       )}
 
       {canceled === "1" && (
         <Banner tone="success">
-          Listo, tu suscripción quedó marcada para cancelación. Mantenés acceso
-          hasta el final del período actual.
+          {t("settings.canceledNotice")}
         </Banner>
       )}
 
       <SectionCard
-        title="Estado actual"
-        description="Información del plan que se encuentra activo en este momento."
+        title={t("settings.currentStatusTitle")}
+        description={t("settings.currentStatusDescription")}
       >
         <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-2 p-5 text-sm text-bh-fg-2 sm:grid-cols-3">
-          <Field label="Plan">
+          <Field label={t("settings.fieldPlan")}>
             <p className="text-base font-semibold text-bh-fg-1">{planLabel}</p>
             {isCompGrant ? (
               <span className="mt-1 inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-lime">
-                <Gift size={10} /> Cortesía
+                <Gift size={10} /> {t("settings.compBadge")}
               </span>
             ) : formattedAmount ? (
-              <p className="text-[12px] text-bh-fg-3">{formattedAmount} / año</p>
+              <p className="text-[12px] text-bh-fg-3">
+                {t("settings.amountPerYear", { amount: formattedAmount })}
+              </p>
             ) : null}
           </Field>
-          <Field label="Estado">
+          <Field label={t("settings.fieldStatus")}>
             <StatusPill tone={statusConfig.tone}>
-              {statusConfig.label}
+              {statusLabel}
             </StatusPill>
             {sub?.cancelAtPeriodEnd && periodEnd && (
               <p className="mt-1 text-[12px] text-bh-fg-3">
-                Termina el {periodEnd.toLocaleDateString("es-AR")}
+                {t("settings.endsOn", {
+                  date: periodEnd.toLocaleDateString("es-AR"),
+                })}
               </p>
             )}
           </Field>
           <Field
             label={
               statusKey === "trialing"
-                ? "Fin del período de prueba"
-                : "Próxima renovación"
+                ? t("settings.fieldTrialEnd")
+                : t("settings.fieldNextRenewal")
             }
           >
             <p className="text-[13px] text-bh-fg-1">
@@ -196,7 +201,9 @@ export default async function SubscriptionSettingsPage({
             </p>
             {canceledAt && (
               <p className="text-[12px] text-bh-fg-3">
-                Cancelado el {canceledAt.toLocaleDateString("es-AR")}
+                {t("settings.canceledOn", {
+                  date: canceledAt.toLocaleDateString("es-AR"),
+                })}
               </p>
             )}
           </Field>
@@ -204,10 +211,11 @@ export default async function SubscriptionSettingsPage({
 
         {isWithinRefundWindow && refundDeadline && (
           <Banner tone="info">
-            Tenés hasta el <strong>{refundDeadline.toLocaleDateString("es-AR")}</strong>{" "}
-            para cancelar dentro del período de garantía de {REFUND_GRACE_DAYS}{" "}
-            días. Si cancelás dentro de la ventana, te devolvemos el cobro
-            inicial.
+            {t.rich("settings.refundWindow", {
+              date: refundDeadline.toLocaleDateString("es-AR"),
+              days: REFUND_GRACE_DAYS,
+              strong: (chunks) => <strong>{chunks}</strong>,
+            })}
           </Banner>
         )}
       </SectionCard>
@@ -215,33 +223,34 @@ export default async function SubscriptionSettingsPage({
       {sub && sub.statusV2 && sub.statusV2 !== "canceled" && (
         isCompGrant ? (
           <SectionCard
-            title="Cuenta de cortesía"
-            description="Tu acceso Pro fue activado por el equipo de 'BallersHub — no hay cobros asociados."
+            title={t("settings.compAccountTitle")}
+            description={t("settings.compAccountDescription")}
           >
             <div className="rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 p-4 text-[13px] text-bh-fg-2">
               <p className="flex items-start gap-2">
                 <Gift className="mt-0.5 size-4 shrink-0 text-bh-lime" />
                 <span>
-                  Esta suscripción está gestionada directamente por el equipo de &apos;BallersHub.
-                  Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a{" "}
-                  <Link
-                    href="mailto:billing@ballershub.app"
-                    className="font-semibold text-bh-lime underline-offset-4 hover:underline"
-                  >
-                    billing@ballershub.app
-                  </Link>
-                  .
+                  {t.rich("settings.compAccountBody", {
+                    link: (chunks) => (
+                      <Link
+                        href="mailto:billing@ballershub.app"
+                        className="font-semibold text-bh-lime underline-offset-4 hover:underline"
+                      >
+                        {chunks}
+                      </Link>
+                    ),
+                  })}
                 </span>
               </p>
             </div>
           </SectionCard>
         ) : (
           <SectionCard
-            title="Acciones sobre la suscripción"
+            title={t("settings.subActionsTitle")}
             description={
               sub.processor === "stripe"
-                ? "Stripe gestiona el portal de facturación: actualizá tarjeta, descargá facturas o cancelá desde un único lugar."
-                : "Mercado Pago no expone un portal autoservicio. Desde acá cancelás directamente — el acceso se cierra al instante."
+                ? t("settings.subActionsStripeDescription")
+                : t("settings.subActionsMpDescription")
             }
           >
             <SubscriptionActions
@@ -253,8 +262,12 @@ export default async function SubscriptionSettingsPage({
       )}
 
       <SectionCard
-        title={planId === "pro-agency" ? "Tu plan Pro Agency" : "Tu plan Pro Player"}
-        description="Beneficios incluidos en el plan."
+        title={
+          planId === "pro-agency"
+            ? t("settings.yourPlanProAgency")
+            : t("settings.yourPlanProPlayer")
+        }
+        description={t("settings.planBenefitsDescription")}
       >
         <ul className="grid gap-2 text-[13px] text-bh-fg-2 sm:grid-cols-2">
           {features.map((feature) => (
@@ -267,32 +280,33 @@ export default async function SubscriptionSettingsPage({
         {!sub && (
           <div className="mt-4 flex flex-col gap-2 rounded-bh-md border border-white/[0.08] bg-bh-surface-2 p-4 text-[13px] text-bh-fg-2 sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Todavía no tenés un plan activo. Probá Pro {TRIAL_DAYS} días sin
-              cargo.
+              {t("settings.noPlanCta", { days: TRIAL_DAYS })}
             </p>
             <Link
               href="/pricing"
               className="inline-flex items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-4 py-2 text-[12.5px] font-semibold text-bh-black transition-all hover:bg-[#d8ff26]"
             >
-              Ver planes
+              {t("settings.viewPlans")}
             </Link>
           </div>
         )}
       </SectionCard>
 
       <SectionCard
-        title="Soporte de facturación"
-        description="¿Algún problema con un cobro o factura?"
+        title={t("settings.billingSupportTitle")}
+        description={t("settings.billingSupportDescription")}
       >
         <p className="text-[13px] text-bh-fg-2">
-          Escribinos a{" "}
-          <Link
-            href="mailto:billing@ballershub.app"
-            className="font-semibold text-bh-lime underline-offset-4 hover:underline"
-          >
-            billing@ballershub.app
-          </Link>{" "}
-          y te respondemos el mismo día hábil.
+          {t.rich("settings.billingSupportBody", {
+            link: (chunks) => (
+              <Link
+                href="mailto:billing@ballershub.app"
+                className="font-semibold text-bh-lime underline-offset-4 hover:underline"
+              >
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </SectionCard>
     </div>

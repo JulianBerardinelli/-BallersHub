@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskSeverityChip from "@/components/dashboard/client/TaskSeverityChip";
@@ -43,109 +44,131 @@ type ApplicationOverview = {
   notes: string | null;
 };
 
-const QUICK_ACTIONS = [
-  {
-    id: "multimedia",
-    title: "Gestionar multimedia",
-    description: "Fotos, videos y novedades para potenciar tu perfil.",
-    href: "/dashboard/edit-profile/multimedia",
-  },
-  {
-    id: "subscription",
-    title: "Estado de la suscripción",
-    description: "Revisá tu plan actual y próximos cobros.",
-    href: "/dashboard/settings/subscription",
-  },
-  {
-    id: "account",
-    title: "Preferencias de cuenta",
-    description: "Actualizá correo, seguridad y notificaciones.",
-    href: "/dashboard/settings/account",
-  },
-];
+type Translator = Awaited<ReturnType<typeof getTranslations>>;
 
-const PROGRESS_COPY: Record<string, { title: string; description: string; href: string }> = {
-  "personal-data": {
-    title: "Datos personales",
-    description: "Información básica, contacto y biografía completa.",
-    href: "/dashboard/edit-profile/personal-data",
-  },
-  "football-data": {
-    title: "Datos futbolísticos",
-    description: "Trayectoria deportiva, club actual y posiciones.",
-    href: "/dashboard/edit-profile/football-data",
-  },
-  multimedia: {
-    title: "Multimedia",
-    description: "Fotos e historias que enriquecen tu perfil público.",
-    href: "/dashboard/edit-profile/multimedia",
-  },
+function buildQuickActions(t: Translator) {
+  return [
+    {
+      id: "multimedia",
+      title: t("home.quickActions.multimedia.title"),
+      description: t("home.quickActions.multimedia.description"),
+      href: "/dashboard/edit-profile/multimedia",
+    },
+    {
+      id: "subscription",
+      title: t("home.quickActions.subscription.title"),
+      description: t("home.quickActions.subscription.description"),
+      href: "/dashboard/settings/subscription",
+    },
+    {
+      id: "account",
+      title: t("home.quickActions.account.title"),
+      description: t("home.quickActions.account.description"),
+      href: "/dashboard/settings/account",
+    },
+  ];
+}
+
+const PROGRESS_HREFS: Record<string, string> = {
+  "personal-data": "/dashboard/edit-profile/personal-data",
+  "football-data": "/dashboard/edit-profile/football-data",
+  multimedia: "/dashboard/edit-profile/multimedia",
 };
 
-const PROFILE_STATUS_META: Record<
-  string,
-  { label: string; message: string; color: DashboardStatusSummaryProps["profileStatus"]["color"] }
-> = {
-  draft: {
-    label: "Borrador",
-    message: "Tu perfil está en construcción. Completá los pasos pendientes para enviarlo a revisión.",
-    color: "warning",
-  },
-  pending_review: {
-    label: "En revisión",
-    message: "Nuestro equipo está validando la información enviada. Recibirás una notificación con el resultado.",
-    color: "primary",
-  },
-  approved: {
-    label: "Publicado",
-    message: "Tu perfil está aprobado y listo para compartirse con clubes y reclutadores.",
-    color: "success",
-  },
-  rejected: {
-    label: "Rechazado",
-    message: "Necesitamos ajustes en tu solicitud. Revisá los comentarios y volvé a enviarla.",
-    color: "danger",
-  },
-  missing: {
-    label: "Sin perfil",
-    message: "Creá tu solicitud para generar el perfil profesional y desbloquear las secciones de edición.",
-    color: "default",
-  },
+function buildProgressCopy(
+  t: Translator,
+): Record<string, { title: string; description: string; href: string }> {
+  return {
+    "personal-data": {
+      title: t("home.progress.personalData.title"),
+      description: t("home.progress.personalData.description"),
+      href: PROGRESS_HREFS["personal-data"],
+    },
+    "football-data": {
+      title: t("home.progress.footballData.title"),
+      description: t("home.progress.footballData.description"),
+      href: PROGRESS_HREFS["football-data"],
+    },
+    multimedia: {
+      title: t("home.progress.multimedia.title"),
+      description: t("home.progress.multimedia.description"),
+      href: PROGRESS_HREFS.multimedia,
+    },
+  };
+}
+
+type StatusMeta = {
+  label: string;
+  message: string;
+  color: DashboardStatusSummaryProps["profileStatus"]["color"];
 };
 
-const APPLICATION_STATUS_META: Record<
-  string,
-  { label: string; message: string; color: DashboardStatusSummaryProps["profileStatus"]["color"] }
-> = {
-  pending: {
-    label: "En revisión",
-    message: "Recibimos tu solicitud y la estamos evaluando. Mientras tanto podrás seguir consultando el estado desde aquí.",
-    color: "primary",
-  },
-  approved: {
-    label: "Aprobada",
-    message: "La solicitud fue aprobada. Ya podés completar y publicar tu perfil profesional.",
-    color: "success",
-  },
-  rejected: {
-    label: "Rechazada",
-    message: "Tu solicitud fue rechazada. Podés realizar los ajustes necesarios y reenviarla cuando estés listo.",
-    color: "danger",
-  },
-};
+function buildProfileStatusMeta(t: Translator): Record<string, StatusMeta> {
+  return {
+    draft: {
+      label: t("home.profileStatus.draft.label"),
+      message: t("home.profileStatus.draft.message"),
+      color: "warning",
+    },
+    pending_review: {
+      label: t("home.profileStatus.pendingReview.label"),
+      message: t("home.profileStatus.pendingReview.message"),
+      color: "primary",
+    },
+    approved: {
+      label: t("home.profileStatus.approved.label"),
+      message: t("home.profileStatus.approved.message"),
+      color: "success",
+    },
+    rejected: {
+      label: t("home.profileStatus.rejected.label"),
+      message: t("home.profileStatus.rejected.message"),
+      color: "danger",
+    },
+    missing: {
+      label: t("home.profileStatus.missing.label"),
+      message: t("home.profileStatus.missing.message"),
+      color: "default",
+    },
+  };
+}
+
+function buildApplicationStatusMeta(t: Translator): Record<string, StatusMeta> {
+  return {
+    pending: {
+      label: t("home.applicationStatus.pending.label"),
+      message: t("home.applicationStatus.pending.message"),
+      color: "primary",
+    },
+    approved: {
+      label: t("home.applicationStatus.approved.label"),
+      message: t("home.applicationStatus.approved.message"),
+      color: "success",
+    },
+    rejected: {
+      label: t("home.applicationStatus.rejected.label"),
+      message: t("home.applicationStatus.rejected.message"),
+      color: "danger",
+    },
+  };
+}
 
 function getProfileSummary(
+  t: Translator,
   profile: PlayerOverview | null,
   application: ApplicationOverview | null,
   onboardingHref: string,
 ): DashboardStatusSummaryProps {
+  const profileStatusMeta = buildProfileStatusMeta(t);
+  const applicationStatusMeta = buildApplicationStatusMeta(t);
+
   const statusKey = profile ? profile.status : "missing";
-  const statusMeta = PROFILE_STATUS_META[statusKey] ?? PROFILE_STATUS_META.missing;
+  const statusMeta = profileStatusMeta[statusKey] ?? profileStatusMeta.missing;
 
   const applicationMeta = application
-    ? APPLICATION_STATUS_META[application.status] ?? {
+    ? applicationStatusMeta[application.status] ?? {
         label: application.status,
-        message: "Consultá con soporte para obtener más información sobre el estado de tu solicitud.",
+        message: t("home.applicationStatus.unknownMessage"),
         color: "default" as const,
       }
     : null;
@@ -154,7 +177,7 @@ function getProfileSummary(
     ? new Intl.DateTimeFormat("es-AR", { dateStyle: "medium" }).format(new Date(application.created_at))
     : null;
 
-  const cta = getPrimaryCta(profile, application, onboardingHref);
+  const cta = getPrimaryCta(t, profile, application, onboardingHref);
 
   return {
     profileStatus: {
@@ -171,7 +194,9 @@ function getProfileSummary(
           label: applicationMeta.label,
           message: applicationMeta.message,
           color: applicationMeta.color,
-          createdAtLabel: formattedCreatedAt ? `Última actualización: ${formattedCreatedAt}` : null,
+          createdAtLabel: formattedCreatedAt
+            ? t("home.applicationStatus.lastUpdated", { date: formattedCreatedAt })
+            : null,
         }
       : null,
     cta,
@@ -179,6 +204,7 @@ function getProfileSummary(
 }
 
 function buildPlayerReviewDetails(
+  t: Translator,
   application: ApplicationOverview,
   profileStatus?: string,
 ): ApplicationReviewDetails {
@@ -189,11 +215,11 @@ function buildPlayerReviewDetails(
     type: "player",
     status,
     statusLabel: isPending
-      ? "En revisión"
+      ? t("home.applicationStatus.pending.label")
       : status === "approved"
-        ? "Aprobada"
+        ? t("home.applicationStatus.approved.label")
         : status === "rejected"
-          ? "Rechazada"
+          ? t("home.applicationStatus.rejected.label")
           : status,
     statusColor: isPending
       ? "primary"
@@ -213,6 +239,7 @@ function buildPlayerReviewDetails(
 }
 
 function getPrimaryCta(
+  t: Translator,
   profile: PlayerOverview | null,
   application: ApplicationOverview | null,
   onboardingHref: string,
@@ -221,16 +248,16 @@ function getPrimaryCta(
     if (application?.status === "pending") {
       return {
         kind: "review-application",
-        label: "Ver solicitud",
+        label: t("home.cta.viewApplication"),
         variant: "bordered",
         color: "primary",
-        details: buildPlayerReviewDetails(application),
+        details: buildPlayerReviewDetails(t, application),
       };
     }
 
     if (application?.status === "rejected") {
       return {
-        label: "Reabrir onboarding",
+        label: t("home.cta.reopenOnboarding"),
         href: onboardingHref,
         variant: "solid",
         color: "warning",
@@ -239,7 +266,7 @@ function getPrimaryCta(
 
     if (application?.status === "approved") {
       return {
-        label: "Configurar perfil",
+        label: t("home.cta.configureProfile"),
         href: "/dashboard/edit-profile/personal-data",
         variant: "solid",
         color: "primary",
@@ -247,7 +274,7 @@ function getPrimaryCta(
     }
 
     return {
-      label: "Crear solicitud",
+      label: t("home.cta.createApplication"),
       href: onboardingHref,
       variant: "solid",
       color: "primary",
@@ -258,21 +285,21 @@ function getPrimaryCta(
     case "approved":
       if (profile.slug) {
         return {
-          label: "Ver perfil público",
+          label: t("home.cta.viewPublicProfile"),
           href: `/${profile.slug}`,
           variant: "solid",
           color: "primary",
         };
       }
       return {
-        label: "Configurar URL pública",
+        label: t("home.cta.configurePublicUrl"),
         href: "/dashboard/edit-profile/personal-data",
         variant: "solid",
         color: "primary",
       };
     case "draft":
       return {
-        label: "Completar datos pendientes",
+        label: t("home.cta.completePendingData"),
         href: "/dashboard/edit-profile/personal-data",
         variant: "solid",
         color: "primary",
@@ -281,16 +308,16 @@ function getPrimaryCta(
       if (application) {
         return {
           kind: "review-application",
-          label: "Ver solicitud",
+          label: t("home.cta.viewApplication"),
           variant: "bordered",
           color: "primary",
-          details: buildPlayerReviewDetails(application, "pending_review"),
+          details: buildPlayerReviewDetails(t, application, "pending_review"),
         };
       }
       return undefined;
     case "rejected":
       return {
-        label: "Reabrir onboarding",
+        label: t("home.cta.reopenOnboarding"),
         href: onboardingHref,
         variant: "solid",
         color: "warning",
@@ -302,8 +329,9 @@ function getPrimaryCta(
 
 function buildProgressSectionsFromTasks(
   evaluation: TaskEvaluation,
+  progressCopy: Record<string, { title: string; description: string; href: string }>,
 ): DashboardProgressSection[] {
-  return Object.entries(PROGRESS_COPY).map(([sectionId, meta]) => {
+  return Object.entries(progressCopy).map(([sectionId, meta]) => {
     const summary =
       evaluation.sections[sectionId] ?? {
         total: 0,
@@ -457,35 +485,38 @@ export default async function DashboardPage() {
   const taskContext = buildTaskContext(hydratedProfile ?? normalizedProfile, metrics);
   const taskEvaluation = evaluateDashboardTasks(taskContext);
 
+  const t = await getTranslations("dashboard");
+
   const onboardingHref = resolveOnboardingHref(dashboardState.subscription?.planId ?? null);
-  const statusSummary = getProfileSummary(profile, application, onboardingHref);
-  const progressSections = buildProgressSectionsFromTasks(taskEvaluation);
+  const statusSummary = getProfileSummary(t, profile, application, onboardingHref);
+  const progressSections = buildProgressSectionsFromTasks(taskEvaluation, buildProgressCopy(t));
   const nextSteps = selectNextSteps(taskEvaluation);
+  const quickActions = buildQuickActions(t);
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Resumen general"
-        description="Visualizá el estado de tu perfil y los próximos pasos recomendados."
+        title={t("home.header.title")}
+        description={t("home.header.description")}
       />
 
       <SectionCard
-        title="Estado del perfil"
-        description="Controlá el progreso de tu perfil profesional y accedé rápidamente a las acciones clave."
+        title={t("home.profileStatusCard.title")}
+        description={t("home.profileStatusCard.description")}
       >
         <DashboardStatusSummary {...statusSummary} />
       </SectionCard>
 
       <SectionCard
-        title="Progreso por secciones"
-        description="Identificá qué partes de tu perfil necesitan atención para llegar a la publicación."
+        title={t("home.progressCard.title")}
+        description={t("home.progressCard.description")}
       >
         <DashboardProgressList sections={progressSections} />
       </SectionCard>
 
       <SectionCard
-        title="Próximos pasos"
-        description="Estas tareas te ayudarán a completar la información necesaria para publicar tu perfil."
+        title={t("home.nextStepsCard.title")}
+        description={t("home.nextStepsCard.description")}
       >
         {nextSteps.length > 0 ? (
           <ol className="space-y-3 text-sm text-neutral-300">
@@ -510,18 +541,17 @@ export default async function DashboardPage() {
           </ol>
         ) : (
           <p className="text-xs text-neutral-400">
-            ¡Excelente! No tenés tareas pendientes. Seguiremos sumando recomendaciones a medida que incorporemos nuevas
-            funcionalidades.
+            {t("home.nextStepsCard.empty")}
           </p>
         )}
       </SectionCard>
 
       <SectionCard
-        title="Atajos rápidos"
-        description="Accedé directamente a las secciones que vas a utilizar con mayor frecuencia."
+        title={t("home.quickActionsCard.title")}
+        description={t("home.quickActionsCard.description")}
       >
         <div className="grid gap-3 md:grid-cols-3">
-          {QUICK_ACTIONS.map((action) => (
+          {quickActions.map((action) => (
             <Link
               key={action.id}
               href={action.href}
@@ -531,7 +561,7 @@ export default async function DashboardPage() {
                 <p className="text-sm font-semibold text-white">{action.title}</p>
                 <p className="text-xs text-neutral-400">{action.description}</p>
               </div>
-              <span className="mt-4 text-xs font-medium text-primary">Ir a la sección →</span>
+              <span className="mt-4 text-xs font-medium text-primary">{t("home.quickActionsCard.goToSection")}</span>
             </Link>
           ))}
         </div>

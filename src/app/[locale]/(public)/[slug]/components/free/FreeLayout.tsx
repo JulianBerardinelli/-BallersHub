@@ -22,6 +22,7 @@
 import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { getTranslations } from "next-intl/server";
 import {
   Crest,
   DataRow,
@@ -141,7 +142,7 @@ export type FreeLayoutData = {
 // Top-level layout
 // ---------------------------------------------------------------
 
-export default function FreeLayout({
+export default async function FreeLayout({
   data,
   ownerUserId = null,
   ownerProUpgradeNudgeUserId = null,
@@ -167,6 +168,7 @@ export default function FreeLayout({
    */
   ownerProUpgradeNudgeUserId?: string | null;
 }) {
+  const t = await getTranslations("portfolio");
   const { player, personal, career, video } = data;
   const { firstName, lastName } = splitName(player.fullName);
   const positionPills = pillsFromPositions(player.positions);
@@ -227,14 +229,14 @@ export default function FreeLayout({
           locked={
             <LockedBanner
               side="right"
-              eyebrow="Análisis táctico"
+              eyebrow={t("free.slotTacticsEyebrow")}
               title={
                 <>
-                  Cancha 3D &<br />
-                  reporte scouting
+                  {t("free.slotTacticsTitleA")}<br />
+                  {t("free.slotTacticsTitleB")}
                 </>
               }
-              subtitle="Posiciones marcadas en una cancha 3D interactiva, perfil mental, físico y técnico, y reporte de scouting firmado por agencia. Solo en Pro."
+              subtitle={t("free.slotTacticsSubtitle")}
               preview="tactics"
             />
           }
@@ -250,15 +252,15 @@ export default function FreeLayout({
           locked={
             <LockedBanner
               side="left"
-              eyebrow="Galería editorial"
+              eyebrow={t("free.slotGalleryEyebrow")}
               title={
                 <>
-                  Hasta 30 fotos
+                  {t("free.slotGalleryTitleA")}
                   <br />
-                  con lightbox
+                  {t("free.slotGalleryTitleB")}
                 </>
               }
-              subtitle="Galería con detección automática de orientación, lightbox y navegación con flechas. El jugador decide qué muestra y qué no."
+              subtitle={t("free.slotGallerySubtitle")}
               preview="gallery"
             />
           }
@@ -274,15 +276,15 @@ export default function FreeLayout({
           locked={
             <LockedBanner
               side="right"
-              eyebrow="Prensa & notas"
+              eyebrow={t("free.slotPressEyebrow")}
               title={
                 <>
-                  Cards estilo
+                  {t("free.slotPressTitleA")}
                   <br />
-                  periódico vintage
+                  {t("free.slotPressTitleB")}
                 </>
               }
-              subtitle="Notas y artículos de prensa agrupados por publicación, con layout asimétrico tipo diario. Llegan curados desde tu agencia."
+              subtitle={t("free.slotPressSubtitle")}
               preview="press"
             />
           }
@@ -312,7 +314,7 @@ export default function FreeLayout({
 // Hero
 // ---------------------------------------------------------------
 
-function Hero({
+async function Hero({
   firstName,
   lastName,
   avatarUrl,
@@ -341,6 +343,7 @@ function Hero({
   currentTeamCountryCode: string | null;
   division: string | null;
 }) {
+  const t = await getTranslations("portfolio");
   const age = computeAge(birthDate);
   const birthFmt = formatBirthDate(birthDate);
 
@@ -364,7 +367,7 @@ function Hero({
             </div>
             <div className="mt-3 inline-flex items-center gap-2 font-bh-mono text-[11px] text-bh-fg-3">
               <span className="h-1.5 w-1.5 rounded-full bg-bh-lime" />
-              FILE №&nbsp;000000 · STATUS: ACTIVO
+              FILE №&nbsp;000000 · STATUS: {t("free.statusActive")}
             </div>
           </div>
 
@@ -404,13 +407,13 @@ function Hero({
         {/* Vital stats strip */}
         <div className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-white/[0.10] bg-white/[0.10] md:mt-10 md:grid-cols-4">
           <VitalCell
-            label="Edad"
+            label={t("free.vitalAge")}
             value={age ?? "—"}
-            unit={age != null ? "años" : undefined}
+            unit={age != null ? t("free.vitalAgeUnit") : undefined}
             sub={birthFmt ?? undefined}
           />
           <VitalCell
-            label="Físico"
+            label={t("free.vitalPhysical")}
             valueRaw={
               <span className="tabular-nums">
                 {heightCm ?? "—"}
@@ -423,19 +426,21 @@ function Hero({
                 <span className="text-[0.55em] font-semibold text-bh-fg-3"> kg</span>
               </span>
             }
-            sub="Altura · Peso"
+            sub={t("free.vitalPhysicalSub")}
           />
           <VitalCell
-            label="Pie hábil"
+            label={t("free.vitalFoot")}
             valueRaw={foot ?? "—"}
             sub={
               foot
-                ? `Lateralidad ${foot.toLowerCase().startsWith("der") ? "diestra" : "zurda"}`
+                ? foot.toLowerCase().startsWith("der")
+                  ? t("free.vitalFootSubRight")
+                  : t("free.vitalFootSubLeft")
                 : undefined
             }
           />
           <VitalCell
-            label="Club actual"
+            label={t("free.vitalCurrentClub")}
             valueRaw={
               <span className="inline-flex items-center gap-2">
                 {(currentTeamCrestUrl || currentClub) && (
@@ -446,7 +451,7 @@ function Hero({
                   />
                 )}
                 <span className="text-[18px] leading-none md:text-[22px]">
-                  {currentClub ?? "Sin club"}
+                  {currentClub ?? t("free.noClub")}
                 </span>
               </span>
             }
@@ -470,7 +475,7 @@ function Hero({
 // § 01 Mindset & Bio + identity
 // ---------------------------------------------------------------
 
-function BioIdentity({
+async function BioIdentity({
   bio,
   personal,
   nationalityCodes,
@@ -479,6 +484,7 @@ function BioIdentity({
   personal: FreeLayoutPersonal;
   nationalityCodes: string[];
 }) {
+  const t = await getTranslations("portfolio");
   const hasIdentityRows =
     !!personal &&
     (personal.languages?.length ||
@@ -497,34 +503,34 @@ function BioIdentity({
           <div>
             <Eyebrow tone="accent">§ 01</Eyebrow>
             <h2 className="mt-2 font-bh-display text-4xl font-black uppercase leading-[0.95] text-bh-fg-1 md:text-[44px]">
-              Mindset
-              <br />& Bio
+              {t("free.bioTitleA")}
+              <br />{t("free.bioTitleB")}
             </h2>
           </div>
           <div>
-            <Eyebrow className="mb-2.5 block">Texto biográfico</Eyebrow>
+            <Eyebrow className="mb-2.5 block">{t("free.bioEyebrow")}</Eyebrow>
             <p className="m-0 font-body text-sm leading-[1.7] text-bh-fg-1 md:text-base">
               {bio?.trim()
                 ? bio
-                : "El jugador todavía no completó su biografía. Los detalles deportivos y profesionales aparecerán acá una vez que termine de configurar su perfil."}
+                : t("free.bioEmpty")}
             </p>
           </div>
           {hasIdentityRows && (
             <div>
-              <Eyebrow className="mb-2.5 block">Identidad</Eyebrow>
+              <Eyebrow className="mb-2.5 block">{t("free.identityEyebrow")}</Eyebrow>
               <div className="rounded-xl border border-white/[0.10] bg-bh-surface-1">
                 {personal?.languages?.length ? (
-                  <DataRow label="Idiomas">
+                  <DataRow label={t("free.identityLanguages")}>
                     {personal.languages.join(" · ")}
                   </DataRow>
                 ) : null}
                 {personal?.education ? (
-                  <DataRow label="Educación" multiline>
+                  <DataRow label={t("free.identityEducation")} multiline>
                     {personal.education}
                   </DataRow>
                 ) : null}
                 {(personal?.residenceCity || personal?.residenceCountry) && (
-                  <DataRow label="Residencia">
+                  <DataRow label={t("free.identityResidence")}>
                     <span className="inline-flex items-center gap-2">
                       {personal?.residenceCountryCode && (
                         <Flag
@@ -539,7 +545,7 @@ function BioIdentity({
                   </DataRow>
                 )}
                 {nationalityCodes.length > 0 && (
-                  <DataRow label="Pasaporte" last>
+                  <DataRow label={t("free.identityPassport")} last>
                     <span className="inline-flex flex-wrap items-center gap-2">
                       {nationalityCodes.map((c) => (
                         <span
@@ -582,13 +588,14 @@ function getVimeoId(url: string): string | null {
   return m ? m[1] : null;
 }
 
-function VideoFeature({
+async function VideoFeature({
   video,
   firstName,
 }: {
   video: FreeLayoutVideo;
   firstName: string;
 }) {
+  const t = await getTranslations("portfolio");
   const ytId = getYouTubeId(video.url);
   const vimeoId = !ytId ? getVimeoId(video.url) : null;
   const embedSrc = ytId
@@ -596,7 +603,7 @@ function VideoFeature({
     : vimeoId
       ? `https://player.vimeo.com/video/${vimeoId}?dnt=1`
       : null;
-  const title = video.title?.trim() || "Video destacado";
+  const title = video.title?.trim() || t("free.videoFeatured");
 
   return (
     <section
@@ -606,16 +613,16 @@ function VideoFeature({
       <div className={SECTION_INNER}>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-[200px_1fr] md:gap-10">
           <div>
-            <Eyebrow tone="accent">Video destacado</Eyebrow>
+            <Eyebrow tone="accent">{t("free.videoEyebrow")}</Eyebrow>
             <h2 className="mt-2 font-bh-display text-3xl font-black uppercase leading-[0.95] text-bh-fg-1 md:text-[44px]">
               {firstName}
               <br />
-              en juego
+              {t("free.videoTitleSuffix")}
             </h2>
             <p className="mt-3 max-w-[260px] font-body text-[13px] leading-[1.55] text-bh-fg-3">
               {ytId || vimeoId
-                ? "El video que el jugador eligió como muestra de su nivel actual."
-                : "Abrí el video destacado en una pestaña nueva."}
+                ? t("free.videoCaptionEmbed")
+                : t("free.videoCaptionLink")}
             </p>
           </div>
           <div className="overflow-hidden rounded-xl border border-white/[0.10] bg-bh-surface-1">
@@ -639,7 +646,7 @@ function VideoFeature({
               >
                 <div className="min-w-0">
                   <div className="font-body text-[11px] font-semibold uppercase tracking-[0.16em] text-bh-fg-3">
-                    {video.provider?.toUpperCase() ?? "Video externo"}
+                    {video.provider?.toUpperCase() ?? t("free.videoExternal")}
                   </div>
                   <div className="mt-1.5 truncate font-bh-display text-lg font-extrabold uppercase leading-tight text-bh-fg-1 md:text-2xl">
                     {title}
@@ -649,7 +656,7 @@ function VideoFeature({
                   </div>
                 </div>
                 <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-bh-lime px-3.5 py-2 font-body text-[12px] font-semibold text-bh-black">
-                  Ver video <ExtIcon size={13} />
+                  {t("free.videoWatch")} <ExtIcon size={13} />
                 </span>
               </a>
             )}
@@ -664,19 +671,20 @@ function VideoFeature({
 // § 02 Trayectoria
 // ---------------------------------------------------------------
 
-function Career({
+async function Career({
   career,
   totals,
 }: {
   career: FreeLayoutCareerRow[];
   totals: ReturnType<typeof sumStats>;
 }) {
+  const t = await getTranslations("portfolio");
   const totalsCells: Array<[string, number, number, "default" | "accent" | "blue"]> = [
-    ["Partidos", totals.matches, 0, "default"],
-    ["Titularidades", totals.starts, 100, "default"],
-    ["Minutos", totals.minutes, 200, "default"],
-    ["Goles", totals.goals, 300, "accent"],
-    ["Asist.", totals.assists, 400, "default"],
+    [t("free.totalMatches"), totals.matches, 0, "default"],
+    [t("free.totalStarts"), totals.starts, 100, "default"],
+    [t("free.totalMinutes"), totals.minutes, 200, "default"],
+    [t("free.totalGoals"), totals.goals, 300, "accent"],
+    [t("free.totalAssists"), totals.assists, 400, "default"],
   ];
 
   return (
@@ -689,11 +697,14 @@ function Career({
           <div>
             <Eyebrow tone="accent">§ 02</Eyebrow>
             <h2 className="mt-2 font-bh-display text-4xl font-black uppercase leading-[0.95] text-bh-fg-1 md:text-[56px]">
-              Trayectoria
+              {t("free.careerTitle")}
             </h2>
           </div>
           <div className="font-body text-xs text-bh-fg-3">
-            {career.length} etapas · {career.filter((c) => c.stats).length} con métricas
+            {t("free.careerMeta", {
+              stages: career.length,
+              withStats: career.filter((c) => c.stats).length,
+            })}
           </div>
         </div>
 
@@ -734,7 +745,7 @@ function Career({
   );
 }
 
-function CareerRow({
+async function CareerRow({
   item,
   index,
   last,
@@ -743,9 +754,10 @@ function CareerRow({
   index: number;
   last: boolean;
 }) {
+  const t = await getTranslations("portfolio");
   const period = item.endYear
     ? `${item.startYear ?? "—"} — ${item.endYear}`
-    : `${item.startYear ?? "—"} — Act.`;
+    : `${item.startYear ?? "—"} — ${t("free.careerCurrentAbbr")}`;
   const baseDelay = 200 + index * 80;
 
   return (
@@ -782,7 +794,7 @@ function CareerRow({
               <Flag code={item.countryCode} h={14} />
             ) : null}
             <span className="font-semibold">
-              {item.divisionName ?? "Sin liga registrada"}
+              {item.divisionName ?? t("free.noLeague")}
             </span>
             {item.countryCode && item.divisionCrestUrl ? (
               <Flag code={item.countryCode} h={12} />
@@ -814,11 +826,11 @@ function CareerRow({
       {item.stats ? (
         <div className="grid grid-cols-5 gap-1 border-t border-white/[0.06] pt-2.5 md:gap-2 md:border-t-0 md:pt-0">
           {[
-            ["PJ", item.stats.matches, "default", 0],
-            ["TIT", item.stats.starts, "default", 60],
-            ["MIN", item.stats.minutes, "default", 120],
-            ["G", item.stats.goals, "accent", 180],
-            ["A", item.stats.assists, "blue", 240],
+            [t("free.statMatchesAbbr"), item.stats.matches, "default", 0],
+            [t("free.statStartsAbbr"), item.stats.starts, "default", 60],
+            [t("free.statMinutesAbbr"), item.stats.minutes, "default", 120],
+            [t("free.statGoalsAbbr"), item.stats.goals, "accent", 180],
+            [t("free.statAssistsAbbr"), item.stats.assists, "blue", 240],
           ].map(([k, v, tone, off]) => (
             <div key={String(k)} className="text-center">
               <CountUp
@@ -835,7 +847,7 @@ function CareerRow({
         </div>
       ) : (
         <div className="border-t border-white/[0.06] pt-2.5 font-body text-xs italic text-bh-fg-3 md:border-t-0 md:pt-0">
-          Etapa formativa — sin métricas registradas
+          {t("free.careerNoStats")}
         </div>
       )}
     </div>
@@ -850,7 +862,16 @@ type IconCmp = ComponentType<SVGProps<SVGSVGElement>>;
 
 type ExtTheme = {
   label: string;
-  sub: string;
+  /**
+   * i18n key (under the `portfolio.free` namespace) for the descriptive
+   * subtitle. Resolved at render time so the copy is localized.
+   */
+  subKey: string;
+  /**
+   * i18n key for the label, only used by the `custom` fallback. Brand-named
+   * providers keep their proper-noun `label` verbatim.
+   */
+  labelKey?: string;
   color: string;
   /** Monogram fallback when no Icon is supplied (or for unknown kinds). */
   mono: string;
@@ -860,83 +881,81 @@ type ExtTheme = {
 const EXT_THEMES: Record<string, ExtTheme> = {
   transfermarkt: {
     label: "Transfermarkt",
-    sub: "Valor de mercado",
+    subKey: "free.extTransfermarktSub",
     color: "#1E88E5",
     mono: "TM",
     Icon: TransfermarktIcon,
   },
   besoccer: {
     label: "BeSoccer",
-    sub: "Stats internacional",
+    subKey: "free.extBeSoccerSub",
     color: "#00e676",
     mono: "BS",
     Icon: BeSoccerIcon,
   },
   flashscore: {
     label: "Flashscore",
-    sub: "Resultados en vivo",
+    subKey: "free.extFlashscoreSub",
     color: "#F2A917",
     mono: "FS",
     Icon: FlashscoreIcon,
   },
   instagram: {
     label: "Instagram",
-    sub: "Día a día",
+    subKey: "free.extInstagramSub",
     color: "#E1306C",
     mono: "IG",
     Icon: Instagram,
   },
   youtube: {
     label: "YouTube",
-    sub: "Highlights",
+    subKey: "free.extYoutubeSub",
     color: "#FF0000",
     mono: "YT",
     Icon: YouTube,
   },
   linkedin: {
     label: "LinkedIn",
-    sub: "Perfil profesional",
+    subKey: "free.extLinkedinSub",
     color: "#0A66C2",
     mono: "in",
     Icon: LinkedIn,
   },
   highlight: {
     label: "Highlights",
-    sub: "Video destacado",
+    subKey: "free.extHighlightSub",
     color: "#FF0000",
     mono: "HL",
     Icon: YouTube,
   },
   tiktok: {
     label: "TikTok",
-    sub: "Reels",
+    subKey: "free.extTiktokSub",
     color: "#69C9D0",
     mono: "TT",
   },
   twitter: {
     label: "X / Twitter",
-    sub: "Actualidad",
+    subKey: "free.extTwitterSub",
     color: "#1D9BF0",
     mono: "X",
   },
   custom: {
     label: "Sitio web",
-    sub: "Enlace externo",
+    labelKey: "free.extCustomLabel",
+    subKey: "free.extCustomSub",
     color: "#94A3B8",
     mono: "WW",
   },
 };
 
-function themeFor(kind: string, label: string | null | undefined): ExtTheme {
+function themeFor(kind: string): ExtTheme {
   const key = kind.toLowerCase();
-  if (EXT_THEMES[key]) return EXT_THEMES[key];
-  return {
-    ...EXT_THEMES.custom,
-    label: label?.trim() || EXT_THEMES.custom.label,
-  };
+  return EXT_THEMES[key] ?? EXT_THEMES.custom;
 }
 
-function ExternalLinks({ player }: { player: FreeLayoutPlayer }) {
+async function ExternalLinks({ player }: { player: FreeLayoutPlayer }) {
+  const t = await getTranslations("portfolio");
   // Combine legacy `player_profiles.{transfermarkt,besoccer}_url` columns
   // with the rich `player_links` table. player_links takes priority — when
   // the same URL exists in both, we keep the curated label from the table.
@@ -979,15 +998,18 @@ function ExternalLinks({ player }: { player: FreeLayoutPlayer }) {
           <div>
             <Eyebrow tone="accent">§ 03</Eyebrow>
             <h2 className="mt-2 font-bh-display text-3xl font-black uppercase leading-[0.95] text-bh-fg-1 md:text-[44px]">
-              Perfiles
+              {t("free.externalTitleA")}
               <br />
-              externos
+              {t("free.externalTitleB")}
             </h2>
           </div>
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
             {links.map((link, i) => {
-              const t = themeFor(link.kind, link.label);
-              const Icon = t.Icon;
+              const theme = themeFor(link.kind);
+              const Icon = theme.Icon;
+              const fallbackLabel = theme.labelKey
+                ? t(theme.labelKey)
+                : theme.label;
               return (
                 <a
                   key={`${link.kind}-${i}`}
@@ -999,8 +1021,8 @@ function ExternalLinks({ player }: { player: FreeLayoutPlayer }) {
                   <div
                     className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bh-display text-sm font-black tracking-[0.04em]"
                     style={{
-                      background: `${t.color}20`,
-                      color: t.color,
+                      background: `${theme.color}20`,
+                      color: theme.color,
                     }}
                   >
                     {Icon ? (
@@ -1010,15 +1032,15 @@ function ExternalLinks({ player }: { player: FreeLayoutPlayer }) {
                         style={{ fill: "currentColor" }}
                       />
                     ) : (
-                      t.mono
+                      theme.mono
                     )}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-body text-[13px] font-medium text-bh-fg-1">
-                      {link.label?.trim() || t.label}
+                      {link.label?.trim() || fallbackLabel}
                     </div>
                     <div className="truncate font-body text-[11px] text-bh-fg-3">
-                      {t.sub}
+                      {t(theme.subKey)}
                     </div>
                   </div>
                   <span className="text-bh-fg-3">
@@ -1038,7 +1060,8 @@ function ExternalLinks({ player }: { player: FreeLayoutPlayer }) {
 // § 04 Contact lead-capture stub
 // ---------------------------------------------------------------
 
-function Contact({ firstName }: { firstName: string }) {
+async function Contact({ firstName }: { firstName: string }) {
+  const t = await getTranslations("portfolio");
   return (
     <section
       id="contact"
@@ -1049,32 +1072,31 @@ function Contact({ firstName }: { firstName: string }) {
           <div>
             <Eyebrow tone="accent">§ 04</Eyebrow>
             <h2 className="mt-2 font-bh-display text-4xl font-black uppercase leading-[0.92] text-bh-fg-1 md:text-[64px]">
-              Conectá con
+              {t("free.contactTitle")}
               <br />
               <span className="italic text-bh-lime">{firstName}</span>
             </h2>
             <p className="mt-4 max-w-[380px] font-body text-sm leading-[1.6] text-bh-fg-2">
-              Contacto directo con el jugador. Dejá tus datos para desbloquear
-              los canales privados.
+              {t("free.contactDescription")}
             </p>
           </div>
           <div className="relative overflow-hidden rounded-xl border border-white/[0.10] bg-bh-surface-1 p-5 md:p-7">
             <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.06] px-2.5 py-1 font-body text-[11px] font-semibold uppercase tracking-[0.12em] text-bh-fg-1">
-              <LockIcon size={11} /> Lead capture
+              <LockIcon size={11} /> {t("free.contactLeadBadge")}
             </div>
             <div className="mb-3 grid grid-cols-2 gap-2.5">
-              <ContactStub label="Email" value="·· ·· ·· @ ·· ·· ··" />
-              <ContactStub label="WhatsApp" value="+54 ·· ···· ····" />
+              <ContactStub label={t("free.contactEmail")} value="·· ·· ·· @ ·· ·· ··" />
+              <ContactStub label={t("free.contactWhatsapp")} value="+54 ·· ···· ····" />
             </div>
             <div className="mt-3 flex flex-col gap-2.5">
-              <FieldStub label="Tu nombre" placeholder="Marcelo Bielsa" />
-              <FieldStub label="Club / agencia" placeholder="Leeds United FC" />
-              <FieldStub label="Email de contacto" placeholder="m.bielsa@club.com" />
+              <FieldStub label={t("free.contactFieldName")} placeholder="Marcelo Bielsa" />
+              <FieldStub label={t("free.contactFieldClub")} placeholder="Leeds United FC" />
+              <FieldStub label={t("free.contactFieldEmail")} placeholder="m.bielsa@club.com" />
               <button
                 type="button"
                 className="mt-1.5 inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-0 bg-bh-lime px-3.5 py-3 font-body text-[13px] font-semibold text-bh-black"
               >
-                Desbloquear contacto
+                {t("free.contactUnlock")}
               </button>
             </div>
           </div>
@@ -1123,7 +1145,8 @@ function FieldStub({
 // Footer
 // ---------------------------------------------------------------
 
-function Footer({ fullName, year }: { fullName: string; year: number }) {
+async function Footer({ fullName, year }: { fullName: string; year: number }) {
+  const t = await getTranslations("portfolio");
   return (
     <footer className="relative border-t border-white/[0.10] bg-[#050505] px-5 py-8 md:px-10 md:py-14">
       <div className={SECTION_INNER}>
@@ -1133,17 +1156,17 @@ function Footer({ fullName, year }: { fullName: string; year: number }) {
               &apos;BALLERSHUB
             </div>
             <p className="mt-2.5 max-w-[380px] font-body text-xs text-bh-fg-3">
-              Portfolio gratuito de {fullName}. Generado y servido por
-              &apos;BallersHub — el ecosistema digital del fútbol profesional.
+              {t("free.footerTaglinePre", { name: fullName })}
+              &apos;BallersHub{t("free.footerTaglinePost")}
             </p>
             <div className="mt-3 flex flex-wrap gap-3.5 font-body text-[11px] text-bh-fg-3">
               <span>© {year} &apos;BallersHub</span>
               <span>·</span>
               <Link href="/legal/terms" className="text-bh-fg-2 no-underline">
-                Términos
+                {t("free.footerTerms")}
               </Link>
               <Link href="/legal/privacy" className="text-bh-fg-2 no-underline">
-                Privacidad
+                {t("free.footerPrivacy")}
               </Link>
             </div>
           </div>
@@ -1152,15 +1175,15 @@ function Footer({ fullName, year }: { fullName: string; year: number }) {
               Pro
             </div>
             <div className="font-body text-xs leading-[1.4] text-bh-fg-2">
-              Hero cinemático, análisis táctico,
+              {t("free.footerProBlurbA")}
               <br />
-              galería y prensa — desde USD 85/año.
+              {t("free.footerProBlurbB")}
             </div>
             <Link
               href="/pricing?audience=player&currency=ARS"
               className="inline-flex items-center justify-center rounded-full bg-bh-lime px-3.5 py-1.5 font-body text-xs font-semibold text-bh-black hover:bg-[#d8ff26]"
             >
-              Activar Pro
+              {t("free.footerActivatePro")}
             </Link>
           </div>
         </div>

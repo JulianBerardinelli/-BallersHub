@@ -12,17 +12,20 @@ import {
 } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
 import { formatMarketValueEUR } from "@/lib/format";
+import { getTranslations, getLocale } from "next-intl/server";
 import type { AgencyPublicData } from "./AgencyLayoutResolver";
 
-export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }) {
+export default async function ClassicAgencyLayout({ data }: { data: AgencyPublicData }) {
   const { agency, players, sections, staffLicenses } = data;
+  const t = await getTranslations("portfolio");
+  const locale = await getLocale();
 
   const isVisible = (id: string) => {
     const s = sections.find((s) => s.section === id);
     return s ? s.visible : true;
   };
 
-  const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
+  const dnEs = new Intl.DisplayNames([locale], { type: "region", fallback: "code" });
   const totalLicenses = staffLicenses.reduce((sum, s) => sum + s.licenses.length, 0);
 
   return (
@@ -32,7 +35,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
         className="inline-flex items-center text-sm font-medium text-neutral-400 hover:text-white mb-4"
       >
         <ArrowLeft className="mr-2 h-4 w-4" />
-        Volver
+        {t("agency.back")}
       </Link>
 
       <div className="flex flex-col md:flex-row gap-8 items-start">
@@ -40,7 +43,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={agency.logoUrl}
-            alt={`Logo de ${agency.name}`}
+            alt={t("agency.logoAlt", { name: agency.name })}
             className="w-32 h-32 md:w-48 md:h-48 rounded-2xl object-contain bg-neutral-900 border border-neutral-800 shadow-xl shrink-0"
           />
         ) : (
@@ -65,7 +68,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
               {agency.foundationYear && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-neutral-500" />
-                  <span>Fundada en {agency.foundationYear}</span>
+                  <span>{t("agency.foundedIn", { year: agency.foundationYear })}</span>
                 </div>
               )}
             </div>
@@ -74,9 +77,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
           {totalLicenses > 0 && (
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-neutral-300">
               <ShieldCheck className="h-4 w-4" style={{ color: "var(--color-accent)" }} />
-              <span>
-                {totalLicenses} {totalLicenses === 1 ? "licencia" : "licencias"} certificadas en el equipo
-              </span>
+              <span>{t("agency.certifiedLicenses", { count: totalLicenses })}</span>
             </div>
           )}
 
@@ -133,7 +134,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
                 className="inline-flex items-center text-sm ml-2 bg-neutral-800/50 px-3 py-1.5 rounded-full text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors"
               >
                 <ExternalLink className="mr-2 h-3.5 w-3.5" />
-                Validación Oficial
+                {t("agency.officialValidation")}
               </a>
             )}
           </div>
@@ -141,7 +142,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
           {isVisible("reach") && agency.operativeCountries && agency.operativeCountries.length > 0 && (
             <div className="pt-4 border-t border-neutral-800/60">
               <h4 className="text-xs font-semibold text-neutral-500 uppercase tracking-widest mb-3">
-                Alcance Operativo
+                {t("agency.operativeReach")}
               </h4>
               <div className="flex flex-wrap gap-2">
                 {agency.operativeCountries.map((code) => (
@@ -170,9 +171,9 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
       {isVisible("roster") && (
         <section>
           <div className="mb-6 flex items-baseline justify-between">
-            <h2 className="text-2xl font-bold text-white tracking-tight">Roster de Jugadores</h2>
+            <h2 className="text-2xl font-bold text-white tracking-tight">{t("agency.rosterTitle")}</h2>
             <span className="text-sm font-medium text-neutral-500">
-              {players.length} {players.length === 1 ? "jugador" : "jugadores"}
+              {t("agency.playerCount", { count: players.length })}
             </span>
           </div>
 
@@ -210,7 +211,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
                     <div className="space-y-1 mb-3">
                       {player.currentClub && (
                         <div className="flex justify-between items-center text-neutral-400">
-                          <span>Club actual</span>
+                          <span>{t("agency.currentClub")}</span>
                           <span
                             className="text-white text-right font-medium truncate max-w-[120px]"
                             title={player.currentClub}
@@ -221,7 +222,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
                       )}
                       {player.nationality && player.nationality.length > 0 && (
                         <div className="flex justify-between items-center text-neutral-400">
-                          <span>Nacionalidad</span>
+                          <span>{t("agency.nationality")}</span>
                           <span className="flex items-center gap-1.5 text-white text-right truncate">
                             <CountryFlag code={player.nationality[0]} size={12} />
                             {dnEs.of(player.nationality[0]) ?? player.nationality[0]}
@@ -233,7 +234,7 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
                     {player.marketValueEur && (
                       <div className="pt-2 border-t border-neutral-800 flex justify-between items-center">
                         <span className="text-xs text-neutral-500 font-medium tracking-wide">
-                          VALOR REGLAMENTARIO
+                          {t("agency.regulatoryValue")}
                         </span>
                         <span
                           className="font-semibold"
@@ -264,9 +265,9 @@ export default function ClassicAgencyLayout({ data }: { data: AgencyPublicData }
                   />
                 </svg>
               </div>
-              <h3 className="mb-1 text-lg font-semibold text-white">Sin jugadores públicos</h3>
+              <h3 className="mb-1 text-lg font-semibold text-white">{t("agency.emptyRosterTitle")}</h3>
               <p className="max-w-md text-sm text-neutral-400">
-                Esta agencia aún no cuenta con jugadores con perfil público configurado en su roster.
+                {t("agency.emptyRosterBody")}
               </p>
             </div>
           )}

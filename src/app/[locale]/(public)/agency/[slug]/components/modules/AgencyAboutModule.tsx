@@ -10,6 +10,7 @@ import {
   Globe2,
   ShieldCheck,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import CountUp from "@/components/ui/CountUp";
 import GlassCard from "@/components/ui/GlassCard";
 import ModuleBackdrop from "../ModuleBackdrop";
@@ -30,18 +31,19 @@ function isVisible(sections: AgencyPublicData["sections"], id: string) {
 type Stat = { icon: typeof Users; label: string; value: number; pad?: number };
 
 export default function AgencyAboutModule({ agency, playersCount, staffLicenses, sections }: Props) {
+  const t = useTranslations("portfolio");
   if (!isVisible(sections, "about")) return null;
 
   const totalLicenses = staffLicenses.reduce((sum, s) => sum + s.licenses.length, 0);
 
   const stats: Stat[] = [
-    { icon: Users, label: "Jugadores", value: playersCount, pad: 2 },
-    { icon: Globe2, label: "Países", value: agency.operativeCountries?.length ?? 0, pad: 2 },
-    { icon: ShieldCheck, label: "Licencias", value: totalLicenses, pad: 2 },
+    { icon: Users, label: t("agencyMod.statPlayers"), value: playersCount, pad: 2 },
+    { icon: Globe2, label: t("agencyMod.statCountries"), value: agency.operativeCountries?.length ?? 0, pad: 2 },
+    { icon: ShieldCheck, label: t("agencyMod.statLicenses"), value: totalLicenses, pad: 2 },
   ];
 
   if (agency.foundationYear) {
-    stats.unshift({ icon: Calendar, label: "Fundada", value: agency.foundationYear, pad: 0 });
+    stats.unshift({ icon: Calendar, label: t("agencyMod.statFounded"), value: agency.foundationYear, pad: 0 });
   }
 
   const hasAnything =
@@ -67,7 +69,7 @@ export default function AgencyAboutModule({ agency, playersCount, staffLicenses,
           className="text-[10px] uppercase tracking-[0.4em] font-bold"
           style={{ color: "var(--theme-accent)" }}
         >
-          / Sobre la agencia
+          / {t("agencyMod.aboutEyebrow")}
         </div>
         <h2 className="font-heading text-5xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter text-white">
           {agency.name}
@@ -92,7 +94,7 @@ export default function AgencyAboutModule({ agency, playersCount, staffLicenses,
           {agency.foundationYear && (
             <span className="inline-flex items-center gap-2">
               <Calendar className="h-4 w-4 text-white/40" />
-              Desde {agency.foundationYear}
+              {t("agencyMod.since", { year: agency.foundationYear })}
             </span>
           )}
         </div>
@@ -106,7 +108,7 @@ export default function AgencyAboutModule({ agency, playersCount, staffLicenses,
             style={{ color: "var(--theme-accent)" }}
           >
             <ExternalLink className="h-4 w-4" />
-            Validación oficial
+            {t("agencyMod.officialValidation")}
           </a>
         )}
       </motion.div>
@@ -158,7 +160,7 @@ export default function AgencyAboutModule({ agency, playersCount, staffLicenses,
         {totalLicenses > 0 && (
           <div className="space-y-4">
             <h4 className="text-[10px] font-semibold text-white/45 uppercase tracking-[0.3em]">
-              Licencias del equipo
+              {t("agencyMod.teamLicenses")}
             </h4>
             <div className="space-y-3">
               {staffLicenses.map((s) => (

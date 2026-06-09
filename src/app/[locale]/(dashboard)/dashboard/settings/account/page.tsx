@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
@@ -11,6 +12,7 @@ type UserProfileRole = {
 };
 
 export default async function AccountSettingsPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -29,60 +31,60 @@ export default async function AccountSettingsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Configuración de la cuenta"
-        description="Gestioná tus credenciales, seguridad y preferencias generales del panel."
+        title={t("settings.accountTitle")}
+        description={t("settings.accountDescription")}
       />
 
-      <AccountSecurityForm 
-        defaultEmail={user.email ?? ""} 
-        role={profileRole?.role ?? "member"} 
-        createdAt={profileRole?.created_at ?? ""} 
+      <AccountSecurityForm
+        defaultEmail={user.email ?? ""}
+        role={profileRole?.role ?? "member"}
+        createdAt={profileRole?.created_at ?? ""}
       />
 
       <SectionCard
-        title="Seguridad"
-        description="Planes para autenticar de forma segura y monitorear accesos."
+        title={t("settings.securityTitle")}
+        description={t("settings.securityDescription")}
       >
         <div className="space-y-3 text-sm text-neutral-300">
           <div className="flex items-start justify-between gap-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
             <div>
-              <p className="font-semibold text-white">Autenticación en dos pasos</p>
+              <p className="font-semibold text-white">{t("settings.twoFactorLabel")}</p>
               <p className="text-xs text-neutral-400">
-                Podrás habilitar códigos temporales o aplicaciones de autenticación para fortalecer la seguridad.
+                {t("settings.twoFactorDescription")}
               </p>
             </div>
-            <span className="rounded-full border border-neutral-800 px-3 py-1 text-xs text-neutral-500">Próximamente</span>
+            <span className="rounded-full border border-neutral-800 px-3 py-1 text-xs text-neutral-500">{t("settings.comingSoon")}</span>
           </div>
           <div className="flex items-start justify-between gap-4 rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
             <div>
-              <p className="font-semibold text-white">Accesos federados</p>
-              <p className="text-xs text-neutral-400">Configurar inicio de sesión con Google, Apple u otros proveedores.</p>
+              <p className="font-semibold text-white">{t("settings.federatedLoginLabel")}</p>
+              <p className="text-xs text-neutral-400">{t("settings.federatedLoginDescription")}</p>
             </div>
-            <span className="rounded-full border border-neutral-800 px-3 py-1 text-xs text-neutral-500">En roadmap</span>
+            <span className="rounded-full border border-neutral-800 px-3 py-1 text-xs text-neutral-500">{t("settings.onRoadmap")}</span>
           </div>
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Notificaciones"
-        description="Definí cómo querés recibir alertas sobre tu perfil, solicitudes y suscripción."
+        title={t("settings.notificationsTitle")}
+        description={t("settings.notificationsDescription")}
       >
         <div className="space-y-3 text-sm text-neutral-300">
           {[
             {
               id: "profile-updates",
-              label: "Cambios en mi perfil",
-              description: "Alertas cuando un miembro del staff actualice mi información",
+              label: t("settings.notifProfileLabel"),
+              description: t("settings.notifProfileDescription"),
             },
             {
               id: "applications",
-              label: "Estado de solicitudes",
-              description: "Notificaciones sobre revisión de cuentas o nuevos requerimientos",
+              label: t("settings.notifApplicationsLabel"),
+              description: t("settings.notifApplicationsDescription"),
             },
             {
               id: "subscription",
-              label: "Facturación y pagos",
-              description: "Avisos de próximas renovaciones o problemas con el cobro",
+              label: t("settings.notifBillingLabel"),
+              description: t("settings.notifBillingDescription"),
             },
           ].map((item) => (
             <label
@@ -103,29 +105,31 @@ export default async function AccountSettingsPage() {
           ))}
         </div>
         <p className="text-xs text-neutral-500">
-          Podrás seleccionar canales (email, WhatsApp, app) y frecuencia personalizada en próximas versiones.
+          {t("settings.notificationsFootnote")}
         </p>
       </SectionCard>
 
       <SectionCard
-        title="Sesiones activas"
-        description="Visualizá dispositivos con acceso para gestionar cierres remotos."
+        title={t("settings.activeSessionsTitle")}
+        description={t("settings.activeSessionsDescription")}
       >
         <div className="space-y-3 text-sm text-neutral-300">
           <div className="rounded-lg border border-neutral-800 bg-neutral-950/40 p-4">
-            <p className="font-semibold text-white">Sesión actual</p>
-            <p className="text-xs text-neutral-400">Dispositivo actual (detalles disponibles próximamente)</p>
+            <p className="font-semibold text-white">{t("settings.currentSessionLabel")}</p>
+            <p className="text-xs text-neutral-400">{t("settings.currentSessionDescription")}</p>
           </div>
           <div className="rounded-lg border border-dashed border-neutral-800 bg-neutral-950/40 p-4 text-xs text-neutral-500">
-            El detalle de dispositivos y la opción de cerrar sesiones se integrará con Supabase Auth Management.
+            {t("settings.sessionsIntegrationNote")}
           </div>
         </div>
         <p className="text-xs text-neutral-500">
-          Si detectás actividad sospechosa contactanos en{' '}
-          <Link href="mailto:soporte@ballershub.com" className="text-primary underline">
-            soporte@ballershub.com
-          </Link>
-          .
+          {t.rich("settings.suspiciousActivity", {
+            link: (chunks) => (
+              <Link href="mailto:soporte@ballershub.com" className="text-primary underline">
+                {chunks}
+              </Link>
+            ),
+          })}
         </p>
       </SectionCard>
     </div>

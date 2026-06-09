@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform, useMotionValueEvent, animate, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -14,6 +15,7 @@ import BioAnimatedBackground from "./BioAnimatedBackground";
 
 type ExternalLinks = { transfermarkt: string | null; beSoccer: string | null; flashscore?: string | null; };
 export default function ProfileCareerTimelineModule({ career, externalLinks }: { career: any[]; externalLinks?: ExternalLinks }) {
+  const t = useTranslations("portfolio");
   // Sort from most recent to oldest
   const sortedCareer = [...career].sort((a, b) => {
     if (!a.startDate) return -1;
@@ -50,10 +52,10 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
           className="relative z-10 w-full mb-12 flex flex-col"
         >
            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-2">
-             Historial Deportivo
+             {t("modules.career.eyebrow")}
            </h2>
            <h3 className="text-3xl font-black font-heading text-white uppercase drop-shadow-lg leading-none">
-             Trayectoria
+             {t("modules.career.title")}
            </h3>
         </motion.div>
 
@@ -93,6 +95,7 @@ export default function ProfileCareerTimelineModule({ career, externalLinks }: {
 
 
 function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: { sortedCareer: any[]; externalLinks?: ExternalLinks; onSelectHonour: (h: any) => void }) {
+  const t = useTranslations("portfolio");
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
@@ -193,13 +196,13 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
              {/* Header */}
              <div className="text-center shrink-0">
                 <h2 className="text-[9px] font-black uppercase tracking-[0.5em] text-[var(--theme-accent)] mb-1">
-                  Historial Deportivo
+                  {t("modules.career.eyebrow")}
                 </h2>
                 <h3 className="text-3xl lg:text-4xl xl:text-5xl font-black font-heading text-white uppercase drop-shadow-2xl leading-[0.9]">
-                  Trayectoria
+                  {t("modules.career.title")}
                 </h3>
                 <p className="mt-1.5 mx-auto text-white/40 font-medium text-[10px] max-w-xs leading-relaxed">
-                  Scrollea para navegar por cada etapa de su carrera profesional.
+                  {t("modules.career.scrollHint")}
                 </p>
 
                  {/* Platform links with decorative line that splits around buttons */}
@@ -222,7 +225,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                            </div>
                            <div className="relative z-10 flex flex-col items-start">
                              <span className="text-[10px] font-black text-white/90 leading-none tracking-wide">Transfermarkt</span>
-                             <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">Perfil oficial</span>
+                             <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">{t("modules.career.officialProfile")}</span>
                            </div>
                          </a>
                        )}
@@ -239,7 +242,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                            </div>
                            <div className="relative z-10 flex flex-col items-start">
                              <span className="text-[10px] font-black text-white/90 leading-none tracking-wide">BeSoccer</span>
-                             <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">Perfil oficial</span>
+                             <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">{t("modules.career.officialProfile")}</span>
                            </div>
                          </a>
                        )}
@@ -256,7 +259,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                            </div>
                            <div className="relative z-10 flex flex-col items-start">
                              <span className="text-[10px] font-black text-white/90 leading-none tracking-wide">Flashscore</span>
-                             <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">Perfil oficial</span>
+                             <span className="text-[8px] text-white/30 font-medium leading-none mt-0.5">{t("modules.career.officialProfile")}</span>
                            </div>
                          </a>
                        )}
@@ -294,7 +297,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                          <div className="flex justify-between items-start mb-3">
                              <div className="flex flex-col">
                                 <span className={`w-fit px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest mb-3 ${nodeData.isCurrent ? 'bg-[var(--theme-primary)] text-white' : 'bg-white/10 text-white/60'}`}>
-                                   {nodeData.startYear} - {nodeData.endYear}
+                                   {nodeData.startYear} - {nodeData.endYear === 'ACTUAL' ? t("modules.career.present") : nodeData.endYear}
                                 </span>
                                 <h4 className="text-2xl lg:text-3xl font-black text-white uppercase leading-[1.1] max-w-[480px] text-pretty">
                                    {nodeData.club}
@@ -303,7 +306,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                                    {nodeData.team?.countryCode && <CountryFlag code={nodeData.team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
                                    {nodeData.divisionData?.crestUrl && <TeamCrest src={nodeData.divisionData.crestUrl} size={28} className="drop-shadow-md" />}
                                    <span className="text-white/60 font-bold uppercase tracking-widest text-xs">
-                                     {nodeData.divisionData?.name || nodeData.division || "División no especificada"}
+                                     {nodeData.divisionData?.name || nodeData.division || t("modules.career.divisionUnknown")}
                                    </span>
                                    {nodeData.secondaryDivisionData?.name ? (
                                      <span className="inline-flex items-center gap-1.5 text-white/40 font-bold uppercase tracking-widest text-[10px] before:content-['+'] before:text-white/30">
@@ -325,11 +328,11 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                          {nodeData.hasStats && (
                             <div className="grid grid-cols-5 gap-0 bg-black/40 rounded-2xl border border-white/5 overflow-hidden mb-3">
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4">
-                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Partidos</span>
+                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">{t("modules.career.statMatches")}</span>
                                  <CountUp value={nodeData.totals.matches} className="text-xl lg:text-3xl text-white font-black leading-none" />
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
-                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Titular</span>
+                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">{t("modules.career.statStarter")}</span>
                                  <div className="relative w-12 h-12 lg:w-14 lg:h-14 flex items-center justify-center mt-1">
                                     <svg className="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 48 48">
                                       <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="3.5" fill="transparent" className="text-white/10" />
@@ -345,18 +348,18 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                                  </div>
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5">
-                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">Minutos</span>
+                                 <span className="text-[9px] lg:text-[10px] text-white/40 uppercase font-bold tracking-widest mb-1">{t("modules.career.statMinutes")}</span>
                                  <span className="text-xl lg:text-3xl text-white font-black leading-none">
                                    <CountUp value={nodeData.totals.minutesPlayed} />
                                    <span className="text-sm lg:text-lg text-white/50 ml-0.5">&apos;</span>
                                  </span>
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-accent)]/5">
-                                 <span className="text-[9px] lg:text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest mb-1">Goles</span>
+                                 <span className="text-[9px] lg:text-[10px] text-[var(--theme-accent)]/80 uppercase font-bold tracking-widest mb-1">{t("modules.career.statGoals")}</span>
                                  <CountUp value={nodeData.totals.goals} className="text-xl lg:text-3xl text-[var(--theme-accent)] font-black leading-none" />
                                </div>
                                <div className="flex flex-col items-center justify-center p-3 lg:p-4 border-l border-white/5 bg-[var(--theme-primary)]/5">
-                                 <span className="text-[9px] lg:text-[10px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest mb-1">Asist.</span>
+                                 <span className="text-[9px] lg:text-[10px] text-[var(--theme-primary)]/80 uppercase font-bold tracking-widest mb-1">{t("modules.career.statAssists")}</span>
                                  <CountUp value={nodeData.totals.assists} className="text-xl lg:text-3xl text-[var(--theme-primary)] font-black leading-none" />
                                </div>
                             </div>
@@ -399,7 +402,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                                  href={nodeData.team.transfermarktUrl}
                                  target="_blank"
                                  rel="noopener noreferrer"
-                                 aria-label="Ver perfil del club en Transfermarkt"
+                                 aria-label={t("modules.career.clubProfileAria")}
                                  className={`group shrink-0 self-start flex flex-col items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/8 hover:border-[#B5101F]/40 transition-all duration-300 overflow-hidden relative ${nodeData.itemHonours.length > 0 ? 'w-[88px]' : 'w-full'}`}
                                >
                                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(135deg, rgba(181,16,31,0.12), rgba(0,25,63,0.08))' }} />
@@ -407,7 +410,7 @@ function DesktopNodesTimeline({ sortedCareer, externalLinks, onSelectHonour }: {
                                    <TransfermarktIcon className="w-full h-full" />
                                  </div>
                                  <span className="relative z-10 text-[8px] font-black text-white/70 leading-none tracking-[0.15em] uppercase group-hover:text-white text-center">
-                                   {nodeData.itemHonours.length > 0 ? 'Club' : 'Ver club en Transfermarkt'}
+                                   {nodeData.itemHonours.length > 0 ? t("modules.career.clubShort") : t("modules.career.viewClubTransfermarkt")}
                                  </span>
                                </a>
                              )}
@@ -524,6 +527,7 @@ function prepareCardData(item: any, index: number) {
 }
 
 function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSelectHonour: (h: any) => void }) {
+  const t = useTranslations("portfolio");
   const { club, division, divisionData, secondaryDivisionData, startYear, endYear, isCurrent, totals, hasStats, itemHonours, team } = nodeData;
 
   return (
@@ -531,7 +535,7 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
         <div className="absolute top-[-50px] right-[-50px] w-48 h-48 bg-[var(--theme-primary)] rounded-full blur-[80px] opacity-[0.1] pointer-events-none" />
         
         <span className={`inline-block px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest mb-4 relative z-10 ${isCurrent ? 'bg-[var(--theme-primary)] text-white shadow-[0_0_10px_var(--theme-primary)]' : 'bg-white/5 text-white/50'}`}>
-           {startYear} - {endYear}
+           {startYear} - {endYear === 'ACTUAL' ? t("modules.career.present") : endYear}
         </span>
 
         <div className="flex items-start justify-between relative z-10">
@@ -547,7 +551,7 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
            {team?.countryCode && <CountryFlag code={team.countryCode} className="w-5 h-4 object-cover rounded-[2px]" />}
            {divisionData?.crestUrl && <TeamCrest src={divisionData.crestUrl} size={28} className="drop-shadow-md" />}
            <span className="text-white/40 font-bold uppercase tracking-widest text-[10px] truncate">
-             {divisionData?.name || division || "División no especificada"}
+             {divisionData?.name || division || t("modules.career.divisionUnknown")}
            </span>
            {secondaryDivisionData?.name ? (
              <span className="inline-flex items-center gap-1 text-white/30 font-bold uppercase tracking-widest text-[9px] truncate before:content-['+'] before:text-white/30">
@@ -567,7 +571,7 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
           <div className="mt-5 grid grid-cols-6 gap-1 bg-black/40 rounded-2xl p-2 border border-white/5 overflow-hidden relative z-10">
              {/* Fila 1 — 2 datos (col-span-3 cada uno) */}
              <div className="col-span-3 flex flex-col items-center justify-center p-1">
-               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Partidos</span>
+               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">{t("modules.career.statMatches")}</span>
                <CountUp value={totals.matches} className="text-xl text-white font-black leading-none" />
              </div>
              <div className="col-span-3 flex items-center justify-center p-1 border-l border-white/5">
@@ -580,23 +584,23 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
                       className="text-[#10b981] transition-all duration-1000 ease-out drop-shadow-[0_0_4px_rgba(16,185,129,0.4)]" strokeLinecap="round" />
                   </svg>
                   <CountUp value={totals.startingMatches} className="relative text-[12px] font-black text-white leading-none" />
-                  <span className="relative text-[6px] font-black uppercase tracking-[0.18em] text-white/60 mt-0.5">Titular</span>
+                  <span className="relative text-[6px] font-black uppercase tracking-[0.18em] text-white/60 mt-0.5">{t("modules.career.statStarter")}</span>
                </div>
              </div>
              {/* Fila 2 — 3 datos (col-span-2 cada uno) */}
              <div className="col-span-2 flex flex-col items-center justify-center p-1.5 border-t border-white/5">
-               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">Minutos</span>
+               <span className="text-[8px] text-white/40 uppercase font-black tracking-widest text-center mb-1">{t("modules.career.statMinutes")}</span>
                <span className="text-xl text-white font-black leading-none">
                  <CountUp value={totals.minutesPlayed} />
                  <span className="text-[9px] text-white/50 ml-0.5">&apos;</span>
                </span>
              </div>
              <div className="col-span-2 flex flex-col items-center justify-center p-1.5 border-t border-l border-white/5 bg-[var(--theme-accent)]/5">
-               <span className="text-[8px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">Goles</span>
+               <span className="text-[8px] text-[var(--theme-accent)]/60 uppercase font-black tracking-widest text-center mb-1">{t("modules.career.statGoals")}</span>
                <CountUp value={totals.goals} className="text-xl text-[var(--theme-accent)] font-black leading-none" />
              </div>
              <div className="col-span-2 flex flex-col items-center justify-center p-1.5 border-t border-l border-white/5 bg-[var(--theme-primary)]/5">
-               <span className="text-[8px] text-[var(--theme-primary)]/60 uppercase font-black tracking-widest text-center mb-1">Asist.</span>
+               <span className="text-[8px] text-[var(--theme-primary)]/60 uppercase font-black tracking-widest text-center mb-1">{t("modules.career.statAssists")}</span>
                <CountUp value={totals.assists} className="text-xl text-[var(--theme-primary)] font-black leading-none" />
              </div>
           </div>
@@ -630,7 +634,7 @@ function MobileTimelineCard({ nodeData, onSelectHonour }: { nodeData: any, onSel
 
         {!hasStats && itemHonours.length === 0 && (
            <div className="mt-5 text-[10px] font-medium uppercase tracking-widest italic text-white/20">
-             Sin registros oficiales
+             {t("modules.career.noOfficialRecords")}
            </div>
         )}
     </div>
@@ -672,6 +676,7 @@ function MarqueeClubTitle({ text, isActive }: { text: string; isActive: boolean 
 }
 
 function HonourModal({ honour, onClose }: { honour: any, onClose: () => void }) {
+  const t = useTranslations("portfolio");
   const isTrophy = isHonourTrophy(honour.title);
   
   return (
@@ -723,7 +728,7 @@ function HonourModal({ honour, onClose }: { honour: any, onClose: () => void }) 
         
         {honour.awardedOn && (
            <div className="mt-4 text-xs text-white/40 font-medium tracking-widest uppercase relative z-10">
-              Otorgado: {new Date(honour.awardedOn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+              {t("modules.career.awardedOn", { date: new Date(honour.awardedOn).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }) })}
            </div>
         )}
       </motion.div>

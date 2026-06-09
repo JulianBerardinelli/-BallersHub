@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDownRight, MapPin, Calendar } from "lucide-react";
+import { useTranslations } from "next-intl";
 import ProAgencyHeader from "./ProAgencyHeader";
 import GlobalAmbient from "./GlobalAmbient";
 import CountUp from "@/components/ui/CountUp";
@@ -16,6 +17,7 @@ export default function ProAgencyLayout({
   children?: React.ReactNode;
 }) {
   const { agency, theme, players, staffLicenses } = data;
+  const t = useTranslations("portfolio");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -40,7 +42,7 @@ export default function ProAgencyLayout({
     : agency.name.slice(0, 2).toUpperCase();
 
   const cinematicWord = (theme?.heroHeadline || agency.name).toUpperCase();
-  const tagline = theme?.heroTagline || agency.tagline || "Agencia de representación";
+  const tagline = theme?.heroTagline || agency.tagline || t("agency.taglineFallback");
 
   const totalLicenses = staffLicenses.reduce((sum, s) => sum + s.licenses.length, 0);
 
@@ -174,7 +176,7 @@ export default function ProAgencyLayout({
           >
             <div className="h-px w-8 md:w-16 bg-white/40" />
             <span className="text-[10px] md:text-xs uppercase tracking-[0.4em] md:tracking-[0.5em] text-white/85 font-light">
-              Agencia
+              {t("agency.eyebrow")}
             </span>
             <div className="h-px w-8 md:w-16 bg-white/40" />
           </motion.div>
@@ -242,7 +244,7 @@ export default function ProAgencyLayout({
                 {agency.foundationYear && (
                   <span className="inline-flex items-center gap-1.5">
                     <Calendar className="h-3 w-3" />
-                    EST. {agency.foundationYear}
+                    {t("agency.established", { year: agency.foundationYear })}
                   </span>
                 )}
                 {agency.foundationYear && agency.headquarters && (
@@ -267,16 +269,16 @@ export default function ProAgencyLayout({
           className="absolute bottom-8 md:bottom-10 left-0 w-full z-50 flex flex-col items-center gap-4 md:gap-5 px-4"
         >
           <div className="grid grid-cols-2 gap-x-8 gap-y-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-x-10 max-w-[760px]">
-            <HeroStat label="Jugadores" value={players.length} accent={accentColor} />
-            <HeroStat label="Países" value={agency.operativeCountries?.length ?? 0} accent={accentColor} />
-            <HeroStat label="Licencias" value={totalLicenses} accent={accentColor} />
+            <HeroStat label={t("agency.stats.players")} value={players.length} accent={accentColor} />
+            <HeroStat label={t("agency.stats.countries")} value={agency.operativeCountries?.length ?? 0} accent={accentColor} />
+            <HeroStat label={t("agency.stats.licenses")} value={totalLicenses} accent={accentColor} />
             {agency.foundationYear && (
-              <HeroStat label="Fundada" value={agency.foundationYear} accent={accentColor} pad={0} />
+              <HeroStat label={t("agency.stats.founded")} value={agency.foundationYear} accent={accentColor} pad={0} />
             )}
           </div>
 
           <div className="flex items-center gap-3 text-white/45">
-            <span className="text-[10px] tracking-[0.3em] uppercase">Scroll</span>
+            <span className="text-[10px] tracking-[0.3em] uppercase">{t("agency.scroll")}</span>
             <ArrowDownRight className="h-3 w-3 animate-bounce" />
           </div>
         </motion.div>

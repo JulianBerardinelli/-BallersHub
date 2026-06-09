@@ -4,18 +4,19 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Share2, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-type SectionItem = { id: string; label: string };
+type SectionItem = { id: string; key: string };
 
 const PORTFOLIO_SECTIONS: SectionItem[] = [
-  { id: "about", label: "Agencia" },
-  { id: "staff", label: "Equipo" },
-  { id: "roster", label: "Jugadores" },
-  { id: "services", label: "Servicios" },
-  { id: "reach", label: "Alcance" },
-  { id: "gallery", label: "Galería" },
-  { id: "contact", label: "Contacto" },
+  { id: "about", key: "about" },
+  { id: "staff", key: "staff" },
+  { id: "roster", key: "roster" },
+  { id: "services", key: "services" },
+  { id: "reach", key: "reach" },
+  { id: "gallery", key: "gallery" },
+  { id: "contact", key: "contact" },
 ];
 
 type Props = {
@@ -27,13 +28,14 @@ type Props = {
 
 export default function ProAgencyHeader({ agency }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const t = useTranslations("portfolio");
 
   const handleShare = async () => {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: `Agencia ${agency.name}`,
-          text: `Conocé el portfolio profesional de ${agency.name} en 'BallersHub.`,
+          title: t("agency.shareTitle", { name: agency.name }),
+          text: t("agency.shareText", { name: agency.name }),
           url: window.location.href,
         });
       } else if (navigator.clipboard) {
@@ -87,12 +89,12 @@ export default function ProAgencyHeader({ agency }: Props) {
       <div className="relative w-full max-w-[1400px] mx-auto flex items-center justify-center">
         <Link
           href="/"
-          aria-label="Volver a 'BallersHub"
+          aria-label={t("agency.backToHome")}
           className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-start group"
         >
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold flex items-center gap-1.5 group-hover:text-white/80 transition-colors">
             <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
-            Volver a
+            {t("agency.backTo")}
           </span>
           <Wordmark
             size="nav"
@@ -101,14 +103,14 @@ export default function ProAgencyHeader({ agency }: Props) {
         </Link>
 
         <nav
-          aria-label="Navegación de la agencia"
+          aria-label={t("agency.nav.label")}
           className="pointer-events-auto bg-black/40 backdrop-blur-xl border border-white/10 rounded-full pl-2 pr-2 py-2 flex items-center gap-1 md:gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
         >
           {agency.logoUrl ? (
             <button
               type="button"
               onClick={scrollToTop}
-              aria-label="Inicio"
+              aria-label={t("agency.home")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white/20 shadow-inner shrink-0 pointer-events-auto bg-white/5"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -122,7 +124,7 @@ export default function ProAgencyHeader({ agency }: Props) {
             <button
               type="button"
               onClick={scrollToTop}
-              aria-label="Inicio"
+              aria-label={t("agency.home")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white/20 shadow-inner shrink-0 pointer-events-auto bg-white/10 flex items-center justify-center text-[10px] font-bold uppercase tracking-widest text-white/80"
             >
               {agency.name.slice(0, 2)}
@@ -154,7 +156,7 @@ export default function ProAgencyHeader({ agency }: Props) {
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
-                <span className="relative z-10">{item.label}</span>
+                <span className="relative z-10">{t(`agency.nav.${item.key}`)}</span>
               </button>
             );
           })}
@@ -164,7 +166,7 @@ export default function ProAgencyHeader({ agency }: Props) {
           <button
             type="button"
             onClick={handleShare}
-            aria-label="Compartir agencia"
+            aria-label={t("agency.shareAria")}
             className="text-white hover:text-[var(--theme-accent,#34d399)] transition-colors pointer-events-auto px-2 shrink-0"
           >
             <Share2 className="w-4 h-4" />
@@ -173,7 +175,7 @@ export default function ProAgencyHeader({ agency }: Props) {
 
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">
-            Powered BY
+            {t("agency.poweredBy")}
           </span>
           <Wordmark size="nav" className="text-base leading-none" />
         </div>

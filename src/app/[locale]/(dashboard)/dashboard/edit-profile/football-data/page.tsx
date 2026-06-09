@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
@@ -122,6 +123,7 @@ type CareerRevisionRequestRow = {
 };
 
 export default async function FootballDataPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -144,8 +146,8 @@ export default async function FootballDataPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Datos futbolísticos"
-          description="Creá tu perfil para gestionar trayectoria, estadísticas y enlaces deportivos."
+          title={t("editProfile.footballDataTitle")}
+          description={t("editProfile.footballDataNoProfileDescription")}
         />
         {access.profileLock ? <LockedSection {...access.profileLock} /> : null}
       </div>
@@ -156,8 +158,8 @@ export default async function FootballDataPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Datos futbolísticos"
-          description="Organizá toda tu información deportiva para construir un perfil completo y actualizado."
+          title={t("editProfile.footballDataTitle")}
+          description={t("editProfile.footballDataDescription")}
         />
         <LockedSection {...access.profileLock} />
       </div>
@@ -437,8 +439,8 @@ export default async function FootballDataPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Datos futbolísticos"
-        description="Organizá toda tu información deportiva para construir un perfil completo y actualizado."
+        title={t("editProfile.footballDataTitle")}
+        description={t("editProfile.footballDataDescription")}
       />
 
       <TaskCalloutList tasks={taskCallouts} />
@@ -456,8 +458,8 @@ export default async function FootballDataPage() {
       />
 
       <SectionCard
-        title="Trayectoria"
-        description="Gestioná tu historial deportivo y enviá cambios al equipo de Ballers para su validación."
+        title={t("editProfile.careerHistoryTitle")}
+        description={t("editProfile.careerHistoryDescription")}
       >
         <CareerManager
           playerId={profileData.id}
@@ -468,8 +470,8 @@ export default async function FootballDataPage() {
       </SectionCard>
 
       <SectionCard
-        title="Estadísticas por temporada"
-        description="Seguimiento agregado de tus números oficiales para compartir con clubes y representantes."
+        title={t("editProfile.seasonStatsTitle")}
+        description={t("editProfile.seasonStatsDescription")}
       >
         <SeasonStatsManager
           playerId={profileData.id}
@@ -480,8 +482,8 @@ export default async function FootballDataPage() {
       </SectionCard>
 
       <SectionCard
-        title="Referencias y enlaces"
-        description="Conectá tu perfil con plataformas externas para validar tu experiencia."
+        title={t("editProfile.referencesLinksTitle")}
+        description={t("editProfile.referencesLinksDescription")}
       >
         <ExternalLinksManager
           playerId={profileData.id}
@@ -493,7 +495,7 @@ export default async function FootballDataPage() {
       <SectionCard
         title={
           <span className="inline-flex items-center gap-2">
-            Palmarés y reconocimientos
+            {t("editProfile.honoursTitle")}
             {!planAccess.isPro && (
               <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-bh-lime">
                 <Lock size={9} /> Pro
@@ -503,8 +505,8 @@ export default async function FootballDataPage() {
         }
         description={
           planAccess.isPro
-            ? "Documentá títulos, premios individuales y estadísticas destacadas."
-            : "Cargá títulos y premios. Para guardarlos en tu perfil necesitás Pro."
+            ? t("editProfile.honoursDescriptionPro")
+            : t("editProfile.honoursDescriptionFree")
         }
       >
         <HonoursManager
@@ -513,9 +515,9 @@ export default async function FootballDataPage() {
           careerOptions={careerSeasonOptions}
         />
         <div className="flex flex-wrap gap-2 text-xs text-neutral-400">
-          <span className="rounded-full border border-neutral-800 px-3 py-1">🏆 Campeonatos</span>
-          <span className="rounded-full border border-neutral-800 px-3 py-1">⭐ Premios individuales</span>
-          <span className="rounded-full border border-neutral-800 px-3 py-1">📈 Estadísticas clave</span>
+          <span className="rounded-full border border-neutral-800 px-3 py-1">🏆 {t("editProfile.honoursChipChampionships")}</span>
+          <span className="rounded-full border border-neutral-800 px-3 py-1">⭐ {t("editProfile.honoursChipIndividualAwards")}</span>
+          <span className="rounded-full border border-neutral-800 px-3 py-1">📈 {t("editProfile.honoursChipKeyStats")}</span>
         </div>
       </SectionCard>
 

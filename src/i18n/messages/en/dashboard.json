@@ -1,0 +1,199 @@
+{
+  "home": {
+    "header": {
+      "title": "Overview",
+      "description": "View your profile status and the recommended next steps."
+    },
+    "profileStatusCard": {
+      "title": "Profile status",
+      "description": "Track the progress of your professional profile and quickly access key actions."
+    },
+    "progressCard": {
+      "title": "Progress by section",
+      "description": "Identify which parts of your profile need attention to get published."
+    },
+    "nextStepsCard": {
+      "title": "Next steps",
+      "description": "These tasks will help you complete the information needed to publish your profile.",
+      "empty": "Great! You have no pending tasks. We'll keep adding recommendations as we roll out new features."
+    },
+    "quickActionsCard": {
+      "title": "Quick shortcuts",
+      "description": "Go straight to the sections you'll use most often.",
+      "goToSection": "Go to section →"
+    },
+    "quickActions": {
+      "multimedia": {
+        "title": "Manage media",
+        "description": "Photos, videos and updates to boost your profile."
+      },
+      "subscription": {
+        "title": "Subscription status",
+        "description": "Review your current plan and upcoming charges."
+      },
+      "account": {
+        "title": "Account preferences",
+        "description": "Update email, security and notifications."
+      }
+    },
+    "progress": {
+      "personalData": {
+        "title": "Personal data",
+        "description": "Basic information, contact and full bio."
+      },
+      "footballData": {
+        "title": "Football data",
+        "description": "Career history, current club and positions."
+      },
+      "multimedia": {
+        "title": "Media",
+        "description": "Photos and stories that enrich your public profile."
+      }
+    },
+    "profileStatus": {
+      "draft": {
+        "label": "Draft",
+        "message": "Your profile is under construction. Complete the pending steps to submit it for review."
+      },
+      "pendingReview": {
+        "label": "Under review",
+        "message": "Our team is validating the submitted information. You'll receive a notification with the result."
+      },
+      "approved": {
+        "label": "Published",
+        "message": "Your profile is approved and ready to share with clubs and recruiters."
+      },
+      "rejected": {
+        "label": "Rejected",
+        "message": "We need some changes to your application. Review the comments and submit it again."
+      },
+      "missing": {
+        "label": "No profile",
+        "message": "Create your application to generate the professional profile and unlock the editing sections."
+      }
+    },
+    "applicationStatus": {
+      "pending": {
+        "label": "Under review",
+        "message": "We've received your application and we're reviewing it. In the meantime, you can keep checking the status from here."
+      },
+      "approved": {
+        "label": "Approved",
+        "message": "The application was approved. You can now complete and publish your professional profile."
+      },
+      "rejected": {
+        "label": "Rejected",
+        "message": "Your application was rejected. You can make the necessary changes and resubmit it whenever you're ready."
+      },
+      "unknownMessage": "Contact support for more information about the status of your application.",
+      "lastUpdated": "Last updated: {date}"
+    },
+    "cta": {
+      "viewApplication": "View application",
+      "reopenOnboarding": "Reopen onboarding",
+      "configureProfile": "Set up profile",
+      "createApplication": "Create application",
+      "viewPublicProfile": "View public profile",
+      "configurePublicUrl": "Set up public URL",
+      "completePendingData": "Complete pending data"
+    }
+  },
+  "settings": {
+    "subscriptionTitle": "Subscription",
+    "subscriptionDescription": "Manage your plan, downloads, payment methods and cancellations.",
+    "alreadySubscribed": "You already have an active {plan} plan. If you want to change it, you can manage it here or cancel the current one first.",
+    "canceledNotice": "Done, your subscription has been marked for cancellation. You keep access until the end of the current period.",
+    "currentStatusTitle": "Current status",
+    "currentStatusDescription": "Information about the plan currently active.",
+    "fieldPlan": "Plan",
+    "compBadge": "Complimentary",
+    "amountPerYear": "{amount} / year",
+    "fieldStatus": "Status",
+    "endsOn": "Ends on {date}",
+    "fieldTrialEnd": "Trial period end",
+    "fieldNextRenewal": "Next renewal",
+    "canceledOn": "Canceled on {date}",
+    "refundWindow": "You have until <strong>{date}</strong> to cancel within the {days}-day guarantee period. If you cancel within the window, we refund the initial charge.",
+    "subStatusTrialing": "Trial period",
+    "subStatusActive": "Active",
+    "subStatusPastDue": "Payment due",
+    "subStatusPaused": "Paused",
+    "subStatusCanceled": "Canceled",
+    "subStatusIncomplete": "Incomplete",
+    "subStatusInactive": "No subscription",
+    "compAccountTitle": "Complimentary account",
+    "compAccountDescription": "Your Pro access was activated by the BallersHub team — there are no charges associated.",
+    "compAccountBody": "This subscription is managed directly by the BallersHub team. If you have questions about your expiration or want to extend it, write to us at <link>billing@ballershub.app</link>.",
+    "subActionsTitle": "Subscription actions",
+    "subActionsStripeDescription": "Stripe manages the billing portal: update your card, download invoices or cancel from a single place.",
+    "subActionsMpDescription": "Mercado Pago does not offer a self-service portal. From here you cancel directly — access closes instantly.",
+    "yourPlanProAgency": "Your Pro Agency plan",
+    "yourPlanProPlayer": "Your Pro Player plan",
+    "planBenefitsDescription": "Benefits included in the plan.",
+    "proPlayerFeature1": "Premium templates and advanced customization",
+    "proPlayerFeature2": "Custom domain and free branding",
+    "proPlayerFeature3": "Unlimited multimedia sections",
+    "proPlayerFeature4": "Priority support and profile reviews",
+    "proAgencyFeature1": "Multi-player panel with compared metrics",
+    "proAgencyFeature2": "Unlimited invitations and collaborating staff",
+    "proAgencyFeature3": "Agency branding on every published portfolio",
+    "proAgencyFeature4": "Priority support for campaigns and outreach",
+    "noPlanCta": "You don't have an active plan yet. Try Pro free for {days} days.",
+    "viewPlans": "View plans",
+    "billingSupportTitle": "Billing support",
+    "billingSupportDescription": "A problem with a charge or invoice?",
+    "billingSupportBody": "Write to us at <link>billing@ballershub.app</link> and we'll reply the same business day.",
+    "accountTitle": "Account settings",
+    "accountDescription": "Manage your credentials, security and general dashboard preferences.",
+    "securityTitle": "Security",
+    "securityDescription": "Plans to authenticate securely and monitor access.",
+    "twoFactorLabel": "Two-factor authentication",
+    "twoFactorDescription": "You'll be able to enable temporary codes or authenticator apps to strengthen security.",
+    "comingSoon": "Coming soon",
+    "federatedLoginLabel": "Federated logins",
+    "federatedLoginDescription": "Set up sign-in with Google, Apple or other providers.",
+    "onRoadmap": "On roadmap",
+    "notificationsTitle": "Notifications",
+    "notificationsDescription": "Define how you want to receive alerts about your profile, requests and subscription.",
+    "notifProfileLabel": "Changes to my profile",
+    "notifProfileDescription": "Alerts when a staff member updates my information",
+    "notifApplicationsLabel": "Request status",
+    "notifApplicationsDescription": "Notifications about account reviews or new requirements",
+    "notifBillingLabel": "Billing and payments",
+    "notifBillingDescription": "Notices of upcoming renewals or charge issues",
+    "notificationsFootnote": "You'll be able to select channels (email, WhatsApp, app) and custom frequency in future versions.",
+    "activeSessionsTitle": "Active sessions",
+    "activeSessionsDescription": "View devices with access to manage remote sign-outs.",
+    "currentSessionLabel": "Current session",
+    "currentSessionDescription": "Current device (details available soon)",
+    "sessionsIntegrationNote": "The device details and the option to close sessions will be integrated with Supabase Auth Management.",
+    "suspiciousActivity": "If you detect suspicious activity, contact us at <link>soporte@ballershub.com</link>."
+  },
+  "editProfile": {
+    "personalDataTitle": "Personal data",
+    "personalDataNoProfileDescription": "Create your profile to enable editing your personal data.",
+    "personalDataDescription": "Manage your basic and contact information. This data will be used for your public profile and communications.",
+    "avatarIdentityTitle": "Avatar and identity",
+    "avatarIdentityDescription": "Update your photo and main details to keep your professional profile consistent.",
+    "avatarCurrentAlt": "Current avatar",
+    "avatarHelpText": "Use a high-resolution image in square format. Images will be used in your automated CV and public profile.",
+    "footballDataTitle": "Football data",
+    "footballDataNoProfileDescription": "Create your profile to manage your career history, stats and sporting links.",
+    "footballDataDescription": "Organize all your sporting information to build a complete and up-to-date profile.",
+    "careerHistoryTitle": "Career history",
+    "careerHistoryDescription": "Manage your sporting history and submit changes to the BallersHub team for validation.",
+    "seasonStatsTitle": "Stats by season",
+    "seasonStatsDescription": "Aggregated tracking of your official numbers to share with clubs and agents.",
+    "referencesLinksTitle": "References and links",
+    "referencesLinksDescription": "Connect your profile with external platforms to validate your experience.",
+    "honoursTitle": "Honours and awards",
+    "honoursDescriptionPro": "Document titles, individual awards and standout stats.",
+    "honoursDescriptionFree": "Add titles and awards. You need Pro to save them to your profile.",
+    "honoursChipChampionships": "Championships",
+    "honoursChipIndividualAwards": "Individual awards",
+    "honoursChipKeyStats": "Key stats",
+    "multimediaTitle": "Multimedia",
+    "multimediaNoProfileDescription": "Create your profile to manage galleries, videos and press notes.",
+    "multimediaDescription": "Centralize images, videos and featured articles to boost your digital presence."
+  }
+}
