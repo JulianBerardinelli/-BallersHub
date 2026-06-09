@@ -286,6 +286,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
         `src/lib/seo/agencyJsonLd.tsx` for the full shape.
       */}
       <AgencyJsonLd
+        locale={locale as Locale}
         agency={{
           slug: agency.slug,
           name: agency.name,

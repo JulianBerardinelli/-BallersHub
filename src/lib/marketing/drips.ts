@@ -9,10 +9,12 @@ import {
 } from "@/db/schema";
 import {
   renderTemplate,
+  localizedSubject,
   type TemplateKey,
   type TemplatePropsMap,
 } from "@/emails";
 import { senderFrom } from "@/emails/tokens";
+import type { Locale } from "@/i18n/routing";
 import { isSuppressed } from "./suppression";
 import { signUnsubscribeToken } from "./unsubscribe-token";
 import { evaluateExitCondition, resolveRecipientProps } from "./recipient-props";
@@ -243,6 +245,11 @@ export async function processDueEnrollments(): Promise<ProcessResult> {
         unsubscribeToken,
       } as TemplatePropsMap[TemplateKey];
 
+      // Subject follows the recipient's locale too (F6) — es keeps the drip's
+      // configured `default_subject`; en/it/pt use the localized subject.
+      const recipientLocale =
+        ((recipientProps as Record<string, unknown>).locale as Locale) ?? "es";
+
       const html = await renderTemplate(config.templateKey as TemplateKey, props);
 
       // Insert a marketing_sends row (no campaign association — drip)
@@ -258,7 +265,11 @@ export async function processDueEnrollments(): Promise<ProcessResult> {
       const { data, error } = await resend.emails.send({
         from: senderFrom,
         to: [enrollment.email],
-        subject: config.defaultSubject,
+        subject: localizedSubject(
+          config.templateKey as TemplateKey,
+          recipientLocale,
+          config.defaultSubject,
+        ),
         html,
         headers: buildListUnsubscribeHeaders(unsubscribeToken),
         tags: [

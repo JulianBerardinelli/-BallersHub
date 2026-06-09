@@ -1,0 +1,856 @@
+{
+  "capturedAt": "2026-06-09T21:47:54.457Z",
+  "base": "https://ballershub.co",
+  "snapshots": [
+    {
+      "path": "/",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 281724,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 1467,
+      "title": "&#x27;BallersHub — Perfiles profesionales de futbolistas",
+      "description": "&#x27;BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
+      "canonical": null,
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "&#x27;BallersHub — Perfiles profesionales de futbolistas",
+        "description": "&#x27;BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
+        "image": null,
+        "type": "website",
+        "url": null,
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "&#x27;BallersHub — Perfiles profesionales de futbolistas"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/pricing",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 276814,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 985,
+      "title": "Planes y precios · &#x27;BallersHub",
+      "description": "Elegí el plan que potencia tu carrera o agencia. Free incluye perfil verificado y URL pública. Pro suma galería extendida, prensa, SEO avanzado y schema en JSON-LD.",
+      "canonical": "https://ballershub.co/pricing",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Planes y precios — &#x27;BallersHub",
+        "description": "Free vs Pro para jugadores y agencias. Suscripción anual con trial de 7 días en Pro.",
+        "image": "https://ballershub.co/es/pricing/opengraph-image-151lgj?832e18fca085ba0b",
+        "type": "website",
+        "url": "https://ballershub.co/pricing",
+        "siteName": null,
+        "locale": null
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Planes y precios — &#x27;BallersHub"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Product",
+              "@id": "https://ballershub.co/pricing#product",
+              "name": "'BallersHub — Suscripciones",
+              "url": "https://ballershub.co/pricing",
+              "offersCount": 8,
+              "hasImage": true
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/pricing#breadcrumb",
+              "breadcrumbCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/about",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 326653,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 646,
+      "title": "Nosotros · &#x27;BallersHub",
+      "description": "Conocé al equipo, la misión, visión y valores detrás de &#x27;BallersHub: el hub donde el talento futbolístico gana visibilidad real y verificada.",
+      "canonical": "https://ballershub.co/about",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Nosotros · &#x27;BallersHub",
+        "description": "Conocé al equipo, la misión, visión y valores detrás de &#x27;BallersHub: el hub donde el talento futbolístico gana visibilidad real y verificada.",
+        "image": null,
+        "type": "website",
+        "url": "https://ballershub.co/about",
+        "siteName": null,
+        "locale": null
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Nosotros · &#x27;BallersHub"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "AboutPage",
+              "@id": "https://ballershub.co/about#aboutpage",
+              "name": "Nosotros · 'BallersHub",
+              "url": "https://ballershub.co/about"
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/about#breadcrumb",
+              "breadcrumbCount": 2
+            },
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/about#person-julian-berardinelli",
+              "name": "Julián Berardinelli"
+            },
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/about#person-equipo-de-validacion",
+              "name": "Equipo de validación"
+            },
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/about#person-equipo-de-operaciones",
+              "name": "Equipo de operaciones"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/blog",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 189474,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 639,
+      "title": "Blog · &#x27;BallersHub",
+      "description": "Artículos sobre carrera del jugador, operaciones de agencia y el mercado del fútbol argentino. Escrito por jugadores, scouts y periodistas de la red de &#x27;BallersHub.",
+      "canonical": "https://ballershub.co/blog",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Blog · &#x27;BallersHub",
+        "description": "Carrera del jugador, operaciones de agencia, industria AR. Análisis con datos y links a portfolios reales.",
+        "image": null,
+        "type": "website",
+        "url": "https://ballershub.co/blog",
+        "siteName": null,
+        "locale": null
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Blog · &#x27;BallersHub"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/blog/authors/julian-berardinelli",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 205134,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 836,
+      "title": "Julián Berardinelli — Autor en &#x27;BallersHub · &#x27;BallersHub",
+      "description": "Founder de &#x27;BallersHub. Construyendo la plataforma de portfolios profesionales para futbolistas y agencias del fútbol argentino.",
+      "canonical": "https://ballershub.co/blog/authors/julian-berardinelli",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Julián Berardinelli — Autor en &#x27;BallersHub",
+        "description": "Founder de &#x27;BallersHub. Construyendo la plataforma de portfolios profesionales para futbolistas y agencias del fútbol argentino.",
+        "image": "https://ballershub.co/es/blog/authors/julian-berardinelli/opengraph-image-1hs441?3e5638e770ea6856",
+        "type": "profile",
+        "url": "https://ballershub.co/blog/authors/julian-berardinelli",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary",
+        "title": "Julián Berardinelli — Autor en &#x27;BallersHub"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "ProfilePage",
+              "@id": "https://ballershub.co/blog/authors/julian-berardinelli#profilepage",
+              "name": "Julián Berardinelli — Autor en 'BallersHub",
+              "url": "https://ballershub.co/blog/authors/julian-berardinelli"
+            },
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/blog/authors/julian-berardinelli#person",
+              "name": "Julián Berardinelli",
+              "url": "https://ballershub.co/blog/authors/julian-berardinelli",
+              "sameAsCount": 1
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/blog/authors/julian-berardinelli#breadcrumb",
+              "breadcrumbCount": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/julian-berardinelli",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 535538,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 1259,
+      "title": "Julián Berardinelli — Mediapunta / Extremo izquierdo — San Martin De Burzaco · &#x27;BallersHub",
+      "description": "Futbolista profesional argentino con nacionalidad italiana, actualmente disputando la Primera B Metropolitana —tercera división del fútbol argentino— con San…",
+      "canonical": "https://ballershub.co/julian-berardinelli",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Julián Berardinelli — Mediapunta / Extremo izquierdo — San Martin De Burzaco",
+        "description": "Futbolista profesional argentino con nacionalidad italiana, actualmente disputando la Primera B Metropolitana —tercera división del fútbol argentino— con San…",
+        "image": "https://erdvpcfjynkhcrqktozd.supabase.co/storage/v1/object/public/player-media/avatars/3f608a7f-a1b1-448e-b8ef-949c99833f56.jpg",
+        "type": "profile",
+        "url": "https://ballershub.co/julian-berardinelli",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Julián Berardinelli — Mediapunta / Extremo izquierdo — San Martin De Burzaco"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/julian-berardinelli#person",
+              "name": "Julián Berardinelli",
+              "url": "https://ballershub.co/julian-berardinelli",
+              "sameAsCount": 2,
+              "hasImage": true
+            },
+            {
+              "@type": "SportsTeam",
+              "@id": "https://ballershub.co/julian-berardinelli#current-team",
+              "name": "San Martin De Burzaco"
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/julian-berardinelli#breadcrumb",
+              "breadcrumbCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/federico-sarra",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 480601,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 958,
+      "title": "Federico Sarra — Central / Lateral derecho — CD Manchego · &#x27;BallersHub",
+      "description": "Futbolista argentino con ciudadanía italiana que se desempeña como defensa central y lateral derecho. Formado en las divisiones inferiores de CA Platense,…",
+      "canonical": "https://ballershub.co/federico-sarra",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Federico Sarra — Central / Lateral derecho — CD Manchego",
+        "description": "Futbolista argentino con ciudadanía italiana que se desempeña como defensa central y lateral derecho. Formado en las divisiones inferiores de CA Platense,…",
+        "image": "https://erdvpcfjynkhcrqktozd.supabase.co/storage/v1/object/public/player-media/avatars/1033866f-480c-4a5f-a9e5-2c8ba1c683dd.jpg",
+        "type": "profile",
+        "url": "https://ballershub.co/federico-sarra",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Federico Sarra — Central / Lateral derecho — CD Manchego"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/federico-sarra#person",
+              "name": "Federico Sarra",
+              "url": "https://ballershub.co/federico-sarra",
+              "sameAsCount": 1,
+              "hasImage": true
+            },
+            {
+              "@type": "SportsTeam",
+              "@id": "https://ballershub.co/federico-sarra#current-team",
+              "name": "CD Manchego"
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/federico-sarra#breadcrumb",
+              "breadcrumbCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/pedro-samso",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 400464,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 749,
+      "title": "Pedro Samso — Mediocentro / Mediapunta — CD Ciempozuelos · &#x27;BallersHub",
+      "description": "Futbolista argentino que se desempeña como centrocampista ofensivo, mediapunta y delantero. Formado en Racing de Trelew, continuó su desarrollo en las…",
+      "canonical": "https://ballershub.co/pedro-samso",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Pedro Samso — Mediocentro / Mediapunta — CD Ciempozuelos",
+        "description": "Futbolista argentino que se desempeña como centrocampista ofensivo, mediapunta y delantero. Formado en Racing de Trelew, continuó su desarrollo en las…",
+        "image": "https://erdvpcfjynkhcrqktozd.supabase.co/storage/v1/object/public/player-media/avatars/56b4041d-3741-48d2-991c-73e97728e8e5.jpg",
+        "type": "profile",
+        "url": "https://ballershub.co/pedro-samso",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Pedro Samso — Mediocentro / Mediapunta — CD Ciempozuelos"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/pedro-samso#person",
+              "name": "Pedro Samso",
+              "url": "https://ballershub.co/pedro-samso",
+              "hasImage": true
+            },
+            {
+              "@type": "SportsTeam",
+              "@id": "https://ballershub.co/pedro-samso#current-team",
+              "name": "CD Ciempozuelos"
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/pedro-samso#breadcrumb",
+              "breadcrumbCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/felipe-sarra",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 517510,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 908,
+      "title": "Felipe Sarra — Centrodelantero / Segundo delantero — CD Manchego · &#x27;BallersHub",
+      "description": "Delantero argentino con pasaporte italiano, formado en las inferiores de CA Platense y con trayectoria en el fútbol español. Puede desempeñarse como…",
+      "canonical": "https://ballershub.co/felipe-sarra",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Felipe Sarra — Centrodelantero / Segundo delantero — CD Manchego",
+        "description": "Delantero argentino con pasaporte italiano, formado en las inferiores de CA Platense y con trayectoria en el fútbol español. Puede desempeñarse como…",
+        "image": "https://erdvpcfjynkhcrqktozd.supabase.co/storage/v1/object/public/player-media/avatars/5ab200cc-d53d-4470-a12b-9af9706167ad.jpg",
+        "type": "profile",
+        "url": "https://ballershub.co/felipe-sarra",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Felipe Sarra — Centrodelantero / Segundo delantero — CD Manchego"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/felipe-sarra#person",
+              "name": "Felipe Sarra",
+              "url": "https://ballershub.co/felipe-sarra",
+              "sameAsCount": 1,
+              "hasImage": true
+            },
+            {
+              "@type": "SportsTeam",
+              "@id": "https://ballershub.co/felipe-sarra#current-team",
+              "name": "CD Manchego"
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/felipe-sarra#breadcrumb",
+              "breadcrumbCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/mateo-germani",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 441212,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 751,
+      "title": "Mateo Germani — ARQ / Arquero — AD Orcasitas · &#x27;BallersHub",
+      "description": "Portero argentino-estadounidense con pasaporte europeo y formación internacional en Brasil, Suiza, Portugal y España. Inició su desarrollo futbolístico en…",
+      "canonical": "https://ballershub.co/mateo-germani",
+      "robotsMeta": "index, follow",
+      "og": {
+        "title": "Mateo Germani — ARQ / Arquero — AD Orcasitas",
+        "description": "Portero argentino-estadounidense con pasaporte europeo y formación internacional en Brasil, Suiza, Portugal y España. Inició su desarrollo futbolístico en…",
+        "image": "https://erdvpcfjynkhcrqktozd.supabase.co/storage/v1/object/public/player-media/avatars/0fcc7227-9554-4fa0-b22e-13d41f01e37b.jpg",
+        "type": "profile",
+        "url": "https://ballershub.co/mateo-germani",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Mateo Germani — ARQ / Arquero — AD Orcasitas"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Person",
+              "@id": "https://ballershub.co/mateo-germani#person",
+              "name": "Mateo Germani",
+              "url": "https://ballershub.co/mateo-germani",
+              "hasImage": true
+            },
+            {
+              "@type": "SportsTeam",
+              "@id": "https://ballershub.co/mateo-germani#current-team",
+              "name": "AD Orcasitas"
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": "https://ballershub.co/mateo-germani#breadcrumb",
+              "breadcrumbCount": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/nicolas-locuoco",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "contentLength": 209769,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 619,
+      "title": "Nicolás Locuoco — Central / Mediocentro · &#x27;BallersHub",
+      "description": "Perfil profesional de Nicolás Locuoco — Central / Mediocentro — Argentina / Italia. Trayectoria, estadísticas, galería y contacto en &#x27;BallersHub.",
+      "canonical": "https://ballershub.co/nicolas-locuoco",
+      "robotsMeta": "noindex, follow",
+      "og": {
+        "title": "Nicolás Locuoco — Central / Mediocentro",
+        "description": "Perfil profesional de Nicolás Locuoco — Central / Mediocentro — Argentina / Italia. Trayectoria, estadísticas, galería y contacto en &#x27;BallersHub.",
+        "image": "https://ballershub.co/images/player-default.jpg",
+        "type": "profile",
+        "url": "https://ballershub.co/nicolas-locuoco",
+        "siteName": "&#x27;BallersHub",
+        "locale": "es_AR"
+      },
+      "twitter": {
+        "card": "summary_large_image",
+        "title": "Nicolás Locuoco — Central / Mediocentro"
+      },
+      "jsonLd": [
+        {
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://ballershub.co#organization",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "sameAsCount": 2
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://ballershub.co#website",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "publisher": "https://ballershub.co#organization"
+            },
+            {
+              "@type": "SoftwareApplication",
+              "@id": "https://ballershub.co#software",
+              "name": "'BallersHub",
+              "url": "https://ballershub.co",
+              "offersCount": 1,
+              "publisher": "https://ballershub.co#organization"
+            }
+          ]
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "Person",
+          "@id": "https://ballershub.co/nicolas-locuoco#person",
+          "name": "Nicolás Locuoco",
+          "url": "https://ballershub.co/nicolas-locuoco"
+        }
+      ]
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "contentType": "application/xml",
+      "contentLength": 4875,
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 340,
+      "sitemap": {
+        "urlCount": 24,
+        "sampleLocs": [
+          "https://ballershub.co/",
+          "https://ballershub.co/players",
+          "https://ballershub.co/agencies"
+        ]
+      }
+    },
+    {
+      "path": "/llms.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "contentLength": 3443,
+      "cacheControl": "public, max-age=0, s-maxage=3600",
+      "xRobotsTag": null,
+      "ms": 487,
+      "llmstxt": {
+        "lines": 43,
+        "sections": 5,
+        "hasBlog": true,
+        "hasAutores": true
+      }
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "contentType": "text/plain",
+      "contentLength": 235,
+      "cacheControl": "public, max-age=0, must-revalidate",
+      "xRobotsTag": null,
+      "ms": 378,
+      "robots": {
+        "disallows": 7,
+        "hasSitemap": true,
+        "hasHost": true
+      }
+    }
+  ]
+}

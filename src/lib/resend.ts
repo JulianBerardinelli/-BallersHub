@@ -1,7 +1,8 @@
 import { Resend } from "resend";
-import { renderTemplate } from "@/emails";
+import { localizedSubject, renderTemplate } from "@/emails";
 import { senderFrom, siteUrl } from "@/emails/tokens";
 import { signUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
+import { resolvePreferredLocale } from "@/lib/marketing/recipient-props";
 
 /**
  * Centralized Resend dispatch for transactional emails.
@@ -38,6 +39,7 @@ export async function sendPlayerWelcomeEmail(email: string, playerName: string) 
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email });
     const html = await renderTemplate("welcome_player", {
       playerName,
       dashboardUrl: dashboardUrl(),
@@ -46,11 +48,12 @@ export async function sendPlayerWelcomeEmail(email: string, playerName: string) 
       // still include an unsubscribe link in the footer for consistency. It
       // suppresses *future marketing*, not transactional emails.
       unsubscribeToken: signUnsubscribeToken(email),
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [email],
-      subject: "Ponte en marcha en 'BallersHub",
+      subject: localizedSubject("welcome_player", locale, "Ponte en marcha en 'BallersHub"),
       html,
     });
   } catch (error) {
@@ -64,16 +67,22 @@ export async function sendAgencyWelcomeEmail(email: string, managerName: string)
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email });
     const html = await renderTemplate("welcome_agency", {
       managerName,
       dashboardUrl: dashboardUrl(),
       recipientEmail: email,
       unsubscribeToken: signUnsubscribeToken(email),
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [email],
-      subject: "Construí tu directorio de talentos en 'BallersHub",
+      subject: localizedSubject(
+        "welcome_agency",
+        locale,
+        "Construí tu directorio de talentos en 'BallersHub",
+      ),
       html,
     });
   } catch (error) {
