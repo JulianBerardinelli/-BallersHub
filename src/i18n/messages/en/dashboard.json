@@ -123,7 +123,7 @@
     "subStatusInactive": "No subscription",
     "compAccountTitle": "Complimentary account",
     "compAccountDescription": "Your Pro access was activated by the BallersHub team — there are no charges associated.",
-    "compAccountBody": "This subscription is managed directly by the BallersHub team. If you have questions about your expiration or want to extend it, write to us at <link>billing@ballershub.app</link>.",
+    "compAccountBody": "This subscription is managed directly by the BallersHub team. If you have questions about your expiration or want to extend it, write to us at <link>info@ballershub.co</link>.",
     "subActionsTitle": "Subscription actions",
     "subActionsStripeDescription": "Stripe manages the billing portal: update your card, download invoices or cancel from a single place.",
     "subActionsMpDescription": "Mercado Pago does not offer a self-service portal. From here you cancel directly — access closes instantly.",
@@ -142,7 +142,7 @@
     "viewPlans": "View plans",
     "billingSupportTitle": "Billing support",
     "billingSupportDescription": "A problem with a charge or invoice?",
-    "billingSupportBody": "Write to us at <link>billing@ballershub.app</link> and we'll reply the same business day.",
+    "billingSupportBody": "Write to us at <link>info@ballershub.co</link> and we'll reply the same business day.",
     "accountTitle": "Account settings",
     "accountDescription": "Manage your credentials, security and general dashboard preferences.",
     "securityTitle": "Security",
@@ -167,7 +167,7 @@
     "currentSessionLabel": "Current session",
     "currentSessionDescription": "Current device (details available soon)",
     "sessionsIntegrationNote": "The device details and the option to close sessions will be integrated with Supabase Auth Management.",
-    "suspiciousActivity": "If you detect suspicious activity, contact us at <link>soporte@ballershub.com</link>."
+    "suspiciousActivity": "If you detect suspicious activity, contact us at <link>info@ballershub.co</link>."
   },
   "editProfile": {
     "personalDataTitle": "Personal data",

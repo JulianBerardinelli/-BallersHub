@@ -235,10 +235,10 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
               Cancelable sin cargo dentro de los 3 días posteriores al cobro.
               Para soporte:{" "}
               <Link
-                href="mailto:soporte@ballershub.app"
+                href="mailto:info@ballershub.co"
                 className="text-bh-lime hover:underline"
               >
-                soporte@ballershub.app
+                info@ballershub.co
               </Link>
               .
             </p>

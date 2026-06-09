@@ -123,7 +123,7 @@
     "subStatusInactive": "Sin suscripción",
     "compAccountTitle": "Cuenta de cortesía",
     "compAccountDescription": "Tu acceso Pro fue activado por el equipo de BallersHub — no hay cobros asociados.",
-    "compAccountBody": "Esta suscripción está gestionada directamente por el equipo de BallersHub. Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a <link>billing@ballershub.app</link>.",
+    "compAccountBody": "Esta suscripción está gestionada directamente por el equipo de BallersHub. Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a <link>info@ballershub.co</link>.",
     "subActionsTitle": "Acciones sobre la suscripción",
     "subActionsStripeDescription": "Stripe gestiona el portal de facturación: actualizá tarjeta, descargá facturas o cancelá desde un único lugar.",
     "subActionsMpDescription": "Mercado Pago no expone un portal autoservicio. Desde acá cancelás directamente — el acceso se cierra al instante.",
@@ -142,7 +142,7 @@
     "viewPlans": "Ver planes",
     "billingSupportTitle": "Soporte de facturación",
     "billingSupportDescription": "¿Algún problema con un cobro o factura?",
-    "billingSupportBody": "Escribinos a <link>billing@ballershub.app</link> y te respondemos el mismo día hábil.",
+    "billingSupportBody": "Escribinos a <link>info@ballershub.co</link> y te respondemos el mismo día hábil.",
     "accountTitle": "Configuración de la cuenta",
     "accountDescription": "Gestioná tus credenciales, seguridad y preferencias generales del panel.",
     "securityTitle": "Seguridad",
@@ -167,7 +167,7 @@
     "currentSessionLabel": "Sesión actual",
     "currentSessionDescription": "Dispositivo actual (detalles disponibles próximamente)",
     "sessionsIntegrationNote": "El detalle de dispositivos y la opción de cerrar sesiones se integrará con Supabase Auth Management.",
-    "suspiciousActivity": "Si detectás actividad sospechosa contactanos en <link>soporte@ballershub.com</link>."
+    "suspiciousActivity": "Si detectás actividad sospechosa contactanos en <link>info@ballershub.co</link>."
   },
   "editProfile": {
     "personalDataTitle": "Datos personales",

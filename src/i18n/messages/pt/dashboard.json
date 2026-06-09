@@ -123,7 +123,7 @@
     "subStatusInactive": "Sem assinatura",
     "compAccountTitle": "Conta de cortesia",
     "compAccountDescription": "Seu acesso Pro foi ativado pela equipe da BallersHub — não há cobranças associadas.",
-    "compAccountBody": "Esta assinatura é gerenciada diretamente pela equipe da BallersHub. Se tiver dúvidas sobre seu vencimento ou quiser estendê-la, escreva para <link>billing@ballershub.app</link>.",
+    "compAccountBody": "Esta assinatura é gerenciada diretamente pela equipe da BallersHub. Se tiver dúvidas sobre seu vencimento ou quiser estendê-la, escreva para <link>info@ballershub.co</link>.",
     "subActionsTitle": "Ações da assinatura",
     "subActionsStripeDescription": "A Stripe gerencia o portal de faturamento: atualize o cartão, baixe faturas ou cancele em um único lugar.",
     "subActionsMpDescription": "O Mercado Pago não oferece um portal de autoatendimento. Aqui você cancela diretamente — o acesso é encerrado na hora.",
@@ -142,7 +142,7 @@
     "viewPlans": "Ver planos",
     "billingSupportTitle": "Suporte de faturamento",
     "billingSupportDescription": "Algum problema com uma cobrança ou fatura?",
-    "billingSupportBody": "Escreva para <link>billing@ballershub.app</link> e respondemos no mesmo dia útil.",
+    "billingSupportBody": "Escreva para <link>info@ballershub.co</link> e respondemos no mesmo dia útil.",
     "accountTitle": "Configurações da conta",
     "accountDescription": "Gerencie suas credenciais, segurança e preferências gerais do painel.",
     "securityTitle": "Segurança",
@@ -167,7 +167,7 @@
     "currentSessionLabel": "Sessão atual",
     "currentSessionDescription": "Dispositivo atual (detalhes disponíveis em breve)",
     "sessionsIntegrationNote": "O detalhamento de dispositivos e a opção de encerrar sessões serão integrados ao Supabase Auth Management.",
-    "suspiciousActivity": "Se você detectar atividade suspeita, entre em contato pelo <link>soporte@ballershub.com</link>."
+    "suspiciousActivity": "Se você detectar atividade suspeita, entre em contato pelo <link>info@ballershub.co</link>."
   },
   "editProfile": {
     "personalDataTitle": "Dados pessoais",

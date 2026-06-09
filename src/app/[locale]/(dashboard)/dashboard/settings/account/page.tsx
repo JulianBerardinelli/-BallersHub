@@ -125,7 +125,7 @@ export default async function AccountSettingsPage() {
         <p className="text-xs text-neutral-500">
           {t.rich("settings.suspiciousActivity", {
             link: (chunks) => (
-              <Link href="mailto:soporte@ballershub.com" className="text-primary underline">
+              <Link href="mailto:info@ballershub.co" className="text-primary underline">
                 {chunks}
               </Link>
             ),

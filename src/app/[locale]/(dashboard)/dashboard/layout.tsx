@@ -426,10 +426,10 @@ function DashboardDegradedFallback({
             Estamos teniendo problemas para conectarnos con la base de datos.
             Suele resolverse en unos segundos. Si persiste, escribinos a{" "}
             <a
-              href="mailto:soporte@ballershub.app"
+              href="mailto:info@ballershub.co"
               className="text-bh-lime underline-offset-4 hover:underline"
             >
-              soporte@ballershub.app
+              info@ballershub.co
             </a>
             .
           </p>
