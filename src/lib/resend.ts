@@ -3,6 +3,7 @@ import { localizedSubject, renderTemplate } from "@/emails";
 import { senderFrom, siteUrl } from "@/emails/tokens";
 import { signUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
 import { resolvePreferredLocale } from "@/lib/marketing/recipient-props";
+import type { Locale } from "@/i18n/routing";
 
 /**
  * Centralized Resend dispatch for transactional emails.
@@ -198,21 +199,32 @@ export async function sendPlayerDisconnectEmail(
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email: agencyEmail });
     const html = await renderTemplate("player_disconnect", {
       playerName,
       agencyName,
       recipientEmail: agencyEmail,
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [agencyEmail],
-      subject: `Notificación de desvinculación: ${playerName}`,
+      subject: DISCONNECT_SUBJECT[locale](playerName),
       html,
     });
   } catch (error) {
     console.error("[resend] sendPlayerDisconnectEmail:", error);
   }
 }
+
+// Dynamic subject (carries the player name) → localized per locale here, since
+// `localizedSubject` only covers static subjects.
+const DISCONNECT_SUBJECT: Record<Locale, (player: string) => string> = {
+  es: (p) => `Notificación de desvinculación: ${p}`,
+  en: (p) => `Representation ended: ${p}`,
+  it: (p) => `Rappresentanza terminata: ${p}`,
+  pt: (p) => `Representação encerrada: ${p}`,
+};
 
 // ============================================================================
 // Billing transactionals

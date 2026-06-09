@@ -23,6 +23,11 @@ const SUBJECTS: Partial<Record<TemplateKey, Partial<Record<Locale, string>>>> = 
     it: "Benvenuto su 'BallersHub — Agenzia",
     pt: "Bem-vindo à 'BallersHub — Agência",
   },
+  profile_completion: {
+    en: "You're one step from publishing your profile",
+    it: "Sei a un passo dal pubblicare il tuo profilo",
+    pt: "Você está a um passo de publicar seu perfil",
+  },
 };
 
 /**
