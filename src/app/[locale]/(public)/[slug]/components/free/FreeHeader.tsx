@@ -4,18 +4,20 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Share2, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-type SectionItem = { id: string; label: string };
+type SectionItem = { id: string; key: string };
 
 // Sections that actually render in FreeLayout. Locked Pro previews are
-// not navigable on purpose — only the unlocked content is.
+// not navigable on purpose — only the unlocked content is. Labels come from
+// the `portfolio.nav` namespace.
 const FREE_SECTIONS: SectionItem[] = [
-  { id: "bio", label: "Bio" },
-  { id: "video", label: "Video" },
-  { id: "career", label: "Carrera" },
-  { id: "links", label: "Links" },
-  { id: "contact", label: "Contacto" },
+  { id: "bio", key: "bio" },
+  { id: "video", key: "video" },
+  { id: "career", key: "career" },
+  { id: "links", key: "links" },
+  { id: "contact", key: "contact" },
 ];
 
 export default function FreeHeader({
@@ -26,13 +28,14 @@ export default function FreeHeader({
   avatarUrl: string | null;
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const t = useTranslations("portfolio");
 
   const handleShare = async () => {
     try {
       if (typeof navigator !== "undefined" && navigator.share) {
         await navigator.share({
-          title: `Perfil de ${fullName}`,
-          text: `Mira el perfil profesional de ${fullName} en 'BallersHub.`,
+          title: t("share.title", { name: fullName }),
+          text: t("share.text", { name: fullName }),
           url: window.location.href,
         });
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -88,12 +91,12 @@ export default function FreeHeader({
         {/* LEFT: Back to 'BallersHub */}
         <Link
           href="/"
-          aria-label="Volver a 'BallersHub"
+          aria-label={t("a11y.backToHome")}
           className="absolute left-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-start group"
         >
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold flex items-center gap-1.5 group-hover:text-white/80 transition-colors">
             <ArrowLeft className="w-3 h-3 transition-transform group-hover:-translate-x-0.5" />
-            Volver a
+            {t("a11y.backTo")}
           </span>
           <Wordmark
             size="nav"
@@ -103,7 +106,7 @@ export default function FreeHeader({
 
         {/* CENTER: Nav Pill — Glassmorphism */}
         <nav
-          aria-label="Navegación del perfil"
+          aria-label={t("a11y.profileNav")}
           className="pointer-events-auto bg-black/40 backdrop-blur-xl border border-white/10 rounded-full pl-2 pr-2 py-2 flex items-center gap-1 md:gap-2 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transition-all max-w-[calc(100vw-2rem)] overflow-x-auto no-scrollbar"
         >
           {/* Avatar */}
@@ -111,7 +114,7 @@ export default function FreeHeader({
             <button
               type="button"
               onClick={scrollToTop}
-              aria-label="Inicio"
+              aria-label={t("a11y.home")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white/20 shadow-inner shrink-0 pointer-events-auto"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -148,7 +151,7 @@ export default function FreeHeader({
                     transition={{ type: "spring", stiffness: 380, damping: 32 }}
                   />
                 )}
-                <span className="relative z-10">{item.label}</span>
+                <span className="relative z-10">{t(`nav.${item.key}`)}</span>
               </button>
             );
           })}
@@ -160,7 +163,7 @@ export default function FreeHeader({
           <button
             type="button"
             onClick={handleShare}
-            aria-label="Compartir perfil"
+            aria-label={t("a11y.shareProfile")}
             className="text-white hover:text-bh-lime transition-colors pointer-events-auto px-2 shrink-0"
           >
             <Share2 className="w-4 h-4" />
@@ -170,7 +173,7 @@ export default function FreeHeader({
         {/* RIGHT: Powered BY 'BallersHub */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">
           <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">
-            Powered BY
+            {t("a11y.poweredBy")}
           </span>
           <Wordmark size="nav" className="text-base leading-none" />
         </div>

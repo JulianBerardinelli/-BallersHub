@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Mail, Phone, Globe, Instagram, Linkedin, Twitter, ArrowUpRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import GlassCard from "@/components/ui/GlassCard";
 import ModuleBackdrop from "../ModuleBackdrop";
 import type { AgencyPublicData } from "../AgencyLayoutResolver";
@@ -12,13 +13,14 @@ type Props = {
 };
 
 export default function AgencyContactModule({ agency, sections }: Props) {
+  const t = useTranslations("portfolio");
   const visible = sections.find((s) => s.section === "contact");
   if (visible && !visible.visible) return null;
   const channels = [
     agency.contactEmail
       ? {
           kind: "email",
-          label: "Email",
+          label: t("agencyMod.contactEmail"),
           value: agency.contactEmail,
           href: `mailto:${agency.contactEmail}`,
           icon: Mail,
@@ -27,7 +29,7 @@ export default function AgencyContactModule({ agency, sections }: Props) {
     agency.contactPhone
       ? {
           kind: "phone",
-          label: "Teléfono",
+          label: t("agencyMod.contactPhone"),
           value: agency.contactPhone,
           href: `tel:${agency.contactPhone.replace(/[^\d+]/g, "")}`,
           icon: Phone,
@@ -36,7 +38,7 @@ export default function AgencyContactModule({ agency, sections }: Props) {
     agency.websiteUrl
       ? {
           kind: "website",
-          label: "Sitio web",
+          label: t("agencyMod.contactWebsite"),
           value: agency.websiteUrl.replace(/^https?:\/\//, ""),
           href: agency.websiteUrl,
           icon: Globe,
@@ -45,7 +47,7 @@ export default function AgencyContactModule({ agency, sections }: Props) {
     agency.instagramUrl
       ? {
           kind: "instagram",
-          label: "Instagram",
+          label: t("agencyMod.contactInstagram"),
           value: "@" + (agency.instagramUrl.split("/").filter(Boolean).pop() || "instagram"),
           href: agency.instagramUrl,
           icon: Instagram,
@@ -54,8 +56,8 @@ export default function AgencyContactModule({ agency, sections }: Props) {
     agency.linkedinUrl
       ? {
           kind: "linkedin",
-          label: "LinkedIn",
-          value: "Perfil oficial",
+          label: t("agencyMod.contactLinkedin"),
+          value: t("agencyMod.officialProfile"),
           href: agency.linkedinUrl,
           icon: Linkedin,
         }
@@ -63,8 +65,8 @@ export default function AgencyContactModule({ agency, sections }: Props) {
     agency.twitterUrl
       ? {
           kind: "twitter",
-          label: "Twitter",
-          value: "Perfil oficial",
+          label: t("agencyMod.contactTwitter"),
+          value: t("agencyMod.officialProfile"),
           href: agency.twitterUrl,
           icon: Twitter,
         }
@@ -100,13 +102,13 @@ export default function AgencyContactModule({ agency, sections }: Props) {
               className="text-[10px] uppercase tracking-[0.4em] font-bold"
               style={{ color: "var(--theme-accent)" }}
             >
-              / Contacto
+              / {t("agencyMod.contactEyebrow")}
             </div>
             <h2 className="font-heading text-4xl md:text-6xl font-black uppercase leading-[0.95] tracking-tighter text-white">
-              Hablemos sobre tu próximo movimiento
+              {t("agencyMod.contactTitle")}
             </h2>
             <p className="text-white/60 text-base md:text-lg font-light leading-relaxed">
-              Para clubes, jugadores y prensa: respondemos cualquier consulta vinculada a la representación de nuestro roster.
+              {t("agencyMod.contactSubtitle")}
             </p>
           </div>
 

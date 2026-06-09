@@ -30,40 +30,49 @@ import {
   Users,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { bhButtonClass } from "@/components/ui/bh-button-class";
 
 export type PromoVariant = "player" | "showcase" | "agency";
+
+// Translator (portfolio namespace) threaded into the visual mocks so they
+// stay plain (non-async) render helpers.
+type PromoT = Awaited<ReturnType<typeof getTranslations>>;
 
 // Canonical "create a profile" entry. Server-gated: redirects anonymous
 // visitors to sign-in and back, then to the player/agency role chooser. Same
 // hook the landing hero and site footer use.
 const ONBOARDING_HREF = "/onboarding/start";
 
-export default function PromoBanner({
+export default async function PromoBanner({
   variant,
   side,
 }: {
   variant: PromoVariant;
   side: "left" | "right";
 }) {
+  const t = await getTranslations("portfolio");
+
   if (variant === "player") {
     return (
       <PromoShell
         side={side}
         accent="lime"
         eyebrowIcon={Sparkles}
-        eyebrow="&apos;BallersHub · Beta abierta"
+        eyebrow={t("promo.playerEyebrow", { brand: "BallersHub" })}
         title={
           <>
-            Tu carrera merece un
+            {t("promo.playerTitleLine1")}
             <br />
-            <span className="italic text-bh-lime">perfil profesional</span>
+            <span className="italic text-bh-lime">
+              {t("promo.playerTitleLine2")}
+            </span>
           </>
         }
-        copy="Centralizá tu trayectoria, sumá videos y referencias verificadas, y hacé que los clubes te encuentren. Crear tu perfil es gratis."
-        primary={{ label: "Crear mi perfil", href: ONBOARDING_HREF }}
-        secondary={{ label: "Ver cómo funciona", href: "/about" }}
-        visual={<ProfileMock />}
+        copy={t("promo.playerCopy")}
+        primary={{ label: t("promo.playerPrimaryCta"), href: ONBOARDING_HREF }}
+        secondary={{ label: t("promo.playerSecondaryCta"), href: "/about" }}
+        visual={<ProfileMock t={t} />}
       />
     );
   }
@@ -74,21 +83,23 @@ export default function PromoBanner({
         side={side}
         accent="lime"
         eyebrowIcon={Eye}
-        eyebrow="Por qué &apos;BallersHub"
+        eyebrow={t("promo.showcaseEyebrow", { brand: "BallersHub" })}
         title={
           <>
-            Perfiles que ven
+            {t("promo.showcaseTitleLine1")}
             <br />
-            <span className="italic text-bh-lime">los clubes</span>
+            <span className="italic text-bh-lime">
+              {t("promo.showcaseTitleLine2")}
+            </span>
           </>
         }
-        copy="Cancha 3D con análisis táctico, reporte de scouting firmado, galería editorial y prensa. Así se ve un perfil Pro — y arranca con el tuyo."
-        primary={{ label: "Armá el tuyo", href: ONBOARDING_HREF }}
+        copy={t("promo.showcaseCopy")}
+        primary={{ label: t("promo.showcasePrimaryCta"), href: ONBOARDING_HREF }}
         secondary={{
-          label: "Ver planes",
+          label: t("promo.showcaseSecondaryCta"),
           href: "/pricing?audience=player&currency=ARS",
         }}
-        visual={<ShowcaseMock />}
+        visual={<ShowcaseMock t={t} />}
       />
     );
   }
@@ -99,21 +110,24 @@ export default function PromoBanner({
       side={side}
       accent="blue"
       eyebrowIcon={Users}
-      eyebrow="¿Representás jugadores?"
+      eyebrow={t("promo.agencyEyebrow")}
       title={
         <>
-          Gestioná tu
+          {t("promo.agencyTitleLine1")}
           <br />
-          <span className="italic text-bh-blue">roster</span> completo
+          <span className="italic text-bh-blue">
+            {t("promo.agencyTitleRosterWord")}
+          </span>{" "}
+          {t("promo.agencyTitleSuffix")}
         </>
       }
-      copy="Si sos agencia o club, creá y administrá los perfiles de tus jugadores, sumá reportes de scouting firmados y compartilos con un solo link."
-      primary={{ label: "Crear cuenta de agencia", href: ONBOARDING_HREF }}
+      copy={t("promo.agencyCopy")}
+      primary={{ label: t("promo.agencyPrimaryCta"), href: ONBOARDING_HREF }}
       secondary={{
-        label: "Planes para agencias",
+        label: t("promo.agencySecondaryCta"),
         href: "/pricing?audience=agency&currency=ARS",
       }}
-      visual={<RosterMock />}
+      visual={<RosterMock t={t} />}
     />
   );
 }
@@ -215,7 +229,7 @@ function PromoShell({
 // what they could have. Visual-only, no real data.
 // ---------------------------------------------------------------
 
-function ProfileMock() {
+function ProfileMock({ t }: { t: PromoT }) {
   return (
     <div className="flex h-full w-full items-center justify-center p-5">
       <div className="w-full max-w-[280px] rounded-xl border border-white/[0.10] bg-bh-black/40 p-4 backdrop-blur-sm">
@@ -257,24 +271,24 @@ function ProfileMock() {
         </div>
         <div className="mt-3 inline-flex items-center gap-1.5 font-bh-mono text-[9px] uppercase tracking-[0.14em] text-bh-fg-3">
           <span className="h-1.5 w-1.5 rounded-full bg-bh-lime" />
-          Perfil público · &apos;BallersHub
+          {t("promo.profileMockPublicLabel", { brand: "BallersHub" })}
         </div>
       </div>
     </div>
   );
 }
 
-function ShowcaseMock() {
+function ShowcaseMock({ t }: { t: PromoT }) {
   const stats: Array<[string, string]> = [
-    ["+1.2K", "perfiles"],
-    ["86", "clubes"],
-    ["4.8★", "referencias"],
+    ["+1.2K", t("promo.showcaseStatProfiles")],
+    ["86", t("promo.showcaseStatClubs")],
+    ["4.8★", t("promo.showcaseStatReferences")],
   ];
   const features = [
-    "Cancha 3D & scouting",
-    "Galería editorial",
-    "Prensa & notas",
-    "Reseñas verificadas",
+    t("promo.showcaseFeaturePitch"),
+    t("promo.showcaseFeatureGallery"),
+    t("promo.showcaseFeaturePress"),
+    t("promo.showcaseFeatureReviews"),
   ];
   return (
     <div className="h-full w-full p-5">
@@ -312,7 +326,7 @@ function ShowcaseMock() {
   );
 }
 
-function RosterMock() {
+function RosterMock({ t }: { t: PromoT }) {
   return (
     <div className="h-full w-full p-5">
       <div className="mb-2.5 flex items-center gap-2">
@@ -321,7 +335,7 @@ function RosterMock() {
         </span>
         <div className="h-2.5 w-24 rounded-full bg-white/25" />
         <span className="ml-auto rounded-full bg-bh-blue/15 px-2 py-0.5 font-bh-mono text-[9px] uppercase tracking-[0.1em] text-bh-blue">
-          Agencia
+          {t("promo.rosterMockAgencyLabel")}
         </span>
       </div>
       <div className="grid gap-1.5">

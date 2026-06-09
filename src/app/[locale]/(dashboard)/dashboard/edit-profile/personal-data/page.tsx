@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import AvatarUploader from "@/components/dashboard/AvatarUploader";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -54,6 +55,7 @@ type PlayerApplicationSnapshot = {
 };
 
 export default async function PersonalDataPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -77,8 +79,8 @@ export default async function PersonalDataPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Datos personales"
-          description="Creá tu perfil para habilitar la edición de datos personales."
+          title={t("editProfile.personalDataTitle")}
+          description={t("editProfile.personalDataNoProfileDescription")}
         />
         {access.profileLock ? <LockedSection {...access.profileLock} /> : null}
       </div>
@@ -89,8 +91,8 @@ export default async function PersonalDataPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Datos personales"
-          description="Gestioná tu información básica y de contacto. Estos datos se utilizarán para tu perfil público y comunicaciones."
+          title={t("editProfile.personalDataTitle")}
+          description={t("editProfile.personalDataDescription")}
         />
         <LockedSection {...access.profileLock} />
       </div>
@@ -211,21 +213,21 @@ export default async function PersonalDataPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Datos personales"
-        description="Gestioná tu información básica y de contacto. Estos datos se utilizarán para tu perfil público y comunicaciones."
+        title={t("editProfile.personalDataTitle")}
+        description={t("editProfile.personalDataDescription")}
       />
 
       <TaskCalloutList tasks={taskCallouts} />
 
       <SectionCard
-        title="Avatar e identidad"
-        description="Actualizá tu foto y datos principales para mantener tu perfil profesional coherente."
+        title={t("editProfile.avatarIdentityTitle")}
+        description={t("editProfile.avatarIdentityDescription")}
       >
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center">
           <div className="relative size-24 overflow-hidden rounded-lg border border-neutral-800">
             <Image
               src={avatarUrl}
-              alt="Avatar actual"
+              alt={t("editProfile.avatarCurrentAlt")}
               fill
               sizes="96px"
               className="object-cover"
@@ -234,7 +236,7 @@ export default async function PersonalDataPage() {
           </div>
           <div className="flex-1 space-y-4">
             <p className="text-sm text-neutral-300">
-              Utilizá una imagen en alta resolución, formato cuadrado. Las imágenes se utilizarán en tu CV automatizado y perfil público.
+              {t("editProfile.avatarHelpText")}
             </p>
             <AvatarUploader playerId={profileData.id} currentAvatarUrl={avatarUrl} />
           </div>

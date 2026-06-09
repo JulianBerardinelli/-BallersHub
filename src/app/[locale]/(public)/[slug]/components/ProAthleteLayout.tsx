@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ImagePlus } from "lucide-react";
 import type { PublicProfileData } from "./LayoutResolver";
@@ -26,6 +27,7 @@ const HeroVideoIslandDesktop = dynamic(
 
 export default function ProAthleteLayout({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player } = data;
+  const t = useTranslations("portfolio");
 
   // Early-return BEFORE any hooks that depend on a DOM ref. `useScroll`
   // (below, in ProAthleteLayoutBody) throws "Target ref is defined but not
@@ -39,35 +41,31 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
         <div className="max-w-lg space-y-5 rounded-2xl border border-white/10 bg-white/[0.04] p-8 text-center backdrop-blur md:p-10">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-bh-lime/30 bg-bh-lime/10 px-3 py-1 font-bh-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-bh-lime">
             <ImagePlus size={11} />
-            Hero asset pendiente
+            {t("pro.heroAssetPending")}
           </span>
           <h2 className="font-bh-display text-2xl font-black uppercase leading-tight text-bh-fg-1 md:text-3xl">
-            Subí tu recorte para activar la plantilla Pro
+            {t("pro.heroEmptyTitle")}
           </h2>
           <p className="text-sm leading-[1.6] text-bh-fg-3">
-            La plantilla{" "}
-            <span className="font-semibold text-bh-fg-1">Pro Athlete</span>{" "}
-            necesita un PNG con tu silueta recortada para renderizar el hero
-            cinemático. Cargalo desde la sección{" "}
-            <span className="font-semibold text-bh-fg-1">Multimedia</span> del
-            dashboard y tu perfil público se actualizará al instante. Si
-            preferís publicar ya sin foto, podés cambiar a la plantilla{" "}
-            <span className="font-semibold text-bh-fg-1">Free Editorial</span>{" "}
-            desde Estilos.
+            {t.rich("pro.heroEmptyBody", {
+              b: (chunks) => (
+                <span className="font-semibold text-bh-fg-1">{chunks}</span>
+              ),
+            })}
           </p>
           <div className="flex flex-col items-center justify-center gap-2 pt-1 sm:flex-row sm:gap-3">
             <Link
               href="/dashboard/edit-profile/multimedia"
               className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-bh-lime px-5 py-2.5 font-body text-sm font-semibold text-bh-black transition-colors hover:bg-[#d8ff26] sm:w-auto"
             >
-              Ir a Multimedia
+              {t("pro.goToMultimedia")}
               <ArrowUpRight size={16} />
             </Link>
             <Link
               href="/dashboard/edit-template/styles"
               className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-5 py-2.5 font-body text-sm font-semibold text-bh-fg-2 transition-colors hover:bg-white/[0.08] hover:text-bh-fg-1 sm:w-auto"
             >
-              Cambiar a Free Editorial
+              {t("pro.switchToFreeEditorial")}
             </Link>
           </div>
         </div>
@@ -80,6 +78,7 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
 
 function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player, theme, heroFloatingVideo } = data;
+  const t = useTranslations("portfolio");
   const containerRef = useRef<HTMLDivElement>(null);
   const playerSlug = (player as { slug?: string | null }).slug ?? "";
 
@@ -448,7 +447,7 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
 
         {/* Scroll Indicator */}
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 text-white/50 flex flex-col items-center animate-bounce">
-          <span className="text-[10px] tracking-[0.3em] uppercase mb-2">Scroll</span>
+          <span className="text-[10px] tracking-[0.3em] uppercase mb-2">{t("pro.scroll")}</span>
           <div className="w-[1px] h-12 bg-gradient-to-b from-white/50 to-transparent" />
         </div>
 

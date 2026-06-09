@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   motion,
   useInView,
@@ -222,8 +223,9 @@ function ScrambleText({ text, active }: { text: string; active: boolean }) {
 }
 
 function ScrambleTitle({ isScouting }: { isScouting: boolean }) {
-  const title = isScouting ? "Perfil" : "Análisis Táctico";
-  const subtitle = isScouting ? "Características" : "Análisis Posicional";
+  const t = useTranslations("portfolio");
+  const title = isScouting ? t("scouting.titleProfile") : t("scouting.titleTactical");
+  const subtitle = isScouting ? t("scouting.titleCharacteristics") : t("scouting.titlePositional");
   return (
     <div className="relative z-20 shrink-0 mb-6 lg:mb-8">
       <div className="flex items-center gap-3">
@@ -337,6 +339,7 @@ function MobilePositionCard({
   color: string;
   cfg: { label: string; area: string; strengths: string[] };
 }) {
+  const t = useTranslations("portfolio");
   const [flipped, setFlipped] = useState(false);
   const hasChips = cfg.strengths.length > 0;
 
@@ -348,13 +351,13 @@ function MobilePositionCard({
         <div className="flex items-center gap-2.5 mb-2.5">
           <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
           <div className="min-w-0 flex-1">
-            <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">Posición</p>
+            <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">{t("scouting.position")}</p>
             <h4 className="text-[11px] font-black text-white uppercase leading-tight">{cfg.label}</h4>
           </div>
         </div>
         <div>
           <p className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold" style={{ color }}>
-            Zona de Influencia
+            {t("scouting.zoneOfInfluence")}
           </p>
           <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
         </div>
@@ -371,7 +374,7 @@ function MobilePositionCard({
         type="button"
         onClick={() => setFlipped((v) => !v)}
         aria-pressed={flipped}
-        aria-label={flipped ? "Volver al frente de la card" : "Ver atributos clave"}
+        aria-label={flipped ? t("scouting.flipBack") : t("scouting.flipToKeyAttributes")}
         animate={{ rotateY: flipped ? 180 : 0 }}
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className="relative w-full text-left grid"
@@ -397,7 +400,7 @@ function MobilePositionCard({
             <PositionBadge label={posCode.toUpperCase()} color={color} size="md" />
             <div className="min-w-0 flex-1">
               <p className="text-[8px] uppercase tracking-[0.25em] text-white/40 leading-none mb-1">
-                Posición
+                {t("scouting.position")}
               </p>
               <h4 className="text-[11px] font-black text-white uppercase leading-tight">
                 {cfg.label}
@@ -447,7 +450,7 @@ function MobilePositionCard({
               className="text-[8px] uppercase tracking-[0.2em] mb-1 font-bh-display font-bold"
               style={{ color }}
             >
-              Zona de Influencia
+              {t("scouting.zoneOfInfluence")}
             </p>
             <p className="text-[11px] font-bold text-white/75 leading-snug">{cfg.area}</p>
           </div>
@@ -474,7 +477,7 @@ function MobilePositionCard({
                 className="text-[8px] uppercase font-bh-display font-bold tracking-[0.2em] truncate"
                 style={{ color }}
               >
-                Atributos clave
+                {t("scouting.keyAttributes")}
               </span>
             </div>
             {/* Back-to-front affordance */}
@@ -526,6 +529,7 @@ function AccordionCard({
   isOpen: boolean;
   onToggle: () => void;
 }) {
+  const t = useTranslations("portfolio");
   return (
     <motion.div
       style={{ ...motionStyle, borderColor: "rgba(255,255,255,0.08)" }}
@@ -562,7 +566,7 @@ function AccordionCard({
               {content ? (
                 <p className="text-[12px] text-neutral-300 leading-[1.7] font-light">{content}</p>
               ) : (
-                <p className="text-xs text-neutral-600 italic">Sin reportar.</p>
+                <p className="text-xs text-neutral-600 italic">{t("scouting.notReported")}</p>
               )}
             </div>
           </motion.div>
@@ -585,6 +589,7 @@ function VideosModal({
   playerName: string;
   onClose: () => void;
 }) {
+  const t = useTranslations("portfolio");
   const lenis = useLenis();
 
   React.useEffect(() => {
@@ -612,7 +617,7 @@ function VideosModal({
       className="fixed inset-0 z-[150] bg-black/85 backdrop-blur-md flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label={`Todos los highlights de ${playerName}`}
+      aria-label={t("scouting.allHighlightsOf", { name: playerName })}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 12 }}
@@ -625,7 +630,7 @@ function VideosModal({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Cerrar"
+          aria-label={t("scouting.close")}
           className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 flex items-center justify-center text-white/70 hover:text-white transition-colors border border-white/10 z-10"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -635,10 +640,10 @@ function VideosModal({
 
         <div className="mb-4 pr-10">
           <span className="text-[9px] uppercase font-black tracking-[0.3em] text-[var(--theme-accent)]">
-            Highlights · {videos.length}
+            {t("scouting.highlights")} · {videos.length}
           </span>
           <h3 className="text-xl font-black font-heading text-white uppercase leading-tight mt-1">
-            Todos los videos
+            {t("scouting.allVideos")}
           </h3>
         </div>
 
@@ -668,10 +673,10 @@ function VideosModal({
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="text-[11px] text-white/90 font-bold uppercase tracking-wide line-clamp-1">
-                      {vid.title || "Match Highlight"}
+                      {vid.title || t("scouting.matchHighlight")}
                     </p>
                     <p className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-0.5">
-                      Temp. {year}
+                      {t("scouting.season")} {year}
                     </p>
                   </div>
                 </a>
@@ -694,6 +699,7 @@ export default function ProfileTacticsModule({
   media: any[];
   isScoutingProp?: boolean;
 }) {
+  const t = useTranslations("portfolio");
   const videos = media.filter((m) => m.type === "video");
   const sectionRef = useRef<HTMLElement>(null);
   const [isScouting, setIsScouting] = useState(isScoutingProp);
@@ -834,7 +840,7 @@ export default function ProfileTacticsModule({
                   <span className="text-[8px] lg:text-[10px] text-white font-black">ST</span>
                 </div>
                 <div className="overflow-hidden min-w-0">
-                  <p className="text-[7px] lg:text-[8px] uppercase tracking-[0.15em] lg:tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">Evaluación Oficial</p>
+                  <p className="text-[7px] lg:text-[8px] uppercase tracking-[0.15em] lg:tracking-[0.2em] text-[var(--theme-accent)] mb-0.5">{t("scouting.officialEvaluation")}</p>
                   <p className="text-[10px] lg:text-[11px] font-bold text-white uppercase tracking-widest leading-none truncate">{author}</p>
                 </div>
               </motion.div>
@@ -885,7 +891,7 @@ export default function ProfileTacticsModule({
                       ) : (
                         <div className="bg-black/40 backdrop-blur-[40px] border border-white/10 ring-1 ring-white/5 rounded-2xl p-4 text-center">
                           <p className="text-white/30 text-xs uppercase tracking-widest font-medium">
-                            Sin posición registrada
+                            {t("scouting.noPositionRegistered")}
                           </p>
                         </div>
                       )}
@@ -907,7 +913,7 @@ export default function ProfileTacticsModule({
                       {/* Section divider header */}
                       <div className="flex items-center gap-2 mb-2">
                         <h4 className="text-white/60 text-[9px] uppercase font-black tracking-[0.3em] shrink-0">
-                          Highlights
+                          {t("scouting.highlights")}
                         </h4>
                         <div className="flex-grow h-px bg-gradient-to-r from-white/10 to-transparent" />
                       </div>
@@ -953,7 +959,7 @@ export default function ProfileTacticsModule({
                           }}
                         >
                           <span className="text-[10px] uppercase font-black tracking-[0.22em] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-                            Ver todos los highlights
+                            {t("scouting.viewAllHighlights")}
                           </span>
                           <span
                             className="text-[10px] font-black text-white tabular-nums font-bh-display px-2 py-0.5 rounded-full backdrop-blur-sm leading-none"
@@ -999,7 +1005,7 @@ export default function ProfileTacticsModule({
                         className="mt-6 lg:mt-8 w-full max-w-[460px] flex flex-col gap-2 items-center"
                       >
                         <h5 className="text-[9px] uppercase font-black tracking-[0.4em] text-white/40 text-center mb-1">
-                          Atributos clave
+                          {t("scouting.keyAttributes")}
                         </h5>
                         {validPositions.map((posCode: string, i: number) => {
                           const cfg = POSITIONS_MAP[posCode.toUpperCase()];
@@ -1054,10 +1060,10 @@ export default function ProfileTacticsModule({
                       </div>
                     )}
                     <motion.div style={{ opacity: highOpac, y: highY }} className="w-full max-w-[550px] relative z-30">
-                      <h4 className="text-white/50 text-[10px] uppercase font-black tracking-[0.2em] mb-4 border-b border-white/10 pb-2">Highlights</h4>
+                      <h4 className="text-white/50 text-[10px] uppercase font-black tracking-[0.2em] mb-4 border-b border-white/10 pb-2">{t("scouting.highlights")}</h4>
                       {videos.length <= 1 ? (
                         videos.length === 0 && (
-                          <p className="text-white/30 text-xs font-bold uppercase tracking-widest">Sin recursos</p>
+                          <p className="text-white/30 text-xs font-bold uppercase tracking-widest">{t("scouting.noResources")}</p>
                         )
                       ) : (
                         <ul className="flex flex-col gap-3">
@@ -1083,8 +1089,8 @@ export default function ProfileTacticsModule({
                                     </div>
                                   </div>
                                   <div className="flex flex-col justify-center min-w-0">
-                                    <span className="text-white/90 text-xs font-bold tracking-widest uppercase line-clamp-1">{vid.title || "Match Highlight"}</span>
-                                    <span className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-1">Temp. {year}</span>
+                                    <span className="text-white/90 text-xs font-bold tracking-widest uppercase line-clamp-1">{vid.title || t("scouting.matchHighlight")}</span>
+                                    <span className="text-[var(--theme-accent)] text-[9px] uppercase font-black tracking-widest mt-1">{t("scouting.season")} {year}</span>
                                   </div>
                                 </a>
                               </li>
@@ -1111,7 +1117,7 @@ export default function ProfileTacticsModule({
                           }}
                         >
                           <span className="text-[10px] uppercase font-black tracking-[0.22em] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-                            Ver todos los highlights
+                            {t("scouting.viewAllHighlights")}
                           </span>
                           <span
                             className="text-[10px] font-black text-white tabular-nums font-bh-display px-2 py-0.5 rounded-full backdrop-blur-sm leading-none"
@@ -1173,7 +1179,7 @@ export default function ProfileTacticsModule({
                           en su propia rama del JSX más abajo. */}
                       <div className="flex items-center gap-2 whitespace-nowrap">
                         <span className="text-[10px] uppercase font-black tracking-[0.22em] text-[var(--theme-accent)] leading-none">
-                          Principales Fortalezas
+                          {t("scouting.mainStrengths")}
                         </span>
                       </div>
 
@@ -1233,8 +1239,8 @@ export default function ProfileTacticsModule({
                             aria-expanded={showAllCharacteristics}
                             aria-label={
                               showAllCharacteristics
-                                ? "Ver menos cualidades"
-                                : `Ver ${characteristics.length - MOBILE_CHIPS_VISIBLE} cualidades más`
+                                ? t("scouting.showFewerQualities")
+                                : t("scouting.showMoreQualities", { count: characteristics.length - MOBILE_CHIPS_VISIBLE })
                             }
                             className="px-2 py-0.5 flex items-center gap-1 rounded-full text-[8px] font-bold tracking-widest uppercase transition-colors"
                             style={{
@@ -1245,7 +1251,7 @@ export default function ProfileTacticsModule({
                           >
                             {showAllCharacteristics ? (
                               <>
-                                Ver menos
+                                {t("scouting.showLess")}
                                 <motion.span
                                   animate={{ rotate: 180 }}
                                   className="inline-block leading-none"
@@ -1275,7 +1281,7 @@ export default function ProfileTacticsModule({
                   {/* Accordion analysis cards */}
                   <div className="flex flex-col gap-1.5 overflow-y-auto pb-8 relative z-10 custom-scrollbar w-[85%] max-w-[320px]">
                     <AccordionCard
-                      label="Análisis Táctico"
+                      label={t("scouting.tacticalAnalysis")}
                       content={tact}
                       accentColor="var(--theme-accent)"
                       accentBg="bg-[var(--theme-primary)]"
@@ -1284,7 +1290,7 @@ export default function ProfileTacticsModule({
                       onToggle={() => setOpenCard(openCard === "tact" ? null : "tact")}
                     />
                     <AccordionCard
-                      label="Cualidades Físicas"
+                      label={t("scouting.physicalQualities")}
                       content={phys}
                       accentColor="#fb923c"
                       accentBg="bg-orange-500"
@@ -1293,7 +1299,7 @@ export default function ProfileTacticsModule({
                       onToggle={() => setOpenCard(openCard === "phys" ? null : "phys")}
                     />
                     <AccordionCard
-                      label="Perfil Mental"
+                      label={t("scouting.mentalProfile")}
                       content={ment}
                       accentColor="#a78bfa"
                       accentBg="bg-violet-500"
@@ -1302,7 +1308,7 @@ export default function ProfileTacticsModule({
                       onToggle={() => setOpenCard(openCard === "ment" ? null : "ment")}
                     />
                     <AccordionCard
-                      label="Virtud Técnica"
+                      label={t("scouting.technicalVirtue")}
                       content={tech}
                       accentColor="#34d399"
                       accentBg="bg-emerald-500"
@@ -1363,7 +1369,7 @@ export default function ProfileTacticsModule({
                         </div>
                       ) : (
                         <div className="w-full aspect-square bg-white/[0.02] border border-white/5 rounded-2xl flex items-center justify-center p-4 text-center mt-auto mb-10">
-                          <span className="text-[10px] uppercase font-light text-white/30 tracking-widest">Sin fotos</span>
+                          <span className="text-[10px] uppercase font-light text-white/30 tracking-widest">{t("scouting.noPhotos")}</span>
                         </div>
                       )}
                     </div>
@@ -1389,10 +1395,10 @@ export default function ProfileTacticsModule({
                       {/* Label */}
                       <div className="flex flex-col">
                         <span className="text-[10px] lg:text-xs uppercase font-black tracking-[0.2em] text-[var(--theme-accent)]">
-                          Cualidades Destacadas
+                          {t("scouting.outstandingQualities")}
                         </span>
                         <span className="text-[9px] uppercase tracking-widest text-white/40">
-                          Principales fortalezas
+                          {t("scouting.mainStrengths")}
                         </span>
                       </div>
                       
@@ -1415,16 +1421,16 @@ export default function ProfileTacticsModule({
                   
                   {/* Título de Reporte Scouting */}
                   <motion.div style={{ opacity: scoutTacticOpac, y: scoutTacticY }} className="mt-2 mb-2 flex items-center gap-3">
-                    <h3 className="text-xl font-black uppercase tracking-[0.3em] text-white">Reporte Scouting</h3>
+                    <h3 className="text-xl font-black uppercase tracking-[0.3em] text-white">{t("scouting.scoutingReport")}</h3>
                     <div className="flex-grow h-px bg-gradient-to-r from-white/20 to-transparent" />
                   </motion.div>
 
                   {(() => {
                     const scoutingCards = [
-                      { key: "tact", mo: { opacity: scoutTacticOpac, y: scoutTacticY }, accent: "var(--theme-accent)", accentBg: "bg-[var(--theme-primary)]", label: "Análisis Táctico", content: tact, Icon: IconSoccerField },
-                      { key: "phys", mo: { opacity: scoutPhysOpac,   y: scoutPhysY   }, accent: "#fb923c",            accentBg: "bg-orange-500",            label: "Cualidades Físicas", content: phys, Icon: IconActivity },
-                      { key: "ment", mo: { opacity: scoutMentOpac,   y: scoutMentY   }, accent: "#a78bfa",            accentBg: "bg-violet-500",            label: "Perfil Mental", content: ment, Icon: IconBrain },
-                      { key: "tech", mo: { opacity: scoutTechOpac,   y: scoutTechY   }, accent: "#34d399",            accentBg: "bg-emerald-500",           label: "Virtud Técnica", content: tech, Icon: IconPlayFootball },
+                      { key: "tact", mo: { opacity: scoutTacticOpac, y: scoutTacticY }, accent: "var(--theme-accent)", accentBg: "bg-[var(--theme-primary)]", label: t("scouting.tacticalAnalysis"), content: tact, Icon: IconSoccerField },
+                      { key: "phys", mo: { opacity: scoutPhysOpac,   y: scoutPhysY   }, accent: "#fb923c",            accentBg: "bg-orange-500",            label: t("scouting.physicalQualities"), content: phys, Icon: IconActivity },
+                      { key: "ment", mo: { opacity: scoutMentOpac,   y: scoutMentY   }, accent: "#a78bfa",            accentBg: "bg-violet-500",            label: t("scouting.mentalProfile"), content: ment, Icon: IconBrain },
+                      { key: "tech", mo: { opacity: scoutTechOpac,   y: scoutTechY   }, accent: "#34d399",            accentBg: "bg-emerald-500",           label: t("scouting.technicalVirtue"), content: tech, Icon: IconPlayFootball },
                     ];
                     const currentKey = openCard || "tact";
                     const activeCard = scoutingCards.find(c => c.key === currentKey)!;
@@ -1467,7 +1473,7 @@ export default function ProfileTacticsModule({
                             {activeCard.content ? (
                               <p className="text-[13px] xl:text-[14px] text-neutral-300 leading-[1.8] font-light">{activeCard.content}</p>
                             ) : (
-                              <p className="text-sm text-neutral-600 font-medium italic">Sin reportar.</p>
+                              <p className="text-sm text-neutral-600 font-medium italic">{t("scouting.notReported")}</p>
                             )}
                           </div>
                         </motion.div>
@@ -1534,7 +1540,7 @@ export default function ProfileTacticsModule({
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
               src={lightboxImg}
               className="max-w-full max-h-full object-contain rounded-xl shadow-2xl border border-white/10 cursor-auto"
-              alt="Ampliada"
+              alt={t("scouting.enlargedImage")}
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>

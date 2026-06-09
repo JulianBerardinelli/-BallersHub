@@ -1,0 +1,199 @@
+{
+  "home": {
+    "header": {
+      "title": "Panoramica",
+      "description": "Visualizza lo stato del tuo profilo e i prossimi passi consigliati."
+    },
+    "profileStatusCard": {
+      "title": "Stato del profilo",
+      "description": "Tieni sotto controllo i progressi del tuo profilo professionale e accedi rapidamente alle azioni chiave."
+    },
+    "progressCard": {
+      "title": "Progresso per sezione",
+      "description": "Individua quali parti del tuo profilo richiedono attenzione per arrivare alla pubblicazione."
+    },
+    "nextStepsCard": {
+      "title": "Prossimi passi",
+      "description": "Queste attività ti aiuteranno a completare le informazioni necessarie per pubblicare il tuo profilo.",
+      "empty": "Ottimo! Non hai attività in sospeso. Continueremo ad aggiungere consigli man mano che introdurremo nuove funzionalità."
+    },
+    "quickActionsCard": {
+      "title": "Scorciatoie rapide",
+      "description": "Accedi direttamente alle sezioni che utilizzerai più spesso.",
+      "goToSection": "Vai alla sezione →"
+    },
+    "quickActions": {
+      "multimedia": {
+        "title": "Gestisci i media",
+        "description": "Foto, video e novità per potenziare il tuo profilo."
+      },
+      "subscription": {
+        "title": "Stato dell'abbonamento",
+        "description": "Controlla il tuo piano attuale e i prossimi addebiti."
+      },
+      "account": {
+        "title": "Preferenze dell'account",
+        "description": "Aggiorna email, sicurezza e notifiche."
+      }
+    },
+    "progress": {
+      "personalData": {
+        "title": "Dati personali",
+        "description": "Informazioni di base, contatto e biografia completa."
+      },
+      "footballData": {
+        "title": "Dati calcistici",
+        "description": "Carriera, squadra attuale e ruoli."
+      },
+      "multimedia": {
+        "title": "Media",
+        "description": "Foto e storie che arricchiscono il tuo profilo pubblico."
+      }
+    },
+    "profileStatus": {
+      "draft": {
+        "label": "Bozza",
+        "message": "Il tuo profilo è in costruzione. Completa i passaggi in sospeso per inviarlo in revisione."
+      },
+      "pendingReview": {
+        "label": "In revisione",
+        "message": "Il nostro team sta verificando le informazioni inviate. Riceverai una notifica con il risultato."
+      },
+      "approved": {
+        "label": "Pubblicato",
+        "message": "Il tuo profilo è approvato e pronto per essere condiviso con club e osservatori."
+      },
+      "rejected": {
+        "label": "Rifiutato",
+        "message": "Abbiamo bisogno di modifiche alla tua richiesta. Controlla i commenti e inviala di nuovo."
+      },
+      "missing": {
+        "label": "Nessun profilo",
+        "message": "Crea la tua richiesta per generare il profilo professionale e sbloccare le sezioni di modifica."
+      }
+    },
+    "applicationStatus": {
+      "pending": {
+        "label": "In revisione",
+        "message": "Abbiamo ricevuto la tua richiesta e la stiamo valutando. Nel frattempo puoi continuare a controllare lo stato da qui."
+      },
+      "approved": {
+        "label": "Approvata",
+        "message": "La richiesta è stata approvata. Ora puoi completare e pubblicare il tuo profilo professionale."
+      },
+      "rejected": {
+        "label": "Rifiutata",
+        "message": "La tua richiesta è stata rifiutata. Puoi apportare le modifiche necessarie e inviarla di nuovo quando sei pronto."
+      },
+      "unknownMessage": "Contatta l'assistenza per maggiori informazioni sullo stato della tua richiesta.",
+      "lastUpdated": "Ultimo aggiornamento: {date}"
+    },
+    "cta": {
+      "viewApplication": "Vedi richiesta",
+      "reopenOnboarding": "Riapri onboarding",
+      "configureProfile": "Configura profilo",
+      "createApplication": "Crea richiesta",
+      "viewPublicProfile": "Vedi profilo pubblico",
+      "configurePublicUrl": "Configura URL pubblico",
+      "completePendingData": "Completa i dati mancanti"
+    }
+  },
+  "settings": {
+    "subscriptionTitle": "Abbonamento",
+    "subscriptionDescription": "Gestisci il tuo piano, i download, i metodi di pagamento e le cancellazioni.",
+    "alreadySubscribed": "Hai già un piano {plan} attivo. Se vuoi cambiarlo, puoi gestirlo da qui o annullare prima quello attuale.",
+    "canceledNotice": "Fatto, il tuo abbonamento è stato contrassegnato per la cancellazione. Mantieni l'accesso fino alla fine del periodo attuale.",
+    "currentStatusTitle": "Stato attuale",
+    "currentStatusDescription": "Informazioni sul piano attualmente attivo.",
+    "fieldPlan": "Piano",
+    "compBadge": "Omaggio",
+    "amountPerYear": "{amount} / anno",
+    "fieldStatus": "Stato",
+    "endsOn": "Termina il {date}",
+    "fieldTrialEnd": "Fine del periodo di prova",
+    "fieldNextRenewal": "Prossimo rinnovo",
+    "canceledOn": "Annullato il {date}",
+    "refundWindow": "Hai tempo fino al <strong>{date}</strong> per annullare entro il periodo di garanzia di {days} giorni. Se annulli entro la finestra, ti rimborsiamo l'addebito iniziale.",
+    "subStatusTrialing": "Periodo di prova",
+    "subStatusActive": "Attivo",
+    "subStatusPastDue": "Pagamento in sospeso",
+    "subStatusPaused": "In pausa",
+    "subStatusCanceled": "Annullato",
+    "subStatusIncomplete": "Incompleto",
+    "subStatusInactive": "Nessun abbonamento",
+    "compAccountTitle": "Account omaggio",
+    "compAccountDescription": "Il tuo accesso Pro è stato attivato dal team di BallersHub — non ci sono addebiti associati.",
+    "compAccountBody": "Questo abbonamento è gestito direttamente dal team di BallersHub. Se hai dubbi sulla scadenza o vuoi prolungarlo, scrivici a <link>billing@ballershub.app</link>.",
+    "subActionsTitle": "Azioni sull'abbonamento",
+    "subActionsStripeDescription": "Stripe gestisce il portale di fatturazione: aggiorna la carta, scarica le fatture o annulla da un unico posto.",
+    "subActionsMpDescription": "Mercado Pago non offre un portale self-service. Da qui annulli direttamente — l'accesso si chiude all'istante.",
+    "yourPlanProAgency": "Il tuo piano Pro Agency",
+    "yourPlanProPlayer": "Il tuo piano Pro Player",
+    "planBenefitsDescription": "Vantaggi inclusi nel piano.",
+    "proPlayerFeature1": "Modelli premium e personalizzazione avanzata",
+    "proPlayerFeature2": "Dominio personalizzato e branding libero",
+    "proPlayerFeature3": "Sezioni multimediali illimitate",
+    "proPlayerFeature4": "Priorità nel supporto e nelle revisioni del profilo",
+    "proAgencyFeature1": "Pannello multi-giocatore con metriche comparate",
+    "proAgencyFeature2": "Inviti illimitati e staff collaboratore",
+    "proAgencyFeature3": "Branding dell'agenzia su ogni portfolio pubblicato",
+    "proAgencyFeature4": "Supporto prioritario per campagne e outreach",
+    "noPlanCta": "Non hai ancora un piano attivo. Prova Pro gratis per {days} giorni.",
+    "viewPlans": "Vedi i piani",
+    "billingSupportTitle": "Supporto fatturazione",
+    "billingSupportDescription": "Un problema con un addebito o una fattura?",
+    "billingSupportBody": "Scrivici a <link>billing@ballershub.app</link> e ti risponderemo lo stesso giorno lavorativo.",
+    "accountTitle": "Impostazioni dell'account",
+    "accountDescription": "Gestisci le tue credenziali, la sicurezza e le preferenze generali del pannello.",
+    "securityTitle": "Sicurezza",
+    "securityDescription": "Piani per autenticarti in modo sicuro e monitorare gli accessi.",
+    "twoFactorLabel": "Autenticazione a due fattori",
+    "twoFactorDescription": "Potrai abilitare codici temporanei o app di autenticazione per rafforzare la sicurezza.",
+    "comingSoon": "Prossimamente",
+    "federatedLoginLabel": "Accessi federati",
+    "federatedLoginDescription": "Configura l'accesso con Google, Apple o altri provider.",
+    "onRoadmap": "In roadmap",
+    "notificationsTitle": "Notifiche",
+    "notificationsDescription": "Definisci come vuoi ricevere gli avvisi su profilo, richieste e abbonamento.",
+    "notifProfileLabel": "Modifiche al mio profilo",
+    "notifProfileDescription": "Avvisi quando un membro dello staff aggiorna le mie informazioni",
+    "notifApplicationsLabel": "Stato delle richieste",
+    "notifApplicationsDescription": "Notifiche su revisioni degli account o nuovi requisiti",
+    "notifBillingLabel": "Fatturazione e pagamenti",
+    "notifBillingDescription": "Avvisi su rinnovi imminenti o problemi di addebito",
+    "notificationsFootnote": "Potrai selezionare i canali (email, WhatsApp, app) e una frequenza personalizzata nelle prossime versioni.",
+    "activeSessionsTitle": "Sessioni attive",
+    "activeSessionsDescription": "Visualizza i dispositivi con accesso per gestire le disconnessioni remote.",
+    "currentSessionLabel": "Sessione attuale",
+    "currentSessionDescription": "Dispositivo attuale (dettagli disponibili a breve)",
+    "sessionsIntegrationNote": "Il dettaglio dei dispositivi e l'opzione per chiudere le sessioni saranno integrati con Supabase Auth Management.",
+    "suspiciousActivity": "Se rilevi attività sospette, contattaci all'indirizzo <link>soporte@ballershub.com</link>."
+  },
+  "editProfile": {
+    "personalDataTitle": "Dati personali",
+    "personalDataNoProfileDescription": "Crea il tuo profilo per abilitare la modifica dei dati personali.",
+    "personalDataDescription": "Gestisci le tue informazioni di base e di contatto. Questi dati verranno utilizzati per il tuo profilo pubblico e le comunicazioni.",
+    "avatarIdentityTitle": "Avatar e identità",
+    "avatarIdentityDescription": "Aggiorna la tua foto e i dati principali per mantenere coerente il tuo profilo professionale.",
+    "avatarCurrentAlt": "Avatar attuale",
+    "avatarHelpText": "Utilizza un'immagine ad alta risoluzione in formato quadrato. Le immagini verranno utilizzate nel tuo CV automatizzato e nel profilo pubblico.",
+    "footballDataTitle": "Dati calcistici",
+    "footballDataNoProfileDescription": "Crea il tuo profilo per gestire carriera, statistiche e link sportivi.",
+    "footballDataDescription": "Organizza tutte le tue informazioni sportive per costruire un profilo completo e aggiornato.",
+    "careerHistoryTitle": "Carriera",
+    "careerHistoryDescription": "Gestisci la tua storia sportiva e invia le modifiche al team di BallersHub per la convalida.",
+    "seasonStatsTitle": "Statistiche per stagione",
+    "seasonStatsDescription": "Monitoraggio aggregato dei tuoi numeri ufficiali da condividere con club e procuratori.",
+    "referencesLinksTitle": "Riferimenti e link",
+    "referencesLinksDescription": "Collega il tuo profilo a piattaforme esterne per convalidare la tua esperienza.",
+    "honoursTitle": "Palmarès e riconoscimenti",
+    "honoursDescriptionPro": "Documenta titoli, premi individuali e statistiche di rilievo.",
+    "honoursDescriptionFree": "Aggiungi titoli e premi. Per salvarli sul tuo profilo serve Pro.",
+    "honoursChipChampionships": "Campionati",
+    "honoursChipIndividualAwards": "Premi individuali",
+    "honoursChipKeyStats": "Statistiche chiave",
+    "multimediaTitle": "Multimedia",
+    "multimediaNoProfileDescription": "Crea il tuo profilo per gestire gallerie, video e articoli di stampa.",
+    "multimediaDescription": "Centralizza immagini, video e articoli in evidenza per potenziare la tua presenza digitale."
+  }
+}

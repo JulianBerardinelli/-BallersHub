@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useFloatingVideoVisibility } from "@/hooks/useFloatingVideoVisibility";
@@ -31,6 +32,7 @@ export default function HeroVideoIslandDesktop({
   accentColor = "#34d399",
   hideSelector = "#tactics",
 }: HeroVideoIslandDesktopProps) {
+  const t = useTranslations("portfolio");
   const isMobile = useIsMobile(1024);
   const enabled = !isMobile && !!video?.url;
 
@@ -217,7 +219,7 @@ export default function HeroVideoIslandDesktop({
                   color: "rgba(255,255,255,0.9)",
                 }}
               >
-                Highlight
+                {t("modules.video.highlightBadge")}
               </span>
             </div>
 
@@ -228,8 +230,8 @@ export default function HeroVideoIslandDesktop({
               rel="noopener noreferrer"
               aria-label={
                 video.title
-                  ? `Abrir ${video.title} en YouTube`
-                  : "Abrir highlight en YouTube"
+                  ? t("modules.video.openTitleInYouTube", { title: video.title })
+                  : t("modules.video.openHighlightInYouTube")
               }
               style={{ position: "absolute", inset: 0, zIndex: 10, display: "block" }}
             />
@@ -239,7 +241,7 @@ export default function HeroVideoIslandDesktop({
             <button
               type="button"
               onClick={dismiss}
-              aria-label="Cerrar video"
+              aria-label={t("modules.video.closeVideo")}
               className="bh-island-close"
               style={{
                 position: "absolute",

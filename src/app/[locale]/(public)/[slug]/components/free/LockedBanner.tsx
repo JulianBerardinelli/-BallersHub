@@ -5,7 +5,12 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { LockIcon } from "./atoms";
+
+// Translator (portfolio namespace) threaded into the blurred preview mocks
+// so they stay plain (non-async) render helpers.
+type LockedT = Awaited<ReturnType<typeof getTranslations>>;
 
 export type LockedBannerProps = {
   side: "left" | "right";
@@ -15,20 +20,22 @@ export type LockedBannerProps = {
   preview: "tactics" | "gallery" | "press";
 };
 
-export default function LockedBanner({
+export default async function LockedBanner({
   side,
   eyebrow,
   title,
   subtitle,
   preview,
 }: LockedBannerProps) {
+  const t = await getTranslations("portfolio");
+
   const previewNode =
     preview === "tactics" ? (
-      <TacticsPreview />
+      <TacticsPreview t={t} />
     ) : preview === "gallery" ? (
       <GalleryPreview />
     ) : (
-      <PressPreview />
+      <PressPreview t={t} />
     );
 
   // Reverse the columns by toggling the order utility classes. We avoid
@@ -76,11 +83,11 @@ export default function LockedBanner({
           {/* Center lock pill */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.06] bg-bh-black/85 px-3.5 py-2 font-body text-[11px] font-semibold uppercase tracking-[0.14em] text-bh-fg-1">
-              <LockIcon size={11} /> Solo Pro
+              <LockIcon size={11} /> {t("promo.lockedOnlyPro")}
             </div>
           </div>
           <div className="absolute left-3 top-3 font-bh-mono text-[10px] uppercase tracking-[0.14em] text-bh-fg-3">
-            Preview · {eyebrow}
+            {t("promo.lockedPreviewLabel", { label: eyebrow })}
           </div>
         </div>
       </div>
@@ -92,7 +99,7 @@ export default function LockedBanner({
 // Mini previews rendered behind the blur. Visual only; no real data.
 // ---------------------------------------------------------------
 
-function TacticsPreview() {
+function TacticsPreview({ t }: { t: LockedT }) {
   return (
     <div className="flex h-full w-full gap-4 p-5">
       <div
@@ -106,16 +113,19 @@ function TacticsPreview() {
         <div className="absolute left-1/2 top-1/2 -ml-7 -mt-7 h-14 w-14 rounded-full border-2 border-white/30" />
       </div>
       <div className="flex flex-1 flex-col gap-2">
-        {["Análisis Táctico", "Cualidades Físicas", "Perfil Mental", "Virtud Técnica"].map(
-          (s) => (
-            <div
-              key={s}
-              className="rounded border border-white/[0.08] bg-bh-surface-2 px-3 py-2.5 font-bh-display text-sm font-bold uppercase tracking-[0.04em] text-bh-fg-1"
-            >
-              {s}
-            </div>
-          ),
-        )}
+        {[
+          t("promo.tacticsLabelTactical"),
+          t("promo.tacticsLabelPhysical"),
+          t("promo.tacticsLabelMental"),
+          t("promo.tacticsLabelTechnical"),
+        ].map((s) => (
+          <div
+            key={s}
+            className="rounded border border-white/[0.08] bg-bh-surface-2 px-3 py-2.5 font-bh-display text-sm font-bold uppercase tracking-[0.04em] text-bh-fg-1"
+          >
+            {s}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -137,7 +147,7 @@ function GalleryPreview() {
   );
 }
 
-function PressPreview() {
+function PressPreview({ t }: { t: LockedT }) {
   return (
     <div className="h-full w-full p-5" style={{ background: "#F5F1E8" }}>
       <div
@@ -150,7 +160,7 @@ function PressPreview() {
         className="text-[26px] font-black leading-[1.05]"
         style={{ fontFamily: "Georgia, serif", color: "#111" }}
       >
-        DESEQUILIBRA EN EL CLÁSICO
+        {t("promo.pressHeadline")}
       </div>
       <div
         className="mt-2 text-xs italic"

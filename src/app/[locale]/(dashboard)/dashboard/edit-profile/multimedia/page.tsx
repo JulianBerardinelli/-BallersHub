@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import MultimediaManagerClient from "@/components/dashboard/client/media/MultimediaManagerClient";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import TaskCalloutList from "@/components/dashboard/client/TaskCalloutList";
@@ -21,6 +22,7 @@ import { isFounderEmail } from "@/lib/dashboard/founder-emails";
 import { isCatalogPhoto } from "@/lib/dashboard/catalog-photos";
 
 export default async function MultimediaPage() {
+  const t = await getTranslations("dashboard");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -41,8 +43,8 @@ export default async function MultimediaPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Multimedia"
-          description="Creá tu perfil para gestionar galerías, videos y notas de prensa."
+          title={t("editProfile.multimediaTitle")}
+          description={t("editProfile.multimediaNoProfileDescription")}
         />
         {access.profileLock ? <LockedSection {...access.profileLock} /> : null}
       </div>
@@ -53,8 +55,8 @@ export default async function MultimediaPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Multimedia"
-          description="Centralizá imágenes, videos y artículos destacados para potenciar tu presencia digital."
+          title={t("editProfile.multimediaTitle")}
+          description={t("editProfile.multimediaDescription")}
         />
         <LockedSection {...access.profileLock} />
       </div>
@@ -162,8 +164,8 @@ export default async function MultimediaPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Multimedia"
-        description="Centralizá imágenes, videos y artículos destacados para potenciar tu presencia digital."
+        title={t("editProfile.multimediaTitle")}
+        description={t("editProfile.multimediaDescription")}
       />
 
       <TaskCalloutList tasks={taskCallouts} />

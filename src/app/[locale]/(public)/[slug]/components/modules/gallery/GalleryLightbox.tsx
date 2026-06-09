@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,6 +16,7 @@ type Props = {
 };
 
 export default function GalleryLightbox({ photos, index, playerName, onClose, onChange }: Props) {
+  const t = useTranslations("portfolio");
   const open = index !== null;
   const total = photos.length;
   const photo = open ? photos[index!] : null;
@@ -69,7 +71,7 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
           onClick={onClose}
           role="dialog"
           aria-modal="true"
-          aria-label={`Galería de ${playerName}, foto ${index! + 1} de ${total}`}
+          aria-label={t("modules.gallery.dialogAria", { name: playerName, current: index! + 1, total })}
         >
           <div className="absolute top-5 left-6 right-6 flex items-center justify-between text-white/70 z-10">
             <span className="text-[11px] md:text-xs font-bold tracking-[0.35em] uppercase">
@@ -81,7 +83,7 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
                 e.stopPropagation();
                 onClose();
               }}
-              aria-label="Cerrar"
+              aria-label={t("modules.gallery.close")}
               className="rounded-full bg-white/5 hover:bg-white/15 p-2.5 transition-colors ring-1 ring-white/10"
             >
               <X size={20} strokeWidth={2.2} />
@@ -96,7 +98,7 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
                   e.stopPropagation();
                   goPrev();
                 }}
-                aria-label="Anterior"
+                aria-label={t("modules.gallery.previous")}
                 className="absolute left-3 md:left-8 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/5 hover:bg-white/15 p-3 transition-colors ring-1 ring-white/10 text-white/80 hover:text-white"
               >
                 <ChevronLeft size={26} strokeWidth={2.2} />
@@ -107,7 +109,7 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
                   e.stopPropagation();
                   goNext();
                 }}
-                aria-label="Siguiente"
+                aria-label={t("modules.gallery.next")}
                 className="absolute right-3 md:right-8 top-1/2 -translate-y-1/2 z-10 rounded-full bg-white/5 hover:bg-white/15 p-3 transition-colors ring-1 ring-white/10 text-white/80 hover:text-white"
               >
                 <ChevronRight size={26} strokeWidth={2.2} />
@@ -127,7 +129,7 @@ export default function GalleryLightbox({ photos, index, playerName, onClose, on
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={photo.url}
-              alt={photo.altText || `${playerName} — Foto ${index! + 1}`}
+              alt={photo.altText || t("modules.gallery.photoAlt", { name: playerName, index: index! + 1 })}
               className="max-w-full max-h-[78vh] md:max-h-[85vh] object-contain rounded-lg shadow-[0_40px_120px_rgba(0,0,0,0.6)]"
               draggable={false}
             />

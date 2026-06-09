@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ImageIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import CountUp from "@/components/ui/CountUp";
 import ModuleBackdrop from "../../ModuleBackdrop";
 
@@ -14,6 +15,7 @@ export type GalleryPhoto = {
 };
 
 export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
+  const t = useTranslations("portfolio");
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
 
   const close = () => setActiveIdx(null);
@@ -40,17 +42,17 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
             className="text-[10px] uppercase tracking-[0.4em] font-bold"
             style={{ color: "var(--theme-accent)" }}
           >
-            / Galería
+            / {t("agencyMod.galleryEyebrow")}
           </div>
           <h2 className="font-heading text-5xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter text-white">
-            En primera persona
+            {t("agencyMod.galleryTitle")}
           </h2>
         </div>
         <div className="flex items-center gap-3 text-white/60">
           <ImageIcon className="h-5 w-5" style={{ color: "var(--theme-accent)" }} />
           <span className="font-mono text-sm flex items-baseline gap-1.5">
             <CountUp value={photos.length} padStart={2} />
-            {photos.length === 1 ? "imagen" : "imágenes"}
+            {photos.length === 1 ? t("agencyMod.imageSingular") : t("agencyMod.imagePlural")}
           </span>
         </div>
       </motion.div>
@@ -78,7 +80,7 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={featured.url}
-              alt={featured.altText || featured.title || "Imagen de la agencia"}
+              alt={featured.altText || featured.title || t("agencyMod.imageAlt")}
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -102,7 +104,7 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={photo.url}
-                  alt={photo.altText || photo.title || "Imagen de la agencia"}
+                  alt={photo.altText || photo.title || t("agencyMod.imageAlt")}
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60 group-hover:opacity-30 transition-opacity" />
@@ -125,7 +127,7 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
             <button
               type="button"
               onClick={close}
-              aria-label="Cerrar"
+              aria-label={t("agencyMod.galleryClose")}
               className="absolute top-6 right-6 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
             >
               <X className="h-5 w-5" />
@@ -139,7 +141,7 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
                     e.stopPropagation();
                     prev();
                   }}
-                  aria-label="Anterior"
+                  aria-label={t("agencyMod.galleryPrev")}
                   className="absolute left-6 top-1/2 -translate-y-1/2 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                 >
                   <ChevronLeft className="h-6 w-6" />
@@ -150,7 +152,7 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
                     e.stopPropagation();
                     next();
                   }}
-                  aria-label="Siguiente"
+                  aria-label={t("agencyMod.galleryNext")}
                   className="absolute right-6 top-1/2 -translate-y-1/2 inline-flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                 >
                   <ChevronRight className="h-6 w-6" />
@@ -170,7 +172,7 @@ export default function GalleryClient({ photos }: { photos: GalleryPhoto[] }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photos[activeIdx].url}
-                alt={photos[activeIdx].altText || photos[activeIdx].title || "Imagen"}
+                alt={photos[activeIdx].altText || photos[activeIdx].title || t("agencyMod.imageAltLightbox")}
                 className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg"
               />
             </motion.div>

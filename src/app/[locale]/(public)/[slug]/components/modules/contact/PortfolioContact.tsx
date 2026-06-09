@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Lock, Mail, MessageCircle, ArrowUpRight, Check } from "lucide-react";
 
@@ -36,6 +37,7 @@ function ChannelIcon({ kind, className }: { kind: ContactChannelKind; className?
 }
 
 export default function PortfolioContact({ playerSlug, playerName, channels, unlocked }: Props) {
+  const t = useTranslations("portfolio");
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -52,7 +54,7 @@ export default function PortfolioContact({ playerSlug, playerName, channels, unl
     <section
       ref={sectionRef}
       id="contact"
-      aria-label={`Contacto de ${playerName}`}
+      aria-label={t("modules.contact.sectionAria", { name: playerName })}
       className="relative w-full pb-8 md:pb-16"
     >
       <div className="absolute inset-0 pointer-events-none z-0">
@@ -66,10 +68,10 @@ export default function PortfolioContact({ playerSlug, playerName, channels, unl
         >
           <div className="flex flex-col">
             <span className="text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] text-[var(--theme-accent)] mb-1.5">
-              Contacto
+              {t("modules.contact.eyebrow")}
             </span>
             <h2 className="text-2xl md:text-4xl font-black font-heading text-white uppercase leading-[0.9]">
-              Conectá con {firstName}
+              {t("modules.contact.heading", { name: firstName })}
             </h2>
           </div>
           <motion.div
@@ -160,7 +162,9 @@ function ContactCard({
   channel: PortfolioContactChannel;
   interactive: boolean;
 }) {
+  const t = useTranslations("portfolio");
   const brand = CHANNEL_BRAND[channel.kind];
+  const channelTag = channel.kind === "email" ? t("modules.contact.emailTag") : brand.tag;
 
   function handleClick() {
     if (!interactive) return;
@@ -187,7 +191,7 @@ function ContactCard({
           : "",
       ].join(" ")}
       tabIndex={interactive ? 0 : -1}
-      aria-label={`Contactar por ${channel.label}: ${channel.value}`}
+      aria-label={t("modules.contact.cardAria", { channel: channel.label, value: channel.value })}
     >
       {/* Branded radial wash on hover */}
       <span
@@ -210,7 +214,7 @@ function ContactCard({
 
       <div className="relative z-10 flex flex-col gap-1">
         <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/40">
-          {brand.tag}
+          {channelTag}
         </span>
         <span className="text-base md:text-lg font-medium text-white truncate">
           {channel.value}
@@ -226,6 +230,7 @@ function ContactCard({
 }
 
 function LockedPanel({ playerSlug }: { playerSlug: string }) {
+  const t = useTranslations("portfolio");
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -237,7 +242,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
     setError(null);
     const trimmed = email.trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setError("Ingresá un email válido.");
+      setError(t("modules.contact.errorInvalidEmail"));
       return;
     }
     startTransition(async () => {
@@ -249,13 +254,13 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
         });
         if (!res.ok) {
           const data = (await res.json().catch(() => ({}))) as { error?: string };
-          setError(data.error ?? "No pudimos guardar tu email. Probá nuevamente.");
+          setError(data.error ?? t("modules.contact.errorSaveFailed"));
           return;
         }
         setSubmitted(true);
         setTimeout(() => router.refresh(), 600);
       } catch {
-        setError("No pudimos conectar con el servidor. Revisá tu conexión.");
+        setError(t("modules.contact.errorConnection"));
       }
     });
   }
@@ -267,7 +272,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
           <Lock className="h-3.5 w-3.5 text-[var(--theme-accent)]" aria-hidden />
         </span>
         <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[var(--theme-accent)]">
-          Acceso reservado
+          {t("modules.contact.lockedBadge")}
         </span>
       </div>
 
@@ -277,21 +282,21 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
             <Check className="h-3.5 w-3.5 text-[var(--theme-accent)]" aria-hidden />
           </span>
           <div>
-            <h3 className="text-base font-bold text-white">¡Listo!</h3>
+            <h3 className="text-base font-bold text-white">{t("modules.contact.successTitle")}</h3>
             <p className="mt-1 text-xs text-white/60 leading-relaxed">
-              Estamos desbloqueando los datos…
+              {t("modules.contact.successBody")}
             </p>
           </div>
         </div>
       ) : (
         <>
           <p className="text-sm text-white/70 leading-relaxed">
-            Dejanos tu email para ver los canales de contacto. Te avisamos cuando se sumen nuevos perfiles.
+            {t("modules.contact.leadDescription")}
           </p>
 
           <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-2.5">
             <label htmlFor="lead-email" className="sr-only">
-              Email
+              {t("modules.contact.emailLabel")}
             </label>
             <input
               id="lead-email"
@@ -304,7 +309,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
                 setEmail(e.target.value);
                 if (error) setError(null);
               }}
-              placeholder="tu@email.com"
+              placeholder={t("modules.contact.emailPlaceholder")}
               className={[
                 "w-full rounded-lg border bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 outline-none",
                 "transition-colors duration-150",
@@ -340,7 +345,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
                 />
               ) : (
                 <>
-                  Desbloquear contacto
+                  {t("modules.contact.unlockButton")}
                   <ArrowUpRight
                     className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     aria-hidden
@@ -350,13 +355,16 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
             </button>
 
             <p className="text-[10px] text-white/40 leading-relaxed text-center">
-              ¿Ya tenés cuenta?{" "}
-              <a
-                href={`/auth/sign-in?redirect=/${encodeURIComponent(playerSlug)}`}
-                className="text-white/70 underline-offset-2 hover:underline hover:text-white"
-              >
-                Iniciá sesión
-              </a>
+              {t.rich("modules.contact.signInPrompt", {
+                link: (chunks) => (
+                  <a
+                    href={`/auth/sign-in?redirect=/${encodeURIComponent(playerSlug)}`}
+                    className="text-white/70 underline-offset-2 hover:underline hover:text-white"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </p>
           </form>
         </>
