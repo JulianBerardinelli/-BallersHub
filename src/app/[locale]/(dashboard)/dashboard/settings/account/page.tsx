@@ -5,10 +5,12 @@ import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import AccountSecurityForm from "./components/AccountSecurityForm";
+import NativeLocaleCard from "./components/NativeLocaleCard";
 
 type UserProfileRole = {
   role: string;
   created_at: string;
+  preferred_locale: string | null;
 };
 
 export default async function AccountSettingsPage() {
@@ -22,7 +24,7 @@ export default async function AccountSettingsPage() {
 
   const { data: profileRoleRaw } = await supabase
     .from("user_profiles")
-    .select("role, created_at")
+    .select("role, created_at, preferred_locale")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -40,6 +42,8 @@ export default async function AccountSettingsPage() {
         role={profileRole?.role ?? "member"}
         createdAt={profileRole?.created_at ?? ""}
       />
+
+      <NativeLocaleCard current={profileRole?.preferred_locale ?? "es"} />
 
       <SectionCard
         title={t("settings.securityTitle")}

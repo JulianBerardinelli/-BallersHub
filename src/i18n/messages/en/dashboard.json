@@ -99,6 +99,10 @@
     }
   },
   "settings": {
+    "nativeTitle": "Native language",
+    "nativeDescription": "The language you write your profile in. Pick the one you're most comfortable with.",
+    "nativeHint": "Your public profile always keeps a Spanish version (it's the main URL). The assistant can translate from your language into the others.",
+    "nativeSave": "Save language",
     "subscriptionTitle": "Subscription",
     "subscriptionDescription": "Manage your plan, downloads, payment methods and cancellations.",
     "alreadySubscribed": "You already have an active {plan} plan. If you want to change it, you can manage it here or cancel the current one first.",
