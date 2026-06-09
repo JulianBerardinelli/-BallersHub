@@ -11,9 +11,23 @@ const COOKIE_MAX_AGE_DAYS = 60;
 
 const bodySchema = z.object({
   email: z.string().email(),
+  // Locale of the portfolio page (sent by the client) → localizes the lead
+  // welcome email. Leads have no account, so there's no preferred_locale.
+  locale: z.enum(["es", "en", "it", "pt"]).optional(),
 });
 
 type Params = Promise<{ slug: string }>;
+
+/** Fallback: parse the locale prefix from the referer (e.g. /pt/<slug>). */
+function localeFromReferer(referer: string | null): "en" | "it" | "pt" | null {
+  if (!referer) return null;
+  try {
+    const seg = new URL(referer).pathname.split("/").filter(Boolean)[0];
+    return seg === "en" || seg === "it" || seg === "pt" ? seg : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Lead capture endpoint for the portfolio contact module.
@@ -92,6 +106,8 @@ export async function POST(req: Request, { params }: { params: Params }) {
       email,
       playerName: player.fullName ?? "el jugador",
       playerSlug: player.slug ?? slug,
+      // client-provided locale → referer prefix → es
+      locale: parsed.data.locale ?? localeFromReferer(referrer) ?? "es",
     }).catch((error) => {
       console.error("[lead-route] sendLeadWelcomeEmail failed:", error);
     });

@@ -99,31 +99,46 @@ export async function sendLeadWelcomeEmail(opts: {
   email: string;
   playerName: string;
   playerSlug: string;
+  /** Locale of the portfolio page the lead was on (threaded by the route). */
+  locale?: Locale;
 }) {
   if (!resend) {
     console.log("[Resend Mock] Lead Welcome →", opts.email);
     return;
   }
   try {
-    const portfolioUrl = `${siteUrl.replace(/\/+$/, "")}/${encodeURIComponent(opts.playerSlug)}`;
-    const signUpUrl = `${siteUrl.replace(/\/+$/, "")}/auth/sign-up?redirect=${encodeURIComponent(`/${opts.playerSlug}`)}`;
+    const locale = opts.locale ?? "es";
+    const base = siteUrl.replace(/\/+$/, "");
+    // Send the lead back to the locale they were browsing in.
+    const prefix = locale === "es" ? "" : `/${locale}`;
+    const slugPath = `${prefix}/${encodeURIComponent(opts.playerSlug)}`;
+    const portfolioUrl = `${base}${slugPath}`;
+    const signUpUrl = `${base}${prefix}/auth/sign-up?redirect=${encodeURIComponent(slugPath)}`;
     const html = await renderTemplate("lead_welcome", {
       playerName: opts.playerName,
       portfolioUrl,
       signUpUrl,
       recipientEmail: opts.email,
       unsubscribeToken: signUnsubscribeToken(opts.email),
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [opts.email],
-      subject: `Acceso desbloqueado: contacto de ${opts.playerName}`,
+      subject: LEAD_SUBJECT[locale](opts.playerName),
       html,
     });
   } catch (error) {
     console.error("[resend] sendLeadWelcomeEmail:", error);
   }
 }
+
+const LEAD_SUBJECT: Record<Locale, (player: string) => string> = {
+  es: (p) => `Acceso desbloqueado: contacto de ${p}`,
+  en: (p) => `Access unlocked: ${p}'s contact`,
+  it: (p) => `Accesso sbloccato: contatto di ${p}`,
+  pt: (p) => `Acesso desbloqueado: contato de ${p}`,
+};
 
 // ============================================================================
 // Invitations & networking
@@ -445,6 +460,7 @@ export async function sendBlogPostApprovedAuthorEmail(opts: {
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email: opts.authorEmail });
     const html = await renderTemplate("blog_post_approved_author", {
       authorName: opts.authorName,
       postTitle: opts.postTitle,
@@ -452,17 +468,25 @@ export async function sendBlogPostApprovedAuthorEmail(opts: {
       postUrl: blogPostUrl(opts.postSlug),
       authorHubUrl: opts.authorSlug ? blogAuthorHubUrl(opts.authorSlug) : undefined,
       recipientEmail: opts.authorEmail,
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [opts.authorEmail],
-      subject: `Publicamos tu artículo: ${opts.postTitle}`,
+      subject: BLOG_APPROVED_SUBJECT[locale](opts.postTitle),
       html,
     });
   } catch (error) {
     console.error("[resend] sendBlogPostApprovedAuthorEmail:", error);
   }
 }
+
+const BLOG_APPROVED_SUBJECT: Record<Locale, (title: string) => string> = {
+  es: (t) => `Publicamos tu artículo: ${t}`,
+  en: (t) => `We published your article: ${t}`,
+  it: (t) => `Abbiamo pubblicato il tuo articolo: ${t}`,
+  pt: (t) => `Publicamos seu artigo: ${t}`,
+};
 
 /**
  * Notifica al autor cuando su post es rechazado con feedback. El editor
@@ -485,17 +509,23 @@ export async function sendBlogPostRejectedAuthorEmail(opts: {
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email: opts.authorEmail });
     const html = await renderTemplate("blog_post_rejected_author", {
       authorName: opts.authorName,
       postTitle: opts.postTitle,
       rejectionReason: opts.rejectionReason,
       editUrl: blogEditUrl(opts.postId),
       recipientEmail: opts.authorEmail,
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [opts.authorEmail],
-      subject: `Feedback editorial sobre tu artículo`,
+      subject: localizedSubject(
+        "blog_post_rejected_author",
+        locale,
+        "Feedback editorial sobre tu artículo",
+      ),
       html,
     });
   } catch (error) {
