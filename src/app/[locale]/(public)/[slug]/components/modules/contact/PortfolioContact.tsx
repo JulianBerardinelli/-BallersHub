@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Lock, Mail, MessageCircle, ArrowUpRight, Check } from "lucide-react";
 
@@ -232,6 +232,7 @@ function ContactCard({
 function LockedPanel({ playerSlug }: { playerSlug: string }) {
   const t = useTranslations("portfolio");
   const router = useRouter();
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -250,7 +251,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
         const res = await fetch(`/api/portfolio/${encodeURIComponent(playerSlug)}/lead`, {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ email: trimmed }),
+          body: JSON.stringify({ email: trimmed, locale }),
         });
         if (!res.ok) {
           const data = (await res.json().catch(() => ({}))) as { error?: string };

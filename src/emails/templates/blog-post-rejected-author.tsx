@@ -7,6 +7,7 @@ import {
   EmailLayout,
   EmailParagraph,
 } from "@/emails";
+import type { Locale } from "@/i18n/routing";
 
 export type BlogPostRejectedAuthorProps = {
   authorName: string;
@@ -17,16 +18,73 @@ export type BlogPostRejectedAuthorProps = {
   /** URL del editor para iterar: /blog/write/[id]. */
   editUrl: string;
   recipientEmail?: string;
+  /** Author's preferred_locale (F6 phase 3). Defaults to es. */
+  locale?: Locale;
+};
+
+type Copy = {
+  preheader: (title: string) => string;
+  eyebrow: string;
+  heading: (name: string) => string;
+  intro: string;
+  feedbackLabel: string;
+  ctaEdit: string;
+  footer: string;
+};
+
+const COPY: Record<Locale, Copy> = {
+  es: {
+    preheader: (t) => `Feedback editorial sobre "${t}".`,
+    eyebrow: "Feedback editorial",
+    heading: (n) => `Pedimos ajustes, ${n}`,
+    intro:
+      "Revisamos tu artículo y necesita unos cambios antes de publicar. Nada roto — el draft sigue tuyo, podés iterar y volver a enviar.",
+    feedbackLabel: "Feedback del editor:",
+    ctaEdit: "Editar y volver a enviar",
+    footer:
+      'Cuando aplicaste los cambios, hacé click en "Enviar para revisión" en el editor — vuelve a pending_review y te avisamos al aprobar.',
+  },
+  en: {
+    preheader: (t) => `Editorial feedback on "${t}".`,
+    eyebrow: "Editorial feedback",
+    heading: (n) => `A few changes needed, ${n}`,
+    intro:
+      "We reviewed your article and it needs a few changes before publishing. Nothing's broken — the draft is still yours, you can iterate and resubmit.",
+    feedbackLabel: "Editor's feedback:",
+    ctaEdit: "Edit and resubmit",
+    footer:
+      'Once you\'ve applied the changes, click "Submit for review" in the editor — it goes back to pending_review and we\'ll notify you on approval.',
+  },
+  it: {
+    preheader: (t) => `Feedback editoriale su "${t}".`,
+    eyebrow: "Feedback editoriale",
+    heading: (n) => `Servono alcune modifiche, ${n}`,
+    intro:
+      "Abbiamo rivisto il tuo articolo e servono alcune modifiche prima di pubblicarlo. Niente di rotto — la bozza resta tua, puoi modificarla e inviarla di nuovo.",
+    feedbackLabel: "Feedback dell'editor:",
+    ctaEdit: "Modifica e invia di nuovo",
+    footer:
+      'Una volta applicate le modifiche, fai click su "Invia per revisione" nell\'editor — torna a pending_review e ti avviseremo all\'approvazione.',
+  },
+  pt: {
+    preheader: (t) => `Feedback editorial sobre "${t}".`,
+    eyebrow: "Feedback editorial",
+    heading: (n) => `Precisamos de ajustes, ${n}`,
+    intro:
+      "Revisamos seu artigo e ele precisa de alguns ajustes antes de publicar. Nada quebrado — o rascunho continua seu, você pode iterar e enviar de novo.",
+    feedbackLabel: "Feedback do editor:",
+    ctaEdit: "Editar e enviar novamente",
+    footer:
+      'Depois de aplicar as mudanças, clique em "Enviar para revisão" no editor — volta para pending_review e avisamos quando aprovar.',
+  },
 };
 
 /**
  * Notifica al autor blogger que su post fue rechazado con feedback.
  *
- * Audiencia: bloggers (autores invitados). Transactional puro.
- *
- * Tono: respetuoso, constructivo. El feedback del admin va destacado en
- * una card. CTA principal es editar el post (que ya viene en estado
- * 'rejected', editable, y al re-submitear vuelve a 'pending_review').
+ * Localized (F6 phase 3): copy follows the author's preferred_locale (resolved
+ * in resend.ts); falls back to es. The admin's rejection feedback is shown
+ * verbatim (it's written by the editor, not translated).
  */
 export default function BlogPostRejectedAuthorEmail({
   authorName,
@@ -34,21 +92,20 @@ export default function BlogPostRejectedAuthorEmail({
   rejectionReason,
   editUrl,
   recipientEmail,
+  locale = "es",
 }: BlogPostRejectedAuthorProps) {
   const firstName = (authorName || "").split(" ")[0] || authorName;
+  const c = COPY[locale] ?? COPY.es;
 
   return (
     <EmailLayout
-      preheader={`Feedback editorial sobre "${postTitle}".`}
+      preheader={c.preheader(postTitle)}
       recipientEmail={recipientEmail}
     >
-      <EmailEyebrow>Feedback editorial</EmailEyebrow>
-      <EmailHeading level={1}>Pedimos ajustes, {firstName}</EmailHeading>
+      <EmailEyebrow>{c.eyebrow}</EmailEyebrow>
+      <EmailHeading level={1}>{c.heading(firstName)}</EmailHeading>
 
-      <EmailParagraph>
-        Revisamos tu artículo y necesita unos cambios antes de publicar. Nada
-        roto — el draft sigue tuyo, podés iterar y volver a enviar.
-      </EmailParagraph>
+      <EmailParagraph>{c.intro}</EmailParagraph>
 
       <EmailCard>
         <EmailParagraph tone="default">
@@ -59,7 +116,7 @@ export default function BlogPostRejectedAuthorEmail({
       <EmailDivider tone="subtle" spacing={20} />
 
       <EmailParagraph tone="default">
-        <strong>Feedback del editor:</strong>
+        <strong>{c.feedbackLabel}</strong>
       </EmailParagraph>
 
       {/*
@@ -86,17 +143,13 @@ export default function BlogPostRejectedAuthorEmail({
 
       <div style={{ marginTop: 24, marginBottom: 8 }}>
         <EmailButton href={editUrl} variant="lime">
-          Editar y volver a enviar
+          {c.ctaEdit}
         </EmailButton>
       </div>
 
       <EmailDivider tone="subtle" spacing={28} />
 
-      <EmailParagraph tone="muted">
-        Cuando aplicaste los cambios, hacé click en &quot;Enviar para
-        revisión&quot; en el editor — vuelve a pending_review y te avisamos al
-        aprobar.
-      </EmailParagraph>
+      <EmailParagraph tone="muted">{c.footer}</EmailParagraph>
     </EmailLayout>
   );
 }

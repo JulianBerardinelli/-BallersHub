@@ -33,6 +33,11 @@ const SUBJECTS: Partial<Record<TemplateKey, Partial<Record<Locale, string>>>> = 
     it: "Non siamo riusciti ad addebitare il tuo abbonamento",
     pt: "Não conseguimos cobrar sua assinatura",
   },
+  blog_post_rejected_author: {
+    en: "Editorial feedback on your article",
+    it: "Feedback editoriale sul tuo articolo",
+    pt: "Feedback editorial sobre seu artigo",
+  },
 };
 
 /**
