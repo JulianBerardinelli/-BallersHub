@@ -19,6 +19,22 @@
 // cross-reference SportsOrganization ↔ BreadcrumbList via `mainEntityOfPage`.
 
 import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
+import type { Locale } from "@/i18n/routing";
+import { HTML_LANG } from "@/i18n/config";
+
+// Breadcrumb labels per locale (mirrors personJsonLd's HOME_LABEL pattern).
+const HOME_LABEL: Record<Locale, string> = {
+  es: "Inicio",
+  en: "Home",
+  it: "Home",
+  pt: "Início",
+};
+const AGENCIES_LABEL: Record<Locale, string> = {
+  es: "Agencias",
+  en: "Agencies",
+  it: "Agenzie",
+  pt: "Agências",
+};
 
 export type AgencyJsonLdData = {
   slug: string;
@@ -38,11 +54,26 @@ export type AgencyJsonLdData = {
   contactEmail?: string | null;
 };
 
-export function AgencyJsonLd({ agency }: { agency: AgencyJsonLdData }) {
+export function AgencyJsonLd({
+  agency,
+  locale,
+}: {
+  agency: AgencyJsonLdData;
+  locale: Locale;
+}) {
+  // Entity @id + url stay on the es canonical (no locale prefix) so the
+  // player → agency `worksFor` cross-refs — which always point at the es
+  // `#organization` — resolve no matter which locale page emits this. Only
+  // the WebPage + breadcrumb of THIS page follow the locale.
   const canonical = toCanonicalUrl(`/agency/${agency.slug}`);
   const base = getSiteBaseUrl();
   const orgId = `${canonical}#organization`;
-  const breadcrumbId = `${canonical}#breadcrumb`;
+  const localePath =
+    locale === "es" ? `/agency/${agency.slug}` : `/${locale}/agency/${agency.slug}`;
+  const localeCanonical = toCanonicalUrl(localePath);
+  const localeBase = locale === "es" ? base : `${base}/${locale}`;
+  const breadcrumbId = `${localeCanonical}#breadcrumb`;
+  const lang = HTML_LANG[locale];
 
   const sameAs = [
     agency.websiteUrl,
@@ -90,7 +121,8 @@ export function AgencyJsonLd({ agency }: { agency: AgencyJsonLdData }) {
       ...(members && { member: members }),
       mainEntityOfPage: {
         "@type": "WebPage",
-        "@id": canonical,
+        "@id": localeCanonical,
+        inLanguage: lang,
         breadcrumb: { "@id": breadcrumbId },
       },
     },
@@ -98,14 +130,19 @@ export function AgencyJsonLd({ agency }: { agency: AgencyJsonLdData }) {
       "@type": "BreadcrumbList",
       "@id": breadcrumbId,
       itemListElement: [
-        { "@type": "ListItem", position: 1, name: "Inicio", item: base },
+        { "@type": "ListItem", position: 1, name: HOME_LABEL[locale], item: localeBase },
         {
           "@type": "ListItem",
           position: 2,
-          name: "Agencias",
-          item: `${base}/agency`,
+          name: AGENCIES_LABEL[locale],
+          item: `${localeBase}/agency`,
         },
-        { "@type": "ListItem", position: 3, name: agency.name, item: canonical },
+        {
+          "@type": "ListItem",
+          position: 3,
+          name: agency.name,
+          item: localeCanonical,
+        },
       ],
     },
   ];
