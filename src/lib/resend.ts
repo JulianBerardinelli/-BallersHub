@@ -243,6 +243,7 @@ export async function sendSubscriptionWelcomeEmail(opts: {
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
     const html = await renderTemplate("subscription_welcome", {
       displayName: opts.displayName,
       planId: opts.planId,
@@ -252,19 +253,28 @@ export async function sendSubscriptionWelcomeEmail(opts: {
       dashboardUrl: dashboardUrl(),
       manageSubscriptionUrl: dashboardUrl("settings/subscription"),
       recipientEmail: opts.email,
+      locale,
     });
     const subjectPlan =
       opts.planId === "pro-agency" ? "Pro Agency" : "Pro Player";
     await resend.emails.send({
       from: senderFrom,
       to: [opts.email],
-      subject: `Tu plan ${subjectPlan} está activo`,
+      subject: SUBSCRIPTION_SUBJECT[locale](subjectPlan),
       html,
     });
   } catch (error) {
     console.error("[resend] sendSubscriptionWelcomeEmail:", error);
   }
 }
+
+// Dynamic billing subjects (carry the plan tier / variant) → localized here.
+const SUBSCRIPTION_SUBJECT: Record<Locale, (plan: string) => string> = {
+  es: (p) => `Tu plan ${p} está activo`,
+  en: (p) => `Your ${p} plan is active`,
+  it: (p) => `Il tuo piano ${p} è attivo`,
+  pt: (p) => `Seu plano ${p} está ativo`,
+};
 
 export async function sendCompGrantWelcomeEmail(opts: {
   email: string;
@@ -283,6 +293,7 @@ export async function sendCompGrantWelcomeEmail(opts: {
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
     const html = await renderTemplate("comp_grant_welcome", {
       displayName: opts.displayName,
       planId: opts.planId,
@@ -291,23 +302,42 @@ export async function sendCompGrantWelcomeEmail(opts: {
       dashboardUrl: dashboardUrl(),
       manageSubscriptionUrl: dashboardUrl("settings/subscription"),
       recipientEmail: opts.email,
+      locale,
     });
     const subjectPlan =
       opts.planId === "pro-agency" ? "Pro Agency" : "Pro Player";
-    const subject =
-      opts.variant === "extend"
-        ? `Extendimos tu cuenta de cortesía ${subjectPlan}`
-        : `Tu cuenta de cortesía ${subjectPlan} está activa`;
     await resend.emails.send({
       from: senderFrom,
       to: [opts.email],
-      subject,
+      subject: COMP_GRANT_SUBJECT[locale](subjectPlan, opts.variant),
       html,
     });
   } catch (error) {
     console.error("[resend] sendCompGrantWelcomeEmail:", error);
   }
 }
+
+const COMP_GRANT_SUBJECT: Record<
+  Locale,
+  (plan: string, variant: "grant" | "extend") => string
+> = {
+  es: (p, v) =>
+    v === "extend"
+      ? `Extendimos tu cuenta de cortesía ${p}`
+      : `Tu cuenta de cortesía ${p} está activa`,
+  en: (p, v) =>
+    v === "extend"
+      ? `We extended your complimentary ${p} account`
+      : `Your complimentary ${p} account is active`,
+  it: (p, v) =>
+    v === "extend"
+      ? `Abbiamo esteso il tuo account omaggio ${p}`
+      : `Il tuo account omaggio ${p} è attivo`,
+  pt: (p, v) =>
+    v === "extend"
+      ? `Estendemos sua conta cortesia ${p}`
+      : `Sua conta cortesia ${p} está ativa`,
+};
 
 export async function sendPaymentFailedEmail(opts: {
   email: string;
@@ -321,6 +351,7 @@ export async function sendPaymentFailedEmail(opts: {
     return;
   }
   try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
     const html = await renderTemplate("payment_failed", {
       displayName: opts.displayName,
       planId: opts.planId,
@@ -328,11 +359,12 @@ export async function sendPaymentFailedEmail(opts: {
       nextRetryAt: opts.nextRetryAt,
       updatePaymentUrl: dashboardUrl("settings/subscription"),
       recipientEmail: opts.email,
+      locale,
     });
     await resend.emails.send({
       from: senderFrom,
       to: [opts.email],
-      subject: "No pudimos cobrar tu suscripción",
+      subject: localizedSubject("payment_failed", locale, "No pudimos cobrar tu suscripción"),
       html,
     });
   } catch (error) {

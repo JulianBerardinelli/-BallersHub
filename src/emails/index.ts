@@ -29,3 +29,6 @@ export {
 
 // Localized inbox subjects (F6).
 export { localizedSubject } from "./subjects";
+
+// Locale-aware formatting (F6).
+export { formatEmailDate } from "./format";

@@ -28,6 +28,11 @@ const SUBJECTS: Partial<Record<TemplateKey, Partial<Record<Locale, string>>>> = 
     it: "Sei a un passo dal pubblicare il tuo profilo",
     pt: "Você está a um passo de publicar seu perfil",
   },
+  payment_failed: {
+    en: "We couldn't charge your subscription",
+    it: "Non siamo riusciti ad addebitare il tuo abbonamento",
+    pt: "Não conseguimos cobrar sua assinatura",
+  },
 };
 
 /**
