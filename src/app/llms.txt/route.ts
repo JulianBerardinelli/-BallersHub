@@ -5,20 +5,24 @@
 // AI search engines an explicit entry point. Not standardized; we
 // implement the most-recommended shape from `llmstxt.org`.
 //
-// Strategy for 'BallersHub: enumerate all approved + public player and
-// agency portfolios. Group them under H2 sections so the LLM can scan
-// the topical layout in seconds. Static marketing pages go at the top.
+// Strategy for 'BallersHub: enumerate the SAME indexable players + approved
+// agencies the sitemap submits (shared `indexable-profiles` predicate), so
+// llms.txt never points AI crawlers at a thin Free profile whose own page
+// marks it `noindex`. Group them under H2 sections so the LLM can scan the
+// topical layout in seconds. Static marketing pages go at the top.
 //
 // Cached for an hour (`revalidate = 3600`) — AI crawlers re-fetch on a
 // looser cadence than Googlebot and a fresh-by-the-minute file is
 // wasted DB work.
 
 import { db } from "@/lib/db";
-import { playerProfiles } from "@/db/schema/players";
-import { agencyProfiles } from "@/db/schema/agencies";
 import { blogPosts } from "@/db/schema/blog";
-import { and, eq, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
+import {
+  getIndexablePlayers,
+  getIndexableAgencies,
+} from "@/lib/seo/indexable-profiles";
 import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 
 export const revalidate = 3600;
@@ -33,19 +37,10 @@ export async function GET() {
 
   try {
     [players, agencies, posts, authors] = await Promise.all([
-      db
-        .select({ slug: playerProfiles.slug, fullName: playerProfiles.fullName })
-        .from(playerProfiles)
-        .where(
-          and(
-            eq(playerProfiles.status, "approved"),
-            eq(playerProfiles.visibility, "public"),
-          ),
-        ),
-      db
-        .select({ slug: agencyProfiles.slug, name: agencyProfiles.name })
-        .from(agencyProfiles)
-        .where(eq(agencyProfiles.isApproved, true)),
+      // Same indexable set as the sitemap + /players hub (shared predicate) —
+      // never surface a thin Free profile that its own page marks `noindex`.
+      getIndexablePlayers(),
+      getIndexableAgencies(),
       db
         .select({
           slug: blogPosts.slug,
