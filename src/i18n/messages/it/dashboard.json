@@ -99,6 +99,10 @@
     }
   },
   "settings": {
+    "nativeTitle": "Lingua madre",
+    "nativeDescription": "La lingua in cui scrivi il tuo profilo. Scegli quella in cui sei più a tuo agio.",
+    "nativeHint": "Il tuo profilo pubblico mantiene sempre una versione in spagnolo (è l'URL principale). L'assistente può tradurre dalla tua lingua alle altre.",
+    "nativeSave": "Salva lingua",
     "subscriptionTitle": "Abbonamento",
     "subscriptionDescription": "Gestisci il tuo piano, i download, i metodi di pagamento e le cancellazioni.",
     "alreadySubscribed": "Hai già un piano {plan} attivo. Se vuoi cambiarlo, puoi gestirlo da qui o annullare prima quello attuale.",

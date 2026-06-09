@@ -20,14 +20,19 @@ import { z } from "zod";
 // `curl https://ai-gateway.vercel.sh/v1/models`.
 const MODEL = process.env.AI_TRANSLATION_MODEL ?? "google/gemini-2.5-flash";
 
-const LOCALE_NAME: Record<TargetLocale, string> = {
+// Source AND target can be any content locale — the editor is adaptive: the
+// player authors in their preferred_locale and the assistant translates FROM
+// it into the rest, es included (model B1). es-AR stays the canonical /slug,
+// but it can itself be a TARGET when the player writes in another language.
+export type TranslateLocale = "es" | "en" | "it" | "pt";
+export type TranslationBlock = "bio" | "scouting";
+
+const LOCALE_NAME: Record<TranslateLocale, string> = {
+  es: "Argentine Spanish (es-AR)",
   en: "English",
   it: "Italian (it-IT, football register)",
   pt: "Brazilian Portuguese (pt-BR)",
 };
-
-export type TargetLocale = "en" | "it" | "pt";
-export type TranslationBlock = "bio" | "scouting";
 
 // Mirror of src/i18n/glossary.md (football + positions + rules). Embedded
 // rather than read from disk so it always bundles into the server function.
@@ -68,20 +73,21 @@ export type BioBlock = z.infer<typeof bioBlockSchema>;
 export type ScoutingBlock = z.infer<typeof scoutingBlockSchema>;
 
 /**
- * Translate one editor block from ES into the target locale. Returns the
- * structured object (same keys as the source block). Throws on model/gateway
- * error — the caller surfaces a friendly message.
+ * Translate one editor block from the player's source locale into the target
+ * locale. Returns the structured object (same keys as the source block).
+ * Throws on model/gateway error — the caller surfaces a friendly message.
  */
 export async function translateBlock(
   block: TranslationBlock,
   source: Record<string, unknown>,
-  targetLocale: TargetLocale,
+  sourceLocale: TranslateLocale,
+  targetLocale: TranslateLocale,
 ): Promise<BioBlock | ScoutingBlock> {
   const schema = SCHEMAS[block];
 
   const system = [
     "You are a professional sports translator for BallersHub, a football scouting platform.",
-    `Translate the player's own profile copy from Argentine Spanish (es-AR) into ${LOCALE_NAME[targetLocale]}.`,
+    `Translate the player's own profile copy from ${LOCALE_NAME[sourceLocale]} into ${LOCALE_NAME[targetLocale]}.`,
     "Keep the player's voice and meaning; professional, sporting, concise register; avoid literal machine-translation phrasing.",
     "If a source field is empty, return an empty string (and an empty array for lists). Do not invent content.",
     "Use this glossary EXACTLY whenever a term appears:",

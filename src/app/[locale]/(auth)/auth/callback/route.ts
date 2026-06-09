@@ -6,6 +6,22 @@ import { enrollUserInTriggerEvent } from "@/lib/marketing";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+// Native writing language guessed from how the user is browsing at sign-up, so
+// a pt/en/it visitor doesn't start the adaptive editor in es. Priority:
+// NEXT_LOCALE cookie (an explicit LocaleSwitcher pick) → URL locale prefix
+// (/pt/auth/callback → "pt"; es has no prefix) → es. Only seeded on first
+// sign-in; never overrides a later Settings choice. es stays canonical.
+function detectSignupLocale(req: Request): "es" | "en" | "it" | "pt" {
+  const isExtra = (v: string | undefined): v is "en" | "it" | "pt" =>
+    v === "en" || v === "it" || v === "pt";
+  const cookie = req.headers.get("cookie") ?? "";
+  const cookieLocale = cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/)?.[1];
+  if (isExtra(cookieLocale)) return cookieLocale;
+  const seg = new URL(req.url).pathname.split("/").filter(Boolean)[0];
+  if (isExtra(seg)) return seg;
+  return "es";
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
@@ -37,7 +53,13 @@ export async function GET(req: Request) {
 
       const isFirstSignIn = !existingProfile;
 
-      await supabase.from("user_profiles").upsert({ user_id: user.id }); // role=member
+      // role=member. On first sign-in, seed preferred_locale from the browsing
+      // language; on return, leave it untouched (preserves a Settings choice).
+      await supabase.from("user_profiles").upsert(
+        isFirstSignIn
+          ? { user_id: user.id, preferred_locale: detectSignupLocale(req) }
+          : { user_id: user.id },
+      );
 
       const [{ data: pp }, { data: rp }, { data: up }] = await Promise.all([
         supabase.from("player_profiles").select("id").eq("user_id", user.id).maybeSingle(),

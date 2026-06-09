@@ -99,6 +99,10 @@
     }
   },
   "settings": {
+    "nativeTitle": "Idioma nativo",
+    "nativeDescription": "O idioma em que você escreve seu perfil. Escolha aquele em que se sente mais à vontade.",
+    "nativeHint": "Seu perfil público sempre mantém uma versão em espanhol (é a URL principal). O assistente pode traduzir do seu idioma para os outros.",
+    "nativeSave": "Salvar idioma",
     "subscriptionTitle": "Assinatura",
     "subscriptionDescription": "Gerencie seu plano, downloads, métodos de pagamento e cancelamentos.",
     "alreadySubscribed": "Você já tem um plano {plan} ativo. Se quiser mudar, pode gerenciá-lo aqui ou cancelar o atual primeiro.",

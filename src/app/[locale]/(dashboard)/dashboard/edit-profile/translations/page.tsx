@@ -8,6 +8,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { subscriptions } from "@/db/schema/subscriptions";
+import { userProfiles } from "@/db/schema/users";
 import { eq } from "drizzle-orm";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import {
@@ -46,6 +47,16 @@ function toFields(src: {
     techniqueAnalysis: src.techniqueAnalysis ?? "",
     analysisAuthor: src.analysisAuthor ?? "",
   };
+}
+
+// Which AI provider powers the "Auto-completar" assistant, derived from the
+// configured model so the button can show the matching brand glyph. Mirrors
+// the default in src/lib/i18n/ai-translate.ts (gemini).
+function deriveAiProvider(model: string | undefined): "gemini" | "claude" | null {
+  const m = (model ?? "google/gemini-2.5-flash").toLowerCase();
+  if (m.includes("gemini") || m.startsWith("google/")) return "gemini";
+  if (m.includes("claude") || m.includes("anthropic")) return "claude";
+  return null;
 }
 
 export default async function TranslationsPage() {
@@ -158,7 +169,15 @@ export default async function TranslationsPage() {
     );
   }
 
-  // Pro → editor.
+  // Pro → editor. The editor adapts to the player's native language:
+  // preferred_locale is shown first ("tu idioma") and is the source the AI
+  // assistant translates FROM (model B1). es stays the canonical /slug.
+  const userProfile = await db.query.userProfiles.findFirst({
+    where: eq(userProfiles.userId, user.id),
+    columns: { preferredLocale: true },
+  });
+  const preferredLocale = (userProfile?.preferredLocale ?? "es") as ContentLocale;
+
   const baseEs = toFields(player as unknown as PlayerLocalizedFields);
   const translationsMap = await getPlayerTranslations(player.id);
   const translations: Partial<Record<ContentLocale, LocaleFields>> = {};
@@ -178,6 +197,8 @@ export default async function TranslationsPage() {
         baseEs={baseEs}
         translations={translations}
         initialAvailable={available}
+        preferredLocale={preferredLocale}
+        aiProvider={deriveAiProvider(process.env.AI_TRANSLATION_MODEL)}
       />
     </div>
   );
