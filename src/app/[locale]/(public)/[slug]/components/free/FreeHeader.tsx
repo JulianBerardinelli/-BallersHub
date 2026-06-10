@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Share2, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -117,10 +118,12 @@ export default function FreeHeader({
               aria-label={t("a11y.home")}
               className="w-9 h-9 md:w-10 md:h-10 rounded-full overflow-hidden border-2 border-white/20 shadow-inner shrink-0 pointer-events-auto"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={avatarUrl}
                 alt={fullName}
+                width={40}
+                height={40}
+                sizes="40px"
                 className="w-full h-full object-cover"
               />
             </button>

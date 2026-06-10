@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Maximize2 } from "lucide-react";
 import type { GalleryPhoto, PhotoSlot } from "./types";
@@ -37,17 +38,18 @@ export default function GalleryPhotoCard({ photo, slot, index, playerName, onOpe
           <div className="absolute inset-0 bg-gradient-to-br from-white/[0.05] via-white/[0.02] to-transparent animate-pulse" />
         )}
 
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        {/* next/image fill → AVIF/WebP + responsive srcset, lazy by default
+            (the gallery is below the fold, so nothing here should be eager and
+            compete with the hero LCP). The button is the positioned, aspect-
+            sized parent that `fill` needs. */}
+        <Image
           src={photo.url}
           alt={seoAlt}
           title={photo.title || seoAlt}
-          loading={index < 2 ? "eager" : "lazy"}
-          decoding="async"
-          fetchPriority={index === 0 ? "high" : "auto"}
+          fill
           sizes={slot.sizes}
           onLoad={() => setLoaded(true)}
-          className={`absolute inset-0 h-full w-full object-cover will-change-transform transition-[transform,opacity,filter] duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          className={`object-cover will-change-transform transition-[transform,opacity,filter] duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
             loaded ? "opacity-100 scale-100 blur-0" : "opacity-0 scale-[1.06] blur-sm"
           } group-hover:scale-[1.04]`}
         />
