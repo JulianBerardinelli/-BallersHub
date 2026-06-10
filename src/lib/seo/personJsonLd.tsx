@@ -75,6 +75,8 @@ const HOME_LABEL: Record<Locale, string> = {
 // for any unmapped code — a clean human label beats a raw code.
 const POSITION_LABELS: Record<Locale, Record<string, string>> = {
   es: {
+    // Parent roles (positions[0] when no sub-position is saved).
+    DEF: "Defensor", MID: "Mediocampista", DEL: "Delantero",
     POR: "Arquero", ARQ: "Arquero", DFC: "Defensor central",
     LD: "Lateral derecho", LI: "Lateral izquierdo", CAR: "Carrilero",
     MC: "Mediocampista central", MCD: "Mediocampista defensivo",
@@ -84,6 +86,7 @@ const POSITION_LABELS: Record<Locale, Record<string, string>> = {
     SD: "Segundo delantero",
   },
   en: {
+    DEF: "Defender", MID: "Midfielder", DEL: "Forward",
     POR: "Goalkeeper", ARQ: "Goalkeeper", DFC: "Center back",
     LD: "Right back", LI: "Left back", CAR: "Wing-back",
     MC: "Central midfielder", MCD: "Defensive midfielder",
@@ -93,6 +96,7 @@ const POSITION_LABELS: Record<Locale, Record<string, string>> = {
     SD: "Second striker",
   },
   it: {
+    DEF: "Difensore", MID: "Centrocampista", DEL: "Attaccante",
     POR: "Portiere", ARQ: "Portiere", DFC: "Difensore centrale",
     LD: "Terzino destro", LI: "Terzino sinistro", CAR: "Tornante",
     MC: "Centrocampista centrale", MCD: "Mediano",
@@ -102,6 +106,7 @@ const POSITION_LABELS: Record<Locale, Record<string, string>> = {
     SD: "Seconda punta",
   },
   pt: {
+    DEF: "Defensor", MID: "Meio-campista", DEL: "Atacante",
     POR: "Goleiro", ARQ: "Goleiro", DFC: "Zagueiro",
     LD: "Lateral direito", LI: "Lateral esquerdo", CAR: "Ala",
     MC: "Meio-campo central", MCD: "Volante",
