@@ -3,12 +3,13 @@
 import { useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ImagePlus } from "lucide-react";
 import type { PublicProfileData } from "./LayoutResolver";
 import ProPlayerHeader from "./ProPlayerHeader";
-import { formatPlayerPositions } from "@/lib/format";
+import { localizePlayerPositions } from "@/lib/i18n/positions";
+import type { Locale } from "@/i18n/routing";
 
 // Code-split the floating-video components: each pulls in a YouTube iframe +
 // its own CSS, so we keep them out of the initial bundle. ssr:false keeps
@@ -79,6 +80,7 @@ export default function ProAthleteLayout({ data, children }: { data: PublicProfi
 function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, children?: React.ReactNode }) {
   const { player, theme, heroFloatingVideo } = data;
   const t = useTranslations("portfolio");
+  const locale = useLocale() as Locale;
   const containerRef = useRef<HTMLDivElement>(null);
   const playerSlug = (player as { slug?: string | null }).slug ?? "";
 
@@ -290,7 +292,7 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
                     {/* Muestra la PRIMERA posición (la principal) tras filtrar
                         los roles padre. El orden lo preserva
                         formatPlayerPositions desde player.positions. */}
-                    {formatPlayerPositions(player.positions).split(" / ")[0]}
+                    {localizePlayerPositions(player.positions, locale).split(" / ")[0]}
                   </div>
                 )}
 

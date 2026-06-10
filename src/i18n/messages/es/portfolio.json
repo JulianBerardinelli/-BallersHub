@@ -1,4 +1,18 @@
 {
+  "bioCard": {
+    "mindsetBio": "Mentalidad & Bio",
+    "bioFallback": "Buscando información biográfica confidencial...",
+    "age": "Edad",
+    "years": "Años",
+    "physical": "Físico",
+    "club": "Club Actual",
+    "freeAgent": "Agente libre",
+    "passport": "Pasaporte",
+    "citizen": "Ciudadano",
+    "residence": "Actualmente rsd. en",
+    "languages": "Idiomas",
+    "education": "Educación"
+  },
   "nav": {
     "bio": "Bio",
     "video": "Video",
@@ -181,6 +195,10 @@
     "enlargedImage": "Ampliada"
   },
   "modules": {
+    "press": {
+      "eyebrow": "Publicaciones",
+      "title": "Prensa & Notas"
+    },
     "career": {
       "eyebrow": "Historial Deportivo",
       "title": "Trayectoria",
