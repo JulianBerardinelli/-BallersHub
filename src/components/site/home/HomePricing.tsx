@@ -1,7 +1,7 @@
 // Pricing plans on the home, right below the video grid. Reuses the EXACT
-// /pricing UI — audience (Jugador ↔ Agencia) + currency (USD/ARS/EUR) toggles
-// and the plan cards — so the two stay in sync. Condensed: just the heading +
-// toggles + cards (the full comparison table / FAQ live on /pricing).
+// /pricing UI — audience (Jugador ↔ Agencia) + currency (USD/ARS/EUR) toggles,
+// the plan cards and the feature comparison table — so the two stay in sync.
+// Only the FAQ stays exclusive to /pricing (linked at the bottom).
 //
 // Server component composing the client pricing pieces (same pattern as the
 // /pricing page), so the cards SSR. `m` animations work via the (site) layout's
@@ -10,7 +10,12 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-import { PricingPlans, PricingProvider, PricingToggles } from "@/components/site/pricing";
+import {
+  PricingComparisonTable,
+  PricingPlans,
+  PricingProvider,
+  PricingToggles,
+} from "@/components/site/pricing";
 
 export default function HomePricing() {
   return (
@@ -39,12 +44,16 @@ export default function HomePricing() {
           <PricingPlans />
         </div>
 
-        <div className="mt-8 text-center">
+        <div className="mt-20">
+          <PricingComparisonTable />
+        </div>
+
+        <div className="mt-12 text-center">
           <Link
             href="/pricing"
             className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-bh-fg-3 transition-colors duration-150 hover:text-bh-fg-1"
           >
-            Ver comparación completa y FAQ
+            Ver preguntas frecuentes
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>

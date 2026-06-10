@@ -25,6 +25,10 @@ import { usePricing } from "./PricingContext";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
+// Demo preview ("Ver demo") temporarily disabled across the home + /pricing.
+// Flip back to true to restore the expandable PricingDetailPanel under the cards.
+const DEMO_ENABLED: boolean = false;
+
 export default function PricingPlans() {
   const t = useTranslations("pricing");
   const { audience, currency } = usePricing();
@@ -36,11 +40,13 @@ export default function PricingPlans() {
   // to that audience's highlighted plan. We deliberately do NOT include
   // `plans` in the deps — the array reference changes every render.
   const [activeId, setActiveId] = useState<PlanId | null>(() => {
+    if (!DEMO_ENABLED) return null;
     const next = plansForT(t, "player");
     return next.find((p) => p.highlight)?.id ?? next[0]?.id ?? null;
   });
 
   useEffect(() => {
+    if (!DEMO_ENABLED) return;
     const next = plansForT(t, audience);
     setActiveId(next.find((p) => p.highlight)?.id ?? next[0]?.id ?? null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,7 +91,7 @@ export default function PricingPlans() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait" initial={false}>
-        {activePlan && (
+        {DEMO_ENABLED && activePlan && (
           <PricingDetailPanel
             key={activePlan.id}
             plan={planToDetailPlan(activePlan, accent, currency)}
@@ -246,20 +252,22 @@ function PlanCard({
           <ArrowRight className="h-4 w-4" />
         </Link>
 
-        <button
-          type="button"
-          onClick={onToggle}
-          aria-expanded={active}
-          aria-controls={`plan-detail-${plan.id}`}
-          className={`group inline-flex w-full items-center justify-center gap-2 rounded-bh-md border px-4 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all duration-200 ${demoBtnClass}`}
-        >
-          {t("plans.viewDemo")}
-          <ChevronDown
-            className={`h-3.5 w-3.5 transition-transform duration-200 ${
-              active ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+        {DEMO_ENABLED && (
+          <button
+            type="button"
+            onClick={onToggle}
+            aria-expanded={active}
+            aria-controls={`plan-detail-${plan.id}`}
+            className={`group inline-flex w-full items-center justify-center gap-2 rounded-bh-md border px-4 py-2.5 text-[11.5px] font-bold uppercase tracking-[0.16em] transition-all duration-200 ${demoBtnClass}`}
+          >
+            {t("plans.viewDemo")}
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                active ? "rotate-180" : ""
+              }`}
+            />
+          </button>
+        )}
       </div>
     </article>
   );
