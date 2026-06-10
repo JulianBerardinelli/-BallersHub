@@ -6,6 +6,7 @@
 
 import * as React from "react";
 
+import { Link } from "@/i18n/navigation";
 import { SCOUT_COUNTRIES, type ScoutCountry, type TagPlayer } from "./data";
 import { FONT_BODY, FONT_DISPLAY } from "./useHeroScroll";
 
@@ -145,6 +146,7 @@ export const Btn = ({
   size = "lg",
   accent = "#CCFF00",
   onClick,
+  href,
   style = {},
 }: {
   children: React.ReactNode;
@@ -152,6 +154,8 @@ export const Btn = ({
   size?: "sm" | "lg";
   accent?: string;
   onClick?: () => void;
+  /** When set, renders a real (locale-aware) link instead of a <button>. */
+  href?: string;
   style?: React.CSSProperties;
 }) => {
   const [h, sH] = React.useState(false);
@@ -160,9 +164,17 @@ export const Btn = ({
     ? { background: accent, color: "#080808", border: "none", boxShadow: h ? `0 8px 30px ${accent}55` : `0 2px 14px ${accent}33`, transform: h ? "translateY(-1px)" : "none" }
     : { background: h ? "rgba(255,255,255,0.07)" : "transparent", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", transform: h ? "translateY(-1px)" : "none" };
   const sz: React.CSSProperties = size === "sm" ? { fontSize: 13, padding: "8px 16px" } : { fontSize: 15, padding: "13px 26px" };
+  const css: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 9, fontFamily: FONT_BODY, fontWeight: 600, borderRadius: 10, cursor: "pointer", transition: "all 180ms cubic-bezier(0.25,0,0,1)", whiteSpace: "nowrap", textDecoration: "none", ...base, ...sz, ...style };
+  const hov = { onMouseEnter: () => sH(true), onMouseLeave: () => sH(false) };
+  if (href) {
+    return (
+      <Link href={href} onClick={onClick} {...hov} style={css}>
+        {children}
+      </Link>
+    );
+  }
   return (
-    <button onClick={onClick} onMouseEnter={() => sH(true)} onMouseLeave={() => sH(false)} type="button"
-      style={{ display: "inline-flex", alignItems: "center", gap: 9, fontFamily: FONT_BODY, fontWeight: 600, borderRadius: 10, cursor: "pointer", transition: "all 180ms cubic-bezier(0.25,0,0,1)", whiteSpace: "nowrap", ...base, ...sz, ...style }}>
+    <button onClick={onClick} {...hov} type="button" style={css}>
       {children}
     </button>
   );

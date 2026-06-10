@@ -16,6 +16,7 @@ const NAV: NavItem[] = [
   { href: "/players", key: "players" },
   { href: "/agencies", key: "agencies" },
   { href: "/pricing", key: "plans" },
+  { href: "/como-validamos", key: "howWeValidate" },
   { href: "/about", key: "about" },
 ];
 
