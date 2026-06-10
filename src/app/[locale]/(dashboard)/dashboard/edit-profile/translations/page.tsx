@@ -21,10 +21,8 @@ import {
 
 import TranslationsEditor, {
   type LocaleFields,
-} from "./components/TranslationsEditor";
-import HonoursTranslationsEditor, {
   type EditorHonour,
-} from "./components/HonoursTranslationsEditor";
+} from "./components/TranslationsEditor";
 
 const ROUTE = "/dashboard/edit-profile/translations";
 
@@ -222,11 +220,7 @@ export default async function TranslationsPage() {
         initialAvailable={available}
         preferredLocale={preferredLocale}
         aiProvider={deriveAiProvider(process.env.AI_TRANSLATION_MODEL)}
-      />
-      <HonoursTranslationsEditor
-        playerId={player.id}
         honours={honours}
-        preferredLocale={preferredLocale}
       />
     </div>
   );
