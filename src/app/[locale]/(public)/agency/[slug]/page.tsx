@@ -15,6 +15,7 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import AgencyLayoutResolver, { type AgencyPublicData } from "./components/AgencyLayoutResolver";
 import { AgencyJsonLd } from "@/lib/seo/agencyJsonLd";
+import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
 import { conditionalAlternates } from "@/lib/seo/hreflang";
 import {
   getAvailableAgencyLocales,
@@ -288,6 +289,11 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
 
   return (
     <>
+      <PortfolioLocaleSwitcher
+        basePath={`/agency/${slug}`}
+        available={availableLocales}
+        current={locale}
+      />
       {/*
         SportsOrganization JSON-LD. Closes the `worksFor` cross-reference
         that Pro player @graphs emit pointing back at this agency. See
