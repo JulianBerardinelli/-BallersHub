@@ -157,13 +157,8 @@
     },
     "validation": {
       "name": "Validation team",
-      "role": "Sports scouting",
-      "bio": "Active players, former players and analysts who verify every profile. They know the craft because they live it or lived it — they can tell real data from inflated data and keep the network's quality high."
-    },
-    "operations": {
-      "name": "Operations team",
-      "role": "Support · Onboarding",
-      "bio": "They guide players and agencies through every step of joining the platform. Assisted onboarding, human support and fast responses."
+      "role": "Scouting · Support",
+      "bio": "Active players, former players and analysts who verify every profile and guide players and agencies as they join. They can tell real data from inflated data, keep the network's quality high, and give human support at every step: assisted onboarding and fast responses."
     }
   },
   "partners": {

@@ -221,7 +221,6 @@ export function getTeam(t: AboutT): TeamMember[] {
   return [
     { name: "Julián Berardinelli", role: t("team.julian.role"), bio: t("team.julian.bio"), initials: "JB", accent: "lime", imageSrc: undefined },
     { name: t("team.validation.name"), role: t("team.validation.role"), bio: t("team.validation.bio"), initials: "SC", accent: "blue", imageSrc: undefined },
-    { name: t("team.operations.name"), role: t("team.operations.role"), bio: t("team.operations.bio"), initials: "OP", accent: "lime", imageSrc: undefined },
   ];
 }
 
