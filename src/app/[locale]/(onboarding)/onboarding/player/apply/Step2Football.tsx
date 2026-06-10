@@ -195,7 +195,7 @@ export default function Step2Football({
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
             Perfiles externos <span className="text-bh-fg-4">(opcional)</span>
           </h3>
-          <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+          <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <FormField
               id="bh-tm"
               label="Transfermarkt"

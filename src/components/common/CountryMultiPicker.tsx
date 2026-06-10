@@ -122,6 +122,10 @@ React.useEffect(() => {
         onInputChange={setInputValue}
         onSelectionChange={(key) => addByCode(key as string)}
         items={filteredItems}
+        // This picker commits straight to chips, so it never keeps a selection.
+        // Pinning selectedKey to null stops React-Aria from holding a stale code
+        // (which broke typing the 2nd nationality and re-adding a removed one).
+        selectedKey={null}
         isInvalid={isInvalid}
         errorMessage={errorMessage}
         disabledKeys={disabledKeys as any}

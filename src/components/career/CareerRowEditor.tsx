@@ -329,7 +329,7 @@ export default function CareerRowEditor({
       placement: "bottom-start" as const,
       classNames: {
         content:
-          "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg min-w-[320px] max-w-[420px]",
+          "bg-bh-surface-1 border border-white/[0.08] shadow-[0_16px_48px_rgba(0,0,0,0.7)] p-1 rounded-bh-lg min-w-[min(92vw,320px)] max-w-[420px]",
       },
     },
   };

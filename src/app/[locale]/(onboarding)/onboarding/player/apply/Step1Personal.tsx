@@ -92,9 +92,9 @@ export default function Step1Personal({
 
   return (
     <div className="space-y-6">
-      <div className="grid min-h-[560px] gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+      <div className="grid min-h-[560px] grid-cols-1 gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
         {/* email + nombre */}
-        <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(220px,1fr))]">
+        <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
           <FormField
             id="bh-email"
             label="Email de la cuenta"
@@ -119,7 +119,7 @@ export default function Step1Personal({
         {/* nacionalidades + fecha */}
         <div
             onBlurCapture={() => setTouched((t) => ({ ...t, nationalities: true }))}
-            className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(260px,1fr))]">
+            className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
           <CountryMultiPicker
             defaultValue={[]}
             onChange={setNats}
@@ -144,7 +144,7 @@ export default function Step1Personal({
         </div>
 
         {/* medidas arriba de posición */}
-        <div className="grid auto-rows-fr gap-3 [grid-template-columns:repeat(auto-fit,minmax(180px,1fr))]">
+        <div className="grid auto-rows-fr gap-3 grid-cols-2">
           <FormField
             id="bh-height"
             isRequired
@@ -174,7 +174,7 @@ export default function Step1Personal({
         </div>
 
         {/* posición */}
-        <div className="grid gap-2">
+        <div className="grid grid-cols-1 gap-2">
           <label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
             Posición <span className="text-bh-danger">*</span>
           </label>

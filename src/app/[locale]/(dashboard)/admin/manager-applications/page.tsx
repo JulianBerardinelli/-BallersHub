@@ -127,7 +127,7 @@ export default async function AdminManagerApplicationsPage() {
             key={app.id}
             className="flex flex-col gap-6 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5 md:flex-row"
           >
-            <div className="flex-1 space-y-2 text-sm text-bh-fg-2">
+            <div className="min-w-0 flex-1 space-y-2 break-words text-sm text-bh-fg-2">
               <p>
                 <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
                   Manager

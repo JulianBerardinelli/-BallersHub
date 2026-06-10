@@ -95,7 +95,7 @@ function EditableItem({
 
   return (
     <li
-      className={`flex items-center gap-2 min-w-0 p-2 rounded-lg ring-1 ring-white/10 ${
+      className={`flex flex-wrap items-center gap-2 min-w-0 p-2 rounded-lg ring-1 ring-white/10 ${
         editing ? "bg-warning-50" : "bg-content2/60"
       }`}
     >

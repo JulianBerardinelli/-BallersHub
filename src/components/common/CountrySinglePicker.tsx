@@ -70,14 +70,26 @@ export default function CountrySinglePicker({
       labelPlacement="outside"
       menuTrigger="input"
       inputValue={inputValue}
-      onInputChange={(v) => setInputValue(v)}
+      onInputChange={(v) => {
+        setInputValue(v);
+        // Emptying the field is an explicit clear. Handle it here — reading the
+        // fresh `v` — instead of in onSelectionChange, whose `inputValue` closure
+        // can still hold the pre-clear value when React-Aria fires it in the same
+        // tick (which would skip the clear and keep a stale country on submit).
+        if (v.trim() === "" && value) onChange(null);
+      }}
       onSelectionChange={(key) => {
-        const k = String(key);
-        const found = filtered.find(i => i.code === k);
+        // key=null is React-Aria's "input no longer matches the pick" signal while
+        // typing; the real clear is handled in onInputChange above.
+        if (key == null) return;
+        const found = items.find((i) => i.code === String(key));
         onChange(found ?? null);
       }}
       items={filtered}
-      selectedKey={value?.code}
+      // Only claim a selectedKey while the input still shows the picked country.
+      // The moment the user edits it, drop the key so React-Aria isn't left
+      // holding a code that filtering removed from the list (the typing bug).
+      selectedKey={value && norm(inputValue) === norm(value.name) ? value.code : null}
       placeholder={placeholder}
       isInvalid={isInvalid}
       errorMessage={errorMessage}
