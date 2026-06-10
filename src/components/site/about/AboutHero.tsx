@@ -78,7 +78,7 @@ export default async function AboutHero() {
               className="object-cover"
             />
           ) : (
-            <PlaceholderArtwork photoLabel={t("heroExtra.photoBadge")} />
+            <BrandPanel />
           )}
 
           {/* Overlay degradado para legibilidad del badge */}
@@ -113,21 +113,13 @@ export default async function AboutHero() {
 }
 
 /* ---------------------------------------------- */
-/* Placeholder visual mientras no exista foto real */
+/* Panel de marca — placeholder mientras no exista  */
+/* foto real del equipo. Muestra el isotipo + el    */
+/* wordmark como lockup intencional, no un hueco.    */
 /* ---------------------------------------------- */
-function PlaceholderArtwork({ photoLabel }: { photoLabel: string }) {
+function BrandPanel() {
   return (
     <div className="absolute inset-0">
-      {/* Textura sutil de cancha (asset ya disponible en /public/images/pack/textures) */}
-      <div
-        aria-hidden
-        className="absolute inset-0 opacity-[0.18] mix-blend-overlay"
-        style={{
-          backgroundImage: "url(/images/pack/textures/grass_2.jpg)",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
       {/* Mesh gradient corporativo */}
       <div
         aria-hidden
@@ -151,10 +143,21 @@ function PlaceholderArtwork({ photoLabel }: { photoLabel: string }) {
             "radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%)",
         }}
       />
-      {/* Tag superior — indica que es slot para imagen real */}
-      <div className="absolute left-5 top-5 inline-flex items-center gap-2 rounded-bh-pill border border-white/[0.10] bg-bh-black/50 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-bh-fg-2 backdrop-blur-md">
-        <span className="inline-block h-1.5 w-1.5 rounded-full bg-bh-lime" />
-        {photoLabel}
+      {/* Isotipo + wordmark centrados */}
+      <div className="relative flex h-full flex-col items-center justify-center gap-5 px-8 pb-20">
+        <div
+          role="img"
+          aria-label="'BallersHub"
+          className="h-28 w-28 md:h-36 md:w-36"
+          style={{
+            backgroundImage: "url(/images/logo/isotipo-lime.svg)",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            backgroundSize: "contain",
+            filter: "drop-shadow(0 0 32px rgba(204,255,0,0.30))",
+          }}
+        />
+        <Wordmark size="hero" className="text-center" />
       </div>
     </div>
   );

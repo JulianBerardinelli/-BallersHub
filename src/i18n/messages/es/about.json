@@ -157,13 +157,8 @@
     },
     "validation": {
       "name": "Equipo de validación",
-      "role": "Scouting deportivo",
-      "bio": "Jugadores en actividad, ex-jugadores y analistas que verifican cada perfil. Conocen el oficio porque lo viven o lo vivieron — saben distinguir un dato real de un dato inflado y mantienen la calidad de la red."
-    },
-    "operations": {
-      "name": "Equipo de operaciones",
-      "role": "Soporte · Onboarding",
-      "bio": "Acompañan a jugadores y agencias en cada paso de su incorporación a la plataforma. Onboarding asistido, soporte humano y respuesta rápida."
+      "role": "Scouting · Soporte",
+      "bio": "Jugadores en actividad, ex-jugadores y analistas que verifican cada perfil y acompañan a jugadores y agencias en su incorporación. Saben distinguir un dato real de uno inflado, mantienen la calidad de la red y dan soporte humano en cada paso: onboarding asistido y respuesta rápida."
     }
   },
   "partners": {

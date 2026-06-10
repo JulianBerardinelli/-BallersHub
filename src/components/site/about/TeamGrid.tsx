@@ -30,7 +30,7 @@ export default async function TeamGrid() {
         </p>
       </header>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid max-w-3xl gap-5 sm:grid-cols-2">
         {team.map((member) => (
           <TeamCard key={member.name} member={member} />
         ))}
