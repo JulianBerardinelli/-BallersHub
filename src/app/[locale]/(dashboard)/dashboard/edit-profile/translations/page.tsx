@@ -8,7 +8,6 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { subscriptions } from "@/db/schema/subscriptions";
-import { userProfiles } from "@/db/schema/users";
 import { playerHonours } from "@/db/schema/profilePublishing";
 import { desc, eq } from "drizzle-orm";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
@@ -172,15 +171,8 @@ export default async function TranslationsPage() {
     );
   }
 
-  // Pro → editor. The editor adapts to the player's native language:
-  // preferred_locale is shown first ("tu idioma") and is the source the AI
-  // assistant translates FROM (model B1). es stays the canonical /slug.
-  const userProfile = await db.query.userProfiles.findFirst({
-    where: eq(userProfiles.userId, user.id),
-    columns: { preferredLocale: true },
-  });
-  const preferredLocale = (userProfile?.preferredLocale ?? "es") as ContentLocale;
-
+  // Pro → editor. es is the canonical base (the 8 fields are written in es in
+  // Football data); this editor only TRANSLATES into en/it/pt.
   const baseEs = toFields(player as unknown as PlayerLocalizedFields);
   const translationsMap = await getPlayerTranslations(player.id);
   const translations: Partial<Record<ContentLocale, LocaleFields>> = {};
@@ -218,7 +210,6 @@ export default async function TranslationsPage() {
         baseEs={baseEs}
         translations={translations}
         initialAvailable={available}
-        preferredLocale={preferredLocale}
         aiProvider={deriveAiProvider(process.env.AI_TRANSLATION_MODEL)}
         honours={honours}
       />
