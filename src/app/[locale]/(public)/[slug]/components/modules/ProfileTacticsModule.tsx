@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import type { Locale } from "@/i18n/routing";
+import { getPositionTactics } from "@/lib/i18n/position-tactics";
 import {
   motion,
   useInView,
@@ -700,6 +702,7 @@ export default function ProfileTacticsModule({
   isScoutingProp?: boolean;
 }) {
   const t = useTranslations("portfolio");
+  const locale = useLocale() as Locale;
   const videos = media.filter((m) => m.type === "video");
   const sectionRef = useRef<HTMLElement>(null);
   const [isScouting, setIsScouting] = useState(isScoutingProp);
@@ -877,7 +880,7 @@ export default function ProfileTacticsModule({
                     <div className="flex flex-col gap-2.5 flex-1 min-w-0 pr-0.5 overflow-y-auto scrollbar-hide">
                       {validPositions.length > 0 ? (
                         validPositions.map((posCode: string) => {
-                          const cfg = POSITIONS_MAP[posCode.toUpperCase()];
+                          const cfg = getPositionTactics(posCode, locale);
                           const color = getPositionColor(posCode);
                           return (
                             <MobilePositionCard
@@ -1008,8 +1011,8 @@ export default function ProfileTacticsModule({
                           {t("scouting.keyAttributes")}
                         </h5>
                         {validPositions.map((posCode: string, i: number) => {
-                          const cfg = POSITIONS_MAP[posCode.toUpperCase()];
-                          if (!cfg || cfg.strengths.length === 0) return null;
+                          const cfg = getPositionTactics(posCode, locale);
+                          if (cfg.strengths.length === 0) return null;
                           const color = getPositionColor(posCode);
                           return (
                             <div

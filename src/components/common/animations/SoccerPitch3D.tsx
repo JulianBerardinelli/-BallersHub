@@ -2,6 +2,9 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocale } from "next-intl";
+import type { Locale } from "@/i18n/routing";
+import { getPositionTactics } from "@/lib/i18n/position-tactics";
 
 // Posiciones al porcentaje en el campo (equipo atacando hacia "arriba")
 export const POSITIONS_MAP: Record<string, { top: string; left: string; label: string; area: string; strengths: string[] }> = {
@@ -85,12 +88,23 @@ export function getPositionColor(posCode: string | null | undefined): string {
   return category ? POSITION_COLORS[category] : "#FFFFFF";
 }
 
+// Pitch-card chrome per locale (decoupled from the portfolio namespace so this
+// common component stays self-contained).
+const PITCH_CHROME: Record<Locale, { position: string; zone: string }> = {
+  es: { position: "Posición", zone: "Zona de Influencia" },
+  en: { position: "Position", zone: "Zone of influence" },
+  it: { position: "Ruolo", zone: "Zona d'influenza" },
+  pt: { position: "Posição", zone: "Zona de influência" },
+};
+
 export default function SoccerPitch3D({
   playerPositions = [],
 }: {
   playerPositions?: string[];
   characteristics?: string[];
 }) {
+  const locale = useLocale() as Locale;
+  const chrome = PITCH_CHROME[locale] ?? PITCH_CHROME.es;
   const validPositions = playerPositions
     .filter(p => !["ARQ", "DEF", "MID", "DEL"].includes(p.toUpperCase().trim()))
     .map(p => normalizePosition(p))
@@ -192,6 +206,7 @@ export default function SoccerPitch3D({
       <AnimatePresence mode="wait">
         {validPositions.map((posCode, i) => {
           const config = POSITIONS_MAP[posCode.toUpperCase()];
+          const tac = getPositionTactics(posCode, locale);
           const color = getPositionColor(posCode);
 
           const SLOTS = [
@@ -226,10 +241,10 @@ export default function SoccerPitch3D({
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <span className="block text-[9px] font-black uppercase tracking-[0.2em] text-white/50 mb-0.5">
-                    Posición
+                    {chrome.position}
                   </span>
                   <h4 className="text-base sm:text-lg font-black text-white uppercase leading-tight">
-                    {config.label}
+                    {tac.label}
                   </h4>
                 </div>
                 <div 
@@ -242,10 +257,10 @@ export default function SoccerPitch3D({
 
               <div>
                 <span className="block text-[9px] font-black uppercase tracking-[0.2em] mb-1 text-white/70">
-                  Zona de Influencia
+                  {chrome.zone}
                 </span>
                 <p className="text-xs font-bold text-white/80 uppercase tracking-widest">
-                  {config.area}
+                  {tac.area}
                 </p>
               </div>
             </motion.div>
