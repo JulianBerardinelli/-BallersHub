@@ -490,3 +490,123 @@ export async function generateTranslationDraft(input: {
         : "Nueva versión generada. Revisala y guardá si te gusta.",
   };
 }
+
+// ---------------------------------------------------------------------------
+// Honours (palmarés) translations — F6. Base honour lives on player_honours
+// (es, edited in football-data); en/it/pt overrides go to
+// player_honour_translations. Same Pro gate + per-field es fallback.
+// ---------------------------------------------------------------------------
+
+const honourFieldsSchema = z.object({
+  title: z.string().trim().max(200).optional(),
+  competition: z.string().trim().max(200).optional(),
+  description: z.string().trim().max(1000).optional(),
+});
+
+const honourSaveSchema = z.object({
+  playerId: z.string().uuid(),
+  honourId: z.string().uuid(),
+  // es is the base (player_honours), edited in football-data — never here.
+  locale: z.enum(["en", "it", "pt"]),
+  fields: honourFieldsSchema,
+});
+
+const honourDeleteSchema = z.object({
+  playerId: z.string().uuid(),
+  honourId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+});
+
+export type HonourTranslationFields = z.infer<typeof honourFieldsSchema>;
+export type HonourActionResult =
+  | { success: true; message: string }
+  | { success: false; message: string };
+
+/** Confirm the honour belongs to the (already Pro-owned) player. */
+async function honourBelongsToPlayer(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>,
+  honourId: string,
+  playerId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("player_honours")
+    .select("id")
+    .eq("id", honourId)
+    .eq("player_id", playerId)
+    .maybeSingle<{ id: string }>();
+  return !!data;
+}
+
+export async function saveHonourTranslation(input: {
+  playerId: string;
+  honourId: string;
+  locale: string;
+  fields: HonourTranslationFields;
+}): Promise<HonourActionResult> {
+  const parsed = honourSaveSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { playerId, honourId, locale, fields } = parsed.data;
+
+  const { owned, error } = await ensureProOwner(playerId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  if (!(await honourBelongsToPlayer(owned.supabase, honourId, playerId))) {
+    return { success: false, message: "No encontramos ese palmarés en tu perfil." };
+  }
+
+  const norm = (v: string | undefined) => {
+    const t = v?.trim();
+    return t && t.length > 0 ? t : null;
+  };
+
+  const { error: upsertError } = await owned.supabase
+    .from("player_honour_translations")
+    .upsert(
+      {
+        honour_id: honourId,
+        locale,
+        title: norm(fields.title),
+        competition: norm(fields.competition),
+        description: norm(fields.description),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "honour_id,locale" },
+    );
+
+  if (upsertError) return { success: false, message: mapPostgrestError(upsertError) };
+
+  revalidateAllLocales(owned.slug);
+  return {
+    success: true,
+    message: "Palmarés traducido. Ya es visible en ese idioma.",
+  };
+}
+
+export async function deleteHonourTranslation(input: {
+  playerId: string;
+  honourId: string;
+  locale: string;
+}): Promise<HonourActionResult> {
+  const parsed = honourDeleteSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { playerId, honourId, locale } = parsed.data;
+
+  const { owned, error } = await ensureProOwner(playerId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  if (!(await honourBelongsToPlayer(owned.supabase, honourId, playerId))) {
+    return { success: false, message: "No encontramos ese palmarés en tu perfil." };
+  }
+
+  const { error: delError } = await owned.supabase
+    .from("player_honour_translations")
+    .delete()
+    .eq("honour_id", honourId)
+    .eq("locale", locale);
+
+  if (delError) return { success: false, message: mapPostgrestError(delError) };
+
+  revalidateAllLocales(owned.slug);
+  return {
+    success: true,
+    message: "Traducción eliminada. Ese palmarés vuelve a mostrarse en español.",
+  };
+}
