@@ -70,15 +70,18 @@ export default function CountrySinglePicker({
       labelPlacement="outside"
       menuTrigger="input"
       inputValue={inputValue}
-      onInputChange={(v) => setInputValue(v)}
+      onInputChange={(v) => {
+        setInputValue(v);
+        // Emptying the field is an explicit clear. Handle it here — reading the
+        // fresh `v` — instead of in onSelectionChange, whose `inputValue` closure
+        // can still hold the pre-clear value when React-Aria fires it in the same
+        // tick (which would skip the clear and keep a stale country on submit).
+        if (v.trim() === "" && value) onChange(null);
+      }}
       onSelectionChange={(key) => {
-        // HeroUI emits key=null while the user types a query that no longer
-        // matches the current pick. Only treat a genuinely empty field as an
-        // intentional clear, so we never wipe what's being typed.
-        if (key == null) {
-          if (inputValue.trim() === "") onChange(null);
-          return;
-        }
+        // key=null is React-Aria's "input no longer matches the pick" signal while
+        // typing; the real clear is handled in onInputChange above.
+        if (key == null) return;
         const found = items.find((i) => i.code === String(key));
         onChange(found ?? null);
       }}
