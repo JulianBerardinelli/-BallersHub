@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe, Languages, RefreshCw, Save, Sparkles, Trash2, Trophy } from "lucide-react";
-import { useLocale } from "next-intl";
+import { Check, Globe, RefreshCw, Save, Sparkles, Trash2, Trophy } from "lucide-react";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
@@ -17,7 +16,6 @@ import {
   type TranslationFields,
   type HonourTranslationFields,
 } from "../actions";
-import { setPreferredLocale } from "../../../settings/account/actions";
 
 export type LocaleFields = {
   bio: string;
@@ -97,17 +95,8 @@ function emptyFields(): LocaleFields {
   };
 }
 
-function completeness(f: LocaleFields | undefined): number {
-  if (!f) return 0;
-  const filled = FIELD_KEYS.filter((k) => {
-    const v = f[k];
-    return Array.isArray(v) ? v.length > 0 : v.trim().length > 0;
-  }).length;
-  return Math.round((filled / FIELD_KEYS.length) * 100);
-}
-
-function normalizeLocale(value: string): AnyLocale {
-  return (BASE_ORDER as string[]).includes(value) ? (value as AnyLocale) : "es";
+function filled(v: string | string[] | undefined): boolean {
+  return Array.isArray(v) ? v.length > 0 : (v ?? "").trim().length > 0;
 }
 
 export default function TranslationsEditor({
@@ -115,7 +104,6 @@ export default function TranslationsEditor({
   baseEs,
   translations,
   initialAvailable,
-  preferredLocale,
   aiProvider,
   honours,
 }: {
@@ -123,21 +111,13 @@ export default function TranslationsEditor({
   baseEs: LocaleFields;
   translations: Partial<Record<EditableLocale, LocaleFields>>;
   initialAvailable: string[];
-  preferredLocale: string;
   aiProvider: AiProvider;
   honours: EditorHonour[];
 }) {
-  // The player's native language leads the list and is the source the AI
-  // assistant translates FROM (model B1). es stays the canonical /slug. It's
-  // state so the "write in your language?" prompt can switch it in place.
-  const uiLocale = useLocale();
-  const [native, setNative] = useState<AnyLocale>(normalizeLocale(preferredLocale));
-  const orderedLocales: AnyLocale[] = [
-    native,
-    ...BASE_ORDER.filter((l) => l !== native),
-  ];
-
-  const [active, setActive] = useState<AnyLocale>(normalizeLocale(preferredLocale));
+  // es is the canonical base: the 8 fields are written in es in Football data
+  // and the honours come from there too. This editor ONLY translates into
+  // en/it/pt — you can't edit/stand on es here (it's the source).
+  const [active, setActive] = useState<EditableLocale>("en");
   const [available, setAvailable] = useState<string[]>(initialAvailable);
   const [drafts, setDrafts] = useState<Record<AnyLocale, LocaleFields>>({
     es: baseEs,
@@ -176,45 +156,21 @@ export default function TranslationsEditor({
     });
   }
 
-  // First-visit nudge: if the player browses in another language but their
-  // native is still es (the default), offer to switch — catches users the
-  // sign-up auto-seed missed. localStorage-gated so it asks at most once.
-  const promptLocale: EditableLocale | null =
-    uiLocale === "en" || uiLocale === "it" || uiLocale === "pt" ? uiLocale : null;
-  const [promptReady, setPromptReady] = useState(false);
-  const [promptDismissed, setPromptDismissed] = useState(false);
-  const [isSettingNative, startSetNative] = useTransition();
-  useEffect(() => {
-    setPromptReady(true);
-    try {
-      if (localStorage.getItem(`bh:nativePrompt:${playerId}`) === "1") {
-        setPromptDismissed(true);
-      }
-    } catch {}
-  }, [playerId]);
-  const showNativePrompt =
-    promptReady && !promptDismissed && native === "es" && promptLocale !== null;
+  // Completeness is RELATIVE to the es base: a locale that mirrors everything
+  // es has reads 100%. Units = es-present fields + honours. es itself = 100%
+  // (the source). For a target, a honour counts once it has a saved translation.
+  const baseFieldKeys = FIELD_KEYS.filter((k) => filled(baseEs[k]));
+  const totalUnits = baseFieldKeys.length + honours.length;
 
-  function rememberPromptHandled() {
-    setPromptDismissed(true);
-    try {
-      localStorage.setItem(`bh:nativePrompt:${playerId}`, "1");
-    } catch {}
-  }
-
-  function acceptNative() {
-    if (!promptLocale) return;
-    const loc = promptLocale;
-    startSetNative(async () => {
-      const res = await setPreferredLocale({ locale: loc });
-      if (res.success) {
-        setNative(loc);
-        setActive(loc);
-        rememberPromptHandled();
-      } else {
-        setFeedback({ type: "danger", message: res.message });
-      }
-    });
+  function localeCompleteness(code: AnyLocale): number {
+    if (code === "es") return 100;
+    if (totalUnits === 0) return 0;
+    const fieldsDone = baseFieldKeys.filter((k) => filled(drafts[code][k])).length;
+    const honoursDone = honours.filter((h) => {
+      const tr = honourSaved[h.id]?.[code as EditableLocale];
+      return !!(tr && (tr.title || tr.competition || tr.description));
+    }).length;
+    return Math.round(((fieldsDone + honoursDone) / totalUnits) * 100);
   }
 
   function patch(field: keyof LocaleFields, value: string | string[]) {
@@ -239,7 +195,6 @@ export default function TranslationsEditor({
   }
 
   function onDelete() {
-    if (active === "es") return; // es is the canonical base, never deletable
     const locale = active;
     startSave(async () => {
       const res = await deletePlayerTranslation({ playerId, locale });
@@ -252,7 +207,6 @@ export default function TranslationsEditor({
   }
 
   function onGenerate(block: Block, force: boolean) {
-    if (active === native) return; // can't translate the source into itself
     const locale = active;
     setGenBlock(block);
     startGen(async () => {
@@ -274,58 +228,79 @@ export default function TranslationsEditor({
 
   return (
     <div className="space-y-6">
-      {showNativePrompt && promptLocale ? (
-        <div className="flex flex-col gap-3 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-2.5">
-            <Languages className="mt-0.5 size-4 shrink-0 text-bh-blue" />
-            <p className="text-[13px] leading-[1.5] text-bh-fg-2">
-              Estás navegando en{" "}
-              <span className="font-semibold text-bh-fg-1">
-                {LOCALE_META[promptLocale].label}
-              </span>
-              . ¿Escribís tu perfil en ese idioma? Lo ponemos como tu idioma
-              nativo y traducimos el resto —incluido el español canónico— desde
-              ahí.
-            </p>
-          </div>
-          <div className="flex shrink-0 gap-2">
-            <Button
-              size="sm"
-              variant="light"
-              onPress={rememberPromptHandled}
-              isDisabled={isSettingNative}
-              className="text-bh-fg-3"
-            >
-              No, en español
-            </Button>
-            <Button
-              size="sm"
-              color="primary"
-              onPress={acceptNative}
-              isLoading={isSettingNative}
-              isDisabled={isSettingNative}
-            >
-              Sí, {LOCALE_META[promptLocale].label}
-            </Button>
-          </div>
-        </div>
-      ) : null}
-
-      {/* ---------- Overview / language switch + completeness ---------- */}
+      {/* ---------- Overview: es base (source) + editable targets ---------- */}
       <SectionCard
-        title="Versiones del perfil"
-        description="Elegí un idioma para editarlo. Marcamos tu idioma nativo; el español es tu versión canónica — la que ve Google en tu perfil público."
+        title="Idiomas del perfil"
+        description="El español es tu base y se edita en Football data. Acá traducís tu perfil a inglés, italiano y portugués — cada idioma se vuelve una URL propia indexable. El % es respecto a tu contenido en español."
       >
         <div className="grid gap-2">
-          {orderedLocales.map((code) => {
+          {BASE_ORDER.map((code) => {
             const meta = LOCALE_META[code];
-            const pct = completeness(drafts[code]);
-            const isActive = code === active;
-            const isNativeRow = code === native;
+            const pct = localeCompleteness(code);
             const isEs = code === "es";
             const published = available.includes(code);
             const accent =
               pct === 100 ? "bg-bh-lime" : pct > 0 ? "bg-bh-blue" : "bg-white/15";
+
+            const inner = (
+              <>
+                <span className="text-base leading-none" aria-hidden>
+                  {meta.flag}
+                </span>
+                <span className="flex min-w-[112px] flex-col">
+                  <span className="text-[13px] font-semibold text-bh-fg-1">
+                    {meta.label}
+                  </span>
+                  <span className="font-bh-mono text-[10px] uppercase tracking-[0.14em] text-bh-fg-4">
+                    {isEs ? "base · fuente" : code}
+                  </span>
+                </span>
+
+                <span className="relative h-1.5 min-w-[48px] flex-1 overflow-hidden rounded-bh-pill bg-white/[0.08]">
+                  <span
+                    className={`absolute inset-y-0 left-0 rounded-bh-pill ${accent} transition-[width] duration-300`}
+                    style={{ width: `${pct}%` }}
+                  />
+                </span>
+                <span className="w-9 shrink-0 text-right font-bh-mono text-[11px] text-bh-fg-2">
+                  {pct}%
+                </span>
+
+                {isEs ? (
+                  <Chip size="sm" variant="flat" className="shrink-0 bg-white/[0.06] text-bh-fg-3">
+                    base
+                  </Chip>
+                ) : published ? (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    startContent={<Check className="size-3" />}
+                    className="shrink-0 bg-bh-lime/[0.12] text-bh-lime"
+                  >
+                    publicado
+                  </Chip>
+                ) : (
+                  <Chip size="sm" variant="flat" className="shrink-0 bg-white/[0.06] text-bh-fg-4">
+                    sin publicar
+                  </Chip>
+                )}
+              </>
+            );
+
+            // es is the source — edited in Football data, not selectable here.
+            if (code === "es") {
+              return (
+                <div
+                  key={code}
+                  className="flex items-center gap-3 rounded-bh-md border border-dashed border-white/[0.1] bg-bh-surface-1/50 px-3 py-2.5"
+                  title="El español se edita en Football data"
+                >
+                  {inner}
+                </div>
+              );
+            }
+
+            const isActive = code === active;
             return (
               <button
                 key={code}
@@ -341,51 +316,7 @@ export default function TranslationsEditor({
                     : "border-white/[0.08] bg-bh-surface-1 hover:border-white/[0.18]"
                 }`}
               >
-                <span className="text-base leading-none" aria-hidden>
-                  {meta.flag}
-                </span>
-                <span className="flex min-w-[120px] flex-col">
-                  <span className="text-[13px] font-semibold text-bh-fg-1">
-                    {meta.label}
-                    {isNativeRow ? (
-                      <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-bh-lime">
-                        tu idioma
-                      </span>
-                    ) : null}
-                  </span>
-                  <span className="font-bh-mono text-[10px] uppercase tracking-[0.14em] text-bh-fg-4">
-                    {code}
-                  </span>
-                </span>
-
-                <span className="relative h-1.5 flex-1 overflow-hidden rounded-bh-pill bg-white/[0.06]">
-                  <span
-                    className={`absolute inset-y-0 left-0 rounded-bh-pill ${accent} transition-[width] duration-300`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </span>
-                <span className="w-9 text-right font-bh-mono text-[11px] text-bh-fg-2">
-                  {pct}%
-                </span>
-
-                {isEs ? (
-                  <Chip size="sm" variant="flat" className="bg-white/[0.06] text-bh-fg-3">
-                    base
-                  </Chip>
-                ) : published ? (
-                  <Chip
-                    size="sm"
-                    variant="flat"
-                    startContent={<Check className="size-3" />}
-                    className="bg-bh-lime/[0.12] text-bh-lime"
-                  >
-                    publicado
-                  </Chip>
-                ) : (
-                  <Chip size="sm" variant="flat" className="bg-white/[0.06] text-bh-fg-4">
-                    sin publicar
-                  </Chip>
-                )}
+                {inner}
               </button>
             );
           })}
@@ -397,10 +328,7 @@ export default function TranslationsEditor({
         key={active}
         locale={active}
         fields={drafts[active]}
-        source={drafts[native]}
-        sourceLabel={native.toUpperCase()}
-        isNative={active === native}
-        canDelete={active !== "es"}
+        source={baseEs}
         aiProvider={aiProvider}
         onPatch={patch}
         onSave={onSave}
@@ -510,9 +438,6 @@ function LocaleForm({
   locale,
   fields,
   source,
-  sourceLabel,
-  isNative,
-  canDelete,
   aiProvider,
   onPatch,
   onSave,
@@ -527,9 +452,6 @@ function LocaleForm({
   locale: AnyLocale;
   fields: LocaleFields;
   source: LocaleFields;
-  sourceLabel: string;
-  isNative: boolean;
-  canDelete: boolean;
   aiProvider: AiProvider;
   onPatch: (field: keyof LocaleFields, value: string | string[]) => void;
   onSave: () => void;
@@ -546,14 +468,11 @@ function LocaleForm({
 
   const renderField = (key: keyof LocaleFields) => {
     const meta = LABELS[key];
-    // The source-language reference, shown to help while translating. Hidden
-    // on the native tab — there it IS the source.
-    const sourceHint = isNative
-      ? undefined
-      : Array.isArray(source[key])
-        ? (source[key] as string[]).join(" · ")
-        : (source[key] as string);
-    const description = sourceHint ? `${sourceLabel}: ${sourceHint}` : undefined;
+    // The es base reference, shown under each field to help while translating.
+    const raw = Array.isArray(source[key])
+      ? (source[key] as string[]).join(" · ")
+      : (source[key] as string);
+    const description = raw && raw.trim() ? `ES: ${raw}` : undefined;
     if (key === "topCharacteristics") {
       return (
         <FormField
@@ -596,22 +515,16 @@ function LocaleForm({
             Biografía y objetivos · {localeLabel}
           </span>
         }
-        description={
-          isNative
-            ? "Tu idioma nativo: escribí libremente. Desde acá el asistente traduce hacia los demás idiomas."
-            : "Traducí cada campo o autocompletá desde tu idioma; siempre podés editar antes de guardar."
-        }
+        description="Traducí cada campo o autocompletá desde el español; siempre podés editar antes de guardar."
         actions={
-          isNative ? undefined : (
-            <AssistButton
-              block="bio"
-              hasContent={blockHasContent(fields, "bio")}
-              loading={isGenerating && genBlock === "bio"}
-              disabled={busy}
-              provider={aiProvider}
-              onGenerate={onGenerate}
-            />
-          )
+          <AssistButton
+            block="bio"
+            hasContent={blockHasContent(fields, "bio")}
+            loading={isGenerating && genBlock === "bio"}
+            disabled={busy}
+            provider={aiProvider}
+            onGenerate={onGenerate}
+          />
         }
       >
         <div className="grid gap-5">
@@ -625,16 +538,14 @@ function LocaleForm({
         title={`Análisis de scouting · ${localeLabel}`}
         description="Las cuatro dimensiones del análisis + el autor."
         actions={
-          isNative ? undefined : (
-            <AssistButton
-              block="scouting"
-              hasContent={blockHasContent(fields, "scouting")}
-              loading={isGenerating && genBlock === "scouting"}
-              disabled={busy}
-              provider={aiProvider}
-              onGenerate={onGenerate}
-            />
-          )
+          <AssistButton
+            block="scouting"
+            hasContent={blockHasContent(fields, "scouting")}
+            loading={isGenerating && genBlock === "scouting"}
+            disabled={busy}
+            provider={aiProvider}
+            onGenerate={onGenerate}
+          />
         }
       >
         <div className="grid gap-5">
@@ -658,7 +569,7 @@ function LocaleForm({
             ) : null}
           </div>
           <div className="flex gap-2">
-            {canDelete && published ? (
+            {published ? (
               <Button
                 variant="light"
                 size="sm"
@@ -683,19 +594,11 @@ function LocaleForm({
         </div>
       </SectionCard>
 
-      {isNative ? (
-        <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
-          {locale === "es"
-            ? "El español es tu contenido canónico: se publica en tu perfil principal apenas guardás."
-            : "Guardá tu versión nativa antes de autocompletar los otros idiomas — el asistente traduce desde lo último que guardaste."}
-        </p>
-      ) : (
-        <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
-          Las versiones autocompletadas son borradores: nada se publica hasta que
-          tocás «Guardar». Tenés hasta 40 regeneraciones por mes; la primera
-          traducción de cada bloque no cuenta.
-        </p>
-      )}
+      <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
+        Las versiones autocompletadas son borradores: nada se publica hasta que
+        tocás «Guardar». Tenés hasta 40 regeneraciones por mes; la primera
+        traducción de cada bloque no cuenta.
+      </p>
     </>
   );
 }

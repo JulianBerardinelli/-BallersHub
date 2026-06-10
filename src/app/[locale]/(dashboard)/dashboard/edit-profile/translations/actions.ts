@@ -350,50 +350,30 @@ export async function generateTranslationDraft(input: {
 
   const { owned, error } = await ensureProOwner(playerId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
-  const { supabase, userId } = owned;
+  const { supabase } = owned;
 
-  // Source language = the player's preferred_locale (model B1). The assistant
-  // translates FROM the player's own language; es stays the canonical /slug
-  // but is itself a valid TARGET when the player writes in another language.
-  const { data: up } = await supabase
-    .from("user_profiles")
-    .select("preferred_locale")
-    .eq("user_id", userId)
-    .maybeSingle<{ preferred_locale: string | null }>();
-  const sourceLocale = (up?.preferred_locale ?? "es") as TranslateLocale;
+  // Source = the canonical es base. The 8 fields live on player_profiles and are
+  // written in es in Football data; this editor only translates es → en/it/pt,
+  // so the source is ALWAYS Spanish — matching the "ES:" reference shown in the
+  // UI. Never trust the client for the source: it's what the hash + the
+  // translation are built from.
+  const sourceLocale: TranslateLocale = "es";
 
   if (locale === sourceLocale) {
     return {
       success: false,
       message:
-        "Ese ya es tu idioma. Escribilo directamente; el asistente traduce hacia los demás.",
+        "El español es tu base: se edita en Football data, no se traduce acá.",
     };
   }
 
-  // Load the SOURCE content for this block from the preferred locale. Never
-  // trust the client for the source — it's what the hash + the translation
-  // are built from. es lives on player_profiles; en/it/pt on *_translations
-  // (no row yet = native not saved → empty source).
-  let raw: RawFreeText | null = null;
-  if (sourceLocale === "es") {
-    const { data } = await supabase
-      .from("player_profiles")
-      .select(FREE_TEXT_COLS)
-      .eq("id", playerId)
-      .maybeSingle<RawFreeText>();
-    if (!data) return { success: false, message: "No encontramos el perfil." };
-    raw = data;
-  } else {
-    const { data } = await supabase
-      .from("player_profile_translations")
-      .select(FREE_TEXT_COLS)
-      .eq("player_id", playerId)
-      .eq("locale", sourceLocale)
-      .maybeSingle<RawFreeText>();
-    raw = data ?? null;
-  }
-
-  const source = buildBlockSource(raw, block);
+  const { data: rawEs } = await supabase
+    .from("player_profiles")
+    .select(FREE_TEXT_COLS)
+    .eq("id", playerId)
+    .maybeSingle<RawFreeText>();
+  if (!rawEs) return { success: false, message: "No encontramos el perfil." };
+  const source = buildBlockSource(rawEs, block);
 
   const hasContent = Object.values(source).some((v) =>
     Array.isArray(v) ? v.length > 0 : String(v).trim().length > 0,
