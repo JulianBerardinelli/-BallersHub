@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe, Languages, RefreshCw, Save, Sparkles, Trash2 } from "lucide-react";
+import { Check, Globe, Languages, RefreshCw, Save, Sparkles, Trash2, Trophy } from "lucide-react";
 import { useLocale } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -11,7 +11,11 @@ import {
   savePlayerTranslation,
   deletePlayerTranslation,
   generateTranslationDraft,
+  saveHonourTranslation,
+  deleteHonourTranslation,
+  generateHonourTranslationDraft,
   type TranslationFields,
+  type HonourTranslationFields,
 } from "../actions";
 import { setPreferredLocale } from "../../../settings/account/actions";
 
@@ -28,6 +32,23 @@ export type LocaleFields = {
 
 type EditableLocale = "en" | "it" | "pt";
 type AnyLocale = "es" | EditableLocale;
+
+// Palmarés (honours). Base lives in es (football-data); en/it/pt are translated
+// here, driven by the same active-locale selector as the rest of the editor.
+type HonourFields = { title: string; competition: string; description: string };
+type HonourTr = {
+  title: string | null;
+  competition: string | null;
+  description: string | null;
+};
+export type EditorHonour = {
+  id: string;
+  title: string;
+  competition: string | null;
+  season: string | null;
+  description: string | null;
+  translations: Partial<Record<EditableLocale, HonourTr>>;
+};
 type Block = "bio" | "scouting";
 // Which model powers the assistant — drives the brand glyph on the button.
 type AiProvider = "gemini" | "claude" | null;
@@ -96,6 +117,7 @@ export default function TranslationsEditor({
   initialAvailable,
   preferredLocale,
   aiProvider,
+  honours,
 }: {
   playerId: string;
   baseEs: LocaleFields;
@@ -103,6 +125,7 @@ export default function TranslationsEditor({
   initialAvailable: string[];
   preferredLocale: string;
   aiProvider: AiProvider;
+  honours: EditorHonour[];
 }) {
   // The player's native language leads the list and is the source the AI
   // assistant translates FROM (model B1). es stays the canonical /slug. It's
@@ -128,6 +151,30 @@ export default function TranslationsEditor({
   const [isSaving, startSave] = useTransition();
   const [genBlock, setGenBlock] = useState<Block | null>(null);
   const [isGenerating, startGen] = useTransition();
+
+  // Palmarés: saved translations per honour per locale. Client source of truth
+  // so a save survives locale switches (rows re-read from here, not the prop).
+  const [honourSaved, setHonourSaved] = useState<
+    Record<string, Partial<Record<EditableLocale, HonourTr>>>
+  >(() => Object.fromEntries(honours.map((h) => [h.id, { ...h.translations }])));
+
+  function handleHonourSaved(
+    honourId: string,
+    loc: EditableLocale,
+    tr: HonourTr,
+  ) {
+    setHonourSaved((prev) => ({
+      ...prev,
+      [honourId]: { ...prev[honourId], [loc]: tr },
+    }));
+  }
+  function handleHonourDeleted(honourId: string, loc: EditableLocale) {
+    setHonourSaved((prev) => {
+      const next = { ...(prev[honourId] ?? {}) };
+      delete next[loc];
+      return { ...prev, [honourId]: next };
+    });
+  }
 
   // First-visit nudge: if the player browses in another language but their
   // native is still es (the default), offer to switch — catches users the
@@ -364,6 +411,17 @@ export default function TranslationsEditor({
         isSaving={isSaving}
         published={available.includes(active)}
         feedback={feedback}
+      />
+
+      {/* ---------- Palmarés (same active locale) ---------- */}
+      <HonoursBlock
+        locale={active}
+        honours={honours}
+        playerId={playerId}
+        saved={honourSaved}
+        aiProvider={aiProvider}
+        onSaved={handleHonourSaved}
+        onDeleted={handleHonourDeleted}
       />
     </div>
   );
@@ -639,5 +697,315 @@ function LocaleForm({
         </p>
       )}
     </>
+  );
+}
+
+// --------------------------- Palmarés block ---------------------------
+// Driven by the SAME active locale as the rest of the editor (no own selector).
+// es = base (edited in football-data) → reference only. en/it/pt = translation
+// inputs with the "Auto-completar" assistant (es → target).
+
+function HonoursBlock({
+  locale,
+  honours,
+  playerId,
+  saved,
+  aiProvider,
+  onSaved,
+  onDeleted,
+}: {
+  locale: AnyLocale;
+  honours: EditorHonour[];
+  playerId: string;
+  saved: Record<string, Partial<Record<EditableLocale, HonourTr>>>;
+  aiProvider: AiProvider;
+  onSaved: (honourId: string, loc: EditableLocale, tr: HonourTr) => void;
+  onDeleted: (honourId: string, loc: EditableLocale) => void;
+}) {
+  if (honours.length === 0) return null;
+
+  // es is the base (football-data) — show the logros as reference, nothing to
+  // translate here.
+  if (locale === "es") {
+    return (
+      <SectionCard
+        title={
+          <span className="flex items-center gap-2">
+            <Trophy className="size-4 text-bh-fg-3" />
+            Palmarés
+          </span>
+        }
+        description="El palmarés se carga en español desde Football data. Elegí otro idioma arriba para traducir cada logro."
+      >
+        <div className="grid gap-2">
+          {honours.map((h) => {
+            const ref = [h.competition, h.season].filter(Boolean).join(" · ");
+            return (
+              <div
+                key={h.id}
+                className="rounded-bh-md border border-white/[0.06] bg-bh-surface-1 px-3 py-2"
+              >
+                <p className="text-[13px] font-semibold text-bh-fg-1">{h.title}</p>
+                {ref ? (
+                  <p className="font-bh-mono text-[11px] uppercase tracking-[0.1em] text-bh-fg-4">
+                    {ref}
+                  </p>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </SectionCard>
+    );
+  }
+
+  const target = locale as EditableLocale;
+
+  return (
+    <SectionCard
+      title={
+        <span className="flex items-center gap-2">
+          <Trophy className="size-4 text-bh-blue" />
+          Palmarés · {LOCALE_META[locale].label}
+        </span>
+      }
+      description="Traducí cada logro o autocompletá desde el español; podés editar antes de guardar. Se guarda logro por logro."
+    >
+      <div className="grid gap-4">
+        {honours.map((h) => (
+          <HonourRow
+            key={`${h.id}-${target}`}
+            playerId={playerId}
+            honour={h}
+            locale={target}
+            initial={saved[h.id]?.[target]}
+            aiProvider={aiProvider}
+            onSaved={(tr) => onSaved(h.id, target, tr)}
+            onDeleted={() => onDeleted(h.id, target)}
+          />
+        ))}
+      </div>
+    </SectionCard>
+  );
+}
+
+function HonourRow({
+  playerId,
+  honour,
+  locale,
+  initial,
+  aiProvider,
+  onSaved,
+  onDeleted,
+}: {
+  playerId: string;
+  honour: EditorHonour;
+  locale: EditableLocale;
+  initial: HonourTr | undefined;
+  aiProvider: AiProvider;
+  onSaved: (tr: HonourTr) => void;
+  onDeleted: () => void;
+}) {
+  const [draft, setDraft] = useState<HonourFields>({
+    title: initial?.title ?? "",
+    competition: initial?.competition ?? "",
+    description: initial?.description ?? "",
+  });
+  const [published, setPublished] = useState(!!initial);
+  const [feedback, setFeedback] = useState<
+    { type: "success" | "danger"; message: string } | null
+  >(null);
+  const [isSaving, start] = useTransition();
+  const [isGenerating, startGen] = useTransition();
+  const busy = isSaving || isGenerating;
+
+  const hasContent =
+    draft.title.trim() !== "" ||
+    draft.competition.trim() !== "" ||
+    draft.description.trim() !== "";
+  const reference = [honour.competition, honour.season]
+    .filter(Boolean)
+    .join(" · ");
+
+  function patch(field: keyof HonourFields, value: string) {
+    setDraft((p) => ({ ...p, [field]: value }));
+    setFeedback(null);
+  }
+
+  function onGenerate(force: boolean) {
+    startGen(async () => {
+      const res = await generateHonourTranslationDraft({
+        playerId,
+        honourId: honour.id,
+        locale,
+        force,
+      });
+      if (!res.success) {
+        setFeedback({ type: "danger", message: res.message });
+        return;
+      }
+      if (res.draft) {
+        const d = res.draft as Partial<HonourFields>;
+        setDraft((p) => ({
+          title: d.title ?? p.title,
+          competition: d.competition ?? p.competition,
+          description: d.description ?? p.description,
+        }));
+      }
+      setFeedback({ type: "success", message: res.message });
+    });
+  }
+
+  function onSave() {
+    start(async () => {
+      const res = await saveHonourTranslation({
+        playerId,
+        honourId: honour.id,
+        locale,
+        fields: draft as HonourTranslationFields,
+      });
+      setFeedback({ type: res.success ? "success" : "danger", message: res.message });
+      if (res.success) {
+        setPublished(true);
+        onSaved({
+          title: draft.title.trim() || null,
+          competition: draft.competition.trim() || null,
+          description: draft.description.trim() || null,
+        });
+      }
+    });
+  }
+
+  function onDelete() {
+    start(async () => {
+      const res = await deleteHonourTranslation({ playerId, honourId: honour.id, locale });
+      setFeedback({ type: res.success ? "success" : "danger", message: res.message });
+      if (res.success) {
+        setPublished(false);
+        setDraft({ title: "", competition: "", description: "" });
+        onDeleted();
+      }
+    });
+  }
+
+  return (
+    <div className="rounded-bh-md border border-white/[0.08] bg-bh-surface-1 p-4">
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[13px] font-semibold text-bh-fg-1">{honour.title}</p>
+          {reference ? (
+            <p className="font-bh-mono text-[11px] uppercase tracking-[0.1em] text-bh-fg-4">
+              {reference}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="flat"
+              startContent={isGenerating ? undefined : <AssistGlyph provider={aiProvider} />}
+              isLoading={isGenerating}
+              isDisabled={busy}
+              onPress={() => onGenerate(false)}
+              className="bg-bh-lime/[0.10] text-bh-lime hover:bg-bh-lime/[0.18]"
+            >
+              Auto-completar
+            </Button>
+            {hasContent ? (
+              <Button
+                size="sm"
+                variant="light"
+                isIconOnly
+                isDisabled={busy}
+                onPress={() => onGenerate(true)}
+                aria-label="Regenerar otra versión"
+                className="text-bh-fg-3"
+              >
+                <RefreshCw className="size-3.5" />
+              </Button>
+            ) : null}
+          </div>
+          {published ? (
+            <Chip
+              size="sm"
+              variant="flat"
+              startContent={<Check className="size-3" />}
+              className="bg-bh-lime/[0.12] text-bh-lime"
+            >
+              traducido
+            </Chip>
+          ) : (
+            <Chip size="sm" variant="flat" className="bg-white/[0.06] text-bh-fg-4">
+              sin traducir
+            </Chip>
+          )}
+        </div>
+      </div>
+
+      <div className="grid gap-4">
+        <FormField
+          id={`${honour.id}-${locale}-title`}
+          label="Título del logro"
+          value={draft.title}
+          description={`ES: ${honour.title}`}
+          onValueChange={(v) => patch("title", v)}
+        />
+        <FormField
+          id={`${honour.id}-${locale}-competition`}
+          label="Competición"
+          value={draft.competition}
+          description={honour.competition ? `ES: ${honour.competition}` : undefined}
+          onValueChange={(v) => patch("competition", v)}
+        />
+        <FormField
+          as="textarea"
+          rows={3}
+          id={`${honour.id}-${locale}-description`}
+          label="Descripción"
+          value={draft.description}
+          description={honour.description ? `ES: ${honour.description}` : undefined}
+          onValueChange={(v) => patch("description", v)}
+        />
+      </div>
+
+      <div className="mt-4 flex flex-col gap-3 border-t border-white/[0.06] pt-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-h-[28px]">
+          {feedback ? (
+            <Chip
+              color={feedback.type === "success" ? "success" : "danger"}
+              variant="flat"
+              className="text-[13px]"
+            >
+              {feedback.message}
+            </Chip>
+          ) : null}
+        </div>
+        <div className="flex gap-2">
+          {published ? (
+            <Button
+              variant="light"
+              size="sm"
+              startContent={<Trash2 className="size-4" />}
+              onPress={onDelete}
+              isDisabled={busy}
+              className="text-bh-fg-3"
+            >
+              Quitar
+            </Button>
+          ) : null}
+          <Button
+            color="primary"
+            size="sm"
+            startContent={<Save className="size-4" />}
+            onPress={onSave}
+            isLoading={isSaving}
+            isDisabled={busy}
+          >
+            Guardar {locale.toUpperCase()}
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }

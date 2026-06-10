@@ -25,7 +25,7 @@ const MODEL = process.env.AI_TRANSLATION_MODEL ?? "google/gemini-2.5-flash";
 // it into the rest, es included (model B1). es-AR stays the canonical /slug,
 // but it can itself be a TARGET when the player writes in another language.
 export type TranslateLocale = "es" | "en" | "it" | "pt";
-export type TranslationBlock = "bio" | "scouting";
+export type TranslationBlock = "bio" | "scouting" | "honour";
 
 const LOCALE_NAME: Record<TranslateLocale, string> = {
   es: "Argentine Spanish (es-AR)",
@@ -67,10 +67,23 @@ const scoutingBlockSchema = z.object({
   analysisAuthor: z.string(),
 });
 
-const SCHEMAS = { bio: bioBlockSchema, scouting: scoutingBlockSchema } as const;
+// One honour (palmarés): title + competition + description. season is a year
+// and awarded_on a date — not translated.
+const honourBlockSchema = z.object({
+  title: z.string(),
+  competition: z.string(),
+  description: z.string(),
+});
+
+const SCHEMAS = {
+  bio: bioBlockSchema,
+  scouting: scoutingBlockSchema,
+  honour: honourBlockSchema,
+} as const;
 
 export type BioBlock = z.infer<typeof bioBlockSchema>;
 export type ScoutingBlock = z.infer<typeof scoutingBlockSchema>;
+export type HonourBlock = z.infer<typeof honourBlockSchema>;
 
 /**
  * Translate one editor block from the player's source locale into the target
@@ -82,7 +95,7 @@ export async function translateBlock(
   source: Record<string, unknown>,
   sourceLocale: TranslateLocale,
   targetLocale: TranslateLocale,
-): Promise<BioBlock | ScoutingBlock> {
+): Promise<BioBlock | ScoutingBlock | HonourBlock> {
   const schema = SCHEMAS[block];
 
   const system = [
@@ -101,5 +114,5 @@ export async function translateBlock(
   )}`;
 
   const { object } = await generateObject({ model: MODEL, schema, system, prompt });
-  return object as BioBlock | ScoutingBlock;
+  return object as BioBlock | ScoutingBlock | HonourBlock;
 }

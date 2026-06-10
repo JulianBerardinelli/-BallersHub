@@ -610,3 +610,138 @@ export async function deleteHonourTranslation(input: {
     message: "Traducción eliminada. Ese palmarés vuelve a mostrarse en español.",
   };
 }
+
+// "Auto-completar" para un palmarés: traduce el honor es → el locale destino.
+// Mismo modelo anti-abuso que los 8 campos (§5.1), con block namespaced por
+// honor para que la idempotencia sea por logro; la cuota mensual es compartida.
+const honourDraftSchema = z.object({
+  playerId: z.string().uuid(),
+  honourId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+  force: z.boolean().optional(),
+});
+
+export async function generateHonourTranslationDraft(input: {
+  playerId: string;
+  honourId: string;
+  locale: string;
+  force?: boolean;
+}): Promise<DraftResult> {
+  const parsed = honourDraftSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { playerId, honourId, locale, force } = parsed.data;
+
+  const { owned, error } = await ensureProOwner(playerId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  const { supabase } = owned;
+
+  // Source = the honour's REAL es fields (honours are written in es in
+  // football-data; the translation goes es → target). Never trust the client.
+  const { data: h } = await supabase
+    .from("player_honours")
+    .select("title, competition, description")
+    .eq("id", honourId)
+    .eq("player_id", playerId)
+    .maybeSingle<{
+      title: string | null;
+      competition: string | null;
+      description: string | null;
+    }>();
+  if (!h) return { success: false, message: "No encontramos ese palmarés en tu perfil." };
+
+  const source: Record<string, unknown> = {
+    title: h.title ?? "",
+    competition: h.competition ?? "",
+    description: h.description ?? "",
+  };
+  const hasContent = Object.values(source).some(
+    (v) => String(v).trim().length > 0,
+  );
+  if (!hasContent) {
+    return {
+      success: false,
+      message: "El palmarés no tiene contenido en español para traducir.",
+    };
+  }
+
+  const block = `honour:${honourId}`;
+  const sourceHash = createHash("sha256")
+    .update(JSON.stringify(source))
+    .digest("hex");
+
+  const { data: events } = await supabase
+    .from("ai_translation_events")
+    .select("kind, source_hash, created_at")
+    .eq("player_id", playerId)
+    .eq("locale", locale)
+    .eq("block", block)
+    .order("created_at", { ascending: false });
+
+  const hasAny = (events?.length ?? 0) > 0;
+  const lastHash = events?.[0]?.source_hash as string | undefined;
+
+  let kind: "initial" | "regen";
+  if (!hasAny) {
+    kind = "initial";
+  } else {
+    if (!force && lastHash === sourceHash) {
+      return {
+        success: true,
+        cached: true,
+        draft: null,
+        message:
+          "El palmarés no cambió desde la última generación. Editá el borrador o tocá Regenerar.",
+      };
+    }
+    kind = "regen";
+    const now = new Date();
+    const monthStart = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1),
+    ).toISOString();
+    const { count } = await supabase
+      .from("ai_translation_events")
+      .select("*", { count: "exact", head: true })
+      .eq("player_id", playerId)
+      .eq("kind", "regen")
+      .gte("created_at", monthStart);
+    if ((count ?? 0) >= REGEN_LIMIT) {
+      return {
+        success: false,
+        message: `Alcanzaste el límite mensual de ${REGEN_LIMIT} regeneraciones automáticas. La edición manual sigue disponible.`,
+      };
+    }
+  }
+
+  let draft: Record<string, unknown>;
+  try {
+    draft = (await translateBlock(
+      "honour",
+      source,
+      "es",
+      locale as TranslateLocale,
+    )) as Record<string, unknown>;
+  } catch {
+    return {
+      success: false,
+      message: "No pudimos generar la traducción ahora. Probá de nuevo en un momento.",
+    };
+  }
+
+  await supabase.from("ai_translation_events").insert({
+    player_id: playerId,
+    locale,
+    block,
+    kind,
+    source_hash: sourceHash,
+  });
+
+  return {
+    success: true,
+    cached: false,
+    draft,
+    message:
+      kind === "initial"
+        ? "Borrador generado con IA. Revisalo y guardá cuando estés conforme."
+        : "Nueva versión generada. Revisala y guardá si te gusta.",
+  };
+}
