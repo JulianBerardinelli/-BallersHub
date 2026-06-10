@@ -22,6 +22,7 @@
 import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import {
   Crest,
@@ -357,11 +358,16 @@ async function Hero({
               className="relative h-[140px] w-[140px] overflow-hidden rounded-full border-2 border-white/[0.18] md:h-[200px] md:w-[200px]"
               style={{ boxShadow: "0 0 0 6px #080808, 0 0 0 7px #CCFF00" }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              {/* Free hero avatar = the Free-layout LCP. next/image fill +
+                  priority (above the fold) → AVIF/WebP at 140–200px instead of
+                  a full-size raw avatar. The parent is the sized, rounded box. */}
+              <Image
                 src={avatarUrl ?? "/images/player-default.jpg"}
                 alt={`${firstName} ${lastName}`}
-                className="h-full w-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 768px) 140px, 200px"
+                className="object-cover"
                 style={{ filter: "grayscale(0.15) contrast(1.05)" }}
               />
             </div>

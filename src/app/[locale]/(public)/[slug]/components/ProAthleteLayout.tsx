@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowUpRight, ImagePlus } from "lucide-react";
@@ -405,17 +406,23 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
           transition={{ duration: 1.5, ease: "easeOut" }}
           className="absolute z-30 bottom-[-2vh] md:bottom-0 top-[8vh] md:top-[15vh] w-full max-w-[1200px] flex justify-center items-end"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {/* Mobile: fixed bottom-anchored box (consistent footprint across
-              profiles regardless of the source PNG's aspect). We dropped the
-              old `h-full scale-[1.18]` (~111vh, overflowed under the header and
-              read as "exageradamente grande"). Now a capped 92vh box, feet on
-              the baseline. Desktop (md:) keeps the original h-full / scale-100. */}
-          <img
-            src={player.heroUrl || undefined}
-            alt={player.fullName}
-            className="h-[92vh] max-h-[840px] md:h-full md:max-h-none w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
-          />
+          {/* Player cutout — the hero LCP. Was a raw ~1.6MB transparent PNG; now
+              next/image (AVIF/WebP + responsive srcset + priority preload). Kept
+              as a flex child (h-92vh / w-auto / object-contain) so the layout is
+              unchanged; width/height are aspect hints and object-contain keeps
+              the cutout undistorted regardless of the source PNG's real aspect.
+              Mobile box stays a capped 92vh, feet on the baseline. */}
+          {player.heroUrl && (
+            <Image
+              src={player.heroUrl}
+              alt={player.fullName}
+              width={760}
+              height={1140}
+              priority
+              sizes="(max-width: 1024px) 100vw, 1200px"
+              className="h-[92vh] max-h-[840px] md:h-full md:max-h-none w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 md:scale-100 origin-bottom translate-x-[14%] md:translate-x-0"
+            />
+          )}
         </motion.div>
 
         {/* LAYER 3 — ACCENT-OUTLINE title (front). Tinted con el `--theme-accent`
