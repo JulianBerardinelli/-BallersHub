@@ -29,6 +29,7 @@ import {
 import { sql } from "drizzle-orm";
 import { playerProfiles } from "./players";
 import { agencyProfiles } from "./agencies";
+import { playerHonours } from "./profilePublishing";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 // Allowed locales — kept as a text CHECK (not a pgEnum) so adding a locale
@@ -69,6 +70,41 @@ export type PlayerProfileTranslation = InferSelectModel<
 >;
 export type NewPlayerProfileTranslation = InferInsertModel<
   typeof playerProfileTranslations
+>;
+
+// -------------------- player_honour_translations --------------------
+//
+// Per-locale overrides of a player's free-text honours (palmarés). The base
+// row lives on player_honours; only the 3 free-text fields are translatable
+// (season is a year, awarded_on a date — both locale-agnostic). Row existence
+// per (honour, locale) = that honour is localized in that language; missing →
+// es fallback (same model as player_profile_translations).
+
+export const playerHonourTranslations = pgTable(
+  "player_honour_translations",
+  {
+    honourId: uuid("honour_id")
+      .notNull()
+      .references(() => playerHonours.id, { onDelete: "cascade" }),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    competition: text("competition"),
+    description: text("description"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.honourId, t.locale] }),
+    localeCheck: check("player_honour_translations_locale_check", LOCALE_CHECK),
+  }),
+);
+
+export type PlayerHonourTranslation = InferSelectModel<
+  typeof playerHonourTranslations
+>;
+export type NewPlayerHonourTranslation = InferInsertModel<
+  typeof playerHonourTranslations
 >;
 
 // -------------------- agency_profile_translations --------------------
