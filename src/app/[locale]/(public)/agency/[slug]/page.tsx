@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import {
@@ -121,6 +121,14 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
   });
 
   if (!rawAgency) return notFound();
+
+  // A localized URL only exists if the agency is really translated into that
+  // locale; otherwise redirect to the canonical es URL instead of rendering a
+  // fallback-es page under a foreign prefix.
+  const availableLocales = await getAvailableAgencyLocales(rawAgency.id);
+  if (locale !== "es" && !availableLocales.includes(locale as Locale)) {
+    redirect(`/agency/${slug}`);
+  }
 
   // F5: override description + tagline with this locale's translation
   // (fallback ES). Downstream modules read the already-localized `agency`.
