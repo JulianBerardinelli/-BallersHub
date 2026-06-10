@@ -171,6 +171,37 @@ export async function getHonourTranslations(
   }
 }
 
+/**
+ * All locale translations for a set of honours, keyed by honour id → locale →
+ * fields. For the dashboard editor (prefills every locale's inputs). Defensive:
+ * empty if the table isn't migrated yet.
+ */
+export async function getHonourTranslationsAllLocales(
+  honourIds: string[],
+): Promise<Map<string, Partial<Record<ContentLocale, HonourLocalizedFields>>>> {
+  const map = new Map<string, Partial<Record<ContentLocale, HonourLocalizedFields>>>();
+  if (honourIds.length === 0) return map;
+  try {
+    const rows = await db
+      .select()
+      .from(playerHonourTranslations)
+      .where(inArray(playerHonourTranslations.honourId, honourIds));
+    for (const r of rows) {
+      if (!isContentLocale(r.locale)) continue;
+      const entry = map.get(r.honourId) ?? {};
+      entry[r.locale] = {
+        title: r.title,
+        competition: r.competition,
+        description: r.description,
+      };
+      map.set(r.honourId, entry);
+    }
+    return map;
+  } catch {
+    return map;
+  }
+}
+
 /** Merge one honour's translation over its base, field by field (es fallback). */
 export function mergeHonourContent<
   T extends { title: string; competition: string | null; description: string | null },

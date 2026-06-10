@@ -9,10 +9,12 @@ import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { subscriptions } from "@/db/schema/subscriptions";
 import { userProfiles } from "@/db/schema/users";
-import { eq } from "drizzle-orm";
+import { playerHonours } from "@/db/schema/profilePublishing";
+import { desc, eq } from "drizzle-orm";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import {
   getPlayerTranslations,
+  getHonourTranslationsAllLocales,
   type ContentLocale,
   type PlayerLocalizedFields,
 } from "@/lib/i18n/profile-content";
@@ -20,6 +22,9 @@ import {
 import TranslationsEditor, {
   type LocaleFields,
 } from "./components/TranslationsEditor";
+import HonoursTranslationsEditor, {
+  type EditorHonour,
+} from "./components/HonoursTranslationsEditor";
 
 const ROUTE = "/dashboard/edit-profile/translations";
 
@@ -189,6 +194,24 @@ export default async function TranslationsPage() {
     ...(["en", "it", "pt"] as ContentLocale[]).filter((l) => translationsMap.has(l)),
   ];
 
+  // Honours (palmarés) — base es + per-locale translations for the editor.
+  const honourRows = await db
+    .select()
+    .from(playerHonours)
+    .where(eq(playerHonours.playerId, player.id))
+    .orderBy(desc(playerHonours.createdAt));
+  const honourTrAll = await getHonourTranslationsAllLocales(
+    honourRows.map((h) => h.id),
+  );
+  const honours: EditorHonour[] = honourRows.map((h) => ({
+    id: h.id,
+    title: h.title,
+    competition: h.competition,
+    season: h.season,
+    description: h.description,
+    translations: honourTrAll.get(h.id) ?? {},
+  }));
+
   return (
     <div className="space-y-6">
       {header}
@@ -199,6 +222,11 @@ export default async function TranslationsPage() {
         initialAvailable={available}
         preferredLocale={preferredLocale}
         aiProvider={deriveAiProvider(process.env.AI_TRANSLATION_MODEL)}
+      />
+      <HonoursTranslationsEditor
+        playerId={player.id}
+        honours={honours}
+        preferredLocale={preferredLocale}
       />
     </div>
   );
