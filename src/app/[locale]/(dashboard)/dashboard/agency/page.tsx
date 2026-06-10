@@ -14,8 +14,10 @@ import { eq, asc, desc, and, inArray } from "drizzle-orm";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 
+import { getAgencyTranslations } from "@/lib/i18n/profile-content";
 import IdentitySection from "./components/IdentitySection";
 import GeneralInfoSection from "./components/GeneralInfoSection";
+import AgencyTranslationsSection from "./components/AgencyTranslationsSection";
 // Below-the-fold sections lazy-load via client wrappers with
 // `ssr: false`. Identity + GeneralInfo (first fold) stay sync so the
 // initial paint is intact.
@@ -56,6 +58,16 @@ export default async function ManagerAgencyPage() {
   }
 
   const { agency } = up;
+
+  // Per-locale translations (description + tagline) for the editor below.
+  const agencyTrMap = await getAgencyTranslations(agency.id);
+  const agencyTranslations: Partial<
+    Record<"en" | "it" | "pt", { description: string | null; tagline: string | null }>
+  > = {};
+  for (const [loc, row] of agencyTrMap) {
+    if (loc === "es") continue;
+    agencyTranslations[loc] = { description: row.description, tagline: row.tagline };
+  }
 
   const media = await db.query.agencyMedia.findMany({
     where: eq(agencyMedia.agencyId, agency.id),
@@ -207,6 +219,15 @@ export default async function ManagerAgencyPage() {
           foundationYear: agency.foundationYear ? agency.foundationYear.toString() : "",
           description: agency.description ?? "",
         }}
+      />
+
+      <AgencyTranslationsSection
+        agencyId={agency.id}
+        base={{
+          description: agency.description ?? "",
+          tagline: agency.tagline ?? "",
+        }}
+        translations={agencyTranslations}
       />
 
       <ServicesSection

@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import {
@@ -15,6 +15,7 @@ import {
 import { and, eq, inArray } from "drizzle-orm";
 import AgencyLayoutResolver, { type AgencyPublicData } from "./components/AgencyLayoutResolver";
 import { AgencyJsonLd } from "@/lib/seo/agencyJsonLd";
+import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
 import { conditionalAlternates } from "@/lib/seo/hreflang";
 import {
   getAvailableAgencyLocales,
@@ -121,6 +122,14 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
   });
 
   if (!rawAgency) return notFound();
+
+  // A localized URL only exists if the agency is really translated into that
+  // locale; otherwise redirect to the canonical es URL instead of rendering a
+  // fallback-es page under a foreign prefix.
+  const availableLocales = await getAvailableAgencyLocales(rawAgency.id);
+  if (locale !== "es" && !availableLocales.includes(locale as Locale)) {
+    redirect(`/agency/${slug}`);
+  }
 
   // F5: override description + tagline with this locale's translation
   // (fallback ES). Downstream modules read the already-localized `agency`.
@@ -280,6 +289,11 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
 
   return (
     <>
+      <PortfolioLocaleSwitcher
+        basePath={`/agency/${slug}`}
+        available={availableLocales}
+        current={locale}
+      />
       {/*
         SportsOrganization JSON-LD. Closes the `worksFor` cross-reference
         that Pro player @graphs emit pointing back at this agency. See

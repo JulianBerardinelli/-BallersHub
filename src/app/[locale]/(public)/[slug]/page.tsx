@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata, Viewport } from "next";
 import { cache } from "react";
 import { db } from "@/lib/db";
@@ -306,6 +306,14 @@ export default async function PlayerPublicPage({
   // Locales this profile is really translated into → public language switcher
   // (renders only when there's more than one).
   const availableLocales = await getAvailablePlayerLocales(rawPlayer.id);
+
+  // A localized URL only "exists" if the profile is REALLY translated into that
+  // locale. Hitting /<locale>/<slug> without a translation redirects to the
+  // canonical es URL (/<slug>) — the native that always has content — instead
+  // of rendering a fallback-es page under a foreign prefix.
+  if (locale !== "es" && !availableLocales.includes(locale as Locale)) {
+    redirect(`/${slug}`);
+  }
 
   // 2) Plan y límites (Para limitar fotos - o enviarlo completo y limitar ahi)
   //    IMPORTANTE: usamos resolvePlanAccess (mira statusV2 + plan_id) y NO
