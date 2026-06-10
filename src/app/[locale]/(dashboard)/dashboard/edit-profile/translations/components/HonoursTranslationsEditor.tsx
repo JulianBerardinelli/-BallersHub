@@ -26,7 +26,7 @@ export type EditorHonour = {
   competition: string | null;
   season: string | null;
   description: string | null;
-  /** Existing translations per target locale (prefills the inputs). */
+  /** Existing translations per target locale (seeds the client state). */
   translations: Partial<Record<TargetLocale, HonourTr>>;
 };
 
@@ -45,10 +45,32 @@ export default function HonoursTranslationsEditor({
   honours: EditorHonour[];
   preferredLocale: string;
 }) {
-  const initial = (["en", "it", "pt"] as string[]).includes(preferredLocale)
+  const initialLocale = (["en", "it", "pt"] as string[]).includes(preferredLocale)
     ? (preferredLocale as TargetLocale)
     : "en";
-  const [active, setActive] = useState<TargetLocale>(initial);
+  const [active, setActive] = useState<TargetLocale>(initialLocale);
+
+  // Saved translations per honour per locale — the client source of truth so a
+  // save survives locale switches. Each HonourRow remounts on locale change
+  // (key includes `active`) and re-reads from HERE, not from the now-stale
+  // server prop, so returning to a locale shows what was just saved.
+  const [saved, setSaved] = useState<
+    Record<string, Partial<Record<TargetLocale, HonourTr>>>
+  >(() => Object.fromEntries(honours.map((h) => [h.id, { ...h.translations }])));
+
+  function handleSaved(honourId: string, locale: TargetLocale, tr: HonourTr) {
+    setSaved((prev) => ({
+      ...prev,
+      [honourId]: { ...prev[honourId], [locale]: tr },
+    }));
+  }
+  function handleDeleted(honourId: string, locale: TargetLocale) {
+    setSaved((prev) => {
+      const next = { ...(prev[honourId] ?? {}) };
+      delete next[locale];
+      return { ...prev, [honourId]: next };
+    });
+  }
 
   if (honours.length === 0) {
     return (
@@ -110,6 +132,9 @@ export default function HonoursTranslationsEditor({
             playerId={playerId}
             honour={h}
             locale={active}
+            initial={saved[h.id]?.[active]}
+            onSaved={(tr) => handleSaved(h.id, active, tr)}
+            onDeleted={() => handleDeleted(h.id, active)}
           />
         ))}
       </div>
@@ -121,18 +146,23 @@ function HonourRow({
   playerId,
   honour,
   locale,
+  initial,
+  onSaved,
+  onDeleted,
 }: {
   playerId: string;
   honour: EditorHonour;
   locale: TargetLocale;
+  initial: HonourTr | undefined;
+  onSaved: (tr: HonourTr) => void;
+  onDeleted: () => void;
 }) {
-  const existing = honour.translations[locale];
   const [draft, setDraft] = useState({
-    title: existing?.title ?? "",
-    competition: existing?.competition ?? "",
-    description: existing?.description ?? "",
+    title: initial?.title ?? "",
+    competition: initial?.competition ?? "",
+    description: initial?.description ?? "",
   });
-  const [published, setPublished] = useState(!!existing);
+  const [published, setPublished] = useState(!!initial);
   const [feedback, setFeedback] = useState<
     { type: "success" | "danger"; message: string } | null
   >(null);
@@ -157,7 +187,16 @@ function HonourRow({
         fields: draft as HonourTranslationFields,
       });
       setFeedback({ type: res.success ? "success" : "danger", message: res.message });
-      if (res.success) setPublished(true);
+      if (res.success) {
+        setPublished(true);
+        // Lift the saved values to the parent so a locale switch + return
+        // shows them (the row remounts from parent state, not the prop).
+        onSaved({
+          title: draft.title.trim() || null,
+          competition: draft.competition.trim() || null,
+          description: draft.description.trim() || null,
+        });
+      }
     });
   }
 
@@ -168,6 +207,7 @@ function HonourRow({
       if (res.success) {
         setPublished(false);
         setDraft({ title: "", competition: "", description: "" });
+        onDeleted();
       }
     });
   }
