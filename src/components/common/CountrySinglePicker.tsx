@@ -72,12 +72,21 @@ export default function CountrySinglePicker({
       inputValue={inputValue}
       onInputChange={(v) => setInputValue(v)}
       onSelectionChange={(key) => {
-        const k = String(key);
-        const found = filtered.find(i => i.code === k);
+        // HeroUI emits key=null while the user types a query that no longer
+        // matches the current pick. Only treat a genuinely empty field as an
+        // intentional clear, so we never wipe what's being typed.
+        if (key == null) {
+          if (inputValue.trim() === "") onChange(null);
+          return;
+        }
+        const found = items.find((i) => i.code === String(key));
         onChange(found ?? null);
       }}
       items={filtered}
-      selectedKey={value?.code}
+      // Only claim a selectedKey while the input still shows the picked country.
+      // The moment the user edits it, drop the key so React-Aria isn't left
+      // holding a code that filtering removed from the list (the typing bug).
+      selectedKey={value && norm(inputValue) === norm(value.name) ? value.code : null}
       placeholder={placeholder}
       isInvalid={isInvalid}
       errorMessage={errorMessage}

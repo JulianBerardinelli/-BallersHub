@@ -48,7 +48,7 @@ export default function PositionPicker({
   const placeholders = Array.from({ length: Math.max(0, MAX_SUBS_COUNT - cfg.subs.length) });
 
   return (
-    <div className="grid gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <Tabs
         aria-label="Posición"
         selectedKey={role}
