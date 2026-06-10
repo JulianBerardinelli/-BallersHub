@@ -13,6 +13,7 @@
 
 import * as React from "react";
 
+import { Link } from "@/i18n/navigation";
 import { Eyebrow } from "../HeroJourney/tags";
 import { clamp, FONT_BODY, FONT_DISPLAY, lerp, useHeroScroll, useIsomorphicLayoutEffect } from "../HeroJourney/useHeroScroll";
 import {
@@ -130,7 +131,7 @@ const CtaRow = ({ dark, mob }: { dark?: boolean; mob?: boolean }) => {
   return (
     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
       <span style={verified}><IconShieldCheck color={VERIFIED} />Datos verificados</span>
-      <button type="button" style={how}>¿Cómo validamos?<IconShield color={dark ? "#0a0a0a" : "#fff"} /></button>
+      <Link href="/como-validamos" style={{ ...how, textDecoration: "none" }}>¿Cómo validamos?<IconShield color={dark ? "#0a0a0a" : "#fff"} /></Link>
     </div>
   );
 };

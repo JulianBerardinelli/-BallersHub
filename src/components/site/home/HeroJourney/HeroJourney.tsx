@@ -376,7 +376,7 @@ function HeroJourneyTimeline({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCt
                   Crear mi perfil
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Btn>
-                <Btn variant="outline">
+                <Btn variant="outline" href="/como-validamos">
                   Cómo validamos
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                 </Btn>
@@ -452,7 +452,7 @@ function HeroJourneyStatic({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCta?
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
             <Btn variant="fill" accent={accent} onClick={onCta}>Crear mi perfil</Btn>
-            <Btn variant="outline">Cómo validamos</Btn>
+            <Btn variant="outline" href="/como-validamos">Cómo validamos</Btn>
           </div>
         </div>
         <div style={{ position: "relative", aspectRatio: "1 / 1", width: "100%", maxWidth: 520, justifySelf: "end" }}>
