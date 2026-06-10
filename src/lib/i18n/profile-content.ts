@@ -8,13 +8,14 @@
 // Server actions enforce the tier limit (Pro=4, Free=1) on WRITE; this module
 // is read-only and safe to call from RSC / generateMetadata.
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { agencyProfiles } from "@/db/schema/agencies";
 import {
   playerProfileTranslations,
   agencyProfileTranslations,
+  playerHonourTranslations,
   type PlayerProfileTranslation,
   type AgencyProfileTranslation,
 } from "@/db/schema/translations";
@@ -120,6 +121,66 @@ export function mergePlayerContent(
       base.techniqueAnalysis,
     ),
     analysisAuthor: pick(translation.analysisAuthor, base.analysisAuthor),
+  };
+}
+
+// ============================ player honours ============================
+
+export type HonourLocalizedFields = {
+  title: string | null;
+  competition: string | null;
+  description: string | null;
+};
+
+/**
+ * Per-locale overrides for a set of honours, keyed by honour id. Empty for es
+ * (the base) or when the translations table isn't present yet (migration
+ * pending) — the caller then renders the es base, never throwing on the public
+ * route.
+ */
+export async function getHonourTranslations(
+  honourIds: string[],
+  locale: string,
+): Promise<Map<string, HonourLocalizedFields>> {
+  if (locale === "es" || !isContentLocale(locale) || honourIds.length === 0) {
+    return new Map();
+  }
+  try {
+    const rows = await db
+      .select()
+      .from(playerHonourTranslations)
+      .where(
+        and(
+          inArray(playerHonourTranslations.honourId, honourIds),
+          eq(playerHonourTranslations.locale, locale),
+        ),
+      );
+    const map = new Map<string, HonourLocalizedFields>();
+    for (const r of rows) {
+      map.set(r.honourId, {
+        title: r.title,
+        competition: r.competition,
+        description: r.description,
+      });
+    }
+    return map;
+  } catch {
+    // Table not migrated yet → es fallback. Cache invalidation/render must
+    // never break because the honours-translations migration is pending.
+    return new Map();
+  }
+}
+
+/** Merge one honour's translation over its base, field by field (es fallback). */
+export function mergeHonourContent<
+  T extends { title: string; competition: string | null; description: string | null },
+>(base: T, tr: HonourLocalizedFields | undefined): T {
+  if (!tr) return base;
+  return {
+    ...base,
+    title: pick(tr.title, base.title) ?? base.title,
+    competition: pick(tr.competition, base.competition),
+    description: pick(tr.description, base.description),
   };
 }
 

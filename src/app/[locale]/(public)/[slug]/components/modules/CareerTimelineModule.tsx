@@ -1,6 +1,8 @@
+import { getLocale } from "next-intl/server";
 import { db } from "@/lib/db";
 import { careerItems, teams, statsSeasons, playerHonours, divisions } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { getHonourTranslations, mergeHonourContent } from "@/lib/i18n/profile-content";
 import ProfileCareerTimelineModule from "./ProfileCareerTimelineModule";
 
 export default async function CareerTimelineModule({ playerId }: { playerId: string }) {
@@ -11,6 +13,18 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
     // playerLinks table — same pattern as ProfileBioModule
     db.query.playerLinks.findMany({ where: (l, { eq }) => eq(l.playerId, playerId) }),
   ]);
+
+  // F6: localize the honours' free-text fields (title/competition/description)
+  // for the page locale, falling back to es per field. Defensive — degrades to
+  // es if the honours-translations table isn't migrated yet.
+  const locale = await getLocale();
+  const honourTranslations = await getHonourTranslations(
+    honours.map((h) => h.id),
+    locale,
+  );
+  const localizedHonours = honours.map((h) =>
+    mergeHonourContent(h, honourTranslations.get(h.id)),
+  );
 
   const teamIds = Array.from(new Set(careerRecords.map(c => c.teamId).filter(Boolean) as string[]));
   const mappedTeams = teamIds.length > 0 
@@ -47,7 +61,7 @@ export default async function CareerTimelineModule({ playerId }: { playerId: str
     return {
       ...item,
       stats: stats.filter(s => s.careerItemId === item.id),
-      honours: honours.filter(h => h.careerItemId === item.id),
+      honours: localizedHonours.filter(h => h.careerItemId === item.id),
       team: teamDb || null,
       divisionData: divisionDb,
       secondaryDivisionData
