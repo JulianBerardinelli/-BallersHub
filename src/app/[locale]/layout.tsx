@@ -133,7 +133,7 @@ export default async function RootLayout({
 
   return (
     <html lang={HTML_LANG[locale]} className="dark">
-      <body className={`relative min-h-screen overflow-x-hidden overflow-y-scroll bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
+      <body className={`relative min-h-screen overflow-x-clip bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
         {/*
           Sitewide structured data: Organization + WebSite (with
           SearchAction). Rendered server-side so crawlers receive it
