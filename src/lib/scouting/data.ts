@@ -62,12 +62,21 @@ function toNumber(v: unknown): number | null {
 }
 
 /**
- * Fetch every indexable player enriched for the scouting table. Pro-first,
- * then most-recently-updated — strongest profiles surface at the top before
- * the user sorts. Throws are the caller's to handle (the page degrades to an
- * empty island).
+ * Fetch players enriched for the scouting table. Pro-first, then
+ * most-recently-updated — strongest profiles surface at the top before the user
+ * sorts. Throws are the caller's to handle (the page degrades to an empty
+ * island).
+ *
+ * By default only INDEXABLE profiles are returned (same set as the sitemap +
+ * per-page robots), which is what the home-hero globe wants. The `/players`
+ * directory passes `includeNonIndexable: true` to ALSO surface Free profiles
+ * with a thin bio — they're public, so the directory lists them (no Pro tag).
+ * Each row carries `indexable` so the page can keep its JSON-LD on the
+ * indexable subset and the SEO surfaces never drift.
  */
-export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
+export async function getScoutingPlayers(
+  opts: { includeNonIndexable?: boolean } = {},
+): Promise<ScoutPlayer[]> {
   const rows = await db
     .select({
       id: playerProfiles.id,
@@ -108,9 +117,13 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
   const proUserIds = await resolveProUserIds(rows.map((r) => r.userId));
 
   return rows
-    .map((r) => ({ ...r, isPro: proUserIds.has(r.userId) }))
-    // Same indexability gate as the sitemap + per-page robots meta.
-    .filter((r) => isPlayerIndexable({ isPro: r.isPro, bio: r.bio }))
+    .map((r) => {
+      const isPro = proUserIds.has(r.userId);
+      return { ...r, isPro, indexable: isPlayerIndexable({ isPro, bio: r.bio }) };
+    })
+    // Default: indexable-only (matches the sitemap + per-page robots). The
+    // `/players` directory opts in to also list Free thin-bio profiles.
+    .filter((r) => opts.includeNonIndexable || r.indexable)
     .map<ScoutPlayer>((r) => {
       const allPos = resolveAllPositions(r.positions);
       const pos = allPos[0] ?? { code: "", label: "", group: null };
@@ -140,6 +153,7 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
         marketValueEur: toNumber(r.marketValueEur),
         avatarUrl: cleanAvatar(r.avatarUrl),
         isPro: r.isPro,
+        indexable: r.indexable,
         initials: nameInitials(r.fullName),
         city: r.teamCity ?? null,
         latitude: toNumber(r.teamLat),
