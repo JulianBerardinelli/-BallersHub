@@ -1,6 +1,7 @@
 // src/app/onboarding/start/page.tsx
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import {
   hasActiveApplication,
@@ -114,20 +115,20 @@ export default async function StartPage() {
     redirect("/onboarding/player/apply");
   }
 
+  const t = await getTranslations("onboarding");
+
   if (hasActiveApplication(applicationStatus) || managerApp?.status === "pending") {
     return (
       <main className="mx-auto max-w-xl space-y-6 p-8">
         <div className="space-y-2">
           <span className="inline-flex items-center rounded-bh-pill border border-[rgba(0,194,255,0.22)] bg-[rgba(0,194,255,0.08)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-blue">
-            En revisión
+            {t("start.review.badge")}
           </span>
           <h1 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-            Solicitud <span className="text-bh-lime">en revisión</span>
+            {t("start.review.title")} <span className="text-bh-lime">{t("start.review.titleHighlight")}</span>
           </h1>
           <p className="text-sm leading-[1.6] text-bh-fg-3">
-            Ya recibimos tu información y estamos validando tus datos. Podés
-            seguir el estado desde tu panel y te avisaremos por correo cuando
-            finalicemos la revisión.
+            {t("start.review.description")}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -136,21 +137,21 @@ export default async function StartPage() {
               href="/dashboard"
               className="inline-flex items-center gap-2 rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
             >
-              Ver panel
+              {t("start.review.viewPanel")}
             </Link>
           ) : (
             <Link
               href="/onboarding/player/apply"
               className="inline-flex items-center gap-2 rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
             >
-              Ver solicitud
+              {t("start.review.viewApplication")}
             </Link>
           )}
           <Link
             href="/dashboard"
             className="text-[13px] text-bh-fg-3 underline-offset-4 transition-colors hover:text-bh-fg-1 hover:underline"
           >
-            Volver al dashboard
+            {t("start.review.backToDashboard")}
           </Link>
         </div>
       </main>
@@ -161,13 +162,13 @@ export default async function StartPage() {
     <main className="mx-auto max-w-xl space-y-7 p-8">
       <div className="space-y-2">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-          Onboarding
+          {t("start.chooser.badge")}
         </span>
         <h1 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          Elegí tu <span className="text-bh-lime">tipo de cuenta</span>
+          {t("start.chooser.title")} <span className="text-bh-lime">{t("start.chooser.titleHighlight")}</span>
         </h1>
         <p className="text-sm leading-[1.6] text-bh-fg-3">
-          Podés cambiarlo más tarde desde el dashboard.
+          {t("start.chooser.subtitle")}
         </p>
       </div>
 
@@ -178,10 +179,10 @@ export default async function StartPage() {
         >
           <div className="space-y-0.5">
             <div className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1 group-hover:text-bh-lime transition-colors">
-              Soy Jugador/a
+              {t("start.chooser.player.title")}
             </div>
             <div className="text-xs text-bh-fg-3">
-              Construí tu portfolio profesional y conectate con clubes.
+              {t("start.chooser.player.description")}
             </div>
           </div>
           <span className="text-bh-fg-3 transition-colors group-hover:text-bh-lime">
@@ -194,10 +195,10 @@ export default async function StartPage() {
         >
           <div className="space-y-0.5">
             <div className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1 group-hover:text-bh-blue transition-colors">
-              Soy Manager / Agencia
+              {t("start.chooser.agency.title")}
             </div>
             <div className="text-xs text-bh-fg-3">
-              Gestioná tu roster, validá perfiles y representá talento.
+              {t("start.chooser.agency.description")}
             </div>
           </div>
           <span className="text-bh-fg-3 transition-colors group-hover:text-bh-blue">
@@ -207,9 +208,9 @@ export default async function StartPage() {
         <div className="flex items-center justify-between gap-4 rounded-bh-lg border border-dashed border-white/[0.06] bg-transparent px-5 py-4 opacity-60">
           <div className="space-y-0.5">
             <div className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-3">
-              Soy DT / Scout / Dirigente
+              {t("start.chooser.staff.title")}
             </div>
-            <div className="text-xs text-bh-fg-4">Próximamente.</div>
+            <div className="text-xs text-bh-fg-4">{t("start.chooser.staff.comingSoon")}</div>
           </div>
         </div>
       </div>
@@ -219,7 +220,7 @@ export default async function StartPage() {
           href="/dashboard"
           className="text-[13px] text-bh-fg-3 underline-offset-4 transition-colors hover:text-bh-fg-1 hover:underline"
         >
-          Lo haré después
+          {t("start.chooser.later")}
         </Link>
       </div>
     </main>

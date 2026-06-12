@@ -26,6 +26,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
       teamPicker: (await import(`./messages/${locale}/teamPicker.json`)).default,
       portfolio: (await import(`./messages/${locale}/portfolio.json`)).default,
       dashboard: (await import(`./messages/${locale}/dashboard.json`)).default,
+      onboarding: (await import(`./messages/${locale}/onboarding.json`)).default,
+      checkout: (await import(`./messages/${locale}/checkout.json`)).default,
     },
   };
 });

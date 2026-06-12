@@ -11,6 +11,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Download, Mail, Receipt as ReceiptIcon } from "lucide-react";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 
 import { db } from "@/lib/db";
 import { checkoutSessions, billingAddresses } from "@/db/schema";
@@ -24,16 +25,20 @@ import {
 import { PLAN_COPY } from "@/components/site/checkout/data";
 import { CURRENCY_GLYPH } from "@/components/site/pricing/data";
 
-export const metadata = {
-  title: "Recibo",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata() {
+  const t = await getTranslations("checkout");
+  return {
+    title: t("meta.receiptTitle"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type PageProps = {
   searchParams: Promise<{ internal?: string }>;
 };
 
 export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
+  const t = await getTranslations("checkout");
   const { internal } = await searchParams;
   if (!internal) notFound();
 
@@ -74,6 +79,10 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
     },
   );
   const trialEnds = new Date(Date.now() + TRIAL_DAYS * 24 * 3600 * 1000);
+  const trialEndsShort = trialEnds.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "long",
+  });
 
   return (
     <div className="space-y-6">
@@ -83,7 +92,7 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
           className="inline-flex items-center gap-2 rounded-bh-md border border-white/[0.10] bg-white/[0.02] px-3 py-1.5 text-[12px] font-semibold text-bh-fg-2 transition-colors duration-150 hover:border-white/[0.18] hover:text-bh-fg-1"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Volver a la confirmación
+          {t("receipt.backToConfirmation")}
         </Link>
         <div className="flex items-center gap-2">
           <a
@@ -91,7 +100,7 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
             className="inline-flex items-center gap-1.5 rounded-bh-md border border-white/[0.10] bg-white/[0.02] px-3 py-1.5 text-[12px] font-semibold text-bh-fg-2 hover:text-bh-fg-1"
           >
             <Mail className="h-3.5 w-3.5" />
-            Reenviar por email
+            {t("receipt.resendByEmail")}
           </a>
           {/* Print-to-PDF works as a poor-man's "Download". A real PDF
               endpoint can replace this in Phase 3. */}
@@ -103,7 +112,7 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
             className="inline-flex items-center gap-1.5 rounded-bh-md bg-bh-lime px-3 py-1.5 text-[12px] font-semibold text-bh-black hover:bg-[#d8ff26]"
           >
             <Download className="h-3.5 w-3.5" />
-            Descargar PDF
+            {t("receipt.downloadPdf")}
           </button>
         </div>
       </div>
@@ -117,7 +126,7 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
             </span>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-bh-fg-4">
-                Recibo de suscripción
+                {t("receipt.subscriptionReceipt")}
               </p>
               <p className="font-bh-heading text-base font-bold text-bh-fg-1">
                 &apos;BallersHub
@@ -126,7 +135,7 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
           </div>
           <div className="text-right text-[11px] text-bh-fg-3">
             <p className="font-bh-mono uppercase tracking-[0.10em] text-bh-fg-4">
-              N° {session.id.slice(0, 8)}
+              {t("receipt.number", { number: session.id.slice(0, 8) })}
             </p>
             <p className="mt-1">{issuedAt}</p>
           </div>
@@ -135,13 +144,13 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
         <div className="space-y-6 px-6 py-6">
           {/* Customer */}
           <section className="grid gap-4 md:grid-cols-2">
-            <Block label="Cliente">
+            <Block label={t("receipt.customer")}>
               <p className="text-[13px] font-semibold text-bh-fg-1">
                 {billing?.fullName ?? user.email}
               </p>
               <p className="text-[12px] text-bh-fg-3">{user.email}</p>
             </Block>
-            <Block label="Facturación">
+            <Block label={t("receipt.billing")}>
               {billing ? (
                 <div className="text-[12px] leading-[1.5] text-bh-fg-2">
                   <p>{billing.streetLine1}</p>
@@ -157,18 +166,20 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
                   </p>
                 </div>
               ) : (
-                <p className="text-[12px] text-bh-fg-4">Sin datos guardados</p>
+                <p className="text-[12px] text-bh-fg-4">
+                  {t("receipt.noBillingData")}
+                </p>
               )}
             </Block>
           </section>
 
           {/* Items */}
           <section>
-            <Block label="Concepto">
+            <Block label={t("receipt.concept")}>
               <div className="mt-2 overflow-hidden rounded-bh-md border border-white/[0.08]">
                 <div className="grid grid-cols-[1fr_auto] gap-4 bg-black/20 px-4 py-3 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
-                  <span>Detalle</span>
-                  <span>Total</span>
+                  <span>{t("receipt.detail")}</span>
+                  <span>{t("receipt.total")}</span>
                 </div>
                 <div className="grid grid-cols-[1fr_auto] gap-4 px-4 py-4">
                   <div>
@@ -176,14 +187,10 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
                       {planCopy.name}
                     </p>
                     <p className="mt-1 text-[12px] text-bh-fg-3">
-                      Suscripción anual · {TRIAL_DAYS} días de prueba sin cargo
+                      {t("receipt.lineDescription", { trialDays: TRIAL_DAYS })}
                     </p>
                     <p className="mt-1 text-[11.5px] text-bh-fg-4">
-                      Trial activo hasta{" "}
-                      {trialEnds.toLocaleDateString("es-AR", {
-                        day: "2-digit",
-                        month: "long",
-                      })}
+                      {t("receipt.trialActiveUntil", { date: trialEndsShort })}
                     </p>
                   </div>
                   <div className="text-right">
@@ -192,7 +199,7 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
                       {price.amount}
                     </p>
                     <p className="text-[10px] uppercase tracking-[0.10em] text-bh-fg-4">
-                      {session.currency} / año
+                      {t("receipt.currencyPerYear", { currency: session.currency })}
                     </p>
                   </div>
                 </div>
@@ -202,15 +209,18 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
 
           {/* Totals */}
           <section className="space-y-2 border-t border-white/[0.08] pt-4 text-[13px]">
-            <Total label="Subtotal">
+            <Total label={t("receipt.subtotal")}>
               {glyph}
               {price.amount} {session.currency}
             </Total>
-            <Total label="Trial 7 días" variant="muted">
+            <Total
+              label={t("receipt.trialLine", { trialDays: TRIAL_DAYS })}
+              variant="muted"
+            >
               −{glyph}
               {price.amount} {session.currency}
             </Total>
-            <Total label="Total a pagar hoy" variant="strong">
+            <Total label={t("receipt.totalDueToday")} variant="strong">
               {glyph}0 {session.currency}
             </Total>
           </section>
@@ -218,29 +228,28 @@ export default async function CheckoutReceiptPage({ searchParams }: PageProps) {
           {/* Payment + footer */}
           <section className="space-y-2 border-t border-white/[0.08] pt-4 text-[11.5px] text-bh-fg-3">
             <p>
-              Procesado por{" "}
-              <strong className="text-bh-fg-2">
-                {session.processor === "mercado_pago"
-                  ? "Mercado Pago"
-                  : "Stripe"}
-              </strong>
-              . Cobro automático el día{" "}
-              {trialEnds.toLocaleDateString("es-AR", {
-                day: "2-digit",
-                month: "long",
+              {t.rich("receipt.processedBy", {
+                processor:
+                  session.processor === "mercado_pago"
+                    ? t("common.processorMercadoPago")
+                    : t("common.processorStripe"),
+                date: trialEndsShort,
+                strong: (chunks) => (
+                  <strong className="text-bh-fg-2">{chunks}</strong>
+                ),
               })}
-              .
             </p>
             <p>
-              Cancelable sin cargo dentro de los 3 días posteriores al cobro.
-              Para soporte:{" "}
-              <Link
-                href="mailto:info@ballershub.co"
-                className="text-bh-lime hover:underline"
-              >
-                info@ballershub.co
-              </Link>
-              .
+              {t.rich("receipt.supportLine", {
+                supportEmail: (chunks) => (
+                  <Link
+                    href="mailto:info@ballershub.co"
+                    className="text-bh-lime hover:underline"
+                  >
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </p>
           </section>
         </div>

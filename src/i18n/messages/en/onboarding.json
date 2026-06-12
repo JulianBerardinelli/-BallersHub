@@ -1,0 +1,172 @@
+{
+  "kyc": {
+    "docLabel": "Document (front or PDF)",
+    "selfieLabel": "Selfie",
+    "uploadingDoc": "Uploading document...",
+    "uploadingSelfie": "Uploading selfie...",
+    "privacyNote": "Files are stored privately and only the verification team will see them.",
+    "errorNoUser": "No user is signed in."
+  },
+  "start": {
+    "review": {
+      "badge": "Under review",
+      "title": "Application",
+      "titleHighlight": "under review",
+      "description": "We have received your information and are validating your details. You can track the status from your panel and we will notify you by email once the review is complete.",
+      "viewPanel": "View panel",
+      "viewApplication": "View application",
+      "backToDashboard": "Back to dashboard"
+    },
+    "chooser": {
+      "badge": "Onboarding",
+      "title": "Choose your",
+      "titleHighlight": "account type",
+      "subtitle": "You can change it later from the dashboard.",
+      "player": {
+        "title": "I'm a Footballer",
+        "description": "Build your professional portfolio and connect with clubs."
+      },
+      "agency": {
+        "title": "I'm a Manager / Agency",
+        "description": "Manage your roster, validate profiles and represent talent."
+      },
+      "staff": {
+        "title": "I'm a Coach / Scout / Director",
+        "comingSoon": "Coming soon."
+      },
+      "later": "I'll do it later"
+    }
+  },
+  "acceptInvite": {
+    "metaTitle": "Accept Invitation",
+    "invalidLink": {
+      "title": "Invalid link",
+      "description": "This invitation does not contain a valid access token.",
+      "backHome": "Back to home"
+    },
+    "notFound": {
+      "title": "Invitation not found",
+      "description": "The link may have expired or the invitation was revoked by the agency.",
+      "goHome": "Go to 'BallersHub"
+    },
+    "processed": {
+      "title": "Invitation processed",
+      "description": "This invitation has already been {status}.",
+      "statusAccepted": "accepted",
+      "statusRejected": "rejected",
+      "goToPanel": "Go to my panel"
+    },
+    "wrongAccount": {
+      "title": "Wrong account",
+      "description": "This invitation is addressed to <strong>{targetEmail}</strong>, but you have signed in as <strong>{currentEmail}</strong>.",
+      "signOut": "Sign out of current session"
+    },
+    "received": {
+      "title": "Invitation received",
+      "descriptionPlayer": "<strong>{agencyName}</strong> has sent you an official invitation to join the platform as a represented footballer.",
+      "descriptionManager": "<strong>{agencyName}</strong> has sent you an official invitation to join the platform as an agency manager.",
+      "recipientLabel": "Recipient",
+      "recipientNote": "If you are not the owner of this email, please disregard this invitation.",
+      "signInToAccept": "Sign in to accept",
+      "noAccount": "I don't have an account yet"
+    },
+    "defaultAgencyName": "An Agency"
+  },
+  "manager": {
+    "badge": "Manager · Step {step} of 3",
+    "title": "Manager",
+    "titleHighlight": "registration",
+    "subtitle": "We validate your identity and representation to maintain the integrity of the platform.",
+    "step1": {
+      "fullName": "Your full name *",
+      "contactEmail": "Contact email *",
+      "phone": "Phone",
+      "agencyName": "Agency name *",
+      "agencyWebsite": "Agency website",
+      "verifiedLink": "Validation link (Transfermarkt, IG, etc.) *"
+    },
+    "step2": {
+      "title": "Official certification",
+      "subtitle": "Upload or link your FIFA, FIGC, RFEF or other association license.",
+      "licenseType": "License type",
+      "licenseTypeNone": "None / Other",
+      "licenseTypeRfef": "RFEF (Spain)",
+      "licenseTypeFigc": "FIGC (Italy)",
+      "licenseTypeAfa": "AFA (Argentina)",
+      "licenseDoc": "License document (PDF or image)",
+      "licenseLoaded": "✓ License uploaded"
+    },
+    "step3": {
+      "title": "Identity verification (KYC)",
+      "subtitle": "To protect the integrity of the platform, we need to verify your identity.",
+      "idReady": "✓ ID ready",
+      "idMissing": "○ ID missing",
+      "selfieReady": "✓ Selfie ready",
+      "selfieMissing": "○ Selfie missing",
+      "notes": "Additional notes (optional)"
+    },
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit application",
+    "submitting": "Submitting...",
+    "errorNoUser": "No user is signed in",
+    "errorUploadLicense": "Error uploading the license",
+    "errorGeneric": "Something went wrong"
+  },
+  "apply": {
+    "header": {
+      "badge": "Footballer · Step {step} of 3",
+      "title": "Footballer",
+      "titleHighlight": "sign up",
+      "step1Title": "Main details",
+      "step1Sub": "Your personal information",
+      "step2Title": "Football details",
+      "step2Sub": "Club and career",
+      "step3Title": "Verification",
+      "step3Sub": "Documents (KYC)"
+    },
+    "step1": {
+      "emailLabel": "Account email",
+      "emailDescription": "This is your sign-in email",
+      "fullNameLabel": "Full name",
+      "fullNamePlaceholder": "E.g. Lionel Messi",
+      "fullNameError": "Enter at least 3 characters.",
+      "nationalityError": "Select at least one nationality.",
+      "birthDateLabel": "Date of birth",
+      "birthDateError": "Select your date of birth.",
+      "heightLabel": "Height (cm)",
+      "heightPlaceholder": "e.g. 178",
+      "heightError": "Enter a valid height (120–230 cm).",
+      "weightLabel": "Weight (kg)",
+      "weightPlaceholder": "e.g. 72",
+      "weightError": "Enter a valid weight (40–140 kg).",
+      "positionLabel": "Position",
+      "positionError": "Choose at least one sub-position.",
+      "back": "Back",
+      "continue": "Continue"
+    },
+    "step2": {
+      "teamError": "Select a club or mark that you are a free agent.",
+      "externalProfiles": "External profiles",
+      "optional": "(optional)",
+      "socialLabel": "Social media",
+      "socialPlaceholder": "https://www.instagram.com/yourusername",
+      "urlError": "Enter a valid URL (https://...).",
+      "back": "Back",
+      "next": "Go to verification"
+    },
+    "step3": {
+      "title": "Identity verification",
+      "docUploaded": "Document uploaded",
+      "docPending": "Document pending",
+      "selfieUploaded": "Selfie uploaded",
+      "selfiePending": "Selfie pending",
+      "agree": "I accept the Terms and Privacy Policy",
+      "back": "Back",
+      "submit": "Submit application",
+      "errorKycOrTerms": "You still need to upload the document/selfie or accept the terms.",
+      "errorNoSession": "No active session.",
+      "errorUnexpected": "Unexpected error."
+    }
+  }
+}

@@ -7,6 +7,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { and, eq, inArray } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
@@ -25,11 +26,14 @@ import CheckoutForm from "@/components/site/checkout/CheckoutForm";
 import CheckoutOrderSummary from "@/components/site/checkout/CheckoutOrderSummary";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
 
-export const metadata = {
-  title: "Checkout",
-  description: "Completá tu suscripción al plan Pro de 'BallersHub.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata() {
+  const t = await getTranslations("checkout");
+  return {
+    title: t("meta.checkoutTitle"),
+    description: t("meta.checkoutDescription"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type PageProps = {
   params: Promise<{ planId: string }>;
@@ -37,6 +41,7 @@ type PageProps = {
 };
 
 export default async function CheckoutPage({ params, searchParams }: PageProps) {
+  const t = await getTranslations("checkout");
   const { planId: rawPlanId } = await params;
   const { currency: rawCurrency, canceled } = await searchParams;
 
@@ -101,8 +106,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
 
       {canceled === "1" && (
         <div className="mx-auto max-w-2xl rounded-bh-lg border border-bh-warning/30 bg-bh-warning/10 px-4 py-3 text-center text-[12.5px] text-bh-warning">
-          Cancelaste el pago. Podés intentar de nuevo cuando quieras —
-          tus datos siguen guardados.
+          {t("plan.canceledNotice")}
         </div>
       )}
 
@@ -132,13 +136,14 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
   );
 }
 
-function ProcessorNotReadyBanner({
+async function ProcessorNotReadyBanner({
   currency,
   planId,
 }: {
   currency: CheckoutCurrency;
   planId: CheckoutPlanId;
 }) {
+  const t = await getTranslations("checkout");
   const isMp = currency === "ARS";
   const altCurrency: CheckoutCurrency = isMp ? "USD" : "ARS";
   const altLabel = isMp ? "USD (Stripe)" : "ARS (Mercado Pago)";
@@ -150,26 +155,29 @@ function ProcessorNotReadyBanner({
         <div className="flex-1 space-y-2 text-[12.5px]">
           <p className="font-semibold text-bh-warning">
             {isMp
-              ? "Mercado Pago todavía no está configurado en este entorno."
-              : "Stripe todavía no está configurado en este entorno."}
+              ? t("plan.processorNotReady.mpTitle")
+              : t("plan.processorNotReady.stripeTitle")}
           </p>
           <p className="text-bh-fg-2">
-            Estamos terminando de conectar este método de pago. Mientras tanto
-            podés probar con{" "}
-            <Link
-              href={`/checkout/${planId}?currency=${altCurrency}`}
-              className="font-semibold text-bh-lime underline-offset-4 hover:underline"
-            >
-              {altLabel}
-            </Link>
-            , o escribirnos a{" "}
-            <Link
-              href="mailto:info@ballershub.co"
-              className="font-semibold text-bh-fg-1 underline-offset-4 hover:underline"
-            >
-              info@ballershub.co
-            </Link>{" "}
-            para que te avisemos cuando esté listo.
+            {t.rich("plan.processorNotReady.body", {
+              altLabel,
+              altLink: (chunks) => (
+                <Link
+                  href={`/checkout/${planId}?currency=${altCurrency}`}
+                  className="font-semibold text-bh-lime underline-offset-4 hover:underline"
+                >
+                  {chunks}
+                </Link>
+              ),
+              supportEmail: (chunks) => (
+                <Link
+                  href="mailto:info@ballershub.co"
+                  className="font-semibold text-bh-fg-1 underline-offset-4 hover:underline"
+                >
+                  {chunks}
+                </Link>
+              ),
+            })}
           </p>
         </div>
       </div>

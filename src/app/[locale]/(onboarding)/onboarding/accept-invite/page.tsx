@@ -1,18 +1,23 @@
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import Link from "next/link";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 
-export const metadata = {
-  title: "Aceptar Invitación",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("onboarding");
+  return {
+    title: t("acceptInvite.metaTitle"),
+  };
+}
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function AcceptInvitePage(props: PageProps) {
+  const t = await getTranslations("onboarding");
   const searchParams = await props.searchParams;
   const token = typeof searchParams.token === "string" ? searchParams.token : null;
 
@@ -21,9 +26,9 @@ export default async function AcceptInvitePage(props: PageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm">
           <AlertTriangle className="mx-auto w-12 h-12 text-bh-danger" />
-          <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Enlace inválido</h1>
-          <p className="text-bh-fg-3">Esta invitación no contiene un token de acceso válido.</p>
-          <Link href="/" className="inline-block mt-4 text-bh-lime underline-offset-4 hover:underline">Volver al inicio</Link>
+          <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">{t("acceptInvite.invalidLink.title")}</h1>
+          <p className="text-bh-fg-3">{t("acceptInvite.invalidLink.description")}</p>
+          <Link href="/" className="inline-block mt-4 text-bh-lime underline-offset-4 hover:underline">{t("acceptInvite.invalidLink.backHome")}</Link>
         </div>
       </div>
     );
@@ -51,16 +56,16 @@ export default async function AcceptInvitePage(props: PageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm">
            <AlertTriangle className="mx-auto w-12 h-12 text-bh-warning" />
-           <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Invitación no encontrada</h1>
-           <p className="text-bh-fg-3">El enlace pudo haber expirado o la invitación fue revocada por la agencia.</p>
-           <Link href="/" className="inline-block mt-4 text-bh-lime underline-offset-4 hover:underline">Ir a &apos;BallersHub</Link>
+           <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">{t("acceptInvite.notFound.title")}</h1>
+           <p className="text-bh-fg-3">{t("acceptInvite.notFound.description")}</p>
+           <Link href="/" className="inline-block mt-4 text-bh-lime underline-offset-4 hover:underline">{t("acceptInvite.notFound.goHome")}</Link>
         </div>
       </div>
     );
   }
 
   const targetEmail = ("email" in invite ? invite.email : invite.playerEmail);
-  const agencyName = invite.agency?.name || "Una Agencia";
+  const agencyName = invite.agency?.name || t("acceptInvite.defaultAgencyName");
   const isPlayerInvite = !!playerInvite;
 
   if (invite.status !== "pending") {
@@ -68,10 +73,10 @@ export default async function AcceptInvitePage(props: PageProps) {
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="text-center space-y-4 max-w-sm rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-8">
            <CheckCircle className="mx-auto w-12 h-12 text-bh-blue" />
-           <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Invitación procesada</h1>
-           <p className="text-bh-fg-3">Esta invitación ya ha sido {invite.status === "accepted" ? "aceptada" : "rechazada"}.</p>
+           <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">{t("acceptInvite.processed.title")}</h1>
+           <p className="text-bh-fg-3">{t("acceptInvite.processed.description", { status: invite.status === "accepted" ? t("acceptInvite.processed.statusAccepted") : t("acceptInvite.processed.statusRejected") })}</p>
            <Link href="/dashboard" className="inline-block mt-4 inline-flex items-center justify-center rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]">
-             Ir a mi panel
+             {t("acceptInvite.processed.goToPanel")}
            </Link>
         </div>
       </div>
@@ -89,13 +94,17 @@ export default async function AcceptInvitePage(props: PageProps) {
         <div className="flex min-h-screen items-center justify-center px-4">
           <div className="text-center space-y-4 max-w-md rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-8">
              <AlertTriangle className="mx-auto w-12 h-12 text-bh-warning" />
-             <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">Cuenta incorrecta</h1>
+             <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">{t("acceptInvite.wrongAccount.title")}</h1>
              <p className="text-bh-fg-3">
-               Esta invitación está dirigida al correo <strong className="text-bh-fg-1">{targetEmail}</strong>, pero has iniciado sesión como <strong className="text-bh-fg-1">{user.email}</strong>.
+               {t.rich("acceptInvite.wrongAccount.description", {
+                 targetEmail,
+                 currentEmail: user.email ?? "",
+                 strong: (chunks) => <strong className="text-bh-fg-1">{chunks}</strong>,
+               })}
              </p>
              <div className="pt-4 flex flex-col gap-3">
                <Link href="/dashboard/settings/account" className="inline-flex items-center justify-center rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]">
-                 Cerrar sesión actual
+                 {t("acceptInvite.wrongAccount.signOut")}
                </Link>
              </div>
           </div>
@@ -112,25 +121,30 @@ export default async function AcceptInvitePage(props: PageProps) {
             <CheckCircle className="h-8 w-8" />
           </div>
           <h2 className="mt-5 font-bh-display text-2xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Invitación recibida
+            {t("acceptInvite.received.title")}
           </h2>
           <p className="mt-2 text-sm leading-[1.55] text-bh-fg-3">
-            <strong className="text-bh-fg-1">{agencyName}</strong> te ha enviado
-            una invitación oficial para sumarte a la plataforma como{" "}
-            {isPlayerInvite ? "jugador representado" : "mánager de agencia"}.
+            {t.rich(
+              isPlayerInvite
+                ? "acceptInvite.received.descriptionPlayer"
+                : "acceptInvite.received.descriptionManager",
+              {
+                agencyName,
+                strong: (chunks) => <strong className="text-bh-fg-1">{chunks}</strong>,
+              },
+            )}
           </p>
         </div>
 
         <div className="rounded-bh-md border border-dashed border-white/[0.08] bg-bh-surface-1/60 p-4 text-left">
           <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-3">
-            Destinatario
+            {t("acceptInvite.received.recipientLabel")}
           </p>
           <p className="mt-1 font-bh-mono text-[13px] text-bh-fg-1">
             {targetEmail}
           </p>
           <p className="mt-2 text-[11px] text-bh-fg-4">
-            Si no sos el dueño de este correo, por favor desestimá esta
-            invitación.
+            {t("acceptInvite.received.recipientNote")}
           </p>
         </div>
 
@@ -139,13 +153,13 @@ export default async function AcceptInvitePage(props: PageProps) {
             href={`/auth/sign-in?email=${encodeURIComponent(targetEmail)}&redirect=/dashboard`}
             className="inline-flex w-full items-center justify-center rounded-bh-md bg-bh-lime px-4 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
           >
-            Iniciar sesión para aceptar
+            {t("acceptInvite.received.signInToAccept")}
           </Link>
           <Link
             href={`/auth/sign-up?email=${encodeURIComponent(targetEmail)}`}
             className="inline-flex w-full items-center justify-center rounded-bh-md border border-bh-fg-4 px-4 py-2.5 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
           >
-            Aún no tengo una cuenta
+            {t("acceptInvite.received.noAccount")}
           </Link>
         </div>
       </div>

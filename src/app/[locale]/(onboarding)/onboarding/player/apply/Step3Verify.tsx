@@ -6,6 +6,7 @@ import KycUploader from "@/app/[locale]/(onboarding)/onboarding/KycUploader";
 import type { CountryPick } from "@/components/common/CountryMultiPicker";
 import { supabase } from "@/lib/supabase/client";
 import { onboardingNotification, useNotificationContext } from "@/modules/notifications";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 // Tipos mínimos esperados desde Step1/Step2
@@ -68,6 +69,7 @@ export default function Step3Verify({
   onBack: () => void;
   onSent: (applicationId: string) => void;
 }) {
+  const t = useTranslations("onboarding");
   const router = useRouter();
   const { enqueue } = useNotificationContext();
 
@@ -85,7 +87,7 @@ export default function Step3Verify({
   async function handleSubmit() {
     setError(null);
     if (!idDocKey || !selfieKey || !agree) {
-      setError("Falta subir documento/selfie o aceptar condiciones.");
+      setError(t("apply.step3.errorKycOrTerms"));
       return;
     }
 
@@ -95,7 +97,7 @@ export default function Step3Verify({
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (!token) {
-        setError("No hay sesión activa.");
+        setError(t("apply.step3.errorNoSession"));
         setSending(false);
         return;
       }
@@ -145,7 +147,7 @@ export default function Step3Verify({
 
       throw new Error(data?.error || `HTTP ${res.status}${raw ? `: ${raw.slice(0, 160)}` : ""}`);
     } catch (e: any) {
-      setError(e?.message ?? "Error inesperado.");
+      setError(e?.message ?? t("apply.step3.errorUnexpected"));
     } finally {
       setSending(false);
     }
@@ -158,7 +160,7 @@ export default function Step3Verify({
       <Form className="grid gap-6">
         <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Verificación de identidad
+            {t("apply.step3.title")}
           </h3>
 
           <KycUploader onUploaded={onUploaded} />
@@ -173,7 +175,7 @@ export default function Step3Verify({
                   : "border border-white/[0.12] bg-white/[0.06] text-bh-fg-3"
               }
             >
-              {idDocKey ? "Documento subido" : "Documento pendiente"}
+              {idDocKey ? t("apply.step3.docUploaded") : t("apply.step3.docPending")}
             </Chip>
             <Chip
               size="sm"
@@ -184,7 +186,7 @@ export default function Step3Verify({
                   : "border border-white/[0.12] bg-white/[0.06] text-bh-fg-3"
               }
             >
-              {selfieKey ? "Selfie subida" : "Selfie pendiente"}
+              {selfieKey ? t("apply.step3.selfieUploaded") : t("apply.step3.selfiePending")}
             </Chip>
           </div>
 
@@ -197,7 +199,7 @@ export default function Step3Verify({
                 "before:border-white/[0.18] after:bg-bh-lime group-data-[selected=true]:after:bg-bh-lime",
             }}
           >
-            Acepto Términos y Política de Privacidad
+            {t("apply.step3.agree")}
           </Checkbox>
 
           {error && <p className="text-sm text-bh-danger">{error}</p>}
@@ -209,7 +211,7 @@ export default function Step3Verify({
             onPress={onBack}
             className="rounded-bh-md border border-bh-fg-4 bg-transparent px-5 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
           >
-            Volver
+            {t("apply.step3.back")}
           </Button>
           <Button
             onPress={handleSubmit}
@@ -217,7 +219,7 @@ export default function Step3Verify({
             isDisabled={!canSend}
             className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] data-[disabled=true]:cursor-not-allowed data-[disabled=true]:opacity-40 data-[disabled=true]:shadow-none data-[disabled=true]:hover:translate-y-0"
           >
-            Enviar solicitud
+            {t("apply.step3.submit")}
           </Button>
         </div>
       </Form>

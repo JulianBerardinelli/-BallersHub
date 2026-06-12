@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Form, Button } from "@heroui/react";
 import TeamPickerCombo, { type TeamPickerValue } from "@/components/teams/TeamPickerCombo";
 import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEditor";
@@ -28,6 +29,7 @@ export default function Step2Football({
   onBack: () => void;
   onNext: (data: Step2Data) => void;
 }) {
+  const t = useTranslations("onboarding");
   const [freeAgent, setFreeAgent] = React.useState<boolean>(!!defaultValue?.freeAgent);
   const [team, setTeam] = React.useState<TeamPickerValue>(defaultValue?.team ?? null);
   const [career, setCareer] = React.useState<CareerItemInput[]>(defaultValue?.career ?? []);
@@ -123,7 +125,7 @@ export default function Step2Football({
   const scInvalid = !!touched.sc && !!sc && !URL_RE.test(sc);
 
   function handleNext() {
-    setTouched((t) => ({ ...t, team: true, tm: true, bs: true, sc: true }));
+    setTouched((prev) => ({ ...prev, team: true, tm: true, bs: true, sc: true }));
 
     const isTeamOk = freeAgent || (team && (team.mode === "approved" || team.mode === "new"));
     if (!isTeamOk) return;
@@ -171,13 +173,13 @@ export default function Step2Football({
             isFreeAgent={freeAgent}
             onFreeAgentChange={(v) => {
               setFreeAgent(v);
-              setTouched((t) => ({ ...t, team: true }));
+              setTouched((prev) => ({ ...prev, team: true }));
             }}
             onChange={(v) => {
               setTeam(v);
             }}
             isInvalid={teamInvalid}
-            errorMessage="Seleccioná un club o marcá que sos jugador libre."
+            errorMessage={t("apply.step2.teamError")}
           />
         </div>
 
@@ -193,7 +195,7 @@ export default function Step2Football({
 
         <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Perfiles externos <span className="text-bh-fg-4">(opcional)</span>
+            {t("apply.step2.externalProfiles")} <span className="text-bh-fg-4">{t("apply.step2.optional")}</span>
           </h3>
           <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <FormField
@@ -202,9 +204,9 @@ export default function Step2Football({
               placeholder="https://www.transfermarkt.com/..."
               value={tm}
               onChange={(e) => setTm(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, tm: true }))}
+              onBlur={() => setTouched((prev) => ({ ...prev, tm: true }))}
               isInvalid={tmInvalid}
-              errorMessage="Ingresá una URL válida (https://...)."
+              errorMessage={t("apply.step2.urlError")}
             />
             <FormField
               id="bh-bs"
@@ -212,19 +214,19 @@ export default function Step2Football({
               placeholder="https://es.besoccer.com/..."
               value={bs}
               onChange={(e) => setBs(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, bs: true }))}
+              onBlur={() => setTouched((prev) => ({ ...prev, bs: true }))}
               isInvalid={bsInvalid}
-              errorMessage="Ingresá una URL válida (https://...)."
+              errorMessage={t("apply.step2.urlError")}
             />
             <FormField
               id="bh-sc"
-              label="Red social"
-              placeholder="https://www.instagram.com/tuusuario"
+              label={t("apply.step2.socialLabel")}
+              placeholder={t("apply.step2.socialPlaceholder")}
               value={sc}
               onChange={(e) => setSc(e.target.value)}
-              onBlur={() => setTouched((t) => ({ ...t, sc: true }))}
+              onBlur={() => setTouched((prev) => ({ ...prev, sc: true }))}
               isInvalid={scInvalid}
-              errorMessage="Ingresá una URL válida (https://...)."
+              errorMessage={t("apply.step2.urlError")}
             />
           </div>
         </div>
@@ -235,13 +237,13 @@ export default function Step2Football({
             onPress={onBack}
             className="rounded-bh-md border border-bh-fg-4 bg-transparent px-5 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
           >
-            Volver
+            {t("apply.step2.back")}
           </Button>
           <Button
             onPress={handleNext}
             className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
           >
-            Ir a verificación
+            {t("apply.step2.next")}
           </Button>
         </div>
       </Form>
