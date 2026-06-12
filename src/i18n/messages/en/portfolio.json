@@ -330,5 +330,11 @@
     "galleryClose": "Close",
     "galleryPrev": "Previous",
     "galleryNext": "Next"
+  },
+  "loading": {
+    "bio": "Loading bio...",
+    "tactics": "Loading tactics...",
+    "career": "Loading career...",
+    "media": "Loading media..."
   }
 }

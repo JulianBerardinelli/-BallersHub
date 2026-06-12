@@ -330,5 +330,11 @@
     "galleryClose": "Cerrar",
     "galleryPrev": "Anterior",
     "galleryNext": "Siguiente"
+  },
+  "loading": {
+    "bio": "Cargando biografía...",
+    "tactics": "Cargando táctica...",
+    "career": "Cargando trayectoria...",
+    "media": "Cargando multimedia..."
   }
 }

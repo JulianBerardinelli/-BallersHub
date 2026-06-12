@@ -1,10 +1,35 @@
 {
   "headline": {
-    "anonymous": { "eyebrow": "Ao vivo · 86 clubes ativos", "lead": "Suba, valide e ", "highlight": "jogue onde importa.", "sub": "Mais de 1.200 perfis validados. Avaliações da comissão técnica. Seu próximo clube está procurando você." },
-    "player": { "eyebrow": "Sua carreira, em movimento", "lead": "Mantenha seu perfil ", "highlight": "sempre atualizado.", "sub": "Suba novas fotos, ajuste seus dados de futebol e deixe os clubes te encontrarem com a informação certa." },
-    "manager": { "eyebrow": "Sua agência, sem atritos", "lead": "Gerencie seu elenco ", "highlight": "com precisão.", "sub": "Adicione jogadores, valide perfis e compartilhe o elenco oficial da sua agência com clubes do mundo todo." },
-    "applicant": { "eyebrow": "Sua solicitação está em andamento", "lead": "Você está a um passo ", "highlight": "da sua conta profissional.", "sub": "Enquanto revisamos seus dados, continue explorando perfis validados, casos de sucesso e novidades do produto." },
-    "member": { "eyebrow": "Pronto quando você quiser", "lead": "Transforme sua conta em ", "highlight": "um perfil profissional.", "sub": "Solicite sua conta de jogador ou agência e comece a operar no ecossistema com verificação oficial." }
+    "anonymous": {
+      "eyebrow": "Ao vivo · 86 clubes ativos",
+      "lead": "Suba, valide e ",
+      "highlight": "jogue onde importa.",
+      "sub": "Mais de 1.200 perfis validados. Avaliações da comissão técnica. Seu próximo clube está procurando você."
+    },
+    "player": {
+      "eyebrow": "Sua carreira, em movimento",
+      "lead": "Mantenha seu perfil ",
+      "highlight": "sempre atualizado.",
+      "sub": "Suba novas fotos, ajuste seus dados de futebol e deixe os clubes te encontrarem com a informação certa."
+    },
+    "manager": {
+      "eyebrow": "Sua agência, sem atritos",
+      "lead": "Gerencie seu elenco ",
+      "highlight": "com precisão.",
+      "sub": "Adicione jogadores, valide perfis e compartilhe o elenco oficial da sua agência com clubes do mundo todo."
+    },
+    "applicant": {
+      "eyebrow": "Sua solicitação está em andamento",
+      "lead": "Você está a um passo ",
+      "highlight": "da sua conta profissional.",
+      "sub": "Enquanto revisamos seus dados, continue explorando perfis validados, casos de sucesso e novidades do produto."
+    },
+    "member": {
+      "eyebrow": "Pronto quando você quiser",
+      "lead": "Transforme sua conta em ",
+      "highlight": "um perfil profissional.",
+      "sub": "Solicite sua conta de jogador ou agência e comece a operar no ecossistema com verificação oficial."
+    }
   },
   "cta": {
     "playerDashboard": "Ir ao meu painel",
@@ -46,6 +71,27 @@
     "countries": "Países"
   },
   "tagline": "O ecossistema digital do futebol profissional.",
-  "legal": { "terms": "Termos", "privacy": "Privacidade", "cookies": "Cookies" },
-  "credits": "Desenvolvido por"
+  "legal": {
+    "terms": "Termos",
+    "privacy": "Privacidade",
+    "cookies": "Cookies"
+  },
+  "credits": "Desenvolvido por",
+  "portfolio": {
+    "eyebrowPlayer": "Perfil verificado no 'BallersHub",
+    "eyebrowAgency": "Agência verificada no 'BallersHub",
+    "headlinePlayer": "Faça parte do ecossistema de ",
+    "headlineAgency": "Conecte-se com ",
+    "subPlayer": "Trajetória, dados futebolísticos e multimídia validados. Seu próximo passo, em uma plataforma pensada para jogadores profissionais.",
+    "subAgency": "Descubra o elenco de jogadores que esta agência representa e faça seus próximos movimentos sem atritos.",
+    "ctaContact": "Solicitar contato"
+  },
+  "newsletter": {
+    "eyebrow": "Newsletter Pro",
+    "copy": "Insights de scouting, novas funcionalidades e casos de sucesso. Uma vez por mês, sem ruído.",
+    "button": "Inscrever-me",
+    "submitted": "Pronto!",
+    "hint": "Sem spam. Cancele quando quiser.",
+    "ariaEmail": "Seu e-mail"
+  }
 }

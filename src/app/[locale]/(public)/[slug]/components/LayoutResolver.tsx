@@ -1,4 +1,5 @@
 import { CSSProperties, Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import ProAthleteLayout from "./ProAthleteLayout";
 import FreeLayout, {
   type FreeLayoutCareerRow,
@@ -97,7 +98,7 @@ export type PublicProfileData = {
   } | null;
 };
 
-export default function LayoutResolver({ data }: { data: PublicProfileData }) {
+export default async function LayoutResolver({ data }: { data: PublicProfileData }) {
   const { player, theme, limits, articles, plan, freeData, pressLayout, ownerUserId, ownerProUpgradeNudgeUserId } = data;
 
   // Free-tier players ALWAYS get the editorial dossier, regardless of
@@ -181,6 +182,8 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
     color: "#ffffff"
   } as CSSProperties;
 
+  const t = await getTranslations("portfolio");
+
   return (
     <SmoothScrollProvider>
       {/*
@@ -214,7 +217,7 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
               for the scroll math (ScrollMeasurementSync handles that)
               but to prevent visible layout jumps while streaming.
             */}
-            <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">Cargando biografía...</div>}>
+            <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.bio")}</div>}>
               <ProfileBioModule playerId={player.id} />
             </Suspense>
 
@@ -229,21 +232,21 @@ export default function LayoutResolver({ data }: { data: PublicProfileData }) {
             <Suspense fallback={
               <div className="h-[200vh] relative w-full">
                 <div className="sticky top-0 w-full flex items-center justify-center text-white/30 animate-pulse" style={{ height: "100dvh" }}>
-                  Cargando Tácticas...
+                  {t("loading.tactics")}
                 </div>
               </div>
             }>
               <TacticsModule playerId={player.id} />
             </Suspense>
 
-            <Suspense fallback={<div className="min-h-[800px] flex items-center justify-center text-white/30 animate-pulse">Cargando carrera...</div>}>
+            <Suspense fallback={<div className="min-h-[800px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.career")}</div>}>
               <CareerTimelineModule playerId={player.id} />
             </Suspense>
 
             {/* Press & Notes Module (Client Side) */}
             <ProfilePressNotesModule articles={articles as any} layout={pressLayout ?? "newspaper"} />
 
-            <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">Cargando media...</div>}>
+            <Suspense fallback={<div className="min-h-[600px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.media")}</div>}>
               <MediaGalleryModule playerId={player.id} playerName={player.fullName} avatarUrl={player.avatarUrl ?? null} limits={limits} />
             </Suspense>
 

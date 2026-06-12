@@ -2,6 +2,7 @@
 
 import { ArrowRight, Check } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type NewsletterFormProps = {
   /** Solid color used for the eyebrow + button. */
@@ -47,11 +48,12 @@ export default function NewsletterForm({
   inputBorder = "rgba(255,255,255,0.10)",
   inputColor = "#FFFFFF",
   buttonFg = "#080808",
-  eyebrow = "Newsletter Pro",
-  copy = "Insights de scouting, nuevas funciones y casos de éxito. Una vez al mes, sin ruido.",
+  eyebrow,
+  copy,
   displayFont = "var(--font-barlow-condensed), 'Barlow Condensed', sans-serif",
   bodyFont = "var(--font-dm-sans), 'DM Sans', sans-serif",
 }: NewsletterFormProps) {
+  const t = useTranslations("footer");
   const [submitted, setSubmitted] = useState(false);
 
   return (
@@ -67,7 +69,7 @@ export default function NewsletterForm({
           marginBottom: 12,
         }}
       >
-        {eyebrow}
+        {eyebrow ?? t("newsletter.eyebrow")}
       </div>
       <p
         style={{
@@ -79,7 +81,7 @@ export default function NewsletterForm({
           maxWidth: 320,
         }}
       >
-        {copy}
+        {copy ?? t("newsletter.copy")}
       </p>
       <form
         style={{ display: "flex", gap: 6 }}
@@ -91,7 +93,7 @@ export default function NewsletterForm({
         <input
           type="email"
           required
-          aria-label="Tu email"
+          aria-label={t("newsletter.ariaEmail")}
           placeholder="tu@email.com"
           style={{
             flex: 1,
@@ -125,7 +127,7 @@ export default function NewsletterForm({
             boxShadow: `0 0 24px ${hexToRgba(accentColor, 0.35)}`,
           }}
         >
-          {submitted ? "¡Listo!" : "Suscribirme"}
+          {submitted ? t("newsletter.submitted") : t("newsletter.button")}
           {submitted ? (
             <Check size={14} strokeWidth={2.5} />
           ) : (
@@ -145,7 +147,7 @@ export default function NewsletterForm({
         }}
       >
         <Check size={11} strokeWidth={2.5} />
-        Sin spam. Cancelás cuando quieras.
+        {t("newsletter.hint")}
       </div>
     </div>
   );

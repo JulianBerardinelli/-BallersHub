@@ -197,13 +197,13 @@ export default function ProPlayerHeader({
           </button>
         </nav>
 
-        {/* RIGHT: Powered BY 'BallersHub */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">
-          <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">
-            {t("a11y.poweredBy")}
-          </span>
-          <Wordmark size="nav" className="text-base leading-none" />
-        </div>
+        {/*
+          RIGHT slot is intentionally left to the fixed PortfolioLocaleSwitcher
+          (rendered by the page), which sits at this same height on the right.
+          The old "Powered BY 'BallersHub" wordmark lived here but collided with
+          the switcher on 1024–1400px screens; branding stays on the left
+          back-link + the footer.
+        */}
 
       </div>
     </motion.header>

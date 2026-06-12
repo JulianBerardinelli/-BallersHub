@@ -57,36 +57,34 @@ export default async function PortfolioFooter({
   ownerKind = "player",
 }: PortfolioFooterProps) {
   const state = await resolveFooterCTAState();
-  // Footer link columns are localized; the portfolio's own hero copy
-  // (CTAs/headline below) stays es for now — localized in F5 when the
-  // public profile becomes multilingual.
+  // The public profile is multilingual (es/en/it/pt) — every string below comes
+  // from the footer namespace.
   const t = await getTranslations("footer");
   const linkColumns = buildLinkColumns(state, t);
 
-  // Decide the primary CTA according to who's reading.
-  // If the visitor already has a player profile, no point in pushing them to
-  // create one. Same for managers/agencies. Anonymous visitors get the
-  // canonical "Crear mi perfil" hook.
+  // Decide the primary CTA according to who's reading. If the visitor already
+  // has a player profile, no point pushing them to create one; same for
+  // managers/agencies. Anonymous visitors get the "create profile" hook.
   const primaryCTA: FooterCTA = (() => {
     switch (state.kind) {
       case "player":
         return state.slug
-          ? { label: "Ver mi perfil público", href: `/${state.slug}` }
-          : { label: "Ir a mi panel", href: "/dashboard" };
+          ? { label: t("cta.playerViewProfile"), href: `/${state.slug}` }
+          : { label: t("cta.playerDashboard"), href: "/dashboard" };
       case "manager":
         return state.agencySlug
-          ? { label: "Ver perfil de agencia", href: `/agency/${state.agencySlug}` }
-          : { label: "Gestionar agencia", href: "/dashboard" };
+          ? { label: t("cta.managerViewAgency"), href: `/agency/${state.agencySlug}` }
+          : { label: t("cta.managerManage"), href: "/dashboard" };
       case "applicant":
         return {
-          label: state.status === "draft" ? "Continuar mi solicitud" : "Ver mi solicitud",
+          label: state.status === "draft" ? t("cta.applicantContinue") : t("cta.applicantStatus"),
           href: "/onboarding/player/apply",
         };
       case "member":
-        return { label: "Solicitar cuenta de profesional", href: "/onboarding/start" };
+        return { label: t("cta.memberRequest"), href: "/onboarding/start" };
       case "anonymous":
       default:
-        return { label: "Crear mi perfil", href: "/auth/sign-up" };
+        return { label: t("cta.anonCreate"), href: "/auth/sign-up" };
     }
   })();
 
@@ -121,28 +119,30 @@ export default async function PortfolioFooter({
   const ctas: FooterCTA[] = [
     primaryCTA,
     {
-      label: "Solicitar contacto",
+      label: t("portfolio.ctaContact"),
       href: ownerSlug ? `mailto:info@ballershub.co?subject=${encodeURIComponent(ownerSlug)}` : "/about",
       variant: "outline",
     },
   ];
 
-  const headlineLead =
-    ownerKind === "agency"
-      ? "Conectá con "
-      : "Sumate al ecosistema de ";
-
+  const isAgency = ownerKind === "agency";
+  const headlineLead = isAgency ? t("portfolio.headlineAgency") : t("portfolio.headlinePlayer");
   const highlight = ownerName ? ownerName : "'BallersHub";
+  const eyebrow = isAgency ? t("portfolio.eyebrowAgency") : t("portfolio.eyebrowPlayer");
+  const subheadline = isAgency ? t("portfolio.subAgency") : t("portfolio.subPlayer");
 
-  const eyebrow =
-    ownerKind === "agency"
-      ? "Agencia verificada en 'BallersHub"
-      : "Perfil verificado en 'BallersHub";
+  const stats = [
+    { value: "+1.2K", label: t("stats.profiles") },
+    { value: "86", label: t("stats.clubs"), useAlt: true },
+    { value: "4.8/5", label: t("stats.reviews") },
+    { value: "12", label: t("stats.countries"), useAlt: true },
+  ];
 
-  const subheadline =
-    ownerKind === "agency"
-      ? "Descubrí la cartera de jugadores que esta agencia representa y operá tus próximos movimientos sin fricciones."
-      : "Trayectoria, datos futbolísticos y multimedia validados. Tu próximo paso, en una plataforma pensada para jugadores profesionales.";
+  const legalLinks = [
+    { label: t("legal.terms"), href: "/legal/terms" },
+    { label: t("legal.privacy"), href: "/legal/privacy" },
+    { label: t("legal.cookies"), href: "/legal/cookies" },
+  ];
 
   return (
     <div
@@ -165,6 +165,10 @@ export default async function PortfolioFooter({
         subheadline={subheadline}
         newsletterAccent={accent2}
         linkColumns={linkColumns}
+        stats={stats}
+        tagline={t("tagline")}
+        creditsLabel={t("credits")}
+        legalLinks={legalLinks}
       />
     </div>
   );
