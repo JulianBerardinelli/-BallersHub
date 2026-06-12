@@ -219,8 +219,8 @@ export function getImpactStats(t: AboutT): Stat[] {
 /* ---------------------------------------------- */
 export function getTeam(t: AboutT): TeamMember[] {
   return [
-    { name: "Julián Berardinelli", role: t("team.julian.role"), bio: t("team.julian.bio"), initials: "JB", accent: "lime", imageSrc: undefined },
-    { name: t("team.validation.name"), role: t("team.validation.role"), bio: t("team.validation.bio"), initials: "SC", accent: "blue", imageSrc: undefined },
+    { name: "Julián Berardinelli", role: t("team.julian.role"), bio: t("team.julian.bio"), initials: "JB", accent: "lime", imageSrc: "/images/team/julian.avif" },
+    { name: t("team.validation.name"), role: t("team.validation.role"), bio: t("team.validation.bio"), initials: "SC", accent: "blue", imageSrc: "/images/team/validation.avif" },
   ];
 }
 
