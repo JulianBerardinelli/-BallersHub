@@ -664,11 +664,8 @@
   gap: 9px;
 }
 .scouting-root .dd-flag {
-  font-size: 17px;
-  line-height: 1;
+  font-size: 14px;
   flex-shrink: 0;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Android Emoji", sans-serif;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 .scouting-root .dd-cname {
   flex: 1;
@@ -896,11 +893,8 @@
   min-width: 0;
 }
 .scouting-root .pt-cc-flag {
-  font-size: 12px;
-  line-height: 1;
+  font-size: 11px;
   flex-shrink: 0;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Android Emoji", sans-serif;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.4));
 }
 .scouting-root .pt-cc-name {
   font-size: 11px;
@@ -1116,6 +1110,16 @@
   border-radius: 6px;
   object-fit: contain;
 }
+/* Real SVG flag (flag-icons) — sized via font-size, rounded + ringed so it
+   reads on the dark surface. Replaces the old emoji glyph, which silently
+   failed to render on Windows/Chrome. */
+.scouting-root .flag-ico {
+  flex-shrink: 0;
+  border-radius: 2.5px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+}
 .scouting-root .flag-pill {
   display: inline-flex;
   align-items: center;
@@ -1126,21 +1130,28 @@
   border-radius: 6px;
   line-height: 1;
 }
-.scouting-root .flag-pill .flag-glyph {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  line-height: 1;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla", "Android Emoji", sans-serif;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
-}
 .scouting-root .flag-pill .flag-code {
   font-family: var(--font-bh-mono);
   font-size: 10px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.72);
   letter-spacing: 0.06em;
+}
+/* Nationality flags piled one above the other (up to 3). Compact vertical
+   stack so the dense 50px row never grows; "+N" collapses any extra. */
+.scouting-root .flag-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.scouting-root .flag-stack-more {
+  font-family: var(--font-bh-mono);
+  font-size: 8.5px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--bh-fg-3);
 }
 
 /* SEO fallback list — present in SSR HTML, hidden once the island hydrates */

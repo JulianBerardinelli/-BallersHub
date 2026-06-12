@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
-import { ClubCrest, Flag, PlayerAvatar } from "../atoms";
+import { ClubCrest, Flag, FlagStack, PlayerAvatar } from "../atoms";
 import type { TopCountry } from "../GlobeLegend";
 import {
   POSITION_GROUP_ORDER,
@@ -146,7 +146,7 @@ function MPlayerRow({
         )}
       </div>
       <div className="m-prow-right">
-        {player.nationality && <Flag cc={player.nationality} />}
+        <FlagStack codes={player.nationalities} size={14} />
         <div className={player.contract === "free" ? "m-prow-free" : "m-prow-contract"}>
           {player.contract === "free" ? "Libre" : "Contrato"}
         </div>
@@ -349,12 +349,11 @@ function MFilterSheet({
                   data-active={filters.nationality.includes(c.code)}
                   onClick={() => toggle("nationality", c.code)}
                 >
-                  <span className="m-nat-flag">
-                    {String.fromCodePoint(
-                      0x1f1e6 + c.code.charCodeAt(0) - 65,
-                      0x1f1e6 + c.code.charCodeAt(1) - 65,
-                    )}
-                  </span>
+                  <span
+                    className={`m-nat-flag flag-ico fi fi-${c.code.toLowerCase()}`}
+                    role="img"
+                    aria-label={c.code}
+                  />
                   {c.name}
                 </button>
               ))}
@@ -488,10 +487,16 @@ function MPlayerSheet({
       <div className="m-psheet-hero">
         <PlayerAvatar player={player} size={56} />
         <div className="m-psheet-name-block">
-          <div className="m-psheet-flagrow">
-            {player.nationality && <Flag cc={player.nationality} withCode />}
-            <span>{countryName(player.nationality)}</span>
-          </div>
+          {player.nationalities.length > 0 && (
+            <div className="m-psheet-flagrow">
+              {player.nationalities.map((c) => (
+                <Flag key={c} cc={c} size={14} />
+              ))}
+              <span>
+                {player.nationalities.map((c) => countryName(c)).join(" · ")}
+              </span>
+            </div>
+          )}
           <div className="m-psheet-name">{player.name}</div>
           <div className="m-psheet-meta">
             {player.positions.map((pos) => (

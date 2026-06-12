@@ -731,8 +731,7 @@
 }
 .scouting-root .m-nat-flag {
   font-size: 14px;
-  line-height: 1;
-  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  flex-shrink: 0;
 }
 .scouting-root .m-nat-pill[data-active="true"] {
   background: rgba(204, 255, 0, 0.08);

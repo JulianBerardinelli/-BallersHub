@@ -10,9 +10,9 @@
 
 import Link from "next/link";
 
-import { ClubCrest, ContractTag, Flag, PlayerAvatar } from "./atoms";
+import { ClubCrest, ContractTag, FlagStack, PlayerAvatar } from "./atoms";
 import { cityKeyOf } from "@/lib/scouting/cities";
-import { countryName, flagEmoji } from "@/lib/scouting/taxonomies";
+import { countryName } from "@/lib/scouting/taxonomies";
 import type {
   ScoutPlayer,
   ScoutSort,
@@ -186,9 +186,11 @@ export function PlayersTable({
                       <div className="pt-club">{p.club}</div>
                       {p.clubCountryCode && (
                         <div className="pt-club-country">
-                          <span className="pt-cc-flag">
-                            {flagEmoji(p.clubCountryCode)}
-                          </span>
+                          <span
+                            className={`pt-cc-flag flag-ico fi fi-${p.clubCountryCode.toLowerCase()}`}
+                            role="img"
+                            aria-label={p.clubCountryCode.toUpperCase()}
+                          />
                           <span className="pt-cc-name">
                             {p.clubCountry ?? countryName(p.clubCountryCode)}
                           </span>
@@ -202,8 +204,8 @@ export function PlayersTable({
               </div>
 
               <div className="pt-c">
-                {p.nationality ? (
-                  <Flag cc={p.nationality} withCode />
+                {p.nationalities.length > 0 ? (
+                  <FlagStack codes={p.nationalities} />
                 ) : (
                   <span className="value-dash">—</span>
                 )}

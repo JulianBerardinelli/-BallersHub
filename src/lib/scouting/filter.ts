@@ -16,9 +16,12 @@ export function matchPlayer(p: ScoutPlayer, f: ScoutFilters): boolean {
     !p.positions.some((pos) => f.positions.includes(pos.code))
   )
     return false;
+  // Match on ANY of the player's nationalities (the table stacks them all), so
+  // a dual national (e.g. AR + IT) surfaces under either flag — mirroring how
+  // the position facet matches any of a player's positions.
   if (
     f.nationality.length &&
-    (!p.nationality || !f.nationality.includes(p.nationality))
+    !p.nationalities.some((c) => f.nationality.includes(c))
   )
     return false;
   if (
