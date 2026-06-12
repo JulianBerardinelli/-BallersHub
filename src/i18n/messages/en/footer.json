@@ -1,10 +1,35 @@
 {
   "headline": {
-    "anonymous": { "eyebrow": "Live · 86 active clubs", "lead": "Upload, get verified and ", "highlight": "play where it matters.", "sub": "Over 1,200 verified profiles. Coaching-staff reviews. Your next club is looking for you." },
-    "player": { "eyebrow": "Your career, in motion", "lead": "Keep your profile ", "highlight": "always up to date.", "sub": "Upload new photos, fine-tune your football data and let clubs find you with the right information." },
-    "manager": { "eyebrow": "Your agency, friction-free", "lead": "Manage your roster ", "highlight": "with precision.", "sub": "Add players, verify profiles and share your agency's official roster with clubs worldwide." },
-    "applicant": { "eyebrow": "Your application is underway", "lead": "You're one step away ", "highlight": "from your pro account.", "sub": "While we review your details, keep exploring verified profiles, success stories and product news." },
-    "member": { "eyebrow": "Ready whenever you are", "lead": "Turn your account into ", "highlight": "a professional profile.", "sub": "Request your player or agency account and start operating inside the ecosystem with official verification." }
+    "anonymous": {
+      "eyebrow": "Live · 86 active clubs",
+      "lead": "Upload, get verified and ",
+      "highlight": "play where it matters.",
+      "sub": "Over 1,200 verified profiles. Coaching-staff reviews. Your next club is looking for you."
+    },
+    "player": {
+      "eyebrow": "Your career, in motion",
+      "lead": "Keep your profile ",
+      "highlight": "always up to date.",
+      "sub": "Upload new photos, fine-tune your football data and let clubs find you with the right information."
+    },
+    "manager": {
+      "eyebrow": "Your agency, friction-free",
+      "lead": "Manage your roster ",
+      "highlight": "with precision.",
+      "sub": "Add players, verify profiles and share your agency's official roster with clubs worldwide."
+    },
+    "applicant": {
+      "eyebrow": "Your application is underway",
+      "lead": "You're one step away ",
+      "highlight": "from your pro account.",
+      "sub": "While we review your details, keep exploring verified profiles, success stories and product news."
+    },
+    "member": {
+      "eyebrow": "Ready whenever you are",
+      "lead": "Turn your account into ",
+      "highlight": "a professional profile.",
+      "sub": "Request your player or agency account and start operating inside the ecosystem with official verification."
+    }
   },
   "cta": {
     "playerDashboard": "Go to my dashboard",
@@ -46,6 +71,27 @@
     "countries": "Countries"
   },
   "tagline": "The digital ecosystem of professional football.",
-  "legal": { "terms": "Terms", "privacy": "Privacy", "cookies": "Cookies" },
-  "credits": "Built by"
+  "legal": {
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "cookies": "Cookies"
+  },
+  "credits": "Built by",
+  "portfolio": {
+    "eyebrowPlayer": "Verified profile on 'BallersHub",
+    "eyebrowAgency": "Verified agency on 'BallersHub",
+    "headlinePlayer": "Join the ecosystem of ",
+    "headlineAgency": "Connect with ",
+    "subPlayer": "Verified career history, football data and media. Your next move, on a platform built for professional players.",
+    "subAgency": "Explore the roster of players this agency represents and make your next moves without friction.",
+    "ctaContact": "Request contact"
+  },
+  "newsletter": {
+    "eyebrow": "Pro Newsletter",
+    "copy": "Scouting insights, new features and success stories. Once a month, no noise.",
+    "button": "Subscribe",
+    "submitted": "Done!",
+    "hint": "No spam. Unsubscribe anytime.",
+    "ariaEmail": "Your email"
+  }
 }
