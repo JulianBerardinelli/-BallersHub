@@ -36,6 +36,9 @@ BallersHub pasa de mono-locale (es-AR) a **4 idiomas**: ES (default, sin prefijo
 - [ ] Chrome de módulos de agencia hardcodeado → `AgencyReachModule` ("Operamos globalmente", "/ Alcance", país/países, "equipos"), `AgencyServicesModule` ("Lo que ofrecemos", "/ Servicios", subtítulo), `RosterClient` ("Jugadores Representados"). Pasar a `useTranslations`/messages.
 - [ ] Switcher de agencia: hoy usa el flotante standalone; unificar con el patrón del header del jugador si la agencia tiene header equivalente.
 
+**P0 — ONBOARDING completo SIN traducir (signup/alta de los mercados target → hoy en es):**
+- [ ] **Todo el flujo `/onboarding/**` está hardcodeado en español: 0/13 archivos usan i18n y NO existe `onboarding.json`.** Cubre: `/onboarding/start`, apply de jugador multi-step (`ApplyFlow`, `Step1Personal`, `Step2Football`, `Step3Verify`, `StepHeader`, `plan`), onboarding de manager (`info`), `accept-invite`, `KycUploader` ("Subiendo documento/selfie…", "Tipo de licencia", "Enlace inválido", etc.). Es chrome (capa A) → extraer a `onboarding.json` × 4 + `useTranslations`. Volumen alto (~13 archivos, ~cientos de strings). Crítico: un usuario que llega por `/en` o `/pt` se registra en español.
+
 **P1 — Free-text fuera del sistema de traducción (siempre renderiza es). Necesita DECISIÓN del owner (traducir = nueva superficie tipo F5, o dejar es):**
 - [ ] **Galería**: captions/altText de fotos (`player_media`/`agency_media` → `title` + `alt_text`). Render en `MediaGalleryModule`/`AgencyGalleryModule`.
 - [ ] **Datos personales del jugador**: `languages`, `education`, `residence_city/country` (`player_personal_details`, render en `BioClientCard`). *languages* es mapeable (nombres de idioma); educación/residencia son texto libre / nombres propios.
