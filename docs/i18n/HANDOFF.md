@@ -36,8 +36,11 @@ BallersHub pasa de mono-locale (es-AR) a **4 idiomas**: ES (default, sin prefijo
 - [ ] Chrome de módulos de agencia hardcodeado → `AgencyReachModule` ("Operamos globalmente", "/ Alcance", país/países, "equipos"), `AgencyServicesModule` ("Lo que ofrecemos", "/ Servicios", subtítulo), `RosterClient` ("Jugadores Representados"). Pasar a `useTranslations`/messages.
 - [ ] Switcher de agencia: hoy usa el flotante standalone; unificar con el patrón del header del jugador si la agencia tiene header equivalente.
 
-**P0 — ONBOARDING completo SIN traducir (signup/alta de los mercados target → hoy en es):**
-- [ ] **Todo el flujo `/onboarding/**` está hardcodeado en español: 0/13 archivos usan i18n y NO existe `onboarding.json`.** Cubre: `/onboarding/start`, apply de jugador multi-step (`ApplyFlow`, `Step1Personal`, `Step2Football`, `Step3Verify`, `StepHeader`, `plan`), onboarding de manager (`info`), `accept-invite`, `KycUploader` ("Subiendo documento/selfie…", "Tipo de licencia", "Enlace inválido", etc.). Es chrome (capa A) → extraer a `onboarding.json` × 4 + `useTranslations`. Volumen alto (~13 archivos, ~cientos de strings). Crítico: un usuario que llega por `/en` o `/pt` se registra en español.
+**P0/P1 — FLUJOS AUTENTICADOS sin traducir (la "capa A / chrome" del plan quedó solo en lo público + auth; los flujos logueados son casi todo es). Auditoría 2026-06-12:**
+- [ ] **Onboarding — 0/13 archivos con i18n, no existe `onboarding.json`.** Todo `/onboarding/**` hardcodeado es: `/onboarding/start`, apply de jugador (`ApplyFlow`/`Step1Personal`/`Step2Football`/`Step3Verify`/`StepHeader`/`plan`), manager (`info`), `accept-invite`, `KycUploader`. **Crítico**: un user que entra por `/en` o `/pt` se registra en español → barrera de conversión para los mercados target. (P0)
+- [ ] **Checkout — 0/7 archivos con i18n, no existe `checkout.json`.** Todo `/checkout/**` (el pago) en es. **Crítico** por la misma razón (conversión). (P0)
+- [ ] **Dashboard — solo 7/122 archivos con i18n.** La UI de edición del jugador/agencia (datos, multimedia, plantillas, agencia, admin) es casi toda es. **DECISIÓN del owner**: ¿se traduce el dashboard completo (esfuerzo grande; audiencia hoy mayormente es-AR; no indexable) o se deja es por ahora y solo se prioriza onboarding+checkout? Recomendación: onboarding+checkout sí (conversión); dashboard, backlog. (P1/backlog)
+- ✅ Auth: 5/6 con i18n (ok).
 
 **P1 — Free-text fuera del sistema de traducción (siempre renderiza es). Necesita DECISIÓN del owner (traducir = nueva superficie tipo F5, o dejar es):**
 - [ ] **Galería**: captions/altText de fotos (`player_media`/`agency_media` → `title` + `alt_text`). Render en `MediaGalleryModule`/`AgencyGalleryModule`.
