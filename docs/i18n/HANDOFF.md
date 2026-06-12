@@ -1,8 +1,8 @@
 # BallersHub — i18n / Multilang HANDOFF
 
-> **Status:** ✅ Plan consensuado con el owner (2026-06-02). **Ejecución bloqueada** hasta que PR #135 esté en prod + `dev` sincronizado con `main`.
+> **Status:** 🟢 **EJECUTADO** — el plan (§13, F0–F7) está en prod. Ver **§0.1 (Estado de ejecución + tareas pendientes)** para el estado real al 2026-06-12.
 > **Owner:** @julian-berardinelli
-> **Entry point:** este doc es self-contained. Un chat nuevo que retome i18n arranca leyendo esto.
+> **Entry point:** este doc es self-contained. Un chat nuevo que retome i18n arranca leyendo esto **+ §0.1**.
 > **Relación con SEO:** adelanta y reemplaza la Phase 4 de [`../seo-strategy.md`](../seo-strategy.md) §8 ("Evaluate English `/en/[slug]` hreflang once AR-only growth plateaus") — ahora se hace bien desde el principio, con 4 locales.
 
 ---
@@ -10,6 +10,47 @@
 ## 0. TL;DR
 
 BallersHub pasa de mono-locale (es-AR) a **4 idiomas**: ES (default, sin prefijo), EN, IT, PT-BR. El objetivo es que **los jugadores Pro puedan enviar su portfolio y ser entendidos en los mercados objetivo** (Brasil, Italia, anglosfera) sin perder SEO ni corporativo ni per-player. La UI se traduce con diccionarios JSON (asistido por LLM). El contenido del jugador NO se auto-traduce para indexación: el jugador Pro lo escribe (con un asistente "Auto-completar con Claude" que genera borrador editable). Free queda mono-locale (es).
+
+---
+
+## 0.1 Estado de ejecución + tareas pendientes (2026-06-12)
+
+> El plan original (§13, F0–F7) está **ejecutado y en prod**. Esta sección es el estado real y, sobre todo, **lo que falta para cerrar el 100%** (auditoría de código 2026-06-12).
+
+### ✅ Hecho (en `main`)
+- **F0 routing**: árbol bajo `app/[locale]/` + middleware. **`localeDetection: false`** (una URL sin prefijo SIEMPRE sirve es; el geo de 1ª visita va por IP en `src/middleware.ts`, no por cookie — no re-activar sin entender el loop `/pt/slug`→`/pt`). [#190]
+- **F1/F2 chrome + marketing**: header/footer/pricing/auth/dashboard + `generateMetadata` multilang + sitemap `alternates`.
+- **F3 SEO**: JSON-LD person/agency (POSITION_LABELS, `inLanguage`, `jobTitle`) + OG + **hreflang per-player y per-agency** (dinámico, solo locales con traducción real).
+- **F4/F5 editor**: editor de traducciones Pro **unificado** — un solo selector de idioma maneja bio+scouting+**palmarés**; **es NO editable** (es la base, se edita en Football data); % relativo a la base. Asistente **"Auto-completar"** traduce SIEMPRE desde es (jugador + palmarés) con tier-gate + anti-abuso (§5.1). [#175, #192, #193]
+- **F5 contenido per-profile**: jugador (8 campos) + agencia (description/tagline) + **palmarés/honores** (tabla `player_honour_translations` + render + editor + IA). [#185, #187]
+- **Perfil `/[slug]` localizado**: posiciones, pie, tarjeta bio, labels+fechas de prensa, **pitch** (zonas/fortalezas), redirect a `/slug` si falta la traducción, switcher dentro del header.  [#183, #188, #190, #203]
+- **⚠️ Módulos Pro stremeados ahora aplican la traducción** (`ProfileBioModule`, `TacticsModule`) — eran EL bug "la data no traduce" (re-fetcheaban sin mergear). [#203]
+- **F6 emails per-locale** (3 fases). [#177, #179, #181]
+- **F7**: CI lint de paridad de keys (`npm run i18n:check`) + re-baseline seo-drift.
+- **Agencia**: editor de traducciones (description/tagline) + render mergeado + switcher + redirect. [#190]
+
+### ⬜ Pendiente para cerrar el 100%
+
+**P0 — Paridad de la AGENCIA (mismo bug de chrome es-only que tenía el jugador, visible en `/en|/it|/pt /agency/[slug]`):**
+- [ ] Loading states de agencia hardcodeados en es → `AgencyLayoutResolver.tsx` ("Cargando agencia/equipo/roster/galería"). Mismo fix que `LayoutResolver` del jugador.
+- [ ] Chrome de módulos de agencia hardcodeado → `AgencyReachModule` ("Operamos globalmente", "/ Alcance", país/países, "equipos"), `AgencyServicesModule` ("Lo que ofrecemos", "/ Servicios", subtítulo), `RosterClient` ("Jugadores Representados"). Pasar a `useTranslations`/messages.
+- [ ] Switcher de agencia: hoy usa el flotante standalone; unificar con el patrón del header del jugador si la agencia tiene header equivalente.
+
+**P1 — Free-text fuera del sistema de traducción (siempre renderiza es). Necesita DECISIÓN del owner (traducir = nueva superficie tipo F5, o dejar es):**
+- [ ] **Galería**: captions/altText de fotos (`player_media`/`agency_media` → `title` + `alt_text`). Render en `MediaGalleryModule`/`AgencyGalleryModule`.
+- [ ] **Datos personales del jugador**: `languages`, `education`, `residence_city/country` (`player_personal_details`, render en `BioClientCard`). *languages* es mapeable (nombres de idioma); educación/residencia son texto libre / nombres propios.
+- [ ] **Contenido de agencia**: `services[]` (title+description, en `agency_profiles.services` JSONB) y narrativas por país (`agency_country_profiles.description`). Hoy es-only.
+
+**P2 — Otras superficies grandes:**
+- [ ] **Blog multilang** (F6 del plan original, NUNCA hecho): `blog_posts.locale` + `translation_of_id` + UI por locale + hreflang. Es la última superficie de contenido grande.
+- [ ] **Cuerpos de páginas marketing** aún en es: `/como-validamos` (body), y auditar about/FAQ por texto hardcodeado.
+
+**Verificación:**
+- [ ] Confirmar en prod (tras deploy de #203) que `/en/julian-berardinelli` muestra **bio + scouting en inglés** (no solo el esqueleto).
+
+### Decisiones que necesita el owner (P1)
+- **¿Galería / datos-personales / contenido-de-agencia se traducen o quedan es?** Es free-text de bajo volumen; traducirlo implica nuevas tablas o JSONB-por-locale + UI de editor (esfuerzo tipo F5). Recomendación: *languages* (mapeo de nombres) y captions de galería **sí**; educación/residencia/nombres propios **no** (dejar es). Servicios/narrativas de agencia: traducibles si las agencias lo piden.
+- **¿Blog multilang ahora o backlog?** Última pieza grande del plan original.
 
 ---
 
@@ -51,7 +92,10 @@ ballershub.co/pt/...        → pt-BR
   locales: ['es', 'en', 'it', 'pt'],
   defaultLocale: 'es',
   localePrefix: 'as-needed',   // '/' no lleva prefijo, los demás sí
-  localeDetection: true        // Accept-Language + cookie NEXT_LOCALE
+  localeDetection: false       // ⚠️ CAMBIADO en ejecución (ver §0.1): una URL sin
+                               // prefijo SIEMPRE sirve es. El geo de 1ª visita va por
+                               // IP en src/middleware.ts. Con `true`, sacar /pt de
+                               // /pt/slug rebotaba a /pt por la cookie NEXT_LOCALE.
 }
 ```
 
@@ -332,6 +376,8 @@ Toggle global persistente en el header del editor (NO selector por card individu
 ---
 
 ## 13. Roadmap por fases
+
+> ✅ **F0–F7 ejecutadas y en prod.** Lo que falta (paridad de agencia, free-text, blog multilang) está en **§0.1**, no acá.
 
 | Fase | Alcance | PRs | Sesiones |
 |---|---|---|---|
