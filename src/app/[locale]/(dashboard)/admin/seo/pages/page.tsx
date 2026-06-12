@@ -1,7 +1,7 @@
 // /admin/seo/pages — Top URLs por clicks/impressions en GSC.
 
 import type { Metadata } from "next";
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { getTopPages, safeGsc } from "@/lib/seo/gsc-queries";
 import {
   SeoSubNav,

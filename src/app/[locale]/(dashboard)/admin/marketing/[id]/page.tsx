@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { ArrowLeft, Mail, Send, Eye, MousePointerClick, AlertOctagon } from "lucide-react";

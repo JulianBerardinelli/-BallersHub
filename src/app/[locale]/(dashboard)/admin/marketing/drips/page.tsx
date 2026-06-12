@@ -1,4 +1,4 @@
-import { Link } from "@/i18n/navigation";
+import Link from "next/link";
 import { ArrowLeft, ArrowRight, Clock, Layers, Zap } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { TEMPLATE_DESCRIPTORS } from "@/emails";
