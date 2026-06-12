@@ -59,16 +59,22 @@
 :root { color-scheme: dark; }
 html, body { min-height: 100%; }
 
-/* Reserva SIEMPRE el gutter del scrollbar. Al abrir un overlay de HeroUI
-   (Modal/Dropdown), react-aria bloquea el scroll poniendo `overflow:hidden`
-   en <html>; sin gutter reservado la barra desaparece y el ancho del
-   viewport crece ~15px, así que el header `fixed` y el contenido centrado
-   "saltaban" al abrir/cerrar (p. ej. el modal de cerrar sesión). react-aria
-   aplica el mismo `scrollbar-gutter: stable` al bloquear, por lo que dejarlo
-   fijo elimina el salto en todos los casos. Es no-op con scrollbars overlay
-   (macOS sin mouse / touch) y NO crea scroll container, así que no rompe el
-   scroll-jacking del template Pro. */
-html { scrollbar-gutter: stable; }
+/* El scroll container del sitio es <html>, NO <body>. Es load-bearing para
+   los overlays: react-aria/HeroUI bloquea el scroll poniendo `overflow:hidden`
+   en `document.documentElement` (<html>) y SOLO compensa el ancho de la barra
+   si <html> es quien scrollea. Cuando el scroller era <body> (con
+   `overflow-y:scroll`), esa medición daba 0 → la barra desaparecía sin reservar
+   su lugar y al abrir un modal/dropdown saltaba el layout: el header `fixed` y
+   el contenido centrado se corrían ~15px, y en /dashboard el `<aside>` sticky
+   perdía su contenedor de scroll (propagación body→viewport) y desaparecía.
+   Con <html> como único scroll container + gutter reservado, el bloqueo de
+   react-aria no cambia el ancho (ya está estable) → sin salto.
+   `scrollbar-gutter: stable` es no-op con scrollbars overlay (macOS sin mouse /
+   touch). El recorte horizontal (full-bleed `100vw`) lo hace <body> con
+   `overflow-x: clip`, que NO crea scroll container (misma técnica del wrapper
+   Pro y del módulo de tácticas), así el `position: sticky` del scroll-jacking
+   sigue anclando al viewport y no se rompe. */
+html { overflow-y: scroll; scrollbar-gutter: stable; }
 
 /* ============================================================
    Mobile UX hardening (app-wide).
