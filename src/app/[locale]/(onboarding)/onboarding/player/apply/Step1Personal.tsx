@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import {
   DatePicker,
   Button,
@@ -29,6 +30,7 @@ export default function Step1Personal({
   }) => void;
   onBack?: () => void;
 }) {
+  const t = useTranslations("onboarding");
   // estado
   const [fullName, setFullName] = React.useState("");
   const [nats, setNats] = React.useState<CountryPick[]>([]);
@@ -86,7 +88,7 @@ export default function Step1Personal({
     // Marca touched SOLO si el foco realmente salió del contenedor
     const next = e.relatedTarget as Node | null;
     if (!next || !e.currentTarget.contains(next)) {
-      setTouched((t) => ({ ...t, position: true }));
+      setTouched((prev) => ({ ...prev, position: true }));
     }
   }
 
@@ -97,22 +99,22 @@ export default function Step1Personal({
         <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
           <FormField
             id="bh-email"
-            label="Email de la cuenta"
+            label={t("apply.step1.emailLabel")}
             value={userEmail ?? ""}
             disabled
             readOnly
-            description="Este es tu email de acceso"
+            description={t("apply.step1.emailDescription")}
           />
           <FormField
             id="bh-full-name"
             isRequired
-            label="Nombre completo"
-            placeholder="Ej: Lionel Messi"
+            label={t("apply.step1.fullNameLabel")}
+            placeholder={t("apply.step1.fullNamePlaceholder")}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             isInvalid={nameInvalid}
-            errorMessage="Ingresá al menos 3 caracteres."
-            onBlur={() => setTouched((t) => ({ ...t, fullName: true }))}
+            errorMessage={t("apply.step1.fullNameError")}
+            onBlur={() => setTouched((prev) => ({ ...prev, fullName: true }))}
           />
         </div>
 
@@ -124,20 +126,20 @@ export default function Step1Personal({
             defaultValue={[]}
             onChange={setNats}
             isInvalid={natInvalid}
-            errorMessage="Seleccioná al menos una nacionalidad."
+            errorMessage={t("apply.step1.nationalityError")}
           />
           <DatePicker
             isRequired
-            label="Fecha de nacimiento"
+            label={t("apply.step1.birthDateLabel")}
             labelPlacement="outside"
             showMonthAndYearPickers
             value={birthDate}
             onChange={(v) => {
               setBirthDate(v);
-              setTouched((t) => ({ ...t, birthDate: true }));
+              setTouched((prev) => ({ ...prev, birthDate: true }));
             }}
             isInvalid={dobInvalid}
-            errorMessage="Seleccioná tu fecha de nacimiento."
+            errorMessage={t("apply.step1.birthDateError")}
             variant="flat"
             classNames={bhDatePickerClassNames}
           />
@@ -149,26 +151,26 @@ export default function Step1Personal({
             id="bh-height"
             isRequired
             type="number"
-            label="Altura (cm)"
-            placeholder="ej: 178"
+            label={t("apply.step1.heightLabel")}
+            placeholder={t("apply.step1.heightPlaceholder")}
             value={heightCm}
             onChange={(e) => setHeightCm(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, height: true }))}
+            onBlur={() => setTouched((prev) => ({ ...prev, height: true }))}
             isInvalid={heightInvalid}
-            errorMessage="Ingresá una altura válida (120–230 cm)."
+            errorMessage={t("apply.step1.heightError")}
             endContent={<span className="text-xs">cm</span>}
           />
           <FormField
             id="bh-weight"
             isRequired
             type="number"
-            label="Peso (kg)"
-            placeholder="ej: 72"
+            label={t("apply.step1.weightLabel")}
+            placeholder={t("apply.step1.weightPlaceholder")}
             value={weightKg}
             onChange={(e) => setWeightKg(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, weight: true }))}
+            onBlur={() => setTouched((prev) => ({ ...prev, weight: true }))}
             isInvalid={weightInvalid}
-            errorMessage="Ingresá un peso válido (40–140 kg)."
+            errorMessage={t("apply.step1.weightError")}
             endContent={<span className="text-xs">kg</span>}
           />
         </div>
@@ -176,7 +178,7 @@ export default function Step1Personal({
         {/* posición */}
         <div className="grid grid-cols-1 gap-2">
           <label className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-            Posición <span className="text-bh-danger">*</span>
+            {t("apply.step1.positionLabel")} <span className="text-bh-danger">*</span>
           </label>
 
           <div
@@ -199,7 +201,7 @@ export default function Step1Personal({
 
           {posInvalid && (
             <p className="text-[11px] text-bh-danger">
-              Elegí al menos una sub-posición.
+              {t("apply.step1.positionError")}
             </p>
           )}
         </div>
@@ -212,14 +214,14 @@ export default function Step1Personal({
             onPress={onBack}
             className="rounded-bh-md border border-bh-fg-4 bg-transparent px-5 py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-bh-fg-3 hover:bg-white/[0.06] hover:text-bh-fg-1"
           >
-            Volver
+            {t("apply.step1.back")}
           </Button>
         )}
         <Button
           onPress={handleNext}
           className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
         >
-          Continuar
+          {t("apply.step1.continue")}
         </Button>
       </div>
     </div>

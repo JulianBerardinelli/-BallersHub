@@ -1,0 +1,172 @@
+{
+  "kyc": {
+    "docLabel": "Documento (frente o PDF)",
+    "selfieLabel": "Selfie",
+    "uploadingDoc": "Subiendo documento...",
+    "uploadingSelfie": "Subiendo selfie...",
+    "privacyNote": "Los archivos se guardan de forma privada y solo los verá el equipo de verificación.",
+    "errorNoUser": "No hay usuario en sesión."
+  },
+  "start": {
+    "review": {
+      "badge": "En revisión",
+      "title": "Solicitud",
+      "titleHighlight": "en revisión",
+      "description": "Ya recibimos tu información y estamos validando tus datos. Podés seguir el estado desde tu panel y te avisaremos por correo cuando finalicemos la revisión.",
+      "viewPanel": "Ver panel",
+      "viewApplication": "Ver solicitud",
+      "backToDashboard": "Volver al dashboard"
+    },
+    "chooser": {
+      "badge": "Onboarding",
+      "title": "Elegí tu",
+      "titleHighlight": "tipo de cuenta",
+      "subtitle": "Podés cambiarlo más tarde desde el dashboard.",
+      "player": {
+        "title": "Soy Jugador/a",
+        "description": "Construí tu portfolio profesional y conectate con clubes."
+      },
+      "agency": {
+        "title": "Soy Manager / Agencia",
+        "description": "Gestioná tu roster, validá perfiles y representá talento."
+      },
+      "staff": {
+        "title": "Soy DT / Scout / Dirigente",
+        "comingSoon": "Próximamente."
+      },
+      "later": "Lo haré después"
+    }
+  },
+  "acceptInvite": {
+    "metaTitle": "Aceptar Invitación",
+    "invalidLink": {
+      "title": "Enlace inválido",
+      "description": "Esta invitación no contiene un token de acceso válido.",
+      "backHome": "Volver al inicio"
+    },
+    "notFound": {
+      "title": "Invitación no encontrada",
+      "description": "El enlace pudo haber expirado o la invitación fue revocada por la agencia.",
+      "goHome": "Ir a 'BallersHub"
+    },
+    "processed": {
+      "title": "Invitación procesada",
+      "description": "Esta invitación ya ha sido {status}.",
+      "statusAccepted": "aceptada",
+      "statusRejected": "rechazada",
+      "goToPanel": "Ir a mi panel"
+    },
+    "wrongAccount": {
+      "title": "Cuenta incorrecta",
+      "description": "Esta invitación está dirigida al correo <strong>{targetEmail}</strong>, pero has iniciado sesión como <strong>{currentEmail}</strong>.",
+      "signOut": "Cerrar sesión actual"
+    },
+    "received": {
+      "title": "Invitación recibida",
+      "descriptionPlayer": "<strong>{agencyName}</strong> te ha enviado una invitación oficial para sumarte a la plataforma como jugador representado.",
+      "descriptionManager": "<strong>{agencyName}</strong> te ha enviado una invitación oficial para sumarte a la plataforma como mánager de agencia.",
+      "recipientLabel": "Destinatario",
+      "recipientNote": "Si no sos el dueño de este correo, por favor desestimá esta invitación.",
+      "signInToAccept": "Iniciar sesión para aceptar",
+      "noAccount": "Aún no tengo una cuenta"
+    },
+    "defaultAgencyName": "Una Agencia"
+  },
+  "manager": {
+    "badge": "Manager · Paso {step} de 3",
+    "title": "Registro de",
+    "titleHighlight": "manager",
+    "subtitle": "Validamos tu identidad y representación para mantener la integridad de la plataforma.",
+    "step1": {
+      "fullName": "Tu nombre completo *",
+      "contactEmail": "Email de contacto *",
+      "phone": "Teléfono",
+      "agencyName": "Nombre de la agencia *",
+      "agencyWebsite": "Sitio web de la agencia",
+      "verifiedLink": "Enlace de validación (Transfermarkt, IG, etc.) *"
+    },
+    "step2": {
+      "title": "Certificación oficial",
+      "subtitle": "Subí o enlazá tu licencia FIFA, FIGC, RFEF u otra asociación.",
+      "licenseType": "Tipo de licencia",
+      "licenseTypeNone": "Ninguna / Otra",
+      "licenseTypeRfef": "RFEF (España)",
+      "licenseTypeFigc": "FIGC (Italia)",
+      "licenseTypeAfa": "AFA (Argentina)",
+      "licenseDoc": "Documento de licencia (PDF o imagen)",
+      "licenseLoaded": "✓ Licencia cargada"
+    },
+    "step3": {
+      "title": "Verificación de identidad (KYC)",
+      "subtitle": "Para proteger la integridad de la plataforma, necesitamos verificar tu identidad.",
+      "idReady": "✓ DNI listo",
+      "idMissing": "○ Falta DNI",
+      "selfieReady": "✓ Selfie lista",
+      "selfieMissing": "○ Falta selfie",
+      "notes": "Notas adicionales (opcional)"
+    },
+    "back": "Atrás",
+    "next": "Siguiente",
+    "submit": "Enviar solicitud",
+    "submitting": "Enviando...",
+    "errorNoUser": "No hay usuario en sesión",
+    "errorUploadLicense": "Error al subir la licencia",
+    "errorGeneric": "Ocurrió un error"
+  },
+  "apply": {
+    "header": {
+      "badge": "Jugador · Paso {step} de 3",
+      "title": "Alta de",
+      "titleHighlight": "jugador",
+      "step1Title": "Datos principales",
+      "step1Sub": "Tu información personal",
+      "step2Title": "Datos futbolísticos",
+      "step2Sub": "Club y trayectoria",
+      "step3Title": "Verificación",
+      "step3Sub": "Documentos (KYC)"
+    },
+    "step1": {
+      "emailLabel": "Email de la cuenta",
+      "emailDescription": "Este es tu email de acceso",
+      "fullNameLabel": "Nombre completo",
+      "fullNamePlaceholder": "Ej: Lionel Messi",
+      "fullNameError": "Ingresá al menos 3 caracteres.",
+      "nationalityError": "Seleccioná al menos una nacionalidad.",
+      "birthDateLabel": "Fecha de nacimiento",
+      "birthDateError": "Seleccioná tu fecha de nacimiento.",
+      "heightLabel": "Altura (cm)",
+      "heightPlaceholder": "ej: 178",
+      "heightError": "Ingresá una altura válida (120–230 cm).",
+      "weightLabel": "Peso (kg)",
+      "weightPlaceholder": "ej: 72",
+      "weightError": "Ingresá un peso válido (40–140 kg).",
+      "positionLabel": "Posición",
+      "positionError": "Elegí al menos una sub-posición.",
+      "back": "Volver",
+      "continue": "Continuar"
+    },
+    "step2": {
+      "teamError": "Seleccioná un club o marcá que sos jugador libre.",
+      "externalProfiles": "Perfiles externos",
+      "optional": "(opcional)",
+      "socialLabel": "Red social",
+      "socialPlaceholder": "https://www.instagram.com/tuusuario",
+      "urlError": "Ingresá una URL válida (https://...).",
+      "back": "Volver",
+      "next": "Ir a verificación"
+    },
+    "step3": {
+      "title": "Verificación de identidad",
+      "docUploaded": "Documento subido",
+      "docPending": "Documento pendiente",
+      "selfieUploaded": "Selfie subida",
+      "selfiePending": "Selfie pendiente",
+      "agree": "Acepto Términos y Política de Privacidad",
+      "back": "Volver",
+      "submit": "Enviar solicitud",
+      "errorKycOrTerms": "Falta subir documento/selfie o aceptar condiciones.",
+      "errorNoSession": "No hay sesión activa.",
+      "errorUnexpected": "Error inesperado."
+    }
+  }
+}

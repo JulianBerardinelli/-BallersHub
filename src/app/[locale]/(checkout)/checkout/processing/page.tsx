@@ -10,6 +10,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
 
 // MP doesn't reliably fire `subscription_preapproval` webhooks at the
@@ -30,16 +31,25 @@ type SessionStatus =
 type StatusResponse = { status: SessionStatus | "unknown" };
 
 export default function CheckoutProcessingPage() {
+  const t = useTranslations("checkout");
   // useSearchParams forces this page out of static generation. Wrapping
   // in Suspense satisfies Next's CSR-bailout requirement at build time.
   return (
-    <Suspense fallback={<ProcessingShell statusLabel="Confirmando con el procesador…" elapsed={0} />}>
+    <Suspense
+      fallback={
+        <ProcessingShell
+          statusLabel={t("processing.statusConfirming")}
+          elapsed={0}
+        />
+      }
+    >
       <ProcessingInner />
     </Suspense>
   );
 }
 
 function ProcessingInner() {
+  const t = useTranslations("checkout");
   const router = useRouter();
   const params = useSearchParams();
 
@@ -68,7 +78,9 @@ function ProcessingInner() {
   const initialInternal = internalFromUrl ?? externalRefFromUrl ?? null;
   const [internal, setInternal] = useState<string | null>(initialInternal);
   const [elapsed, setElapsed] = useState(0);
-  const [statusLabel, setStatusLabel] = useState("Confirmando con el procesador…");
+  const [statusLabel, setStatusLabel] = useState(() =>
+    t("processing.statusConfirming"),
+  );
 
   // If we don't have an `internal` directly but have a processor id,
   // resolve it server-side before starting to poll.
@@ -142,7 +154,7 @@ function ProcessingInner() {
         // the user to /pending (which is really only meaningful for MP
         // cash / offline methods that take minutes).
         cancelled = true;
-        setStatusLabel("Verificando con el procesador…");
+        setStatusLabel(t("processing.statusVerifying"));
         try {
           const reconcileRes = await fetch(
             `/api/billing/reconcile-checkout?internal=${encodeURIComponent(
@@ -170,7 +182,7 @@ function ProcessingInner() {
         return;
       }
       if (total > 15_000) {
-        setStatusLabel("Esto está tomando un poco más de lo normal…");
+        setStatusLabel(t("processing.statusTakingLonger"));
       }
     };
 
@@ -180,7 +192,7 @@ function ProcessingInner() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [internal, router]);
+  }, [internal, router, t]);
 
   return <ProcessingShell statusLabel={statusLabel} elapsed={elapsed} />;
 }
@@ -210,6 +222,7 @@ function ProcessingShell({
   statusLabel: string;
   elapsed: number;
 }) {
+  const t = useTranslations("checkout");
   return (
     <div className="space-y-10">
       <CheckoutStepper current="confirmation" />
@@ -221,7 +234,7 @@ function ProcessingShell({
 
         <div className="space-y-3">
           <h1 className="font-bh-display text-3xl font-black uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-            Procesando tu pago
+            {t("processing.title")}
           </h1>
           <p className="text-[14px] leading-[1.6] text-bh-fg-2">{statusLabel}</p>
         </div>
@@ -229,14 +242,11 @@ function ProcessingShell({
         <div className="bh-glass mx-auto max-w-md space-y-3 rounded-bh-xl p-5 text-left text-[12.5px] text-bh-fg-2">
           <div className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-bh-success" />
-            <span>Tu pago está siendo verificado de forma segura.</span>
+            <span>{t("processing.secureNote")}</span>
           </div>
           <div className="flex items-start gap-2">
             <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-bh-lime" />
-            <span>
-              No cierres esta ventana. Te llevamos a la confirmación apenas
-              esté listo.
-            </span>
+            <span>{t("processing.doNotCloseNote")}</span>
           </div>
           <div
             aria-hidden

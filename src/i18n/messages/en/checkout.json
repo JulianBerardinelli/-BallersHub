@@ -1,0 +1,85 @@
+{
+  "common": {
+    "backToDashboard": "Go to my dashboard",
+    "backToHome": "Back to home",
+    "backToPricing": "Back to plans",
+    "processorMercadoPago": "Mercado Pago",
+    "processorStripe": "Stripe"
+  },
+  "meta": {
+    "checkoutTitle": "Checkout",
+    "checkoutDescription": "Complete your subscription to 'BallersHub Pro.",
+    "pendingTitle": "Payment processing",
+    "failureTitle": "Payment declined",
+    "receiptTitle": "Receipt",
+    "successTitle": "Payment confirmed"
+  },
+  "plan": {
+    "canceledNotice": "You canceled the payment. You can try again whenever you like — your details are still saved.",
+    "processorNotReady": {
+      "mpTitle": "Mercado Pago isn't configured in this environment yet.",
+      "stripeTitle": "Stripe isn't configured in this environment yet.",
+      "body": "We're finishing connecting this payment method. In the meantime you can try <altLink>{altLabel}</altLink>, or write to us at <supportEmail>info@ballershub.co</supportEmail> and we'll let you know when it's ready."
+    }
+  },
+  "processing": {
+    "title": "Processing your payment",
+    "statusConfirming": "Confirming with the processor…",
+    "statusVerifying": "Verifying with the processor…",
+    "statusTakingLonger": "This is taking a little longer than usual…",
+    "secureNote": "Your payment is being verified securely.",
+    "doNotCloseNote": "Don't close this window. We'll take you to the confirmation as soon as it's ready."
+  },
+  "success": {
+    "title": "All set! Your <shimmer>{plan}</shimmer> plan is active",
+    "defaultPlanName": "Pro",
+    "intro": "We've sent the details to your email. Your {trialDays}-day trial started today and you can cancel free of charge anytime within 3 days of the first charge.",
+    "summary": {
+      "plan": "Plan",
+      "billableTotal": "Billable total",
+      "amountPerYear": "{amount} {currency} / year",
+      "trialActiveUntil": "Trial active until",
+      "processor": "Processor",
+      "emailNote": "If you don't see the confirmation email within 5 minutes, write to us at <supportEmail>info@ballershub.co</supportEmail>."
+    },
+    "processingFallback": "We're finishing processing your payment. This may take a few seconds.",
+    "viewReceipt": "View receipt",
+    "completeProfile": "Complete my profile",
+    "onboardingNote": "Your subscription is active. To start using it we need a few more details about you — it takes 2-3 minutes."
+  },
+  "failure": {
+    "title": "We couldn't process your payment",
+    "defaultBody": "The processor declined the transaction. You weren't charged. Try another card or payment method — your details are still saved.",
+    "retry": "Retry the payment",
+    "reasons": {
+      "insufficientAmount": "The card doesn't have sufficient funds. Try another method or contact your bank.",
+      "badFilledCard": "The card details aren't correct. Check the number, the expiration date and the security code, then try again.",
+      "highRisk": "The processor flagged a risk on the transaction. Try another card or contact your bank to authorize the charge."
+    }
+  },
+  "pending": {
+    "title": "We're processing your payment",
+    "body": "Some methods (cash, bank transfer, debit in Argentina) take a few minutes to confirm. We'll send you an email as soon as it clears — there's nothing else you need to do."
+  },
+  "receipt": {
+    "backToConfirmation": "Back to confirmation",
+    "resendByEmail": "Resend by email",
+    "downloadPdf": "Download PDF",
+    "subscriptionReceipt": "Subscription receipt",
+    "number": "No. {number}",
+    "customer": "Customer",
+    "billing": "Billing",
+    "noBillingData": "No saved details",
+    "concept": "Item",
+    "detail": "Description",
+    "total": "Total",
+    "lineDescription": "Annual subscription · {trialDays}-day free trial",
+    "trialActiveUntil": "Trial active until {date}",
+    "currencyPerYear": "{currency} / year",
+    "subtotal": "Subtotal",
+    "trialLine": "{trialDays}-day trial",
+    "totalDueToday": "Total due today",
+    "processedBy": "Processed by <strong>{processor}</strong>. Automatic charge on {date}.",
+    "supportLine": "Cancelable free of charge within 3 days of the charge. For support: <supportEmail>info@ballershub.co</supportEmail>."
+  }
+}

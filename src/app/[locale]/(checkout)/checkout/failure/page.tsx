@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, XCircle } from "lucide-react";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
 import { db } from "@/lib/db";
 import { checkoutSessions } from "@/db/schema";
@@ -9,20 +10,26 @@ import {
   isCheckoutPlanId,
 } from "@/lib/billing/plans";
 
-export const metadata = {
-  title: "Pago rechazado",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata() {
+  const t = await getTranslations("checkout");
+  return {
+    title: t("meta.failureTitle"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type PageProps = {
   searchParams: Promise<{ internal?: string; reason?: string }>;
 };
 
 export default async function CheckoutFailurePage({ searchParams }: PageProps) {
+  const t = await getTranslations("checkout");
   const { internal, reason } = await searchParams;
   const retryHref = internal
     ? await buildRetryHref(internal)
     : "/pricing";
+
+  const reasonKey = reasonCopyKey(reason);
 
   return (
     <div className="space-y-10">
@@ -35,15 +42,10 @@ export default async function CheckoutFailurePage({ searchParams }: PageProps) {
 
         <div className="space-y-3">
           <h1 className="font-bh-display text-3xl font-black uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-            No pudimos procesar tu pago
+            {t("failure.title")}
           </h1>
           <p className="text-[14px] leading-[1.6] text-bh-fg-2">
-            {reasonCopy(reason) ?? (
-              <>
-                El procesador rechazó la operación. No te cobramos nada. Probá
-                con otra tarjeta o método de pago — tus datos siguen guardados.
-              </>
-            )}
+            {reasonKey ? t(reasonKey) : t("failure.defaultBody")}
           </p>
         </div>
 
@@ -52,14 +54,14 @@ export default async function CheckoutFailurePage({ searchParams }: PageProps) {
             href={retryHref}
             className="inline-flex items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-6 py-3 text-sm font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
           >
-            Reintentar el pago
+            {t("failure.retry")}
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link
             href="/pricing"
             className="inline-flex items-center justify-center gap-2 rounded-bh-md border border-white/[0.12] px-6 py-3 text-[13px] font-semibold text-bh-fg-2 transition-colors duration-150 hover:bg-white/[0.06] hover:text-bh-fg-1"
           >
-            Volver a planes
+            {t("common.backToPricing")}
           </Link>
         </div>
       </section>
@@ -89,31 +91,24 @@ async function buildRetryHref(internalId: string): Promise<string> {
   return "/pricing";
 }
 
-function reasonCopy(reason: string | undefined): React.ReactNode {
+// Maps a processor reason code to its translation key under
+// `failure.reasons`, or null to fall back to the generic copy.
+function reasonCopyKey(
+  reason: string | undefined,
+):
+  | "failure.reasons.insufficientAmount"
+  | "failure.reasons.badFilledCard"
+  | "failure.reasons.highRisk"
+  | null {
   switch (reason) {
     case "cc_rejected_insufficient_amount":
-      return (
-        <>
-          La tarjeta no tiene fondos suficientes. Probá con otro método o
-          contactá a tu banco.
-        </>
-      );
+      return "failure.reasons.insufficientAmount";
     case "cc_rejected_bad_filled_card_number":
     case "cc_rejected_bad_filled_date":
     case "cc_rejected_bad_filled_security_code":
-      return (
-        <>
-          Los datos de la tarjeta no son correctos. Revisá el número, la fecha
-          de vencimiento y el código de seguridad e intentá de nuevo.
-        </>
-      );
+      return "failure.reasons.badFilledCard";
     case "cc_rejected_high_risk":
-      return (
-        <>
-          El procesador detectó un riesgo en la operación. Probá con otra
-          tarjeta o contactá a tu banco para autorizar el cargo.
-        </>
-      );
+      return "failure.reasons.highRisk";
     default:
       return null;
   }

@@ -1,6 +1,7 @@
 // src/app/onboarding/KycUploader.tsx
 "use client";
 import { supabase } from "@/lib/supabase/client";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 
 type Props = { onUploaded: (p: { idDocKey?: string; selfieKey?: string }) => void };
@@ -12,6 +13,7 @@ const LABEL_CLS =
   "mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2";
 
 export default function KycUploader({ onUploaded }: Props) {
+  const t = useTranslations("onboarding");
   const [userId, setUserId] = useState<string | null>(null);
   const [loadingDoc, setLoadingDoc] = useState(false);
   const [loadingSelfie, setLoadingSelfie] = useState(false);
@@ -25,7 +27,7 @@ export default function KycUploader({ onUploaded }: Props) {
   }, []);
 
   async function upload(file: File, kind: "id" | "selfie") {
-    if (!userId) return setError("No hay usuario en sesión.");
+    if (!userId) return setError(t("kyc.errorNoUser"));
     setError(null);
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const key = `${userId}/${kind}-${Date.now()}.${ext}`;
@@ -38,7 +40,7 @@ export default function KycUploader({ onUploaded }: Props) {
   return (
     <div className="grid gap-4">
       <div>
-        <label className={LABEL_CLS}>Documento (frente o PDF)</label>
+        <label className={LABEL_CLS}>{t("kyc.docLabel")}</label>
         <input
           type="file"
           accept="image/jpeg,image/png,application/pdf"
@@ -51,10 +53,10 @@ export default function KycUploader({ onUploaded }: Props) {
           }}
           className={FILE_INPUT_CLS}
         />
-        {loadingDoc && <p className="mt-1 text-[11px] text-bh-fg-4">Subiendo documento...</p>}
+        {loadingDoc && <p className="mt-1 text-[11px] text-bh-fg-4">{t("kyc.uploadingDoc")}</p>}
       </div>
       <div>
-        <label className={LABEL_CLS}>Selfie</label>
+        <label className={LABEL_CLS}>{t("kyc.selfieLabel")}</label>
         <input
           type="file"
           accept="image/jpeg,image/png"
@@ -67,13 +69,10 @@ export default function KycUploader({ onUploaded }: Props) {
           }}
           className={FILE_INPUT_CLS}
         />
-        {loadingSelfie && <p className="mt-1 text-[11px] text-bh-fg-4">Subiendo selfie...</p>}
+        {loadingSelfie && <p className="mt-1 text-[11px] text-bh-fg-4">{t("kyc.uploadingSelfie")}</p>}
       </div>
       {error && <p className="text-sm text-bh-danger">{error}</p>}
-      <p className="text-[11px] text-bh-fg-4">
-        Los archivos se guardan de forma privada y solo los verá el equipo de
-        verificación.
-      </p>
+      <p className="text-[11px] text-bh-fg-4">{t("kyc.privacyNote")}</p>
     </div>
   );
 }

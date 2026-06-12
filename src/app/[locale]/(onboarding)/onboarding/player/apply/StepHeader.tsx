@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 export default function StepHeader({
   activeStep,
@@ -9,22 +10,23 @@ export default function StepHeader({
   activeStep: 1 | 2 | 3;
   maxStepUnlocked: 1 | 2 | 3;
 }) {
+  const t = useTranslations("onboarding");
   return (
     <div className="space-y-5">
       <div className="space-y-2">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-          Jugador · Paso {activeStep} de 3
+          {t("apply.header.badge", { step: activeStep })}
         </span>
         <h1 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          Alta de <span className="text-bh-lime">jugador</span>
+          {t("apply.header.title")} <span className="text-bh-lime">{t("apply.header.titleHighlight")}</span>
         </h1>
       </div>
 
       <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
-          { n: 1, title: "Datos principales", sub: "Tu información personal" },
-          { n: 2, title: "Datos futbolísticos", sub: "Club y trayectoria" },
-          { n: 3, title: "Verificación", sub: "Documentos (KYC)" },
+          { n: 1, title: t("apply.header.step1Title"), sub: t("apply.header.step1Sub") },
+          { n: 2, title: t("apply.header.step2Title"), sub: t("apply.header.step2Sub") },
+          { n: 3, title: t("apply.header.step3Title"), sub: t("apply.header.step3Sub") },
         ].map((s) => {
           const isActive = activeStep === (s.n as 1 | 2 | 3);
           const isLocked = maxStepUnlocked < (s.n as 1 | 2 | 3);

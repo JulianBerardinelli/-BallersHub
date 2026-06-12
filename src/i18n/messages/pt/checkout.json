@@ -1,0 +1,85 @@
+{
+  "common": {
+    "backToDashboard": "Ir para o meu painel",
+    "backToHome": "Voltar ao início",
+    "backToPricing": "Voltar aos planos",
+    "processorMercadoPago": "Mercado Pago",
+    "processorStripe": "Stripe"
+  },
+  "meta": {
+    "checkoutTitle": "Checkout",
+    "checkoutDescription": "Conclua sua assinatura do plano Pro da 'BallersHub.",
+    "pendingTitle": "Pagamento em processamento",
+    "failureTitle": "Pagamento recusado",
+    "receiptTitle": "Comprovante",
+    "successTitle": "Pagamento confirmado"
+  },
+  "plan": {
+    "canceledNotice": "Você cancelou o pagamento. Pode tentar de novo quando quiser — seus dados continuam salvos.",
+    "processorNotReady": {
+      "mpTitle": "O Mercado Pago ainda não está configurado neste ambiente.",
+      "stripeTitle": "O Stripe ainda não está configurado neste ambiente.",
+      "body": "Estamos terminando de conectar este método de pagamento. Enquanto isso, você pode tentar com <altLink>{altLabel}</altLink> ou nos escrever para <supportEmail>info@ballershub.co</supportEmail> que avisaremos quando estiver pronto."
+    }
+  },
+  "processing": {
+    "title": "Processando seu pagamento",
+    "statusConfirming": "Confirmando com o processador…",
+    "statusVerifying": "Verificando com o processador…",
+    "statusTakingLonger": "Isso está demorando um pouco mais do que o normal…",
+    "secureNote": "Seu pagamento está sendo verificado com segurança.",
+    "doNotCloseNote": "Não feche esta janela. Vamos te levar à confirmação assim que estiver pronta."
+  },
+  "success": {
+    "title": "Pronto! Seu plano <shimmer>{plan}</shimmer> está ativo",
+    "defaultPlanName": "Pro",
+    "intro": "Enviamos os detalhes para o seu e-mail. O período de teste de {trialDays} dias começou hoje e você pode cancelar sem custo a qualquer momento dentro de 3 dias após a primeira cobrança.",
+    "summary": {
+      "plan": "Plano",
+      "billableTotal": "Total faturável",
+      "amountPerYear": "{amount} {currency} / ano",
+      "trialActiveUntil": "Teste ativo até",
+      "processor": "Processador",
+      "emailNote": "Se em 5 minutos você não vir o e-mail de confirmação, escreva para <supportEmail>info@ballershub.co</supportEmail>."
+    },
+    "processingFallback": "Estamos terminando de processar seu pagamento. Isso pode levar alguns segundos.",
+    "viewReceipt": "Ver comprovante",
+    "completeProfile": "Completar meu perfil",
+    "onboardingNote": "Sua assinatura está ativa. Para começar a usá-la, precisamos de mais alguns dados sobre você — leva 2-3 minutos."
+  },
+  "failure": {
+    "title": "Não conseguimos processar seu pagamento",
+    "defaultBody": "O processador recusou a operação. Não cobramos nada de você. Tente outro cartão ou método de pagamento — seus dados continuam salvos.",
+    "retry": "Tentar o pagamento novamente",
+    "reasons": {
+      "insufficientAmount": "O cartão não tem saldo suficiente. Tente outro método ou entre em contato com o seu banco.",
+      "badFilledCard": "Os dados do cartão não estão corretos. Confira o número, a data de validade e o código de segurança e tente novamente.",
+      "highRisk": "O processador detectou um risco na operação. Tente outro cartão ou entre em contato com o seu banco para autorizar a cobrança."
+    }
+  },
+  "pending": {
+    "title": "Estamos processando seu pagamento",
+    "body": "Alguns métodos (dinheiro, transferência, débito na Argentina) levam alguns minutos para confirmar. Vamos enviar um e-mail assim que for creditado — você não precisa fazer mais nada."
+  },
+  "receipt": {
+    "backToConfirmation": "Voltar à confirmação",
+    "resendByEmail": "Reenviar por e-mail",
+    "downloadPdf": "Baixar PDF",
+    "subscriptionReceipt": "Comprovante de assinatura",
+    "number": "Nº {number}",
+    "customer": "Cliente",
+    "billing": "Faturamento",
+    "noBillingData": "Sem dados salvos",
+    "concept": "Item",
+    "detail": "Descrição",
+    "total": "Total",
+    "lineDescription": "Assinatura anual · {trialDays} dias de teste grátis",
+    "trialActiveUntil": "Teste ativo até {date}",
+    "currencyPerYear": "{currency} / ano",
+    "subtotal": "Subtotal",
+    "trialLine": "Teste de {trialDays} dias",
+    "totalDueToday": "Total a pagar hoje",
+    "processedBy": "Processado por <strong>{processor}</strong>. Cobrança automática no dia {date}.",
+    "supportLine": "Cancelável sem custo dentro de 3 dias após a cobrança. Para suporte: <supportEmail>info@ballershub.co</supportEmail>."
+  }
+}
