@@ -108,11 +108,11 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
     [countryDensity],
   );
 
+  // Build options from EVERY displayed nationality (not just the primary), so
+  // every flag the table stacks is selectable — and a dual national stays
+  // visible when its secondary nationality is the one filtered on.
   const nationalityOptions = useMemo(
-    () =>
-      buildCountryOptions(
-        players.map((p) => p.nationality).filter((c): c is string => !!c),
-      ),
+    () => buildCountryOptions(players.flatMap((p) => p.nationalities)),
     [players],
   );
   const playCountryOptions = useMemo(
