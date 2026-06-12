@@ -228,20 +228,31 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
 
 export function buildClientDashboardNavigation(
   badges: Partial<Record<string, ClientDashboardNavBadge>> = {},
-  isManager: boolean = false
+  isManager: boolean = false,
+  t?: (key: string) => string,
 ): ClientDashboardNavSection[] {
   const source = isManager ? MANAGER_NAVIGATION : PLAYER_NAVIGATION;
-  
+  const role = isManager ? "manager" : "player";
+
   return source.map((section) => ({
     ...section,
-    items: section.items.map((item) =>
-      item.kind === "link"
+    title: t ? t(`nav.sections.${section.id}`) : section.title,
+    items: section.items.map((item) => {
+      const translated = t
         ? {
             ...item,
-            badge: badges[item.id],
+            title: t(`nav.${role}.${item.id}.title`),
+            description: t(`nav.${role}.${item.id}.description`),
           }
-        : item,
-    ),
+        : item;
+
+      return translated.kind === "link"
+        ? {
+            ...translated,
+            badge: badges[translated.id],
+          }
+        : translated;
+    }),
   }));
 }
 

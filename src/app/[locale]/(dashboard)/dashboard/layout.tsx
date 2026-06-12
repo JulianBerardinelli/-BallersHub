@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Link } from "@/i18n/navigation";
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
 import ClientDashboardSidebar, {
@@ -98,9 +99,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     metrics,
   };
 
+  const t = await getTranslations("dashboard");
+
   const taskEvaluation = evaluateDashboardTasks(taskContext);
   const navigationBadges = buildNavigationBadges(taskEvaluation);
-  const navigation = buildClientDashboardNavigation(navigationBadges, isManager);
+  const navigation = buildClientDashboardNavigation(navigationBadges, isManager, t);
 
   const userDisplayName =
     hydratedProfile?.full_name ??
@@ -160,23 +163,19 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         <header className="space-y-5">
           <div className="space-y-2">
             <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-              {isManager ? "Manager" : "Cliente"}
+              {isManager ? t("shell.roleManager") : t("shell.roleClient")}
             </span>
             <h1 className="font-bh-display text-3xl font-bold uppercase leading-none tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-              {isManager ? (
-                <>
-                  Área de <span className="text-bh-blue">agencia</span>
-                </>
-              ) : (
-                <>
-                  Área del <span className="text-bh-lime">cliente</span>
-                </>
-              )}
+              {isManager
+                ? t.rich("shell.headingManager", {
+                    hl: (c) => <span className="text-bh-blue">{c}</span>,
+                  })
+                : t.rich("shell.headingClient", {
+                    hl: (c) => <span className="text-bh-lime">{c}</span>,
+                  })}
             </h1>
             <p className="text-sm leading-[1.55] text-bh-fg-3">
-              {isManager
-                ? "Gestioná la representación de tus jugadores, permisos del staff y perfil institucional."
-                : "Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta."}
+              {isManager ? t("shell.subtitleManager") : t("shell.subtitleClient")}
             </p>
           </div>
 
@@ -242,7 +241,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               </div>
               <div className="text-right">
                 <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
-                  Sesión activa
+                  {t("shell.activeSession")}
                 </p>
                 <p className="font-bh-mono text-[12px] text-bh-fg-3">{user.email}</p>
               </div>
