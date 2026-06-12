@@ -39,3 +39,15 @@ export const LOCALE_LABEL: Record<Locale, string> = {
   it: "Italiano",
   pt: "Português",
 };
+
+// flag-icons country code per locale, shown as an icon in the language
+// pickers. These are the FLAG choices (ISO-3166 country), independent of
+// the language code: es→Argentina (the es content is es-AR and the brand is
+// Argentine), en→United Kingdom, it→Italy, pt→Brazil (the pt content is
+// pt-BR). Consumed via <LocaleFlag /> (`fi fi-<code>` from flag-icons).
+export const LOCALE_FLAG: Record<Locale, string> = {
+  es: "ar",
+  en: "gb",
+  it: "it",
+  pt: "br",
+};

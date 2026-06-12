@@ -5,6 +5,7 @@ import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button } from "@
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { LOCALE_LABEL } from "@/i18n/config";
+import { LocaleFlag } from "./LocaleFlag";
 
 // Short codes shown in the trigger (the full names live in the menu).
 const SHORT: Record<Locale, string> = { es: "ES", en: "EN", it: "IT", pt: "PT" };
@@ -44,7 +45,8 @@ export function LocaleSwitcher() {
         <Button
           variant="light"
           size="sm"
-          className="min-w-0 px-2 text-[13px] font-medium text-bh-fg-2 hover:text-bh-lime"
+          className="min-w-0 gap-1.5 px-2 text-[13px] font-medium text-bh-fg-2 hover:text-bh-lime"
+          startContent={<LocaleFlag locale={locale} size={15} />}
           aria-label={t("localeSwitcher.label")}
         >
           {SHORT[locale]}
@@ -57,7 +59,9 @@ export function LocaleSwitcher() {
         onAction={(key) => onSelect(key as Locale)}
       >
         {routing.locales.map((l) => (
-          <DropdownItem key={l}>{LOCALE_LABEL[l]}</DropdownItem>
+          <DropdownItem key={l} startContent={<LocaleFlag locale={l} size={16} />}>
+            {LOCALE_LABEL[l]}
+          </DropdownItem>
         ))}
       </DropdownMenu>
     </Dropdown>
