@@ -353,6 +353,33 @@ export function alpha2FromLegacyNationality(
 }
 
 /**
+ * Resolve a player's FULL nationality list to deduped ISO-2 codes (primary
+ * first). Prefers the structured `nationality_codes`; only when none are valid
+ * does it fall back to deriving codes from the legacy `nationality` NAMES array
+ * (onboarding-approved profiles store names and leave `nationality_codes`
+ * null). Invalid/unknown entries are dropped so the UI degrades gracefully.
+ */
+export function resolveNationalityCodes(
+  codes: string[] | null | undefined,
+  legacyNames: string[] | null | undefined,
+): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (cc: string | null | undefined) => {
+    if (!cc) return;
+    const up = cc.toUpperCase();
+    if (!/^[A-Z]{2}$/.test(up) || seen.has(up)) return;
+    seen.add(up);
+    out.push(up);
+  };
+  for (const c of codes ?? []) push(c);
+  if (out.length === 0) {
+    for (const n of legacyNames ?? []) push(alpha2FromLegacyNationality(n));
+  }
+  return out;
+}
+
+/**
  * Build the country option list for the nationality / play-country filters
  * from whatever ISO-2 codes actually appear in the dataset — only relevant
  * countries show, sorted by display name.

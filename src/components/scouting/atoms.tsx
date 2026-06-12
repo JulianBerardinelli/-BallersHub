@@ -5,7 +5,6 @@
 // prototype's placeholders for real data: real avatar photo / club crest when
 // present, deterministic gradient + initials otherwise.
 
-import { flagEmoji } from "@/lib/scouting/taxonomies";
 import type { ContractStatus, ScoutPlayer } from "@/lib/scouting/types";
 
 /** Stable 0–359 hue from a string seed (slug), so each avatar is consistent. */
@@ -31,20 +30,81 @@ function crestInitials(club: string): string {
     .join("");
 }
 
-/** Flag pill — emoji + optional ISO-2 code. Renders nothing without a code. */
+const FLAG_RE = /^[a-z]{2}$/i;
+
+/** A single real SVG flag (`flag-icons`), sized via font-size. `null` if invalid. */
+function FlagIcon({
+  cc,
+  size,
+}: {
+  cc: string;
+  size: number;
+}) {
+  return (
+    <span
+      className={`flag-ico fi fi-${cc.toLowerCase()}`}
+      style={{ fontSize: size }}
+      role="img"
+      aria-label={cc.toUpperCase()}
+    />
+  );
+}
+
+/**
+ * A single country flag — a REAL SVG via `flag-icons` (globally imported in
+ * globals.css), not an emoji (emoji flags don't render on Windows/Chrome).
+ * `withCode` wraps it in the bordered pill with the ISO-2 label; otherwise the
+ * bare flag is rendered. Renders nothing for an invalid/empty code.
+ */
 export function Flag({
   cc,
   withCode = false,
+  size = 15,
 }: {
   cc: string | null | undefined;
   withCode?: boolean;
+  size?: number;
 }) {
-  const glyph = flagEmoji(cc);
-  if (!glyph) return null;
+  if (!cc || !FLAG_RE.test(cc)) return null;
+  if (!withCode) return <FlagIcon cc={cc} size={size} />;
   return (
-    <span className="flag-pill" title={cc ?? undefined}>
-      <span className="flag-glyph">{glyph}</span>
-      {withCode && cc && <span className="flag-code">{cc.toUpperCase()}</span>}
+    <span className="flag-pill" title={cc.toUpperCase()}>
+      <FlagIcon cc={cc} size={size} />
+      <span className="flag-code">{cc.toUpperCase()}</span>
+    </span>
+  );
+}
+
+/**
+ * Stacked nationality flags — a player's nationalities piled one above the
+ * other (real `flag-icons` SVGs). Shows up to `max` (default 3); any beyond
+ * collapse into a "+N" chip. Renders nothing when there are no valid codes.
+ */
+export function FlagStack({
+  codes,
+  max = 3,
+  size = 13,
+}: {
+  codes: string[] | null | undefined;
+  max?: number;
+  size?: number;
+}) {
+  const valid = (codes ?? []).filter((c) => FLAG_RE.test(c));
+  if (valid.length === 0) return null;
+  // Cap the pile at `max` items tall: when there are more, the last slot
+  // becomes a "+N" chip so a 4th+ nationality never grows the dense 50px row.
+  const overflow = valid.length > max;
+  const shown = overflow ? valid.slice(0, max - 1) : valid;
+  const extra = valid.length - shown.length;
+  return (
+    <span
+      className="flag-stack"
+      title={valid.map((c) => c.toUpperCase()).join(" · ")}
+    >
+      {shown.map((c) => (
+        <FlagIcon key={c} cc={c} size={size} />
+      ))}
+      {extra > 0 && <span className="flag-stack-more">+{extra}</span>}
     </span>
   );
 }

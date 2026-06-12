@@ -24,11 +24,11 @@ import {
   resolveProUserIds,
 } from "@/lib/seo/indexable-profiles";
 import {
-  alpha2FromLegacyNationality,
   nameInitials,
   normalizeContract,
   normalizeFoot,
   resolveAllPositions,
+  resolveNationalityCodes,
 } from "./taxonomies";
 import type { ScoutPlayer } from "./types";
 
@@ -115,6 +115,10 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
       const allPos = resolveAllPositions(r.positions);
       const pos = allPos[0] ?? { code: "", label: "", group: null };
       const club = r.teamName ?? r.currentClub ?? null;
+      // Prefer the structured ISO-2 codes; fall back to deriving them from the
+      // legacy Spanish names (profiles approved via onboarding store names in
+      // `nationality` and leave `nationality_codes` null).
+      const natCodes = resolveNationalityCodes(r.nationalityCodes, r.nationality);
       return {
         id: r.id,
         slug: r.slug,
@@ -128,13 +132,8 @@ export async function getScoutingPlayers(): Promise<ScoutPlayer[]> {
         clubCountryCode: r.teamCountryCode ?? null,
         clubCountry: r.teamCountry ?? null,
         clubCrestUrl: cleanCrest(r.teamCrestUrl),
-        // Prefer the ISO-2 code; fall back to deriving it from the legacy
-        // Spanish country name (profiles approved via onboarding store names
-        // in `nationality` and leave `nationality_codes` null).
-        nationality:
-          r.nationalityCodes?.[0]?.toUpperCase() ??
-          alpha2FromLegacyNationality(r.nationality?.[0]) ??
-          null,
+        nationality: natCodes[0] ?? null,
+        nationalities: natCodes,
         contract: normalizeContract(r.contractStatus),
         foot: normalizeFoot(r.foot),
         heightCm: r.heightCm ?? null,

@@ -163,6 +163,13 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
   const validPinnedKey =
     pinnedCityKey && cityByKey.has(pinnedCityKey) ? pinnedCityKey : null;
   const activeCityKey = hoverCityKey ?? validPinnedKey;
+  // City highlight for the TABLE's multi-row glow must come ONLY from the GLOBE
+  // side — a hovered pin or a clicked/pinned city. Feeding it `activeCityKey`
+  // (which folds in the hovered ROW's own city) lit up every TEAMMATE sharing
+  // the same club city, since cityKeyOf() is identical across a roster. A row
+  // hover should glow just its own row (the [data-hover] style), so it's
+  // excluded here while the globe still flies to / highlights that city.
+  const tableHighlightCityKey = hoverPinKey ?? validPinnedKey;
 
   // Hovering a pin OR a table row eases the globe to center that city — the same
   // "approach the point" motion as a click (rotation only, no zoom).
@@ -357,7 +364,7 @@ export function ScoutingExperience({ players }: { players: ScoutPlayer[] }) {
               density={density}
               hoverPlayerId={hoverPlayerId}
               onRowHover={onRowHover}
-              highlightCityKey={activeCityKey}
+              highlightCityKey={tableHighlightCityKey}
             />
           </div>
         </>

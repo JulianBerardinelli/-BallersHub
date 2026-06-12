@@ -14,7 +14,6 @@ import {
   POSITION_GROUP_ORDER,
   SCOUT_POSITIONS,
   countryName,
-  flagEmoji,
 } from "@/lib/scouting/taxonomies";
 import type {
   CountryOption,
@@ -402,7 +401,11 @@ function CountryGrid({
             onChange={() => onToggle(c.code)}
           />
           <span className="cb" />
-          <span className="dd-flag">{flagEmoji(c.code)}</span>
+          <span
+            className={`dd-flag flag-ico fi fi-${c.code.toLowerCase()}`}
+            role="img"
+            aria-label={c.code}
+          />
           <span className="dd-cname">{c.name}</span>
           <span className="dd-cc">{c.code}</span>
         </label>

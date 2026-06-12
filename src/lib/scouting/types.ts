@@ -63,8 +63,13 @@ export interface ScoutPlayer {
   clubCountry: string | null;
   /** Real crest URL if the team has one; null → render the default shield. */
   clubCrestUrl: string | null;
-  /** Player nationality, ISO-2 (first of `nationalityCodes`). */
+  /** Player nationality, ISO-2 (first of `nationalities`). Kept for sort/filter. */
   nationality: string | null;
+  /**
+   * EVERY resolved nationality, ISO-2 (deduped, primary first). Most players
+   * have one; dual/triple nationals carry 2–3. The table stacks these as flags.
+   */
+  nationalities: string[];
   contract: ContractStatus;
   foot: FootCode | null;
   heightCm: number | null;
