@@ -45,6 +45,7 @@
     "template": "Template",
     "subscription": "Subscription",
     "settings": "General settings",
+    "language": "Language",
     "signOut": "Sign out",
     "signOutConfirm": "Are you sure you want to sign out of 'BallersHub?",
     "signingOut": "Signing out..."

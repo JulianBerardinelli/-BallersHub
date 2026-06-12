@@ -15,10 +15,14 @@ import {
   Button,
   useDisclosure,
 } from "@heroui/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useTransition } from "react";
+import { Check } from "lucide-react";
 
-import { Link } from "@/i18n/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
+import { routing, type Locale } from "@/i18n/routing";
+import { LOCALE_LABEL } from "@/i18n/config";
+import { LocaleFlag } from "@/components/i18n/LocaleFlag";
 import {
   hasActiveApplication,
   isApplicationDraft,
@@ -53,8 +57,22 @@ export default function UserMenuHero({
   onSignOut: () => Promise<void>;
 }) {
   const t = useTranslations("common");
+  const locale = useLocale() as Locale;
+  const router = useRouter();
+  const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
+  // Switch language without leaving the page: navigate to the SAME route
+  // under the new locale (next-intl persists it in the NEXT_LOCALE cookie).
+  // Preserve query + hash so filters/anchors survive — mirrors
+  // <LocaleSwitcher />. The resulting navigation closes the dropdown.
+  const onSelectLocale = (next: Locale) => {
+    if (next === locale) return;
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const hash = typeof window !== "undefined" ? window.location.hash : "";
+    router.replace(`${pathname}${search}${hash}`, { locale: next });
+  };
 
   const normalizedApplicationStatus = normalizeApplicationStatus(applicationStatus ?? null);
   const activeApplication = hasActiveApplication(normalizedApplicationStatus);
@@ -205,6 +223,32 @@ export default function UserMenuHero({
           <DropdownItem key="settings" as={Link} href="/dashboard/settings/account">
             {t("userMenu.settings")}
           </DropdownItem>
+          <DropdownItem
+            key="language-heading"
+            className="h-auto gap-0 border-t border-white/[0.06] !rounded-none pt-2 pb-1 mt-1 cursor-default data-[hover=true]:!bg-transparent"
+            isReadOnly
+            textValue={t("userMenu.language")}
+          >
+            <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.12em] text-bh-fg-4">
+              {t("userMenu.language")}
+            </p>
+          </DropdownItem>
+
+          <>
+            {routing.locales.map((l) => (
+              <DropdownItem
+                key={`locale-${l}`}
+                aria-label={LOCALE_LABEL[l]}
+                startContent={<LocaleFlag locale={l} size={16} />}
+                endContent={l === locale ? <Check size={14} className="text-bh-lime" aria-hidden /> : null}
+                className={l === locale ? "text-bh-fg-1" : undefined}
+                onPress={() => onSelectLocale(l)}
+              >
+                {LOCALE_LABEL[l]}
+              </DropdownItem>
+            ))}
+          </>
+
           <DropdownItem
             key="logout"
             color="danger"
