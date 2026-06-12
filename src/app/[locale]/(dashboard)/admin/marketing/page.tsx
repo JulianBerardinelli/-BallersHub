@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Mail, MailMinus, Send, Eye, MousePointerClick, Plus } from "lucide-react";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { fetchGlobalStats } from "./actions";

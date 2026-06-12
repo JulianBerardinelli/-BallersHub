@@ -6,7 +6,7 @@
 
 import { useState } from "react";
 import { Button } from "@heroui/react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Check, ExternalLink, Lock } from "lucide-react";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";

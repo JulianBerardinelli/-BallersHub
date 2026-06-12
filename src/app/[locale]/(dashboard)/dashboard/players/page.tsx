@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import PlayerInviteManager from "@/components/dashboard/client/PlayerInviteManager";
 import { getPendingPlayerInvitesForAgency } from "@/app/actions/player-invites";
 

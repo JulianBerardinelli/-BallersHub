@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import type { LockAction, SectionLock } from "@/lib/dashboard/client/permissions";
 
 function actionClasses(action?: LockAction): string {

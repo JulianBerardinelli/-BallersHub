@@ -21,7 +21,7 @@ import {
   User,
 } from "@heroui/react";
 import { Copy, Filter, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import TeamCrest from "@/components/teams/TeamCrest";
 import type { PlayerProfileRow } from "./types";
 import { columns } from "./columns";

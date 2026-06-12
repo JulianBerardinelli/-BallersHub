@@ -1,6 +1,6 @@
 // Helpers de UI compartidos entre las pages de /admin/seo.
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export const SEO_NAV = [
   { href: "/admin/seo", label: "Overview" },

@@ -2,7 +2,7 @@
 // Renders the post content + meta + admin actions panel.
 
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { notFound, redirect } from "next/navigation";
 import { getBlogActor } from "@/lib/blog/permissions";
 import { getPostById } from "@/lib/blog/posts";

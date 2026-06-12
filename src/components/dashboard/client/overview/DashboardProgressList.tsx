@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { Button, Chip, Progress } from "@heroui/react";
 import type { TaskSeverity } from "@/lib/dashboard/client/tasks";

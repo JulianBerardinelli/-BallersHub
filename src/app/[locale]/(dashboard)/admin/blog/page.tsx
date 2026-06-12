@@ -1,7 +1,7 @@
 // /admin/blog — list ALL posts across every status (admin overview).
 
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { getBlogActor } from "@/lib/blog/permissions";
 import { listPostsByStatus } from "@/lib/blog/posts";

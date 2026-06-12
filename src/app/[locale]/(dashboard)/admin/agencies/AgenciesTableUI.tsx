@@ -23,7 +23,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { bhChip } from "@/lib/ui/heroui-brand";
 import AgencyAgentsList from "./components/AgencyAgentsList";
 import type { AgencyRow, ColumnDef } from "./types";

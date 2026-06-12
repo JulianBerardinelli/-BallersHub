@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { ArrowUpRight, Loader2, ShieldOff } from "lucide-react";
 import { bhButtonClass } from "@/components/ui/BhButton";
 

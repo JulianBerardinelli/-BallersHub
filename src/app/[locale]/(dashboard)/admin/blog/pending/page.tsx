@@ -1,7 +1,7 @@
 // /admin/blog/pending — queue of pending_review posts. FIFO.
 
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { getBlogActor } from "@/lib/blog/permissions";
 import { listPendingPosts } from "@/lib/blog/posts";
