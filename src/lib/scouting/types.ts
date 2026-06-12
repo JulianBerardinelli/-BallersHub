@@ -77,8 +77,15 @@ export interface ScoutPlayer {
   marketValueEur: number | null;
   /** Real photo if present and non-default; null → gradient+initials avatar. */
   avatarUrl: string | null;
-  /** Pro/pro_plus with an active/trialing sub — drives Pro-first ordering. */
+  /** Pro/pro_plus with an active/trialing sub — drives Pro-first ordering + the "Pro" tag. */
   isPro: boolean;
+  /**
+   * Whether this profile is SEO-indexable (Pro, or Free with a thick-enough
+   * bio). The directory lists non-indexable Free profiles too, but the page
+   * keeps its JSON-LD ItemList on the indexable subset so the structured data
+   * stays in sync with the sitemap.
+   */
+  indexable: boolean;
   /** 1–2 letter initials for the avatar fallback. */
   initials: string;
   // --- Phase 2 geo (inherited from the player's club / `teams` relation) ---
