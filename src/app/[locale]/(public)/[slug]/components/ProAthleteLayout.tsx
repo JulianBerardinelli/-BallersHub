@@ -137,7 +137,7 @@ function ProAthleteLayoutBody({ data, children }: { data: PublicProfileData, chi
       ref={containerRef}
     >
       
-      <ProPlayerHeader player={player} hideOnMobile={!!heroFloatingVideo} />
+      <ProPlayerHeader player={player} hideOnMobile={!!heroFloatingVideo} localeSwitch={data.localeSwitch} />
 
       {heroFloatingVideo && playerSlug && (
         <>

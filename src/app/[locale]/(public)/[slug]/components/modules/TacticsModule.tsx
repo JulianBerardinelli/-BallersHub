@@ -1,6 +1,12 @@
 import { db } from "@/lib/db";
 import { playerMedia } from "@/db/schema";
 import { eq, and, asc, desc } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
+import {
+  getPlayerTranslation,
+  mergePlayerContent,
+  type PlayerLocalizedFields,
+} from "@/lib/i18n/profile-content";
 import ProfileTacticsModule from "./ProfileTacticsModule";
 
 export default async function TacticsModule({ playerId }: { playerId: string }) {
@@ -20,9 +26,19 @@ export default async function TacticsModule({ playerId }: { playerId: string }) 
 
   if (!player) return null;
 
+  // F5: this module streams its own data, so it must apply the active-locale
+  // translation itself (the page-level merge doesn't reach here). The scouting
+  // analysis + top characteristics render in the URL's language.
+  const locale = await getLocale();
+  const translation = await getPlayerTranslation(playerId, locale);
+  const localizedPlayer = {
+    ...player,
+    ...mergePlayerContent(player as unknown as PlayerLocalizedFields, translation),
+  };
+
   return (
     <div className="relative z-30 w-full">
-      <ProfileTacticsModule player={player} media={media} />
+      <ProfileTacticsModule player={localizedPlayer} media={media} />
     </div>
   );
 }

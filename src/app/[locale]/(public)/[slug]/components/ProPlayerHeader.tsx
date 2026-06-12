@@ -16,6 +16,9 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
+import HeaderLocaleSwitcher from "@/components/i18n/HeaderLocaleSwitcher";
+
+type LocaleSwitch = { available: string[]; current: string; basePath: string };
 
 type SectionItem = { id: string; labelKey: string; Icon: LucideIcon };
 
@@ -30,9 +33,11 @@ const PORTFOLIO_SECTIONS: SectionItem[] = [
 export default function ProPlayerHeader({
   player,
   hideOnMobile = false,
+  localeSwitch,
 }: {
   player: any;
   hideOnMobile?: boolean;
+  localeSwitch?: LocaleSwitch;
 }) {
   const t = useTranslations("portfolio");
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -195,15 +200,27 @@ export default function ProPlayerHeader({
           >
             <Share2 className="w-4 h-4" />
           </button>
+
+          {/* Language switcher — inside the island, right after share. */}
+          {localeSwitch ? (
+            <>
+              <div className="w-px h-4 bg-white/20 mx-0.5 md:mx-1 shrink-0" />
+              <HeaderLocaleSwitcher
+                basePath={localeSwitch.basePath}
+                available={localeSwitch.available}
+                current={localeSwitch.current}
+              />
+            </>
+          ) : null}
         </nav>
 
-        {/*
-          RIGHT slot is intentionally left to the fixed PortfolioLocaleSwitcher
-          (rendered by the page), which sits at this same height on the right.
-          The old "Powered BY 'BallersHub" wordmark lived here but collided with
-          the switcher on 1024–1400px screens; branding stays on the left
-          back-link + the footer.
-        */}
+        {/* RIGHT: Powered BY 'BallersHub */}
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">
+          <span className="text-white/50 text-[10px] uppercase tracking-[0.3em] mb-1 font-bold">
+            {t("a11y.poweredBy")}
+          </span>
+          <Wordmark size="nav" className="text-base leading-none" />
+        </div>
 
       </div>
     </motion.header>
