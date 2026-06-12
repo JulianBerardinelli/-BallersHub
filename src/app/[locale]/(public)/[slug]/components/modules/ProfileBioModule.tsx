@@ -1,6 +1,8 @@
 import { db } from "@/lib/db";
 import { careerItems } from "@/db/schema";
 import { desc } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
+import { getPlayerTranslation } from "@/lib/i18n/profile-content";
 import BioClientCard from "./BioClientCard";
 
 import BioAnimatedBackground from "./BioAnimatedBackground";
@@ -54,11 +56,27 @@ export default async function ProfileBioModule({ playerId }: { playerId: string 
      where: (l, { eq }) => eq(l.playerId, playerId)
   });
 
+  // F5: this module streams its own data, so it applies the active-locale
+  // translation itself (the page-level merge doesn't reach here). Only `bio`
+  // is free-text/translatable among the fields shown; the rest are proper
+  // nouns or get localized via taxonomy inside BioClientCard.
+  const locale = await getLocale();
+  const translation = await getPlayerTranslation(playerId, locale);
+  const localizedPlayer = player
+    ? {
+        ...player,
+        bio:
+          translation?.bio && translation.bio.trim() !== ""
+            ? translation.bio
+            : player.bio,
+      }
+    : player;
+
   return (
     <div className="relative w-full">
       <BioAnimatedBackground />
-      
-      <BioClientCard data={personalDetails} player={player || {}} teamCrest={crestUrl} teamCountryCode={teamCountryCode} division={latestCareer?.division || null} socialLinks={socialLinks} />
+
+      <BioClientCard data={personalDetails} player={localizedPlayer || {}} teamCrest={crestUrl} teamCountryCode={teamCountryCode} division={latestCareer?.division || null} socialLinks={socialLinks} />
     </div>
   );
 }

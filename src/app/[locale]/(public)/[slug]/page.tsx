@@ -654,6 +654,13 @@ export default async function PlayerPublicPage({
 
   const publicData = {
     player,
+    // Drives the locale switcher inside the Pro header (Free uses the standalone
+    // one below). Only locales with a real translation are offered.
+    localeSwitch: {
+      available: availableLocales,
+      current: locale,
+      basePath: `/${slug}`,
+    },
     career: [],
     media,
     sections,
@@ -703,11 +710,15 @@ export default async function PlayerPublicPage({
 
   return (
     <>
-      <PortfolioLocaleSwitcher
-        basePath={`/${slug}`}
-        available={availableLocales}
-        current={locale}
-      />
+      {/* Pro mounts the switcher inside its header pill; Free keeps the
+          standalone floating one. */}
+      {isFree ? (
+        <PortfolioLocaleSwitcher
+          basePath={`/${slug}`}
+          available={availableLocales}
+          current={locale}
+        />
+      ) : null}
       {/*
         JSON-LD Person/Athlete schema. Streamed in the initial HTML
         response so crawlers see the entity graph immediately. The

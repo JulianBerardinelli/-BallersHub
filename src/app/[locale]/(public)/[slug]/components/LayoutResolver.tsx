@@ -34,6 +34,8 @@ export type PublicProfileData = {
     foot?: string | null;
     agency?: { slug: string; name: string } | null;
   };
+  /** Drives the locale switcher inside the Pro header. */
+  localeSwitch?: { available: string[]; current: string; basePath: string };
   career: Array<Record<string, unknown> & { id: string; club: string; division?: string | null; startDate?: string | null; endDate?: string | null }>;
   media: Array<Record<string, unknown> & { id: string; url: string; type: string }>;
   articles?: Array<Record<string, unknown> & { id: string; title: string; url: string; imageUrl?: string | null }>;
