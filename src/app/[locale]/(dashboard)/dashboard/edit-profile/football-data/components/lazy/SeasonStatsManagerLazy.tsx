@@ -1,7 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 import SectionSkeleton from "./_skeleton";
+
+function SeasonStatsSkeleton() {
+  const t = useTranslations("dashEditProfile");
+  return <SectionSkeleton label={t("footballData.lazy.seasonStats")} />;
+}
 
 // Client-only wrapper so we can use `ssr: false`. The underlying
 // SeasonStatsManager is ~800 lines of HeroUI form/table state — by
@@ -13,7 +19,7 @@ const SeasonStatsManager = dynamic(
   () => import("../SeasonStatsManager"),
   {
     ssr: false,
-    loading: () => <SectionSkeleton label="Estadísticas por temporada" />,
+    loading: () => <SeasonStatsSkeleton />,
   },
 );
 

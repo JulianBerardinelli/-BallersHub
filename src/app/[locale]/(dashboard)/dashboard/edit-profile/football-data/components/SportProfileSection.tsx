@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { useForm } from "react-hook-form";
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export default function SportProfileSection({ playerId, initialValues }: Props) {
+  const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<SportProfileFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -105,13 +107,13 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
       setIsEditing(false);
       setStatus({
         type: "success",
-        message: result.message ?? "Perfil deportivo actualizado correctamente.",
+        message: result.message ?? t("footballData.sportProfile.successDefault"),
       });
 
       if (result.updatedFields.length > 0) {
         enqueue(
           profileNotification.updated({
-            sectionLabel: "tu perfil deportivo",
+            sectionLabel: t("footballData.sportProfile.sectionLabel"),
             changedFields: result.updatedFields,
             detailsHref: "/dashboard/edit-profile/football-data",
           }),
@@ -122,14 +124,14 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
 
   return (
     <SectionCard
-      title="Perfil deportivo"
-      description="Definí tus posiciones naturales, perfil y club actual para orientar a scouts y clubes."
+      title={t("footballData.sportProfile.title")}
+      description={t("footballData.sportProfile.description")}
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar perfil deportivo"}
+          aria-label={isEditing ? t("footballData.sportProfile.cancelAria") : t("footballData.sportProfile.editAria")}
           onPress={handleToggleEditing}
           isDisabled={isPending}
         >
@@ -142,8 +144,8 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
           <FormField
             key={`positions-${defaults.positions}`}
             id="positions"
-            label="Posiciones principales"
-            placeholder="Ej: Mediocentro, Interior Derecho"
+            label={t("footballData.sportProfile.positionsLabel")}
+            placeholder={t("footballData.sportProfile.positionsPlaceholder")}
             readOnly
             defaultValue={defaults.positions}
             errorMessage={errors.positions?.message}
@@ -152,8 +154,8 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
           <FormField
             key={`foot-${defaults.foot}`}
             id="foot"
-            label="Perfil dominante"
-            placeholder="Derecho, Izquierdo, Ambidiestro"
+            label={t("footballData.sportProfile.footLabel")}
+            placeholder={t("footballData.sportProfile.footPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.foot}
             errorMessage={errors.foot?.message}
@@ -164,8 +166,8 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
           <FormField
             key={`currentClub-${defaults.currentClub}`}
             id="current_club"
-            label="Club actual"
-            placeholder="Equipo actual"
+            label={t("footballData.sportProfile.currentClubLabel")}
+            placeholder={t("footballData.sportProfile.currentClubPlaceholder")}
             readOnly
             defaultValue={defaults.currentClub}
             errorMessage={errors.currentClub?.message}
@@ -174,8 +176,8 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
           <FormField
             key={`contractStatus-${defaults.contractStatus}`}
             id="contract_status"
-            label="Situación contractual"
-            placeholder="Libre, con contrato hasta 2026, etc."
+            label={t("footballData.sportProfile.contractStatusLabel")}
+            placeholder={t("footballData.sportProfile.contractStatusPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.contractStatus}
             errorMessage={errors.contractStatus?.message}
@@ -194,10 +196,10 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={handleCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button type="submit" isDisabled={isPending || !isDirty} isLoading={isPending} className={bhButtonClass({ variant: "lime", size: "sm" })}>
-              Guardar cambios
+              {t("common.saveChanges")}
             </Button>
           </div>
         ) : null}

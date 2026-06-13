@@ -5,7 +5,7 @@ import SectionSkeleton from "./_skeleton";
 
 const AgencyMediaManagerClient = dynamic(
   () => import("../AgencyMediaManagerClient"),
-  { ssr: false, loading: () => <SectionSkeleton label="Galería y media" /> },
+  { ssr: false, loading: () => <SectionSkeleton labelKey="media" /> },
 );
 
 export default AgencyMediaManagerClient;

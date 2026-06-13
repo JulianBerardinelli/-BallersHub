@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { Plus, Trash2 } from "lucide-react";
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -58,6 +59,7 @@ function isEqual(a: Service[], b: Service[]) {
 }
 
 export default function ServicesSection({ agencyId, agencyName, initialServices }: Props) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [defaults, setDefaults] = useState<Service[]>(() => sanitizeIncoming(initialServices));
   const [services, setServices] = useState<Service[]>(() => sanitizeIncoming(initialServices));
@@ -109,18 +111,18 @@ export default function ServicesSection({ agencyId, agencyName, initialServices 
         setDefaults(cleaned);
         setServices(cleaned);
         setIsEditing(false);
-        setStatus({ type: "success", message: "Servicios actualizados." });
+        setStatus({ type: "success", message: t("services.successUpdated") });
         enqueue(
           profileNotification.updated({
             userName: agencyName,
-            sectionLabel: "Servicios",
+            sectionLabel: t("services.notificationSection"),
             changedFields: cleaned.map((s) => s.title),
           }),
         );
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al guardar servicios.",
+          message: err instanceof Error ? err.message : t("services.errorSave"),
         });
       }
     });
@@ -128,21 +130,21 @@ export default function ServicesSection({ agencyId, agencyName, initialServices 
 
   return (
     <SectionCard
-      title="Servicios"
-      description={`Áreas de trabajo de la agencia. Cada servicio puede tener título, ícono, color y descripción. Hasta ${SERVICES_MAX}.`}
+      title={t("services.title")}
+      description={t("services.description", { max: SERVICES_MAX })}
       actions={
         <EditPencilButton
           isEditing={isEditing}
           onPress={() => (isEditing ? onCancel() : setIsEditing(true))}
           isDisabled={isPending}
-          ariaLabel="servicios"
+          ariaLabel={t("services.ariaLabel")}
         />
       }
     >
       <div className="space-y-4">
         {services.length === 0 && !isEditing ? (
           <div className="rounded-xl border border-dashed border-white/[0.08] bg-bh-surface-1/40 py-6 text-center text-sm text-bh-fg-4">
-            Sin servicios registrados todavía.
+            {t("services.empty")}
           </div>
         ) : isEditing ? (
           <div className="space-y-3">
@@ -162,7 +164,7 @@ export default function ServicesSection({ agencyId, agencyName, initialServices 
                 isDisabled={services.length >= SERVICES_MAX}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Agregar servicio
+                {t("services.addButton")}
               </Button>
             </div>
           </div>
@@ -216,7 +218,7 @@ export default function ServicesSection({ agencyId, agencyName, initialServices 
         {isEditing && (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               onPress={onSave}
@@ -224,7 +226,7 @@ export default function ServicesSection({ agencyId, agencyName, initialServices 
               isLoading={isPending}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Guardar servicios
+              {t("services.saveButton")}
             </Button>
           </div>
         )}
@@ -242,6 +244,7 @@ function ServiceEditor({
   onChange: (patch: Partial<Service>) => void;
   onRemove: () => void;
 }) {
+  const t = useTranslations("dashAgency");
   const Icon = resolveServiceIcon(service.icon);
   const accent = service.color || "#CCFF00";
 
@@ -260,8 +263,8 @@ function ServiceEditor({
         </div>
         <div className="flex-1 min-w-0">
           <FormField
-            label="Título del servicio"
-            placeholder="Ej: Representación de jugadores"
+            label={t("services.titleLabel")}
+            placeholder={t("services.titlePlaceholder")}
             value={service.title}
             onChange={(e) => onChange({ title: e.target.value })}
             isRequired
@@ -272,7 +275,7 @@ function ServiceEditor({
           isIconOnly
           variant="flat"
           color="danger"
-          aria-label="Eliminar servicio"
+          aria-label={t("services.removeAria")}
           className="mt-5 shrink-0"
           onPress={onRemove}
         >
@@ -283,7 +286,7 @@ function ServiceEditor({
       <div className="grid gap-3 md:grid-cols-[1fr_140px]">
         <div className="space-y-1.5">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-            Ícono
+            {t("services.iconLabel")}
           </span>
           <div className="flex flex-wrap gap-1.5">
             {SERVICE_ICONS.map((opt) => {
@@ -311,7 +314,7 @@ function ServiceEditor({
 
         <div className="space-y-1.5">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-            Color (opcional)
+            {t("services.colorLabel")}
           </span>
           <div className="flex h-11 items-center gap-2 rounded-bh-md border border-white/[0.08] bg-bh-surface-1 px-2">
             <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-bh-md border border-white/[0.12]">
@@ -338,7 +341,7 @@ function ServiceEditor({
                 type="button"
                 onClick={() => onChange({ color: null })}
                 className="text-[10px] text-bh-fg-4 hover:text-bh-fg-2 px-1"
-                title="Usar acento de tema"
+                title={t("services.useThemeAccent")}
               >
                 ✕
               </button>
@@ -349,8 +352,8 @@ function ServiceEditor({
 
       <FormField
         as="textarea"
-        label="Descripción (opcional)"
-        placeholder="Describí brevemente este servicio (qué incluye, a quién va dirigido)..."
+        label={t("services.descriptionLabel")}
+        placeholder={t("services.descriptionPlaceholder")}
         rows={2}
         value={service.description ?? ""}
         onChange={(e) => onChange({ description: e.target.value })}

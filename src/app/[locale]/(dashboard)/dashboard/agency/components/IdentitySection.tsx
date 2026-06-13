@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import FormField from "@/components/dashboard/client/FormField";
@@ -26,6 +27,7 @@ type Props = {
 };
 
 export default function IdentitySection({ agencyId, initialValues, initialLogoUrl }: Props) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [defaults, setDefaults] = useState<IdentityValues>(initialValues);
   const [logoUrl, setLogoUrl] = useState<string | null>(initialLogoUrl);
@@ -69,18 +71,18 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
         setDefaults(next);
         reset(next);
         setIsEditing(false);
-        setStatus({ type: "success", message: "Identidad actualizada." });
+        setStatus({ type: "success", message: t("identity.successUpdated") });
         enqueue(
           profileNotification.updated({
             userName: next.name,
-            sectionLabel: "Identidad de la agencia",
-            changedFields: ["nombre", "slug", "tagline"],
+            sectionLabel: t("identity.notificationSection"),
+            changedFields: [t("identity.fieldName"), t("identity.fieldSlug"), t("identity.fieldTagline")],
           }),
         );
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al guardar identidad.",
+          message: err instanceof Error ? err.message : t("identity.errorSave"),
         });
       }
     });
@@ -90,25 +92,25 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
     try {
       await updateAgencyProfile(agencyId, { logoUrl: url });
       setLogoUrl(url);
-      setStatus({ type: "success", message: "Logo actualizado." });
+      setStatus({ type: "success", message: t("identity.successLogo") });
     } catch (err) {
       setStatus({
         type: "error",
-        message: err instanceof Error ? err.message : "Error al actualizar logo.",
+        message: err instanceof Error ? err.message : t("identity.errorLogo"),
       });
     }
   };
 
   return (
     <SectionCard
-      title="Identidad"
-      description="Logo, nombre, URL pública y tagline que aparecen en el portfolio."
+      title={t("identity.title")}
+      description={t("identity.description")}
       actions={
         <EditPencilButton
           isEditing={isEditing}
           onPress={() => (isEditing ? onCancel() : setIsEditing(true))}
           isDisabled={isPending}
-          ariaLabel="identidad"
+          ariaLabel={t("identity.ariaLabel")}
         />
       }
     >
@@ -121,10 +123,10 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
           />
           <div className="text-center sm:text-left">
             <h3 className="font-bh-display text-base font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-              Logo institucional
+              {t("identity.logoTitle")}
             </h3>
             <p className="mt-1 text-sm text-bh-fg-3 max-w-sm">
-              512×512px ideal. JPG, PNG o WebP, máximo 5MB. Aparece como sello en el hero del portfolio.
+              {t("identity.logoHint")}
             </p>
           </div>
         </div>
@@ -134,25 +136,25 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
             <FormField
               key={`name-${defaults.name}`}
               id="agency_name"
-              label="Nombre de la agencia"
-              placeholder="Nombre oficial"
+              label={t("identity.nameLabel")}
+              placeholder={t("identity.namePlaceholder")}
               readOnly={!isEditing}
               defaultValue={defaults.name}
               isRequired
-              {...register("name", { required: "Nombre obligatorio." })}
+              {...register("name", { required: t("identity.nameRequired") })}
               isInvalid={Boolean(errors.name)}
               errorMessage={errors.name?.message}
             />
             <FormField
               key={`slug-${defaults.slug}`}
               id="agency_slug"
-              label="URL pública (slug)"
+              label={t("identity.slugLabel")}
               placeholder="mi-agencia-fc"
               readOnly={!isEditing}
               defaultValue={defaults.slug}
               isRequired
-              description={`Visible en: ballershub.co/agency/${slugWatch || defaults.slug || "..."}`}
-              {...register("slug", { required: "Slug obligatorio." })}
+              description={t("identity.slugDescription", { slug: slugWatch || defaults.slug || "..." })}
+              {...register("slug", { required: t("identity.slugRequired") })}
               onChange={(e) => {
                 const cleaned = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "");
                 setValue("slug", cleaned, { shouldDirty: true });
@@ -165,11 +167,11 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
           <FormField
             key={`tagline-${defaults.tagline}`}
             id="agency_tagline"
-            label="Tagline"
-            placeholder="Ej: Representación profesional · Carrera 360°"
+            label={t("identity.taglineLabel")}
+            placeholder={t("identity.taglinePlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.tagline}
-            description="Frase corta que aparece en el portfolio público debajo del nombre."
+            description={t("identity.taglineDescription")}
             maxLength={120}
             {...register("tagline")}
           />
@@ -189,7 +191,7 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
           {isEditing ? (
             <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
               <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-                Cancelar
+                {t("common.cancel")}
               </Button>
               <Button
                 type="submit"
@@ -197,7 +199,7 @@ export default function IdentitySection({ agencyId, initialValues, initialLogoUr
                 isLoading={isPending}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Guardar identidad
+                {t("identity.saveButton")}
               </Button>
             </div>
           ) : null}

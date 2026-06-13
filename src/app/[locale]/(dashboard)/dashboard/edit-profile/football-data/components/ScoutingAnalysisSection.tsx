@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { useForm } from "react-hook-form";
@@ -31,6 +32,7 @@ type Props = {
 };
 
 export default function ScoutingAnalysisSection({ playerId, initialValues }: Props) {
+  const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<ScoutingAnalysisFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -127,13 +129,13 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
       setIsEditing(false);
       setStatus({
         type: "success",
-        message: result.message ?? "Reporte actualizado correctamente.",
+        message: result.message ?? t("footballData.scouting.successDefault"),
       });
 
       if (result.updatedFields.length > 0) {
         enqueue(
           profileNotification.updated({
-            sectionLabel: "tu reporte de scouting",
+            sectionLabel: t("footballData.scouting.sectionLabel"),
             changedFields: result.updatedFields,
             detailsHref: "/dashboard/edit-profile/football-data",
           }),
@@ -146,7 +148,7 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
     <SectionCard
       title={
         <span className="inline-flex items-center gap-2">
-          Reporte de Scouting Analítico
+          {t("footballData.scouting.titleText")}
           {!access.isPro && (
             <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-bh-lime">
               <Lock size={9} /> Pro
@@ -156,15 +158,15 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
       }
       description={
         access.isPro
-          ? "Sumá información detallada provista por Scouts externos sobre tu estilo de juego."
-          : "Cargá análisis táctico, físico, mental y técnico. Para guardar el reporte necesitás Pro."
+          ? t("footballData.scouting.descriptionPro")
+          : t("footballData.scouting.descriptionFree")
       }
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar reporte"}
+          aria-label={isEditing ? t("footballData.scouting.cancelAria") : t("footballData.scouting.editAria")}
           onPress={handleToggleEditing}
           isDisabled={isPending}
         >
@@ -178,34 +180,34 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
             <FormField
               key={`topCharacteristics-${defaults.topCharacteristics}`}
               id="topCharacteristics"
-              label="Características Principales (separadas por comas)"
-              placeholder="Ej: Buena definición, Velocidad punta, Juego Aéreo"
+              label={t("footballData.scouting.topCharacteristicsLabel")}
+              placeholder={t("footballData.scouting.topCharacteristicsPlaceholder")}
               readOnly={!isEditing}
               defaultValue={defaults.topCharacteristics}
               errorMessage={errors.topCharacteristics?.message}
               {...register("topCharacteristics")}
             />
           </div>
-          
+
           <FormField
             key={`tacticsAnalysis-${defaults.tacticsAnalysis}`}
             as="textarea"
             id="tacticsAnalysis"
-            label="Análisis Táctico"
-            placeholder="Ej: Jugador versátil que interpreta bien los espacios libres..."
+            label={t("footballData.scouting.tacticsLabel")}
+            placeholder={t("footballData.scouting.tacticsPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.tacticsAnalysis}
             rows={4}
             errorMessage={errors.tacticsAnalysis?.message}
             {...register("tacticsAnalysis")}
           />
-          
+
           <FormField
             key={`physicalAnalysis-${defaults.physicalAnalysis}`}
             as="textarea"
             id="physicalAnalysis"
-            label="Análisis Físico"
-            placeholder="Ej: Somatotipo ideal para el alto rendimiento, bajo centro de gravedad..."
+            label={t("footballData.scouting.physicalLabel")}
+            placeholder={t("footballData.scouting.physicalPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.physicalAnalysis}
             rows={4}
@@ -217,8 +219,8 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
             key={`mentalAnalysis-${defaults.mentalAnalysis}`}
             as="textarea"
             id="mentalAnalysis"
-            label="Análisis Mental"
-            placeholder="Ej: Altamente competitivo, resiliencia ante la frustración..."
+            label={t("footballData.scouting.mentalLabel")}
+            placeholder={t("footballData.scouting.mentalPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.mentalAnalysis}
             rows={4}
@@ -230,8 +232,8 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
             key={`techniqueAnalysis-${defaults.techniqueAnalysis}`}
             as="textarea"
             id="techniqueAnalysis"
-            label="Análisis Técnico"
-            placeholder="Ej: Drible táctico preciso y excelentes controles orientados..."
+            label={t("footballData.scouting.techniqueLabel")}
+            placeholder={t("footballData.scouting.techniquePlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.techniqueAnalysis}
             rows={4}
@@ -243,8 +245,8 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
             <FormField
               key={`analysisAuthor-${defaults.analysisAuthor}`}
               id="analysisAuthor"
-              label="Autor del Reporte / Entidad Evaluadora"
-              placeholder="Ej: CCG Scouting, Analista Pablo Gómez..."
+              label={t("footballData.scouting.authorLabel")}
+              placeholder={t("footballData.scouting.authorPlaceholder")}
               readOnly={!isEditing}
               defaultValue={defaults.analysisAuthor}
               errorMessage={errors.analysisAuthor?.message}
@@ -264,10 +266,10 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={handleCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button type="submit" isDisabled={isPending || !isDirty} isLoading={isPending} className={bhButtonClass({ variant: "lime", size: "sm" })}>
-              Guardar cambios
+              {t("common.saveChanges")}
             </Button>
           </div>
         ) : null}

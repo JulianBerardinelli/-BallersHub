@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 
@@ -17,14 +18,17 @@ export type SetLocaleResult = { success: boolean; message: string };
 export async function setPreferredLocale(input: {
   locale: string;
 }): Promise<SetLocaleResult> {
+  const t = await getTranslations("dashSettings");
+
   const parsed = schema.safeParse(input);
-  if (!parsed.success) return { success: false, message: "Idioma inválido." };
+  if (!parsed.success)
+    return { success: false, message: t("common.invalidLocale") };
 
   const supabase = await createSupabaseServerRoute();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { success: false, message: "Debés iniciar sesión." };
+  if (!user) return { success: false, message: t("common.mustSignIn") };
 
   const { error } = await supabase
     .from("user_profiles")
@@ -32,10 +36,10 @@ export async function setPreferredLocale(input: {
     .eq("user_id", user.id);
 
   if (error) {
-    return { success: false, message: "No se pudo guardar el idioma." };
+    return { success: false, message: t("common.localeSaveFailed") };
   }
 
   revalidatePath("/dashboard/settings/account");
   revalidatePath("/dashboard/edit-profile/translations");
-  return { success: true, message: "Idioma nativo actualizado." };
+  return { success: true, message: t("common.localeUpdated") };
 }

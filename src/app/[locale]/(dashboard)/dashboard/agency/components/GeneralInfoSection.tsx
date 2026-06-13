@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import FormField from "@/components/dashboard/client/FormField";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export default function GeneralInfoSection({ agencyId, agencyName, initialValues }: Props) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [defaults, setDefaults] = useState<GeneralValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
@@ -60,7 +62,7 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
         if (yearParsed !== null && (Number.isNaN(yearParsed) || yearParsed < 1800 || yearParsed > currentYear)) {
           setStatus({
             type: "error",
-            message: `El año debe estar entre 1800 y ${currentYear}.`,
+            message: t("generalInfo.yearError", { max: currentYear }),
           });
           return;
         }
@@ -74,18 +76,18 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
         setDefaults(values);
         reset(values);
         setIsEditing(false);
-        setStatus({ type: "success", message: "Información general actualizada." });
+        setStatus({ type: "success", message: t("generalInfo.successUpdated") });
         enqueue(
           profileNotification.updated({
             userName: agencyName,
-            sectionLabel: "Información general",
-            changedFields: ["sede", "fundación", "descripción"],
+            sectionLabel: t("generalInfo.notificationSection"),
+            changedFields: [t("generalInfo.fieldHq"), t("generalInfo.fieldFoundation"), t("generalInfo.fieldDescription")],
           }),
         );
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al guardar información general.",
+          message: err instanceof Error ? err.message : t("generalInfo.errorSave"),
         });
       }
     });
@@ -93,14 +95,14 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
 
   return (
     <SectionCard
-      title="Información general"
-      description="Sede central, año de fundación y la biografía extendida que aparece en la sección 'Sobre la agencia'."
+      title={t("generalInfo.title")}
+      description={t("generalInfo.description")}
       actions={
         <EditPencilButton
           isEditing={isEditing}
           onPress={() => (isEditing ? onCancel() : setIsEditing(true))}
           isDisabled={isPending}
-          ariaLabel="información general"
+          ariaLabel={t("generalInfo.ariaLabel")}
         />
       }
     >
@@ -109,8 +111,8 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
           <FormField
             key={`hq-${defaults.headquarters}`}
             id="agency_hq"
-            label="Sede central"
-            placeholder="Ej: Madrid, España"
+            label={t("generalInfo.hqLabel")}
+            placeholder={t("generalInfo.hqPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.headquarters}
             {...register("headquarters")}
@@ -119,8 +121,8 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
             key={`year-${defaults.foundationYear}`}
             id="agency_foundation_year"
             type="number"
-            label="Año de fundación"
-            placeholder="Ej: 2010"
+            label={t("generalInfo.yearLabel")}
+            placeholder={t("generalInfo.yearPlaceholder")}
             readOnly={!isEditing}
             min={1800}
             max={currentYear}
@@ -135,11 +137,11 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
           id="agency_description"
           as="textarea"
           rows={6}
-          label="Sobre la agencia"
-          placeholder="Escribí la historia, los valores y el enfoque principal de tu agencia..."
+          label={t("generalInfo.aboutLabel")}
+          placeholder={t("generalInfo.aboutPlaceholder")}
           readOnly={!isEditing}
           defaultValue={defaults.description}
-          description="Texto largo, hasta 4000 caracteres. Aparece en el bloque 'Sobre la agencia'."
+          description={t("generalInfo.aboutDescription")}
           maxLength={4000}
           {...register("description")}
         />
@@ -159,7 +161,7 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -167,7 +169,7 @@ export default function GeneralInfoSection({ agencyId, agencyName, initialValues
               isLoading={isPending}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Guardar información
+              {t("generalInfo.saveButton")}
             </Button>
           </div>
         ) : null}

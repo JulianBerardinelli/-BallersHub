@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Controller, useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -48,6 +49,7 @@ const inputClassName =
   "w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 disabled:cursor-not-allowed disabled:opacity-60";
 
 export default function HonoursManager({ playerId, honours, careerOptions }: Props) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -122,7 +124,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
     });
 
     if (!parsed.success) {
-      reflectValidationErrors(parsed.error, setError, setStatus);
+      reflectValidationErrors(parsed.error, setError, setStatus, t("common.reviewFormData"));
       return;
     }
 
@@ -133,7 +135,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
         return;
       }
 
-      setStatus({ type: "success", message: values.id ? "Logro actualizado." : "Logro agregado." });
+      setStatus({ type: "success", message: values.id ? t("footballData.honours.successUpdated") : t("footballData.honours.successAdded") });
       router.refresh();
       setEditingId(null);
       reset(defaultValues);
@@ -179,7 +181,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
   };
 
   const handleDelete = (honour: DashboardHonour) => {
-    const confirmed = window.confirm(`¿Eliminar "${honour.title}"? Esta acción no se puede deshacer.`);
+    const confirmed = window.confirm(t("footballData.honours.confirmDelete", { title: honour.title }));
     if (!confirmed) return;
 
     startTransition(async () => {
@@ -188,7 +190,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
         setStatus({ type: "error", message: result.message });
         return;
       }
-      setStatus({ type: "success", message: "Logro eliminado." });
+      setStatus({ type: "success", message: t("footballData.honours.successDeleted") });
       router.refresh();
       if (editingId === honour.id) {
         cancelEditing();
@@ -211,16 +213,16 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                   <div className="space-y-1">
                     <p className="text-sm font-semibold text-white">{honour.title}</p>
                     <p className="text-xs text-bh-fg-3">
-                      {honour.competition ?? "Competencia pendiente"} · {honour.season ?? "Temporada sin definir"}
+                      {honour.competition ?? t("footballData.honours.competitionPending")} · {honour.season ?? t("footballData.honours.seasonUndefined")}
                     </p>
                     {linkedStage ? (
-                      <p className="text-[11px] text-bh-fg-4">Vinculado a: {linkedStage.label}</p>
+                      <p className="text-[11px] text-bh-fg-4">{t("footballData.honours.linkedTo", { label: linkedStage.label })}</p>
                     ) : null}
                     {honour.description ? <p className="text-xs text-bh-fg-3">{honour.description}</p> : null}
                   </div>
                 <div className="flex flex-wrap gap-2 text-xs text-bh-fg-3">
                   <span className="rounded-full border border-white/[0.08] px-3 py-1">
-                    {formatHonourDate(honour.awardedOn)}
+                    {formatHonourDate(t, honour.awardedOn)}
                   </span>
                   <button
                     type="button"
@@ -228,7 +230,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                     onClick={() => startEditing(honour)}
                     disabled={pending}
                   >
-                    Editar
+                    {t("common.edit")}
                   </button>
                   <button
                     type="button"
@@ -236,7 +238,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                     onClick={() => handleDelete(honour)}
                     disabled={pending}
                   >
-                    Eliminar
+                    {t("common.delete")}
                   </button>
                 </div>
                 </div>
@@ -246,17 +248,17 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
         </ul>
       ) : (
         <div className="rounded-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-6 text-sm text-bh-fg-3">
-          Aquí podrás cargar logros, premios y hitos relevantes para potenciar tu CV deportivo.
+          {t("footballData.honours.emptyState")}
         </div>
       )}
 
       <form className="grid gap-4" onSubmit={onSubmit}>
         <label className="space-y-1.5 text-sm text-bh-fg-2">
-          <span className="font-medium text-bh-fg-1">Título</span>
+          <span className="font-medium text-bh-fg-1">{t("footballData.honours.titleLabel")}</span>
           <input
             {...register("title")}
             type="text"
-            placeholder="Ej: Campeón Primera Nacional"
+            placeholder={t("footballData.honours.titlePlaceholder")}
             className={inputClassName}
             disabled={pending}
           />
@@ -264,25 +266,25 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
         </label>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1.5 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Competencia</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.honours.competitionLabel")}</span>
             <input
               {...register("competition")}
               type="text"
-              placeholder="Liga o torneo"
+              placeholder={t("footballData.honours.competitionPlaceholder")}
               className={inputClassName}
               disabled={pending}
             />
             {errors.competition ? <FieldError message={errors.competition.message} /> : null}
           </label>
           <label className="space-y-1.5 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Etapa de trayectoria</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.honours.careerStageLabel")}</span>
             <Controller
               control={control}
               name="careerItemId"
               render={({ field }) => (
                 <Autocomplete
-                  aria-label="Etapa de trayectoria"
-                  placeholder="Seleccioná una etapa"
+                  aria-label={t("footballData.honours.careerStageLabel")}
+                  placeholder={t("footballData.honours.careerStagePlaceholder")}
                   selectedKey={field.value ? field.value : undefined}
                   inputValue={careerInputValue}
                   onInputChange={setCareerInputValue}
@@ -318,7 +320,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                     selectedStage ? (
                       <TeamCrest
                         src={selectedStage.crestUrl}
-                        name={selectedStage.club ?? "Club"}
+                        name={selectedStage.club ?? t("footballData.honours.clubFallback")}
                         size={24}
                         className="rounded-sm bg-bh-surface-1/60"
                       />
@@ -333,14 +335,14 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                       startContent={
                         <TeamCrest
                           src={item.crestUrl}
-                          name={item.club ?? "Club"}
+                          name={item.club ?? t("footballData.honours.clubFallback")}
                           size={24}
                           className="rounded-sm bg-bh-surface-1/60"
                         />
                       }
                     >
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium text-white">{item.club ?? "Club sin definir"}</span>
+                        <span className="text-sm font-medium text-white">{item.club ?? t("footballData.honours.clubUndefined")}</span>
                         <span className="text-xs text-bh-fg-3">{item.period}</span>
                       </div>
                     </AutocompleteItem>
@@ -353,18 +355,18 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1.5 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Temporada</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.honours.seasonLabel")}</span>
             <input
               {...register("season")}
               type="text"
-              placeholder="Ej: 2023 / 2024"
+              placeholder={t("footballData.honours.seasonPlaceholder")}
               className={inputClassName}
               disabled={pending}
             />
             {errors.season ? <FieldError message={errors.season.message} /> : null}
           </label>
           <label className="space-y-1.5 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Fecha</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.honours.dateLabel")}</span>
             <input
               {...register("awardedOn")}
               type="date"
@@ -375,11 +377,11 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
           </label>
         </div>
         <label className="space-y-1.5 text-sm text-bh-fg-2">
-          <span className="font-medium text-bh-fg-1">Descripción</span>
+          <span className="font-medium text-bh-fg-1">{t("footballData.honours.descriptionLabel")}</span>
           <textarea
             {...register("description")}
             rows={3}
-            placeholder="Detalles adicionales o méritos individuales"
+            placeholder={t("footballData.honours.descriptionPlaceholder")}
             className={`${inputClassName} min-h-[96px] resize-y`}
             disabled={pending}
           />
@@ -394,7 +396,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
             className="inline-flex items-center rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={pending}
           >
-            {pending ? "Guardando..." : editingId ? "Actualizar logro" : "Agregar logro"}
+            {pending ? t("common.saving") : editingId ? t("footballData.honours.updateHonour") : t("footballData.honours.addHonour")}
           </button>
           {editingId ? (
             <button
@@ -403,7 +405,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
               className="inline-flex items-center rounded-md border border-white/[0.08] px-4 py-2 text-sm font-semibold text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending}
             >
-              Cancelar edición
+              {t("common.cancelEditing")}
             </button>
           ) : null}
         </div>
@@ -418,6 +420,7 @@ function reflectValidationErrors(
   error: z.ZodError<HonourMutationInput>,
   setError: UseFormSetError<FormValues>,
   setStatus: (status: StatusState) => void,
+  reviewMessage: string,
 ) {
   const fieldErrors = error.flatten().fieldErrors;
   (Object.entries(fieldErrors) as Array<[keyof HonourMutationInput, string[] | undefined]>).forEach(
@@ -427,7 +430,7 @@ function reflectValidationErrors(
       setError(field as keyof FormValues, { type: "manual", message: messages[0] });
     },
   );
-  setStatus({ type: "error", message: "Revisá los datos del formulario." });
+  setStatus({ type: "error", message: reviewMessage });
 }
 
 function FieldError({ message }: { message?: string }) {
@@ -445,9 +448,9 @@ function FormStatus({ status }: { status: StatusState }) {
   return <p className={`${baseClass} ${variantClass}`}>{status.message}</p>;
 }
 
-function formatHonourDate(date: string | null): string {
-  if (!date) return "Fecha pendiente";
+function formatHonourDate(t: ReturnType<typeof useTranslations<"dashEditProfile">>, date: string | null): string {
+  if (!date) return t("footballData.honours.datePending");
   const parsed = new Date(date);
-  if (Number.isNaN(parsed.getTime())) return "Fecha pendiente";
+  if (Number.isNaN(parsed.getTime())) return t("footballData.honours.datePending");
   return new Intl.DateTimeFormat("es-AR", { year: "numeric", month: "short" }).format(parsed);
 }

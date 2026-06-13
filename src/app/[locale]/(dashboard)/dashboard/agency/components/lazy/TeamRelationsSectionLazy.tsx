@@ -9,7 +9,7 @@ const TeamRelationsSection = dynamic(
   () => import("../TeamRelationsSection"),
   {
     ssr: false,
-    loading: () => <SectionSkeleton label="Relación con equipos" />,
+    loading: () => <SectionSkeleton labelKey="teamRelations" />,
   },
 );
 

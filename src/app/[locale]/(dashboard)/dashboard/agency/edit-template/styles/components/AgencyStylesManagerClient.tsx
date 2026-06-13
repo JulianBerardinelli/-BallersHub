@@ -5,6 +5,7 @@
 // no longer editable. Colors and live preview are gated behind Pro.
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@heroui/react";
 import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Check, ExternalLink, Lock } from "lucide-react";
@@ -37,26 +38,25 @@ type ThemeRecord = {
 };
 
 const TEMPLATE_OPTIONS = [
-  {
-    id: "classic" as const,
-    name: "Free Agency",
-    description: "Tarjeta institucional simple con logo, datos y roster.",
-    requiresPro: false,
-  },
-  {
-    id: "pro" as const,
-    name: "Pro Agency (3D)",
-    description: "Hero cinematográfico con parallax, marquee y módulos premium.",
-    requiresPro: true,
-  },
+  { id: "classic" as const, requiresPro: false },
+  { id: "pro" as const, requiresPro: true },
 ];
 
 const COLOR_PRESETS = [
-  { id: "stealth", label: "Stealth Mono", primary: "#FFFFFF", secondary: "#2A2A2A", accent: "#A3A3A3", background: "#050505", gradient: "from-neutral-700 via-neutral-900 to-black" },
-  { id: "premium_gold", label: "Oro Premium", primary: "#F59E0B", secondary: "#78350F", accent: "#FBBF24", background: "#0A0A0A", gradient: "from-amber-500 via-orange-800 to-stone-900" },
-  { id: "deep_blue", label: "Corporativo", primary: "#3B82F6", secondary: "#1E3A8A", accent: "#60A5FA", background: "#020617", gradient: "from-blue-500 via-blue-900 to-slate-950" },
-  { id: "tropic", label: "Verde Esmeralda", primary: "#10B981", secondary: "#064E3B", accent: "#34D399", background: "#020617", gradient: "from-emerald-500 via-emerald-900 to-slate-950" },
+  { id: "stealth", labelKey: "presetStealth", primary: "#FFFFFF", secondary: "#2A2A2A", accent: "#A3A3A3", background: "#050505", gradient: "from-neutral-700 via-neutral-900 to-black" },
+  { id: "premium_gold", labelKey: "presetGold", primary: "#F59E0B", secondary: "#78350F", accent: "#FBBF24", background: "#0A0A0A", gradient: "from-amber-500 via-orange-800 to-stone-900" },
+  { id: "deep_blue", labelKey: "presetCorporate", primary: "#3B82F6", secondary: "#1E3A8A", accent: "#60A5FA", background: "#020617", gradient: "from-blue-500 via-blue-900 to-slate-950" },
+  { id: "tropic", labelKey: "presetEmerald", primary: "#10B981", secondary: "#064E3B", accent: "#34D399", background: "#020617", gradient: "from-emerald-500 via-emerald-900 to-slate-950" },
 ];
+
+const TEMPLATE_NAME_KEY: Record<string, string> = {
+  classic: "templateClassicName",
+  pro: "templateProName",
+};
+const TEMPLATE_DESC_KEY: Record<string, string> = {
+  classic: "templateClassicDescription",
+  pro: "templateProDescription",
+};
 
 type LayoutId = (typeof TEMPLATE_OPTIONS)[number]["id"];
 
@@ -66,6 +66,7 @@ type Props = {
 };
 
 export default function AgencyStylesManagerClient({ agency, initialTheme }: Props) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const { access } = usePlanAccess();
 
@@ -111,13 +112,15 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
       enqueue(
         profileNotification.updated({
           userName: agency.name,
-          sectionLabel: "Estilos del portfolio",
-          changedFields: access.isPro ? ["Plantilla", "Paleta", "Hero"] : ["Plantilla"],
+          sectionLabel: t("styles.notificationSection"),
+          changedFields: access.isPro
+            ? [t("styles.fieldTemplate"), t("styles.fieldPalette"), t("styles.fieldHero")]
+            : [t("styles.fieldTemplate")],
         }),
       );
     } catch (e) {
       console.error(e);
-      alert(e instanceof Error ? e.message : "Error al guardar estilos");
+      alert(e instanceof Error ? e.message : t("styles.errorSave"));
     } finally {
       setSaving(false);
     }
@@ -137,23 +140,23 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
           <div className="flex items-start gap-3 rounded-bh-md border border-[rgba(245,158,11,0.25)] bg-[rgba(245,158,11,0.08)] p-4 text-bh-warning">
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold">Recomendamos cargar tu logo</p>
+              <p className="text-sm font-semibold">{t("styles.logoWarningTitle")}</p>
               <p className="mb-2 mt-1 text-[12px] leading-[1.55] text-bh-warning/80">
-                El layout Pro lo muestra como sello en la portada. Si no lo cargás, usamos un monograma.
+                {t("styles.logoWarningBody")}
               </p>
               <Link
                 href="/dashboard/agency"
                 className="text-[12px] font-bold underline-offset-4 hover:underline"
               >
-                Subir logo en la edición de la agencia →
+                {t("styles.logoWarningLink")}
               </Link>
             </div>
           </div>
         )}
 
         <SectionCard
-          title="Plantilla base"
-          description="Una plantilla por plan: Free Agency o Pro Agency."
+          title={t("styles.templateTitle")}
+          description={t("styles.templateDescription")}
         >
           <div className="grid gap-4 md:grid-cols-2">
             {TEMPLATE_OPTIONS.map((opt) => {
@@ -183,15 +186,15 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
                     {locked && (
                       <div className="absolute inset-0 flex items-center justify-center bg-bh-black/55">
                         <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.10] bg-bh-black/85 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-1">
-                          <Lock size={10} /> Solo Pro
+                          <Lock size={10} /> {t("styles.onlyPro")}
                         </div>
                       </div>
                     )}
                   </div>
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className="font-bh-heading text-base font-semibold text-bh-fg-1">{opt.name}</p>
-                      <p className="mt-1 text-[12px] leading-[1.55] text-bh-fg-3">{opt.description}</p>
+                      <p className="font-bh-heading text-base font-semibold text-bh-fg-1">{t(`styles.${TEMPLATE_NAME_KEY[opt.id]}`)}</p>
+                      <p className="mt-1 text-[12px] leading-[1.55] text-bh-fg-3">{t(`styles.${TEMPLATE_DESC_KEY[opt.id]}`)}</p>
                     </div>
                     {selected && !locked && (
                       <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bh-lime/15 text-bh-lime">
@@ -207,7 +210,7 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
           {!access.isPro && (
             <div className="mt-4 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
               <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
-                Activá Pro Agency para usar el layout cinematográfico con módulos premium.
+                {t("styles.upgradeLayoutNotice")}
               </p>
               <UpgradeCta feature="templateProLayout" size="sm" />
             </div>
@@ -216,8 +219,8 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
 
         <PlanGate feature="templateColors">
           <SectionCard
-            title="Paleta de marca"
-            description="Aplicá una paleta predefinida o personalizá los colores corporativos."
+            title={t("styles.paletteTitle")}
+            description={t("styles.paletteDescription")}
           >
             <div className="mb-7 grid gap-3 md:grid-cols-4">
               {COLOR_PRESETS.map((preset) => (
@@ -232,10 +235,10 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
                     className={`mx-auto mb-3 h-20 w-full rounded-bh-md bg-gradient-to-br shadow-inner ${preset.gradient}`}
                   />
                   <p className="font-bh-heading text-[13px] font-semibold tracking-wide text-bh-fg-1">
-                    {preset.label}
+                    {t(`styles.${preset.labelKey}`)}
                   </p>
                   <p className="mt-1 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
-                    Preset
+                    {t("styles.preset")}
                   </p>
                 </div>
               ))}
@@ -243,14 +246,14 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
 
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                { id: "bg", label: "Fondo (background)", placeholder: "#050505", value: backgroundColor, setter: setBackgroundColor },
-                { id: "pr", label: "Primario", placeholder: "#FFFFFF", value: primaryColor, setter: setPrimaryColor },
-                { id: "sc", label: "Secundario", placeholder: "#2A2A2A", value: secondaryColor, setter: setSecondaryColor },
-                { id: "ac", label: "Acento (CTA / destellos)", placeholder: "#10B981", value: accentColor, setter: setAccentColor },
+                { id: "bg", labelKey: "colorBackground", placeholder: "#050505", value: backgroundColor, setter: setBackgroundColor },
+                { id: "pr", labelKey: "colorPrimary", placeholder: "#FFFFFF", value: primaryColor, setter: setPrimaryColor },
+                { id: "sc", labelKey: "colorSecondary", placeholder: "#2A2A2A", value: secondaryColor, setter: setSecondaryColor },
+                { id: "ac", labelKey: "colorAccent", placeholder: "#10B981", value: accentColor, setter: setAccentColor },
               ].map((field) => (
                 <label key={field.id} className="space-y-1.5">
                   <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-                    {field.label}
+                    {t(`styles.${field.labelKey}`)}
                   </span>
                   <div className="flex h-12 items-center gap-2 rounded-bh-md border border-white/[0.08] bg-bh-surface-1 px-2 transition-colors duration-150 hover:border-white/[0.18] focus-within:border-bh-lime focus-within:ring-1 focus-within:ring-bh-lime/30">
                     <div className="relative h-8 w-8 shrink-0 cursor-pointer overflow-hidden rounded-bh-md border border-white/[0.12] shadow-sm">
@@ -281,23 +284,23 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
 
         {layout === "pro" && access.isPro && (
           <SectionCard
-            title="Hero personalizado"
-            description="Definí el texto cinematográfico que reemplaza al nombre por defecto."
+            title={t("styles.heroTitle")}
+            description={t("styles.heroDescription")}
           >
             <div className="grid gap-4">
               <FormField
-                label="Palabra/frase del hero"
+                label={t("styles.heroHeadlineLabel")}
                 placeholder={agency.name.toUpperCase()}
                 value={heroHeadline}
                 onChange={(e) => setHeroHeadline(e.target.value)}
-                description="Si lo dejás vacío, usamos el nombre de la agencia."
+                description={t("styles.heroHeadlineDescription")}
               />
               <FormField
-                label="Tagline (sub-hero)"
-                placeholder="Representación profesional · Carrera 360°"
+                label={t("styles.heroTaglineLabel")}
+                placeholder={t("styles.heroTaglinePlaceholder")}
                 value={heroTagline}
                 onChange={(e) => setHeroTagline(e.target.value)}
-                description="Aparece debajo del logo / monograma en el hero."
+                description={t("styles.heroTaglineDescription")}
               />
             </div>
           </SectionCard>
@@ -310,7 +313,7 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
             className="inline-flex items-center gap-2 text-sm text-bh-fg-3 hover:text-bh-fg-1 transition-colors"
           >
             <ExternalLink className="h-4 w-4" />
-            Ver portfolio público
+            {t("styles.viewPublic")}
           </Link>
           <Button
             size="lg"
@@ -318,14 +321,14 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
             isLoading={saving}
             className={bhButtonClass({ variant: "lime", size: "lg" })}
           >
-            Guardar diseño
+            {t("styles.saveButton")}
           </Button>
         </div>
       </div>
 
       <div className="sticky top-24 z-10 lg:col-span-4">
         <PlanGate feature="templateLivePreview">
-          <SectionCard title="Live preview" description="Vista rápida del portfolio configurado.">
+          <SectionCard title={t("styles.livePreviewTitle")} description={t("styles.livePreviewDescription")}>
             <div
               className="relative mx-auto aspect-[9/18] max-w-[280px] overflow-hidden rounded-[2rem] border-8 border-bh-surface-2 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
               style={{ backgroundColor: backgroundColor }}
@@ -352,7 +355,7 @@ export default function AgencyStylesManagerClient({ agency, initialTheme }: Prop
                       {monogram}
                     </div>
                     <span className="text-[9px] uppercase tracking-[0.3em] text-white/60">
-                      {(heroTagline || "Agencia oficial").slice(0, 28)}
+                      {(heroTagline || t("styles.previewOfficialAgency")).slice(0, 28)}
                     </span>
                   </div>
                   <div className="absolute w-full top-32 flex justify-center z-20">

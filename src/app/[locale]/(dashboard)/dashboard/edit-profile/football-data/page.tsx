@@ -124,6 +124,7 @@ type CareerRevisionRequestRow = {
 
 export default async function FootballDataPage() {
   const t = await getTranslations("dashboard");
+  const te = await getTranslations("dashEditProfile");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -344,11 +345,15 @@ export default async function FootballDataPage() {
       : null,
   }));
 
+  const careerLabelFallbacks = {
+    clubUndefined: te("footballData.seasonStats.clubUndefined"),
+    currentPeriod: te("footballData.career.currentPeriod"),
+  };
   const careerSeasonOptions = careerStages.map((stage) => ({
     id: stage.id,
-    label: describeCareerStage(stage),
-    club: stage.team?.name ?? stage.club ?? "Club sin definir",
-    period: describeCareerPeriod(stage),
+    label: describeCareerStage(stage, careerLabelFallbacks),
+    club: stage.team?.name ?? stage.club ?? careerLabelFallbacks.clubUndefined,
+    period: describeCareerPeriod(stage, careerLabelFallbacks),
     crestUrl: stage.team?.crestUrl ?? null,
   }));
 
@@ -562,17 +567,23 @@ function formatMarketValue(value: string | number | null): string {
   return new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(numeric);
 }
 
-function describeCareerStage(stage: CareerStage): string {
-  const club = stage.team?.name ?? stage.club ?? "Club sin definir";
+function describeCareerStage(
+  stage: CareerStage,
+  labels: { clubUndefined: string; currentPeriod: string },
+): string {
+  const club = stage.team?.name ?? stage.club ?? labels.clubUndefined;
   const from = stage.startYear ?? "¿?";
-  const to = stage.endYear ?? "Actual";
+  const to = stage.endYear ?? labels.currentPeriod;
   const division = stage.division ? ` · ${stage.division}` : "";
   return `${club}${division} (${from} – ${to})`;
 }
 
-function describeCareerPeriod(stage: CareerStage): string {
+function describeCareerPeriod(
+  stage: CareerStage,
+  labels: { currentPeriod: string },
+): string {
   const from = stage.startYear ?? "¿?";
-  const to = stage.endYear ?? "Actual";
+  const to = stage.endYear ?? labels.currentPeriod;
   return `${from} – ${to}`;
 }
 

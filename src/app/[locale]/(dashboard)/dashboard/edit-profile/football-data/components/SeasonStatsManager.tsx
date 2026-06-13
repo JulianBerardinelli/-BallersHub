@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Controller, useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -57,8 +58,10 @@ const defaultValues: FormValues = {
   careerItemId: "",
 };
 
-const formatStageLabel = (option: Pick<CareerOption, "club" | "period">) => {
-  const club = option.club && option.club.trim().length > 0 ? option.club : "Club sin definir";
+type StatsTFn = ReturnType<typeof useTranslations<"dashEditProfile">>;
+
+const formatStageLabel = (t: StatsTFn, option: Pick<CareerOption, "club" | "period">) => {
+  const club = option.club && option.club.trim().length > 0 ? option.club : t("footballData.seasonStats.clubUndefined");
   return `${club} · ${option.period}`;
 };
 
@@ -81,6 +84,7 @@ type AugmentedStat = {
 };
 
 export default function SeasonStatsManager({ playerId, stats, careerOptions, latestRequest }: Props) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -164,11 +168,11 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
 
   useEffect(() => {
     if (selectedStage) {
-      setCareerInputValue(formatStageLabel(selectedStage));
+      setCareerInputValue(formatStageLabel(t, selectedStage));
     } else if (!watchCareerItemId) {
       setCareerInputValue("");
     }
-  }, [selectedStage, watchCareerItemId]);
+  }, [selectedStage, watchCareerItemId, t]);
 
   useEffect(() => {
     if (!watchSeason || watchSeason.trim().length === 0) {
@@ -182,16 +186,16 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
     if (hasDuplicate) {
       setError("season", {
         type: "manual",
-        message: "Ya cargaste estadísticas para esta competición en esta temporada.",
+        message: t("footballData.seasonStats.duplicateSeasonField"),
       });
       setError("competition", {
         type: "manual",
-        message: "Competición duplicada para esta temporada.",
+        message: t("footballData.seasonStats.duplicateCompetitionField"),
       });
     } else {
       clearErrors(["season", "competition"]);
     }
-  }, [watchSeason, watchCompetition, watchId, items, setError, clearErrors]);
+  }, [watchSeason, watchCompetition, watchId, items, setError, clearErrors, t]);
 
   useEffect(() => {
     if (!watchCareerItemId) {
@@ -245,7 +249,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
     });
 
     if (!parsed.success) {
-      reflectValidationErrors(parsed.error, setError, setStatus);
+      reflectValidationErrors(parsed.error, setError, setStatus, t("common.reviewFormData"));
       return;
     }
 
@@ -255,9 +259,9 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
     if (duplicateSeason) {
       setError("season", {
         type: "manual",
-        message: "Ya registraste estadísticas para esta competición y temporada.",
+        message: t("footballData.seasonStats.duplicateSeasonRegisteredField"),
       });
-      setStatus({ type: "error", message: "Ya existe una estadística cargada para esa temporada y competición." });
+      setStatus({ type: "error", message: t("footballData.seasonStats.duplicateSeasonStatus") });
       return;
     }
 
@@ -292,7 +296,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
       return [...prev, newStat];
     });
 
-    setStatus({ type: "success", message: values.id ? "Cambios guardados en borrador." : "Estadística agregada al borrador." });
+    setStatus({ type: "success", message: values.id ? t("footballData.seasonStats.draftSavedEditing") : t("footballData.seasonStats.draftAdded") });
     setEditingId(null);
     reset(defaultValues);
     lastAutoTeamRef.current = null;
@@ -326,7 +330,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
     if (stat.careerItemId) {
       const option = optionMap.get(stat.careerItemId);
       if (option) {
-        setCareerInputValue(formatStageLabel(option));
+        setCareerInputValue(formatStageLabel(t, option));
       }
     } else {
       setCareerInputValue("");
@@ -345,12 +349,12 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
   };
 
   const handleDelete = (stat: AugmentedStat) => {
-    const confirmed = window.confirm(`¿Eliminar la temporada ${stat.season}? Esta acción no se puede deshacer.`);
+    const confirmed = window.confirm(t("footballData.seasonStats.confirmDeleteSeason", { season: stat.season }));
     if (!confirmed) return;
 
     if (stat.isDraft) {
       setItems((prev) => prev.filter((i) => i.id !== stat.id));
-      setStatus({ type: "success", message: "Borrador de estadística descartado." });
+      setStatus({ type: "success", message: t("footballData.seasonStats.draftDiscarded") });
       if (editingId === stat.id) {
         cancelEditing();
       }
@@ -363,7 +367,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
         setStatus({ type: "error", message: result.message });
         return;
       }
-      setStatus({ type: "success", message: "Estadística eliminada definitivamente." });
+      setStatus({ type: "success", message: t("footballData.seasonStats.deletedPermanently") });
       router.refresh();
       if (editingId === stat.id) {
         cancelEditing();
@@ -404,7 +408,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
         setSubmissionStatus({ type: "error", message: result.message });
         return;
       }
-      setSubmissionStatus({ type: "success", message: "Estadísticas enviadas a revisión." });
+      setSubmissionStatus({ type: "success", message: t("footballData.seasonStats.successSubmitted") });
       setItems(baseItems); // Limpiar drafts locales
       setSubmissionNote("");
       router.refresh();
@@ -418,7 +422,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
       {hasPendingOverallParams ? (
         <div className="rounded-lg border border-amber-900/60 bg-amber-950/40 p-4 mb-6">
           <p className="text-sm font-medium text-amber-500">
-            Tenés una revisión de perfil pendiente. El equipo de Control de Calidad debe procesarla antes de que puedas someter más cambios.
+            {t("footballData.seasonStats.pendingReviewNotice")}
           </p>
         </div>
       ) : null}
@@ -429,37 +433,37 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             <thead className="bg-bh-surface-1/60 text-xs uppercase tracking-wide text-bh-fg-4">
               <tr>
                 <th scope="col" className="px-4 py-3 text-left font-medium">
-                  Temporada
+                  {t("footballData.seasonStats.colSeason")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-medium">
-                  Competencia
+                  {t("footballData.seasonStats.colCompetition")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-left font-medium">
-                  Equipo
+                  {t("footballData.seasonStats.colTeam")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  PJ
+                  {t("footballData.seasonStats.colMatches")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  Titular
+                  {t("footballData.seasonStats.colStarts")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  Goles
+                  {t("footballData.seasonStats.colGoals")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  Asist.
+                  {t("footballData.seasonStats.colAssists")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  Minutos
+                  {t("footballData.seasonStats.colMinutes")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  TA
+                  {t("footballData.seasonStats.colYellow")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-center font-medium">
-                  TR
+                  {t("footballData.seasonStats.colRed")}
                 </th>
                 <th scope="col" className="px-4 py-3 text-right font-medium">
-                  Acciones
+                  {t("footballData.seasonStats.colActions")}
                 </th>
               </tr>
             </thead>
@@ -478,7 +482,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                         <div className="min-w-0">
                           <span className="block text-sm font-semibold text-white">
                             {periodLabel}
-                            {isDraftRow && <span className="ml-2 text-[10px] uppercase tracking-wider text-emerald-500 font-bold bg-emerald-950 px-1.5 py-0.5 rounded">Nuevo</span>}
+                            {isDraftRow && <span className="ml-2 text-[10px] uppercase tracking-wider text-emerald-500 font-bold bg-emerald-950 px-1.5 py-0.5 rounded">{t("footballData.seasonStats.rowNew")}</span>}
                           </span>
                           {linkedStage ? (
                             <span className="block text-[11px] text-bh-fg-4 truncate">{linkedStage.label}</span>
@@ -486,8 +490,8 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                         </div>
                       </div>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? "Competencia pendiente"}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{stat.team ?? "Equipo sin definir"}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{stat.competition ?? t("footballData.seasonStats.competitionPending")}</td>
+                    <td className="whitespace-nowrap px-4 py-3">{stat.team ?? t("footballData.seasonStats.teamUndefined")}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.matches)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.starts)}</td>
                     <td className="whitespace-nowrap px-4 py-3 text-center">{formatNumericStat(stat.goals)}</td>
@@ -503,7 +507,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                           onClick={() => startEditing(stat)}
                           disabled={pending || !!hasPendingOverallParams}
                         >
-                          Editar
+                          {t("common.edit")}
                         </button>
                         <button
                           type="button"
@@ -515,7 +519,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                           onClick={() => handleDelete(stat)}
                           disabled={pending || !!hasPendingOverallParams}
                         >
-                          {isDraftRow ? "Quitar" : "Eliminar"}
+                          {isDraftRow ? t("footballData.seasonStats.remove") : t("common.delete")}
                         </button>
                       </div>
                     </td>
@@ -527,21 +531,21 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
         </div>
       ) : (
         <div className="rounded-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-6 text-sm text-bh-fg-3">
-          Cargá tus estadísticas oficiales para potenciar el análisis deportivo. Podrás sincronizarlas con integraciones y reportes externos.
+          {t("footballData.seasonStats.emptyState")}
         </div>
       )}
 
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-1.5 text-sm text-bh-fg-2 md:col-span-2">
-            <span className="font-medium text-bh-fg-1">Etapa de trayectoria</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.seasonStats.careerStageLabel")}</span>
             <Controller
               control={control}
               name="careerItemId"
               render={({ field }) => (
                 <Autocomplete
-                  aria-label="Etapa de trayectoria"
-                  placeholder="Seleccioná una etapa"
+                  aria-label={t("footballData.seasonStats.careerStageLabel")}
+                  placeholder={t("footballData.seasonStats.careerStagePlaceholder")}
                   selectedKey={field.value ? field.value : undefined}
                   inputValue={careerInputValue}
                   onInputChange={setCareerInputValue}
@@ -555,7 +559,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                       lastAutoTeamRef.current = null;
                       skipStageAutofillRef.current = false;
                     }
-                    setCareerInputValue(option ? formatStageLabel(option) : "");
+                    setCareerInputValue(option ? formatStageLabel(t, option) : "");
                   }}
                   onBlur={field.onBlur}
                   isDisabled={pending}
@@ -582,7 +586,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                     selectedStage ? (
                       <TeamCrest
                         src={selectedStage.crestUrl}
-                        name={selectedStage.club ?? "Club"}
+                        name={selectedStage.club ?? t("footballData.seasonStats.clubFallback")}
                         size={24}
                         className="rounded-sm bg-bh-surface-1/60"
                       />
@@ -593,11 +597,11 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                   {(item: StageOption) => (
                     <AutocompleteItem
                       key={item.id}
-                      textValue={formatStageLabel(item)}
+                      textValue={formatStageLabel(t, item)}
                       startContent={
                         <TeamCrest
                           src={item.crestUrl}
-                          name={item.club ?? "Club"}
+                          name={item.club ?? t("footballData.seasonStats.clubFallback")}
                           size={24}
                           className="rounded-sm bg-bh-surface-1/60"
                         />
@@ -605,11 +609,11 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                       className={item.hasExistingStats ? "opacity-50" : ""}
                     >
                       <div className="flex flex-col gap-1 py-1">
-                        <span className="font-medium">{item.club ?? "Club sin definir"}</span>
+                        <span className="font-medium">{item.club ?? t("footballData.seasonStats.clubUndefined")}</span>
                         <span className="text-xs text-bh-fg-3">{item.period}</span>
                         {item.hasExistingStats && (
                           <span className="text-[10px] uppercase tracking-wider text-primary">
-                            Ya tiene estadísticas
+                            {t("footballData.seasonStats.hasExistingStats")}
                           </span>
                         )}
                       </div>
@@ -623,16 +627,16 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
           <FormField
             {...register("season")}
             id="season"
-            label="Temporada"
-            placeholder="Ej: 2023 / 2024"
+            label={t("footballData.seasonStats.seasonLabel")}
+            placeholder={t("footballData.seasonStats.seasonPlaceholder")}
             disabled={pending}
             errorMessage={errors.season?.message}
           />
           <FormField
             {...register("competition")}
             id="competition"
-            label="Competencia"
-            placeholder="Liga o torneo"
+            label={t("footballData.seasonStats.competitionLabel")}
+            placeholder={t("footballData.seasonStats.competitionPlaceholder")}
             disabled={pending}
             errorMessage={errors.competition?.message}
           />
@@ -641,17 +645,17 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
           <FormField
             {...register("team")}
             id="team"
-            label="Equipo"
-            placeholder="Club"
+            label={t("footballData.seasonStats.teamLabel")}
+            placeholder={t("footballData.seasonStats.teamPlaceholder")}
             disabled={pending}
             errorMessage={errors.team?.message}
           />
           <div className="grid grid-cols-4 gap-4">
             {([
-              { name: "matches", label: "PJ" },
-              { name: "starts", label: "Titular" },
-              { name: "goals", label: "Goles" },
-              { name: "assists", label: "Asist." },
+              { name: "matches", label: t("footballData.seasonStats.fieldMatches") },
+              { name: "starts", label: t("footballData.seasonStats.fieldStarts") },
+              { name: "goals", label: t("footballData.seasonStats.fieldGoals") },
+              { name: "assists", label: t("footballData.seasonStats.fieldAssists") },
             ] as const).map((field) => (
               <FormField
                 key={field.name}
@@ -672,7 +676,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             id="minutes"
             type="number"
             min={0}
-            label="Minutos"
+            label={t("footballData.seasonStats.minutesLabel")}
             disabled={pending}
             errorMessage={errors.minutes?.message}
           />
@@ -681,7 +685,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             id="yellowCards"
             type="number"
             min={0}
-            label="Tarjetas amarillas"
+            label={t("footballData.seasonStats.yellowCardsLabel")}
             disabled={pending || !!hasPendingOverallParams}
             errorMessage={errors.yellowCards?.message}
           />
@@ -690,7 +694,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             id="redCards"
             type="number"
             min={0}
-            label="Tarjetas rojas"
+            label={t("footballData.seasonStats.redCardsLabel")}
             disabled={pending || !!hasPendingOverallParams}
             errorMessage={errors.redCards?.message}
           />
@@ -704,7 +708,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             className="inline-flex items-center rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={pending || !!hasPendingOverallParams}
           >
-            {pending ? "Guardando..." : editingId ? "Actualizar borrador" : "Agregar temporada"}
+            {pending ? t("common.saving") : editingId ? t("footballData.seasonStats.updateDraft") : t("footballData.seasonStats.addSeason")}
           </button>
           {editingId ? (
             <button
@@ -713,7 +717,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
               className="inline-flex items-center rounded-md border border-white/[0.08] px-4 py-2 text-sm font-semibold text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending || !!hasPendingOverallParams}
             >
-              Cancelar edición
+              {t("common.cancelEditing")}
             </button>
           ) : null}
         </div>
@@ -721,15 +725,16 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
 
       {draftsCount > 0 && !hasPendingOverallParams ? (
         <div className="rounded-lg border border-primary/40 bg-bh-surface-1/40 p-5 mt-8 shadow-lg">
-          <h3 className="text-lg font-semibold text-white mb-2">Enviar cambios a revisión</h3>
+          <h3 className="text-lg font-semibold text-white mb-2">{t("footballData.seasonStats.submitPanelTitle")}</h3>
           <p className="text-sm text-bh-fg-2 mb-4">
-            Tenés {draftsCount} estadístic{draftsCount === 1 ? "a" : "as"} lista{draftsCount === 1 ? "s" : "s"} para enviar. 
-            El equipo de Control de Calidad confirmará estos datos verificando las fuentes oficiales.
+            {draftsCount === 1
+              ? t("footballData.seasonStats.submitPanelLeadOne", { count: draftsCount })
+              : t("footballData.seasonStats.submitPanelLeadOther", { count: draftsCount })}
           </p>
           <textarea
             className="w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 mb-4"
             rows={3}
-            placeholder="Añadí información opcional sobre la fuente de las estadísticas (ej: Transfermarkt, BeSoccer)..."
+            placeholder={t("footballData.seasonStats.submitNotePlaceholder")}
             value={submissionNote}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setSubmissionNote(e.target.value)}
             disabled={pending}
@@ -741,7 +746,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
             isDisabled={pending}
             className={bhButtonClass({ variant: "lime", size: "md", className: "w-full" })}
           >
-            {pending ? "Enviando..." : "Enviar a control de calidad"}
+            {pending ? t("footballData.seasonStats.sending") : t("footballData.seasonStats.submitToQa")}
           </Button>
         </div>
       ) : null}
@@ -753,6 +758,7 @@ function reflectValidationErrors(
   error: z.ZodError<SeasonStatMutationInput>,
   setError: UseFormSetError<FormValues>,
   setStatus: (status: StatusState) => void,
+  reviewMessage: string,
 ) {
   const fieldErrors = error.flatten().fieldErrors;
   const visibleMessages: string[] = [];
@@ -766,7 +772,7 @@ function reflectValidationErrors(
   );
   setStatus({
     type: "error",
-    message: visibleMessages.length > 0 ? visibleMessages.join(" · ") : "Revisá los datos del formulario.",
+    message: visibleMessages.length > 0 ? visibleMessages.join(" · ") : reviewMessage,
   });
 }
 

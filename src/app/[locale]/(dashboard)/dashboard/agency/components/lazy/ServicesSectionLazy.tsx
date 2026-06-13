@@ -5,7 +5,7 @@ import SectionSkeleton from "./_skeleton";
 
 const ServicesSection = dynamic(
   () => import("../ServicesSection"),
-  { ssr: false, loading: () => <SectionSkeleton label="Servicios" /> },
+  { ssr: false, loading: () => <SectionSkeleton labelKey="services" /> },
 );
 
 export default ServicesSection;

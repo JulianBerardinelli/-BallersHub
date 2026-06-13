@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Informazioni di accesso",
+    "cardDescription": "Aggiorna le tue credenziali o consulta le informazioni di base del tuo account.",
+    "editAria": "Modifica informazioni di accesso",
+    "cancelEditAria": "Annulla modifica",
+    "emailLabel": "Indirizzo email",
+    "emailPlaceholder": "tu@email.com",
+    "emailConfirmationSent": "Ti abbiamo inviato un link di conferma alla tua email per convalidare la modifica.",
+    "updateEmail": "Aggiorna email",
+    "updatingEmail": "Aggiornamento...",
+    "newPasswordLabel": "Nuova password",
+    "newPasswordPlaceholder": "Almeno 6 caratteri",
+    "passwordTooShort": "La password deve contenere almeno 6 caratteri.",
+    "passwordUpdated": "Password aggiornata con successo.",
+    "updatePassword": "Aggiorna password",
+    "updatingPassword": "Aggiornamento...",
+    "showPassword": "Mostra password",
+    "hidePassword": "Nascondi password",
+    "passwordLabel": "Password",
+    "roleLabel": "Ruolo dell'account",
+    "roleDescription": "Influisce sul tipo di profilo a cui hai accesso.",
+    "roleManager": "Agenzia / Rappresentante",
+    "roleAdmin": "Amministratore",
+    "roleMember": "Giocatore / Membro",
+    "createdAtLabel": "Creazione dell'account"
+  },
+  "subscription": {
+    "stripePortalTitle": "Portale di Stripe",
+    "stripePortalDescription": "Aggiorna la carta, scarica le fatture o annulla l'abbonamento.",
+    "openPortal": "Apri portale",
+    "stripePortalRequestFailed": "Stripe portal request failed",
+    "cancelScheduledNotice": "Il tuo abbonamento è impostato per essere annullato alla fine del periodo. Se cambi idea, puoi annullare l'operazione dal portale.",
+    "cancelTitle": "Annulla abbonamento",
+    "cancelDescription": "Mercado Pago interrompe l'accesso immediatamente al momento dell'annullamento. Non è previsto alcun rimborso parziale del periodo pagato.",
+    "cancel": "Annulla",
+    "back": "Indietro",
+    "confirmCancel": "Conferma annullamento",
+    "cancelRequestFailed": "Cancel request failed"
+  },
+  "common": {
+    "invalidLocale": "Lingua non valida.",
+    "mustSignIn": "Devi accedere.",
+    "localeSaveFailed": "Impossibile salvare la lingua.",
+    "localeUpdated": "Lingua nativa aggiornata.",
+    "unknownError": "Errore sconosciuto."
+  }
+}
