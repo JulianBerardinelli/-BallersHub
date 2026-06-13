@@ -207,6 +207,13 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
     }));
 
   const data: AgencyPublicData = {
+    // Drives the locale switcher inside the Pro header (Classic uses the
+    // standalone floating one below). Only locales with a real translation.
+    localeSwitch: {
+      available: availableLocales,
+      current: locale,
+      basePath: `/agency/${slug}`,
+    },
     agency: {
       id: agency.id,
       slug: agency.slug,
@@ -287,13 +294,19 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
         },
   };
 
+  // Pro layout mounts the switcher inside its header pill; Classic keeps the
+  // standalone floating one.
+  const isProLayout = data.theme?.layout === "pro";
+
   return (
     <>
-      <PortfolioLocaleSwitcher
-        basePath={`/agency/${slug}`}
-        available={availableLocales}
-        current={locale}
-      />
+      {!isProLayout ? (
+        <PortfolioLocaleSwitcher
+          basePath={`/agency/${slug}`}
+          available={availableLocales}
+          current={locale}
+        />
+      ) : null}
       {/*
         SportsOrganization JSON-LD. Closes the `worksFor` cross-reference
         that Pro player @graphs emit pointing back at this agency. See

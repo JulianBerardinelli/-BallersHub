@@ -1,4 +1,5 @@
 import { CSSProperties, Suspense } from "react";
+import { getTranslations } from "next-intl/server";
 import ClassicAgencyLayout from "./ClassicAgencyLayout";
 import ProAgencyLayout from "./ProAgencyLayout";
 import SmoothScrollProvider from "../../../[slug]/components/SmoothScrollProvider";
@@ -25,6 +26,8 @@ export type AgencyPlayerCard = {
 };
 
 export type AgencyPublicData = {
+  /** Drives the locale switcher inside the Pro agency header. */
+  localeSwitch?: { available: string[]; current: string; basePath: string };
   agency: {
     id: string;
     slug: string;
@@ -87,8 +90,9 @@ export type AgencyPublicData = {
   };
 };
 
-export default function AgencyLayoutResolver({ data }: { data: AgencyPublicData }) {
+export default async function AgencyLayoutResolver({ data }: { data: AgencyPublicData }) {
   const { agency, theme } = data;
+  const t = await getTranslations("portfolio");
 
   // Two layouts kept: `classic` (Free Agency) and `pro` (Pro Agency).
   // Legacy values default to `classic`. Typography is no longer respected
@@ -118,7 +122,7 @@ export default function AgencyLayoutResolver({ data }: { data: AgencyPublicData 
           {layout === "classic" && <ClassicAgencyLayout data={data} />}
           {layout === "pro" && (
             <ProAgencyLayout data={data}>
-              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando agencia...</div>}>
+              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">{t("agency.loading.agency")}</div>}>
                 <AgencyAboutModule
                   agency={agency}
                   playersCount={data.players.length}
@@ -127,11 +131,11 @@ export default function AgencyLayoutResolver({ data }: { data: AgencyPublicData 
                 />
               </Suspense>
 
-              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando equipo...</div>}>
+              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">{t("agency.loading.team")}</div>}>
                 <AgencyStaffModule agencyId={agency.id} sections={data.sections} />
               </Suspense>
 
-              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando roster...</div>}>
+              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">{t("agency.loading.roster")}</div>}>
                 <AgencyRosterModule agencyId={agency.id} sections={data.sections} />
               </Suspense>
 
@@ -149,7 +153,7 @@ export default function AgencyLayoutResolver({ data }: { data: AgencyPublicData 
                 />
               </Suspense>
 
-              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">Cargando galería...</div>}>
+              <Suspense fallback={<div className="h-40 flex items-center justify-center text-white/30 animate-pulse">{t("agency.loading.gallery")}</div>}>
                 <AgencyGalleryModule agencyId={agency.id} sections={data.sections} />
               </Suspense>
 

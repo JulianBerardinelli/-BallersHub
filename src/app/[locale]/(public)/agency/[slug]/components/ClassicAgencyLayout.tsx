@@ -25,7 +25,18 @@ export default async function ClassicAgencyLayout({ data }: { data: AgencyPublic
     return s ? s.visible : true;
   };
 
-  const dnEs = new Intl.DisplayNames([locale], { type: "region", fallback: "code" });
+  const dn = new Intl.DisplayNames(
+    [
+      locale === "pt"
+        ? "pt-BR"
+        : locale === "it"
+          ? "it-IT"
+          : locale === "en"
+            ? "en"
+            : "es-AR",
+    ],
+    { type: "region", fallback: "code" },
+  );
   const totalLicenses = staffLicenses.reduce((sum, s) => sum + s.licenses.length, 0);
 
   return (
@@ -151,7 +162,7 @@ export default async function ClassicAgencyLayout({ data }: { data: AgencyPublic
                     className="flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 px-2.5 py-1 rounded text-xs font-medium text-neutral-300"
                   >
                     <CountryFlag code={code} size={14} />
-                    {dnEs.of(code) ?? code}
+                    {dn.of(code) ?? code}
                   </div>
                 ))}
               </div>
@@ -225,7 +236,7 @@ export default async function ClassicAgencyLayout({ data }: { data: AgencyPublic
                           <span>{t("agency.nationality")}</span>
                           <span className="flex items-center gap-1.5 text-white text-right truncate">
                             <CountryFlag code={player.nationality[0]} size={12} />
-                            {dnEs.of(player.nationality[0]) ?? player.nationality[0]}
+                            {dn.of(player.nationality[0]) ?? player.nationality[0]}
                           </span>
                         </div>
                       )}
