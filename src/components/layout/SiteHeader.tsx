@@ -2,11 +2,15 @@
 import HeaderChrome from "./HeaderChrome";
 import AuthGate from "@/components/auth/AuthGate";
 import SearchBar from "./searchbar";
+import { getSiteNavSession } from "./site-nav-session";
 
 
 export default async function SiteHeader() {
+  // Request-cached (shared with AuthGate + the dock) — no extra DB round-trip.
+  const session = await getSiteNavSession();
   return (
     <HeaderChrome
+      isAuthed={!!session}
       authSlot={
         <>
           <SearchBar />

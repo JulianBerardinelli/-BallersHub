@@ -49,7 +49,14 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SiteMobileNav({ className = "" }: { className?: string }) {
+export function SiteMobileNav({
+  className = "",
+  isAuthed = false,
+}: {
+  className?: string;
+  /** When false (guest), the drawer shows sign-in / create-account CTAs. */
+  isAuthed?: boolean;
+}) {
   const tCommon = useTranslations("common");
   const tNav = useTranslations("mobileNav");
   const pathname = usePathname();
@@ -131,6 +138,27 @@ export function SiteMobileNav({ className = "" }: { className?: string }) {
                     })}
                   </nav>
                 </ScrollShadow>
+
+                {/* Guests: sign-in / create-account CTAs (the dock shows the
+                    avatar/account when logged in, so only render for guests). */}
+                {!isAuthed && (
+                  <div className="mt-4 flex flex-col gap-2 border-t border-white/[0.08] px-3 pt-4">
+                    <Link
+                      href="/auth/sign-up"
+                      onClick={close}
+                      className="flex h-11 items-center justify-center rounded-bh-md bg-bh-lime text-[14px] font-semibold text-bh-black transition-colors hover:bg-[#d8ff26]"
+                    >
+                      {tCommon("authButtons.create")}
+                    </Link>
+                    <Link
+                      href="/auth/sign-in"
+                      onClick={close}
+                      className="flex h-11 items-center justify-center rounded-bh-md border border-white/[0.14] text-[14px] font-semibold text-bh-fg-2 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1"
+                    >
+                      {tCommon("auth.signIn")}
+                    </Link>
+                  </div>
+                )}
 
                 <div className="mt-4 flex items-center justify-between border-t border-white/[0.08] px-3 pt-4">
                   <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.18em] text-bh-fg-4">

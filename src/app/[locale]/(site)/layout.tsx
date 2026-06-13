@@ -12,13 +12,18 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <div className="relative z-10 flex min-h-screen flex-col">
         <SiteHeader />
         <SiteMotionProvider>
-          {/* Extra bottom padding on mobile so the floating dock never covers
-              page content / footer (the dock is ~82px tall + 16px inset). */}
-          <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 pb-24 pt-[6.5rem] max-md:pb-32">
+          <main className="mx-auto w-full max-w-[1200px] flex-1 px-6 pb-24 pt-[6.5rem]">
             {children}
           </main>
         </SiteMotionProvider>
         <SiteFooter />
+        {/* Mobile-only spacer so the fixed floating dock never covers the
+            footer's last line (the dock is ~82px tall + 16px inset). */}
+        <div
+          aria-hidden
+          className="md:hidden"
+          style={{ height: "calc(6.5rem + env(safe-area-inset-bottom, 0px))" }}
+        />
         {/* Mobile floating dock — resolves auth/plan server-side, renders
             md:hidden. Guest → Acceder; logged-in → avatar + account sheet. */}
         <PublicDockGate />

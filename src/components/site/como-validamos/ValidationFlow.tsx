@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { StepIcon } from "./StepIcon";
 import { AGENTS, CFG, RECAP, SOURCES, STEPS } from "./steps";
 import { useScrollEngine } from "./useScrollEngine";
+import ValidationFlowMobile from "./ValidationFlowMobile";
 import "./validation.css";
 
 // Per-node / per-caption accent is driven by an inline `--c` custom property;
@@ -26,7 +27,12 @@ export default function ValidationFlow() {
   useScrollEngine(root, CFG);
 
   return (
-    <div ref={root} className="cv-root">
+    <>
+      {/* Mobile: simple stacked timeline (no scrolljack, clears the dock). */}
+      <ValidationFlowMobile />
+
+      {/* Desktop: the full n8n-style scrolljack. */}
+      <div ref={root} className="cv-root hidden md:block">
       <section className="cv-experience">
         <div className="cv-stage">
           {/* background field, pinned with the sticky stage */}
@@ -335,6 +341,7 @@ export default function ValidationFlow() {
           </div>
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }

@@ -26,6 +26,9 @@ export function useScrollEngine(
   useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
+    // Mobile (< md) renders the simple stacked version (ValidationFlowMobile);
+    // the scrolljack is display:none there, so don't run the rAF engine.
+    if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) return;
     const q = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = root) =>
       scope.querySelector<T>(sel);
     const qa = <T extends Element = HTMLElement>(sel: string, scope: ParentNode = root) =>

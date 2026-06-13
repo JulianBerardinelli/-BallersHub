@@ -19,6 +19,7 @@ import { createPortal } from "react-dom";
 import "./mobile-nav.css";
 import { DockIcon } from "./icons";
 import { useDockMotion } from "./useDockMotion";
+import { useDockHidden } from "./dock-visibility";
 import type { DockGroup, DockItem, DockItemAction, DockUser } from "./types";
 
 // Geometry (handoff §2).
@@ -70,6 +71,9 @@ export function FloatingDock({
   const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState<string | null>(initialOpen);
   const { reduce, d, delay } = useDockMotion(speed);
+  // Hidden while an external in-page overlay is open (e.g. /players sheet) —
+  // see dock-visibility.ts for why z-index alone can't handle that case.
+  const dockHidden = useDockHidden();
 
   useEffect(() => setMounted(true), []);
 
@@ -142,7 +146,7 @@ export function FloatingDock({
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: 55,
+          zIndex: 39,
           background: "rgba(0,0,0,0.5)",
           backdropFilter: open ? "blur(4px)" : "none",
           opacity: open ? 1 : 0,
@@ -151,8 +155,11 @@ export function FloatingDock({
         }}
       />
 
-      {/* Dock wrapper — full-width but only the capsule is interactive */}
+      {/* Dock wrapper — full-width but only the capsule is interactive.
+          z-40 keeps it below HeroUI overlays (z-50); `dockHidden` slides it
+          out when an in-page overlay (e.g. /players sheet) is open. */}
       <div
+        aria-hidden={dockHidden || undefined}
         style={{
           position: "fixed",
           left: 16,
@@ -160,8 +167,11 @@ export function FloatingDock({
           bottom: "calc(16px + env(safe-area-inset-bottom, 0px))",
           display: "flex",
           justifyContent: "center",
-          zIndex: 60,
+          zIndex: 40,
           pointerEvents: "none",
+          opacity: dockHidden ? 0 : 1,
+          transform: dockHidden ? "translateY(16px)" : "none",
+          transition: `opacity ${d(220)} var(--dock-ease-sheet), transform ${d(220)} var(--dock-ease-sheet)`,
         }}
       >
         <nav
@@ -177,7 +187,7 @@ export function FloatingDock({
               ? `0 24px 70px rgba(0,0,0,0.7), 0 -10px 70px ${accent}12, inset 0 1px 0 rgba(255,255,255,0.07)`
               : "0 12px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)",
             overflow: "hidden",
-            pointerEvents: "auto",
+            pointerEvents: dockHidden ? "none" : "auto",
             transition: `border-radius ${d(420)} var(--dock-ease-sheet), box-shadow ${d(420)} var(--dock-ease-sheet)`,
           }}
         >
