@@ -52,7 +52,7 @@ Cuando se aplican cosas por uno y no por el otro → drift inevitable.
 Estas reglas son **innegociables** después del incidente. Ya están en `memory/feedback_migration_protocol.md`, las repito aquí porque son la base de todo el workflow.
 
 1. **Todo cambio de schema pasa por Drizzle**: `db:generate` → review SQL → `db:migrate`. Nunca SQL ad-hoc en Supabase Studio para schema changes.
-2. **Siempre supabase-dev primero** (`avhctddkbcneugtqqxxk`). Nunca tocar supabase-main sin autorización explícita del owner por mensaje.
+2. **Siempre supabase-dev primero** (`ciolizjshimyvyonlssq`). Nunca tocar supabase-main sin autorización explícita del owner por mensaje.
 3. **El agente NUNCA toca el journal de Drizzle** (`src/db/migrations/meta/`). Si Drizzle quiere generar algo destructivo, arreglar el schema TS, no borrar snapshots.
 4. **Migrations destructivas** (DROP, RENAME, ALTER TYPE) → deploy en dos pasos (expansive PR + contractive PR semanas después).
 5. **El agente NUNCA usa MCP `apply_migration` contra prod sin autorización explícita por mensaje del owner**.
@@ -146,10 +146,10 @@ npm run db:generate
 
 # 4. Aplicar a dev primero (apuntando DATABASE_URL al pooler de dev)
 #    Opción A: via Drizzle migrator local
-DATABASE_URL='postgres://postgres.avhctddkbcneugtqqxxk:[PWD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres' \
+DATABASE_URL='postgres://postgres.ciolizjshimyvyonlssq:[PWD]@aws-0-us-east-2.pooler.supabase.com:6543/postgres' \
   npm run db:migrate
 
-#    Opción B: via Supabase MCP apply_migration apuntando a avhctddkbcneugtqqxxk
+#    Opción B: via Supabase MCP apply_migration apuntando a ciolizjshimyvyonlssq
 
 # 5. Smoke test en dev preview (Vercel preview deploy del PR)
 
@@ -388,7 +388,7 @@ mcp__ba4c7bf0-e62e-4ef3-bab0-0fed0d639175__list_deployments
 | Branch Supabase | project_ref | Vercel env target |
 |---|---|---|
 | **main (prod)** | `erdvpcfjynkhcrqktozd` | Production |
-| **dev** | `avhctddkbcneugtqqxxk` | Preview + Development |
+| **dev** | `ciolizjshimyvyonlssq` | Preview + Development |
 
 ---
 
