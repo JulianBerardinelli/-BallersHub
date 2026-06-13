@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 import { Mail, Loader2, Trash2, Lock } from "lucide-react";
 import { inviteAgencyStaff, revokeInvite } from "@/app/actions/agency-invites";
@@ -27,6 +28,7 @@ export default function AgencyStaffManager({
   pendingInvites: Invite[];
   currentStaffCount: number;
 }) {
+  const t = useTranslations("dashAgency");
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [revokingId, setRevokingId] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export default function AgencyStaffManager({
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
-      alert("Ingresá un correo electrónico válido");
+      alert(t("staff.errorInvalidEmail"));
       return;
     }
 
@@ -59,7 +61,7 @@ export default function AgencyStaffManager({
     if (result.error) {
       alert(result.error);
     } else {
-      alert("Invitación enviada correctamente");
+      alert(t("staff.successInvite"));
       setEmail("");
       router.refresh();
     }
@@ -73,7 +75,7 @@ export default function AgencyStaffManager({
     if (result.error) {
       alert(result.error);
     } else {
-      alert("Invitación revocada");
+      alert(t("staff.successRevoke"));
       router.refresh();
     }
   };
@@ -84,24 +86,24 @@ export default function AgencyStaffManager({
       <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6">
         <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Invitar a un nuevo colega
+            {t("staff.inviteNewColleague")}
           </h3>
           {!access.isPro && (
             <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-bh-lime">
-              <Lock size={9} /> {totalSlotsUsed}/{FREE_STAFF_CAP} usados
+              <Lock size={9} /> {t("staff.slotsUsed", { used: totalSlotsUsed, cap: FREE_STAFF_CAP })}
             </span>
           )}
         </div>
         <p className="mb-5 max-w-2xl text-sm leading-[1.55] text-bh-fg-3">
           {access.isPro
-            ? "Enviá una invitación a otros managers para que se unan a esta agencia. Al aceptar, podrán ver a todos los jugadores representados y editar el perfil de la agencia."
-            : `Plan Free permite hasta ${FREE_STAFF_CAP} members (owner + colegas + invitaciones). Activá Pro Agency para sumar ilimitados.`}
+            ? t("staff.inviteIntroPro")
+            : t("staff.inviteIntroFree", { cap: FREE_STAFF_CAP })}
         </p>
 
         {atCap && (
           <div className="mb-5 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
             <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
-              Llegaste al límite del plan Free Agency. Activá Pro para sumar más colegas.
+              {t("staff.atCapNotice")}
             </p>
             <UpgradeCta feature="agencyStaffSlots" size="sm" />
           </div>
@@ -112,8 +114,8 @@ export default function AgencyStaffManager({
             <FormField
               id="bh-staff-invite-email"
               type="email"
-              label="Correo electrónico"
-              placeholder="correo@ejemplo.com"
+              label={t("staff.emailLabel")}
+              placeholder={t("staff.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isSubmitting}
@@ -125,7 +127,7 @@ export default function AgencyStaffManager({
             isLoading={isSubmitting}
             className="w-full rounded-bh-md bg-bh-lime px-5 py-2.5 text-[13px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)] sm:w-auto"
           >
-            Enviar invitación
+            {t("staff.sendInvite")}
           </Button>
         </form>
       </div>
@@ -134,7 +136,7 @@ export default function AgencyStaffManager({
       <div>
         <div className="mb-4 flex items-baseline justify-between">
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Invitaciones pendientes
+            {t("staff.pendingTitle")}
           </h3>
           <span className="font-bh-mono text-[12px] text-bh-fg-4">
             {pendingInvites.length}
@@ -143,12 +145,12 @@ export default function AgencyStaffManager({
 
         {pendingInvites.length === 0 ? (
           <div className="rounded-bh-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 py-12 text-center text-sm text-bh-fg-4">
-            No hay invitaciones pendientes.
+            {t("staff.noPending")}
           </div>
         ) : (
           <div className="overflow-hidden rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">
             <Table
-              aria-label="Invitaciones pendientes"
+              aria-label={t("staff.tableAria")}
               removeWrapper
               classNames={{
                 table: "w-full",
@@ -159,10 +161,10 @@ export default function AgencyStaffManager({
               }}
             >
               <TableHeader>
-                <TableColumn>CORREO</TableColumn>
-                <TableColumn>ESTADO</TableColumn>
-                <TableColumn>FECHA</TableColumn>
-                <TableColumn align="end">ACCIONES</TableColumn>
+                <TableColumn>{t("staff.colEmail")}</TableColumn>
+                <TableColumn>{t("staff.colStatus")}</TableColumn>
+                <TableColumn>{t("staff.colDate")}</TableColumn>
+                <TableColumn align="end">{t("staff.colActions")}</TableColumn>
               </TableHeader>
               <TableBody>
                 {pendingInvites.map((invite) => (
@@ -177,7 +179,7 @@ export default function AgencyStaffManager({
                           content: "text-[11px] font-semibold uppercase tracking-[0.06em]",
                         }}
                       >
-                        Pendiente
+                        {t("staff.statusPending")}
                       </Chip>
                     </TableCell>
                     <TableCell>
@@ -193,7 +195,7 @@ export default function AgencyStaffManager({
                           variant="light"
                           onClick={() => handleRevoke(invite.id)}
                           isDisabled={revokingId === invite.id}
-                          title="Revocar invitación"
+                          title={t("staff.revokeTitle")}
                           className="rounded-bh-md text-bh-fg-3 transition-colors hover:bg-[rgba(239,68,68,0.08)] hover:text-bh-danger"
                         >
                           {revokingId === invite.id ? (

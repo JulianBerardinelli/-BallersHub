@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import { Mail, Lock, Eye, EyeOff, Save, CheckCircle2, AlertCircle, Pencil, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase/client";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -44,6 +45,7 @@ export default function AccountSecurityForm({
   role: string;
   createdAt: string;
 }) {
+  const t = useTranslations("dashSettings");
   const [isEditing, setIsEditing] = useState(false);
 
   const [email, setEmail] = useState(defaultEmail);
@@ -80,7 +82,7 @@ export default function AccountSecurityForm({
       setEmailMessage({ text: error.message, type: "error" });
     } else {
       setEmailMessage({
-        text: "Te enviamos un enlace de confirmación a tu correo para validar el cambio.",
+        text: t("account.emailConfirmationSent"),
         type: "success",
       });
     }
@@ -89,7 +91,7 @@ export default function AccountSecurityForm({
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!password || password.length < 6) {
-      setPasswordMessage({ text: "La contraseña debe tener al menos 6 caracteres.", type: "error" });
+      setPasswordMessage({ text: t("account.passwordTooShort"), type: "error" });
       return;
     }
     setPasswordLoading(true);
@@ -101,28 +103,28 @@ export default function AccountSecurityForm({
     if (error) {
       setPasswordMessage({ text: error.message, type: "error" });
     } else {
-      setPasswordMessage({ text: "Contraseña actualizada exitosamente.", type: "success" });
+      setPasswordMessage({ text: t("account.passwordUpdated"), type: "success" });
       setPassword("");
     }
   };
 
   const roleLabel =
     role === "manager"
-      ? "Agencia / Representante"
+      ? t("account.roleManager")
       : role === "admin"
-        ? "Administrador"
-        : "Jugador / Miembro";
+        ? t("account.roleAdmin")
+        : t("account.roleMember");
 
   return (
     <SectionCard
-      title="Información de acceso"
-      description="Actualizá tus credenciales o consultá la información básica de tu cuenta."
+      title={t("account.cardTitle")}
+      description={t("account.cardDescription")}
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar información de acceso"}
+          aria-label={isEditing ? t("account.cancelEditAria") : t("account.editAria")}
           onPress={handleToggleEditing}
           isDisabled={emailLoading || passwordLoading}
           className="rounded-bh-md text-bh-fg-3 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1"
@@ -137,8 +139,8 @@ export default function AccountSecurityForm({
             <FormField
               id="bh-acc-email"
               type="email"
-              label="Correo electrónico"
-              placeholder="tu@email.com"
+              label={t("account.emailLabel")}
+              placeholder={t("account.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               isRequired
@@ -154,7 +156,7 @@ export default function AccountSecurityForm({
                 startContent={!emailLoading && <Save className="h-4 w-4" />}
                 className={SAVE_BUTTON_CLS}
               >
-                {emailLoading ? "Actualizando..." : "Actualizar correo"}
+                {emailLoading ? t("account.updatingEmail") : t("account.updateEmail")}
               </Button>
             )}
           </form>
@@ -166,8 +168,8 @@ export default function AccountSecurityForm({
             <FormField
               id="bh-acc-password"
               type={isVisible ? "text" : "password"}
-              label="Nueva contraseña"
-              placeholder="Mínimo 6 caracteres"
+              label={t("account.newPasswordLabel")}
+              placeholder={t("account.newPasswordPlaceholder")}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               isRequired
@@ -177,7 +179,7 @@ export default function AccountSecurityForm({
                   className="text-bh-fg-3 transition-colors hover:text-bh-fg-1 focus:outline-none"
                   type="button"
                   onClick={() => setIsVisible(!isVisible)}
-                  aria-label={isVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={isVisible ? t("account.hidePassword") : t("account.showPassword")}
                 >
                   {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -191,7 +193,7 @@ export default function AccountSecurityForm({
               startContent={!passwordLoading && <Save className="h-4 w-4" />}
               className={SAVE_BUTTON_CLS}
             >
-              {passwordLoading ? "Actualizando..." : "Actualizar contraseña"}
+              {passwordLoading ? t("account.updatingPassword") : t("account.updatePassword")}
             </Button>
           </form>
 
@@ -199,7 +201,7 @@ export default function AccountSecurityForm({
             <FormField
               id="bh-acc-password-display"
               type="password"
-              label="Contraseña"
+              label={t("account.passwordLabel")}
               value="••••••••"
               disabled
               readOnly
@@ -211,15 +213,15 @@ export default function AccountSecurityForm({
         <div className="space-y-4">
           <FormField
             id="bh-acc-role"
-            label="Rol de la cuenta"
+            label={t("account.roleLabel")}
             value={roleLabel}
             disabled
             readOnly
-            description="Afecta el tipo de perfil al que tenés acceso."
+            description={t("account.roleDescription")}
           />
           <FormField
             id="bh-acc-created"
-            label="Alta de la cuenta"
+            label={t("account.createdAtLabel")}
             value={
               createdAt
                 ? new Date(createdAt).toLocaleDateString("es-AR", {

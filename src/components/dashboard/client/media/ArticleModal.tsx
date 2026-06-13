@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { Loader2, Sparkles, AlertCircle } from "lucide-react";
@@ -47,6 +48,7 @@ function looksLikeUrl(value: string): boolean {
 }
 
 export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: ArticleModalProps) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -111,7 +113,7 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
 
       if (!res.ok) {
         const payload = (await res.json().catch(() => null)) as { error?: string } | null;
-        throw new Error(payload?.error || "No pudimos leer la página");
+        throw new Error(payload?.error || t("media.articleModal.scrapeFallbackError"));
       }
 
       const data = (await res.json()) as ScrapeResponse;
@@ -128,7 +130,7 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
     } catch (err) {
       if ((err as Error).name === "AbortError") return;
       setScrapeStatus("error");
-      setScrapeError((err as Error).message || "No pudimos leer la página");
+      setScrapeError((err as Error).message || t("media.articleModal.scrapeFallbackError"));
     }
   };
 
@@ -154,7 +156,7 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
 
   const handleSubmit = async (onClose: () => void) => {
     if (!formData.title || !formData.url) {
-      alert("El título y el enlace son obligatorios.");
+      alert(t("media.articleModal.requiredAlert"));
       return;
     }
 
@@ -179,7 +181,11 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert(articleToEdit ? "Hubo un error al actualizar el artículo." : "Hubo un error al guardar el artículo.");
+      alert(
+        articleToEdit
+          ? t("media.articleModal.errorUpdate")
+          : t("media.articleModal.errorCreate"),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -187,7 +193,7 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
 
   const urlEndContent =
     scrapeStatus === "loading" ? (
-      <Loader2 className="h-4 w-4 animate-spin text-bh-lime" aria-label="Buscando datos" />
+      <Loader2 className="h-4 w-4 animate-spin text-bh-lime" aria-label={t("media.articleModal.scrapingAria")} />
     ) : null;
 
   return (
@@ -202,21 +208,23 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
         {(onClose) => (
           <>
             <ModalHeader>
-              {articleToEdit ? "Editar artículo" : "Añadir artículo o nota de prensa"}
+              {articleToEdit
+                ? t("media.articleModal.titleEdit")
+                : t("media.articleModal.titleAdd")}
             </ModalHeader>
             <ModalBody>
               <div className="flex flex-col gap-4">
                 {!articleToEdit && (
                   <p className="text-[11.5px] leading-[1.5] text-bh-fg-4">
-                    Pegá el link de la nota y completamos título, medio, fecha e imagen automáticamente. Todo queda editable.
+                    {t("media.articleModal.intro")}
                   </p>
                 )}
                 <FormField
                   id="bh-am-url"
                   isRequired
-                  label="Enlace (URL)"
+                  label={t("media.articleModal.urlLabel")}
                   name="url"
-                  placeholder="https://..."
+                  placeholder={t("media.articleModal.urlPlaceholder")}
                   value={formData.url}
                   onChange={handleChange}
                   onPaste={!articleToEdit ? handleUrlPaste : undefined}
@@ -227,48 +235,51 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
                 {scrapeStatus === "success" && (
                   <div className="flex items-start gap-2 rounded-bh-md border border-bh-lime/30 bg-bh-lime/5 px-3 py-2 text-[12px] leading-[1.5] text-bh-fg-2">
                     <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bh-lime" />
-                    <span>Datos traídos automáticamente. Revisá y editá lo que necesites antes de guardar.</span>
+                    <span>{t("media.articleModal.scrapeSuccess")}</span>
                   </div>
                 )}
                 {scrapeStatus === "error" && (
                   <div className="flex items-start gap-2 rounded-bh-md border border-bh-danger/30 bg-bh-danger/5 px-3 py-2 text-[12px] leading-[1.5] text-bh-fg-2">
                     <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bh-danger" />
-                    <span>{scrapeError || "No pudimos leer la página."} Completá los datos manualmente.</span>
+                    <span>
+                      {scrapeError || t("media.articleModal.scrapeErrorPrefix")}{" "}
+                      {t("media.articleModal.scrapeErrorSuffix")}
+                    </span>
                   </div>
                 )}
 
                 <FormField
                   id="bh-am-title"
                   isRequired
-                  label="Título de la nota"
+                  label={t("media.articleModal.titleLabel")}
                   name="title"
-                  placeholder="Ej: Jugador revelación del torneo..."
+                  placeholder={t("media.articleModal.titlePlaceholder")}
                   value={formData.title}
                   onChange={handleChange}
                 />
                 <FormField
                   id="bh-am-publisher"
-                  label="Medio de comunicación"
+                  label={t("media.articleModal.publisherLabel")}
                   name="publisher"
-                  placeholder="Ej: Diario Olé, Marca, ESPN..."
+                  placeholder={t("media.articleModal.publisherPlaceholder")}
                   value={formData.publisher}
                   onChange={handleChange}
                 />
                 <FormField
                   id="bh-am-image"
-                  label="URL de imagen / miniatura"
+                  label={t("media.articleModal.imageLabel")}
                   name="imageUrl"
-                  placeholder="https://..."
+                  placeholder={t("media.articleModal.imagePlaceholder")}
                   value={formData.imageUrl}
                   onChange={handleChange}
-                  description="Añadí el link directo a la foto o miniatura del medio."
+                  description={t("media.articleModal.imageDescription")}
                 />
                 {formData.imageUrl && (
                   <div className="overflow-hidden rounded-bh-md border border-white/[0.06] bg-bh-surface-1/60">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={formData.imageUrl}
-                      alt="Vista previa"
+                      alt={t("media.articleModal.imagePreviewAlt")}
                       className="max-h-32 w-full object-cover"
                       onError={(e) => {
                         (e.currentTarget as HTMLImageElement).style.display = "none";
@@ -278,7 +289,7 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
                 )}
                 <FormField
                   id="bh-am-published"
-                  label="Fecha de publicación"
+                  label={t("media.articleModal.publishedLabel")}
                   name="publishedAt"
                   type="date"
                   value={formData.publishedAt}
@@ -293,14 +304,14 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
                 isDisabled={isLoading}
                 className={bhButtonClass({ variant: "ghost", size: "sm" })}
               >
-                Cancelar
+                {t("media.articleModal.cancel")}
               </Button>
               <Button
                 onPress={() => handleSubmit(onClose)}
                 isLoading={isLoading}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Guardar
+                {t("media.articleModal.save")}
               </Button>
             </ModalFooter>
           </>

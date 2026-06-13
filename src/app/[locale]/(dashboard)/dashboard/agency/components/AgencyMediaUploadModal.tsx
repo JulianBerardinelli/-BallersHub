@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { createBrowserClient } from "@supabase/ssr";
 
 import MediaCatalogModal, {
@@ -30,6 +31,7 @@ export default function AgencyMediaUploadModal({
   agencyId,
   agencyContext,
 }: Props) {
+  const t = useTranslations("dashAgency");
   const router = useRouter();
 
   const supabase = createBrowserClient(
@@ -50,13 +52,17 @@ export default function AgencyMediaUploadModal({
   const seo: SeoSuggestionsByTab = {
     photo: {
       titles: [
-        `Equipo de ${agencyContext.name}`,
-        `Oficinas de ${agencyContext.name}${hq ? ` en ${hq}` : ""}`,
-        `Eventos profesionales de ${agencyContext.name}`,
+        t("media.seoTeam", { name: agencyContext.name }),
+        hq
+          ? t("media.seoOfficesIn", { name: agencyContext.name, hq })
+          : t("media.seoOffices", { name: agencyContext.name }),
+        t("media.seoEvents", { name: agencyContext.name }),
       ].filter(Boolean),
       altTexts: [
-        `Fotografía oficial de la agencia ${agencyContext.name}`,
-        `Imagen institucional de ${agencyContext.name}${country ? ` con operación en ${country}` : ""}`,
+        t("media.seoAltOfficial", { name: agencyContext.name }),
+        country
+          ? t("media.seoAltInstitutionalIn", { name: agencyContext.name, country })
+          : t("media.seoAltInstitutional", { name: agencyContext.name }),
       ].filter(Boolean),
     },
   };
@@ -65,11 +71,11 @@ export default function AgencyMediaUploadModal({
     <MediaCatalogModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle="Subir imagen al catálogo"
-      modalSubtitle="Hasta 5 imágenes (oficinas, equipo, eventos, presentaciones)."
+      modalTitle={t("media.modalTitle")}
+      modalSubtitle={t("media.modalSubtitle")}
       seo={seo}
       onSubmit={async ({ file, title, altText }) => {
-        if (!file) throw new Error("Seleccioná un archivo.");
+        if (!file) throw new Error(t("media.errorSelectFile"));
         const ext = file.name.split(".").pop() || "jpg";
         const filePath = `gallery/${agencyId}-${Date.now()}.${ext}`;
 

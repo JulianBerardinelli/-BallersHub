@@ -124,6 +124,7 @@ type CareerRevisionRequestRow = {
 
 export default async function FootballDataPage() {
   const t = await getTranslations("dashboard");
+  const te = await getTranslations("dashEditProfile");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -344,11 +345,18 @@ export default async function FootballDataPage() {
       : null,
   }));
 
+  const careerLabelFallbacks = {
+    clubUndefined: te("footballData.seasonStats.clubUndefined"),
+    currentPeriod: te("footballData.career.currentPeriod"),
+  };
   const careerSeasonOptions = careerStages.map((stage) => ({
     id: stage.id,
-    label: describeCareerStage(stage),
-    club: stage.team?.name ?? stage.club ?? "Club sin definir",
+    label: describeCareerStage(stage, careerLabelFallbacks),
+    club: stage.team?.name ?? stage.club ?? careerLabelFallbacks.clubUndefined,
+    // `period` is the value persisted via setValue("season", ...) — keep it
+    // locale-STABLE (canonical es). `periodLabel` is for display only.
     period: describeCareerPeriod(stage),
+    periodLabel: describeCareerPeriodLabel(stage, careerLabelFallbacks),
     crestUrl: stage.team?.crestUrl ?? null,
   }));
 
@@ -562,17 +570,38 @@ function formatMarketValue(value: string | number | null): string {
   return new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(numeric);
 }
 
-function describeCareerStage(stage: CareerStage): string {
-  const club = stage.team?.name ?? stage.club ?? "Club sin definir";
+function describeCareerStage(
+  stage: CareerStage,
+  labels: { clubUndefined: string; currentPeriod: string },
+): string {
+  const club = stage.team?.name ?? stage.club ?? labels.clubUndefined;
   const from = stage.startYear ?? "¿?";
-  const to = stage.endYear ?? "Actual";
+  const to = stage.endYear ?? labels.currentPeriod;
   const division = stage.division ? ` · ${stage.division}` : "";
   return `${club}${division} (${from} – ${to})`;
 }
 
+/**
+ * Locale-STABLE canonical period — `HonoursManager`/`SeasonStatsManager` auto-write
+ * this into the form's `season` field on stage selection, so it ends up persisted in
+ * `player_honours.season` / `player_season_stats.season`. It MUST NOT vary by editor
+ * UI locale (or saved rows would carry "Present"/"Presente"/"Atual" depending on who
+ * edited them — review #211 P2). Uses canonical es "Actual" for open stages. Localize
+ * only the DISPLAY label via `describeCareerPeriodLabel`.
+ */
 function describeCareerPeriod(stage: CareerStage): string {
   const from = stage.startYear ?? "¿?";
   const to = stage.endYear ?? "Actual";
+  return `${from} – ${to}`;
+}
+
+/** Display-only period label, localized per editor UI locale. */
+function describeCareerPeriodLabel(
+  stage: CareerStage,
+  labels: { currentPeriod: string },
+): string {
+  const from = stage.startYear ?? "¿?";
+  const to = stage.endYear ?? labels.currentPeriod;
   return `${from} – ${to}`;
 }
 

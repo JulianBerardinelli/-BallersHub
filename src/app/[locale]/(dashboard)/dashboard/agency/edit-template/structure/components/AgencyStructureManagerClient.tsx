@@ -1,6 +1,7 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { updateAgencySectionVisibilityAction } from "@/app/actions/agency-template-settings";
 import { useNotificationContext, profileNotification } from "@/modules/notifications";
 import { Switch } from "@heroui/react";
@@ -19,6 +20,7 @@ export default function AgencyStructureManagerClient({
 }: {
   initialBlocks: Block[];
 }) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [, startTransition] = useTransition();
 
@@ -35,14 +37,14 @@ export default function AgencyStructureManagerClient({
         await updateAgencySectionVisibilityAction({ section: id, visible: newEnabled });
         enqueue(
           profileNotification.updated({
-            userName: "Agencia",
-            sectionLabel: "Estructura",
+            userName: t("structure.agencyName"),
+            sectionLabel: t("structure.notificationSection"),
             changedFields: [id],
           }),
         );
       } catch (err) {
         console.error("Fallo al actualizar seccion", err);
-        alert("Ocurrió un error al intentar cambiar la visibilidad.");
+        alert(t("structure.errorToggle"));
       }
     });
   };

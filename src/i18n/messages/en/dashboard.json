@@ -311,5 +311,147 @@
     "subtitleManager": "Manage your players' representation, staff permissions and institutional profile.",
     "subtitleClient": "Manage your professional profile, customize your template and administer your account.",
     "activeSession": "Active session"
+  },
+  "overview": {
+    "progressList": {
+      "progressAriaLabel": "{title} progress",
+      "sectionComplete": "All set! We'll keep updating your profile in this section.",
+      "openSection": "Open section"
+    },
+    "statusSummary": {
+      "visibilityPublic": "Public profile",
+      "visibilityPrivate": "Private profile",
+      "visibilityOther": "Visibility: {visibility}",
+      "updatedAt": "Updated {date}",
+      "publicUrlLabel": "Public URL:",
+      "applicationChip": "Application: {label}",
+      "noApplicationYet": "We haven't logged an active application yet. Start the onboarding to generate your professional profile."
+    },
+    "applicationReview": {
+      "titlePlayer": "Your player application",
+      "titleManager": "Your agency application",
+      "subtitlePending": "We're reviewing the submitted data. You'll get an email as soon as we have an update.",
+      "subtitleResolved": "Details on the current status of your application.",
+      "applicationIdLabel": "Application ID",
+      "copyId": "Copy full ID",
+      "copiedId": "Copied",
+      "copyIdAriaLabel": "Copy application identifier",
+      "rowSubmittedAt": "Submitted on",
+      "rowUpdatedAt": "Last updated",
+      "rowPlanRequested": "Plan requested",
+      "rowFullName": "Name",
+      "rowPositions": "Positions",
+      "rowNationality": "Nationality",
+      "rowCurrentClub": "Declared club",
+      "rowResponsible": "Responsible",
+      "rowAgency": "Agency",
+      "rowWebsite": "Website",
+      "rowContactEmail": "Contact email",
+      "rowContactPhone": "Phone",
+      "notesTitle": "Submitted notes",
+      "pendingNoticeLead": "While we review your application you can't edit the profile. The process usually takes",
+      "pendingNoticeDuration": "24 to 72 business hours",
+      "pendingNoticeContact": "If you need to fix something urgently, write to us at",
+      "pendingNoticeIdRef": "quoting the ID above.",
+      "close": "Close"
+    },
+    "taskCallouts": {
+      "title": "Pending tasks in this section",
+      "pendingCount": "{count} pending",
+      "viewDetail": "View detail"
+    }
+  },
+  "managerOverview": {
+    "header": {
+      "title": "Agency overview",
+      "description": "View the status of your company, your roster of players and quick access shortcuts."
+    },
+    "operationalStatus": {
+      "title": "Operational status",
+      "description": "Track your public visibility and the state of your institutional license."
+    },
+    "status": {
+      "pendingLabel": "Under review",
+      "pendingMessage": "Your application to operate an agency is being evaluated by the admin team.",
+      "approvedLabel": "Agency Active and Validated",
+      "approvedMessage": "You represent {agencyName}. Keep your profile up to date to maximize exposure with clubs and recruiters.",
+      "agencyFallback": "your Agency",
+      "rejectedLabel": "Application Rejected",
+      "rejectedMessage": "Your operational permission within the system was rejected. Contact us for more details."
+    },
+    "cta": {
+      "viewApplication": "View application",
+      "viewPublicAgency": "View public agency profile",
+      "configurePublicUrl": "Set up public URL"
+    },
+    "directory": {
+      "playersTitle": "Player Directory",
+      "playersDescription": "Your active represented players.",
+      "playersBadge": "Linked Players",
+      "playersCta": "View full directory →",
+      "staffTitle": "Representation Team",
+      "staffDescription": "Managers belonging to the institution.",
+      "staffBadge": "Active Agents",
+      "staffCta": "Manage Staff →"
+    },
+    "quickActions": {
+      "title": "Quick shortcuts",
+      "description": "Jump directly to the operational sections you'll use most often.",
+      "goToSection": "Go to section →",
+      "agency": {
+        "title": "Edit Agency Profile",
+        "description": "Update public information, contact and logo."
+      },
+      "templateStyles": {
+        "title": "Portfolio Template",
+        "description": "Pick Pro or Classic, brand palette and typography."
+      },
+      "players": {
+        "title": "Player Roster",
+        "description": "Manage your roster and assign pending tasks."
+      },
+      "staff": {
+        "title": "Staff Team",
+        "description": "Invite colleagues and see active members."
+      }
+    }
+  },
+  "paywall": {
+    "subscriptionBanner": {
+      "trialingTitle": "You're on your Pro trial · you {daysCopy}.",
+      "trialingDaysSingular": "have 1 day left",
+      "trialingDaysPlural": "have {days} days left",
+      "trialingBody": "After the trial we charge you automatically. Cancelable during the trial with no charge.",
+      "trialingCta": "Manage subscription",
+      "cancelingSoonTitle": "Your Pro plan is active but will not renew.",
+      "cancelingSoonBodyWithDate": "Pro access continues until {date}.",
+      "cancelingSoonBodyNoDate": "Pro access continues until the end of the current period.",
+      "cancelingSoonCta": "Reactivate",
+      "pastDueTitle": "There was a problem with your payment.",
+      "pastDueBody": "Update your payment method to avoid losing Pro access.",
+      "pastDueCta": "Update payment",
+      "expiredTitle": "Your Pro plan expired.",
+      "expiredBody": "Recover the premium templates and sections with a new Pro cycle.",
+      "expiredCta": "Renew Pro",
+      "compGrantWithDate": "Complimentary Pro account · valid until {date}",
+      "compGrantNoDate": "Complimentary Pro account · no expiration"
+    }
+  },
+  "invites": {
+    "pendingModal": {
+      "title": "You have a pending invite!",
+      "bodyLead": "You've been invited to join the staff of the agency <strong>{agencyName}</strong>.",
+      "bodyConsequence": "By accepting, your account will switch to a Manager profile and you'll get access to the players represented by this agency.",
+      "decline": "Decline",
+      "accept": "Accept Invite"
+    },
+    "playerPendingModal": {
+      "title": "New opportunities!",
+      "bodyLead": "The agency <strong>{agencyName}</strong> has requested to include you in its roster of represented players on BallersHub.",
+      "contractDuration": "Recorded contract duration: {date}.",
+      "bodyConsequence": "By accepting this invite, your sports profile will publicly display this agency as your official representative.",
+      "decline": "Decline",
+      "accept": "Link my profile"
+    }
   }
 }

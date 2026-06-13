@@ -7,8 +7,10 @@ import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import AgencyStaffManager from "./components/AgencyStaffManager";
 import { UsersRound } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 export default async function AgencyStaffPage() {
+  const t = await getTranslations("dashAgency");
   const supabase = await createSupabaseServerRSC();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -42,14 +44,14 @@ export default async function AgencyStaffPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Gestión de Equipo (Staff)"
-        description="Invita a colegas a tu agencia para que administren de forma colaborativa a tus jugadores."
+        title={t("staff.pageTitle")}
+        description={t("staff.pageDescription")}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="rounded-xl border border-neutral-800 bg-neutral-900/50 p-5 flex items-center justify-between">
            <div>
-             <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1">Managers Activos</p>
+             <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1">{t("staff.activeManagers")}</p>
              <p className="text-3xl font-bold text-white">{staffMembers.length}</p>
            </div>
            <div className="h-10 w-10 flex items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
@@ -59,8 +61,8 @@ export default async function AgencyStaffPage() {
       </div>
 
       <SectionCard
-        title="Invitaciones"
-        description="Administra quién tiene acceso al dashboard y jugadores de tu agencia."
+        title={t("staff.invitationsTitle")}
+        description={t("staff.invitationsDescription")}
       >
         <AgencyStaffManager
           pendingInvites={invites}

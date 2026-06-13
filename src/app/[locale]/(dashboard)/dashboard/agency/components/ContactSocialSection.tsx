@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import FormField from "@/components/dashboard/client/FormField";
@@ -29,6 +30,7 @@ type Props = {
 };
 
 export default function ContactSocialSection({ agencyId, agencyName, initialValues }: Props) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [defaults, setDefaults] = useState<ContactValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
@@ -68,18 +70,18 @@ export default function ContactSocialSection({ agencyId, agencyName, initialValu
         setDefaults(next);
         reset(next);
         setIsEditing(false);
-        setStatus({ type: "success", message: "Contacto y redes actualizadas." });
+        setStatus({ type: "success", message: t("contact.successUpdated") });
         enqueue(
           profileNotification.updated({
             userName: agencyName,
-            sectionLabel: "Contacto y redes",
-            changedFields: ["email", "teléfono", "redes"],
+            sectionLabel: t("contact.notificationSection"),
+            changedFields: [t("contact.fieldEmail"), t("contact.fieldPhone"), t("contact.fieldSocial")],
           }),
         );
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al guardar contacto.",
+          message: err instanceof Error ? err.message : t("contact.errorSave"),
         });
       }
     });
@@ -87,14 +89,14 @@ export default function ContactSocialSection({ agencyId, agencyName, initialValu
 
   return (
     <SectionCard
-      title="Contacto y redes"
-      description="Email, teléfono, sitio web, enlace verificado y perfiles sociales que aparecen en el portfolio."
+      title={t("contact.title")}
+      description={t("contact.description")}
       actions={
         <EditPencilButton
           isEditing={isEditing}
           onPress={() => (isEditing ? onCancel() : setIsEditing(true))}
           isDisabled={isPending}
-          ariaLabel="contacto y redes"
+          ariaLabel={t("contact.ariaLabel")}
         />
       }
     >
@@ -102,63 +104,63 @@ export default function ContactSocialSection({ agencyId, agencyName, initialValu
         <div className="grid gap-4 md:grid-cols-2">
           <FormField
             key={`email-${defaults.contactEmail}`}
-            label="Email institucional"
+            label={t("contact.emailLabel")}
             type="email"
-            placeholder="agencia@ejemplo.com"
+            placeholder={t("contact.emailPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.contactEmail}
             {...register("contactEmail")}
           />
           <FormField
             key={`phone-${defaults.contactPhone}`}
-            label="Teléfono comercial"
+            label={t("contact.phoneLabel")}
             type="tel"
-            placeholder="+54 9 11 1234 5678"
+            placeholder={t("contact.phonePlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.contactPhone}
             {...register("contactPhone")}
           />
           <FormField
             key={`web-${defaults.websiteUrl}`}
-            label="Sitio web (opcional)"
+            label={t("contact.websiteLabel")}
             type="url"
-            placeholder="https://tu-agencia.com"
+            placeholder={t("contact.websitePlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.websiteUrl}
             {...register("websiteUrl")}
           />
           <FormField
             key={`verified-${defaults.verifiedLink}`}
-            label="Enlace verificado (Transfermarkt, etc.)"
+            label={t("contact.verifiedLabel")}
             type="url"
-            placeholder="https://transfermarkt..."
+            placeholder={t("contact.verifiedPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.verifiedLink}
             {...register("verifiedLink")}
           />
           <FormField
             key={`ig-${defaults.instagramUrl}`}
-            label="Instagram"
+            label={t("contact.instagramLabel")}
             type="url"
-            placeholder="https://instagram.com/tuagencia"
+            placeholder={t("contact.instagramPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.instagramUrl}
             {...register("instagramUrl")}
           />
           <FormField
             key={`tw-${defaults.twitterUrl}`}
-            label="Twitter / X"
+            label={t("contact.twitterLabel")}
             type="url"
-            placeholder="https://twitter.com/tuagencia"
+            placeholder={t("contact.twitterPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.twitterUrl}
             {...register("twitterUrl")}
           />
           <FormField
             key={`li-${defaults.linkedinUrl}`}
-            label="LinkedIn"
+            label={t("contact.linkedinLabel")}
             type="url"
-            placeholder="https://linkedin.com/company/tuagencia"
+            placeholder={t("contact.linkedinPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.linkedinUrl}
             {...register("linkedinUrl")}
@@ -180,7 +182,7 @@ export default function ContactSocialSection({ agencyId, agencyName, initialValu
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               type="submit"
@@ -188,7 +190,7 @@ export default function ContactSocialSection({ agencyId, agencyName, initialValu
               isLoading={isPending}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Guardar contacto
+              {t("contact.saveButton")}
             </Button>
           </div>
         ) : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -21,6 +22,7 @@ type Props = {
 };
 
 export default function OperativeReachSection({ agencyId, agencyName, initialCountries }: Props) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [defaults, setDefaults] = useState<string[]>(initialCountries);
   const [countries, setCountries] = useState<string[]>(initialCountries);
@@ -52,18 +54,18 @@ export default function OperativeReachSection({ agencyId, agencyName, initialCou
         await updateAgencyProfile(agencyId, { operativeCountries: countries });
         setDefaults(countries);
         setIsEditing(false);
-        setStatus({ type: "success", message: "Alcance operativo actualizado." });
+        setStatus({ type: "success", message: t("reach.successUpdated") });
         enqueue(
           profileNotification.updated({
             userName: agencyName,
-            sectionLabel: "Alcance operativo",
-            changedFields: ["países"],
+            sectionLabel: t("reach.notificationSection"),
+            changedFields: [t("reach.fieldCountries")],
           }),
         );
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al guardar el alcance operativo.",
+          message: err instanceof Error ? err.message : t("reach.errorSave"),
         });
       }
     });
@@ -76,14 +78,14 @@ export default function OperativeReachSection({ agencyId, agencyName, initialCou
 
   return (
     <SectionCard
-      title="Alcance operativo"
-      description="Países donde tu agencia tiene operación activa o representantes asociados."
+      title={t("reach.title")}
+      description={t("reach.description")}
       actions={
         <EditPencilButton
           isEditing={isEditing}
           onPress={() => (isEditing ? onCancel() : setIsEditing(true))}
           isDisabled={isPending}
-          ariaLabel="alcance operativo"
+          ariaLabel={t("reach.ariaLabel")}
         />
       }
     >
@@ -97,12 +99,12 @@ export default function OperativeReachSection({ agencyId, agencyName, initialCou
               label={null}
             />
             <p className="text-[11px] text-bh-fg-4">
-              Hasta {COUNTRIES_MAX} países. Las licencias se cargan por agente desde su propio perfil.
+              {t("reach.maxHint", { max: COUNTRIES_MAX })}
             </p>
           </>
         ) : countries.length === 0 ? (
           <div className="rounded-xl border border-dashed border-white/[0.08] bg-bh-surface-1/40 py-6 text-center text-sm text-bh-fg-4">
-            Aún no definiste los países donde opera la agencia.
+            {t("reach.empty")}
           </div>
         ) : (
           <div className="flex flex-wrap gap-2">
@@ -133,7 +135,7 @@ export default function OperativeReachSection({ agencyId, agencyName, initialCou
         {isEditing && (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               onPress={onSave}
@@ -141,7 +143,7 @@ export default function OperativeReachSection({ agencyId, agencyName, initialCou
               isLoading={isPending}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Guardar alcance
+              {t("reach.saveButton")}
             </Button>
           </div>
         )}

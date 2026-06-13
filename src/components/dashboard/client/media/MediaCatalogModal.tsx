@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Modal,
   ModalContent,
@@ -85,6 +86,7 @@ export default function MediaCatalogModal({
   onSubmit,
   onSuccess,
 }: MediaCatalogModalProps) {
+  const t = useTranslations("dashEditProfile");
   const f = { ...DEFAULT_FEATURES, ...(features ?? {}) };
 
   // When photos are gated (Free user), force the modal to start on the
@@ -130,15 +132,19 @@ export default function MediaCatalogModal({
   const handleFile = (selected: File | null) => {
     if (!selected) return;
     if (activeTab === "photo" && !selected.type.startsWith("image/")) {
-      setError("Por favor, selecciona una imagen válida.");
+      setError(t("media.catalogModal.errorInvalidPhoto"));
       return;
     }
     if (activeTab === "video" && !selected.type.startsWith("video/")) {
-      setError("Por favor, selecciona un video válido.");
+      setError(t("media.catalogModal.errorInvalidVideo"));
       return;
     }
     if (activeTab === "photo" && selected.size > maxPhotoBytes) {
-      setError(`La imagen no debe superar los ${Math.round(maxPhotoBytes / (1024 * 1024))}MB.`);
+      setError(
+        t("media.catalogModal.errorPhotoTooLarge", {
+          max: Math.round(maxPhotoBytes / (1024 * 1024)),
+        }),
+      );
       return;
     }
     setFile(selected);
@@ -148,15 +154,15 @@ export default function MediaCatalogModal({
 
   const handleUpload = async () => {
     if (!acceptedPolicy) {
-      setError("Debes aceptar las políticas de uso para continuar.");
+      setError(t("media.catalogModal.errorAcceptPolicy"));
       return;
     }
     if (activeTab === "photo" && !file) {
-      setError("Por favor, selecciona una foto.");
+      setError(t("media.catalogModal.errorPhotoRequired"));
       return;
     }
     if (activeTab === "video" && !file && !videoUrl.trim()) {
-      setError("Selecciona un clip o pegá una URL de YouTube/Vimeo.");
+      setError(t("media.catalogModal.errorVideoRequired"));
       return;
     }
 
@@ -164,7 +170,7 @@ export default function MediaCatalogModal({
     if (activeTab === "video" && seasonYearInput.trim()) {
       const parsed = parseInt(seasonYearInput.trim(), 10);
       if (!Number.isFinite(parsed) || parsed < 1900 || parsed > 2100) {
-        setError("El año de la temporada debe estar entre 1900 y 2100.");
+        setError(t("media.catalogModal.errorSeasonYearRange"));
         return;
       }
       seasonYearValue = parsed;
@@ -195,7 +201,7 @@ export default function MediaCatalogModal({
       onOpenChange(false);
       onSuccess?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al subir el archivo.");
+      setError(err instanceof Error ? err.message : t("media.catalogModal.errorUploadFallback"));
     } finally {
       setIsUploading(false);
     }
@@ -241,8 +247,8 @@ export default function MediaCatalogModal({
                       "text-bh-fg-3 group-data-[selected=true]:text-bh-fg-1 font-medium",
                   }}
                 >
-                  <Tab key="photo" title="Fotografía" />
-                  <Tab key="video" title="Video / Highlight" />
+                  <Tab key="photo" title={t("media.catalogModal.tabPhoto")} />
+                  <Tab key="video" title={t("media.catalogModal.tabVideo")} />
                 </Tabs>
               ) : null}
 
@@ -255,21 +261,21 @@ export default function MediaCatalogModal({
               {activeTab === "video" && !previewUrl && (
                 <div className="space-y-1.5">
                   <FormField
-                    label="URL del video (YouTube / Vimeo)"
-                    placeholder="https://www.youtube.com/watch?v=..."
+                    label={t("media.catalogModal.videoUrlLabel")}
+                    placeholder={t("media.catalogModal.videoUrlPlaceholder")}
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
                   />
                   <p className="text-[11px] text-bh-fg-4">
-                    * La subida directa de videos es exclusiva para planes Pro.
+                    {t("media.catalogModal.videoUrlHelp")}
                   </p>
                 </div>
               )}
 
               {activeTab === "video" && (
                 <FormField
-                  label="Año de la temporada (opcional)"
-                  placeholder={`Ej. ${currentYear}`}
+                  label={t("media.catalogModal.seasonYearLabel")}
+                  placeholder={t("media.catalogModal.seasonYearPlaceholder", { year: currentYear })}
                   type="number"
                   min={1900}
                   max={2100}
@@ -277,7 +283,7 @@ export default function MediaCatalogModal({
                   inputMode="numeric"
                   value={seasonYearInput}
                   onChange={(e) => setSeasonYearInput(e.target.value)}
-                  description="Usá el año en que arrancó la temporada (ej. 2024 para 2024-25). Ordenamos los highlights del más reciente al más viejo."
+                  description={t("media.catalogModal.seasonYearDescription")}
                 />
               )}
 
@@ -306,13 +312,13 @@ export default function MediaCatalogModal({
                     </svg>
                   </div>
                   <p className="text-[13px] font-medium text-bh-fg-2">
-                    Hacé clic para buscar o arrastrá un archivo aquí
+                    {t("media.catalogModal.dropzoneTitle")}
                   </p>
                   <p className="text-[11px] text-bh-fg-4">
-                    JPG, PNG, WebP o AVIF (máx {Math.round(maxPhotoBytes / (1024 * 1024))}MB)
+                    {t("media.catalogModal.dropzoneFormats", { max: Math.round(maxPhotoBytes / (1024 * 1024)) })}
                   </p>
                   <p className="mt-1 text-[10px] text-bh-fg-4">
-                    Convertimos a AVIF automáticamente para optimizar la galería.
+                    {t("media.catalogModal.dropzoneConvert")}
                   </p>
                 </button>
               )}
@@ -325,7 +331,7 @@ export default function MediaCatalogModal({
                 <div className="relative aspect-video w-full overflow-hidden rounded-bh-md border border-white/[0.08] bg-black">
                   {activeTab === "photo" ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={previewUrl} alt="Preview" className="h-full w-full object-contain" />
+                    <img src={previewUrl} alt={t("media.catalogModal.previewAlt")} className="h-full w-full object-contain" />
                   ) : (
                     <video src={previewUrl} controls className="h-full w-full object-contain" />
                   )}
@@ -337,8 +343,8 @@ export default function MediaCatalogModal({
                       setPreviewUrl(null);
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
-                    title="Quitar archivo"
-                    aria-label="Quitar archivo"
+                    title={t("media.catalogModal.removeFile")}
+                    aria-label={t("media.catalogModal.removeFile")}
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -380,14 +386,18 @@ export default function MediaCatalogModal({
                     />
                   </svg>
                   <h3 className="bg-gradient-to-r from-pink-500 to-violet-500 bg-clip-text text-[12px] font-semibold text-transparent">
-                    Asistente SEO Inteligente
+                    {t("media.catalogModal.seoAssistantTitle")}
                   </h3>
                 </div>
 
                 <div className="space-y-1.5">
                   <FormField
-                    label="Título (opcional)"
-                    placeholder={activeTab === "photo" ? "Ej. Foto en el evento institucional" : "Ej. Highlights temporada 2024"}
+                    label={t("media.catalogModal.titleLabel")}
+                    placeholder={
+                      activeTab === "photo"
+                        ? t("media.catalogModal.titlePlaceholderPhoto")
+                        : t("media.catalogModal.titlePlaceholderVideo")
+                    }
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -409,11 +419,11 @@ export default function MediaCatalogModal({
 
                 <div className="space-y-1.5">
                   <FormField
-                    label="Texto alternativo (alt text)"
-                    placeholder="Describí la imagen para que Google la encuentre..."
+                    label={t("media.catalogModal.altLabel")}
+                    placeholder={t("media.catalogModal.altPlaceholder")}
                     value={altText}
                     onChange={(e) => setAltText(e.target.value)}
-                    description="Mejora la accesibilidad y el posicionamiento web."
+                    description={t("media.catalogModal.altDescription")}
                   />
                   {tabSeo.altTexts.length > 0 && (
                     <div className="flex flex-wrap gap-1.5">
@@ -434,11 +444,11 @@ export default function MediaCatalogModal({
                 {f.tags && (
                   <div className="space-y-1.5">
                     <FormField
-                      label="Etiquetas (tags)"
-                      placeholder="separadas por coma (ej: Delantero, Argentino...)"
+                      label={t("media.catalogModal.tagsLabel")}
+                      placeholder={t("media.catalogModal.tagsPlaceholder")}
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
-                      description="Incluí equipos, posiciones y palabras clave para mejorar la visibilidad."
+                      description={t("media.catalogModal.tagsDescription")}
                     />
                     {tabSeo.tags && (
                       <button
@@ -446,7 +456,7 @@ export default function MediaCatalogModal({
                         onClick={() => setTags(tabSeo.tags ?? "")}
                         className="rounded-full bg-bh-surface-2 px-2 py-0.5 text-[10px] text-bh-fg-2 transition-colors hover:bg-bh-surface-3"
                       >
-                        + Usar sugeridas
+                        {t("media.catalogModal.tagsUseSuggested")}
                       </button>
                     )}
                   </div>
@@ -454,15 +464,15 @@ export default function MediaCatalogModal({
 
                 {f.isPrimary && activeTab === "photo" && (
                   <Select
-                    label="Uso de la imagen"
-                    placeholder="Galería general"
+                    label={t("media.catalogModal.usageLabel")}
+                    placeholder={t("media.catalogModal.usageGallery")}
                     selectedKeys={isPrimary ? ["primary"] : ["gallery"]}
                     onChange={(e) => setIsPrimary(e.target.value === "primary")}
                     variant="flat"
                     classNames={bhSelectClassNames}
                   >
-                    <SelectItem key="gallery">Galería general</SelectItem>
-                    <SelectItem key="primary">Foto principal / portada</SelectItem>
+                    <SelectItem key="gallery">{t("media.catalogModal.usageGallery")}</SelectItem>
+                    <SelectItem key="primary">{t("media.catalogModal.usagePrimary")}</SelectItem>
                   </Select>
                 )}
               </div>
@@ -478,11 +488,13 @@ export default function MediaCatalogModal({
                   }}
                 />
                 <div className="text-[11px] leading-[1.55] text-bh-fg-3">
-                  <p className="mb-1 font-semibold text-bh-fg-2">Políticas de uso y moderación</p>
+                  <p className="mb-1 font-semibold text-bh-fg-2">
+                    {t("media.catalogModal.policyTitle")}
+                  </p>
                   <p>
-                    El contenido estará visible públicamente al instante y será auditado por el equipo de seguridad.{" "}
+                    {t("media.catalogModal.policyBody")}{" "}
                     <strong className="text-bh-fg-2">
-                      Cualquier contenido inapropiado u ofensivo resultará en la eliminación permanente.
+                      {t("media.catalogModal.policyEmphasis")}
                     </strong>
                   </p>
                 </div>
@@ -496,14 +508,14 @@ export default function MediaCatalogModal({
                 isDisabled={isUploading}
                 className={bhButtonClass({ variant: "ghost", size: "sm" })}
               >
-                Cancelar
+                {t("media.catalogModal.cancel")}
               </Button>
               <Button
                 onPress={handleUpload}
                 isLoading={isUploading}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Subir archivo
+                {t("media.catalogModal.upload")}
               </Button>
             </ModalFooter>
           </>

@@ -3,6 +3,7 @@
 import { Link } from "@/i18n/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { Button, Chip, Progress } from "@heroui/react";
+import { useTranslations } from "next-intl";
 import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
 
 export type DashboardProgressSection = {
@@ -28,6 +29,8 @@ function getProgressColor(percentage: number): "primary" | "success" | "warning"
 }
 
 export default function DashboardProgressList({ sections }: { sections: DashboardProgressSection[] }) {
+  const t = useTranslations("dashboard");
+
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       {sections.map((section) => {
@@ -54,7 +57,7 @@ export default function DashboardProgressList({ sections }: { sections: Dashboar
             </div>
 
             <Progress
-              aria-label={`Progreso ${section.title}`}
+              aria-label={t("overview.progressList.progressAriaLabel", { title: section.title })}
               value={percentage}
               color={progressColor}
               classNames={{
@@ -77,7 +80,7 @@ export default function DashboardProgressList({ sections }: { sections: Dashboar
                 ))}
               </ul>
             ) : (
-              <p className="text-xs text-emerald-300">¡Todo listo! Seguimos actualizando tu perfil en esta sección.</p>
+              <p className="text-xs text-emerald-300">{t("overview.progressList.sectionComplete")}</p>
             )}
 
             <Button
@@ -89,7 +92,7 @@ export default function DashboardProgressList({ sections }: { sections: Dashboar
               className="self-start"
               endContent={<ArrowUpRight size={16} />}
             >
-              Abrir sección
+              {t("overview.progressList.openSection")}
             </Button>
           </div>
         );

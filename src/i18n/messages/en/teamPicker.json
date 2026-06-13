@@ -36,5 +36,32 @@
   },
   "details": {
     "edit": "Edit club details"
+  },
+  "dashboardPicker": {
+    "currentTeamLabel": "Current team",
+    "currentTeamDescription": "Search your team by name. If it doesn't exist, you can propose it.",
+    "currentTeamPlaceholder": "e.g. Manchester United",
+    "countryLabel": "Country (name or ISO-2)",
+    "countryDescription": "e.g. Argentina or AR",
+    "countryPlaceholder": "Argentina / AR",
+    "resultsTitle": "Results",
+    "noResults": "We didn't find any teams matching «{q}».",
+    "chooseTeam": "Choose",
+    "proposeNew": "Propose a new team: «{q}»",
+    "proposeHelp": "The team isn't in our database. With your request we'll create and verify it.",
+    "freeAgentCta": "I'm a free agent (no team)",
+    "chipSelected": "Selected: {name}",
+    "chipProposed": "Proposed team: {name}",
+    "chipFree": "Free agent"
+  },
+  "createModal": {
+    "title": "New team: «{name}»",
+    "countryLabel": "Club's country",
+    "countryRequired": "Choose a country",
+    "tmLabel": "Transfermarkt (optional)",
+    "tmPlaceholder": "https://www.transfermarkt.com/...",
+    "tmInvalid": "Invalid URL (https://...)",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }

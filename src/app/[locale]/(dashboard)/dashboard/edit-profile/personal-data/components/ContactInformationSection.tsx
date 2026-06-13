@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { useForm, Controller } from "react-hook-form";
 import { Pencil, X, Eye, EyeOff } from "lucide-react";
@@ -30,6 +31,7 @@ type Props = {
 };
 
 export default function ContactInformationSection({ playerId, initialValues }: Props) {
+  const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<ContactFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -98,12 +100,12 @@ export default function ContactInformationSection({ playerId, initialValues }: P
       setDefaults(result.data);
       reset(result.data);
       setIsEditing(false);
-      setStatus({ type: "success", message: result.message ?? "Datos de contacto actualizados correctamente." });
+      setStatus({ type: "success", message: result.message ?? t("personalData.contactInfo.successDefault") });
 
       if (result.updatedFields.length > 0) {
         enqueue(
           profileNotification.updated({
-            sectionLabel: "tus datos de contacto",
+            sectionLabel: t("personalData.contactInfo.sectionLabel"),
             changedFields: result.updatedFields,
             detailsHref: "/dashboard/edit-profile/personal-data",
           }),
@@ -114,14 +116,14 @@ export default function ContactInformationSection({ playerId, initialValues }: P
 
   return (
     <SectionCard
-      title="Datos de contacto"
-      description="Esta información se utilizará para comunicaciones privadas. Podés permitir que tu email y WhatsApp se muestren en tu portfolio público."
+      title={t("personalData.contactInfo.title")}
+      description={t("personalData.contactInfo.description")}
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar datos de contacto"}
+          aria-label={isEditing ? t("personalData.contactInfo.cancelAria") : t("personalData.contactInfo.editAria")}
           onPress={handleToggleEditing}
           isDisabled={isPending}
         >
@@ -134,8 +136,8 @@ export default function ContactInformationSection({ playerId, initialValues }: P
           <FormField
             key={`email-${defaults.email}`}
             id="email"
-            label="Email principal"
-            description="Es el email asociado a tu cuenta. Se usa también como contacto público si activás la visibilidad."
+            label={t("personalData.contactInfo.emailLabel")}
+            description={t("personalData.contactInfo.emailDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.email}
             errorMessage={errors.email?.message}
@@ -144,9 +146,9 @@ export default function ContactInformationSection({ playerId, initialValues }: P
           <FormField
             key={`phone-${defaults.phone}`}
             id="phone"
-            label="Teléfono de contacto"
-            placeholder="+54 9 11 1234 5678"
-            description="Uso interno (no se muestra en tu portfolio)."
+            label={t("personalData.contactInfo.phoneLabel")}
+            placeholder={t("personalData.contactInfo.phonePlaceholder")}
+            description={t("personalData.contactInfo.phoneDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.phone}
             errorMessage={errors.phone?.message}
@@ -155,9 +157,9 @@ export default function ContactInformationSection({ playerId, initialValues }: P
           <FormField
             key={`whatsapp-${defaults.whatsapp}`}
             id="whatsapp"
-            label="WhatsApp"
-            placeholder="+54 9 11 1234 5678"
-            description="Número en formato internacional. Si activás la visibilidad pública, aparece como canal de contacto en tu portfolio."
+            label={t("personalData.contactInfo.whatsappLabel")}
+            placeholder={t("personalData.contactInfo.whatsappPlaceholder")}
+            description={t("personalData.contactInfo.whatsappDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.whatsapp}
             errorMessage={errors.whatsapp?.message}
@@ -166,9 +168,9 @@ export default function ContactInformationSection({ playerId, initialValues }: P
           <FormField
             key={`languages-${defaults.languages}`}
             id="languages"
-            label="Idiomas"
-            placeholder="Ej: Español, Inglés"
-            description="Definí los idiomas en los que te pueden contactar."
+            label={t("personalData.contactInfo.languagesLabel")}
+            placeholder={t("personalData.contactInfo.languagesPlaceholder")}
+            description={t("personalData.contactInfo.languagesDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.languages}
             errorMessage={errors.languages?.message}
@@ -177,9 +179,9 @@ export default function ContactInformationSection({ playerId, initialValues }: P
           <FormField
             key={`documents-${defaults.documents}`}
             id="documents"
-            label="Documentación"
-            placeholder="Pasaporte UE, DNI, etc."
-            description="Se integrará con verificación documental más adelante."
+            label={t("personalData.contactInfo.documentsLabel")}
+            placeholder={t("personalData.contactInfo.documentsPlaceholder")}
+            description={t("personalData.contactInfo.documentsDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.documents}
             errorMessage={errors.documents?.message}
@@ -188,8 +190,8 @@ export default function ContactInformationSection({ playerId, initialValues }: P
           <FormField
             key={`documentCountry-${defaults.documentCountry}`}
             id="document_country"
-            label="País del documento"
-            placeholder="País emisor"
+            label={t("personalData.contactInfo.documentCountryLabel")}
+            placeholder={t("personalData.contactInfo.documentCountryPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.documentCountry}
             errorMessage={errors.documentCountry?.message}
@@ -209,12 +211,11 @@ export default function ContactInformationSection({ playerId, initialValues }: P
                   disabled={!isEditing}
                 >
                   <span className="text-bh-fg-1 font-medium">
-                    Permitir mostrar mis datos de contacto en mi portfolio
+                    {t("personalData.contactInfo.showContactToggle")}
                   </span>
                 </BhCheckbox>
                 <p className="mt-1.5 ml-6 text-[11px] leading-[1.55] text-bh-fg-4">
-                  Cuando está activado, tu email principal y tu WhatsApp aparecen como canales de contacto en tu portfolio público.
-                  Próximamente esta visibilidad requerirá un plan Pro.
+                  {t("personalData.contactInfo.showContactHelp")}
                 </p>
               </div>
               <span
@@ -226,7 +227,7 @@ export default function ContactInformationSection({ playerId, initialValues }: P
                 ].join(" ")}
               >
                 {field.value ? <Eye className="size-3" /> : <EyeOff className="size-3" />}
-                {field.value ? "Visible" : "Oculto"}
+                {field.value ? t("personalData.contactInfo.visible") : t("personalData.contactInfo.hidden")}
               </span>
             </div>
           )}
@@ -247,7 +248,7 @@ export default function ContactInformationSection({ playerId, initialValues }: P
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-neutral-900 pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={handleCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -255,7 +256,7 @@ export default function ContactInformationSection({ playerId, initialValues }: P
               isDisabled={isPending || !isDirty}
               isLoading={isPending}
             >
-              Guardar cambios
+              {t("common.saveChanges")}
             </Button>
           </div>
         ) : null}

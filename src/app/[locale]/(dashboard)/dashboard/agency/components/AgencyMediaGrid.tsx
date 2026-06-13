@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ImageOff } from "lucide-react";
@@ -17,12 +18,13 @@ export type AgencyMediaItem = {
 };
 
 export default function AgencyMediaGrid({ items }: { items: AgencyMediaItem[] }) {
+  const t = useTranslations("dashAgency");
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   const handleDelete = (id: string) => {
-    if (!confirm("¿Eliminar esta imagen del catálogo?")) return;
+    if (!confirm(t("media.confirmDelete"))) return;
     setDeletingId(id);
     startTransition(async () => {
       try {
@@ -30,7 +32,7 @@ export default function AgencyMediaGrid({ items }: { items: AgencyMediaItem[] })
         router.refresh();
       } catch (err) {
         console.error("Error deleting agency media", err);
-        alert(err instanceof Error ? err.message : "No se pudo eliminar la imagen.");
+        alert(err instanceof Error ? err.message : t("media.errorDelete"));
       } finally {
         setDeletingId(null);
       }
@@ -41,8 +43,8 @@ export default function AgencyMediaGrid({ items }: { items: AgencyMediaItem[] })
     return (
       <BhEmptyState
         icon={<ImageOff className="h-5 w-5" />}
-        title="Sin imágenes"
-        description="Aún no agregaste fotos al catálogo de la agencia."
+        title={t("media.emptyTitle")}
+        description={t("media.emptyDescription")}
       />
     );
   }
@@ -60,7 +62,7 @@ export default function AgencyMediaGrid({ items }: { items: AgencyMediaItem[] })
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={item.url}
-                alt={item.altText || item.title || "Imagen de la agencia"}
+                alt={item.altText || item.title || t("media.defaultAlt")}
                 className="h-full w-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
               />
             </div>
@@ -69,9 +71,9 @@ export default function AgencyMediaGrid({ items }: { items: AgencyMediaItem[] })
               <div className="mb-3">
                 <p
                   className="truncate font-bh-heading text-[14px] font-semibold text-bh-fg-1"
-                  title={item.title || "Sin título"}
+                  title={item.title || t("media.untitled")}
                 >
-                  {item.title || "Imagen sin título"}
+                  {item.title || t("media.untitled")}
                 </p>
                 {item.altText && (
                   <p
@@ -98,7 +100,7 @@ export default function AgencyMediaGrid({ items }: { items: AgencyMediaItem[] })
                     className: "w-full flex-1",
                   })}
                 >
-                  {deletingId === item.id ? "Borrando..." : "Eliminar"}
+                  {deletingId === item.id ? t("common.deleting") : t("common.delete")}
                 </Button>
               </div>
             </div>

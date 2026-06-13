@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase/client";
 import { Button, Chip, Spinner } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import FormField from "@/components/dashboard/client/FormField";
 import { bhButtonClass } from "@/components/ui/BhButton";
@@ -45,6 +46,7 @@ export default function TeamPicker({
   defaultValue?: TeamPickerValue;  // opcional para edición
   onChange: (v: TeamPickerValue) => void;
 }) {
+  const t = useTranslations("teamPicker");
   const [q, setQ] = useState("");
   const [country, setCountry] = useState("");
   const [loading, setLoading] = useState(false);
@@ -160,21 +162,21 @@ export default function TeamPicker({
         <div className="w-full flex-1">
           <FormField
             id="bh-tp-team"
-            label="Equipo actual"
-            description="Buscá tu equipo por nombre. Si no existe, podés proponerlo."
+            label={t("dashboardPicker.currentTeamLabel")}
+            description={t("dashboardPicker.currentTeamDescription")}
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Ej: Boca Juniors"
+            placeholder={t("dashboardPicker.currentTeamPlaceholder")}
           />
         </div>
         <div className="w-full sm:w-44">
           <FormField
             id="bh-tp-country"
-            label="País (nombre o ISO-2)"
-            description="Ej: Argentina o AR"
+            label={t("dashboardPicker.countryLabel")}
+            description={t("dashboardPicker.countryDescription")}
             value={country}
             onChange={(e) => setCountry(e.target.value)}
-            placeholder="Argentina / AR"
+            placeholder={t("dashboardPicker.countryPlaceholder")}
           />
         </div>
       </div>
@@ -182,45 +184,45 @@ export default function TeamPicker({
       <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
         <div className="flex items-center justify-between">
           <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
-            Resultados
+            {t("dashboardPicker.resultsTitle")}
           </p>
           {loading && <Spinner size="sm" color="default" />}
         </div>
 
         {!loading && hasMatches && (
           <ul className="mt-3 grid gap-2">
-            {results.map((t) => (
+            {results.map((team) => (
               <li
-                key={t.id}
+                key={team.id}
                 className="bh-card-lift flex items-center justify-between rounded-bh-md border border-white/[0.06] bg-bh-surface-1/60 p-2.5"
               >
                 <div className="flex items-center gap-3">
                   <Image
-                    src={t.crest_url || "/images/team-default.svg"}
+                    src={team.crest_url || "/images/team-default.svg"}
                     alt=""
                     width={24}
                     height={24}
-                    unoptimized={!t.crest_url}
+                    unoptimized={!team.crest_url}
                     className="h-6 w-6 rounded-[3px] bg-bh-surface-2 object-contain"
                   />
                   <div>
-                    <p className="text-[13px] font-medium text-bh-fg-1">{t.name}</p>
+                    <p className="text-[13px] font-medium text-bh-fg-1">{team.name}</p>
                     <p className="flex items-center gap-1 text-[11px] text-bh-fg-4">
                       <CountryFlag
-                        code={t.country_code ?? undefined}
-                        title={t.country ?? t.country_code ?? undefined}
+                        code={team.country_code ?? undefined}
+                        title={team.country ?? team.country_code ?? undefined}
                         size={12}
                       />
-                      {t.country_code ? ` (${t.country_code})` : ""} · @{t.slug}
+                      {team.country_code ? ` (${team.country_code})` : ""} · @{team.slug}
                     </p>
                   </div>
                 </div>
                 <Button
                   size="sm"
-                  onPress={() => onPickApproved(t)}
+                  onPress={() => onPickApproved(team)}
                   className={bhButtonClass({ variant: "lime", size: "sm" })}
                 >
-                  Elegir
+                  {t("dashboardPicker.chooseTeam")}
                 </Button>
               </li>
             ))}
@@ -229,7 +231,7 @@ export default function TeamPicker({
 
         {!loading && !hasMatches && q.trim() && (
           <p className="mt-2 text-[13px] text-bh-fg-4">
-            No encontramos equipos con &ldquo;{q.trim()}&rdquo;.
+            {t("dashboardPicker.noResults", { q: q.trim() })}
           </p>
         )}
 
@@ -240,11 +242,10 @@ export default function TeamPicker({
               onPress={onPickNew}
               className={bhButtonClass({ variant: "outline", size: "sm" })}
             >
-              Proponer equipo nuevo: &ldquo;{q.trim()}&rdquo;
+              {t("dashboardPicker.proposeNew", { q: q.trim() })}
             </Button>
             <p className="text-[11px] text-bh-fg-4">
-              El equipo no está en nuestra base. Con tu solicitud lo crearemos
-              y verificaremos.
+              {t("dashboardPicker.proposeHelp")}
             </p>
           </div>
         )}
@@ -255,28 +256,28 @@ export default function TeamPicker({
             onPress={onPickFree}
             className={bhButtonClass({ variant: "ghost", size: "sm" })}
           >
-            Soy jugador libre (sin equipo)
+            {t("dashboardPicker.freeAgentCta")}
           </Button>
         </div>
       </div>
 
       {picked?.mode === "approved" && (
         <Chip variant="flat" classNames={bhChip("success")}>
-          Seleccionado: {picked.teamName}
+          {t("dashboardPicker.chipSelected", { name: picked.teamName })}
           {picked.country ? ` · ${picked.country}` : ""}
           {picked.countryCode ? ` (${picked.countryCode})` : ""}
         </Chip>
       )}
       {picked?.mode === "new" && (
         <Chip variant="flat" classNames={bhChip("warning")}>
-          Equipo propuesto: {picked.name}
+          {t("dashboardPicker.chipProposed", { name: picked.name })}
           {picked.country ? ` · ${picked.country}` : ""}
           {picked.countryCode ? ` (${picked.countryCode})` : ""}
         </Chip>
       )}
       {picked?.mode === "free" && (
         <Chip variant="flat" classNames={bhChip("neutral")}>
-          Jugador libre
+          {t("dashboardPicker.chipFree")}
         </Chip>
       )}
     </div>

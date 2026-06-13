@@ -13,6 +13,7 @@ import {
 import { eq, asc, desc, and, inArray } from "drizzle-orm";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
+import { getTranslations } from "next-intl/server";
 
 import { getAgencyTranslations } from "@/lib/i18n/profile-content";
 import IdentitySection from "./components/IdentitySection";
@@ -33,6 +34,7 @@ export const metadata = {
 };
 
 export default async function ManagerAgencyPage() {
+  const t = await getTranslations("dashAgency");
   const supa = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -47,10 +49,10 @@ export default async function ManagerAgencyPage() {
   if (!up || up.role !== "manager" || !up.agencyId || !up.agency) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Mi Agencia" description="Información de la agencia representativa." />
-        <SectionCard title="Acceso restringido" description="">
+        <PageHeader title={t("restricted.title")} description={t("restricted.description")} />
+        <SectionCard title={t("restricted.cardTitle")} description="">
           <p className="text-bh-fg-3">
-            Aún no tenés una agencia aprobada o no sos un mánager activo.
+            {t("restricted.body")}
           </p>
         </SectionCard>
       </div>
@@ -197,8 +199,8 @@ export default async function ManagerAgencyPage() {
   return (
     <div className="space-y-6 pb-12">
       <PageHeader
-        title={`Perfil de ${agency.name}`}
-        description="Editá cada bloque de manera independiente. El portfolio público se actualiza al instante."
+        title={t("page.headerTitle", { name: agency.name })}
+        description={t("page.headerDescription")}
       />
 
       <IdentitySection

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { useRouter } from "next/navigation";
@@ -220,16 +221,18 @@ function comparableStagesEqual(a: ComparableStage, b: ComparableStage): boolean 
   );
 }
 
-function formatStatus(status: CareerRequestSnapshot["status"]): { label: string; tone: "default" | "success" | "warning" | "danger" } {
+type CareerTFn = ReturnType<typeof useTranslations<"dashEditProfile">>;
+
+function formatStatus(t: CareerTFn, status: CareerRequestSnapshot["status"]): { label: string; tone: "default" | "success" | "warning" | "danger" } {
   switch (status) {
     case "approved":
-      return { label: "Aprobada", tone: "success" };
+      return { label: t("footballData.career.statusApproved"), tone: "success" };
     case "rejected":
-      return { label: "Rechazada", tone: "danger" };
+      return { label: t("footballData.career.statusRejected"), tone: "danger" };
     case "cancelled":
-      return { label: "Cancelada", tone: "default" };
+      return { label: t("footballData.career.statusCancelled"), tone: "default" };
     default:
-      return { label: "En revisión", tone: "warning" };
+      return { label: t("footballData.career.statusPending"), tone: "warning" };
   }
 }
 
@@ -248,6 +251,7 @@ function formatDate(value: string | null): string {
 }
 
 export default function CareerManager({ playerId, playerName, stages, latestRequest }: Props) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(DEFAULT_STATUS);
   const [note, setNote] = useState<string>("");
@@ -273,8 +277,8 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
   const [items, setItems] = useState<AugmentedCareerItem[]>(baseItems);
   const [guardMessage, setGuardMessage] = useState<string | null>(null);
   const requestDescriptor = useMemo(
-    () => (latestRequest ? formatStatus(latestRequest.status) : null),
-    [latestRequest],
+    () => (latestRequest ? formatStatus(t, latestRequest.status) : null),
+    [latestRequest, t],
   );
   const pendingItems = latestRequest?.status === "pending" ? latestRequest.items : [];
   const pendingNote = latestRequest?.status === "pending" ? latestRequest.note : null;
@@ -291,15 +295,15 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
 
     switch (latestRequest.status) {
       case "approved":
-        return { label: "Solicitud aprobada", note, tone: "success" };
+        return { label: t("footballData.career.resolutionApprovedLabel"), note, tone: "success" };
       case "rejected":
-        return { label: "Solicitud rechazada", note, tone: "danger" };
+        return { label: t("footballData.career.resolutionRejectedLabel"), note, tone: "danger" };
       case "cancelled":
-        return { label: "Solicitud cancelada", note, tone: "default" };
+        return { label: t("footballData.career.resolutionCancelledLabel"), note, tone: "default" };
       default:
         return null;
     }
-  }, [latestRequest]);
+  }, [latestRequest, t]);
 
   useEffect(() => {
     if (!latestRequest?.id) {
@@ -313,7 +317,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
           reviewNotification.approved({
             userName: playerName ?? undefined,
             requestId: latestRequest.id,
-            topicLabel: "tu trayectoria",
+            topicLabel: t("footballData.career.topicLabel"),
             detailsHref: "/dashboard/edit-profile/football-data",
           }),
         );
@@ -327,7 +331,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
           reviewNotification.rejected({
             userName: playerName ?? undefined,
             requestId: latestRequest.id,
-            topicLabel: "tu trayectoria",
+            topicLabel: t("footballData.career.topicLabel"),
             retryHref: "/dashboard/edit-profile/football-data",
             moderatorMessage: latestRequest.resolutionNote ?? undefined,
           }),
@@ -429,7 +433,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
 
       if (hasOpenOtherStage) {
         setGuardMessage(
-          "Para marcar un nuevo equipo como actual, cerrá la etapa vigente indicando su año de finalización.",
+          t("footballData.career.guardCloseCurrent"),
         );
         return false;
       }
@@ -437,7 +441,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
       setGuardMessage(null);
       return true;
     },
-    [items],
+    [items, t],
   );
 
   const confirmedItems = useMemo(() => items.filter((item) => item.confirmed), [items]);
@@ -491,25 +495,25 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
 
   const handleSubmit = () => {
     if (isLockedByRequest) {
-      setStatus({ type: "error", message: "Ya tenés una solicitud en revisión. Esperá la respuesta del equipo." });
+      setStatus({ type: "error", message: t("footballData.career.errorInReview") });
       return;
     }
 
     if (!hasConfirmedChanges) {
       setStatus({
         type: "error",
-        message: "Confirmá y guardá los cambios que quieras enviar antes de solicitar la revisión.",
+        message: t("footballData.career.errorConfirmFirst"),
       });
       return;
     }
 
     if (hasPendingDrafts) {
-      setStatus({ type: "error", message: "Confirmá o eliminá las etapas en edición antes de enviar." });
+      setStatus({ type: "error", message: t("footballData.career.errorPendingDrafts") });
       return;
     }
 
     if (confirmedItems.length === 0) {
-      setStatus({ type: "error", message: "Agregá al menos una etapa confirmada en tu trayectoria." });
+      setStatus({ type: "error", message: t("footballData.career.errorAtLeastOne") });
       return;
     }
 
@@ -526,14 +530,14 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
         return;
       }
 
-      setStatus({ type: "success", message: "Solicitud enviada para revisión del equipo." });
+      setStatus({ type: "success", message: t("footballData.career.successSubmitted") });
       setNote("");
       if (result.requestId) {
         enqueue(
           reviewNotification.submitted({
             userName: playerName ?? undefined,
             requestId: result.requestId,
-            topicLabel: "tu trayectoria",
+            topicLabel: t("footballData.career.topicLabel"),
           }),
         );
       }
@@ -552,9 +556,9 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
       <header className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h3 className="text-lg font-semibold text-white">Trayectoria profesional</h3>
+            <h3 className="text-lg font-semibold text-white">{t("footballData.career.heading")}</h3>
             <p className="text-sm text-bh-fg-3">
-              Editá tus etapas, proponé nuevos equipos y enviá la solicitud para que nuestro equipo la valide.
+              {t("footballData.career.subtitle")}
             </p>
           </div>
           {requestDescriptor ? (
@@ -577,7 +581,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
         </div>
         {latestRequest ? (
           <p className="text-xs text-bh-fg-4">
-            Última actualización: {formatDate(latestRequest.reviewedAt ?? latestRequest.submittedAt)}
+            {t("footballData.career.lastUpdated", { date: formatDate(latestRequest.reviewedAt ?? latestRequest.submittedAt) })}
           </p>
         ) : null}
       </header>
@@ -607,13 +611,13 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
         <section className="space-y-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p className="text-sm font-semibold text-amber-200">Solicitud en revisión</p>
+              <p className="text-sm font-semibold text-amber-200">{t("footballData.career.pendingRequestTitle")}</p>
               <p className="text-xs text-amber-100/80">
-                Tus cambios quedarán visibles cuando el equipo de Ballers los apruebe.
+                {t("footballData.career.pendingRequestHelp")}
               </p>
             </div>
             <Chip size="sm" color="warning" variant="flat">
-              En revisión
+              {t("footballData.career.pendingChip")}
             </Chip>
           </div>
           {pendingNote ? (
@@ -637,7 +641,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
                   />
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-semibold text-white">{stage.team?.name ?? stage.club ?? "Club"}</p>
+                      <p className="truncate text-sm font-semibold text-white">{stage.team?.name ?? stage.club ?? t("footballData.career.clubFallback")}</p>
                       {stage.team?.countryCode || stage.proposedTeam?.countryCode ? (
                         <CountryFlag
                           code={stage.team?.countryCode ?? stage.proposedTeam?.countryCode ?? undefined}
@@ -650,13 +654,13 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
                       ) : null}
                       {stage.proposedTeam ? (
                         <Chip size="sm" variant="flat" color="warning">
-                          Equipo propuesto
+                          {t("footballData.career.proposedTeam")}
                         </Chip>
                       ) : null}
                     </div>
                     <p className="truncate text-xs text-bh-fg-3">
-                      {(stage.division ?? "División sin definir") + " · "}
-                      {formatStagePeriod(stage.startYear, stage.endYear)}
+                      {(stage.division ?? t("footballData.career.divisionUndefined")) + " · "}
+                      {formatStagePeriod(t, stage.startYear, stage.endYear)}
                     </p>
                   </div>
                 </div>
@@ -684,7 +688,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
         <p className="flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-100">
           <AlertTriangle className="mt-[2px] h-4 w-4 shrink-0" />
           <span>
-            Tenés una solicitud de revisión pendiente. Esperá la respuesta del equipo para editar nuevamente tu trayectoria.
+            {t("footballData.career.lockedNotice")}
           </span>
         </p>
       ) : null}
@@ -692,12 +696,12 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
       {showActionPanel ? (
         <div className="space-y-4 rounded-lg border border-white/[0.08] bg-bh-surface-1/40 p-4">
           <label className="block space-y-2 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Nota para el equipo (opcional)</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.career.noteLabel")}</span>
             <textarea
               value={note}
               onChange={(event: React.ChangeEvent<HTMLTextAreaElement>) => setNote(event.target.value)}
               rows={3}
-              placeholder="Contanos el contexto de los cambios o la temporada a destacar."
+              placeholder={t("footballData.career.notePlaceholder")}
               className="w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 disabled:opacity-60"
               disabled={pending || isLockedByRequest}
             />
@@ -716,7 +720,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
               onPress={handleReset}
               disabled={pending}
             >
-              Restablecer cambios
+              {t("footballData.career.reset")}
             </Button>
             <Button
               size="sm"
@@ -725,7 +729,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
               isDisabled={pending || isLockedByRequest}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              {isLockedByRequest ? "Solicitud en revisión" : "Enviar solicitud"}
+              {isLockedByRequest ? t("footballData.career.submitInReview") : t("footballData.career.submit")}
             </Button>
           </div>
         </div>
@@ -734,8 +738,8 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
   );
 }
 
-function formatStagePeriod(startYear: number | null, endYear: number | null): string {
+function formatStagePeriod(t: CareerTFn, startYear: number | null, endYear: number | null): string {
   const from = startYear ?? "¿?";
-  const to = endYear ?? "Actual";
+  const to = endYear ?? t("footballData.career.currentPeriod");
   return `${from} – ${to}`;
 }

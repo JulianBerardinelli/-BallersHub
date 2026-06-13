@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@heroui/react";
 import { UploadCloud, AlertCircle } from "lucide-react";
 
@@ -24,6 +25,7 @@ export default function AvatarUploader({
   playerId: string;
   currentAvatarUrl?: string | null;
 }) {
+  const t = useTranslations("dashEditProfile");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pickedFile, setPickedFile] = useState<File | null>(null);
@@ -34,13 +36,13 @@ export default function AvatarUploader({
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setError("Por favor, seleccioná una imagen válida.");
+      setError(t("avatar.invalidImage"));
       e.target.value = "";
       return;
     }
     if (file.size > MAX_BYTES) {
       setError(
-        `La imagen pesa ${formatBytes(file.size)}. Reducila a ${formatBytes(MAX_BYTES)} o menos. Probá comprimir en squoosh.app.`,
+        t("avatar.tooLarge", { size: formatBytes(file.size), max: formatBytes(MAX_BYTES) }),
       );
       e.target.value = "";
       return;
@@ -64,7 +66,7 @@ export default function AvatarUploader({
 
       const { data: publicUrlData } = supabase.storage.from("player-media").getPublicUrl(key);
       const publicUrl = publicUrlData?.publicUrl ?? null;
-      if (!publicUrl) throw new Error("No se pudo obtener la URL pública de la imagen subida.");
+      if (!publicUrl) throw new Error(t("avatar.publicUrlError"));
 
       await supabase
         .from("player_media")
@@ -77,6 +79,8 @@ export default function AvatarUploader({
         player_id: playerId,
         type: "photo",
         url: publicUrl,
+        // Stored DB value — keep locale-stable (es), do NOT use t() here, or the
+        // uploader's UI locale would leak into the persisted media title.
         title: "Avatar principal",
         provider: "upload",
         is_primary: true,
@@ -105,7 +109,7 @@ export default function AvatarUploader({
         window.location.reload();
       }
     } catch (uploadErr) {
-      const message = uploadErr instanceof Error ? uploadErr.message : "Ocurrió un error al subir el avatar.";
+      const message = uploadErr instanceof Error ? uploadErr.message : t("avatar.uploadError");
       setError(message);
     } finally {
       setBusy(false);
@@ -131,7 +135,7 @@ export default function AvatarUploader({
         onPress={() => fileInputRef.current?.click()}
         className={bhButtonClass({ variant: "lime", size: "sm" })}
       >
-        {currentAvatarUrl ? "Cambiar avatar" : "Subir avatar"}
+        {currentAvatarUrl ? t("avatar.change") : t("avatar.upload")}
       </Button>
 
       {error && (

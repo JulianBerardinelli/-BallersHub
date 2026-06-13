@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 
 import MediaCatalogModal, {
   type SeoSuggestionsByTab,
@@ -17,45 +18,61 @@ type MediaUploadModalProps = {
 
 export default function MediaUploadModal({ isOpen, onOpenChange, profileContext, videoOnly = false }: MediaUploadModalProps) {
   const router = useRouter();
+  const t = useTranslations("dashEditProfile");
+  const locale = useLocale();
 
-  const playerName = profileContext?.fullName || "Jugador";
-  const playerClub = profileContext?.currentClub || "su equipo";
+  const playerName = profileContext?.fullName || t("media.uploadModal.playerFallback");
+  const playerClub = profileContext?.currentClub || t("media.uploadModal.clubFallback");
   let playerNat = profileContext?.nationality || "";
   if (playerNat && playerNat.length === 2) {
     try {
-      playerNat = new Intl.DisplayNames(["es"], { type: "region" }).of(playerNat) || playerNat;
+      playerNat = new Intl.DisplayNames([locale], { type: "region" }).of(playerNat) || playerNat;
     } catch {
       // Ignore if invalid code.
     }
   }
 
-  const photoTagSuggestions = [playerNat, playerClub, "futbolista", "foto perfil"]
+  const currentYear = new Date().getFullYear();
+
+  const photoTagSuggestions = [
+    playerNat,
+    playerClub,
+    t("media.uploadModal.tagFootballer"),
+    t("media.uploadModal.tagProfilePhoto"),
+  ]
     .filter(Boolean)
     .join(", ");
-  const videoTagSuggestions = [playerNat, playerClub, "highlights", "skills", "temporada", "posicion"]
+  const videoTagSuggestions = [
+    playerNat,
+    playerClub,
+    t("media.uploadModal.tagHighlights"),
+    t("media.uploadModal.tagSkills"),
+    t("media.uploadModal.tagSeason"),
+    t("media.uploadModal.tagPosition"),
+  ]
     .filter(Boolean)
     .join(", ");
 
   const seo: SeoSuggestionsByTab = {
     photo: {
       titles: [
-        `${playerName} jugando con ${playerClub}`,
-        `Retrato oficial de ${playerName}`,
+        t("media.uploadModal.seo.photoTitle1", { name: playerName, club: playerClub }),
+        t("media.uploadModal.seo.photoTitle2", { name: playerName }),
       ],
       altTexts: [
-        `Fotografía de ${playerName} jugando al fútbol`,
-        `Retrato deportivo de ${playerName} con la camiseta de ${playerClub}`,
+        t("media.uploadModal.seo.photoAlt1", { name: playerName }),
+        t("media.uploadModal.seo.photoAlt2", { name: playerName, club: playerClub }),
       ],
       tags: photoTagSuggestions,
     },
     video: {
       titles: [
-        `${playerName} - Highlight Video ${new Date().getFullYear()}`,
-        `Mejores jugadas de ${playerName} en ${playerClub}`,
+        t("media.uploadModal.seo.videoTitle1", { name: playerName, year: currentYear }),
+        t("media.uploadModal.seo.videoTitle2", { name: playerName, club: playerClub }),
       ],
       altTexts: [
-        `Video de mejores jugadas y skills de ${playerName}`,
-        `Competición y highlights de ${playerName} durante la temporada`,
+        t("media.uploadModal.seo.videoAlt1", { name: playerName }),
+        t("media.uploadModal.seo.videoAlt2", { name: playerName }),
       ],
       tags: videoTagSuggestions,
     },
@@ -65,11 +82,11 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext,
     <MediaCatalogModal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      modalTitle={videoOnly ? "Subir video" : "Añadir multimedia"}
+      modalTitle={videoOnly ? t("media.uploadModal.titleVideoOnly") : t("media.uploadModal.titleDefault")}
       modalSubtitle={
         videoOnly
-          ? "Cargá videos y highlights. Las fotos de catálogo son una feature Pro."
-          : "Subí fotos o videos para enriquecer tu perfil público."
+          ? t("media.uploadModal.subtitleVideoOnly")
+          : t("media.uploadModal.subtitleDefault")
       }
       features={{ videos: true, photos: !videoOnly, tags: true, isPrimary: !videoOnly }}
       seo={seo}
@@ -98,7 +115,7 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext,
 
         if (!response.ok) {
           const data = await response.json().catch(() => ({} as { error?: string }));
-          throw new Error(data.error || "Error al subir el archivo");
+          throw new Error(data.error || t("media.uploadModal.uploadError"));
         }
       }}
       onSuccess={() => router.refresh()}

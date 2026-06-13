@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Login information",
+    "cardDescription": "Update your credentials or review your account's basic information.",
+    "editAria": "Edit login information",
+    "cancelEditAria": "Cancel editing",
+    "emailLabel": "Email address",
+    "emailPlaceholder": "you@email.com",
+    "emailConfirmationSent": "We sent a confirmation link to your email to validate the change.",
+    "updateEmail": "Update email",
+    "updatingEmail": "Updating...",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "At least 6 characters",
+    "passwordTooShort": "The password must be at least 6 characters.",
+    "passwordUpdated": "Password updated successfully.",
+    "updatePassword": "Update password",
+    "updatingPassword": "Updating...",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "passwordLabel": "Password",
+    "roleLabel": "Account role",
+    "roleDescription": "Affects the type of profile you have access to.",
+    "roleManager": "Agency / Representative",
+    "roleAdmin": "Administrator",
+    "roleMember": "Player / Member",
+    "createdAtLabel": "Account created"
+  },
+  "subscription": {
+    "stripePortalTitle": "Stripe portal",
+    "stripePortalDescription": "Update your card, download invoices, or cancel the subscription.",
+    "openPortal": "Open portal",
+    "stripePortalRequestFailed": "Stripe portal request failed",
+    "cancelScheduledNotice": "Your subscription is set to cancel at the end of the period. If you change your mind, you can revert it from the portal.",
+    "cancelTitle": "Cancel subscription",
+    "cancelDescription": "Mercado Pago cuts off access immediately upon cancellation. There is no partial refund for the paid period.",
+    "cancel": "Cancel",
+    "back": "Back",
+    "confirmCancel": "Confirm cancellation",
+    "cancelRequestFailed": "Cancel request failed"
+  },
+  "common": {
+    "invalidLocale": "Invalid language.",
+    "mustSignIn": "You must sign in.",
+    "localeSaveFailed": "Could not save the language.",
+    "localeUpdated": "Native language updated.",
+    "unknownError": "Unknown error."
+  }
+}

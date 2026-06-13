@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@heroui/react";
 import {
@@ -25,18 +26,6 @@ import {
 } from "@/app/actions/agency-team-relations";
 import { useNotificationContext, profileNotification } from "@/modules/notifications";
 import { bhButtonClass } from "@/components/ui/bh-button-class";
-
-const RELATION_KIND_LABEL: Record<string, string> = {
-  current: "Actual",
-  past: "Pasada",
-};
-
-const STATUS_LABEL: Record<string, string> = {
-  pending: "En revisión",
-  approved: "Aprobada",
-  rejected: "Rechazada",
-  cancelled: "Cancelada",
-};
 
 const STATUS_COLOR: Record<string, "warning" | "success" | "danger" | "default"> = {
   pending: "warning",
@@ -125,8 +114,20 @@ export default function TeamRelationsSection({
   relations,
   pendingSubmissions,
 }: Props) {
+  const t = useTranslations("dashAgency");
   const router = useRouter();
   const { enqueue } = useNotificationContext();
+
+  const relationKindLabel: Record<string, string> = {
+    current: t("teamRelations.kindCurrent"),
+    past: t("teamRelations.kindPast"),
+  };
+  const statusLabel: Record<string, string> = {
+    pending: t("teamRelations.statusPending"),
+    approved: t("teamRelations.statusApproved"),
+    rejected: t("teamRelations.statusRejected"),
+    cancelled: t("teamRelations.statusCancelled"),
+  };
   const [isComposing, setIsComposing] = useState(false);
   const [drafts, setDrafts] = useState<DraftItem[]>([blankDraft()]);
   const [note, setNote] = useState("");
@@ -159,14 +160,13 @@ export default function TeamRelationsSection({
   const submit = () => {
     const cleaned = drafts.filter((d) => !draftIsEmpty(d));
     if (cleaned.length === 0) {
-      setStatus({ type: "error", message: "Cargá al menos un equipo." });
+      setStatus({ type: "error", message: t("teamRelations.errorAtLeastOne") });
       return;
     }
     if (!cleaned.every(draftIsValid)) {
       setStatus({
         type: "error",
-        message:
-          "Todos los equipos deben estar elegidos del buscador o propuestos con país obligatorio.",
+        message: t("teamRelations.errorAllValid"),
       });
       return;
     }
@@ -207,7 +207,7 @@ export default function TeamRelationsSection({
         enqueue(
           profileNotification.updated({
             userName: agencyName,
-            sectionLabel: "Equipos · Solicitud",
+            sectionLabel: t("teamRelations.notificationSection"),
             changedFields: cleaned.map((d) =>
               d.picker?.mode === "approved" ? d.picker.teamName : (d.picker as Extract<AgencyTeamPickerValue, { mode: "new" }>).name,
             ),
@@ -217,21 +217,21 @@ export default function TeamRelationsSection({
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al enviar.",
+          message: err instanceof Error ? err.message : t("teamRelations.errorSubmit"),
         });
       }
     });
   };
 
   const cancelSubmission = (id: string) => {
-    if (!confirm("¿Cancelar esta solicitud?")) return;
+    if (!confirm(t("teamRelations.confirmCancelSubmission"))) return;
     setBusyId(id);
     startTransition(async () => {
       try {
         await cancelAgencyTeamSubmissionAction(id);
         router.refresh();
       } catch (err) {
-        alert(err instanceof Error ? err.message : "No se pudo cancelar.");
+        alert(err instanceof Error ? err.message : t("teamRelations.errorCancelSubmission"));
       } finally {
         setBusyId(null);
       }
@@ -239,14 +239,14 @@ export default function TeamRelationsSection({
   };
 
   const removeRelation = (id: string) => {
-    if (!confirm("¿Quitar este equipo del portfolio?")) return;
+    if (!confirm(t("teamRelations.confirmRemoveRelation"))) return;
     setBusyId(id);
     startTransition(async () => {
       try {
         await deleteAgencyTeamRelationAction(id);
         router.refresh();
       } catch (err) {
-        alert(err instanceof Error ? err.message : "No se pudo eliminar.");
+        alert(err instanceof Error ? err.message : t("teamRelations.errorRemoveRelation"));
       } finally {
         setBusyId(null);
       }
@@ -255,14 +255,14 @@ export default function TeamRelationsSection({
 
   return (
     <SectionCard
-      title="Equipos con los que trabajaste"
-      description="Cargá clubes con los que tu agencia tiene o tuvo relación. Las altas pasan por administración para verificar la trayectoria. Aparecen agrupados por país en el portfolio público."
+      title={t("teamRelations.title")}
+      description={t("teamRelations.description")}
       actions={
         <EditPencilButton
           isEditing={isComposing}
           onPress={() => (isComposing ? cancelComposer() : setIsComposing(true))}
           isDisabled={isPending}
-          ariaLabel="lista de equipos"
+          ariaLabel={t("teamRelations.ariaLabel")}
         />
       }
     >
@@ -270,14 +270,14 @@ export default function TeamRelationsSection({
         {/* Confirmed relations */}
         {relations.length === 0 && pendingSubmissions.length === 0 && !isComposing && (
           <div className="rounded-xl border border-dashed border-white/[0.08] bg-bh-surface-1/40 py-6 text-center text-sm text-bh-fg-4">
-            Aún no agregaste equipos. Tocá el lápiz para iniciar una solicitud.
+            {t("teamRelations.empty")}
           </div>
         )}
 
         {relations.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-              Equipos verificados ({relations.length})
+              {t("teamRelations.verifiedTitle", { count: relations.length })}
             </h4>
             <div className="grid gap-2 sm:grid-cols-2">
               {relations.map((rel) => (
@@ -302,7 +302,7 @@ export default function TeamRelationsSection({
                           content: "text-[10px]",
                         }}
                       >
-                        {RELATION_KIND_LABEL[rel.relationKind] ?? rel.relationKind}
+                        {relationKindLabel[rel.relationKind] ?? rel.relationKind}
                       </Chip>
                     </div>
                     {rel.description && (
@@ -327,7 +327,7 @@ export default function TeamRelationsSection({
                     variant="flat"
                     isLoading={busyId === rel.id}
                     onPress={() => removeRelation(rel.id)}
-                    aria-label="Eliminar equipo"
+                    aria-label={t("teamRelations.removeTeamAria")}
                     className={bhButtonClass({ variant: "danger-soft", size: "sm", iconOnly: true })}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -342,7 +342,7 @@ export default function TeamRelationsSection({
         {pendingSubmissions.length > 0 && (
           <div className="space-y-2">
             <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-              Solicitudes ({pendingSubmissions.length})
+              {t("teamRelations.submissionsTitle", { count: pendingSubmissions.length })}
             </h4>
             <div className="space-y-2">
               {pendingSubmissions.map((sub) => (
@@ -365,7 +365,7 @@ export default function TeamRelationsSection({
                         color={STATUS_COLOR[sub.status]}
                         classNames={{ content: "text-[11px]" }}
                       >
-                        {STATUS_LABEL[sub.status] ?? sub.status}
+                        {statusLabel[sub.status] ?? sub.status}
                       </Chip>
                       <span className="text-[11px] text-bh-fg-4">
                         {new Date(sub.submittedAt).toLocaleDateString()}
@@ -379,7 +379,7 @@ export default function TeamRelationsSection({
                         onPress={() => cancelSubmission(sub.id)}
                         className={bhButtonClass({ variant: "ghost", size: "sm" })}
                       >
-                        Cancelar
+                        {t("common.cancel")}
                       </Button>
                     )}
                   </div>
@@ -395,7 +395,7 @@ export default function TeamRelationsSection({
                           {cc && <CountryFlag code={cc} size={14} />}
                           <span className="font-medium">{name}</span>
                           <span className="text-bh-fg-4">
-                            · {RELATION_KIND_LABEL[it.relationKind]}
+                            · {relationKindLabel[it.relationKind]}
                           </span>
                           {it.proposedTeamDivision && (
                             <span className="text-bh-fg-4">· {it.proposedTeamDivision}</span>
@@ -407,7 +407,7 @@ export default function TeamRelationsSection({
                               color="warning"
                               classNames={{ base: "ml-1", content: "text-[10px]" }}
                             >
-                              equipo nuevo
+                              {t("teamRelations.newTeamChip")}
                             </Chip>
                           )}
                         </li>
@@ -416,7 +416,7 @@ export default function TeamRelationsSection({
                   </ul>
                   {sub.resolutionNote && (
                     <p className="text-[11px] italic text-bh-fg-4">
-                      Nota del admin: {sub.resolutionNote}
+                      {t("teamRelations.adminNote", { note: sub.resolutionNote })}
                     </p>
                   )}
                 </div>
@@ -430,7 +430,7 @@ export default function TeamRelationsSection({
           <div className="space-y-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-[rgba(204,255,0,0.04)] p-4">
             <div className="flex items-center justify-between">
               <h4 className="font-bh-heading text-sm font-bold uppercase tracking-tight text-bh-fg-1">
-                Nueva solicitud
+                {t("teamRelations.composerTitle")}
               </h4>
               <Button
                 size="sm"
@@ -439,7 +439,7 @@ export default function TeamRelationsSection({
                 isDisabled={drafts.length >= 15}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Agregar otro equipo
+                {t("teamRelations.addAnotherTeam")}
               </Button>
             </div>
 
@@ -450,13 +450,13 @@ export default function TeamRelationsSection({
               >
                 <div className="flex items-center justify-between">
                   <span className="font-bh-mono text-[10px] uppercase tracking-widest text-bh-fg-4">
-                    Equipo #{idx + 1}
+                    {t("teamRelations.teamNumber", { n: idx + 1 })}
                   </span>
                   <Button
                     isIconOnly
                     size="sm"
                     variant="flat"
-                    aria-label="Quitar"
+                    aria-label={t("teamRelations.removeAria")}
                     onPress={() => removeDraft(idx)}
                     isDisabled={drafts.length === 1 && draftIsEmpty(d)}
                     className={bhButtonClass({ variant: "danger-soft", size: "sm", iconOnly: true })}
@@ -472,8 +472,8 @@ export default function TeamRelationsSection({
 
                 <div className="grid gap-3 md:grid-cols-[1fr_180px]">
                   <FormField
-                    label="División / Liga (opcional)"
-                    placeholder="Ej: Primera División"
+                    label={t("teamRelations.divisionLabel")}
+                    placeholder={t("teamRelations.divisionPlaceholder")}
                     value={d.proposedTeamDivision}
                     onChange={(e) =>
                       updateDraft(idx, { proposedTeamDivision: e.target.value })
@@ -482,7 +482,7 @@ export default function TeamRelationsSection({
                   />
                   <div className="space-y-1.5">
                     <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
-                      Tipo
+                      {t("teamRelations.typeLabel")}
                     </span>
                     <div className="flex h-11 rounded-bh-md border border-white/[0.08] bg-bh-surface-1 overflow-hidden">
                       {(["current", "past"] as const).map((kind) => (
@@ -496,7 +496,7 @@ export default function TeamRelationsSection({
                               : "text-bh-fg-3 hover:text-bh-fg-1"
                           }`}
                         >
-                          {RELATION_KIND_LABEL[kind]}
+                          {relationKindLabel[kind]}
                         </button>
                       ))}
                     </div>
@@ -505,8 +505,8 @@ export default function TeamRelationsSection({
 
                 <FormField
                   as="textarea"
-                  label="Descripción de la relación"
-                  placeholder="Ej: Representación de jugadores con el club desde 2018, transferencias y renovaciones de contrato."
+                  label={t("teamRelations.relationDescriptionLabel")}
+                  placeholder={t("teamRelations.relationDescriptionPlaceholder")}
                   rows={2}
                   value={d.description}
                   onChange={(e) => updateDraft(idx, { description: e.target.value })}
@@ -517,8 +517,8 @@ export default function TeamRelationsSection({
 
             <FormField
               as="textarea"
-              label="Mensaje al admin (opcional)"
-              placeholder="Cualquier contexto que ayude a verificar (links, contactos, etc.)"
+              label={t("teamRelations.noteLabel")}
+              placeholder={t("teamRelations.notePlaceholder")}
               rows={2}
               value={note}
               onChange={(e) => setNote(e.target.value)}
@@ -537,14 +537,14 @@ export default function TeamRelationsSection({
 
             <div className="flex justify-end gap-3 border-t border-white/[0.06] pt-3">
               <Button variant="light" onPress={cancelComposer} isDisabled={isPending}>
-                Cancelar
+                {t("common.cancel")}
               </Button>
               <Button
                 onPress={submit}
                 isLoading={isPending}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Enviar solicitud
+                {t("teamRelations.submitButton")}
               </Button>
             </div>
           </div>

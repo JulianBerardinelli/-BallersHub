@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { useForm } from "react-hook-form";
@@ -27,6 +28,7 @@ type Props = {
 };
 
 export default function MarketProjectionSection({ playerId, initialValues }: Props) {
+  const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<MarketProjectionFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -109,13 +111,13 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
       setIsEditing(false);
       setStatus({
         type: "success",
-        message: result.message ?? "Valor de mercado actualizado correctamente.",
+        message: result.message ?? t("footballData.market.successDefault"),
       });
 
       if (result.updatedFields.length > 0) {
         enqueue(
           profileNotification.updated({
-            sectionLabel: "tu valor de mercado y proyección",
+            sectionLabel: t("footballData.market.sectionLabel"),
             changedFields: result.updatedFields,
             detailsHref: "/dashboard/edit-profile/football-data",
           }),
@@ -128,7 +130,7 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
     <SectionCard
       title={
         <span className="inline-flex items-center gap-2">
-          Valor de mercado y proyección
+          {t("footballData.market.titleText")}
           {!access.isPro && (
             <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-bh-lime">
               <Lock size={9} /> Pro
@@ -138,15 +140,15 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
       }
       description={
         access.isPro
-          ? "Consolidá métricas económicas para potenciar negociaciones con clubes y agentes."
-          : "Cargá tu valor de mercado y objetivos de carrera. Para guardarlos necesitás Pro."
+          ? t("footballData.market.descriptionPro")
+          : t("footballData.market.descriptionFree")
       }
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar valor de mercado"}
+          aria-label={isEditing ? t("footballData.market.cancelAria") : t("footballData.market.editAria")}
           onPress={handleToggleEditing}
           isDisabled={isPending}
         >
@@ -159,9 +161,9 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
           <FormField
             key={`marketValue-${defaults.marketValue}`}
             id="market_value"
-            label="Valor de mercado"
-            placeholder="Ej: 250000"
-            description="El dato podrá integrarse con plataformas externas para mantenerlo actualizado."
+            label={t("footballData.market.marketValueLabel")}
+            placeholder={t("footballData.market.marketValuePlaceholder")}
+            description={t("footballData.market.marketValueDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.marketValue}
             errorMessage={errors.marketValue?.message}
@@ -170,9 +172,9 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
           <FormField
             key={`careerObjectives-${defaults.careerObjectives}`}
             id="expectations"
-            label="Objetivos de carrera"
-            placeholder="Ej: Firmar en Primera División, disputar competencias internacionales"
-            description="Se utilizará para personalizar la comunicación con agentes y reclutadores."
+            label={t("footballData.market.careerObjectivesLabel")}
+            placeholder={t("footballData.market.careerObjectivesPlaceholder")}
+            description={t("footballData.market.careerObjectivesDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.careerObjectives}
             errorMessage={errors.careerObjectives?.message}
@@ -191,10 +193,10 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={handleCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button type="submit" isDisabled={isPending || !isDirty} isLoading={isPending} className={bhButtonClass({ variant: "lime", size: "sm" })}>
-              Guardar cambios
+              {t("common.saveChanges")}
             </Button>
           </div>
         ) : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useOptimistic, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Check, Newspaper, LayoutGrid } from "lucide-react";
 import { updatePressLayoutAction } from "@/app/actions/template-settings";
@@ -10,24 +11,16 @@ export type NotesLayout = "newspaper" | "cards";
 
 const OPTIONS: Array<{
   id: NotesLayout;
-  title: string;
-  description: string;
   icon: React.ReactNode;
   preview: React.ReactNode;
 }> = [
   {
     id: "newspaper",
-    title: "Periódico",
-    description:
-      "Layout editorial estilo Daily Press. Hasta 7 notas por edición con jerarquía tipográfica.",
     icon: <Newspaper className="h-4 w-4" />,
     preview: <NewspaperPreview />,
   },
   {
     id: "cards",
-    title: "Cards",
-    description:
-      "Grilla simple y limpia. 3 columnas en desktop, 2 en tablet/móvil. Ideal para volumen.",
     icon: <LayoutGrid className="h-4 w-4" />,
     preview: <CardsPreview />,
   },
@@ -38,6 +31,7 @@ export default function NotesLayoutPicker({
 }: {
   initialLayout: NotesLayout;
 }) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const { enqueue } = useNotificationContext();
   const [isPending, startTransition] = useTransition();
@@ -54,15 +48,19 @@ export default function NotesLayoutPicker({
         await updatePressLayoutAction({ layout: next });
         enqueue(
           profileNotification.updated({
-            userName: "Layout de notas",
-            sectionLabel: "Multimedia",
-            changedFields: [next === "cards" ? "cards" : "newspaper"],
+            userName: t("media.notesLayout.notificationName"),
+            sectionLabel: t("media.notesLayout.notificationSection"),
+            changedFields: [
+              next === "cards"
+                ? t("media.notesLayout.cardsTitle")
+                : t("media.notesLayout.newspaperTitle"),
+            ],
           }),
         );
         router.refresh();
       } catch (err) {
         console.error("Fallo al actualizar layout de notas", err);
-        alert("No pudimos actualizar el layout. Probá de nuevo.");
+        alert(t("media.notesLayout.updateError"));
       }
     });
   };
@@ -71,16 +69,24 @@ export default function NotesLayoutPicker({
     <div className="flex flex-col gap-3 rounded-bh-lg border border-white/[0.06] bg-bh-surface-1/40 p-4">
       <div className="flex flex-col gap-1">
         <p className="font-bh-heading text-[13px] font-semibold text-bh-fg-1">
-          Cómo se muestran tus notas en el perfil público
+          {t("media.notesLayout.heading")}
         </p>
         <p className="text-[12px] leading-[1.55] text-bh-fg-3">
-          Elegí el formato de la sección Prensa & Notas en tu /{`{slug}`}. El cambio se aplica al instante.
+          {t("media.notesLayout.help", { slug: "slug" })}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         {OPTIONS.map((opt) => {
           const selected = layout === opt.id;
+          const optTitle =
+            opt.id === "cards"
+              ? t("media.notesLayout.cardsTitle")
+              : t("media.notesLayout.newspaperTitle");
+          const optDescription =
+            opt.id === "cards"
+              ? t("media.notesLayout.cardsDescription")
+              : t("media.notesLayout.newspaperDescription");
           return (
             <button
               key={opt.id}
@@ -110,7 +116,7 @@ export default function NotesLayoutPicker({
                       selected ? "text-bh-fg-1" : "text-bh-fg-2"
                     }`}
                   >
-                    {opt.title}
+                    {optTitle}
                   </span>
                 </div>
                 {selected && (
@@ -125,7 +131,7 @@ export default function NotesLayoutPicker({
               </div>
 
               <p className="text-[11.5px] leading-[1.5] text-bh-fg-4">
-                {opt.description}
+                {optDescription}
               </p>
             </button>
           );

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { ChevronDown, Pencil, X } from "lucide-react";
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -26,6 +27,7 @@ export default function CountriesSection({
   operativeCountries,
   initialProfiles,
 }: Props) {
+  const t = useTranslations("dashAgency");
   const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
 
   // Map ISO-2 → description. Stays in sync with operativeCountries (the
@@ -56,8 +58,8 @@ export default function CountriesSection({
 
   return (
     <SectionCard
-      title="Países donde operás"
-      description="Por cada país de tu alcance, escribí una breve narrativa: experiencia, hitos, equipos clave. Aparece en el portfolio público al expandir el país."
+      title={t("countries.title")}
+      description={t("countries.description")}
     >
       <div className="space-y-3">
         {operativeCountries.map((code) => (
@@ -109,6 +111,7 @@ function CountryRow({
   onCancel: () => void;
   onSaved: (saved: string) => void;
 }) {
+  const t = useTranslations("dashAgency");
   const { enqueue } = useNotificationContext();
   const [isPending, startTransition] = useTransition();
   const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -125,18 +128,18 @@ function CountryRow({
           description: value.trim() || null,
         });
         onSaved(value.trim());
-        setStatus({ type: "success", message: "Descripción guardada." });
+        setStatus({ type: "success", message: t("countries.successSaved") });
         enqueue(
           profileNotification.updated({
             userName: agencyName,
-            sectionLabel: `País · ${label}`,
-            changedFields: ["descripción"],
+            sectionLabel: t("countries.notificationSection", { country: label }),
+            changedFields: [t("countries.fieldDescription")],
           }),
         );
       } catch (err) {
         setStatus({
           type: "error",
-          message: err instanceof Error ? err.message : "Error al guardar.",
+          message: err instanceof Error ? err.message : t("countries.errorSave"),
         });
       }
     });
@@ -158,11 +161,11 @@ function CountryRow({
         </span>
         {persisted ? (
           <Chip size="sm" variant="flat" classNames={{ base: "bg-[rgba(204,255,0,0.10)] text-bh-lime", content: "text-[11px]" }}>
-            Con descripción
+            {t("common.withDescription")}
           </Chip>
         ) : (
           <Chip size="sm" variant="flat" classNames={{ base: "bg-white/[0.04] text-bh-fg-4", content: "text-[11px]" }}>
-            Sin descripción
+            {t("common.withoutDescription")}
           </Chip>
         )}
         <ChevronDown
@@ -174,14 +177,13 @@ function CountryRow({
         <div className="border-t border-white/[0.06] px-4 py-4 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <p className="text-[12px] leading-[1.55] text-bh-fg-3 max-w-2xl">
-              Contá brevemente tu experiencia operando en {label}. Mostralo en el bloque
-              de alcance del portfolio cuando un visitante seleccione este país.
+              {t("countries.rowIntro", { country: label })}
             </p>
             <Button
               size="sm"
               variant="light"
               isIconOnly
-              aria-label={isEditing ? "Cancelar" : "Editar"}
+              aria-label={isEditing ? t("common.cancel") : t("common.edit")}
               onPress={onToggleEdit}
               isDisabled={isPending}
             >
@@ -191,13 +193,13 @@ function CountryRow({
 
           <FormField
             as="textarea"
-            label={`Sobre nuestra operación en ${label}`}
-            placeholder={`Ej: En ${label} representamos jugadores desde 2015 con foco en primera división...`}
+            label={t("countries.fieldLabel", { country: label })}
+            placeholder={t("countries.fieldPlaceholder", { country: label })}
             rows={4}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             readOnly={!isEditing}
-            description="Hasta 2000 caracteres."
+            description={t("countries.fieldHint")}
             maxLength={2000}
           />
 
@@ -214,7 +216,7 @@ function CountryRow({
           {isEditing && (
             <div className="flex justify-end gap-3 border-t border-white/[0.06] pt-3">
               <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-                Cancelar
+                {t("common.cancel")}
               </Button>
               <Button
                 onPress={onSave}
@@ -222,7 +224,7 @@ function CountryRow({
                 isLoading={isPending}
                 className={bhButtonClass({ variant: "lime", size: "sm" })}
               >
-                Guardar
+                {t("common.save")}
               </Button>
             </div>
           )}

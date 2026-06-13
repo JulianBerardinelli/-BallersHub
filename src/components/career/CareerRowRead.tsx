@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { Button, Chip, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { MoreHorizontal } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
@@ -43,6 +44,7 @@ export default function CareerRowRead({
     isCurrent?: boolean;
     readOnly?: boolean;
 }) {
+    const t = useTranslations("dashEditProfile");
     const crest = (teamMeta?.crest_url && teamMeta.crest_url.trim())
         ? teamMeta.crest_url
         : "/images/team-default.svg";
@@ -74,12 +76,12 @@ export default function CareerRowRead({
                         )}
                         {!teamMeta?.crest_url && proposedCountry && (
                             <Chip size="sm" variant="flat" classNames={bhChip("warning")}>
-                                Propuesto
+                                {t("career.rowRead.chipProposed")}
                             </Chip>
                         )}
                         {isCurrent ? (
                             <Chip size="sm" variant="flat" classNames={bhChip("lime")}>
-                                Actual
+                                {t("career.rowRead.chipCurrent")}
                             </Chip>
                         ) : null}
                     </div>
@@ -94,7 +96,7 @@ export default function CareerRowRead({
                         ) : null}{" "}
                         <span className="text-bh-fg-4">·</span>{" "}
                         <span className="font-bh-mono">
-                            {start_year ?? "?"}–{end_year ?? "Actual"}
+                            {start_year ?? "?"}–{end_year ?? t("career.rowRead.currentPeriod")}
                         </span>
                     </p>
                 </div>
@@ -119,7 +121,7 @@ export default function CareerRowRead({
                             </Button>
                         </DropdownTrigger>
                         <DropdownMenu
-                            aria-label="Acciones"
+                            aria-label={t("career.rowRead.actionsAria")}
                             itemClasses={{
                                 base:
                                     "rounded-bh-md text-bh-fg-2 data-[hover=true]:bg-white/[0.05] data-[hover=true]:text-bh-fg-1",
@@ -128,12 +130,12 @@ export default function CareerRowRead({
                         >
                             {onEdit ? (
                                 <DropdownItem key="edit" onPress={onEdit}>
-                                    Editar
+                                    {t("career.rowRead.edit")}
                                 </DropdownItem>
                             ) : null}
                             {onEditProposed && !teamMeta?.crest_url ? (
                                 <DropdownItem key="proposed" onPress={onEditProposed}>
-                                    Detalles de equipo propuesto
+                                    {t("career.rowRead.editProposed")}
                                 </DropdownItem>
                             ) : null}
                             {onRemove ? (
@@ -143,7 +145,7 @@ export default function CareerRowRead({
                                     className="text-bh-danger data-[hover=true]:!bg-[rgba(239,68,68,0.08)] data-[hover=true]:!text-bh-danger"
                                     onPress={onRemove}
                                 >
-                                    Eliminar
+                                    {t("career.rowRead.delete")}
                                 </DropdownItem>
                             ) : null}
                         </DropdownMenu>

@@ -36,5 +36,32 @@
   },
   "details": {
     "edit": "Editar detalles del club"
+  },
+  "dashboardPicker": {
+    "currentTeamLabel": "Equipo actual",
+    "currentTeamDescription": "Buscá tu equipo por nombre. Si no existe, podés proponerlo.",
+    "currentTeamPlaceholder": "Ej: Boca Juniors",
+    "countryLabel": "País (nombre o ISO-2)",
+    "countryDescription": "Ej: Argentina o AR",
+    "countryPlaceholder": "Argentina / AR",
+    "resultsTitle": "Resultados",
+    "noResults": "No encontramos equipos con «{q}».",
+    "chooseTeam": "Elegir",
+    "proposeNew": "Proponer equipo nuevo: «{q}»",
+    "proposeHelp": "El equipo no está en nuestra base. Con tu solicitud lo crearemos y verificaremos.",
+    "freeAgentCta": "Soy jugador libre (sin equipo)",
+    "chipSelected": "Seleccionado: {name}",
+    "chipProposed": "Equipo propuesto: {name}",
+    "chipFree": "Jugador libre"
+  },
+  "createModal": {
+    "title": "Nuevo equipo: «{name}»",
+    "countryLabel": "País del club",
+    "countryRequired": "Elegí un país",
+    "tmLabel": "Transfermarkt (opcional)",
+    "tmPlaceholder": "https://www.transfermarkt.com/...",
+    "tmInvalid": "URL inválida (https://...)",
+    "cancel": "Cancelar",
+    "save": "Guardar"
   }
 }

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import LockedSection from "@/components/dashboard/client/LockedSection";
@@ -11,6 +12,7 @@ import { playerProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export default async function TemplateStylesPage() {
+  const t = await getTranslations("dashEditProfile");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -30,8 +32,8 @@ export default async function TemplateStylesPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Estilos de plantilla"
-          description="Configura la apariencia visual de tu página pública y mantené consistencia con tu marca personal."
+          title={t("templateStyles.lockedPageTitle")}
+          description={t("templateStyles.lockedPageDescription")}
         />
         {access.templateLock ? <LockedSection {...access.templateLock} /> : null}
       </div>
@@ -42,8 +44,8 @@ export default async function TemplateStylesPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Estilos de plantilla"
-          description="Configura la apariencia visual de tu página pública y mantené consistencia con tu marca personal."
+          title={t("templateStyles.lockedPageTitle")}
+          description={t("templateStyles.lockedPageDescription")}
         />
         <LockedSection {...access.templateLock} />
       </div>
@@ -60,10 +62,10 @@ export default async function TemplateStylesPage() {
   return (
     <div className="space-y-6 pb-20">
       <PageHeader
-        title="Estilos del CV Público"
-        description="Selecciona un diseño base, configura la paleta de tu club actual y establece la vibra de tu perfil personal."
+        title={t("templateStyles.pageTitle")}
+        description={t("templateStyles.pageDescription")}
       />
-      
+
       <StylesManagerClient initialTheme={publishingState.theme} heroUrl={heroData?.heroUrl} />
     </div>
   );

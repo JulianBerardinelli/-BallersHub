@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { useForm, type UseFormSetError } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -112,6 +113,7 @@ function LinkKindIcon({ kind, className }: { kind: string; className?: string })
 }
 
 export default function ExternalLinksManager({ playerId, links, suggestions }: Props) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -163,7 +165,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
     });
 
     if (!parsed.success) {
-      reflectValidationErrors(parsed.error, setError, setStatus);
+      reflectValidationErrors(parsed.error, setError, setStatus, t("common.reviewFormData"));
       return;
     }
 
@@ -189,7 +191,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
         return;
       }
 
-      setStatus({ type: "success", message: values.id ? "Enlace actualizado." : "Enlace agregado." });
+      setStatus({ type: "success", message: values.id ? t("footballData.externalLinks.linkUpdated") : t("footballData.externalLinks.linkAdded") });
       router.refresh();
       setEditingId(null);
       reset({ ...defaultValues, kind: values.kind });
@@ -216,7 +218,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
 
   const handleDelete = (link: DashboardExternalLink) => {
     const confirmed = window.confirm(
-      `¿Eliminar el enlace "${link.label ?? link.url}"? Esta acción no se puede deshacer.`,
+      t("footballData.externalLinks.confirmDelete", { label: link.label ?? link.url }),
     );
     if (!confirmed) return;
 
@@ -226,7 +228,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
         setStatus({ type: "error", message: result.message });
         return;
       }
-      setStatus({ type: "success", message: "Enlace eliminado." });
+      setStatus({ type: "success", message: t("footballData.externalLinks.linkDeleted") });
       router.refresh();
       if (editingId === link.id) {
         cancelEditing();
@@ -237,7 +239,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
   const applySuggestion = (kind: LinkKind, url: string) => {
     setValue("kind", kind, { shouldDirty: true });
     setValue("url", url, { shouldDirty: true });
-    setStatus({ type: "success", message: "Sugerencia aplicada. Revisá y guardá los cambios." });
+    setStatus({ type: "success", message: t("footballData.externalLinks.suggestionApplied") });
   };
 
   return (
@@ -255,8 +257,8 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                     <LinkKindIcon kind={link.kind} className="h-4 w-4" />
                   </div>
                   <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-wide text-bh-fg-4">{formatLinkKind(link.kind)}</p>
-                    <p className="text-sm font-semibold text-white">{link.label ?? formatLinkKind(link.kind)}</p>
+                    <p className="text-xs uppercase tracking-wide text-bh-fg-4">{formatLinkKind(t, link.kind)}</p>
+                    <p className="text-sm font-semibold text-white">{link.label ?? formatLinkKind(t, link.kind)}</p>
                     <a
                       href={link.url}
                       target="_blank"
@@ -270,7 +272,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                 <div className="flex flex-wrap gap-2 text-xs text-bh-fg-3">
                   {link.isPrimary ? (
                     <span className="inline-flex items-center rounded-full border border-primary/40 px-3 py-1 text-primary">
-                      Principal
+                      {t("common.principal")}
                     </span>
                   ) : null}
                   <button
@@ -279,7 +281,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                     onClick={() => startEditing(link)}
                     disabled={pending}
                   >
-                    Editar
+                    {t("common.edit")}
                   </button>
                   <button
                     type="button"
@@ -287,7 +289,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                     onClick={() => handleDelete(link)}
                     disabled={pending}
                   >
-                    Eliminar
+                    {t("common.delete")}
                   </button>
                 </div>
               </div>
@@ -296,14 +298,14 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
         </ul>
       ) : (
         <div className="rounded-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-6 text-sm text-bh-fg-3">
-          Aún no cargaste enlaces externos. Podés agregar tus plataformas principales usando el formulario inferior.
+          {t("footballData.externalLinks.emptyState")}
         </div>
       )}
 
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="space-y-1.5 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Tipo de enlace</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.externalLinks.kindLabel")}</span>
             <select
               {...register("kind")}
               className={`${inputClassName} capitalize`}
@@ -311,28 +313,28 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
             >
               {LINK_KINDS.map((kind) => (
                 <option key={kind} value={kind} className="capitalize">
-                  {formatLinkKind(kind)}
+                  {formatLinkKind(t, kind)}
                 </option>
               ))}
             </select>
-            <HelperText>{getLinkKindDescription(watchKind(watch("kind")))}</HelperText>
+            <HelperText>{getLinkKindDescription(t, watchKind(watch("kind")))}</HelperText>
             {errors.kind ? <FieldError message={errors.kind.message} /> : null}
           </label>
           <label className="space-y-1.5 text-sm text-bh-fg-2">
-            <span className="font-medium text-bh-fg-1">Etiqueta</span>
+            <span className="font-medium text-bh-fg-1">{t("footballData.externalLinks.labelLabel")}</span>
             <input
               {...register("label")}
               type="text"
-              placeholder="Ej: Perfil oficial"
+              placeholder={t("footballData.externalLinks.labelPlaceholder")}
               className={inputClassName}
               disabled={pending}
             />
-            <HelperText>Opcional. Se usará como título visible del enlace.</HelperText>
+            <HelperText>{t("footballData.externalLinks.labelHelp")}</HelperText>
             {errors.label ? <FieldError message={errors.label.message} /> : null}
           </label>
         </div>
         <label className="space-y-1.5 text-sm text-bh-fg-2">
-          <span className="font-medium text-bh-fg-1">URL</span>
+          <span className="font-medium text-bh-fg-1">{t("footballData.externalLinks.urlLabel")}</span>
           <input
             {...register("url")}
             type="url"
@@ -349,7 +351,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
             className="h-4 w-4 rounded border-white/[0.12] bg-bh-black text-primary focus:ring-primary"
             disabled={pending}
           />
-          <span>Mostrar como enlace principal en tu perfil público.</span>
+          <span>{t("footballData.externalLinks.primaryCheckbox")}</span>
         </label>
 
         {status ? <FormStatus status={status} /> : null}
@@ -360,7 +362,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
             className="inline-flex items-center rounded-md border border-primary/40 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:bg-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={pending}
           >
-            {pending ? "Guardando..." : editingId ? "Actualizar enlace" : "Agregar enlace"}
+            {pending ? t("common.saving") : editingId ? t("footballData.externalLinks.updateLink") : t("footballData.externalLinks.addLink")}
           </button>
           {editingId ? (
             <button
@@ -369,7 +371,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
               className="inline-flex items-center rounded-md border border-white/[0.08] px-4 py-2 text-sm font-semibold text-bh-fg-2 transition hover:border-white/[0.12] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
               disabled={pending}
             >
-              Cancelar edición
+              {t("common.cancelEditing")}
             </button>
           ) : null}
         </div>
@@ -377,7 +379,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
 
       {availableSuggestions.length > 0 ? (
         <div className="rounded-lg border border-white/[0.08] bg-bh-surface-1/40 p-4 text-sm text-bh-fg-2">
-          <p className="mb-3 font-medium text-bh-fg-1">Sugerencias detectadas</p>
+          <p className="mb-3 font-medium text-bh-fg-1">{t("footballData.externalLinks.suggestionsTitle")}</p>
           <div className="flex flex-wrap gap-2">
             {availableSuggestions.map((suggestion) => {
               const isPrimaryLink = links.some(
@@ -397,9 +399,9 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
                   disabled={pending}
                 >
                   <LinkKindIcon kind={suggestion.kind} className="h-3.5 w-3.5" />
-                  {formatLinkKind(suggestion.kind)}
+                  {formatLinkKind(t, suggestion.kind)}
                   {isPrimaryLink ? (
-                    <span className="ml-0.5 text-[10px] opacity-70">· Destacado</span>
+                    <span className="ml-0.5 text-[10px] opacity-70">· {t("footballData.externalLinks.featured")}</span>
                   ) : null}
                 </button>
               );
@@ -417,6 +419,7 @@ function reflectValidationErrors(
   error: z.ZodError<LinkMutationInput>,
   setError: UseFormSetError<FormValues>,
   setStatus: (status: StatusState) => void,
+  reviewMessage: string,
 ) {
   const fieldErrors = error.flatten().fieldErrors;
   (Object.entries(fieldErrors) as Array<[keyof LinkMutationInput, string[] | undefined]>).forEach(
@@ -426,35 +429,43 @@ function reflectValidationErrors(
       setError(field as keyof FormValues, { type: "manual", message: messages[0] });
     },
   );
-  setStatus({ type: "error", message: "Revisá los datos del formulario." });
+  setStatus({ type: "error", message: reviewMessage });
 }
 
-function formatLinkKind(kind: string): string {
-  const labels: Record<string, string> = {
-    highlight: "Video destacado",
+type TFn = ReturnType<typeof useTranslations<"dashEditProfile">>;
+
+function formatLinkKind(t: TFn, kind: string): string {
+  // Brand names (Transfermarkt, BeSoccer, Flashscore, YouTube, Instagram,
+  // LinkedIn) are not translated. Only generic kinds are localized.
+  const brandLabels: Record<string, string> = {
     transfermarkt: "Transfermarkt",
     besoccer: "BeSoccer",
     flashscore: "Flashscore",
     youtube: "YouTube",
     instagram: "Instagram",
     linkedin: "LinkedIn",
-    custom: "Personalizado",
   };
-  return labels[kind] ?? kind;
+  if (brandLabels[kind]) return brandLabels[kind];
+  if (kind === "highlight") return t("footballData.externalLinks.kinds.highlight");
+  if (kind === "custom") return t("footballData.externalLinks.kinds.custom");
+  return kind;
 }
 
-function getLinkKindDescription(kind: string | undefined): string {
-  const descriptions: Record<string, string> = {
-    highlight: "Link utilizado como carta de presentación principal.",
-    transfermarkt: "Referencia oficial para valor de mercado y trayectoria.",
-    besoccer: "Sincronización con estadísticas verificadas de BeSoccer.",
-    flashscore: "Perfil y resultados en tiempo real desde Flashscore.",
-    youtube: "Canal o playlist con tus mejores jugadas.",
-    instagram: "Perfil social para mostrar actualidad y backstage.",
-    linkedin: "Perfil profesional orientado a clubes y agentes.",
-    custom: "Enlaces adicionales que quieras destacar.",
-  };
-  return descriptions[kind ?? ""] ?? "";
+function getLinkKindDescription(t: TFn, kind: string | undefined): string {
+  const allowed = [
+    "highlight",
+    "transfermarkt",
+    "besoccer",
+    "flashscore",
+    "youtube",
+    "instagram",
+    "linkedin",
+    "custom",
+  ];
+  if (kind && allowed.includes(kind)) {
+    return t(`footballData.externalLinks.kindDescriptions.${kind}` as `footballData.externalLinks.kindDescriptions.${typeof allowed[number]}`);
+  }
+  return "";
 }
 
 function FieldError({ message }: { message?: string }) {

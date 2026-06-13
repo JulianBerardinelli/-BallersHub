@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { ShieldAlert, LogOut } from "lucide-react";
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -17,6 +18,7 @@ interface AgencyInfo {
 }
 
 export default function AgencyRepresentationManager({ agency }: { agency: AgencyInfo | null }) {
+  const t = useTranslations("dashEditProfile");
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const router = useRouter();
@@ -24,14 +26,14 @@ export default function AgencyRepresentationManager({ agency }: { agency: Agency
   if (!agency) {
     return (
       <SectionCard
-        title="Agencia Representante"
-        description="Aún no tienes una agencia representante vinculada a tu perfil."
+        title={t("footballData.agency.title")}
+        description={t("footballData.agency.emptyDescription")}
       >
         <div className="flex flex-col items-center justify-center p-6 text-center border rounded-lg border-white/[0.08] bg-bh-surface-1/50">
           <ShieldAlert className="w-8 h-8 text-bh-fg-4 mb-3" />
-          <h4 className="text-bh-fg-2 font-medium">Sin Representación Oficial</h4>
+          <h4 className="text-bh-fg-2 font-medium">{t("footballData.agency.emptyHeading")}</h4>
           <p className="text-sm text-bh-fg-4 mt-1 max-w-sm">
-            Si tienes un representante, puedes pedirle que te envíe una invitación formal desde su panel para vincular tu perfil.
+            {t("footballData.agency.emptyHelp")}
           </p>
         </div>
       </SectionCard>
@@ -54,8 +56,8 @@ export default function AgencyRepresentationManager({ agency }: { agency: Agency
   return (
     <>
       <SectionCard
-        title="Agencia Representante"
-        description="Esta es la agencia que representa tu perfil deportiva y formalmente."
+        title={t("footballData.agency.title")}
+        description={t("footballData.agency.linkedDescription")}
         actions={
           <Button
             size="sm"
@@ -64,7 +66,7 @@ export default function AgencyRepresentationManager({ agency }: { agency: Agency
             startContent={<LogOut className="w-4 h-4" />}
             className={bhButtonClass({ variant: "danger-soft", size: "sm" })}
           >
-            Desvincularme
+            {t("footballData.agency.disconnect")}
           </Button>
         }
       >
@@ -83,7 +85,7 @@ export default function AgencyRepresentationManager({ agency }: { agency: Agency
               {agency.name}
             </h4>
             <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-success">
-              Vínculo activo
+              {t("footballData.agency.activeLink")}
             </p>
           </div>
         </div>
@@ -98,17 +100,17 @@ export default function AgencyRepresentationManager({ agency }: { agency: Agency
         <ModalContent>
           <ModalHeader className="flex items-center gap-2">
             <ShieldAlert className="h-5 w-5 text-bh-warning" />
-            ¿Desvincularte de la agencia?
+            {t("footballData.agency.modalTitle")}
           </ModalHeader>
           <ModalBody className="text-bh-fg-2">
             <p className="text-sm leading-[1.55]">
-              Estás a punto de desvincular unilateralmente tu perfil de la
-              agencia <strong className="text-bh-fg-1">{agency.name}</strong>.
+              {t.rich("footballData.agency.modalBodyLead", {
+                agency: agency.name,
+                strong: (chunks) => <strong className="text-bh-fg-1">{chunks}</strong>,
+              })}
             </p>
             <p className="mt-2 text-[12px] leading-[1.55] text-bh-fg-3">
-              Esto eliminará su nombre de tu perfil público y notificará al
-              mánager de este cambio. Solo hacelo si tu vínculo de
-              representación finalizó o tenés razones justificadas.
+              {t("footballData.agency.modalBodyDetail")}
             </p>
           </ModalBody>
           <ModalFooter>
@@ -118,14 +120,14 @@ export default function AgencyRepresentationManager({ agency }: { agency: Agency
               isDisabled={isProcessing}
               className={bhButtonClass({ variant: "ghost", size: "sm" })}
             >
-              Cancelar
+              {t("footballData.agency.modalCancel")}
             </Button>
             <Button
               onPress={handleDisconnect}
               isLoading={isProcessing}
               className={bhButtonClass({ variant: "danger", size: "sm" })}
             >
-              Sí, desvincularme
+              {t("footballData.agency.modalConfirm")}
             </Button>
           </ModalFooter>
         </ModalContent>

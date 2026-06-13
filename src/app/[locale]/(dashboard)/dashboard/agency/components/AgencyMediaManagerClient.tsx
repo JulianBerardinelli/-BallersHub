@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@heroui/react";
 import { Plus } from "lucide-react";
 
@@ -26,6 +27,7 @@ export default function AgencyMediaManagerClient({
   media,
   agencyContext,
 }: Props) {
+  const t = useTranslations("dashAgency");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const remaining = AGENCY_MEDIA_MAX - media.length;
   const canUpload = remaining > 0;
@@ -35,10 +37,10 @@ export default function AgencyMediaManagerClient({
       <div className="flex flex-col gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h2 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Catálogo de la agencia
+            {t("media.catalogTitle")}
           </h2>
           <p className="text-[13px] text-bh-fg-3">
-            Hasta {AGENCY_MEDIA_MAX} imágenes para enriquecer el portfolio público (oficinas, equipo, eventos, presentaciones).
+            {t("media.catalogDescription", { max: AGENCY_MEDIA_MAX })}
           </p>
         </div>
 
@@ -52,7 +54,7 @@ export default function AgencyMediaManagerClient({
             isDisabled={!canUpload}
             className={bhButtonClass({ variant: "lime", size: "sm", className: "shrink-0" })}
           >
-            Subir imagen
+            {t("media.uploadButton")}
           </Button>
         </div>
       </div>

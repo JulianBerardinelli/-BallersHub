@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { ArrowUpRight, FileSearch } from "lucide-react";
 import { Button, Chip, Divider } from "@heroui/react";
+import { useLocale, useTranslations } from "next-intl";
 import ApplicationReviewModal, {
   type ApplicationReviewDetails,
 } from "./ApplicationReviewModal";
@@ -51,22 +52,6 @@ export type DashboardStatusSummaryProps = {
   cta?: StatusCta;
 };
 
-function getVisibilityCopy(visibility: string | null): string | null {
-  if (!visibility) return null;
-  if (visibility === "public") return "Perfil público";
-  if (visibility === "private") return "Perfil privado";
-  return `Visibilidad: ${visibility}`;
-}
-
-function getUpdatedCopy(updatedAt: string | null): string | null {
-  if (!updatedAt) return null;
-  const formatted = new Intl.DateTimeFormat("es-AR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(updatedAt));
-  return `Actualizado el ${formatted}`;
-}
-
 function isModalCta(cta: StatusCta): cta is ModalCta {
   return cta.kind === "review-application";
 }
@@ -79,8 +64,26 @@ export default function DashboardStatusSummary({
   applicationStatus,
   cta,
 }: DashboardStatusSummaryProps) {
-  const visibilityCopy = getVisibilityCopy(visibility);
-  const updatedCopy = getUpdatedCopy(updatedAt);
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
+
+  const visibilityCopy = visibility
+    ? visibility === "public"
+      ? t("overview.statusSummary.visibilityPublic")
+      : visibility === "private"
+        ? t("overview.statusSummary.visibilityPrivate")
+        : t("overview.statusSummary.visibilityOther", { visibility })
+    : null;
+
+  const updatedCopy = updatedAt
+    ? t("overview.statusSummary.updatedAt", {
+        date: new Intl.DateTimeFormat(locale, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }).format(new Date(updatedAt)),
+      })
+    : null;
+
   const [reviewOpen, setReviewOpen] = useState(false);
 
   const modalCta = cta && isModalCta(cta) ? cta : null;
@@ -129,7 +132,7 @@ export default function DashboardStatusSummary({
 
           {publicUrl ? (
             <p className="text-xs text-bh-fg-3">
-              URL pública:{" "}
+              {t("overview.statusSummary.publicUrlLabel")}{" "}
               <Link className="font-semibold text-bh-blue underline-offset-4 hover:underline" href={publicUrl}>
                 {publicUrl}
               </Link>
@@ -151,7 +154,7 @@ export default function DashboardStatusSummary({
           <Divider className="bg-white/[0.06]" />
           <div className="flex flex-wrap items-center gap-3">
             <Chip color={applicationStatus.color} variant="flat" size="sm" className="font-semibold uppercase tracking-wide">
-              Solicitud: {applicationStatus.label}
+              {t("overview.statusSummary.applicationChip", { label: applicationStatus.label })}
             </Chip>
             {applicationStatus.createdAtLabel ? (
               <span className="text-xs text-bh-fg-4">{applicationStatus.createdAtLabel}</span>
@@ -161,7 +164,7 @@ export default function DashboardStatusSummary({
         </div>
       ) : (
         <p className="text-xs text-bh-fg-4">
-          Todavía no registramos una solicitud activa. Iniciá el proceso de onboarding para generar tu perfil profesional.
+          {t("overview.statusSummary.noApplicationYet")}
         </p>
       )}
 

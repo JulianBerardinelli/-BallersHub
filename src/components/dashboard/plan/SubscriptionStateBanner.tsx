@@ -11,6 +11,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Clock, CreditCard, Gift } from "lucide-react";
+import { getLocale, getTranslations } from "next-intl/server";
 import type { PlanAccess } from "@/lib/dashboard/plan-access";
 import { daysUntilExpiry } from "@/lib/dashboard/plan-access";
 
@@ -24,29 +25,36 @@ export type SubscriptionStateBannerProps = {
   } | null;
 };
 
-export default function SubscriptionStateBanner({
+export default async function SubscriptionStateBanner({
   access,
   rawSubscription,
 }: SubscriptionStateBannerProps) {
+  const t = await getTranslations("dashboard");
+  const locale = await getLocale();
+
   // Trial reminder
   if (access.isPro && access.isTrialing) {
     const days = daysUntilExpiry(access);
     if (days !== null && days <= 7) {
+      const daysCopy =
+        days === 1
+          ? t("paywall.subscriptionBanner.trialingDaysSingular")
+          : t("paywall.subscriptionBanner.trialingDaysPlural", { days });
       return (
         <Banner tone="info" Icon={Clock}>
           <div className="space-y-0.5">
             <p className="text-[12.5px] font-semibold text-bh-fg-1">
-              Estás en tu trial Pro · te {days === 1 ? "queda 1 día" : `quedan ${days} días`}.
+              {t("paywall.subscriptionBanner.trialingTitle", { daysCopy })}
             </p>
             <p className="text-[12px] leading-[1.5] text-bh-fg-3">
-              Después del trial te cobramos automáticamente. Cancelable durante el trial sin cargo.
+              {t("paywall.subscriptionBanner.trialingBody")}
             </p>
           </div>
           <Link
             href="/dashboard/settings/subscription"
             className="text-[12px] font-bold text-bh-lime hover:underline"
           >
-            Gestionar suscripción
+            {t("paywall.subscriptionBanner.trialingCta")}
           </Link>
         </Banner>
       );
@@ -59,19 +67,21 @@ export default function SubscriptionStateBanner({
       <Banner tone="warning" Icon={AlertTriangle}>
         <div className="space-y-0.5">
           <p className="text-[12.5px] font-semibold text-bh-fg-1">
-            Tu plan Pro está activo pero no se va a renovar.
+            {t("paywall.subscriptionBanner.cancelingSoonTitle")}
           </p>
           <p className="text-[12px] leading-[1.5] text-bh-fg-3">
             {access.expiresAt
-              ? `El acceso Pro continúa hasta ${formatDate(access.expiresAt)}.`
-              : "El acceso Pro continúa hasta el fin del período actual."}
+              ? t("paywall.subscriptionBanner.cancelingSoonBodyWithDate", {
+                  date: formatDate(access.expiresAt, locale),
+                })
+              : t("paywall.subscriptionBanner.cancelingSoonBodyNoDate")}
           </p>
         </div>
         <Link
           href="/dashboard/settings/subscription"
           className="text-[12px] font-bold text-bh-warning hover:underline"
         >
-          Reactivar
+          {t("paywall.subscriptionBanner.cancelingSoonCta")}
         </Link>
       </Banner>
     );
@@ -83,17 +93,17 @@ export default function SubscriptionStateBanner({
       <Banner tone="warning" Icon={CreditCard}>
         <div className="space-y-0.5">
           <p className="text-[12.5px] font-semibold text-bh-fg-1">
-            Hubo un problema con tu pago.
+            {t("paywall.subscriptionBanner.pastDueTitle")}
           </p>
           <p className="text-[12px] leading-[1.5] text-bh-fg-3">
-            Actualizá el método de pago para evitar perder el acceso Pro.
+            {t("paywall.subscriptionBanner.pastDueBody")}
           </p>
         </div>
         <Link
           href="/dashboard/settings/subscription"
           className="text-[12px] font-bold text-bh-warning hover:underline"
         >
-          Actualizar pago
+          {t("paywall.subscriptionBanner.pastDueCta")}
         </Link>
       </Banner>
     );
@@ -110,16 +120,18 @@ export default function SubscriptionStateBanner({
     return (
       <Banner tone="danger" Icon={AlertTriangle}>
         <div className="space-y-0.5">
-          <p className="text-[12.5px] font-semibold text-bh-fg-1">Tu plan Pro venció.</p>
+          <p className="text-[12.5px] font-semibold text-bh-fg-1">
+            {t("paywall.subscriptionBanner.expiredTitle")}
+          </p>
           <p className="text-[12px] leading-[1.5] text-bh-fg-3">
-            Recuperá las plantillas y secciones premium con un nuevo ciclo Pro.
+            {t("paywall.subscriptionBanner.expiredBody")}
           </p>
         </div>
         <Link
           href="/pricing"
           className="text-[12px] font-bold text-bh-lime hover:underline"
         >
-          Renovar Pro
+          {t("paywall.subscriptionBanner.expiredCta")}
         </Link>
       </Banner>
     );
@@ -130,8 +142,11 @@ export default function SubscriptionStateBanner({
     return (
       <Banner tone="info" Icon={Gift}>
         <p className="text-[12.5px] font-semibold text-bh-fg-1">
-          Cuenta de cortesía Pro
-          {access.expiresAt ? ` · vigente hasta ${formatDate(access.expiresAt)}` : " · sin vencimiento"}
+          {access.expiresAt
+            ? t("paywall.subscriptionBanner.compGrantWithDate", {
+                date: formatDate(access.expiresAt, locale),
+              })
+            : t("paywall.subscriptionBanner.compGrantNoDate")}
         </p>
       </Banner>
     );
@@ -169,9 +184,9 @@ function Banner({
   );
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, locale: string): string {
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat(locale, {
       day: "numeric",
       month: "long",
       year: "numeric",

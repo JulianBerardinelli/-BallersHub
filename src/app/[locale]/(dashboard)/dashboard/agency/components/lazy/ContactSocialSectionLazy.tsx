@@ -5,7 +5,7 @@ import SectionSkeleton from "./_skeleton";
 
 const ContactSocialSection = dynamic(
   () => import("../ContactSocialSection"),
-  { ssr: false, loading: () => <SectionSkeleton label="Contacto y redes" /> },
+  { ssr: false, loading: () => <SectionSkeleton labelKey="contact" /> },
 );
 
 export default ContactSocialSection;

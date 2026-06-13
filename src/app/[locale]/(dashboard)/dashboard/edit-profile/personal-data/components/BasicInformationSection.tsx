@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Chip } from "@heroui/react";
 import { useForm } from "react-hook-form";
 import { Pencil, X } from "lucide-react";
@@ -32,6 +33,7 @@ type Props = {
 };
 
 export default function BasicInformationSection({ playerId, initialValues }: Props) {
+  const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<BasicInfoFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -106,12 +108,12 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
       setDefaults(result.data);
       reset(result.data);
       setIsEditing(false);
-      setStatus({ type: "success", message: result.message ?? "Información actualizada correctamente." });
+      setStatus({ type: "success", message: result.message ?? t("personalData.basicInfo.successDefault") });
 
       if (result.updatedFields.length > 0) {
         enqueue(
           profileNotification.updated({
-            sectionLabel: "tu información básica",
+            sectionLabel: t("personalData.basicInfo.sectionLabel"),
             changedFields: result.updatedFields,
             userName: result.data.fullName || undefined,
             detailsHref: "/dashboard/edit-profile/personal-data",
@@ -123,14 +125,14 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
 
   return (
     <SectionCard
-      title="Información básica"
-      description="Próximamente podrás editar cada campo y sincronizar la información con tus documentos oficiales."
+      title={t("personalData.basicInfo.title")}
+      description={t("personalData.basicInfo.description")}
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar información básica"}
+          aria-label={isEditing ? t("personalData.basicInfo.cancelAria") : t("personalData.basicInfo.editAria")}
           onPress={handleToggleEditing}
           isDisabled={isPending}
         >
@@ -143,7 +145,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           <FormField
             key={`fullName-${defaults.fullName}`}
             id="full_name"
-            label="Nombre completo"
+            label={t("personalData.basicInfo.fullNameLabel")}
             readOnly
             defaultValue={defaults.fullName}
             errorMessage={errors.fullName?.message}
@@ -152,8 +154,8 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           <FormField
             key={`birthDate-${defaults.birthDate}`}
             id="birth_date"
-            label="Fecha de nacimiento"
-            placeholder="dd/mm/aaaa"
+            label={t("personalData.basicInfo.birthDateLabel")}
+            placeholder={t("personalData.basicInfo.birthDatePlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.birthDate}
             errorMessage={errors.birthDate?.message}
@@ -164,8 +166,8 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           <FormField
             key={`nationalities-${defaults.nationalities}`}
             id="nationality"
-            label="Nacionalidades"
-            placeholder="Seleccioná una o más nacionalidades"
+            label={t("personalData.basicInfo.nationalitiesLabel")}
+            placeholder={t("personalData.basicInfo.nationalitiesPlaceholder")}
             readOnly
             defaultValue={defaults.nationalities}
             errorMessage={errors.nationalities?.message}
@@ -174,9 +176,9 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           <FormField
             key={`residence-${defaults.residence}`}
             id="residence"
-            label="Residencia actual"
-            placeholder="Ciudad, país"
-            description="Podrás definir la ubicación que se mostrará en tu perfil."
+            label={t("personalData.basicInfo.residenceLabel")}
+            placeholder={t("personalData.basicInfo.residencePlaceholder")}
+            description={t("personalData.basicInfo.residenceDescription")}
             readOnly={!isEditing}
             defaultValue={defaults.residence}
             errorMessage={errors.residence?.message}
@@ -187,8 +189,8 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           <FormField
             key={`height-${defaults.heightCm}`}
             id="height_cm"
-            label="Altura (cm)"
-            placeholder="Ej: 184"
+            label={t("personalData.basicInfo.heightLabel")}
+            placeholder={t("personalData.basicInfo.heightPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.heightCm}
             errorMessage={errors.heightCm?.message}
@@ -197,8 +199,8 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           <FormField
             key={`weight-${defaults.weightKg}`}
             id="weight_kg"
-            label="Peso (kg)"
-            placeholder="Ej: 78"
+            label={t("personalData.basicInfo.weightLabel")}
+            placeholder={t("personalData.basicInfo.weightPlaceholder")}
             readOnly={!isEditing}
             defaultValue={defaults.weightKg}
             errorMessage={errors.weightKg?.message}
@@ -210,8 +212,8 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           id="bio"
           as="textarea"
           rows={4}
-          label="Biografía breve"
-          placeholder="Contá brevemente tu trayectoria y objetivos profesionales."
+          label={t("personalData.basicInfo.bioLabel")}
+          placeholder={t("personalData.basicInfo.bioPlaceholder")}
           readOnly={!isEditing}
           defaultValue={defaults.bio}
           errorMessage={errors.bio?.message}
@@ -220,9 +222,9 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
         <FormField
           key={`education-${defaults.education}`}
           id="education"
-          label="Educación"
-          placeholder="Ej: Secundaria completa, Licenciado en Educación Física, etc."
-          description={`Nivel educativo o título alcanzado. Máx. ${EDUCATION_MAX_LENGTH} caracteres.`}
+          label={t("personalData.basicInfo.educationLabel")}
+          placeholder={t("personalData.basicInfo.educationPlaceholder")}
+          description={t("personalData.basicInfo.educationDescription", { max: EDUCATION_MAX_LENGTH })}
           maxLength={EDUCATION_MAX_LENGTH}
           readOnly={!isEditing}
           defaultValue={defaults.education}
@@ -230,7 +232,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
           {...register("education", {
             maxLength: {
               value: EDUCATION_MAX_LENGTH,
-              message: `La educación no puede superar los ${EDUCATION_MAX_LENGTH} caracteres.`,
+              message: t("personalData.basicInfo.educationMaxError", { max: EDUCATION_MAX_LENGTH }),
             },
           })}
         />
@@ -250,7 +252,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
         {isEditing ? (
           <div className="flex flex-col gap-3 border-t border-neutral-900 pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={handleCancel} isDisabled={isPending}>
-              Cancelar
+              {t("common.cancel")}
             </Button>
             <Button
               color="primary"
@@ -258,7 +260,7 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
               isDisabled={isPending || !isDirty}
               isLoading={isPending}
             >
-              Guardar cambios
+              {t("common.saveChanges")}
             </Button>
           </div>
         ) : null}

@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Informações de acesso",
+    "cardDescription": "Atualize suas credenciais ou consulte as informações básicas da sua conta.",
+    "editAria": "Editar informações de acesso",
+    "cancelEditAria": "Cancelar edição",
+    "emailLabel": "Endereço de e-mail",
+    "emailPlaceholder": "voce@email.com",
+    "emailConfirmationSent": "Enviamos um link de confirmação para o seu e-mail para validar a alteração.",
+    "updateEmail": "Atualizar e-mail",
+    "updatingEmail": "Atualizando...",
+    "newPasswordLabel": "Nova senha",
+    "newPasswordPlaceholder": "No mínimo 6 caracteres",
+    "passwordTooShort": "A senha deve ter pelo menos 6 caracteres.",
+    "passwordUpdated": "Senha atualizada com sucesso.",
+    "updatePassword": "Atualizar senha",
+    "updatingPassword": "Atualizando...",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha",
+    "passwordLabel": "Senha",
+    "roleLabel": "Função da conta",
+    "roleDescription": "Afeta o tipo de perfil ao qual você tem acesso.",
+    "roleManager": "Agência / Representante",
+    "roleAdmin": "Administrador",
+    "roleMember": "Jogador / Membro",
+    "createdAtLabel": "Criação da conta"
+  },
+  "subscription": {
+    "stripePortalTitle": "Portal do Stripe",
+    "stripePortalDescription": "Atualize o cartão, baixe faturas ou cancele a assinatura.",
+    "openPortal": "Abrir portal",
+    "stripePortalRequestFailed": "Stripe portal request failed",
+    "cancelScheduledNotice": "Sua assinatura está marcada para cancelamento ao fim do período. Se mudar de ideia, você pode reverter pelo portal.",
+    "cancelTitle": "Cancelar assinatura",
+    "cancelDescription": "O Mercado Pago corta o acesso imediatamente ao cancelar. Não há reembolso parcial do período pago.",
+    "cancel": "Cancelar",
+    "back": "Voltar",
+    "confirmCancel": "Confirmar cancelamento",
+    "cancelRequestFailed": "Cancel request failed"
+  },
+  "common": {
+    "invalidLocale": "Idioma inválido.",
+    "mustSignIn": "Você precisa entrar.",
+    "localeSaveFailed": "Não foi possível salvar o idioma.",
+    "localeUpdated": "Idioma nativo atualizado.",
+    "unknownError": "Erro desconhecido."
+  }
+}

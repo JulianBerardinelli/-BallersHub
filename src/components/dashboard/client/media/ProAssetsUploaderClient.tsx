@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Upload, X, CheckCircle, Image as ImageIcon, ExternalLink, Info, Sparkles } from "lucide-react";
 import { updateProAssetAction } from "@/app/actions/pro-assets";
@@ -23,6 +24,7 @@ export default function ProAssetsUploaderClient({
   playerId: _playerId,
   userId: _userId,
 }: ProAssetsProps) {
+  const t = useTranslations("dashEditProfile");
   const [isUploading, setIsUploading] = useState<AssetType | null>(null);
   const [previews, setPreviews] = useState<Record<AssetType, string | null>>({
     heroUrl: currentHeroUrl,
@@ -32,11 +34,17 @@ export default function ProAssetsUploaderClient({
   const router = useRouter();
   const { enqueue } = useNotificationContext();
 
+  const slots: { type: AssetType; title: string; desc: string }[] = [
+    { type: "heroUrl", title: t("media.proAssets.heroTitle"), desc: t("media.proAssets.heroDesc") },
+    { type: "modelUrl1", title: t("media.proAssets.model1Title"), desc: t("media.proAssets.model1Desc") },
+    { type: "modelUrl2", title: t("media.proAssets.model2Title"), desc: t("media.proAssets.model2Desc") },
+  ];
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, assetType: AssetType) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.includes("png")) {
-      alert("Debes subir un archivo en formato PNG (Idealmente sin fondo).");
+      alert(t("media.proAssets.invalidFormatAlert"));
       return;
     }
 
@@ -52,11 +60,11 @@ export default function ProAssetsUploaderClient({
       setPreviews((prev) => ({ ...prev, [assetType]: res.url as string }));
       router.refresh();
 
-      const slotName = slots.find((s) => s.type === assetType)?.title ?? "Asset PNG";
+      const slotName = slots.find((s) => s.type === assetType)?.title ?? t("media.proAssets.slotFallback");
 
       enqueue(
         profileNotification.updated({
-          sectionLabel: "tu Portfolio Pro",
+          sectionLabel: t("media.proAssets.sectionLabel"),
           changedFields: [slotName],
         }),
       );
@@ -64,20 +72,14 @@ export default function ProAssetsUploaderClient({
       console.error(err);
       enqueue(
         announcementNotification.general({
-          headline: "Error al subir la imagen",
-          body: err.message || "Hubo un problema procesando tu imagen. Intenta de nuevo.",
+          headline: t("media.proAssets.errorHeadline"),
+          body: err.message || t("media.proAssets.errorBody"),
         }),
       );
     } finally {
       setIsUploading(null);
     }
   };
-
-  const slots: { type: AssetType; title: string; desc: string }[] = [
-    { type: "heroUrl", title: "Hero asset", desc: "Imagen principal gigante para la portada." },
-    { type: "modelUrl1", title: "Modelado 1", desc: "Imagen de cuerpo entero para acompañar estadísticas." },
-    { type: "modelUrl2", title: "Modelado 2", desc: "Imagen secundaria para secciones interactivas." },
-  ];
 
   return (
     <div className="mb-8 space-y-6 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-[rgba(204,255,0,0.04)] p-6 shadow-[0_0_24px_rgba(204,255,0,0.06)]">
@@ -88,17 +90,17 @@ export default function ProAssetsUploaderClient({
           </span>
           <div>
             <span className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-lime">
-              Pro layout
+              {t("media.proAssets.proLayout")}
             </span>
             <h3 className="font-bh-display text-xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-              Assets pro
+              {t("media.proAssets.title")}
             </h3>
           </div>
         </div>
         <p className="text-[13px] leading-[1.55] text-bh-fg-3">
-          Subí tus imágenes en formato{" "}
-          <strong className="text-bh-fg-1">PNG (con fondo transparente)</strong>{" "}
-          para habilitar el modelo 3D y los elementos dinámicos de tu portfolio Pro.
+          {t.rich("media.proAssets.description", {
+            strong: (chunks) => <strong className="text-bh-fg-1">{chunks}</strong>,
+          })}
         </p>
       </div>
 
@@ -107,12 +109,10 @@ export default function ProAssetsUploaderClient({
           <Info className="mt-0.5 h-5 w-5 shrink-0 text-bh-lime" />
           <div className="space-y-1">
             <p className="text-[13px] font-semibold text-bh-fg-1">
-              Mejorá la velocidad de tu perfil
+              {t("media.proAssets.speedTitle")}
             </p>
             <p className="max-w-xl text-[12px] leading-[1.55] text-bh-fg-3">
-              Recomendamos comprimir tus imágenes PNG antes de subirlas. Esto
-              garantizará una carga rápida y fluida para quienes visiten tu
-              perfil. Podés usar herramientas gratuitas como Squoosh.
+              {t("media.proAssets.speedBody")}
             </p>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function ProAssetsUploaderClient({
           rel="noopener noreferrer"
           className="inline-flex shrink-0 items-center gap-2 rounded-bh-md border border-[rgba(204,255,0,0.22)] bg-[rgba(204,255,0,0.10)] px-3 py-1.5 text-[12px] font-medium text-bh-lime transition-colors hover:bg-[rgba(204,255,0,0.16)]"
         >
-          Ir a Squoosh.app
+          {t("media.proAssets.squooshCta")}
           <ExternalLink className="h-3 w-3" />
         </a>
       </div>
@@ -148,13 +148,13 @@ export default function ProAssetsUploaderClient({
               ) : (
                 <div className="flex flex-col items-center p-4 text-bh-fg-4">
                   <ImageIcon className="mb-2 h-8 w-8" />
-                  <span className="text-[11px]">Sin imagen</span>
+                  <span className="text-[11px]">{t("media.proAssets.noImage")}</span>
                 </div>
               )}
               {isUploading === slot.type && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm">
                   <span className="animate-pulse font-bh-display text-sm font-bold uppercase tracking-[0.1em] text-bh-lime">
-                    Subiendo...
+                    {t("media.proAssets.uploading")}
                   </span>
                 </div>
               )}
@@ -173,7 +173,7 @@ export default function ProAssetsUploaderClient({
                   className="inline-flex h-9 cursor-pointer items-center justify-center gap-2 rounded-bh-md bg-bh-lime px-4 text-[12px] font-semibold text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.35)] transition-all duration-150 ease-[cubic-bezier(0.25,0,0,1)] hover:-translate-y-px hover:bg-[#d8ff26] hover:shadow-[0_6px_24px_rgba(204,255,0,0.35)]"
                 >
                   <Upload className="h-4 w-4" />
-                  {previews[slot.type] ? "Reemplazar" : "Subir PNG"}
+                  {previews[slot.type] ? t("media.proAssets.replace") : t("media.proAssets.uploadPng")}
                 </label>
               </div>
             </div>
@@ -185,16 +185,19 @@ export default function ProAssetsUploaderClient({
       <div className="space-y-2 rounded-bh-md border border-white/[0.08] bg-bh-surface-1/60 p-4 text-[12px] text-bh-fg-3">
         <p>
           <CheckCircle className="mr-1 inline-block h-4 w-4 text-bh-success" />
-          Resolución ideal: <span className="font-bh-mono">1080×1350px</span>.
+          {t.rich("media.proAssets.tipResolution", {
+            code: (chunks) => <span className="font-bh-mono">{chunks}</span>,
+          })}
         </p>
         <p>
           <CheckCircle className="mr-1 inline-block h-4 w-4 text-bh-success" />
-          Formato <span className="font-bh-mono">.png</span> para asegurar
-          fondo transparente.
+          {t.rich("media.proAssets.tipFormat", {
+            code: (chunks) => <span className="font-bh-mono">{chunks}</span>,
+          })}
         </p>
         <p>
           <X className="mr-1 inline-block h-4 w-4 text-bh-danger" />
-          No subas fotos cuadradas con estadios de fondo, rompen el efecto 3D.
+          {t("media.proAssets.tipNoSquare")}
         </p>
       </div>
     </div>

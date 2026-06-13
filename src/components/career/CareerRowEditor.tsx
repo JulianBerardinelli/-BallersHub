@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
   Button,
   Autocomplete,
@@ -74,6 +75,8 @@ export default function CareerRowEditor({
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (selected: boolean) => boolean | void;
 }) {
+  const t = useTranslations("dashEditProfile");
+
   // --- Club: shared search-or-propose combobox ---
   const teamValue: TeamComboboxValue = value.team_id
     ? {
@@ -272,18 +275,31 @@ export default function CareerRowEditor({
     }
   }
 
-  // Validaciones de años
-  const yMsgs = validateYears(
+  // Validaciones de años — códigos discriminados; localizamos al renderizar.
+  const yIssues = validateYears(
     startStr.length === 4 ? Number(startStr) : null,
     value.lockEnd ? null : (endStr.length === 4 ? Number(endStr) : null)
   );
   const showErrors = triedConfirm || touchedStart || touchedEnd;
-  const startInvalid = showErrors && yMsgs.some(m => m.toLowerCase().includes("desde"));
-  const endInvalid   = !value.lockEnd && showErrors && yMsgs.some(m => m.toLowerCase().includes("hasta"));
+  const startInvalid = showErrors && yIssues.some((i) => i.field === "start" || i.field === "both");
+  const endInvalid = !value.lockEnd && showErrors && yIssues.some((i) => i.field === "end" || i.field === "both");
+
+  function translateIssue(code: ReturnType<typeof validateYears>[number]["code"]) {
+    switch (code) {
+      case "atLeastOneYear":
+        return t("career.utils.atLeastOneYear");
+      case "startOutOfRange":
+        return t("career.utils.startOutOfRange", { min: YEAR_MIN, max: YEAR_MAX });
+      case "endOutOfRange":
+        return t("career.utils.endOutOfRange", { min: YEAR_MIN, max: YEAR_MAX });
+      case "startAfterEnd":
+        return t("career.utils.startAfterEnd");
+    }
+  }
 
   const canConfirm =
     (value.club?.trim()?.length ?? 0) > 1 &&
-    yMsgs.length === 0 &&
+    yIssues.length === 0 &&
     (!value.proposed || (value.proposed && value.proposed.country)) &&
     !overlapError;
 
@@ -366,7 +382,7 @@ export default function CareerRowEditor({
       <div className="lg:col-span-2">
         <TeamCombobox
           variant="field"
-          label="Club"
+          label={t("career.rowEditor.clubLabel")}
           value={teamValue}
           seedText={value.club}
           onChange={handleTeamChange}
@@ -374,7 +390,7 @@ export default function CareerRowEditor({
       </div>
 
       <Autocomplete
-          label="División"
+          label={t("career.rowEditor.divisionLabel")}
           labelPlacement="outside"
           menuTrigger="input"
           {...autocompleteBrandProps}
@@ -404,15 +420,15 @@ export default function CareerRowEditor({
               : []),
             ...divFiltered,
           ]}
-          placeholder="Primera / Sub-20…"
+          placeholder={t("career.rowEditor.divisionPlaceholder")}
         >
           {(item: any) => {
             const isNew = String(item.id).startsWith("new:");
             if (isNew) {
               return (
-                <AutocompleteItem key={item.id} textValue={`Proponer ${item.name}`}>
+                <AutocompleteItem key={item.id} textValue={t("career.rowEditor.proposeNewLeague", { name: item.name })}>
                   <div className="flex flex-col">
-                    <span>“{item.name}” (Sugerir nueva liga)</span>
+                    <span>{t("career.rowEditor.proposeNewLeague", { name: item.name })}</span>
                   </div>
                 </AutocompleteItem>
               );
@@ -429,7 +445,7 @@ export default function CareerRowEditor({
 
         {secondaryEnabled ? (
         <Autocomplete
-            label="Otra categoría/liga"
+            label={t("career.rowEditor.secondaryDivisionLabel")}
             labelPlacement="outside"
             menuTrigger="input"
             {...autocompleteBrandProps}
@@ -469,15 +485,15 @@ export default function CareerRowEditor({
                 : []),
               ...secondaryDivFiltered,
             ]}
-            placeholder="Reserva / U20 / Segunda…"
+            placeholder={t("career.rowEditor.secondaryDivisionPlaceholder")}
           >
             {(item: any) => {
               const isNew = String(item.id).startsWith("new:");
               if (isNew) {
                 return (
-                  <AutocompleteItem key={item.id} textValue={`Proponer ${item.name}`}>
+                  <AutocompleteItem key={item.id} textValue={t("career.rowEditor.proposeNewLeague", { name: item.name })}>
                     <div className="flex flex-col">
-                      <span>“{item.name}” (Sugerir nueva liga)</span>
+                      <span>{t("career.rowEditor.proposeNewLeague", { name: item.name })}</span>
                     </div>
                   </AutocompleteItem>
                 );
@@ -508,8 +524,8 @@ export default function CareerRowEditor({
         type="text"
         inputMode="numeric"
         pattern="\d*"
-        label="Desde (año)"
-        placeholder="2019"
+        label={t("career.rowEditor.fromLabel")}
+        placeholder={t("career.rowEditor.fromPlaceholder")}
         value={startStr}
         onChange={(e) => onStartChange(e.target.value)}
         onBlur={() => setTouchedStart(true)}
@@ -522,8 +538,8 @@ export default function CareerRowEditor({
         type="text"
         inputMode="numeric"
         pattern="\d*"
-        label={value.lockEnd ? "Hasta (Actual)" : "Hasta (año)"}
-        placeholder={value.lockEnd ? "Actual" : "2024"}
+        label={value.lockEnd ? t("career.rowEditor.toLabelCurrent") : t("career.rowEditor.toLabelYear")}
+        placeholder={value.lockEnd ? t("career.rowEditor.toPlaceholderCurrent") : t("career.rowEditor.toPlaceholderYear")}
         value={value.lockEnd ? "" : endStr}
         onChange={(e) => onEndChange(e.target.value)}
         onBlur={() => setTouchedEnd(true)}
@@ -552,7 +568,7 @@ export default function CareerRowEditor({
                 }}
                 classNames={bhSwitchClassNames}
               >
-                Es mi equipo actual
+                {t("career.rowEditor.toggleCurrent")}
               </Switch>
             ) : null}
 
@@ -562,7 +578,7 @@ export default function CareerRowEditor({
               onValueChange={toggleSecondary}
               classNames={bhSwitchClassNames}
             >
-              Disputé otra categoría/liga
+              {t("career.rowEditor.toggleSecondary")}
             </Switch>
         </div>
 
@@ -570,7 +586,7 @@ export default function CareerRowEditor({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             {value.team_id && (
-              <Chip variant="flat" classNames={bhChip("success")}>Equipo verificado</Chip>
+              <Chip variant="flat" classNames={bhChip("success")}>{t("career.rowEditor.chipVerified")}</Chip>
             )}
             {!value.team_id && value.proposed?.country && (
               <Chip
@@ -582,7 +598,7 @@ export default function CareerRowEditor({
               </Chip>
             )}
             {!value.team_id && value.proposed?.tmUrl && (
-              <Chip variant="flat" classNames={bhChip("blue")}>TM OK</Chip>
+              <Chip variant="flat" classNames={bhChip("blue")}>{t("career.rowEditor.chipTmOk")}</Chip>
             )}
             {/* Aviso suave si la liga quedó como texto libre (no enlazada al
                 catálogo). Esa fila no aparecerá en filtros por liga ni
@@ -592,11 +608,11 @@ export default function CareerRowEditor({
               (value.secondary_division && value.secondary_division.trim() && !value.secondary_division_id)) ? (
               <span className="inline-flex items-center gap-1 text-[11px] text-bh-fg-3">
                 <span aria-hidden>⚠</span>
-                Liga sin enlazar al catálogo — usá el desplegable o se cargará como texto suelto.
+                {t("career.rowEditor.unlinkedLeagueWarning")}
               </span>
             ) : null}
-            {showErrors && yMsgs.length > 0 && (
-              <span className="text-[12px] text-bh-danger">{yMsgs[0]}</span>
+            {showErrors && yIssues.length > 0 && (
+              <span className="text-[12px] text-bh-danger">{translateIssue(yIssues[0].code)}</span>
             )}
             {overlapError && (
               <span className="text-[12px] text-bh-danger">{overlapError}</span>
@@ -611,7 +627,7 @@ export default function CareerRowEditor({
                 onPress={onCancel}
                 className={bhButtonClass({ variant: "ghost", size: "sm" })}
               >
-                Cancelar
+                {t("career.rowEditor.cancel")}
               </Button>
             )}
             <Button
@@ -619,7 +635,7 @@ export default function CareerRowEditor({
               onPress={handleConfirm}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Confirmar etapa
+              {t("career.rowEditor.confirmStage")}
             </Button>
             {!value.lockDelete && (
               <Button
@@ -628,7 +644,7 @@ export default function CareerRowEditor({
                 onPress={onRemove}
                 className={bhButtonClass({ variant: "icon-danger", size: "sm" })}
               >
-                Eliminar
+                {t("career.rowEditor.remove")}
               </Button>
             )}
           </div>

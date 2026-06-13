@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { userProfiles } from "@/db/schema/users";
 import { playerProfiles } from "@/db/schema/players";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import Image from "next/image";
@@ -11,11 +12,13 @@ import { Link } from "@/i18n/navigation";
 import PlayerInviteManager from "@/components/dashboard/client/PlayerInviteManager";
 import { getPendingPlayerInvitesForAgency } from "@/app/actions/player-invites";
 
-export const metadata = {
-  title: "Mis Jugadores - Dashboard",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("dashAgency");
+  return { title: t("playersPage.metaTitle") };
+}
 
 export default async function AgencyPlayersPage() {
+  const t = await getTranslations("dashAgency");
   const supa = await createSupabaseServerRSC();
   const { data: { user } } = await supa.auth.getUser();
   if (!user) redirect("/auth/sign-in");
@@ -28,9 +31,9 @@ export default async function AgencyPlayersPage() {
   if (!up || up.role !== "manager" || !up.agencyId || !up.agency) {
     return (
       <div className="space-y-6">
-        <PageHeader title="Mis Jugadores" description="Cartera de futbolistas representados." />
-        <SectionCard title="Acceso Restringido" description="">
-          <p className="text-neutral-400">Aún no tienes una agencia aprobada o no eres un mánager activo.</p>
+        <PageHeader title={t("playersPage.pageTitle")} description={t("playersPage.pageDescriptionFallback")} />
+        <SectionCard title={t("playersPage.restrictedTitle")} description="">
+          <p className="text-neutral-400">{t("playersPage.restrictedBody")}</p>
         </SectionCard>
       </div>
     );
@@ -47,18 +50,18 @@ export default async function AgencyPlayersPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Mis Jugadores"
-        description={`Cartera de futbolistas representados de ${up.agency.name}`}
+        title={t("playersPage.pageTitle")}
+        description={t("playersPage.pageDescription", { name: up.agency.name })}
       />
 
       <SectionCard
-        title="Directorio de Jugadores"
-        description={`Actualmente tienes ${players.length} futbolista(s) vinculados a la agencia.`}
+        title={t("playersPage.directoryTitle")}
+        description={t("playersPage.directoryDescription", { count: players.length })}
       >
         {players.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-             <p className="text-neutral-400">No hay jugadores vinculados aún.</p>
-             <p className="text-sm text-neutral-500 mt-2">Envía una invitación al jugador para agregarlo a tu cartera.</p>
+             <p className="text-neutral-400">{t("playersPage.emptyTitle")}</p>
+             <p className="text-sm text-neutral-500 mt-2">{t("playersPage.emptyHint")}</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 mt-4">
@@ -77,24 +80,24 @@ export default async function AgencyPlayersPage() {
                      </div>
                      <div className="min-w-0">
                        <h3 className="truncate font-semibold text-white">{player.fullName}</h3>
-                       <p className="truncate text-xs text-neutral-400">{player.currentClub || "Agente Libre"}</p>
+                       <p className="truncate text-xs text-neutral-400">{player.currentClub || t("playersPage.freeAgent")}</p>
                      </div>
                   </div>
-                  
+
                   <div className="p-4 grid grid-cols-2 gap-2 text-xs text-neutral-400">
                     <div>
-                      <span className="block font-medium text-neutral-500">Estado</span>
+                      <span className="block font-medium text-neutral-500">{t("playersPage.statusLabel")}</span>
                       <span className="text-white capitalize">{player.status.replace("_", " ")}</span>
                     </div>
                     <div>
-                      <span className="block font-medium text-neutral-500">Visibilidad</span>
+                      <span className="block font-medium text-neutral-500">{t("playersPage.visibilityLabel")}</span>
                       <span className="text-white capitalize">{player.visibility}</span>
                     </div>
                   </div>
 
                   <div className="mt-auto bg-neutral-900/50 p-3 text-center">
                     <Link href={`/${player.slug}`} target="_blank" className="text-sm font-medium text-primary hover:underline">
-                      Ver perfil público
+                      {t("playersPage.viewPublicProfile")}
                     </Link>
                   </div>
                </div>

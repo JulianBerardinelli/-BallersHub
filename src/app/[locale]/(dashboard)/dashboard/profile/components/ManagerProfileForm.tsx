@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import { updateManagerProfile } from "@/app/actions/manager-profiles";
 import type { ManagerProfile } from "@/db/schema/managerProfiles";
@@ -11,6 +12,7 @@ import BhImageUploader from "@/components/ui/BhImageUploader";
 import { bhButtonClass } from "@/components/ui/bh-button-class";
 
 export default function ManagerProfileForm({ profile }: { profile: ManagerProfile }) {
+  const t = useTranslations("dashAgency");
   const [formData, setFormData] = useState({
     fullName: profile.fullName || "",
     avatarUrl: profile.avatarUrl || "",
@@ -34,7 +36,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
     if (result.error) {
       setFeedback({ type: "error", message: result.error });
     } else {
-      setFeedback({ type: "success", message: "Perfil actualizado correctamente." });
+      setFeedback({ type: "success", message: t("managerProfile.successUpdated") });
       router.refresh();
     }
   };
@@ -45,7 +47,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
     if (result.error) {
       setFeedback({ type: "error", message: result.error });
     } else {
-      setFeedback({ type: "success", message: "Foto actualizada." });
+      setFeedback({ type: "success", message: t("managerProfile.successPhotoUpdated") });
       router.refresh();
     }
   };
@@ -56,7 +58,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
     if (result.error) {
       setFeedback({ type: "error", message: result.error });
     } else {
-      setFeedback({ type: "success", message: "Foto eliminada." });
+      setFeedback({ type: "success", message: t("managerProfile.successPhotoRemoved") });
       router.refresh();
     }
   };
@@ -67,10 +69,10 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
       <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-6">
         <div className="mb-5 space-y-1">
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Tu foto de perfil
+            {t("managerProfile.avatarTitle")}
           </h3>
           <p className="max-w-xl text-sm leading-[1.55] text-bh-fg-3">
-            Será visible en el portfolio de tu agencia y en las invitaciones a jugadores. Cuadrada y centrada en la cara funciona mejor.
+            {t("managerProfile.avatarDescription")}
           </p>
         </div>
 
@@ -86,7 +88,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
           maxBytes={1.5 * 1024 * 1024}
           shape="circle"
           size={96}
-          emptyLabel="Sin foto"
+          emptyLabel={t("managerProfile.avatarEmptyLabel")}
         />
       </div>
 
@@ -105,8 +107,8 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField
           id="bh-mp-full-name"
-          label="Nombre completo"
-          placeholder="Juan Pérez"
+          label={t("managerProfile.fullNameLabel")}
+          placeholder={t("managerProfile.fullNamePlaceholder")}
           value={formData.fullName}
           onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
           isRequired
@@ -114,8 +116,8 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
 
         <FormField
           id="bh-mp-email"
-          label="Correo de contacto"
-          placeholder="correo@ejemplo.com"
+          label={t("managerProfile.contactEmailLabel")}
+          placeholder={t("managerProfile.contactEmailPlaceholder")}
           type="email"
           value={formData.contactEmail}
           onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
@@ -124,8 +126,8 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
 
         <FormField
           id="bh-mp-phone"
-          label="Teléfono móvil"
-          placeholder="+54 9 11 1234 5678"
+          label={t("managerProfile.contactPhoneLabel")}
+          placeholder={t("managerProfile.contactPhonePlaceholder")}
           value={formData.contactPhone}
           onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
         />
@@ -134,8 +136,8 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
       <FormField
         as="textarea"
         id="bh-mp-bio"
-        label="Biografía corta (opcional)"
-        placeholder="Breve descripción sobre vos, tu experiencia y lo que le ofreces a los jugadores."
+        label={t("managerProfile.bioLabel")}
+        placeholder={t("managerProfile.bioPlaceholder")}
         rows={4}
         value={formData.bio}
         onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
@@ -147,7 +149,7 @@ export default function ManagerProfileForm({ profile }: { profile: ManagerProfil
           isLoading={isSubmitting}
           className={bhButtonClass({ variant: "lime", size: "sm" })}
         >
-          Guardar cambios
+          {t("managerProfile.saveChanges")}
         </Button>
       </div>
     </form>

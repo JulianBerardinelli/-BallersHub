@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button, Chip } from "@heroui/react";
 import { ImageOff, ChevronUp, ChevronDown } from "lucide-react";
@@ -25,11 +26,12 @@ export default function MediaGalleryGrid({
   /** Disables all reorder controls while a save is in flight. */
   isReordering?: boolean;
 }) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Estás seguro de que deseas eliminar este archivo?")) {
+    if (!confirm(t("media.galleryGrid.confirmDelete"))) {
       return;
     }
 
@@ -37,12 +39,12 @@ export default function MediaGalleryGrid({
     try {
       const res = await fetch(`/api/media/${id}`, { method: "DELETE" });
       if (!res.ok) {
-        throw new Error("No se pudo eliminar el archivo. Intenta de nuevo.");
+        throw new Error(t("media.galleryGrid.deleteFetchError"));
       }
       router.refresh(); // Soft refresh to reflect changes
     } catch (err) {
       console.error(err);
-      alert("Hubo un error borrando el archivo.");
+      alert(t("media.galleryGrid.deleteFallbackError"));
     } finally {
       setDeletingId(null);
     }
@@ -52,8 +54,8 @@ export default function MediaGalleryGrid({
     return (
       <BhEmptyState
         icon={<ImageOff className="h-5 w-5" />}
-        title="Sin archivos"
-        description="No tenés archivos multimedia cargados todavía."
+        title={t("media.galleryGrid.emptyTitle")}
+        description={t("media.galleryGrid.emptyDescription")}
       />
     );
   }
@@ -85,7 +87,7 @@ export default function MediaGalleryGrid({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={item.url}
-                  alt={item.title || "Foto de perfil"}
+                  alt={item.title || t("media.galleryGrid.photoAltFallback")}
                   className={`h-full w-full object-cover transition-opacity ${
                      isFlagged ? "opacity-30 grayscale" : "opacity-90 group-hover:opacity-100"
                   }`}
@@ -97,7 +99,7 @@ export default function MediaGalleryGrid({
                   width="100%"
                   height="100%"
                   src={getYouTubeEmbedUrl(item.url) || ""}
-                  title="YouTube video player"
+                  title={t("media.galleryGrid.videoPlayerTitle")}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -110,17 +112,17 @@ export default function MediaGalleryGrid({
               <div className="absolute left-2 top-2 flex flex-col gap-1">
                 {isFlagged && (
                   <Chip size="sm" variant="flat" classNames={bhChip("danger")}>
-                    Inapropiado (oculto)
+                    {t("media.galleryGrid.chipFlagged")}
                   </Chip>
                 )}
                 {isPending && (
                   <Chip size="sm" variant="flat" classNames={bhChip("warning")}>
-                    En revisión
+                    {t("media.galleryGrid.chipPending")}
                   </Chip>
                 )}
                 {item.isPrimary && !isFlagged && (
                   <Chip size="sm" variant="flat" classNames={bhChip("lime")}>
-                    Foto principal
+                    {t("media.galleryGrid.chipPrimary")}
                   </Chip>
                 )}
               </div>
@@ -131,19 +133,21 @@ export default function MediaGalleryGrid({
               <div className="mb-3">
                 <p
                   className="truncate font-bh-heading text-[14px] font-semibold text-bh-fg-1"
-                  title={item.title || "Sin título"}
+                  title={item.title || t("media.galleryGrid.titleNoTitle")}
                 >
-                  {item.title || (item.type === "photo" ? "Fotografía sin título" : "Video sin título")}
+                  {item.title ||
+                    (item.type === "photo"
+                      ? t("media.galleryGrid.titlePhotoUntitled")
+                      : t("media.galleryGrid.titleVideoUntitled"))}
                 </p>
                 <p className="font-bh-mono text-[11px] text-bh-fg-4">
                   {item.type === "video" && item.seasonYear
-                    ? `Temporada ${item.seasonYear} · ${new Date(item.createdAt).toLocaleDateString()}`
+                    ? `${t("media.galleryGrid.seasonPrefix")} ${item.seasonYear} · ${new Date(item.createdAt).toLocaleDateString()}`
                     : new Date(item.createdAt).toLocaleDateString()}
                 </p>
                 {isFlagged && (
                   <p className="mt-2 text-[11px] text-bh-danger">
-                    Este archivo incumple las normas de la comunidad y no es
-                    visible en el perfil público. Por favor, eliminalo.
+                    {t("media.galleryGrid.flaggedNotice")}
                   </p>
                 )}
               </div>
@@ -153,7 +157,7 @@ export default function MediaGalleryGrid({
                   <>
                     <button
                       type="button"
-                      aria-label="Subir video"
+                      aria-label={t("media.galleryGrid.moveUpAria")}
                       disabled={index === 0 || isReordering}
                       onClick={() => onMoveUp?.(item.id)}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-bh-md border border-white/[0.08] text-bh-fg-3 transition-colors hover:border-white/[0.18] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08]"
@@ -162,7 +166,7 @@ export default function MediaGalleryGrid({
                     </button>
                     <button
                       type="button"
-                      aria-label="Bajar video"
+                      aria-label={t("media.galleryGrid.moveDownAria")}
                       disabled={index === items.length - 1 || isReordering}
                       onClick={() => onMoveDown?.(item.id)}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-bh-md border border-white/[0.08] text-bh-fg-3 transition-colors hover:border-white/[0.18] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-white/[0.08]"
@@ -178,7 +182,9 @@ export default function MediaGalleryGrid({
                   isLoading={deletingId === item.id}
                   className={bhButtonClass({ variant: "danger-soft", size: "sm", className: "flex-1" })}
                 >
-                  {deletingId === item.id ? "Borrando..." : "Eliminar"}
+                  {deletingId === item.id
+                    ? t("media.galleryGrid.deleting")
+                    : t("media.galleryGrid.delete")}
                 </Button>
               </div>
             </div>

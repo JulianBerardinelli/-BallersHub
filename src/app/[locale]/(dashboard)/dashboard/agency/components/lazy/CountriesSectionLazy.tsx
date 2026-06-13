@@ -5,7 +5,7 @@ import SectionSkeleton from "./_skeleton";
 
 const CountriesSection = dynamic(
   () => import("../CountriesSection"),
-  { ssr: false, loading: () => <SectionSkeleton label="Países" /> },
+  { ssr: false, loading: () => <SectionSkeleton labelKey="countries" /> },
 );
 
 export default CountriesSection;

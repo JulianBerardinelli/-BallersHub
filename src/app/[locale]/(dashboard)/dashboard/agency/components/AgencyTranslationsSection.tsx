@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { Check, Languages, Save, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
@@ -30,6 +31,7 @@ export default function AgencyTranslationsSection({
   base: { description: string; tagline: string };
   translations: Partial<Record<TargetLocale, { description: string | null; tagline: string | null }>>;
 }) {
+  const t = useTranslations("dashAgency");
   const [active, setActive] = useState<TargetLocale>("en");
 
   // All per-locale drafts live here (no remount on locale switch), so edits and
@@ -99,10 +101,10 @@ export default function AgencyTranslationsSection({
       title={
         <span className="flex items-center gap-2">
           <Languages className="size-4 text-bh-blue" />
-          Idiomas del perfil
+          {t("translationsSection.title")}
         </span>
       }
-      description="El perfil base está en español (lo editás arriba). Traducí la descripción y el tagline a cada idioma que publicás; cada uno se vuelve una URL propia indexable."
+      description={t("translationsSection.description")}
     >
       <div className="mb-5 flex flex-wrap gap-2">
         {LOCALES.map((l) => {
@@ -136,16 +138,16 @@ export default function AgencyTranslationsSection({
           as="textarea"
           rows={5}
           id={`agency-${active}-description`}
-          label="Descripción"
+          label={t("translationsSection.descriptionLabel")}
           value={draft.description}
-          description={base.description ? `ES: ${base.description}` : undefined}
+          description={base.description ? t("translationsSection.esPrefix", { value: base.description }) : undefined}
           onValueChange={(v) => patch("description", v)}
         />
         <FormField
           id={`agency-${active}-tagline`}
-          label="Tagline"
+          label={t("translationsSection.taglineLabel")}
           value={draft.tagline}
-          description={base.tagline ? `ES: ${base.tagline}` : undefined}
+          description={base.tagline ? t("translationsSection.esPrefix", { value: base.tagline }) : undefined}
           onValueChange={(v) => patch("tagline", v)}
         />
       </div>
@@ -172,7 +174,7 @@ export default function AgencyTranslationsSection({
               isDisabled={isSaving}
               className="text-bh-fg-3"
             >
-              Quitar idioma
+              {t("translationsSection.removeLanguage")}
             </Button>
           ) : null}
           <Button
@@ -182,7 +184,7 @@ export default function AgencyTranslationsSection({
             isLoading={isSaving}
             isDisabled={isSaving}
           >
-            Guardar {active.toUpperCase()}
+            {t("translationsSection.saveLocale", { locale: active.toUpperCase() })}
           </Button>
         </div>
       </div>

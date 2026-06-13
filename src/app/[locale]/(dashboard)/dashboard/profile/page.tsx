@@ -1,11 +1,18 @@
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import ManagerProfileForm from "./components/ManagerProfileForm";
 import ManagerLicensesSection from "./components/ManagerLicensesSection";
 import { getManagerProfile } from "@/app/actions/manager-profiles";
 
+export async function generateMetadata() {
+  const t = await getTranslations("dashAgency");
+  return { title: t("managerProfile.metaTitle") };
+}
+
 export default async function MyProfilePage() {
+  const t = await getTranslations("dashAgency");
   const result = await getManagerProfile();
 
   if (result.error || !result.profile) {
@@ -17,13 +24,13 @@ export default async function MyProfilePage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Mi Perfil"
-        description="Gestioná tu información personal, foto, datos de contacto y licencias como representante."
+        title={t("managerProfile.pageTitle")}
+        description={t("managerProfile.pageDescription")}
       />
 
       <SectionCard
-        title="Datos personales"
-        description="Esta información no está atada a tu agencia. Es propia de tu cuenta como representante."
+        title={t("managerProfile.personalDataTitle")}
+        description={t("managerProfile.personalDataDescription")}
       >
         <ManagerProfileForm profile={result.profile} />
       </SectionCard>

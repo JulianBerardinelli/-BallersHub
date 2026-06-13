@@ -13,6 +13,7 @@ import {
   Tooltip,
 } from "@heroui/react";
 import { Check, ClipboardCopy, Clock, FileSearch, ShieldCheck } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 
 type HeroColor = "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 
@@ -45,10 +46,10 @@ const PLAN_LABELS: Record<string, string> = {
   "pro-agency": "Pro Agencia",
 };
 
-function formatDateTime(value: string | null | undefined): string | null {
+function formatDateTime(value: string | null | undefined, locale: string): string | null {
   if (!value) return null;
   try {
-    return new Intl.DateTimeFormat("es-AR", {
+    return new Intl.DateTimeFormat(locale, {
       dateStyle: "long",
       timeStyle: "short",
     }).format(new Date(value));
@@ -69,38 +70,44 @@ function shortenId(id: string): string {
 
 type Row = { label: string; value: React.ReactNode };
 
-function buildRows(details: ApplicationReviewDetails): Row[] {
+type RowTranslator = (key: string) => string;
+
+function buildRows(
+  details: ApplicationReviewDetails,
+  t: RowTranslator,
+  locale: string,
+): Row[] {
   const rows: Row[] = [];
 
-  const submittedAt = formatDateTime(details.createdAt);
+  const submittedAt = formatDateTime(details.createdAt, locale);
   if (submittedAt) {
-    rows.push({ label: "Fecha de envío", value: submittedAt });
+    rows.push({ label: t("rowSubmittedAt"), value: submittedAt });
   }
 
-  const updatedAt = formatDateTime(details.updatedAt ?? null);
+  const updatedAt = formatDateTime(details.updatedAt ?? null, locale);
   if (updatedAt && updatedAt !== submittedAt) {
-    rows.push({ label: "Última actualización", value: updatedAt });
+    rows.push({ label: t("rowUpdatedAt"), value: updatedAt });
   }
 
   if (details.type === "player") {
     const plan = formatPlan(details.planRequested);
-    if (plan) rows.push({ label: "Plan solicitado", value: plan });
-    if (details.fullName) rows.push({ label: "Nombre", value: details.fullName });
+    if (plan) rows.push({ label: t("rowPlanRequested"), value: plan });
+    if (details.fullName) rows.push({ label: t("rowFullName"), value: details.fullName });
     if (details.positions && details.positions.length > 0) {
-      rows.push({ label: "Posiciones", value: details.positions.join(", ") });
+      rows.push({ label: t("rowPositions"), value: details.positions.join(", ") });
     }
     if (details.nationality && details.nationality.length > 0) {
-      rows.push({ label: "Nacionalidad", value: details.nationality.join(", ") });
+      rows.push({ label: t("rowNationality"), value: details.nationality.join(", ") });
     }
     if (details.currentClub) {
-      rows.push({ label: "Club declarado", value: details.currentClub });
+      rows.push({ label: t("rowCurrentClub"), value: details.currentClub });
     }
   } else {
-    if (details.fullName) rows.push({ label: "Responsable", value: details.fullName });
-    if (details.agencyName) rows.push({ label: "Agencia", value: details.agencyName });
+    if (details.fullName) rows.push({ label: t("rowResponsible"), value: details.fullName });
+    if (details.agencyName) rows.push({ label: t("rowAgency"), value: details.agencyName });
     if (details.agencyWebsite) {
       rows.push({
-        label: "Sitio web",
+        label: t("rowWebsite"),
         value: (
           <a
             href={details.agencyWebsite}
@@ -114,10 +121,10 @@ function buildRows(details: ApplicationReviewDetails): Row[] {
       });
     }
     if (details.contactEmail) {
-      rows.push({ label: "Email de contacto", value: details.contactEmail });
+      rows.push({ label: t("rowContactEmail"), value: details.contactEmail });
     }
     if (details.contactPhone) {
-      rows.push({ label: "Teléfono", value: details.contactPhone });
+      rows.push({ label: t("rowContactPhone"), value: details.contactPhone });
     }
   }
 
@@ -136,8 +143,14 @@ export default function ApplicationReviewModal({
   details,
 }: ApplicationReviewModalProps) {
   const [copied, setCopied] = useState(false);
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
 
-  const rows = buildRows(details);
+  const rows = buildRows(
+    details,
+    (key) => t(`overview.applicationReview.${key}`),
+    locale,
+  );
   const isPending =
     details.status === "pending" || details.status === "pending_review";
 
@@ -152,11 +165,13 @@ export default function ApplicationReviewModal({
   };
 
   const title =
-    details.type === "player" ? "Tu solicitud de jugador" : "Tu solicitud de agencia";
+    details.type === "player"
+      ? t("overview.applicationReview.titlePlayer")
+      : t("overview.applicationReview.titleManager");
 
   const subtitle = isPending
-    ? "Estamos revisando los datos enviados. Recibirás un mail apenas tengamos novedades."
-    : "Detalle del estado actual de tu solicitud.";
+    ? t("overview.applicationReview.subtitlePending")
+    : t("overview.applicationReview.subtitleResolved");
 
   return (
     <Modal
@@ -203,14 +218,18 @@ export default function ApplicationReviewModal({
                 <div className="flex items-center justify-between gap-3">
                   <div className="space-y-0.5">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-4">
-                      ID de solicitud
+                      {t("overview.applicationReview.applicationIdLabel")}
                     </p>
                     <p className="font-mono text-[12.5px] text-bh-fg-1">
                       {shortenId(details.id)}
                     </p>
                   </div>
                   <Tooltip
-                    content={copied ? "Copiado" : "Copiar ID completo"}
+                    content={
+                      copied
+                        ? t("overview.applicationReview.copiedId")
+                        : t("overview.applicationReview.copyId")
+                    }
                     placement="top"
                   >
                     <Button
@@ -218,7 +237,7 @@ export default function ApplicationReviewModal({
                       size="sm"
                       variant="flat"
                       onPress={handleCopyId}
-                      aria-label="Copiar identificador de solicitud"
+                      aria-label={t("overview.applicationReview.copyIdAriaLabel")}
                       className="text-bh-fg-2"
                     >
                       {copied ? <Check size={14} /> : <ClipboardCopy size={14} />}
@@ -249,7 +268,7 @@ export default function ApplicationReviewModal({
                 <div className="space-y-1.5">
                   <Divider className="bg-white/[0.06]" />
                   <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-4">
-                    Notas enviadas
+                    {t("overview.applicationReview.notesTitle")}
                   </p>
                   <p className="whitespace-pre-wrap text-[12.5px] leading-[1.55] text-bh-fg-2">
                     {details.notes}
@@ -259,24 +278,25 @@ export default function ApplicationReviewModal({
 
               {isPending ? (
                 <div className="rounded-bh-md border border-bh-blue/20 bg-bh-blue/[0.06] p-3 text-[12px] leading-[1.55] text-bh-fg-2">
-                  Mientras revisamos tu solicitud no podés editar el perfil. El
-                  proceso normalmente toma{" "}
-                  <strong className="text-bh-fg-1">24 a 72 horas hábiles</strong>.
-                  Si necesitás corregir un dato urgente, escribinos a{" "}
+                  {t("overview.applicationReview.pendingNoticeLead")}{" "}
+                  <strong className="text-bh-fg-1">
+                    {t("overview.applicationReview.pendingNoticeDuration")}
+                  </strong>
+                  . {t("overview.applicationReview.pendingNoticeContact")}{" "}
                   <a
                     href="mailto:info@ballershub.co"
                     className="text-bh-blue underline-offset-4 hover:underline"
                   >
                     info@ballershub.co
                   </a>{" "}
-                  citando el ID de arriba.
+                  {t("overview.applicationReview.pendingNoticeIdRef")}
                 </div>
               ) : null}
             </ModalBody>
 
             <ModalFooter className="gap-2">
               <Button variant="light" onPress={closeFn} className="text-bh-fg-3">
-                Cerrar
+                {t("overview.applicationReview.close")}
               </Button>
             </ModalFooter>
           </>

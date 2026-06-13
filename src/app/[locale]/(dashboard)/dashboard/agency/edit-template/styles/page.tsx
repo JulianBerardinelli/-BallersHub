@@ -5,6 +5,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { db } from "@/lib/db";
 import { userProfiles, agencyThemeSettings, agencyProfiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import AgencyStylesManagerClient from "./components/AgencyStylesManagerClient";
 
 export const metadata = {
@@ -12,6 +13,7 @@ export const metadata = {
 };
 
 export default async function AgencyTemplateStylesPage() {
+  const t = await getTranslations("dashAgency");
   const supabase = await createSupabaseServerRSC();
   const {
     data: { user },
@@ -27,12 +29,12 @@ export default async function AgencyTemplateStylesPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Estilos del portfolio de Agencia"
-          description="Configura la identidad visual del portfolio público de tu agencia."
+          title={t("styles.restrictedTitle")}
+          description={t("styles.restrictedDescription")}
         />
-        <SectionCard title="Acceso restringido" description="">
+        <SectionCard title={t("styles.restrictedCardTitle")} description="">
           <p className="text-neutral-400">
-            Solo los mánagers activos de una agencia pueden editar la plantilla pública.
+            {t("styles.restrictedBody")}
           </p>
         </SectionCard>
       </div>
@@ -53,11 +55,11 @@ export default async function AgencyTemplateStylesPage() {
     return (
       <div className="space-y-6">
         <PageHeader
-          title="Estilos del portfolio de Agencia"
-          description="Configura la identidad visual del portfolio público de tu agencia."
+          title={t("styles.restrictedTitle")}
+          description={t("styles.restrictedDescription")}
         />
-        <SectionCard title="Agencia no encontrada" description="">
-          <p className="text-neutral-400">No se encontró la agencia asociada a tu cuenta.</p>
+        <SectionCard title={t("styles.notFoundCardTitle")} description="">
+          <p className="text-neutral-400">{t("styles.notFoundBody")}</p>
         </SectionCard>
       </div>
     );
@@ -66,8 +68,8 @@ export default async function AgencyTemplateStylesPage() {
   return (
     <div className="space-y-6 pb-20">
       <PageHeader
-        title="Estilos del portfolio público"
-        description="Elegí la plantilla, paleta y tipografía con la que tu agencia se mostrará al mundo."
+        title={t("styles.pageTitle")}
+        description={t("styles.pageDescription")}
       />
       <AgencyStylesManagerClient
         agency={agency}

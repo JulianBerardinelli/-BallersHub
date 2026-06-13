@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button, Tabs, Tab } from "@heroui/react";
 import { Lock, Plus } from "lucide-react";
 import MediaUploadModal from "./MediaUploadModal";
@@ -33,6 +34,7 @@ export default function MultimediaManagerClient({
   /** Founder accounts bypass the Pro photo cap. */
   isFounder?: boolean;
 }) {
+  const t = useTranslations("dashEditProfile");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const upgradeModal = useUpgradeModal();
 
@@ -70,19 +72,19 @@ export default function MultimediaManagerClient({
 
   // Button label tracks what the user can actually upload right now: Free
   // is video-only, Pro at photo cap is video-only, otherwise "archivo".
-  const uploadLabel = isPro && !photosAtCap ? "Subir archivo" : "Subir video";
+  const uploadLabel = isPro && !photosAtCap ? t("media.manager.uploadFile") : t("media.manager.uploadVideo");
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h2 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Tu catálogo
+            {t("media.manager.catalogTitle")}
           </h2>
           <p className="text-[13px] text-bh-fg-3">
             {isPro
-              ? "Añadí fotos y videos para mejorar tus chances de ser contactado."
-              : `Cargá hasta ${FREE_VIDEO_CAP} videos. Las fotos de catálogo y los videos extra son Pro.`}
+              ? t("media.manager.catalogDescriptionPro")
+              : t("media.manager.catalogDescriptionFree", { cap: FREE_VIDEO_CAP })}
           </p>
         </div>
         <Button
@@ -103,7 +105,7 @@ export default function MultimediaManagerClient({
 
       <div className="flex w-full flex-col">
         <Tabs
-          aria-label="Catálogo"
+          aria-label={t("media.manager.tabsAria")}
           variant="underlined"
           classNames={{
             tabList: "gap-6 w-full relative rounded-none p-0 border-b border-white/[0.06]",
@@ -117,10 +119,10 @@ export default function MultimediaManagerClient({
             key="photos"
             title={
               <span className="inline-flex items-center gap-1.5">
-                Fotografías ({photos.length}{showPhotoCounter ? `/${PRO_PHOTO_CAP}` : ""})
+                {t("media.manager.photosTab")} ({photos.length}{showPhotoCounter ? `/${PRO_PHOTO_CAP}` : ""})
                 {!isPro && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-bh-lime/40 bg-bh-lime/10 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-bh-lime">
-                    <Lock size={8} /> Pro
+                    <Lock size={8} /> {t("media.manager.proBadge")}
                   </span>
                 )}
               </span>
@@ -133,7 +135,7 @@ export default function MultimediaManagerClient({
                   {photosAtCap && (
                     <div className="mt-4 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
                       <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
-                        Llegaste al límite de {PRO_PHOTO_CAP} fotos del catálogo. Eliminá alguna existente desde la galería para liberar un lugar.
+                        {t("media.manager.photoCapNotice", { cap: PRO_PHOTO_CAP })}
                       </p>
                     </div>
                   )}
@@ -144,10 +146,10 @@ export default function MultimediaManagerClient({
                     <Lock size={14} />
                   </div>
                   <h3 className="mt-3 font-bh-display text-base font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-                    Galería catálogo de fotos
+                    {t("media.manager.lockedGalleryTitle")}
                   </h3>
                   <p className="mx-auto mt-1.5 max-w-md text-[12.5px] leading-[1.55] text-bh-fg-3">
-                    Subí hasta 5 fotos de catálogo curadas para tu perfil público. Solo en plan Pro.
+                    {t("media.manager.lockedGalleryDescription")}
                   </p>
                   <div className="mt-3">
                     <UpgradeCta feature="catalogGallery" size="sm" />
@@ -160,14 +162,14 @@ export default function MultimediaManagerClient({
             key="videos"
             title={
               <span className="inline-flex items-center gap-1.5">
-                Videos & Highlights ({videos.length}{!isPro ? `/${FREE_VIDEO_CAP}` : ""})
+                {t("media.manager.videosTab")} ({videos.length}{!isPro ? `/${FREE_VIDEO_CAP}` : ""})
               </span>
             }
           >
             <div className="pt-4">
               {orderedVideos.length > 1 && (
                 <p className="mb-3 text-[12px] text-bh-fg-4">
-                  Usá las flechas para ordenar tus videos. El primero aparece destacado en tu perfil público.
+                  {t("media.manager.reorderHint")}
                 </p>
               )}
               <MediaGalleryGrid
@@ -180,7 +182,7 @@ export default function MultimediaManagerClient({
               {!isPro && videosAtCap && (
                 <div className="mt-4 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
                   <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
-                    Llegaste al límite de {FREE_VIDEO_CAP} videos del plan Free. Activá Pro para sumar todos los que quieras.
+                    {t("media.manager.videoCapNotice", { cap: FREE_VIDEO_CAP })}
                   </p>
                   <UpgradeCta feature="catalogVideos" size="sm" />
                 </div>
