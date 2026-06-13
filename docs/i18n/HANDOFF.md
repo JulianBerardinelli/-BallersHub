@@ -31,10 +31,10 @@ BallersHub pasa de mono-locale (es-AR) a **4 idiomas**: ES (default, sin prefijo
 
 ### ⬜ Pendiente para cerrar el 100%
 
-**P0 — Paridad de la AGENCIA (mismo bug de chrome es-only que tenía el jugador, visible en `/en|/it|/pt /agency/[slug]`):**
-- [ ] Loading states de agencia hardcodeados en es → `AgencyLayoutResolver.tsx` ("Cargando agencia/equipo/roster/galería"). Mismo fix que `LayoutResolver` del jugador.
-- [ ] Chrome de módulos de agencia hardcodeado → `AgencyReachModule` ("Operamos globalmente", "/ Alcance", país/países, "equipos"), `AgencyServicesModule` ("Lo que ofrecemos", "/ Servicios", subtítulo), `RosterClient` ("Jugadores Representados"). Pasar a `useTranslations`/messages.
-- [ ] Switcher de agencia: hoy usa el flotante standalone; unificar con el patrón del header del jugador si la agencia tiene header equivalente.
+**~~P0 — Paridad de la AGENCIA~~ ✅ HECHO [PR #214]:**
+- [x] ✅ Loading states de agencia hardcodeados en es → `AgencyLayoutResolver.tsx` ("Cargando agencia/equipo/roster/galería"). Mismo fix que `LayoutResolver` del jugador.
+- [x] ✅ Chrome de módulos de agencia hardcodeado → `AgencyReachModule` ("Operamos globalmente", "/ Alcance", país/países, "equipos"), `AgencyServicesModule` ("Lo que ofrecemos", "/ Servicios", subtítulo), `RosterClient` ("Jugadores Representados"). Pasar a `useTranslations`/messages.
+- [x] ✅ Switcher de agencia: hoy usa el flotante standalone; unificar con el patrón del header del jugador si la agencia tiene header equivalente.
 
 **FLUJOS AUTENTICADOS (la "capa A / chrome" del plan quedó solo en lo público + auth). Auditoría 2026-06-12:**
 - [x] ✅ **Onboarding — TRADUCIDO** (namespace `onboarding`, 126 keys × 4 locales). Todo `/onboarding/**` (start, apply Step1/2/3, manager, accept-invite, KYC, plan). **[PR #206]**
