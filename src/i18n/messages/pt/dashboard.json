@@ -199,5 +199,117 @@
     "multimediaTitle": "Multimídia",
     "multimediaNoProfileDescription": "Crie seu perfil para gerenciar galerias, vídeos e matérias da imprensa.",
     "multimediaDescription": "Centralize imagens, vídeos e matérias em destaque para potencializar sua presença digital."
+  },
+  "nav": {
+    "sections": {
+      "dashboard": "Painel",
+      "edit-profile": "Editar perfil",
+      "edit-template": "Editar modelo",
+      "settings": "Configurações",
+      "agency": "Agência",
+      "agency-template": "Editar modelo"
+    },
+    "player": {
+      "home": {
+        "title": "Painel de controle",
+        "description": "Visão geral e próximos passos prioritários."
+      },
+      "personal-data": {
+        "title": "Dados pessoais",
+        "description": "Informações básicas, avatar e dados de contato."
+      },
+      "football-data": {
+        "title": "Dados de futebol",
+        "description": "Trajetória, clube atual e links em destaque."
+      },
+      "multimedia": {
+        "title": "Mídia",
+        "description": "Fotos, vídeos e matérias da imprensa."
+      },
+      "translations": {
+        "title": "Idiomas",
+        "description": "Publique seu perfil em inglês, italiano e português (Pro)."
+      },
+      "template-styles": {
+        "title": "Estilos",
+        "description": "Selecione variantes visuais e cores."
+      },
+      "template-structure": {
+        "title": "Estrutura",
+        "description": "Ative ou desative blocos de conteúdo."
+      },
+      "account": {
+        "title": "Conta",
+        "description": "Dados de acesso e preferências gerais."
+      },
+      "subscription": {
+        "title": "Assinatura",
+        "description": "Status do plano e ações de cobrança."
+      },
+      "logout": {
+        "title": "Sair",
+        "description": "Saia do painel com segurança."
+      }
+    },
+    "manager": {
+      "home": {
+        "title": "Painel de controle",
+        "description": "Visão geral da sua agência."
+      },
+      "agency-profile": {
+        "title": "Perfil da Agência",
+        "description": "Detalhes, informações e verificação."
+      },
+      "agency-players": {
+        "title": "Meus Jogadores",
+        "description": "Portfólio de jogadores representados."
+      },
+      "agency-staff": {
+        "title": "Equipe Staff",
+        "description": "Convide colegas e gerencie permissões."
+      },
+      "agency-template-styles": {
+        "title": "Estilos",
+        "description": "Modelo, paleta e tipografia do portfólio público."
+      },
+      "agency-template-structure": {
+        "title": "Estrutura",
+        "description": "Ative ou desative blocos de conteúdo."
+      },
+      "manager-profile": {
+        "title": "Meu Perfil",
+        "description": "Seus dados públicos pessoais."
+      },
+      "account": {
+        "title": "Conta",
+        "description": "Dados de acesso e preferências gerais."
+      },
+      "subscription": {
+        "title": "Assinatura",
+        "description": "Status do plano e cobrança."
+      },
+      "logout": {
+        "title": "Sair",
+        "description": "Saia do painel com segurança."
+      }
+    }
+  },
+  "sidebar": {
+    "signOutTitle": "Sair",
+    "signOutConfirm": "Tem certeza de que deseja sair do 'BallersHub?",
+    "cancel": "Cancelar",
+    "signingOut": "Saindo...",
+    "signOut": "Sair",
+    "mainMenu": "Menu principal",
+    "navigation": "Navegação"
+  },
+  "shell": {
+    "roleManager": "Manager",
+    "roleClient": "Cliente",
+    "headingManager": "Área da <hl>agência</hl>",
+    "headingClient": "Área do <hl>cliente</hl>",
+    "subtitleManager": "Gerencie a representação dos seus jogadores, permissões da equipe e perfil institucional.",
+    "subtitleClient": "Gerencie seu perfil profissional, personalize seu modelo e administre sua conta.",
+    "activeSession": "Sessão ativa"
   }
 }

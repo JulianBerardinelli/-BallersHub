@@ -9,7 +9,7 @@
 // original `createdAt` — it nudges the user to cancel before the grace
 // expires.
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { and, desc, eq } from "drizzle-orm";

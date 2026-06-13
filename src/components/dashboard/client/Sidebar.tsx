@@ -1,9 +1,9 @@
 "use client";
 
 import clsx from "classnames";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import {
   Badge,
   Button,
@@ -45,6 +45,7 @@ export default function ClientDashboardSidebar({
   sections: ClientDashboardNavSection[];
   onSignOut: () => Promise<void>;
 }) {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -61,16 +62,16 @@ export default function ClientDashboardSidebar({
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
+              <ModalHeader className="text-bh-fg-1">{t("sidebar.signOutTitle")}</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en &apos;BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">{t("sidebar.signOutConfirm")}</p>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onClose} isDisabled={pending} className="text-bh-fg-3">
-                  Cancelar
+                  {t("sidebar.cancel")}
                 </Button>
                 <Button color="danger" isLoading={pending} onPress={handleSignOut}>
-                  {pending ? "Saliendo..." : "Cerrar sesión"}
+                  {pending ? t("sidebar.signingOut") : t("sidebar.signOut")}
                 </Button>
               </ModalFooter>
             </>
@@ -97,6 +98,7 @@ export function ClientDashboardSidebarMobile({
   sections: ClientDashboardNavSection[];
   onSignOut: () => Promise<void>;
 }) {
+  const t = useTranslations("dashboard");
   const pathname = usePathname();
   const [pending, startTransition] = useTransition();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -116,16 +118,16 @@ export function ClientDashboardSidebarMobile({
         <ModalContent>
           {(_onClose) => (
             <>
-              <ModalHeader className="text-bh-fg-1">Cerrar Sesión</ModalHeader>
+              <ModalHeader className="text-bh-fg-1">{t("sidebar.signOutTitle")}</ModalHeader>
               <ModalBody>
-                <p className="text-sm text-bh-fg-3">¿Estás seguro que deseas cerrar tu sesión en &apos;BallersHub?</p>
+                <p className="text-sm text-bh-fg-3">{t("sidebar.signOutConfirm")}</p>
               </ModalBody>
               <ModalFooter>
                 <Button variant="light" onPress={onModalClose} isDisabled={pending} className="text-bh-fg-3">
-                  Cancelar
+                  {t("sidebar.cancel")}
                 </Button>
                 <Button color="danger" isLoading={pending} onPress={handleSignOut}>
-                  {pending ? "Saliendo..." : "Cerrar sesión"}
+                  {pending ? t("sidebar.signingOut") : t("sidebar.signOut")}
                 </Button>
               </ModalFooter>
             </>
@@ -140,7 +142,7 @@ export function ClientDashboardSidebarMobile({
         className="w-full justify-start border border-white/[0.08] bg-bh-surface-1 text-bh-fg-1"
         onPress={onOpen}
       >
-        Menú principal
+        {t("sidebar.mainMenu")}
       </Button>
 
       <Drawer
@@ -156,7 +158,7 @@ export function ClientDashboardSidebarMobile({
           {(onClose) => (
             <>
               <DrawerHeader className="border-b border-white/[0.08] px-6 py-4 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
-                Navegación
+                {t("sidebar.navigation")}
               </DrawerHeader>
               <DrawerBody className="px-0">
                 <ScrollShadow className="max-h-[calc(100vh-9rem)] space-y-8 px-6 py-4">

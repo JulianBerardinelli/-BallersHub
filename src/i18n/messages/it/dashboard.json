@@ -199,5 +199,117 @@
     "multimediaTitle": "Multimedia",
     "multimediaNoProfileDescription": "Crea il tuo profilo per gestire gallerie, video e articoli di stampa.",
     "multimediaDescription": "Centralizza immagini, video e articoli in evidenza per potenziare la tua presenza digitale."
+  },
+  "nav": {
+    "sections": {
+      "dashboard": "Pannello",
+      "edit-profile": "Modifica profilo",
+      "edit-template": "Modifica template",
+      "settings": "Impostazioni",
+      "agency": "Agenzia",
+      "agency-template": "Modifica template"
+    },
+    "player": {
+      "home": {
+        "title": "Pannello di controllo",
+        "description": "Panoramica generale e prossimi passi prioritari."
+      },
+      "personal-data": {
+        "title": "Dati personali",
+        "description": "Informazioni di base, avatar e dati di contatto."
+      },
+      "football-data": {
+        "title": "Dati calcistici",
+        "description": "Carriera, club attuale e link in evidenza."
+      },
+      "multimedia": {
+        "title": "Media",
+        "description": "Foto, video e rassegna stampa."
+      },
+      "translations": {
+        "title": "Lingue",
+        "description": "Pubblica il tuo profilo in inglese, italiano e portoghese (Pro)."
+      },
+      "template-styles": {
+        "title": "Stili",
+        "description": "Seleziona varianti visive e colori."
+      },
+      "template-structure": {
+        "title": "Struttura",
+        "description": "Attiva o disattiva blocchi di contenuto."
+      },
+      "account": {
+        "title": "Account",
+        "description": "Dati di accesso e preferenze generali."
+      },
+      "subscription": {
+        "title": "Abbonamento",
+        "description": "Stato del piano e azioni di fatturazione."
+      },
+      "logout": {
+        "title": "Esci",
+        "description": "Esci dal pannello in modo sicuro."
+      }
+    },
+    "manager": {
+      "home": {
+        "title": "Pannello di controllo",
+        "description": "Panoramica generale della tua agenzia."
+      },
+      "agency-profile": {
+        "title": "Profilo dell'Agenzia",
+        "description": "Dettagli, informazioni e verifica."
+      },
+      "agency-players": {
+        "title": "I Miei Giocatori",
+        "description": "Portafoglio di calciatori rappresentati."
+      },
+      "agency-staff": {
+        "title": "Team Staff",
+        "description": "Invita colleghi e gestisci i permessi."
+      },
+      "agency-template-styles": {
+        "title": "Stili",
+        "description": "Template, palette e tipografia del portfolio pubblico."
+      },
+      "agency-template-structure": {
+        "title": "Struttura",
+        "description": "Attiva o disattiva blocchi di contenuto."
+      },
+      "manager-profile": {
+        "title": "Il Mio Profilo",
+        "description": "I tuoi dati pubblici personali."
+      },
+      "account": {
+        "title": "Account",
+        "description": "Dati di accesso e preferenze generali."
+      },
+      "subscription": {
+        "title": "Abbonamento",
+        "description": "Stato del piano e fatturazione."
+      },
+      "logout": {
+        "title": "Esci",
+        "description": "Esci dal pannello in modo sicuro."
+      }
+    }
+  },
+  "sidebar": {
+    "signOutTitle": "Esci",
+    "signOutConfirm": "Sei sicuro di voler uscire da 'BallersHub?",
+    "cancel": "Annulla",
+    "signingOut": "Uscita in corso...",
+    "signOut": "Esci",
+    "mainMenu": "Menu principale",
+    "navigation": "Navigazione"
+  },
+  "shell": {
+    "roleManager": "Manager",
+    "roleClient": "Cliente",
+    "headingManager": "Area <hl>agenzia</hl>",
+    "headingClient": "Area <hl>cliente</hl>",
+    "subtitleManager": "Gestisci la rappresentanza dei tuoi giocatori, i permessi dello staff e il profilo istituzionale.",
+    "subtitleClient": "Gestisci il tuo profilo professionale, personalizza il tuo template e amministra il tuo account.",
+    "activeSession": "Sessione attiva"
   }
 }

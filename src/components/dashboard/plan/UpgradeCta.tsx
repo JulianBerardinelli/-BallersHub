@@ -4,7 +4,7 @@
 // pre-baked. Use this anywhere a "Activá Pro" button is needed inside the
 // dashboard.
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { buildUpgradeUrl } from "@/lib/dashboard/plan-access";
 import type { FeatureId } from "@/lib/dashboard/feature-gates";
 import { FEATURE_GATES } from "@/lib/dashboard/feature-gates";

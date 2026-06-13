@@ -199,5 +199,117 @@
     "multimediaTitle": "Multimedia",
     "multimediaNoProfileDescription": "Create your profile to manage galleries, videos and press notes.",
     "multimediaDescription": "Centralize images, videos and featured articles to boost your digital presence."
+  },
+  "nav": {
+    "sections": {
+      "dashboard": "Panel",
+      "edit-profile": "Edit profile",
+      "edit-template": "Edit template",
+      "settings": "Settings",
+      "agency": "Agency",
+      "agency-template": "Edit template"
+    },
+    "player": {
+      "home": {
+        "title": "Control panel",
+        "description": "General overview and priority next steps."
+      },
+      "personal-data": {
+        "title": "Personal details",
+        "description": "Basic information, avatar and contact details."
+      },
+      "football-data": {
+        "title": "Football data",
+        "description": "Career history, current club and featured links."
+      },
+      "multimedia": {
+        "title": "Media",
+        "description": "Photos, videos and press clippings."
+      },
+      "translations": {
+        "title": "Languages",
+        "description": "Publish your profile in English, Italian and Portuguese (Pro)."
+      },
+      "template-styles": {
+        "title": "Styles",
+        "description": "Choose visual variants and colors."
+      },
+      "template-structure": {
+        "title": "Structure",
+        "description": "Enable or disable content blocks."
+      },
+      "account": {
+        "title": "Account",
+        "description": "Access credentials and general preferences."
+      },
+      "subscription": {
+        "title": "Subscription",
+        "description": "Plan status and billing actions."
+      },
+      "logout": {
+        "title": "Sign out",
+        "description": "Leave the panel securely."
+      }
+    },
+    "manager": {
+      "home": {
+        "title": "Control panel",
+        "description": "General overview of your agency."
+      },
+      "agency-profile": {
+        "title": "Agency Profile",
+        "description": "Details, information and verification."
+      },
+      "agency-players": {
+        "title": "My Players",
+        "description": "Roster of represented footballers."
+      },
+      "agency-staff": {
+        "title": "Staff Team",
+        "description": "Invite colleagues and manage permissions."
+      },
+      "agency-template-styles": {
+        "title": "Styles",
+        "description": "Template, palette and typography of the public portfolio."
+      },
+      "agency-template-structure": {
+        "title": "Structure",
+        "description": "Enable or disable content blocks."
+      },
+      "manager-profile": {
+        "title": "My Profile",
+        "description": "Your personal public details."
+      },
+      "account": {
+        "title": "Account",
+        "description": "Access credentials and general preferences."
+      },
+      "subscription": {
+        "title": "Subscription",
+        "description": "Plan status and billing."
+      },
+      "logout": {
+        "title": "Sign out",
+        "description": "Leave the panel securely."
+      }
+    }
+  },
+  "sidebar": {
+    "signOutTitle": "Sign Out",
+    "signOutConfirm": "Are you sure you want to sign out of 'BallersHub?",
+    "cancel": "Cancel",
+    "signingOut": "Signing out...",
+    "signOut": "Sign out",
+    "mainMenu": "Main menu",
+    "navigation": "Navigation"
+  },
+  "shell": {
+    "roleManager": "Manager",
+    "roleClient": "Client",
+    "headingManager": "Agency <hl>area</hl>",
+    "headingClient": "Client <hl>area</hl>",
+    "subtitleManager": "Manage your players' representation, staff permissions and institutional profile.",
+    "subtitleClient": "Manage your professional profile, customize your template and administer your account.",
+    "activeSession": "Active session"
   }
 }

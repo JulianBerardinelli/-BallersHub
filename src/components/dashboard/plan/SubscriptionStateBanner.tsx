@@ -9,7 +9,7 @@
 // The banner is rendered server-side from the dashboard layout. We pass
 // the resolved access object so all the math has already been done.
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Clock, CreditCard, Gift } from "lucide-react";
 import type { PlanAccess } from "@/lib/dashboard/plan-access";
 import { daysUntilExpiry } from "@/lib/dashboard/plan-access";
