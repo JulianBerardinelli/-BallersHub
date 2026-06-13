@@ -33,6 +33,7 @@ import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import { TutorialProvider } from "@/components/tutorial/TutorialProvider";
 import TutorialDock from "@/components/tutorial/TutorialDock";
 import { bootstrapTutorialState } from "@/lib/tutorial/bootstrap";
+import { DashboardDock } from "@/components/layout/mobile-nav";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -155,7 +156,11 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             : null
         }
       />
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-7">
+      <div
+        className={`mx-auto w-full max-w-[1200px] px-6 py-7 ${
+          isManager ? "" : "max-lg:pb-32"
+        }`}
+      >
         {/* Header — full-width, scrolls naturally */}
         <header className="space-y-5">
           <div className="space-y-2">
@@ -293,10 +298,13 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           />
         </div>
 
-        {/* Mobile drawer */}
-        <div className="mt-6 lg:hidden">
-          <ClientDashboardSidebarMobile sections={navigation} onSignOut={signOutAction} />
-        </div>
+        {/* Mobile nav: players use the floating bottom dock (mounted below);
+            managers keep the existing left drawer until their dock lands. */}
+        {isManager ? (
+          <div className="mt-6 lg:hidden">
+            <ClientDashboardSidebarMobile sections={navigation} onSignOut={signOutAction} />
+          </div>
+        ) : null}
 
         {/* Floating sidebar + content */}
         <div className="mt-6 flex flex-col gap-6 lg:flex-row">
@@ -308,6 +316,16 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <section className="min-w-0 flex-1 space-y-6">{children}</section>
         </div>
       </div>
+
+      {/* Player floating dock — Panel · Perfil · Plantilla · Ajustes (lg:hidden,
+          portaled). Managers keep the drawer above for now. */}
+      {!isManager ? (
+        <DashboardDock
+          sections={navigation}
+          isPro={planAccess.isPro}
+          onSignOut={signOutAction}
+        />
+      ) : null}
 
       <TutorialDock />
       </TutorialProvider>

@@ -1,0 +1,68 @@
+{
+  "drawer": {
+    "open": "Open menu",
+    "close": "Close menu",
+    "title": "Menu",
+    "navLabel": "Site navigation"
+  },
+  "tabs": {
+    "home": "Home",
+    "network": "Network",
+    "plans": "Plans",
+    "access": "Sign in",
+    "account": "Account",
+    "panel": "Panel",
+    "profile": "Profile",
+    "template": "Template",
+    "settings": "Settings"
+  },
+  "sectionsCount": "{count, plural, one {# section} other {# sections}}",
+  "access": {
+    "title": "Sign in",
+    "login": "Log in",
+    "loginDesc": "Access your player dashboard",
+    "signup": "Create my profile",
+    "signupDesc": "Free · ready in 3 minutes"
+  },
+  "account": {
+    "title": "Your account",
+    "goPanel": "Go to my dashboard",
+    "goPanelDesc": "Edit your profile and media",
+    "viewProfile": "View my public profile",
+    "viewProfileFallback": "Your public page",
+    "share": "Share my link",
+    "shareDesc": "Copy or send your portfolio",
+    "signOut": "Sign out",
+    "signOutDesc": "Leave your account",
+    "linkCopied": "Link copied",
+    "shareText": "Check out my profile on 'BallersHub"
+  },
+  "profile": {
+    "title": "Edit profile",
+    "personalData": "Personal data",
+    "personalDataDesc": "Basic info, avatar and contact",
+    "footballData": "Football data",
+    "footballDataDesc": "Career, current club and links",
+    "multimedia": "Media",
+    "multimediaDesc": "Photos, videos and press clippings",
+    "languages": "Languages",
+    "languagesDesc": "Publish your profile in EN · IT · PT"
+  },
+  "template": {
+    "title": "Edit template",
+    "styles": "Styles",
+    "stylesDesc": "Visual variants and colors",
+    "structure": "Structure",
+    "structureDesc": "Turn content blocks on or off"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "accountDesc": "Login details and preferences",
+    "subscription": "Subscription",
+    "subscriptionDesc": "Plan status and billing",
+    "signOut": "Sign out",
+    "signOutDesc": "Leave the dashboard safely"
+  },
+  "pro": "PRO"
+}

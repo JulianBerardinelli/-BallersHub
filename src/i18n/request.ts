@@ -28,6 +28,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       dashboard: (await import(`./messages/${locale}/dashboard.json`)).default,
       onboarding: (await import(`./messages/${locale}/onboarding.json`)).default,
       checkout: (await import(`./messages/${locale}/checkout.json`)).default,
+      mobileNav: (await import(`./messages/${locale}/mobileNav.json`)).default,
     },
   };
 });

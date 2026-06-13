@@ -1,0 +1,68 @@
+{
+  "drawer": {
+    "open": "Apri menu",
+    "close": "Chiudi menu",
+    "title": "Menu",
+    "navLabel": "Navigazione del sito"
+  },
+  "tabs": {
+    "home": "Home",
+    "network": "Rete",
+    "plans": "Piani",
+    "access": "Accedi",
+    "account": "Account",
+    "panel": "Pannello",
+    "profile": "Profilo",
+    "template": "Template",
+    "settings": "Impostazioni"
+  },
+  "sectionsCount": "{count, plural, one {# sezione} other {# sezioni}}",
+  "access": {
+    "title": "Accedi",
+    "login": "Accedi",
+    "loginDesc": "Entra nel tuo pannello giocatore",
+    "signup": "Crea il mio profilo",
+    "signupDesc": "Gratis · pronto in 3 minuti"
+  },
+  "account": {
+    "title": "Il tuo account",
+    "goPanel": "Vai al mio pannello",
+    "goPanelDesc": "Modifica profilo e media",
+    "viewProfile": "Vedi il mio profilo pubblico",
+    "viewProfileFallback": "La tua pagina pubblica",
+    "share": "Condividi il mio link",
+    "shareDesc": "Copia o invia il tuo portfolio",
+    "signOut": "Esci",
+    "signOutDesc": "Esci dal tuo account",
+    "linkCopied": "Link copiato",
+    "shareText": "Guarda il mio profilo su 'BallersHub"
+  },
+  "profile": {
+    "title": "Modifica profilo",
+    "personalData": "Dati personali",
+    "personalDataDesc": "Informazioni base, avatar e contatti",
+    "footballData": "Dati calcistici",
+    "footballDataDesc": "Carriera, club attuale e link",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Foto, video e rassegna stampa",
+    "languages": "Lingue",
+    "languagesDesc": "Pubblica il tuo profilo in EN · IT · PT"
+  },
+  "template": {
+    "title": "Modifica template",
+    "styles": "Stili",
+    "stylesDesc": "Varianti visive e colori",
+    "structure": "Struttura",
+    "structureDesc": "Attiva o disattiva i blocchi"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "account": "Account",
+    "accountDesc": "Dati di accesso e preferenze",
+    "subscription": "Abbonamento",
+    "subscriptionDesc": "Stato del piano e fatturazione",
+    "signOut": "Esci",
+    "signOutDesc": "Esci dal pannello in sicurezza"
+  },
+  "pro": "PRO"
+}
