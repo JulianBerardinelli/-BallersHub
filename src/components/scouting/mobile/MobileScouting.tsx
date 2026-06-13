@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
 
+import { useHideDockWhile } from "@/components/layout/mobile-nav/dock-visibility";
 import { ClubCrest, Flag, FlagStack, PlayerAvatar } from "../atoms";
 import type { TopCountry } from "../GlobeLegend";
 import {
@@ -715,6 +716,11 @@ export function MobileScouting({
       document.body.style.overflow = prev;
     };
   }, [sheetOpen]);
+
+  // These sheets are position:fixed but live inside the (site) layout's
+  // stacking context, so the body-portaled bottom dock would render on top of
+  // them. Hide the dock while any sheet is open (it must sit BEHIND them).
+  useHideDockWhile(sheetOpen);
 
   return (
     <div className="m-screen">

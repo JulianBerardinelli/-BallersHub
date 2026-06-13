@@ -9,7 +9,13 @@ import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
 import { SITE_NAV } from "@/components/layout/nav-items";
 import { SiteMobileNav } from "@/components/layout/mobile-nav";
 
-export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }) {
+export default function HeaderChrome({
+  authSlot,
+  isAuthed = false,
+}: {
+  authSlot: React.ReactNode;
+  isAuthed?: boolean;
+}) {
   const t = useTranslations("common");
   const [scrolled, setScrolled] = useState(false);
 
@@ -40,7 +46,7 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
         <div className="flex h-20 items-center gap-3 md:gap-4">
           {/* Mobile hamburger — opens the corporate nav drawer (md:hidden) */}
-          <SiteMobileNav className="md:hidden" />
+          <SiteMobileNav className="md:hidden" isAuthed={isAuthed} />
 
           {/* Logo */}
           <Link href="/" className="flex shrink-0 items-center" aria-label="'BallersHub">
