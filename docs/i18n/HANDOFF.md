@@ -39,7 +39,7 @@ BallersHub pasa de mono-locale (es-AR) a **4 idiomas**: ES (default, sin prefijo
 **FLUJOS AUTENTICADOS (la "capa A / chrome" del plan quedó solo en lo público + auth). Auditoría 2026-06-12:**
 - [x] ✅ **Onboarding — TRADUCIDO** (namespace `onboarding`, 126 keys × 4 locales). Todo `/onboarding/**` (start, apply Step1/2/3, manager, accept-invite, KYC, plan). **[PR #206]**
 - [x] ✅ **Checkout — TRADUCIDO** (namespace `checkout`, 62 keys × 4 locales). Todo `/checkout/**` (plan, processing, success, failure, pending, receipt). **[PR #206]**
-- [ ] **Dashboard — solo 7/122 archivos con i18n.** La UI de edición del jugador/agencia (datos, multimedia, plantillas, agencia, admin) es casi toda es. **DECISIÓN del owner**: ¿se traduce el dashboard completo (esfuerzo grande; audiencia hoy mayormente es-AR; no indexable) o se deja es por ahora? Recomendación: backlog. (P1/backlog)
+- [x] ✅ **Dashboard player/agency-facing — TRADUCIDO** (0 archivos player/agency restantes). Vía 4 namespaces nuevos + extensiones del existente: `dashEditProfile` (254+ keys: personal-data, football-data, multimedia + componentes compartidos, editor de traducciones, estilos), `dashSettings` (account, subscription), `dashAgency` (identity, generalInfo, services, reach, countries, teamRelations, contact, media, staff, structure, styles, agencia translations, manager profile, players), y `dashboard` extendido (overview, manager, paywall, invites). Persistencia de locale arreglada (next/link → @/i18n/navigation). **[PRs #207, #211]**. **Admin (~58 .tsx) NO se traduce — interno del equipo BallersHub, es.**
 - ✅ Auth: 5/6 con i18n (ok).
 
 **P1 — Free-text fuera del sistema de traducción (siempre renderiza es). Necesita DECISIÓN del owner (traducir = nueva superficie tipo F5, o dejar es):**
