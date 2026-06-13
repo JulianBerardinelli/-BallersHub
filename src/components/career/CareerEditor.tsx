@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus } from "lucide-react";
@@ -30,6 +31,7 @@ export default function CareerEditor({
   onRequestCurrentChange?: (row: CareerItemInput, selected: boolean) => boolean;
   readOnly?: boolean;
 }) {
+  const t = useTranslations("dashEditProfile");
   const [skipped, setSkipped] = React.useState(false);
 
   // Modal de confirmación para eliminar “current”
@@ -70,7 +72,11 @@ export default function CareerEditor({
     const others = items.filter((r) => r.id !== row.id && r.confirmed);
     for (const o of others) {
       if (rangesOverlap(row.start_year ?? null, row.end_year ?? null, o.start_year ?? null, o.end_year ?? null)) {
-        return `Solapado con ${o.club} (${o.start_year ?? "?"}–${o.end_year ?? "Actual"})`;
+        return t("careerEditor.overlap", {
+          club: o.club,
+          start: o.start_year ?? "?",
+          end: o.end_year ?? t("careerEditor.currentFallback"),
+        });
       }
     }
     return null;
@@ -113,14 +119,14 @@ export default function CareerEditor({
     return (
       <div className="rounded-bh-lg border border-dashed border-white/[0.08] bg-bh-surface-1/40 p-4">
         <div className="flex items-center justify-between gap-3">
-          <p className="text-sm text-bh-fg-3">Dejaste la trayectoria para más adelante.</p>
+          <p className="text-sm text-bh-fg-3">{t("careerEditor.skippedNotice")}</p>
           <Button
             size="sm"
             variant="flat"
             onPress={() => setSkipped(false)}
             className={bhButtonClass({ variant: "outline", size: "sm" })}
           >
-            Editar trayectoria
+            {t("careerEditor.editCareer")}
           </Button>
         </div>
       </div>
@@ -132,10 +138,10 @@ export default function CareerEditor({
       <div className="flex items-center justify-between gap-3">
         <div className="space-y-1">
           <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-            Trayectoria
+            {t("careerEditor.heading")}
           </h3>
           <p className="text-[12px] text-bh-fg-3">
-            Agregá tus etapas por club, división y años.
+            {t("careerEditor.description")}
           </p>
         </div>
         {optional && (
@@ -145,7 +151,7 @@ export default function CareerEditor({
             onPress={() => setSkipped(true)}
             className={bhButtonClass({ variant: "ghost", size: "sm" })}
           >
-            Completar más adelante
+            {t("careerEditor.completeLater")}
           </Button>
         )}
       </div>
@@ -207,7 +213,7 @@ export default function CareerEditor({
             startContent={<Plus className="h-4 w-4" />}
             className={bhButtonClass({ variant: "lime", size: "sm" })}
           >
-            Agregar etapa
+            {t("careerEditor.addStage")}
           </Button>
         </div>
       )}
@@ -220,12 +226,12 @@ export default function CareerEditor({
         classNames={bhModalClassNames}
       >
         <ModalContent>
-          <ModalHeader>Eliminar etapa y club actual</ModalHeader>
+          <ModalHeader>{t("careerEditor.modalTitle")}</ModalHeader>
           <ModalBody>
             <p className="text-sm leading-[1.55] text-bh-fg-3">
-              Esta etapa está vinculada al{" "}
-              <strong className="text-bh-fg-1">Club actual</strong>. Si la
-              eliminás, también se limpiará la selección de club actual.
+              {t.rich("careerEditor.modalBody", {
+                strong: (chunks) => <strong className="text-bh-fg-1">{chunks}</strong>,
+              })}
             </p>
           </ModalBody>
           <ModalFooter>
@@ -234,13 +240,13 @@ export default function CareerEditor({
               onPress={() => setConfirmId(null)}
               className={bhButtonClass({ variant: "ghost", size: "sm" })}
             >
-              Cancelar
+              {t("careerEditor.modalCancel")}
             </Button>
             <Button
               onPress={doConfirmDelete}
               className={bhButtonClass({ variant: "danger", size: "sm" })}
             >
-              Eliminar
+              {t("careerEditor.modalConfirm")}
             </Button>
           </ModalFooter>
         </ModalContent>

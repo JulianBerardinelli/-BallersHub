@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Button, useDisclosure } from "@heroui/react";
 import { Plus, Newspaper, ChevronUp, ChevronDown } from "lucide-react";
@@ -28,6 +29,7 @@ export default function ArticlesManager({
   // optimistic subscription state.
   isPro?: boolean;
 }) {
+  const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -41,7 +43,7 @@ export default function ArticlesManager({
   const articlesAtCap = !access.isPro && articles.length >= FREE_ARTICLE_CAP;
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Seguro que deseas eliminar este artículo?")) return;
+    if (!confirm(t("media.articles.confirmDelete"))) return;
 
     try {
       setDeletingId(id);
@@ -50,7 +52,7 @@ export default function ArticlesManager({
       router.refresh();
     } catch (error) {
       console.error(error);
-      alert("Error al eliminar el artículo.");
+      alert(t("media.articles.deleteError"));
     } finally {
       setDeletingId(null);
     }
@@ -72,11 +74,11 @@ export default function ArticlesManager({
 
   return (
     <SectionCard
-      title="Notas de prensa y artículos"
+      title={t("media.articles.sectionTitle")}
       description={
         access.isPro
-          ? "Mantené actualizado tu repositorio de noticias, entrevistas y apariciones en medios."
-          : `Plan Free permite hasta ${FREE_ARTICLE_CAP} notas de prensa. Activá Pro para sumar más.`
+          ? t("media.articles.descriptionPro")
+          : t("media.articles.descriptionFree", { cap: FREE_ARTICLE_CAP })
       }
     >
       <div className="flex flex-col gap-4">
@@ -87,8 +89,8 @@ export default function ArticlesManager({
         {articles.length === 0 ? (
           <BhEmptyState
             icon={<Newspaper className="h-5 w-5" />}
-            title="Sin artículos"
-            description="No añadiste ninguna nota de prensa todavía."
+            title={t("media.articles.emptyTitle")}
+            description={t("media.articles.emptyDescription")}
           />
         ) : (
           <div className="space-y-2">
@@ -102,7 +104,7 @@ export default function ArticlesManager({
                     <div className="flex shrink-0 flex-col -my-1">
                       <button
                         type="button"
-                        aria-label="Subir nota"
+                        aria-label={t("media.articles.moveUpAria")}
                         disabled={index === 0 || isSaving}
                         onClick={() => moveUp(item.id)}
                         className="rounded-bh-md p-0.5 text-bh-fg-3 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
@@ -111,7 +113,7 @@ export default function ArticlesManager({
                       </button>
                       <button
                         type="button"
-                        aria-label="Bajar nota"
+                        aria-label={t("media.articles.moveDownAria")}
                         disabled={index === ordered.length - 1 || isSaving}
                         onClick={() => moveDown(item.id)}
                         className="rounded-bh-md p-0.5 text-bh-fg-3 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
@@ -147,7 +149,7 @@ export default function ArticlesManager({
                     onPress={() => handleEdit(item)}
                     className={bhButtonClass({ variant: "ghost", size: "sm" })}
                   >
-                    Editar
+                    {t("media.articles.edit")}
                   </Button>
                   <Button
                     size="sm"
@@ -156,7 +158,7 @@ export default function ArticlesManager({
                     onPress={() => handleDelete(item.id)}
                     className={bhButtonClass({ variant: "danger-soft", size: "sm" })}
                   >
-                    Eliminar
+                    {t("media.articles.delete")}
                   </Button>
                 </div>
               </div>
@@ -170,11 +172,11 @@ export default function ArticlesManager({
             startContent={<Plus className="h-4 w-4" />}
             className={bhButtonClass({ variant: "lime", size: "sm", className: "mt-1 w-full sm:w-auto" })}
           >
-            Añadir artículo
+            {t("media.articles.addArticle")}
           </Button>
           {!access.isPro && (
             <span className="text-[11px] text-bh-fg-4">
-              {articles.length}/{FREE_ARTICLE_CAP} usadas en plan Free
+              {t("media.articles.usageCounter", { count: articles.length, cap: FREE_ARTICLE_CAP })}
             </span>
           )}
         </div>
@@ -182,15 +184,14 @@ export default function ArticlesManager({
         {articlesAtCap && (
           <div className="flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
             <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
-              Llegaste al límite del plan Free. Activá Pro para cargar todas las notas que quieras.
+              {t("media.articles.capNotice")}
             </p>
             <UpgradeCta feature="pressArticles" size="sm" />
           </div>
         )}
       </div>
       <p className="mt-4 text-[11px] text-bh-fg-4">
-        En esta sección podés cargar notas vinculadas a tu presencia en medios
-        deportivos.
+        {t("media.articles.footerNote")}
       </p>
 
       <ArticleModal isOpen={isOpen} onOpenChange={onOpenChange} articleToEdit={articleToEdit} />
