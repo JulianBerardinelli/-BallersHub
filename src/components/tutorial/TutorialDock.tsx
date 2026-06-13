@@ -83,7 +83,9 @@ function accentFor(audience: PlanAudience): AccentSlot {
 const DOCK_FIXED_STYLE: React.CSSProperties = {
   position: "fixed",
   right: "max(1rem, env(safe-area-inset-right))",
-  bottom: "max(1rem, env(safe-area-inset-bottom))",
+  // Lifted above the mobile floating nav on small screens via the
+  // --tutorial-dock-bottom token (see globals.css); 1rem on lg+.
+  bottom: "var(--tutorial-dock-bottom, max(1rem, env(safe-area-inset-bottom)))",
   zIndex: 9999,
   pointerEvents: "auto",
 };

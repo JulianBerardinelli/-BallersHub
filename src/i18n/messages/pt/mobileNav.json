@@ -1,0 +1,68 @@
+{
+  "drawer": {
+    "open": "Abrir menu",
+    "close": "Fechar menu",
+    "title": "Menu",
+    "navLabel": "Navegação do site"
+  },
+  "tabs": {
+    "home": "Início",
+    "network": "Rede",
+    "plans": "Planos",
+    "access": "Entrar",
+    "account": "Conta",
+    "panel": "Painel",
+    "profile": "Perfil",
+    "template": "Template",
+    "settings": "Ajustes"
+  },
+  "sectionsCount": "{count, plural, one {# seção} other {# seções}}",
+  "access": {
+    "title": "Entrar",
+    "login": "Iniciar sessão",
+    "loginDesc": "Acesse seu painel de jogador",
+    "signup": "Criar meu perfil",
+    "signupDesc": "Grátis · pronto em 3 minutos"
+  },
+  "account": {
+    "title": "Sua conta",
+    "goPanel": "Ir ao meu painel",
+    "goPanelDesc": "Edite seu perfil e mídia",
+    "viewProfile": "Ver meu perfil público",
+    "viewProfileFallback": "Sua página pública",
+    "share": "Compartilhar meu link",
+    "shareDesc": "Copie ou envie seu portfólio",
+    "signOut": "Sair",
+    "signOutDesc": "Sair da sua conta",
+    "linkCopied": "Link copiado",
+    "shareText": "Veja meu perfil no 'BallersHub"
+  },
+  "profile": {
+    "title": "Editar perfil",
+    "personalData": "Dados pessoais",
+    "personalDataDesc": "Informações básicas, avatar e contato",
+    "footballData": "Dados de futebol",
+    "footballDataDesc": "Trajetória, clube atual e links",
+    "multimedia": "Multimídia",
+    "multimediaDesc": "Fotos, vídeos e matérias de imprensa",
+    "languages": "Idiomas",
+    "languagesDesc": "Publique seu perfil em EN · IT · PT"
+  },
+  "template": {
+    "title": "Editar template",
+    "styles": "Estilos",
+    "stylesDesc": "Variantes visuais e cores",
+    "structure": "Estrutura",
+    "structureDesc": "Ative ou desative blocos"
+  },
+  "settings": {
+    "title": "Configurações",
+    "account": "Conta",
+    "accountDesc": "Dados de acesso e preferências",
+    "subscription": "Assinatura",
+    "subscriptionDesc": "Status do plano e faturamento",
+    "signOut": "Sair",
+    "signOutDesc": "Saia do painel com segurança"
+  },
+  "pro": "PRO"
+}

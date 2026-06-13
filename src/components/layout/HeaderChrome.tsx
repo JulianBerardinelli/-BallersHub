@@ -6,20 +6,8 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Wordmark } from "@/components/brand/Wordmark";
 import { LocaleSwitcher } from "@/components/i18n/LocaleSwitcher";
-
-type NavItem = { href: string; key: string };
-
-// Labels resolve from messages/<locale>/common.json (nav.*). Hrefs are
-// locale-agnostic — the Link from @/i18n/navigation injects the active
-// locale prefix (none for the es default).
-const NAV: NavItem[] = [
-  { href: "/players", key: "players" },
-  { href: "/agencies", key: "agencies" },
-  { href: "/pricing", key: "plans" },
-  { href: "/como-validamos", key: "howWeValidate" },
-  { href: "/blog", key: "blog" },
-  { href: "/about", key: "about" },
-];
+import { SITE_NAV } from "@/components/layout/nav-items";
+import { SiteMobileNav } from "@/components/layout/mobile-nav";
 
 export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }) {
   const t = useTranslations("common");
@@ -50,15 +38,18 @@ export default function HeaderChrome({ authSlot }: { authSlot: React.ReactNode }
       }`}
     >
       <div className="mx-auto max-w-[1200px] px-4 md:px-6">
-        <div className="flex h-20 items-center gap-4">
+        <div className="flex h-20 items-center gap-3 md:gap-4">
+          {/* Mobile hamburger — opens the corporate nav drawer (md:hidden) */}
+          <SiteMobileNav className="md:hidden" />
+
           {/* Logo */}
           <Link href="/" className="flex shrink-0 items-center" aria-label="'BallersHub">
             <Wordmark size="nav" />
           </Link>
 
-          {/* Nav — centered */}
+          {/* Nav — centered (desktop) */}
           <nav className="hidden flex-1 items-center justify-center gap-7 md:flex">
-            {NAV.map((i) => (
+            {SITE_NAV.map((i) => (
               <Link
                 key={i.href}
                 href={i.href}

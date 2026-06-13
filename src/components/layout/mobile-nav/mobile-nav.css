@@ -1,0 +1,71 @@
+/* Mobile nav "Floating Dock" — keyframes + tap feedback.
+ *
+ * Scoped under `.bh-dock-root` (set on the portal container) so nothing
+ * leaks. Easing/surface tokens come from globals.css (--bh-ease-*,
+ * --bh-dock-surface, --bh-live, --bh-lime-200); literal fallbacks are kept
+ * here so the dock still animates if the tokens are ever absent. This mirrors
+ * the codebase's scoped prototype-ingestion pattern (see validation.css
+ * .cv-root, scouting.css). */
+
+.bh-dock-root {
+  --dock-ease-sheet: var(--bh-ease-sheet, cubic-bezier(0.32, 0.72, 0, 1));
+  --dock-ease-pill: var(--bh-ease-pill, cubic-bezier(0.34, 1.45, 0.4, 1));
+  --dock-ease-in: var(--bh-ease-dock-in, cubic-bezier(0.22, 1, 0.36, 1));
+  --dock-ease-press: var(--bh-ease-press, cubic-bezier(0.34, 1.5, 0.4, 1));
+}
+
+@keyframes bh-dock-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bh-dock-head-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes bh-dock-live-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.65;
+  }
+}
+
+/* Tap feedback (scale 0.94). Applied to tabs + sheet rows. */
+.bh-dock-tap {
+  transition: transform 160ms var(--dock-ease-press);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.bh-dock-tap:active {
+  transform: scale(0.94);
+}
+
+/* Reduced motion: kill morph/pill/stagger/pulse. The JS hook also zeroes
+ * durations + drops the pulse; this is the CSS backstop. */
+@media (prefers-reduced-motion: reduce) {
+  .bh-dock-root *,
+  .bh-dock-root *::before,
+  .bh-dock-root *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
