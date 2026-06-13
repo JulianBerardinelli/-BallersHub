@@ -36,5 +36,32 @@
   },
   "details": {
     "edit": "Editar detalhes do clube"
+  },
+  "dashboardPicker": {
+    "currentTeamLabel": "Time atual",
+    "currentTeamDescription": "Busque seu time pelo nome. Se não existir, você pode propor.",
+    "currentTeamPlaceholder": "Ex: Flamengo",
+    "countryLabel": "País (nome ou ISO-2)",
+    "countryDescription": "Ex: Brasil ou BR",
+    "countryPlaceholder": "Brasil / BR",
+    "resultsTitle": "Resultados",
+    "noResults": "Não encontramos times com «{q}».",
+    "chooseTeam": "Escolher",
+    "proposeNew": "Propor novo time: «{q}»",
+    "proposeHelp": "O time não está em nosso banco de dados. Com a sua solicitação, vamos criar e verificar.",
+    "freeAgentCta": "Sou jogador sem clube",
+    "chipSelected": "Selecionado: {name}",
+    "chipProposed": "Time proposto: {name}",
+    "chipFree": "Sem clube"
+  },
+  "createModal": {
+    "title": "Novo time: «{name}»",
+    "countryLabel": "País do clube",
+    "countryRequired": "Escolha um país",
+    "tmLabel": "Transfermarkt (opcional)",
+    "tmPlaceholder": "https://www.transfermarkt.com/...",
+    "tmInvalid": "URL inválida (https://...)",
+    "cancel": "Cancelar",
+    "save": "Salvar"
   }
 }

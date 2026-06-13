@@ -36,5 +36,32 @@
   },
   "details": {
     "edit": "Modifica i dettagli del club"
+  },
+  "dashboardPicker": {
+    "currentTeamLabel": "Squadra attuale",
+    "currentTeamDescription": "Cerca la tua squadra per nome. Se non esiste, puoi proporla.",
+    "currentTeamPlaceholder": "Es: Inter",
+    "countryLabel": "Paese (nome o ISO-2)",
+    "countryDescription": "Es: Italia o IT",
+    "countryPlaceholder": "Italia / IT",
+    "resultsTitle": "Risultati",
+    "noResults": "Non abbiamo trovato squadre con «{q}».",
+    "chooseTeam": "Scegli",
+    "proposeNew": "Proponi nuova squadra: «{q}»",
+    "proposeHelp": "La squadra non è nel nostro database. Con la tua richiesta la creeremo e la verificheremo.",
+    "freeAgentCta": "Sono svincolato (senza squadra)",
+    "chipSelected": "Selezionato: {name}",
+    "chipProposed": "Squadra proposta: {name}",
+    "chipFree": "Svincolato"
+  },
+  "createModal": {
+    "title": "Nuova squadra: «{name}»",
+    "countryLabel": "Paese del club",
+    "countryRequired": "Scegli un paese",
+    "tmLabel": "Transfermarkt (opzionale)",
+    "tmPlaceholder": "https://www.transfermarkt.com/...",
+    "tmInvalid": "URL non valido (https://...)",
+    "cancel": "Annulla",
+    "save": "Salva"
   }
 }

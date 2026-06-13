@@ -9,6 +9,7 @@ import { useState } from "react";
 import { Button } from "@heroui/react";
 import { Link } from "@/i18n/navigation";
 import { AlertTriangle, Check, Lock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { updateThemeSettingsAction } from "@/app/actions/template-settings";
@@ -19,27 +20,19 @@ import PlanGate from "@/components/dashboard/plan/PlanGate";
 import UpgradeCta from "@/components/dashboard/plan/UpgradeCta";
 import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
 
+// IDs + visual props only — display strings (name/description/label) resolved
+// via t() at render time so they follow the active locale.
 const TEMPLATE_OPTIONS = [
-  {
-    id: "free" as const,
-    name: "Free Editorial",
-    description: "Dossier minimalista listo para publicar tu perfil al instante.",
-    requiresPro: false,
-  },
-  {
-    id: "pro" as const,
-    name: "Pro Athlete (3D)",
-    description: "Experiencia premium con motion, parallax y assets pro.",
-    requiresPro: true,
-  },
+  { id: "free" as const, requiresPro: false },
+  { id: "pro" as const, requiresPro: true },
 ];
 
 const COLOR_PRESETS = [
-  { id: "neutral", label: "Monocromo", primary: "#FFFFFF", secondary: "#2A2A2A", accent: "#A3A3A3", background: "#050505", gradient: "from-neutral-800 via-neutral-900 to-black" },
-  { id: "cyberpunk", label: "Cyberpunk", primary: "#F43F5E", secondary: "#701A75", accent: "#06B6D4", background: "#000000", gradient: "from-rose-600 via-fuchsia-900 to-cyan-900" },
-  { id: "club_blue", label: "Azul Eléctrico", primary: "#3B82F6", secondary: "#1E3A8A", accent: "#60A5FA", background: "#020617", gradient: "from-blue-500 via-blue-900 to-slate-950" },
-  { id: "vintage_gold", label: "Oro Imperial", primary: "#F59E0B", secondary: "#78350F", accent: "#FDE68A", background: "#1C1917", gradient: "from-amber-500 via-orange-800 to-stone-900" },
-];
+  { id: "neutral", labelKey: "presetNeutral", primary: "#FFFFFF", secondary: "#2A2A2A", accent: "#A3A3A3", background: "#050505", gradient: "from-neutral-800 via-neutral-900 to-black" },
+  { id: "cyberpunk", labelKey: "presetCyberpunk", primary: "#F43F5E", secondary: "#701A75", accent: "#06B6D4", background: "#000000", gradient: "from-rose-600 via-fuchsia-900 to-cyan-900" },
+  { id: "club_blue", labelKey: "presetClubBlue", primary: "#3B82F6", secondary: "#1E3A8A", accent: "#60A5FA", background: "#020617", gradient: "from-blue-500 via-blue-900 to-slate-950" },
+  { id: "vintage_gold", labelKey: "presetVintageGold", primary: "#F59E0B", secondary: "#78350F", accent: "#FDE68A", background: "#1C1917", gradient: "from-amber-500 via-orange-800 to-stone-900" },
+] as const;
 
 type LayoutId = (typeof TEMPLATE_OPTIONS)[number]["id"];
 
@@ -50,6 +43,7 @@ export default function StylesManagerClient({
   initialTheme: DashboardThemeSettings | null;
   heroUrl?: string | null;
 }) {
+  const t = useTranslations("dashEditProfile");
   const { enqueue } = useNotificationContext();
   const { access } = usePlanAccess();
 
@@ -94,14 +88,16 @@ export default function StylesManagerClient({
       });
       enqueue(
         profileNotification.updated({
-          userName: "Tu perfil",
-          sectionLabel: "Estilos",
-          changedFields: access.isPro ? ["Diseño base", "Colores de marca"] : ["Diseño base"],
+          userName: t("templateStyles.notificationUserName"),
+          sectionLabel: t("templateStyles.notificationSection"),
+          changedFields: access.isPro
+            ? [t("templateStyles.fieldBaseLayout"), t("templateStyles.fieldBrandColors")]
+            : [t("templateStyles.fieldBaseLayout")],
         }),
       );
     } catch (e) {
       console.error(e);
-      alert("Error al guardar estilos");
+      alert(t("templateStyles.errorSave"));
     } finally {
       setSaving(false);
     }
@@ -115,26 +111,34 @@ export default function StylesManagerClient({
           <div className="flex items-start gap-3 rounded-bh-md border border-[rgba(245,158,11,0.25)] bg-[rgba(245,158,11,0.08)] p-4 text-bh-warning">
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-semibold">Falta el hero asset</p>
+              <p className="text-sm font-semibold">{t("templateStyles.heroAssetMissingTitle")}</p>
               <p className="mb-2 mt-1 text-[12px] leading-[1.55] text-bh-warning/80">
-                Para usar la plantilla Pro Athlete necesitás subir tu recorte en la
-                sección multimedia.
+                {t("templateStyles.heroAssetMissingBody")}
               </p>
               <Link
                 href="/dashboard/edit-profile/multimedia"
                 className="text-[12px] font-bold underline-offset-4 hover:underline"
               >
-                Subir ahora en multimedia →
+                {t("templateStyles.heroAssetMissingCta")}
               </Link>
             </div>
           </div>
         )}
 
-        <SectionCard title="Diseño base" description="Una plantilla por plan: Free editorial o Pro Athlete.">
+        <SectionCard
+          title={t("templateStyles.baseDesignTitle")}
+          description={t("templateStyles.baseDesignDescription")}
+        >
           <div className="grid gap-4 md:grid-cols-2">
             {TEMPLATE_OPTIONS.map((opt) => {
               const selected = layout === opt.id;
               const locked = opt.requiresPro && !access.isPro;
+              const name = opt.id === "pro"
+                ? t("templateStyles.templateProName")
+                : t("templateStyles.templateFreeName");
+              const description = opt.id === "pro"
+                ? t("templateStyles.templateProDescription")
+                : t("templateStyles.templateFreeDescription");
               return (
                 <div
                   key={opt.id}
@@ -161,7 +165,7 @@ export default function StylesManagerClient({
                     {locked && (
                       <div className="absolute inset-0 flex items-center justify-center bg-bh-black/55">
                         <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.10] bg-bh-black/85 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-bh-fg-1">
-                          <Lock size={10} /> Solo Pro
+                          <Lock size={10} /> {t("templateStyles.onlyPro")}
                         </div>
                       </div>
                     )}
@@ -169,10 +173,10 @@ export default function StylesManagerClient({
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-bh-heading text-base font-semibold text-bh-fg-1">
-                        {opt.name}
+                        {name}
                       </p>
                       <p className="mt-1 text-[12px] leading-[1.55] text-bh-fg-3">
-                        {opt.description}
+                        {description}
                       </p>
                     </div>
                     {selected && !locked && (
@@ -189,7 +193,7 @@ export default function StylesManagerClient({
           {!access.isPro && (
             <div className="mt-4 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
               <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
-                Activá Pro para usar Pro Athlete con motion, parallax y assets premium.
+                {t("templateStyles.upgradeProLayoutNotice")}
               </p>
               <UpgradeCta feature="templateProLayout" size="sm" />
             </div>
@@ -197,7 +201,10 @@ export default function StylesManagerClient({
         </SectionCard>
 
         <PlanGate feature="templateColors">
-          <SectionCard title="Colores de marca" description="Elegí una paleta preestablecida o definí los colores manualmente.">
+          <SectionCard
+            title={t("templateStyles.brandColorsTitle")}
+            description={t("templateStyles.brandColorsDescription")}
+          >
             <div className="mb-7 grid gap-3 md:grid-cols-4">
               {COLOR_PRESETS.map((preset) => (
                 <div
@@ -209,10 +216,10 @@ export default function StylesManagerClient({
                 >
                   <div className={`mx-auto mb-3 h-20 w-full rounded-bh-md bg-gradient-to-br shadow-inner ${preset.gradient}`} />
                   <p className="font-bh-heading text-[13px] font-semibold tracking-wide text-bh-fg-1">
-                    {preset.label}
+                    {t(`templateStyles.${preset.labelKey}`)}
                   </p>
                   <p className="mt-1 font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-fg-4">
-                    Preset
+                    {t("templateStyles.preset")}
                   </p>
                 </div>
               ))}
@@ -220,10 +227,10 @@ export default function StylesManagerClient({
 
             <div className="grid gap-4 md:grid-cols-2">
               {[
-                { id: "bg", label: "Color de fondo (background)", placeholder: "#050505", value: backgroundColor, setter: setBackgroundColor },
-                { id: "pr", label: "Color primario (luces principales)", placeholder: "#10B981", value: primaryColor, setter: setPrimaryColor },
-                { id: "sc", label: "Color secundario (sombras / gradientes)", placeholder: "#2A2A2A", value: secondaryColor, setter: setSecondaryColor },
-                { id: "ac", label: "Color de acento (textos destacados)", placeholder: "#34D399", value: accentColor, setter: setAccentColor },
+                { id: "bg", label: t("templateStyles.colorBackground"), placeholder: "#050505", value: backgroundColor, setter: setBackgroundColor },
+                { id: "pr", label: t("templateStyles.colorPrimary"), placeholder: "#10B981", value: primaryColor, setter: setPrimaryColor },
+                { id: "sc", label: t("templateStyles.colorSecondary"), placeholder: "#2A2A2A", value: secondaryColor, setter: setSecondaryColor },
+                { id: "ac", label: t("templateStyles.colorAccent"), placeholder: "#34D399", value: accentColor, setter: setAccentColor },
               ].map((field) => (
                 <label key={field.id} className="space-y-1.5">
                   <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2">
@@ -263,7 +270,7 @@ export default function StylesManagerClient({
             isLoading={saving}
             className={bhButtonClass({ variant: "lime", size: "lg" })}
           >
-            Guardar diseño
+            {t("templateStyles.saveButton")}
           </Button>
         </div>
       </div>
@@ -271,7 +278,10 @@ export default function StylesManagerClient({
       {/* Live preview — only for Pro */}
       <div className="sticky top-24 z-10 lg:col-span-4">
         <PlanGate feature="templateLivePreview">
-          <SectionCard title="Live preview" description="Una vista veloz adaptada al dispositivo.">
+          <SectionCard
+            title={t("templateStyles.livePreviewTitle")}
+            description={t("templateStyles.livePreviewDescription")}
+          >
             <div
               className="relative mx-auto aspect-[9/18] max-w-[280px] overflow-hidden rounded-[2rem] border-8 border-bh-surface-2 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
               style={{ backgroundColor: primaryColor }}

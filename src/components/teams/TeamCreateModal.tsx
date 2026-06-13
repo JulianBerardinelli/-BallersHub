@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input } from "@heroui/react";
+import { useTranslations } from "next-intl";
 import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
 
 export type NewTeamDetails = {
@@ -22,6 +23,7 @@ export default function TeamCreateModal({
   onClose: () => void;
   onSave: (data: NewTeamDetails) => void;
 }) {
+  const t = useTranslations("teamPicker");
   const [country, setCountry] = React.useState<CountryPick | null>(initial?.country ?? null);
   const [tmUrl, setTmUrl] = React.useState(initial?.tmUrl ?? "");
   const [touched, setTouched] = React.useState(false);
@@ -38,27 +40,27 @@ export default function TeamCreateModal({
   return (
     <Modal isOpen={isOpen} onOpenChange={(o)=> !o && onClose()} size="md" backdrop="blur" scrollBehavior="inside">
       <ModalContent>
-        <ModalHeader className="pr-12">Nuevo equipo: “{name}”</ModalHeader>
+        <ModalHeader className="pr-12">{t("createModal.title", { name })}</ModalHeader>
         <ModalBody className="grid gap-3">
           <CountrySinglePicker
             value={country}
             onChange={setCountry}
             isInvalid={countryInvalid}
-            errorMessage="Elegí un país"
+            errorMessage={t("createModal.countryRequired")}
           />
           <Input
-            label="Transfermarkt (opcional)"
+            label={t("createModal.tmLabel")}
             labelPlacement="outside"
             value={tmUrl}
             onChange={(e)=> setTmUrl(e.target.value)}
             isInvalid={touched && !urlOk}
-            errorMessage="URL inválida (https://...)"
-            placeholder="https://www.transfermarkt.com/..."
+            errorMessage={t("createModal.tmInvalid")}
+            placeholder={t("createModal.tmPlaceholder")}
           />
         </ModalBody>
         <ModalFooter>
-          <Button variant="flat" onPress={onClose}>Cancelar</Button>
-          <Button color="primary" onPress={save}>Guardar</Button>
+          <Button variant="flat" onPress={onClose}>{t("createModal.cancel")}</Button>
+          <Button color="primary" onPress={save}>{t("createModal.save")}</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

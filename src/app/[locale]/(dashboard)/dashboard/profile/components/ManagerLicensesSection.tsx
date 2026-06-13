@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { Plus, Trash2, Award, ExternalLink, Pencil, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
@@ -25,6 +26,7 @@ export default function ManagerLicensesSection({
 }: {
   initialLicenses: License[];
 }) {
+  const t = useTranslations("dashAgency");
   const router = useRouter();
   const [defaults, setDefaults] = useState<License[]>(initialLicenses);
   const [licenses, setLicenses] = useState<License[]>(initialLicenses);
@@ -79,21 +81,21 @@ export default function ManagerLicensesSection({
       setDefaults(cleaned);
       setLicenses(cleaned);
       setIsEditing(false);
-      setStatus({ type: "success", message: "Licencias actualizadas." });
+      setStatus({ type: "success", message: t("managerProfile.licensesSuccessUpdated") });
       router.refresh();
     });
   };
 
   return (
     <SectionCard
-      title="Mis licencias"
-      description="Tus licencias profesionales individuales (FIFA, federaciones, etc.). Aparecen en el portfolio de la agencia bajo tu nombre."
+      title={t("managerProfile.licensesTitle")}
+      description={t("managerProfile.licensesDescription")}
       actions={
         <Button
           size="sm"
           variant="light"
           isIconOnly
-          aria-label={isEditing ? "Cancelar edición" : "Editar licencias"}
+          aria-label={isEditing ? t("managerProfile.licensesCancelEditAria") : t("managerProfile.licensesEditAria")}
           onPress={() => (isEditing ? onCancel() : setIsEditing(true))}
           isDisabled={isPending}
         >
@@ -111,20 +113,20 @@ export default function ManagerLicensesSection({
               isDisabled={licenses.length >= LICENSES_MAX}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Agregar licencia
+              {t("managerProfile.licensesAddLicense")}
             </Button>
           </div>
         )}
 
         {licenses.length === 0 && !isEditing ? (
           <div className="rounded-xl border border-dashed border-white/[0.08] bg-bh-surface-1/40 py-6 text-center text-sm text-bh-fg-4">
-            Aún no cargaste licencias profesionales (FIFA, RFEF, AFA, CBF, etc.).
+            {t("managerProfile.licensesEmpty")}
           </div>
         ) : isEditing ? (
           <div className="space-y-3">
             {licenses.length === 0 && (
               <p className="text-[12px] text-bh-fg-4">
-                Hacé clic en “Agregar licencia” para empezar.
+                {t("managerProfile.licensesEmptyHint")}
               </p>
             )}
             {licenses.map((lic, index) => (
@@ -133,22 +135,22 @@ export default function ManagerLicensesSection({
                 className="flex flex-col gap-3 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1/60 p-3 sm:flex-row sm:items-end"
               >
                 <FormField
-                  label="Entidad / Tipo"
-                  placeholder="Ej: Licencia FIFA"
+                  label={t("managerProfile.licenseTypeLabel")}
+                  placeholder={t("managerProfile.licenseTypePlaceholder")}
                   value={lic.type}
                   onChange={(e) => handleUpdate(index, "type", e.target.value)}
                   isRequired
                 />
                 <FormField
-                  label="Número de licencia"
-                  placeholder="Ej: 2023000123"
+                  label={t("managerProfile.licenseNumberLabel")}
+                  placeholder={t("managerProfile.licenseNumberPlaceholder")}
                   value={lic.number}
                   onChange={(e) => handleUpdate(index, "number", e.target.value)}
                   isRequired
                 />
                 <FormField
-                  label="URL de verificación (opcional)"
-                  placeholder="https://fifa.com/agent/..."
+                  label={t("managerProfile.licenseUrlLabel")}
+                  placeholder={t("managerProfile.licenseUrlPlaceholder")}
                   type="url"
                   value={lic.url || ""}
                   onChange={(e) => handleUpdate(index, "url", e.target.value)}
@@ -157,7 +159,7 @@ export default function ManagerLicensesSection({
                   isIconOnly
                   variant="flat"
                   color="danger"
-                  aria-label="Eliminar licencia"
+                  aria-label={t("managerProfile.licenseRemoveAria")}
                   className="mb-1"
                   onPress={() => handleRemove(index)}
                 >
@@ -207,7 +209,7 @@ export default function ManagerLicensesSection({
         {isEditing && (
           <div className="flex flex-col gap-3 border-t border-white/[0.06] pt-4 sm:flex-row sm:justify-end">
             <Button variant="light" onPress={onCancel} isDisabled={isPending}>
-              Cancelar
+              {t("managerProfile.licensesCancel")}
             </Button>
             <Button
               onPress={onSave}
@@ -215,7 +217,7 @@ export default function ManagerLicensesSection({
               isLoading={isPending}
               className={bhButtonClass({ variant: "lime", size: "sm" })}
             >
-              Guardar licencias
+              {t("managerProfile.licensesSave")}
             </Button>
           </div>
         )}

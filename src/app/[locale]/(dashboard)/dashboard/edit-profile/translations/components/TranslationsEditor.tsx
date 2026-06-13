@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
 import { Check, Globe, RefreshCw, Save, Sparkles, Trash2, Trophy } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import FormField from "@/components/dashboard/client/FormField";
@@ -114,6 +115,7 @@ export default function TranslationsEditor({
   aiProvider: AiProvider;
   honours: EditorHonour[];
 }) {
+  const t = useTranslations("dashEditProfile");
   // es is the canonical base: the 8 fields are written in es in Football data
   // and the honours come from there too. This editor ONLY translates into
   // en/it/pt — you can't edit/stand on es here (it's the source).
@@ -230,8 +232,8 @@ export default function TranslationsEditor({
     <div className="space-y-6">
       {/* ---------- Overview: es base (source) + editable targets ---------- */}
       <SectionCard
-        title="Idiomas del perfil"
-        description="El español es tu base y se edita en Football data. Acá traducís tu perfil a inglés, italiano y portugués — cada idioma se vuelve una URL propia indexable. El % es respecto a tu contenido en español."
+        title={t("translationsEditor.overviewTitle")}
+        description={t("translationsEditor.overviewDescription")}
       >
         <div className="grid gap-2">
           {BASE_ORDER.map((code) => {
@@ -252,7 +254,7 @@ export default function TranslationsEditor({
                     {meta.label}
                   </span>
                   <span className="font-bh-mono text-[10px] uppercase tracking-[0.14em] text-bh-fg-4">
-                    {isEs ? "base · fuente" : code}
+                    {isEs ? t("translationsEditor.baseSource") : code}
                   </span>
                 </span>
 
@@ -268,7 +270,7 @@ export default function TranslationsEditor({
 
                 {isEs ? (
                   <Chip size="sm" variant="flat" className="shrink-0 bg-white/[0.06] text-bh-fg-3">
-                    base
+                    {t("translationsEditor.chipBase")}
                   </Chip>
                 ) : published ? (
                   <Chip
@@ -277,11 +279,11 @@ export default function TranslationsEditor({
                     startContent={<Check className="size-3" />}
                     className="shrink-0 bg-bh-lime/[0.12] text-bh-lime"
                   >
-                    publicado
+                    {t("translationsEditor.chipPublished")}
                   </Chip>
                 ) : (
                   <Chip size="sm" variant="flat" className="shrink-0 bg-white/[0.06] text-bh-fg-4">
-                    sin publicar
+                    {t("translationsEditor.chipUnpublished")}
                   </Chip>
                 )}
               </>
@@ -293,7 +295,7 @@ export default function TranslationsEditor({
                 <div
                   key={code}
                   className="flex items-center gap-3 rounded-bh-md border border-dashed border-white/[0.1] bg-bh-surface-1/50 px-3 py-2.5"
-                  title="El español se edita en Football data"
+                  title={t("translationsEditor.esEditedInFootballData")}
                 >
                   {inner}
                 </div>
@@ -357,15 +359,28 @@ export default function TranslationsEditor({
 
 // --------------------------- Locale form ---------------------------
 
-const LABELS: Record<keyof LocaleFields, { label: string; multiline?: boolean }> = {
-  bio: { label: "Biografía", multiline: true },
-  careerObjectives: { label: "Objetivos de carrera", multiline: true },
-  topCharacteristics: { label: "Características destacadas (una por línea)", multiline: true },
-  tacticsAnalysis: { label: "Análisis táctico", multiline: true },
-  physicalAnalysis: { label: "Análisis físico", multiline: true },
-  mentalAnalysis: { label: "Análisis mental", multiline: true },
-  techniqueAnalysis: { label: "Análisis técnico", multiline: true },
-  analysisAuthor: { label: "Autor del análisis" },
+// Multiline flag per field; the human label is resolved via t() at render time
+// so this stays static while the labels follow the active locale.
+const FIELD_MULTILINE: Record<keyof LocaleFields, boolean> = {
+  bio: true,
+  careerObjectives: true,
+  topCharacteristics: true,
+  tacticsAnalysis: true,
+  physicalAnalysis: true,
+  mentalAnalysis: true,
+  techniqueAnalysis: true,
+  analysisAuthor: false,
+};
+
+const FIELD_LABEL_KEY: Record<keyof LocaleFields, string> = {
+  bio: "translationsEditor.fieldBio",
+  careerObjectives: "translationsEditor.fieldCareerObjectives",
+  topCharacteristics: "translationsEditor.fieldTopCharacteristics",
+  tacticsAnalysis: "translationsEditor.fieldTacticsAnalysis",
+  physicalAnalysis: "translationsEditor.fieldPhysicalAnalysis",
+  mentalAnalysis: "translationsEditor.fieldMentalAnalysis",
+  techniqueAnalysis: "translationsEditor.fieldTechniqueAnalysis",
+  analysisAuthor: "translationsEditor.fieldAnalysisAuthor",
 };
 
 function blockHasContent(fields: LocaleFields, block: Block): boolean {
@@ -404,6 +419,7 @@ function AssistButton({
   provider: AiProvider;
   onGenerate: (block: Block, force: boolean) => void;
 }) {
+  const t = useTranslations("dashEditProfile");
   return (
     <div className="flex items-center gap-1.5">
       <Button
@@ -415,7 +431,7 @@ function AssistButton({
         onPress={() => onGenerate(block, false)}
         className="bg-bh-lime/[0.10] text-bh-lime hover:bg-bh-lime/[0.18]"
       >
-        Auto-completar
+        {t("translationsEditor.autoComplete")}
       </Button>
       {hasContent ? (
         <Button
@@ -424,7 +440,7 @@ function AssistButton({
           isIconOnly
           isDisabled={disabled || loading}
           onPress={() => onGenerate(block, true)}
-          aria-label="Regenerar otra versión"
+          aria-label={t("translationsEditor.regenerate")}
           className="text-bh-fg-3"
         >
           <RefreshCw className="size-3.5" />
@@ -463,23 +479,27 @@ function LocaleForm({
   published: boolean;
   feedback: { type: "success" | "danger"; message: string } | null;
 }) {
+  const t = useTranslations("dashEditProfile");
   const localeLabel = LOCALE_META[locale]?.label ?? locale;
   const busy = isSaving || isGenerating;
 
   const renderField = (key: keyof LocaleFields) => {
-    const meta = LABELS[key];
+    const multiline = FIELD_MULTILINE[key];
+    const label = t(FIELD_LABEL_KEY[key]);
     // The es base reference, shown under each field to help while translating.
     const raw = Array.isArray(source[key])
       ? (source[key] as string[]).join(" · ")
       : (source[key] as string);
-    const description = raw && raw.trim() ? `ES: ${raw}` : undefined;
+    const description = raw && raw.trim()
+      ? t("translationsEditor.esPrefix", { value: raw })
+      : undefined;
     if (key === "topCharacteristics") {
       return (
         <FormField
           key={key}
           as="textarea"
           id={`${locale}-${key}`}
-          label={meta.label}
+          label={label}
           rows={4}
           value={(fields.topCharacteristics ?? []).join("\n")}
           description={description}
@@ -495,10 +515,10 @@ function LocaleForm({
     return (
       <FormField
         key={key}
-        as={meta.multiline ? "textarea" : undefined}
+        as={multiline ? "textarea" : undefined}
         id={`${locale}-${key}`}
-        label={meta.label}
-        rows={meta.multiline ? 4 : undefined}
+        label={label}
+        rows={multiline ? 4 : undefined}
         value={fields[key] as string}
         description={description}
         onValueChange={(v) => onPatch(key, v)}
@@ -512,10 +532,10 @@ function LocaleForm({
         title={
           <span className="flex items-center gap-2">
             <Globe className="size-4 text-bh-blue" />
-            Biografía y objetivos · {localeLabel}
+            {t("translationsEditor.bioBlockTitle", { locale: localeLabel })}
           </span>
         }
-        description="Traducí cada campo o autocompletá desde el español; siempre podés editar antes de guardar."
+        description={t("translationsEditor.bioBlockDescription")}
         actions={
           <AssistButton
             block="bio"
@@ -535,8 +555,8 @@ function LocaleForm({
       </SectionCard>
 
       <SectionCard
-        title={`Análisis de scouting · ${localeLabel}`}
-        description="Las cuatro dimensiones del análisis + el autor."
+        title={t("translationsEditor.scoutingBlockTitle", { locale: localeLabel })}
+        description={t("translationsEditor.scoutingBlockDescription")}
         actions={
           <AssistButton
             block="scouting"
@@ -578,7 +598,7 @@ function LocaleForm({
                 isDisabled={busy}
                 className="text-bh-fg-3"
               >
-                Quitar idioma
+                {t("translationsEditor.removeLanguage")}
               </Button>
             ) : null}
             <Button
@@ -588,16 +608,14 @@ function LocaleForm({
               isLoading={isSaving}
               isDisabled={busy}
             >
-              Guardar versión {locale.toUpperCase()}
+              {t("translationsEditor.saveLocale", { locale: locale.toUpperCase() })}
             </Button>
           </div>
         </div>
       </SectionCard>
 
       <p className="px-1 text-[11px] leading-[1.5] text-bh-fg-4">
-        Las versiones autocompletadas son borradores: nada se publica hasta que
-        tocás «Guardar». Tenés hasta 40 regeneraciones por mes; la primera
-        traducción de cada bloque no cuenta.
+        {t("translationsEditor.draftDisclaimer")}
       </p>
     </>
   );
@@ -625,6 +643,7 @@ function HonoursBlock({
   onSaved: (honourId: string, loc: EditableLocale, tr: HonourTr) => void;
   onDeleted: (honourId: string, loc: EditableLocale) => void;
 }) {
+  const t = useTranslations("dashEditProfile");
   if (honours.length === 0) return null;
 
   // es is the base (football-data) — show the logros as reference, nothing to
@@ -635,10 +654,10 @@ function HonoursBlock({
         title={
           <span className="flex items-center gap-2">
             <Trophy className="size-4 text-bh-fg-3" />
-            Palmarés
+            {t("translationsEditor.honoursTitle")}
           </span>
         }
-        description="El palmarés se carga en español desde Football data. Elegí otro idioma arriba para traducir cada logro."
+        description={t("translationsEditor.honoursDescriptionEs")}
       >
         <div className="grid gap-2">
           {honours.map((h) => {
@@ -669,10 +688,10 @@ function HonoursBlock({
       title={
         <span className="flex items-center gap-2">
           <Trophy className="size-4 text-bh-blue" />
-          Palmarés · {LOCALE_META[locale].label}
+          {t("translationsEditor.honoursTitleLocale", { locale: LOCALE_META[locale].label })}
         </span>
       }
-      description="Traducí cada logro o autocompletá desde el español; podés editar antes de guardar. Se guarda logro por logro."
+      description={t("translationsEditor.honoursDescriptionLocale")}
     >
       <div className="grid gap-4">
         {honours.map((h) => (
@@ -709,6 +728,7 @@ function HonourRow({
   onSaved: (tr: HonourTr) => void;
   onDeleted: () => void;
 }) {
+  const t = useTranslations("dashEditProfile");
   const [draft, setDraft] = useState<HonourFields>({
     title: initial?.title ?? "",
     competition: initial?.competition ?? "",
@@ -813,7 +833,7 @@ function HonourRow({
               onPress={() => onGenerate(false)}
               className="bg-bh-lime/[0.10] text-bh-lime hover:bg-bh-lime/[0.18]"
             >
-              Auto-completar
+              {t("translationsEditor.autoComplete")}
             </Button>
             {hasContent ? (
               <Button
@@ -822,7 +842,7 @@ function HonourRow({
                 isIconOnly
                 isDisabled={busy}
                 onPress={() => onGenerate(true)}
-                aria-label="Regenerar otra versión"
+                aria-label={t("translationsEditor.regenerate")}
                 className="text-bh-fg-3"
               >
                 <RefreshCw className="size-3.5" />
@@ -836,11 +856,11 @@ function HonourRow({
               startContent={<Check className="size-3" />}
               className="bg-bh-lime/[0.12] text-bh-lime"
             >
-              traducido
+              {t("translationsEditor.chipTranslated")}
             </Chip>
           ) : (
             <Chip size="sm" variant="flat" className="bg-white/[0.06] text-bh-fg-4">
-              sin traducir
+              {t("translationsEditor.chipUntranslated")}
             </Chip>
           )}
         </div>
@@ -849,25 +869,25 @@ function HonourRow({
       <div className="grid gap-4">
         <FormField
           id={`${honour.id}-${locale}-title`}
-          label="Título del logro"
+          label={t("translationsEditor.honourTitleLabel")}
           value={draft.title}
-          description={`ES: ${honour.title}`}
+          description={t("translationsEditor.esPrefix", { value: honour.title })}
           onValueChange={(v) => patch("title", v)}
         />
         <FormField
           id={`${honour.id}-${locale}-competition`}
-          label="Competición"
+          label={t("translationsEditor.honourCompetitionLabel")}
           value={draft.competition}
-          description={honour.competition ? `ES: ${honour.competition}` : undefined}
+          description={honour.competition ? t("translationsEditor.esPrefix", { value: honour.competition }) : undefined}
           onValueChange={(v) => patch("competition", v)}
         />
         <FormField
           as="textarea"
           rows={3}
           id={`${honour.id}-${locale}-description`}
-          label="Descripción"
+          label={t("translationsEditor.honourDescriptionLabel")}
           value={draft.description}
-          description={honour.description ? `ES: ${honour.description}` : undefined}
+          description={honour.description ? t("translationsEditor.esPrefix", { value: honour.description }) : undefined}
           onValueChange={(v) => patch("description", v)}
         />
       </div>
@@ -894,7 +914,7 @@ function HonourRow({
               isDisabled={busy}
               className="text-bh-fg-3"
             >
-              Quitar
+              {t("translationsEditor.remove")}
             </Button>
           ) : null}
           <Button
@@ -905,7 +925,7 @@ function HonourRow({
             isLoading={isSaving}
             isDisabled={busy}
           >
-            Guardar {locale.toUpperCase()}
+            {t("translationsEditor.saveLocaleShort", { locale: locale.toUpperCase() })}
           </Button>
         </div>
       </div>

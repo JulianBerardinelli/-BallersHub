@@ -311,5 +311,147 @@
     "subtitleManager": "Gestisci la rappresentanza dei tuoi giocatori, i permessi dello staff e il profilo istituzionale.",
     "subtitleClient": "Gestisci il tuo profilo professionale, personalizza il tuo template e amministra il tuo account.",
     "activeSession": "Sessione attiva"
+  },
+  "overview": {
+    "progressList": {
+      "progressAriaLabel": "Progresso {title}",
+      "sectionComplete": "Tutto a posto! Continueremo ad aggiornare il tuo profilo in questa sezione.",
+      "openSection": "Apri sezione"
+    },
+    "statusSummary": {
+      "visibilityPublic": "Profilo pubblico",
+      "visibilityPrivate": "Profilo privato",
+      "visibilityOther": "Visibilità: {visibility}",
+      "updatedAt": "Aggiornato il {date}",
+      "publicUrlLabel": "URL pubblico:",
+      "applicationChip": "Domanda: {label}",
+      "noApplicationYet": "Non abbiamo ancora registrato una domanda attiva. Inizia l'onboarding per generare il tuo profilo professionale."
+    },
+    "applicationReview": {
+      "titlePlayer": "La tua domanda da giocatore",
+      "titleManager": "La tua domanda da agenzia",
+      "subtitlePending": "Stiamo esaminando i dati inviati. Riceverai un'email non appena avremo novità.",
+      "subtitleResolved": "Dettagli sullo stato attuale della tua domanda.",
+      "applicationIdLabel": "ID della domanda",
+      "copyId": "Copia ID completo",
+      "copiedId": "Copiato",
+      "copyIdAriaLabel": "Copia identificativo della domanda",
+      "rowSubmittedAt": "Data di invio",
+      "rowUpdatedAt": "Ultimo aggiornamento",
+      "rowPlanRequested": "Piano richiesto",
+      "rowFullName": "Nome",
+      "rowPositions": "Ruoli",
+      "rowNationality": "Nazionalità",
+      "rowCurrentClub": "Club dichiarato",
+      "rowResponsible": "Responsabile",
+      "rowAgency": "Agenzia",
+      "rowWebsite": "Sito web",
+      "rowContactEmail": "Email di contatto",
+      "rowContactPhone": "Telefono",
+      "notesTitle": "Note inviate",
+      "pendingNoticeLead": "Mentre esaminiamo la tua domanda non puoi modificare il profilo. Il processo richiede di solito",
+      "pendingNoticeDuration": "dalle 24 alle 72 ore lavorative",
+      "pendingNoticeContact": "Se hai bisogno di correggere un dato urgentemente, scrivici a",
+      "pendingNoticeIdRef": "citando l'ID sopra.",
+      "close": "Chiudi"
+    },
+    "taskCallouts": {
+      "title": "Attività in sospeso in questa sezione",
+      "pendingCount": "{count} in sospeso",
+      "viewDetail": "Vedi dettaglio"
+    }
+  },
+  "managerOverview": {
+    "header": {
+      "title": "Panoramica generale dell'Agenzia",
+      "description": "Visualizza lo stato della tua azienda, il tuo portafoglio di giocatori e gli accessi rapidi."
+    },
+    "operationalStatus": {
+      "title": "Stato operativo",
+      "description": "Controlla la tua visibilità pubblica e lo stato della tua licenza istituzionale."
+    },
+    "status": {
+      "pendingLabel": "In revisione",
+      "pendingMessage": "La tua domanda per operare come agenzia è in fase di valutazione da parte dell'amministrazione.",
+      "approvedLabel": "Agenzia Attiva e Validata",
+      "approvedMessage": "Rappresenti {agencyName}. Mantieni il profilo aggiornato per ottenere maggiore esposizione con club e osservatori.",
+      "agencyFallback": "la tua Agenzia",
+      "rejectedLabel": "Domanda Rifiutata",
+      "rejectedMessage": "Il tuo permesso operativo all'interno del sistema è stato rifiutato. Contattaci per maggiori dettagli."
+    },
+    "cta": {
+      "viewApplication": "Vedi domanda",
+      "viewPublicAgency": "Vedi profilo pubblico dell'agenzia",
+      "configurePublicUrl": "Configura URL pubblico"
+    },
+    "directory": {
+      "playersTitle": "Directory dei Giocatori",
+      "playersDescription": "I tuoi giocatori rappresentati attivi.",
+      "playersBadge": "Giocatori Collegati",
+      "playersCta": "Vedi directory completa →",
+      "staffTitle": "Team di Rappresentanza",
+      "staffDescription": "Manager appartenenti all'istituzione.",
+      "staffBadge": "Agenti Attivi",
+      "staffCta": "Gestisci Staff →"
+    },
+    "quickActions": {
+      "title": "Scorciatoie rapide",
+      "description": "Accedi direttamente alle sezioni operative che utilizzerai più spesso.",
+      "goToSection": "Vai alla sezione →",
+      "agency": {
+        "title": "Modifica Profilo dell'Agenzia",
+        "description": "Modifica le informazioni pubbliche, i contatti e il logo."
+      },
+      "templateStyles": {
+        "title": "Template del Portfolio",
+        "description": "Scegli Pro o Classica, palette di marca e tipografia."
+      },
+      "players": {
+        "title": "Portafoglio Giocatori",
+        "description": "Gestisci il tuo roster e assegna attività in sospeso."
+      },
+      "staff": {
+        "title": "Team Staff",
+        "description": "Invita colleghi e visualizza i membri attivi."
+      }
+    }
+  },
+  "paywall": {
+    "subscriptionBanner": {
+      "trialingTitle": "Sei nel trial Pro · ti {daysCopy}.",
+      "trialingDaysSingular": "rimane 1 giorno",
+      "trialingDaysPlural": "rimangono {days} giorni",
+      "trialingBody": "Dopo il trial verrai addebitato automaticamente. Annullabile durante il trial senza costi.",
+      "trialingCta": "Gestisci abbonamento",
+      "cancelingSoonTitle": "Il tuo piano Pro è attivo ma non verrà rinnovato.",
+      "cancelingSoonBodyWithDate": "L'accesso Pro continua fino al {date}.",
+      "cancelingSoonBodyNoDate": "L'accesso Pro continua fino alla fine del periodo corrente.",
+      "cancelingSoonCta": "Riattiva",
+      "pastDueTitle": "C'è stato un problema con il pagamento.",
+      "pastDueBody": "Aggiorna il metodo di pagamento per non perdere l'accesso Pro.",
+      "pastDueCta": "Aggiorna pagamento",
+      "expiredTitle": "Il tuo piano Pro è scaduto.",
+      "expiredBody": "Recupera i template e le sezioni premium con un nuovo ciclo Pro.",
+      "expiredCta": "Rinnova Pro",
+      "compGrantWithDate": "Account omaggio Pro · valido fino al {date}",
+      "compGrantNoDate": "Account omaggio Pro · senza scadenza"
+    }
+  },
+  "invites": {
+    "pendingModal": {
+      "title": "Hai un invito in sospeso!",
+      "bodyLead": "Sei stato invitato a far parte dello staff dell'agenzia <strong>{agencyName}</strong>.",
+      "bodyConsequence": "Accettando, il tuo account passerà al profilo Manager e avrai accesso ai giocatori rappresentati da questa agenzia.",
+      "decline": "Rifiuta",
+      "accept": "Accetta Invito"
+    },
+    "playerPendingModal": {
+      "title": "Nuove opportunità!",
+      "bodyLead": "L'agenzia <strong>{agencyName}</strong> ha richiesto di includerti nel suo portafoglio di giocatori rappresentati su BallersHub.",
+      "contractDuration": "Durata del contratto registrata: {date}.",
+      "bodyConsequence": "Accettando questo invito, il tuo profilo sportivo mostrerà pubblicamente questa agenzia come tuo rappresentante ufficiale.",
+      "decline": "Rifiuta",
+      "accept": "Collega il mio profilo"
+    }
   }
 }

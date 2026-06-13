@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { acceptPlayerInvite, rejectPlayerInvite } from "@/app/actions/player-invites-client";
 
 interface PendingPlayerInvite {
@@ -12,6 +13,8 @@ interface PendingPlayerInvite {
 }
 
 export default function PlayerPendingInvitesModal({ invites }: { invites: PendingPlayerInvite[] }) {
+  const t = useTranslations("dashboard");
+  const locale = useLocale();
   const [isOpen, setIsOpen] = useState(false);
   const [activeInvite, setActiveInvite] = useState<PendingPlayerInvite | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -57,26 +60,31 @@ export default function PlayerPendingInvitesModal({ invites }: { invites: Pendin
   return (
     <Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={false} hideCloseButton backdrop="blur">
       <ModalContent className="bg-neutral-900 border border-neutral-800">
-        <ModalHeader className="flex flex-col gap-1 text-white">¡Nuevas oportunidades!</ModalHeader>
+        <ModalHeader className="flex flex-col gap-1 text-white">{t("invites.playerPendingModal.title")}</ModalHeader>
         <ModalBody className="text-neutral-300">
           <p>
-            La agencia <strong className="text-white">{activeInvite.agencyName}</strong> ha solicitado incluirte en su cartera de jugadores representados en &apos;BallersHub.
+            {t.rich("invites.playerPendingModal.bodyLead", {
+              agencyName: activeInvite.agencyName,
+              strong: (chunks) => <strong className="text-white">{chunks}</strong>,
+            })}
           </p>
           {activeInvite.contractEndDate && (
             <p className="text-sm text-neutral-400">
-              Duración del vínculo registrada: {new Date(activeInvite.contractEndDate).toLocaleDateString("es-AR", { timeZone: "UTC" })}.
+              {t("invites.playerPendingModal.contractDuration", {
+                date: new Date(activeInvite.contractEndDate).toLocaleDateString(locale, { timeZone: "UTC" }),
+              })}
             </p>
           )}
           <p className="text-sm text-neutral-400 mt-2">
-            Al aceptar esta invitación, tu perfil deportivo mostrará públicamente a esta agencia como tu representante oficial.
+            {t("invites.playerPendingModal.bodyConsequence")}
           </p>
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="flat" onPress={handleReject} isLoading={isProcessing}>
-            Rechazar
+            {t("invites.playerPendingModal.decline")}
           </Button>
           <Button color="primary" onPress={handleAccept} isLoading={isProcessing}>
-            Vincular mi perfil
+            {t("invites.playerPendingModal.accept")}
           </Button>
         </ModalFooter>
       </ModalContent>

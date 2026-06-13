@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { acceptAgencyInvite, rejectAgencyInvite } from "@/app/actions/agency-invites-client";
 
 interface AgencyInvite {
@@ -11,6 +12,7 @@ interface AgencyInvite {
 }
 
 export default function PendingInvitesModal({ invites }: { invites: AgencyInvite[] }) {
+  const t = useTranslations("dashboard");
   const [isOpen, setIsOpen] = useState(false);
   const [activeInvite, setActiveInvite] = useState<AgencyInvite | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -56,21 +58,24 @@ export default function PendingInvitesModal({ invites }: { invites: AgencyInvite
   return (
     <Modal isOpen={isOpen} onOpenChange={setIsOpen} isDismissable={false} hideCloseButton backdrop="blur">
       <ModalContent className="bg-neutral-900 border border-neutral-800">
-        <ModalHeader className="flex flex-col gap-1 text-white">¡Tienes una invitación pendiente!</ModalHeader>
+        <ModalHeader className="flex flex-col gap-1 text-white">{t("invites.pendingModal.title")}</ModalHeader>
         <ModalBody className="text-neutral-300">
           <p>
-            Has sido invitado a formar parte del staff de la agencia <strong className="text-white">{activeInvite.agencyName}</strong>.
+            {t.rich("invites.pendingModal.bodyLead", {
+              agencyName: activeInvite.agencyName,
+              strong: (chunks) => <strong className="text-white">{chunks}</strong>,
+            })}
           </p>
           <p className="text-sm text-neutral-400">
-            Al aceptar, tu cuenta cambiará a perfil de Manager y tendrás acceso a los jugadores representados por esta agencia.
+            {t("invites.pendingModal.bodyConsequence")}
           </p>
         </ModalBody>
         <ModalFooter>
           <Button color="danger" variant="flat" onPress={handleReject} isLoading={isProcessing}>
-            Rechazar
+            {t("invites.pendingModal.decline")}
           </Button>
           <Button color="primary" onPress={handleAccept} isLoading={isProcessing}>
-            Aceptar Invitación
+            {t("invites.pendingModal.accept")}
           </Button>
         </ModalFooter>
       </ModalContent>

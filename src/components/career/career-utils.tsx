@@ -38,11 +38,31 @@ export function sortCareer<T extends { start_year?: Year; end_year?: Year }>(row
 export const YEAR_MIN = 1950;
 export const YEAR_MAX = new Date().getFullYear() + 1;
 
-export function validateYears(start?: Year, end?: Year) {
-  const msgs: string[] = [];
-  if (!start && !end) msgs.push("Ingresá al menos un año (desde u hasta).");
-  if (start && (start < YEAR_MIN || start > YEAR_MAX)) msgs.push(`Año 'desde' fuera de rango (${YEAR_MIN}–${YEAR_MAX}).`);
-  if (end && (end < YEAR_MIN || end > YEAR_MAX)) msgs.push(`Año 'hasta' fuera de rango (${YEAR_MIN}–${YEAR_MAX}).`);
-  if (start && end && start > end) msgs.push("El año 'desde' no puede ser mayor que 'hasta'.");
-  return msgs;
+// Discriminated codes so callers can translate via t() and identify which
+// year (start/end) is invalid without sniffing localized strings.
+export type YearValidationCode =
+  | "atLeastOneYear"
+  | "startOutOfRange"
+  | "endOutOfRange"
+  | "startAfterEnd";
+
+export type YearValidationIssue = {
+  code: YearValidationCode;
+  /** Indicates which year input the issue refers to, when applicable. */
+  field?: "start" | "end" | "both";
+};
+
+export function validateYears(start?: Year, end?: Year): YearValidationIssue[] {
+  const issues: YearValidationIssue[] = [];
+  if (!start && !end) issues.push({ code: "atLeastOneYear", field: "both" });
+  if (start && (start < YEAR_MIN || start > YEAR_MAX)) {
+    issues.push({ code: "startOutOfRange", field: "start" });
+  }
+  if (end && (end < YEAR_MIN || end > YEAR_MAX)) {
+    issues.push({ code: "endOutOfRange", field: "end" });
+  }
+  if (start && end && start > end) {
+    issues.push({ code: "startAfterEnd", field: "start" });
+  }
+  return issues;
 }

@@ -2,6 +2,7 @@
 
 import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import TaskSeverityChip from "./TaskSeverityChip";
 import type { TaskSeverity } from "@/lib/dashboard/client/tasks";
 
@@ -15,14 +16,19 @@ export type TaskCallout = {
 
 export default function TaskCalloutList({ tasks }: { tasks: TaskCallout[] }) {
   const pathname = usePathname();
+  const t = useTranslations("dashboard");
 
   if (!tasks.length) return null;
 
   return (
     <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-[13px] font-semibold text-bh-fg-1">Tareas pendientes en esta sección</p>
-        <span className="text-[11px] text-bh-fg-4">{tasks.length} pendiente(s)</span>
+        <p className="text-[13px] font-semibold text-bh-fg-1">
+          {t("overview.taskCallouts.title")}
+        </p>
+        <span className="text-[11px] text-bh-fg-4">
+          {t("overview.taskCallouts.pendingCount", { count: tasks.length })}
+        </span>
       </div>
       <ul className="space-y-3 text-sm text-bh-fg-2">
         {tasks.map((task) => {
@@ -43,7 +49,7 @@ export default function TaskCalloutList({ tasks }: { tasks: TaskCallout[] }) {
                   href={task.href}
                   className="mt-2 inline-flex text-[11px] font-medium text-bh-lime underline-offset-4 hover:underline"
                 >
-                  Ver detalle
+                  {t("overview.taskCallouts.viewDetail")}
                 </Link>
               ) : null}
             </li>
