@@ -27,7 +27,10 @@ type FormValues = {
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
-type CareerOption = { id: string; label: string; club: string | null; period: string; crestUrl: string | null };
+// `period` is locale-STABLE (canonical es): it's auto-written into the form's
+// `season` field on selection and persisted in DB, so it can't vary by editor
+// UI locale. `periodLabel` is for display only and is localized.
+type CareerOption = { id: string; label: string; club: string | null; period: string; periodLabel: string; crestUrl: string | null };
 
 type Props = {
   playerId: string;
@@ -343,7 +346,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
                     >
                       <div className="flex flex-col">
                         <span className="text-sm font-medium text-white">{item.club ?? t("footballData.honours.clubUndefined")}</span>
-                        <span className="text-xs text-bh-fg-3">{item.period}</span>
+                        <span className="text-xs text-bh-fg-3">{item.periodLabel}</span>
                       </div>
                     </AutocompleteItem>
                   )}

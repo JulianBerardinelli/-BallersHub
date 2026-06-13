@@ -33,7 +33,10 @@ type FormValues = {
 
 type StatusState = { type: "success" | "error"; message: string } | null;
 
-type CareerOption = { id: string; label: string; club: string | null; period: string; crestUrl: string | null };
+// `period` is locale-STABLE (canonical es): it's auto-written into the form's
+// `season` field on selection and persisted in DB, so it can't vary by editor
+// UI locale. `periodLabel` is for display only and is localized.
+type CareerOption = { id: string; label: string; club: string | null; period: string; periodLabel: string; crestUrl: string | null };
 type StageOption = CareerOption & { hasExistingStats: boolean };
 
 type Props = {
@@ -60,9 +63,9 @@ const defaultValues: FormValues = {
 
 type StatsTFn = ReturnType<typeof useTranslations<"dashEditProfile">>;
 
-const formatStageLabel = (t: StatsTFn, option: Pick<CareerOption, "club" | "period">) => {
+const formatStageLabel = (t: StatsTFn, option: Pick<CareerOption, "club" | "periodLabel">) => {
   const club = option.club && option.club.trim().length > 0 ? option.club : t("footballData.seasonStats.clubUndefined");
-  return `${club} · ${option.period}`;
+  return `${club} · ${option.periodLabel}`;
 };
 
 type AugmentedStat = {
@@ -471,7 +474,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
               {items.map((stat) => {
                 const linkedStage = stat.careerItemId ? optionMap.get(stat.careerItemId) : null;
                 const crest = stat.crestUrl ?? linkedStage?.crestUrl ?? "/images/team-default.svg";
-                const periodLabel = linkedStage?.period ?? stat.season;
+                const periodLabel = linkedStage?.periodLabel ?? stat.season;
                 const isDraftRow = stat.isDraft;
 
                 return (
@@ -610,7 +613,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
                     >
                       <div className="flex flex-col gap-1 py-1">
                         <span className="font-medium">{item.club ?? t("footballData.seasonStats.clubUndefined")}</span>
-                        <span className="text-xs text-bh-fg-3">{item.period}</span>
+                        <span className="text-xs text-bh-fg-3">{item.periodLabel}</span>
                         {item.hasExistingStats && (
                           <span className="text-[10px] uppercase tracking-wider text-primary">
                             {t("footballData.seasonStats.hasExistingStats")}
