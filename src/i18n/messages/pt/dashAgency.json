@@ -332,6 +332,46 @@
     "saveLocale": "Salvar {locale}",
     "esPrefix": "ES: {value}"
   },
+  "servicesTranslations": {
+    "title": "Serviços — traduções",
+    "description": "Traduza o título e a descrição de cada serviço para o idioma selecionado. A base em espanhol é editada no bloco Serviços.",
+    "empty": "Sem serviços ainda. Adicione serviços para poder traduzi-los.",
+    "titleLabel": "Título do serviço",
+    "descriptionLabel": "Descrição",
+    "esPrefix": "ES: {value}",
+    "removeLanguage": "Remover idioma",
+    "saveLocale": "Salvar {locale}",
+    "successSaved": "Serviços traduzidos. Já estão visíveis nesse idioma.",
+    "successDeleted": "Tradução removida. Esse idioma volta a aparecer em espanhol."
+  },
+  "mediaTranslations": {
+    "title": "Galeria — traduções",
+    "description": "Traduza o título e o texto alternativo de cada imagem para o idioma selecionado. A base em espanhol é editada no catálogo.",
+    "empty": "Sem imagens ainda. Envie imagens ao catálogo para poder traduzi-las.",
+    "untitled": "Imagem sem título",
+    "titleLabel": "Título da imagem",
+    "altLabel": "Texto alternativo (alt)",
+    "esPrefix": "ES: {value}",
+    "remove": "Remover",
+    "saveLocaleShort": "Salvar {locale}",
+    "chipTranslated": "Traduzida",
+    "chipUntranslated": "Sem tradução",
+    "successSaved": "Imagem traduzida. Já está visível nesse idioma.",
+    "successDeleted": "Tradução removida. Essa imagem volta a aparecer em espanhol."
+  },
+  "countryTranslations": {
+    "title": "Países — traduções",
+    "description": "Traduza a narrativa de cada país para o idioma selecionado. A base em espanhol é editada no bloco Países onde você opera.",
+    "empty": "Sem países ainda. Defina narrativas por país para poder traduzi-las.",
+    "descriptionLabel": "Descrição",
+    "esPrefix": "ES: {value}",
+    "remove": "Remover",
+    "saveLocaleShort": "Salvar {locale}",
+    "chipTranslated": "Traduzido",
+    "chipUntranslated": "Sem tradução",
+    "successSaved": "País traduzido. Já está visível nesse idioma.",
+    "successDeleted": "Tradução removida. Esse país volta a aparecer em espanhol."
+  },
   "managerProfile": {
     "metaTitle": "Meu perfil - Dashboard",
     "pageTitle": "Meu perfil",

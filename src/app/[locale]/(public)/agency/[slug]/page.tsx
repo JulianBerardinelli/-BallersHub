@@ -21,6 +21,9 @@ import {
   getAvailableAgencyLocales,
   getAgencyTranslation,
   mergeAgencyContent,
+  mergeAgencyServices,
+  getAgencyCountryProfileTranslations,
+  mergeAgencyCountryProfileContent,
 } from "@/lib/i18n/profile-content";
 import { OG_LOCALE } from "@/i18n/config";
 import type { Locale } from "@/i18n/routing";
@@ -136,6 +139,18 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
   const agencyTranslation = await getAgencyTranslation(rawAgency.id, locale);
   const agency = { ...rawAgency, ...mergeAgencyContent(rawAgency, agencyTranslation) };
 
+  // Localized services array (positional JSONB merge: see mergeAgencyServices).
+  // Falls back to the es base when no override exists for the locale.
+  const localizedServices = mergeAgencyServices(
+    (rawAgency.services ?? []) as Array<{
+      title: string;
+      icon: string;
+      color: string | null;
+      description: string | null;
+    }>,
+    agencyTranslation?.services ?? null,
+  );
+
   const [theme, sections, players, staffLicensesRows, countryProfiles, teamRelations] = await Promise.all([
     db.query.agencyThemeSettings.findFirst({
       where: eq(agencyThemeSettings.agencyId, agency.id),
@@ -179,6 +194,17 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
       where: eq(agencyTeamRelations.agencyId, agency.id),
     }),
   ]);
+
+  // Localize country narratives (per-country description). Defensive: if the
+  // translations table isn't migrated yet the helper returns an empty map → es
+  // base passes through.
+  const countryProfileTrMap = await getAgencyCountryProfileTranslations(
+    countryProfiles.map((p) => p.id),
+    locale,
+  );
+  const localizedCountryProfiles = countryProfiles.map((p) =>
+    mergeAgencyCountryProfileContent(p, countryProfileTrMap.get(p.id)),
+  );
 
   // Hydrate teams referenced by relations
   const teamIds = teamRelations.map((r) => r.teamId);
@@ -231,7 +257,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
       twitterUrl: agency.twitterUrl,
       linkedinUrl: agency.linkedinUrl,
       operativeCountries: agency.operativeCountries,
-      services: agency.services,
+      services: localizedServices,
     },
     staffLicenses,
     players: players.map((p) => ({
@@ -245,7 +271,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
       marketValueEur: p.marketValueEur ?? null,
       currentTeamCountryCode: p.currentTeamCountryCode ?? null,
     })),
-    countryProfiles: countryProfiles.map((p) => ({
+    countryProfiles: localizedCountryProfiles.map((p) => ({
       countryCode: p.countryCode,
       description: p.description,
     })),

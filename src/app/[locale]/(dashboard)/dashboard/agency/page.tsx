@@ -15,10 +15,17 @@ import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
 import { getTranslations } from "next-intl/server";
 
-import { getAgencyTranslations } from "@/lib/i18n/profile-content";
+import {
+  getAgencyTranslations,
+  getAgencyMediaTranslationsAllLocales,
+  getAgencyCountryProfileTranslationsAllLocales,
+} from "@/lib/i18n/profile-content";
 import IdentitySection from "./components/IdentitySection";
 import GeneralInfoSection from "./components/GeneralInfoSection";
 import AgencyTranslationsSection from "./components/AgencyTranslationsSection";
+import AgencyServicesTranslationsSection from "./components/AgencyServicesTranslationsSection";
+import AgencyMediaTranslationsSection from "./components/AgencyMediaTranslationsSection";
+import AgencyCountryProfileTranslationsSection from "./components/AgencyCountryProfileTranslationsSection";
 // Below-the-fold sections lazy-load via client wrappers with
 // `ssr: false`. Identity + GeneralInfo (first fold) stay sync so the
 // initial paint is intact.
@@ -66,9 +73,14 @@ export default async function ManagerAgencyPage() {
   const agencyTranslations: Partial<
     Record<"en" | "it" | "pt", { description: string | null; tagline: string | null }>
   > = {};
+  // Same map, broken out as services-only overrides for the services editor.
+  const agencyServicesTranslations: Partial<
+    Record<"en" | "it" | "pt", Array<{ title?: string; description?: string | null }>>
+  > = {};
   for (const [loc, row] of agencyTrMap) {
     if (loc === "es") continue;
     agencyTranslations[loc] = { description: row.description, tagline: row.tagline };
+    if (row.services) agencyServicesTranslations[loc] = row.services;
   }
 
   const media = await db.query.agencyMedia.findMany({
@@ -80,6 +92,41 @@ export default async function ManagerAgencyPage() {
   const countryProfiles = await db.query.agencyCountryProfiles.findMany({
     where: eq(agencyCountryProfiles.agencyId, agency.id),
   });
+
+  // Per-locale overrides for media + country profiles. Defensive: the helpers
+  // return empty maps if the translations table isn't migrated yet, so the
+  // editor degrades to "es base only" instead of throwing.
+  const mediaTrAllLocales = await getAgencyMediaTranslationsAllLocales(
+    media.map((m) => m.id),
+  );
+  const mediaTranslationsForEditor: Record<
+    string,
+    Partial<Record<"en" | "it" | "pt", { title: string | null; altText: string | null }>>
+  > = {};
+  for (const [mediaId, perLocale] of mediaTrAllLocales) {
+    const entry: Partial<Record<"en" | "it" | "pt", { title: string | null; altText: string | null }>> = {};
+    for (const loc of ["en", "it", "pt"] as const) {
+      const tr = perLocale[loc];
+      if (tr) entry[loc] = { title: tr.title, altText: tr.altText };
+    }
+    mediaTranslationsForEditor[mediaId] = entry;
+  }
+
+  const countryTrAllLocales = await getAgencyCountryProfileTranslationsAllLocales(
+    countryProfiles.map((c) => c.id),
+  );
+  const countryTranslationsForEditor: Record<
+    string,
+    Partial<Record<"en" | "it" | "pt", { description: string | null }>>
+  > = {};
+  for (const [countryId, perLocale] of countryTrAllLocales) {
+    const entry: Partial<Record<"en" | "it" | "pt", { description: string | null }>> = {};
+    for (const loc of ["en", "it", "pt"] as const) {
+      const tr = perLocale[loc];
+      if (tr) entry[loc] = { description: tr.description };
+    }
+    countryTranslationsForEditor[countryId] = entry;
+  }
 
   // Confirmed team relations + their team rows
   const relations = await db.query.agencyTeamRelations.findMany({
@@ -230,6 +277,36 @@ export default async function ManagerAgencyPage() {
           tagline: agency.tagline ?? "",
         }}
         translations={agencyTranslations}
+      />
+
+      <AgencyServicesTranslationsSection
+        agencyId={agency.id}
+        services={normalizedServices.map((s) => ({
+          title: s.title,
+          description: s.description,
+        }))}
+        translations={agencyServicesTranslations}
+      />
+
+      <AgencyMediaTranslationsSection
+        agencyId={agency.id}
+        mediaItems={media.map((m) => ({
+          id: m.id,
+          url: m.url,
+          title: m.title,
+          altText: m.altText,
+        }))}
+        translations={mediaTranslationsForEditor}
+      />
+
+      <AgencyCountryProfileTranslationsSection
+        agencyId={agency.id}
+        countryProfiles={countryProfiles.map((c) => ({
+          id: c.id,
+          countryCode: c.countryCode,
+          description: c.description,
+        }))}
+        translations={countryTranslationsForEditor}
       />
 
       <ServicesSection

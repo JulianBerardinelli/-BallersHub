@@ -332,6 +332,46 @@
     "saveLocale": "Save {locale}",
     "esPrefix": "ES: {value}"
   },
+  "servicesTranslations": {
+    "title": "Services — translations",
+    "description": "Translate the title and description of each service into the selected language. Edit the Spanish base in the Services block.",
+    "empty": "No services yet. Add services to translate them.",
+    "titleLabel": "Service title",
+    "descriptionLabel": "Description",
+    "esPrefix": "ES: {value}",
+    "removeLanguage": "Remove language",
+    "saveLocale": "Save {locale}",
+    "successSaved": "Services translated. Now visible in that language.",
+    "successDeleted": "Translation removed. That language falls back to Spanish."
+  },
+  "mediaTranslations": {
+    "title": "Gallery — translations",
+    "description": "Translate the title and alt text of each image into the selected language. Edit the Spanish base in the catalog.",
+    "empty": "No images yet. Upload images to the catalog to translate them.",
+    "untitled": "Untitled image",
+    "titleLabel": "Image title",
+    "altLabel": "Alt text",
+    "esPrefix": "ES: {value}",
+    "remove": "Remove",
+    "saveLocaleShort": "Save {locale}",
+    "chipTranslated": "Translated",
+    "chipUntranslated": "Untranslated",
+    "successSaved": "Image translated. Now visible in that language.",
+    "successDeleted": "Translation removed. That image falls back to Spanish."
+  },
+  "countryTranslations": {
+    "title": "Countries — translations",
+    "description": "Translate the narrative for each country into the selected language. Edit the Spanish base in the Countries you operate in block.",
+    "empty": "No countries yet. Add per-country narratives to translate them.",
+    "descriptionLabel": "Description",
+    "esPrefix": "ES: {value}",
+    "remove": "Remove",
+    "saveLocaleShort": "Save {locale}",
+    "chipTranslated": "Translated",
+    "chipUntranslated": "Untranslated",
+    "successSaved": "Country translated. Now visible in that language.",
+    "successDeleted": "Translation removed. That country falls back to Spanish."
+  },
   "managerProfile": {
     "metaTitle": "My Profile - Dashboard",
     "pageTitle": "My Profile",

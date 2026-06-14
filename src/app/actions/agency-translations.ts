@@ -140,3 +140,345 @@ export async function deleteAgencyTranslation(input: {
     message: "Traducción eliminada. Ese idioma vuelve a mostrarse en español.",
   };
 }
+
+// =========================================================================
+// Services (positional JSONB on agency_profile_translations)
+// =========================================================================
+//
+// Same row as the description+tagline editor (agency_profile_translations
+// PK = agency_id,locale), but writes ONLY the `services` jsonb column. The
+// upsert path reads the existing row's description/tagline first so we
+// never blank them out when the user is just editing services.
+
+const servicesItemSchema = z.object({
+  title: z.string().trim().max(200).optional(),
+  description: z.string().trim().max(2000).nullable().optional(),
+});
+
+const servicesSaveSchema = z.object({
+  agencyId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+  services: z.array(servicesItemSchema).max(12),
+});
+
+const servicesDeleteSchema = z.object({
+  agencyId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+});
+
+export type AgencyServicesTranslationItem = z.infer<typeof servicesItemSchema>;
+
+function normServiceItem(it: AgencyServicesTranslationItem) {
+  const t = it.title?.trim();
+  const d = it.description?.trim();
+  return {
+    title: t && t.length > 0 ? t : undefined,
+    description: d && d.length > 0 ? d : null,
+  };
+}
+
+export async function saveServicesTranslation(input: {
+  agencyId: string;
+  locale: string;
+  services: AgencyServicesTranslationItem[];
+}): Promise<AgencyTranslationResult> {
+  const parsed = servicesSaveSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { agencyId, locale, services } = parsed.data;
+
+  const { owned, error } = await ensureAgencyStaff(agencyId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+
+  // Read the existing description+tagline so the upsert never clobbers them.
+  const { data: existing } = await owned.supabase
+    .from("agency_profile_translations")
+    .select("description, tagline")
+    .eq("agency_id", agencyId)
+    .eq("locale", locale)
+    .maybeSingle<{ description: string | null; tagline: string | null }>();
+
+  const normalized = services.map(normServiceItem);
+
+  const { error: upsertError } = await owned.supabase
+    .from("agency_profile_translations")
+    .upsert(
+      {
+        agency_id: agencyId,
+        locale,
+        description: existing?.description ?? null,
+        tagline: existing?.tagline ?? null,
+        services: normalized,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "agency_id,locale" },
+    );
+
+  if (upsertError) {
+    if (upsertError.code === "42501") {
+      return { success: false, message: "No tenés permisos para modificar esta agencia." };
+    }
+    return { success: false, message: upsertError.message ?? "No fue posible guardar." };
+  }
+
+  revalidateAllLocales(owned.slug);
+  return { success: true, message: "Servicios traducidos. Ya son visibles en ese idioma." };
+}
+
+export async function deleteServicesTranslation(input: {
+  agencyId: string;
+  locale: string;
+}): Promise<AgencyTranslationResult> {
+  const parsed = servicesDeleteSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { agencyId, locale } = parsed.data;
+
+  const { owned, error } = await ensureAgencyStaff(agencyId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+
+  // Null out only the services column — keep description/tagline intact.
+  const { error: updError } = await owned.supabase
+    .from("agency_profile_translations")
+    .update({ services: null, updated_at: new Date().toISOString() })
+    .eq("agency_id", agencyId)
+    .eq("locale", locale);
+
+  if (updError) {
+    return { success: false, message: updError.message ?? "No fue posible eliminar." };
+  }
+
+  revalidateAllLocales(owned.slug);
+  return {
+    success: true,
+    message: "Servicios traducidos eliminados. Ese idioma vuelve a mostrarse en español.",
+  };
+}
+
+// =========================================================================
+// Agency media translations (per media id, per locale)
+// =========================================================================
+
+const mediaFieldsSchema = z.object({
+  title: z.string().trim().max(200).optional(),
+  altText: z.string().trim().max(500).optional(),
+});
+
+const mediaSaveSchema = z.object({
+  agencyId: z.string().uuid(),
+  mediaId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+  fields: mediaFieldsSchema,
+});
+
+const mediaDeleteSchema = z.object({
+  agencyId: z.string().uuid(),
+  mediaId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+});
+
+export type AgencyMediaTranslationFields = z.infer<typeof mediaFieldsSchema>;
+
+/** Confirm the media row belongs to the (already staff-owned) agency. */
+async function mediaBelongsToAgency(
+  supabase: Owned["supabase"],
+  mediaId: string,
+  agencyId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("agency_media")
+    .select("id")
+    .eq("id", mediaId)
+    .eq("agency_id", agencyId)
+    .maybeSingle<{ id: string }>();
+  return !!data;
+}
+
+export async function saveAgencyMediaTranslation(input: {
+  agencyId: string;
+  mediaId: string;
+  locale: string;
+  fields: AgencyMediaTranslationFields;
+}): Promise<AgencyTranslationResult> {
+  const parsed = mediaSaveSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { agencyId, mediaId, locale, fields } = parsed.data;
+
+  const { owned, error } = await ensureAgencyStaff(agencyId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  if (!(await mediaBelongsToAgency(owned.supabase, mediaId, agencyId))) {
+    return { success: false, message: "No encontramos esa imagen en tu agencia." };
+  }
+
+  const norm = (v: string | undefined) => {
+    const t = v?.trim();
+    return t && t.length > 0 ? t : null;
+  };
+
+  const { error: upsertError } = await owned.supabase
+    .from("agency_media_translations")
+    .upsert(
+      {
+        media_id: mediaId,
+        locale,
+        title: norm(fields.title),
+        alt_text: norm(fields.altText),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "media_id,locale" },
+    );
+
+  if (upsertError) {
+    if (upsertError.code === "42501") {
+      return { success: false, message: "No tenés permisos para modificar esta agencia." };
+    }
+    return { success: false, message: upsertError.message ?? "No fue posible guardar." };
+  }
+
+  revalidateAllLocales(owned.slug);
+  return { success: true, message: "Imagen traducida. Ya es visible en ese idioma." };
+}
+
+export async function deleteAgencyMediaTranslation(input: {
+  agencyId: string;
+  mediaId: string;
+  locale: string;
+}): Promise<AgencyTranslationResult> {
+  const parsed = mediaDeleteSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { agencyId, mediaId, locale } = parsed.data;
+
+  const { owned, error } = await ensureAgencyStaff(agencyId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  if (!(await mediaBelongsToAgency(owned.supabase, mediaId, agencyId))) {
+    return { success: false, message: "No encontramos esa imagen en tu agencia." };
+  }
+
+  const { error: delError } = await owned.supabase
+    .from("agency_media_translations")
+    .delete()
+    .eq("media_id", mediaId)
+    .eq("locale", locale);
+
+  if (delError) {
+    return { success: false, message: delError.message ?? "No fue posible eliminar." };
+  }
+
+  revalidateAllLocales(owned.slug);
+  return {
+    success: true,
+    message: "Traducción eliminada. Esa imagen vuelve a mostrarse en español.",
+  };
+}
+
+// =========================================================================
+// Agency country profile translations (per country profile id, per locale)
+// =========================================================================
+
+const countryFieldsSchema = z.object({
+  description: z.string().trim().max(2000).optional(),
+});
+
+const countrySaveSchema = z.object({
+  agencyId: z.string().uuid(),
+  countryProfileId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+  fields: countryFieldsSchema,
+});
+
+const countryDeleteSchema = z.object({
+  agencyId: z.string().uuid(),
+  countryProfileId: z.string().uuid(),
+  locale: z.enum(["en", "it", "pt"]),
+});
+
+export type AgencyCountryProfileTranslationFields = z.infer<typeof countryFieldsSchema>;
+
+/** Confirm the country profile row belongs to the (already staff-owned) agency. */
+async function countryProfileBelongsToAgency(
+  supabase: Owned["supabase"],
+  countryProfileId: string,
+  agencyId: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("agency_country_profiles")
+    .select("id")
+    .eq("id", countryProfileId)
+    .eq("agency_id", agencyId)
+    .maybeSingle<{ id: string }>();
+  return !!data;
+}
+
+export async function saveAgencyCountryProfileTranslation(input: {
+  agencyId: string;
+  countryProfileId: string;
+  locale: string;
+  fields: AgencyCountryProfileTranslationFields;
+}): Promise<AgencyTranslationResult> {
+  const parsed = countrySaveSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { agencyId, countryProfileId, locale, fields } = parsed.data;
+
+  const { owned, error } = await ensureAgencyStaff(agencyId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  if (!(await countryProfileBelongsToAgency(owned.supabase, countryProfileId, agencyId))) {
+    return { success: false, message: "No encontramos ese país en tu agencia." };
+  }
+
+  const norm = (v: string | undefined) => {
+    const t = v?.trim();
+    return t && t.length > 0 ? t : null;
+  };
+
+  const { error: upsertError } = await owned.supabase
+    .from("agency_country_profile_translations")
+    .upsert(
+      {
+        country_profile_id: countryProfileId,
+        locale,
+        description: norm(fields.description),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "country_profile_id,locale" },
+    );
+
+  if (upsertError) {
+    if (upsertError.code === "42501") {
+      return { success: false, message: "No tenés permisos para modificar esta agencia." };
+    }
+    return { success: false, message: upsertError.message ?? "No fue posible guardar." };
+  }
+
+  revalidateAllLocales(owned.slug);
+  return { success: true, message: "País traducido. Ya es visible en ese idioma." };
+}
+
+export async function deleteAgencyCountryProfileTranslation(input: {
+  agencyId: string;
+  countryProfileId: string;
+  locale: string;
+}): Promise<AgencyTranslationResult> {
+  const parsed = countryDeleteSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const { agencyId, countryProfileId, locale } = parsed.data;
+
+  const { owned, error } = await ensureAgencyStaff(agencyId);
+  if (!owned) return { success: false, message: error ?? "No autorizado." };
+  if (!(await countryProfileBelongsToAgency(owned.supabase, countryProfileId, agencyId))) {
+    return { success: false, message: "No encontramos ese país en tu agencia." };
+  }
+
+  const { error: delError } = await owned.supabase
+    .from("agency_country_profile_translations")
+    .delete()
+    .eq("country_profile_id", countryProfileId)
+    .eq("locale", locale);
+
+  if (delError) {
+    return { success: false, message: delError.message ?? "No fue posible eliminar." };
+  }
+
+  revalidateAllLocales(owned.slug);
+  return {
+    success: true,
+    message: "Traducción eliminada. Ese país vuelve a mostrarse en español.",
+  };
+}
