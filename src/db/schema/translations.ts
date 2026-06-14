@@ -25,10 +25,13 @@ import {
   primaryKey,
   index,
   check,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { playerProfiles } from "./players";
 import { agencyProfiles } from "./agencies";
+import { agencyMedia } from "./agencyMedia";
+import { agencyCountryProfiles } from "./agencyTeamRelations";
 import { playerHonours } from "./profilePublishing";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -118,6 +121,13 @@ export const agencyProfileTranslations = pgTable(
     locale: text("locale").notNull(),
     description: text("description"),
     tagline: text("tagline"),
+    // services[] is a positional JSONB array on agency_profiles WITHOUT stable
+    // item ids → the locale override is stored indexed by position. Same caveat
+    // the base already has (reordering services in es invalidates indices).
+    // Shape: { title?: string; description?: string | null }[]
+    services: jsonb("services").$type<
+      Array<{ title?: string; description?: string | null }>
+    >(),
     updatedAt: timestamp("updated_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
@@ -133,6 +143,70 @@ export type AgencyProfileTranslation = InferSelectModel<
 >;
 export type NewAgencyProfileTranslation = InferInsertModel<
   typeof agencyProfileTranslations
+>;
+
+// -------------------- agency_media_translations --------------------
+//
+// Per-locale overrides of agency_media free-text (title + alt_text). Stable id
+// match (media id). es base on agency_media; missing row → es fallback.
+
+export const agencyMediaTranslations = pgTable(
+  "agency_media_translations",
+  {
+    mediaId: uuid("media_id")
+      .notNull()
+      .references(() => agencyMedia.id, { onDelete: "cascade" }),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    altText: text("alt_text"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.mediaId, t.locale] }),
+    localeCheck: check("agency_media_translations_locale_check", LOCALE_CHECK),
+  }),
+);
+
+export type AgencyMediaTranslation = InferSelectModel<
+  typeof agencyMediaTranslations
+>;
+export type NewAgencyMediaTranslation = InferInsertModel<
+  typeof agencyMediaTranslations
+>;
+
+// -------------------- agency_country_profile_translations --------------------
+//
+// Per-locale override of agency_country_profiles.description (per-country
+// narrative). Stable id match (country_profile id).
+
+export const agencyCountryProfileTranslations = pgTable(
+  "agency_country_profile_translations",
+  {
+    countryProfileId: uuid("country_profile_id")
+      .notNull()
+      .references(() => agencyCountryProfiles.id, { onDelete: "cascade" }),
+    locale: text("locale").notNull(),
+    description: text("description"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.countryProfileId, t.locale] }),
+    localeCheck: check(
+      "agency_country_profile_translations_locale_check",
+      LOCALE_CHECK,
+    ),
+  }),
+);
+
+export type AgencyCountryProfileTranslation = InferSelectModel<
+  typeof agencyCountryProfileTranslations
+>;
+export type NewAgencyCountryProfileTranslation = InferInsertModel<
+  typeof agencyCountryProfileTranslations
 >;
 
 // -------------------- ai_translation_events --------------------

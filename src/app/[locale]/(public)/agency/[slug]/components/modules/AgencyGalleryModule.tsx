@@ -1,6 +1,11 @@
 import { db } from "@/lib/db";
 import { agencyMedia } from "@/db/schema";
 import { asc, eq } from "drizzle-orm";
+import { getLocale } from "next-intl/server";
+import {
+  getAgencyMediaTranslations,
+  mergeAgencyMediaContent,
+} from "@/lib/i18n/profile-content";
 import GalleryClient, { type GalleryPhoto } from "./gallery/GalleryClient";
 import type { AgencyPublicData } from "../AgencyLayoutResolver";
 
@@ -21,12 +26,26 @@ export default async function AgencyGalleryModule({ agencyId, sections }: Props)
 
   if (rows.length === 0) return null;
 
-  const photos: GalleryPhoto[] = rows.map((r) => ({
-    id: r.id,
-    url: r.url,
-    title: r.title,
-    altText: r.altText,
-  }));
+  // F5: stream module → applies its own locale translation. Defensive: empty
+  // map if the migration is pending, so es base passes through.
+  const locale = await getLocale();
+  const trMap = await getAgencyMediaTranslations(
+    rows.map((r) => r.id),
+    locale,
+  );
+
+  const photos: GalleryPhoto[] = rows.map((r) => {
+    const localized = mergeAgencyMediaContent(
+      { title: r.title, altText: r.altText },
+      trMap.get(r.id),
+    );
+    return {
+      id: r.id,
+      url: r.url,
+      title: localized.title,
+      altText: localized.altText,
+    };
+  });
 
   return <GalleryClient photos={photos} />;
 }

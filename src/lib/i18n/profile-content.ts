@@ -16,6 +16,8 @@ import {
   playerProfileTranslations,
   agencyProfileTranslations,
   playerHonourTranslations,
+  agencyMediaTranslations,
+  agencyCountryProfileTranslations,
   type PlayerProfileTranslation,
   type AgencyProfileTranslation,
 } from "@/db/schema/translations";
@@ -273,6 +275,204 @@ export function mergeAgencyContent(
     description: pick(translation.description, base.description),
     tagline: pick(translation.tagline, base.tagline),
   };
+}
+
+// ============================ agency services (positional JSONB) ============================
+
+type AgencyServiceBase = {
+  title: string;
+  icon: string;
+  color: string | null;
+  description: string | null;
+};
+type AgencyServiceOverride = { title?: string; description?: string | null };
+
+/**
+ * Merge a positional services array with its per-locale overrides. Override
+ * matches by INDEX (services don't have stable ids in the JSONB). Missing or
+ * empty fields fall back to the es base — never duplicate icons/colors (those
+ * are locale-agnostic).
+ */
+export function mergeAgencyServices(
+  base: AgencyServiceBase[],
+  overrides: AgencyServiceOverride[] | null | undefined,
+): AgencyServiceBase[] {
+  if (!base) return [];
+  if (!overrides || overrides.length === 0) return base;
+  return base.map((b, i) => {
+    const o = overrides[i];
+    if (!o) return b;
+    return {
+      ...b,
+      title: pick(o.title ?? null, b.title) ?? b.title,
+      description: pick(o.description ?? null, b.description),
+    };
+  });
+}
+
+// ============================ agency media ============================
+
+export type AgencyMediaLocalizedFields = {
+  title: string | null;
+  altText: string | null;
+};
+
+/**
+ * Per-locale overrides for a set of agency media, keyed by media id. Empty for
+ * es or when the translations table isn't present yet (defensive: the public
+ * route never breaks because the migration is pending).
+ */
+export async function getAgencyMediaTranslations(
+  mediaIds: string[],
+  locale: string,
+): Promise<Map<string, AgencyMediaLocalizedFields>> {
+  if (locale === "es" || !isContentLocale(locale) || mediaIds.length === 0) {
+    return new Map();
+  }
+  try {
+    const rows = await db
+      .select()
+      .from(agencyMediaTranslations)
+      .where(
+        and(
+          inArray(agencyMediaTranslations.mediaId, mediaIds),
+          eq(agencyMediaTranslations.locale, locale),
+        ),
+      );
+    const map = new Map<string, AgencyMediaLocalizedFields>();
+    for (const r of rows) {
+      map.set(r.mediaId, { title: r.title, altText: r.altText });
+    }
+    return map;
+  } catch {
+    // Table not migrated yet → es fallback.
+    return new Map();
+  }
+}
+
+/**
+ * All locale overrides for a set of agency media (for the dashboard editor).
+ * Defensive: empty if the table isn't migrated yet.
+ */
+export async function getAgencyMediaTranslationsAllLocales(
+  mediaIds: string[],
+): Promise<
+  Map<string, Partial<Record<ContentLocale, AgencyMediaLocalizedFields>>>
+> {
+  const map = new Map<
+    string,
+    Partial<Record<ContentLocale, AgencyMediaLocalizedFields>>
+  >();
+  if (mediaIds.length === 0) return map;
+  try {
+    const rows = await db
+      .select()
+      .from(agencyMediaTranslations)
+      .where(inArray(agencyMediaTranslations.mediaId, mediaIds));
+    for (const r of rows) {
+      if (!isContentLocale(r.locale)) continue;
+      const entry = map.get(r.mediaId) ?? {};
+      entry[r.locale] = { title: r.title, altText: r.altText };
+      map.set(r.mediaId, entry);
+    }
+    return map;
+  } catch {
+    return map;
+  }
+}
+
+export function mergeAgencyMediaContent<
+  T extends { title: string | null; altText: string | null },
+>(base: T, tr: AgencyMediaLocalizedFields | undefined): T {
+  if (!tr) return base;
+  return {
+    ...base,
+    title: pick(tr.title, base.title),
+    altText: pick(tr.altText, base.altText),
+  };
+}
+
+// ============================ agency country profiles ============================
+
+export type AgencyCountryProfileLocalizedFields = {
+  description: string | null;
+};
+
+/**
+ * Per-locale overrides for a set of agency country profiles. Defensive.
+ */
+export async function getAgencyCountryProfileTranslations(
+  countryProfileIds: string[],
+  locale: string,
+): Promise<Map<string, AgencyCountryProfileLocalizedFields>> {
+  if (
+    locale === "es" ||
+    !isContentLocale(locale) ||
+    countryProfileIds.length === 0
+  ) {
+    return new Map();
+  }
+  try {
+    const rows = await db
+      .select()
+      .from(agencyCountryProfileTranslations)
+      .where(
+        and(
+          inArray(
+            agencyCountryProfileTranslations.countryProfileId,
+            countryProfileIds,
+          ),
+          eq(agencyCountryProfileTranslations.locale, locale),
+        ),
+      );
+    const map = new Map<string, AgencyCountryProfileLocalizedFields>();
+    for (const r of rows) {
+      map.set(r.countryProfileId, { description: r.description });
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+/** All-locales variant for the dashboard editor (defensive). */
+export async function getAgencyCountryProfileTranslationsAllLocales(
+  countryProfileIds: string[],
+): Promise<
+  Map<string, Partial<Record<ContentLocale, AgencyCountryProfileLocalizedFields>>>
+> {
+  const map = new Map<
+    string,
+    Partial<Record<ContentLocale, AgencyCountryProfileLocalizedFields>>
+  >();
+  if (countryProfileIds.length === 0) return map;
+  try {
+    const rows = await db
+      .select()
+      .from(agencyCountryProfileTranslations)
+      .where(
+        inArray(
+          agencyCountryProfileTranslations.countryProfileId,
+          countryProfileIds,
+        ),
+      );
+    for (const r of rows) {
+      if (!isContentLocale(r.locale)) continue;
+      const entry = map.get(r.countryProfileId) ?? {};
+      entry[r.locale] = { description: r.description };
+      map.set(r.countryProfileId, entry);
+    }
+    return map;
+  } catch {
+    return map;
+  }
+}
+
+export function mergeAgencyCountryProfileContent<
+  T extends { description: string | null },
+>(base: T, tr: AgencyCountryProfileLocalizedFields | undefined): T {
+  if (!tr) return base;
+  return { ...base, description: pick(tr.description, base.description) };
 }
 
 // ============================ sitemap bulk ============================
