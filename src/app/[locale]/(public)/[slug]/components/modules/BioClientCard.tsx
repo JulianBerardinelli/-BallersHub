@@ -12,6 +12,7 @@ import { BlockReveal } from "@/components/common/animations/BlockReveal";
 import { ScrambleText } from "@/components/common/animations/ScrambleText";
 import { useLocale, useTranslations } from "next-intl";
 import { localizePlayerPositions, localizeFoot } from "@/lib/i18n/positions";
+import { localizeLanguages } from "@/lib/i18n/player-languages";
 import type { Locale } from "@/i18n/routing";
 import { Variants } from "framer-motion";
 
@@ -297,7 +298,7 @@ export default function BioClientCard({ data, player, teamCrest, teamCountryCode
                    <ScrambleText text={t("bioCard.languages")} delay={0.3} />
                  </span>
                  <span className="text-sm md:text-xl font-bold text-white uppercase tracking-widest break-words leading-tight block">
-                   <ScrambleText text={data?.languages?.join(", ") || '--'} delay={0.6} />
+                   <ScrambleText text={localizeLanguages(data?.languages ?? null, locale).join(", ") || '--'} delay={0.6} />
                  </span>
                </div>
 

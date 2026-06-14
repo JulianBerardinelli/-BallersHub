@@ -23,7 +23,9 @@ import type { ComponentType, SVGProps } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import type { Locale } from "@/i18n/routing";
+import { localizeLanguages } from "@/lib/i18n/player-languages";
 import {
   Crest,
   DataRow,
@@ -491,6 +493,7 @@ async function BioIdentity({
   nationalityCodes: string[];
 }) {
   const t = await getTranslations("portfolio");
+  const locale = (await getLocale()) as Locale;
   const hasIdentityRows =
     !!personal &&
     (personal.languages?.length ||
@@ -527,7 +530,7 @@ async function BioIdentity({
               <div className="rounded-xl border border-white/[0.10] bg-bh-surface-1">
                 {personal?.languages?.length ? (
                   <DataRow label={t("free.identityLanguages")}>
-                    {personal.languages.join(" · ")}
+                    {localizeLanguages(personal.languages, locale).join(" · ")}
                   </DataRow>
                 ) : null}
                 {personal?.education ? (
