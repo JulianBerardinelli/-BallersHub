@@ -43,9 +43,9 @@ BallersHub pasa de mono-locale (es-AR) a **4 idiomas**: ES (default, sin prefijo
 - ✅ Auth: 5/6 con i18n (ok).
 
 **P1 — Free-text fuera del sistema de traducción (siempre renderiza es). Necesita DECISIÓN del owner (traducir = nueva superficie tipo F5, o dejar es):**
-- [ ] **Galería**: captions/altText de fotos (`player_media`/`agency_media` → `title` + `alt_text`). Render en `MediaGalleryModule`/`AgencyGalleryModule`.
+- [~] **Galería de AGENCIA**: captions/altText (PR #216 — falta migración para runtime) de fotos (`player_media`/`agency_media` → `title` + `alt_text`). Render en `MediaGalleryModule`/`AgencyGalleryModule`.
 - [ ] **Datos personales del jugador**: `languages`, `education`, `residence_city/country` (`player_personal_details`, render en `BioClientCard`). *languages* es mapeable (nombres de idioma); educación/residencia son texto libre / nombres propios.
-- [ ] **Contenido de agencia**: `services[]` (title+description, en `agency_profiles.services` JSONB) y narrativas por país (`agency_country_profiles.description`). Hoy es-only.
+- [x] ✅ **Contenido de AGENCIA — TRADUCIDO** [PR #216]: `services[]` (title+description, en `agency_profiles.services` JSONB) y narrativas por país (`agency_country_profiles.description`). Hoy es-only.
 
 **P2 — Otras superficies grandes:**
 - [ ] **Blog multilang** (F6 del plan original, NUNCA hecho): `blog_posts.locale` + `translation_of_id` + UI por locale + hreflang. Es la última superficie de contenido grande.
