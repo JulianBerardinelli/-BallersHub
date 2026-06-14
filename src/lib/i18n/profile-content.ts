@@ -224,17 +224,74 @@ export type AgencyLocalizedFields = {
   tagline: string | null;
 };
 
+// Legacy column projection — what existed BEFORE the `services jsonb` addition
+// landed. Reads use this explicit projection so the public agency page and the
+// dashboard keep working in a window where the schema TS already references the
+// new column but the migration hasn't reached the deployed database yet (review
+// Codex P1 on #216). The `services` field is fetched separately in a defensive
+// try/catch so a pending migration only degrades that one feature.
+const AGENCY_TRANSLATION_LEGACY_COLUMNS = {
+  agencyId: agencyProfileTranslations.agencyId,
+  locale: agencyProfileTranslations.locale,
+  description: agencyProfileTranslations.description,
+  tagline: agencyProfileTranslations.tagline,
+  updatedAt: agencyProfileTranslations.updatedAt,
+} as const;
+
+type AgencyTranslationLegacyRow = {
+  agencyId: string;
+  locale: string;
+  description: string | null;
+  tagline: string | null;
+  updatedAt: Date;
+};
+
+/** Defensive fetch of the new `services` jsonb override for one (agency,locale). */
+async function fetchAgencyServicesOverride(
+  agencyId: string,
+  locale: string,
+): Promise<Array<{ title?: string; description?: string | null }> | null> {
+  try {
+    const [row] = await db
+      .select({ services: agencyProfileTranslations.services })
+      .from(agencyProfileTranslations)
+      .where(
+        and(
+          eq(agencyProfileTranslations.agencyId, agencyId),
+          eq(agencyProfileTranslations.locale, locale),
+        ),
+      )
+      .limit(1);
+    return row?.services ?? null;
+  } catch {
+    // Column not migrated yet — degrade gracefully.
+    return null;
+  }
+}
+
 export async function getAgencyTranslations(
   agencyId: string,
 ): Promise<Map<ContentLocale, AgencyProfileTranslation>> {
-  const rows = await db
-    .select()
+  // Explicit projection of legacy columns so a pending `services` migration
+  // doesn't blow up the page (Codex P1 on #216).
+  const rows = (await db
+    .select(AGENCY_TRANSLATION_LEGACY_COLUMNS)
     .from(agencyProfileTranslations)
-    .where(eq(agencyProfileTranslations.agencyId, agencyId));
+    .where(eq(agencyProfileTranslations.agencyId, agencyId))) as AgencyTranslationLegacyRow[];
+
   const map = new Map<ContentLocale, AgencyProfileTranslation>();
-  for (const r of rows) {
-    if (isContentLocale(r.locale)) map.set(r.locale, r);
-  }
+  // Best-effort services hydration (one row per locale; reads each defensively).
+  await Promise.all(
+    rows
+      .filter((r) => isContentLocale(r.locale))
+      .map(async (r) => {
+        const services = await fetchAgencyServicesOverride(agencyId, r.locale);
+        map.set(r.locale as ContentLocale, {
+          ...r,
+          services,
+        } as AgencyProfileTranslation);
+      }),
+  );
   return map;
 }
 
@@ -243,8 +300,8 @@ export async function getAgencyTranslation(
   locale: string,
 ): Promise<AgencyProfileTranslation | null> {
   if (locale === "es" || !isContentLocale(locale)) return null;
-  const [row] = await db
-    .select()
+  const [row] = (await db
+    .select(AGENCY_TRANSLATION_LEGACY_COLUMNS)
     .from(agencyProfileTranslations)
     .where(
       and(
@@ -252,8 +309,10 @@ export async function getAgencyTranslation(
         eq(agencyProfileTranslations.locale, locale),
       ),
     )
-    .limit(1);
-  return row ?? null;
+    .limit(1)) as AgencyTranslationLegacyRow[];
+  if (!row) return null;
+  const services = await fetchAgencyServicesOverride(agencyId, locale);
+  return { ...row, services } as AgencyProfileTranslation;
 }
 
 export async function getAvailableAgencyLocales(
