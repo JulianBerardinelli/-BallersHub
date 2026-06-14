@@ -62,6 +62,9 @@ export default async function StartPage() {
   if (activeSubPlanId === "pro-agency") {
     redirect("/onboarding/manager/info");
   }
+  if (activeSubPlanId === "pro-coach") {
+    redirect("/onboarding/coach/apply");
+  }
 
   // Check for pending multi-manager agency invites
   if (user.email) {
@@ -205,14 +208,22 @@ export default async function StartPage() {
             →
           </span>
         </Link>
-        <div className="flex items-center justify-between gap-4 rounded-bh-lg border border-dashed border-white/[0.06] bg-transparent px-5 py-4 opacity-60">
+        <Link
+          href="/onboarding/coach/apply"
+          className="bh-card-lift group flex items-center justify-between gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 px-5 py-4 transition-colors"
+        >
           <div className="space-y-0.5">
-            <div className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-3">
-              {t("start.chooser.staff.title")}
+            <div className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1 group-hover:text-bh-lime transition-colors">
+              {t("start.chooser.coach.title")}
             </div>
-            <div className="text-xs text-bh-fg-4">{t("start.chooser.staff.comingSoon")}</div>
+            <div className="text-xs text-bh-fg-3">
+              {t("start.chooser.coach.description")}
+            </div>
           </div>
-        </div>
+          <span className="text-bh-fg-3 transition-colors group-hover:text-bh-lime">
+            →
+          </span>
+        </Link>
       </div>
 
       <div className="pt-2">
