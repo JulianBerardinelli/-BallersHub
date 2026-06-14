@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "next-intl";
 import GlassCard from "@/components/ui/GlassCard";
 import ModuleBackdrop from "../ModuleBackdrop";
 import { resolveServiceIcon } from "@/lib/agency/service-icons";
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function AgencyServicesModule({ services, sections }: Props) {
+  const t = useTranslations("portfolio");
   const visible = sections.find((s) => s.section === "services");
   if (visible && !visible.visible) return null;
   if (!services || services.length === 0) return null;
@@ -32,13 +34,13 @@ export default function AgencyServicesModule({ services, sections }: Props) {
           className="text-[10px] uppercase tracking-[0.4em] font-bold"
           style={{ color: "var(--theme-accent)" }}
         >
-          / Servicios
+          {t("agency.services.eyebrow")}
         </div>
         <h2 className="font-heading text-5xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter text-white">
-          Lo que ofrecemos
+          {t("agency.services.title")}
         </h2>
         <p className="text-white/60 text-lg font-light">
-          Enfoque integral para cada etapa de la carrera de nuestros representados.
+          {t("agency.services.subtitle")}
         </p>
       </motion.div>
 

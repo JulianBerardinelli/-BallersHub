@@ -4,10 +4,12 @@ import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Globe2, ExternalLink, Users, Building2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import CountryFlag from "@/components/common/CountryFlag";
 import CountUp from "@/components/ui/CountUp";
 import GlassCard from "@/components/ui/GlassCard";
 import ModuleBackdrop from "../ModuleBackdrop";
+import type { Locale } from "@/i18n/routing";
 import type { AgencyPublicData } from "../AgencyLayoutResolver";
 
 // Globe3D bundles d3-geo + topojson-client + world-atlas (~80 KB of
@@ -41,6 +43,8 @@ export default function AgencyReachModule({
   players,
   sections,
 }: Props) {
+  const t = useTranslations("portfolio");
+  const locale = useLocale() as Locale;
   const visible = sections.find((s) => s.section === "reach");
   // Always keep one country active so the detail panel never collapses and
   // the globe doesn't jump back to a "neutral" rotation when the cursor
@@ -50,7 +54,18 @@ export default function AgencyReachModule({
     countries && countries.length > 0 ? countries[0] : null,
   );
 
-  const dnEs = new Intl.DisplayNames(["es"], { type: "region", fallback: "code" });
+  const dn = new Intl.DisplayNames(
+    [
+      locale === "pt"
+        ? "pt-BR"
+        : locale === "it"
+          ? "it-IT"
+          : locale === "en"
+            ? "en"
+            : "es-AR",
+    ],
+    { type: "region", fallback: "code" },
+  );
 
   // Aggregate per-country counts (memoized so they don't recompute every hover)
   const countsByCountry = useMemo(() => {
@@ -114,17 +129,17 @@ export default function AgencyReachModule({
             className="text-[10px] uppercase tracking-[0.4em] font-bold"
             style={{ color: "var(--theme-accent)" }}
           >
-            / Alcance
+            {t("agency.reach.eyebrow")}
           </div>
           <h2 className="font-heading text-5xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter text-white">
-            Operamos globalmente
+            {t("agency.reach.title")}
           </h2>
         </div>
         <div className="flex items-center gap-3 text-white/60">
           <Globe2 className="h-5 w-5" style={{ color: "var(--theme-accent)" }} />
           <span className="font-mono text-sm flex items-baseline gap-1.5">
             <CountUp value={countries.length} padStart={2} />
-            {countries.length === 1 ? "país" : "países"}
+            {t("agency.reach.countriesUnit", { n: countries.length })}
           </span>
         </div>
       </motion.div>
@@ -180,7 +195,7 @@ export default function AgencyReachModule({
                           : "rgba(255,255,255,0.85)",
                       }}
                     >
-                      {dnEs.of(code) ?? code}
+                      {dn.of(code) ?? code}
                     </span>
                     <span className="ml-auto flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.18em] text-white/45">
                       {counts.teams > 0 && (
@@ -209,7 +224,7 @@ export default function AgencyReachModule({
               <CountryDetail
                 key={active}
                 code={active}
-                label={dnEs.of(active) ?? active}
+                label={dn.of(active) ?? active}
                 description={profileByCountry.get(active.toUpperCase()) ?? null}
                 counts={countsByCountry.get(active.toUpperCase()) ?? { teams: 0, players: 0 }}
                 teams={teamsByCountry.get(active.toUpperCase()) ?? []}
@@ -233,7 +248,7 @@ export default function AgencyReachModule({
             activeCode={active}
             onActiveChange={setActive}
             countryLabels={Object.fromEntries(
-              countries.map((c) => [c, dnEs.of(c) ?? c]),
+              countries.map((c) => [c, dn.of(c) ?? c]),
             )}
           />
         </motion.div>
@@ -255,6 +270,7 @@ function CountryDetail({
   counts: { teams: number; players: number };
   teams: AgencyPublicData["teamRelations"];
 }) {
+  const t = useTranslations("portfolio");
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -274,12 +290,12 @@ function CountryDetail({
                 <span className="inline-flex items-center gap-1.5">
                   <Users className="h-3 w-3" style={{ color: "var(--theme-accent)" }} />
                   <CountUp value={counts.players} padStart={2} />
-                  jugadores activos
+                  {t("agency.reach.playersActive", { n: counts.players })}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Building2 className="h-3 w-3" style={{ color: "var(--theme-accent)" }} />
                   <CountUp value={counts.teams} padStart={2} />
-                  equipos
+                  {t("agency.reach.teamsUnit", { n: counts.teams })}
                 </span>
               </div>
             </div>
@@ -294,7 +310,7 @@ function CountryDetail({
           {teams.length > 0 && (
             <div className="mt-4 space-y-2">
               <h4 className="text-[10px] uppercase tracking-[0.3em] text-white/45 font-semibold">
-                Clubes con los que trabajamos
+                {t("agency.reach.clubsTitle")}
               </h4>
               <div className="grid gap-2 sm:grid-cols-2">
                 {teams.map((rel) => (
@@ -318,7 +334,7 @@ function CountryDetail({
                         className="ml-auto text-[9px] uppercase tracking-widest font-bold"
                         style={{ color: "var(--theme-accent)" }}
                       >
-                        Actual
+                        {t("agency.reach.current")}
                       </span>
                     )}
                     {rel.team.transfermarktUrl && (
@@ -341,7 +357,7 @@ function CountryDetail({
 
           {!description && teams.length === 0 && (
             <p className="mt-3 text-xs italic text-white/45">
-              Detalles de operación pendientes de carga.
+              {t("agency.reach.detailsPending")}
             </p>
           )}
         </div>

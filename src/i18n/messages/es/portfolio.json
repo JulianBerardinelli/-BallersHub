@@ -300,7 +300,45 @@
     "nationality": "Nacionalidad",
     "regulatoryValue": "VALOR REGLAMENTARIO",
     "emptyRosterTitle": "Sin jugadores públicos",
-    "emptyRosterBody": "Esta agencia aún no cuenta con jugadores con perfil público configurado en su roster."
+    "emptyRosterBody": "Esta agencia aún no cuenta con jugadores con perfil público configurado en su roster.",
+    "loading": {
+      "agency": "Cargando agencia...",
+      "team": "Cargando equipo...",
+      "roster": "Cargando roster...",
+      "gallery": "Cargando galería..."
+    },
+    "reach": {
+      "eyebrow": "/ Alcance",
+      "title": "Operamos globalmente",
+      "countriesUnit": "{n, plural, one {país} other {países}}",
+      "playersActive": "{n, plural, one {jugador activo} other {jugadores activos}}",
+      "teamsUnit": "{n, plural, one {equipo} other {equipos}}",
+      "clubsTitle": "Clubes con los que trabajamos",
+      "current": "Actual",
+      "detailsPending": "Detalles de operación pendientes de carga."
+    },
+    "services": {
+      "eyebrow": "/ Servicios",
+      "title": "Lo que ofrecemos",
+      "subtitle": "Enfoque integral para cada etapa de la carrera de nuestros representados."
+    },
+    "roster": {
+      "eyebrow": "/ Roster",
+      "title": "Jugadores Representados",
+      "playersActive": "{n, plural, one {jugador activo} other {jugadores activos}}",
+      "emptyState": "Esta agencia aún no tiene jugadores con perfil público.",
+      "marketValue": "Valor mercado"
+    },
+    "staff": {
+      "eyebrow": "/ Equipo",
+      "title": "Quiénes representan",
+      "subtitle": "Mánagers y colaboradores que integran la agencia.",
+      "membersUnit": "{n, plural, one {integrante} other {integrantes}}",
+      "roleManager": "Manager",
+      "roleMember": "Colaborador",
+      "roleAdmin": "Admin",
+      "roleReviewer": "Reviewer"
+    }
   },
   "agencyMod": {
     "aboutEyebrow": "Sobre la agencia",

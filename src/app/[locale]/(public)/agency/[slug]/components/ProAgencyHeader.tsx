@@ -6,6 +6,9 @@ import { Share2, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Wordmark } from "@/components/brand/Wordmark";
+import HeaderLocaleSwitcher from "@/components/i18n/HeaderLocaleSwitcher";
+
+type LocaleSwitch = { available: string[]; current: string; basePath: string };
 
 type SectionItem = { id: string; key: string };
 
@@ -24,9 +27,10 @@ type Props = {
     name: string;
     logoUrl?: string | null;
   };
+  localeSwitch?: LocaleSwitch;
 };
 
-export default function ProAgencyHeader({ agency }: Props) {
+export default function ProAgencyHeader({ agency, localeSwitch }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const t = useTranslations("portfolio");
 
@@ -171,6 +175,18 @@ export default function ProAgencyHeader({ agency }: Props) {
           >
             <Share2 className="w-4 h-4" />
           </button>
+
+          {/* Language switcher — inside the island, right after share. */}
+          {localeSwitch ? (
+            <>
+              <div className="w-px h-4 bg-white/20 mx-1 shrink-0" />
+              <HeaderLocaleSwitcher
+                basePath={localeSwitch.basePath}
+                available={localeSwitch.available}
+                current={localeSwitch.current}
+              />
+            </>
+          ) : null}
         </nav>
 
         <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-auto hidden md:flex flex-col items-end">

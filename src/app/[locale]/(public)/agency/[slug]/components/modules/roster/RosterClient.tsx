@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Users } from "lucide-react";
+import { useTranslations } from "next-intl";
 import CountryFlag from "@/components/common/CountryFlag";
 import CountUp from "@/components/ui/CountUp";
 import GlassCard from "@/components/ui/GlassCard";
@@ -23,6 +24,7 @@ type Player = {
 };
 
 export default function RosterClient({ players }: { players: Player[] }) {
+  const t = useTranslations("portfolio");
   return (
     <section id="roster" className="relative scroll-mt-32 space-y-10 isolate">
       <ModuleBackdrop variant="soft" align="left" />
@@ -38,10 +40,10 @@ export default function RosterClient({ players }: { players: Player[] }) {
             className="text-[10px] uppercase tracking-[0.4em] font-bold"
             style={{ color: "var(--theme-accent)" }}
           >
-            / Roster
+            {t("agency.roster.eyebrow")}
           </div>
           <h2 className="font-heading text-5xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter text-white">
-            Jugadores Representados
+            {t("agency.roster.title")}
           </h2>
         </div>
 
@@ -49,7 +51,7 @@ export default function RosterClient({ players }: { players: Player[] }) {
           <Users className="h-5 w-5" style={{ color: "var(--theme-accent)" }} />
           <span className="font-mono text-sm flex items-baseline gap-1.5">
             <CountUp value={players.length} padStart={2} />
-            {players.length === 1 ? "jugador" : "jugadores"} activos
+            {t("agency.roster.playersActive", { n: players.length })}
           </span>
         </div>
       </motion.div>
@@ -63,7 +65,7 @@ export default function RosterClient({ players }: { players: Player[] }) {
           }}
         >
           <p className="text-white/60">
-            Esta agencia aún no tiene jugadores con perfil público.
+            {t("agency.roster.emptyState")}
           </p>
         </div>
       ) : (
@@ -141,7 +143,7 @@ export default function RosterClient({ players }: { players: Player[] }) {
                       }}
                     >
                       <span className="text-white/40 uppercase tracking-[0.18em] font-semibold">
-                        Valor mercado
+                        {t("agency.roster.marketValue")}
                       </span>
                       <span
                         className="font-mono font-bold"

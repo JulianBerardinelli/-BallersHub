@@ -300,7 +300,45 @@
     "nationality": "Nationality",
     "regulatoryValue": "REGULATORY VALUE",
     "emptyRosterTitle": "No public players",
-    "emptyRosterBody": "This agency does not yet have any players with a public profile set up in its roster."
+    "emptyRosterBody": "This agency does not yet have any players with a public profile set up in its roster.",
+    "loading": {
+      "agency": "Loading agency...",
+      "team": "Loading team...",
+      "roster": "Loading roster...",
+      "gallery": "Loading gallery..."
+    },
+    "reach": {
+      "eyebrow": "/ Reach",
+      "title": "Operating globally",
+      "countriesUnit": "{n, plural, one {country} other {countries}}",
+      "playersActive": "{n, plural, one {active player} other {active players}}",
+      "teamsUnit": "{n, plural, one {team} other {teams}}",
+      "clubsTitle": "Clubs we work with",
+      "current": "Current",
+      "detailsPending": "Operation details pending."
+    },
+    "services": {
+      "eyebrow": "/ Services",
+      "title": "What we offer",
+      "subtitle": "An integral approach for every stage of our talents' careers."
+    },
+    "roster": {
+      "eyebrow": "/ Roster",
+      "title": "Players represented",
+      "playersActive": "{n, plural, one {active player} other {active players}}",
+      "emptyState": "This agency doesn't have any players with a public profile yet.",
+      "marketValue": "Market value"
+    },
+    "staff": {
+      "eyebrow": "/ Team",
+      "title": "Who represents",
+      "subtitle": "Managers and collaborators who make up the agency.",
+      "membersUnit": "{n, plural, one {member} other {members}}",
+      "roleManager": "Manager",
+      "roleMember": "Collaborator",
+      "roleAdmin": "Admin",
+      "roleReviewer": "Reviewer"
+    }
   },
   "agencyMod": {
     "aboutEyebrow": "About the agency",

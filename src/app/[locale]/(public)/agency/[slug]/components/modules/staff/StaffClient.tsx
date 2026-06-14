@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { UserCircle2, Award, ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import CountUp from "@/components/ui/CountUp";
 import GlassCard from "@/components/ui/GlassCard";
 import ModuleBackdrop from "../../ModuleBackdrop";
@@ -15,14 +16,15 @@ export type StaffMember = {
   licenses?: Array<{ type: string; number: string; url?: string }>;
 };
 
-const ROLE_LABEL: Record<string, string> = {
-  manager: "Manager",
-  member: "Colaborador",
-  admin: "Admin",
-  reviewer: "Reviewer",
+const ROLE_KEY: Record<string, string> = {
+  manager: "agency.staff.roleManager",
+  member: "agency.staff.roleMember",
+  admin: "agency.staff.roleAdmin",
+  reviewer: "agency.staff.roleReviewer",
 };
 
 export default function StaffClient({ staff }: { staff: StaffMember[] }) {
+  const t = useTranslations("portfolio");
   return (
     <section id="staff" className="relative scroll-mt-32 space-y-10 isolate">
       <ModuleBackdrop variant="soft" align="right" />
@@ -38,20 +40,20 @@ export default function StaffClient({ staff }: { staff: StaffMember[] }) {
             className="text-[10px] uppercase tracking-[0.4em] font-bold"
             style={{ color: "var(--theme-accent)" }}
           >
-            / Equipo
+            {t("agency.staff.eyebrow")}
           </div>
           <h2 className="font-heading text-5xl md:text-7xl font-black uppercase leading-[0.9] tracking-tighter text-white">
-            Quiénes representan
+            {t("agency.staff.title")}
           </h2>
           <p className="text-white/60 text-lg font-light max-w-xl">
-            Mánagers y colaboradores que integran la agencia.
+            {t("agency.staff.subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3 text-white/60">
           <UserCircle2 className="h-5 w-5" style={{ color: "var(--theme-accent)" }} />
           <span className="font-mono text-sm flex items-baseline gap-1.5">
             <CountUp value={staff.length} padStart={2} />
-            {staff.length === 1 ? "integrante" : "integrantes"}
+            {t("agency.staff.membersUnit", { n: staff.length })}
           </span>
         </div>
       </motion.div>
@@ -100,7 +102,7 @@ export default function StaffClient({ staff }: { staff: StaffMember[] }) {
                   className="text-[10px] uppercase tracking-[0.3em] font-semibold"
                   style={{ color: "var(--theme-accent)" }}
                 >
-                  {ROLE_LABEL[m.role] ?? m.role}
+                  {ROLE_KEY[m.role] ? t(ROLE_KEY[m.role] as never) : m.role}
                 </p>
               </div>
             </div>

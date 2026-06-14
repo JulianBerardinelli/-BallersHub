@@ -68,7 +68,7 @@ export default function ProAgencyLayout({
       } as React.CSSProperties}
       ref={containerRef}
     >
-      <ProAgencyHeader agency={agency} />
+      <ProAgencyHeader agency={agency} localeSwitch={data.localeSwitch} />
 
       {/* HERO */}
       <section className="relative h-[100svh] min-h-[760px] w-full flex flex-col items-center justify-center overflow-hidden">
