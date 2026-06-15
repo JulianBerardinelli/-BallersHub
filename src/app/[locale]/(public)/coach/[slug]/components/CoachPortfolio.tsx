@@ -37,6 +37,59 @@ export type CoachLicenseRow = {
 
 export type CoachLinkRow = { label: string | null; url: string; kind: string };
 
+export type CoachStatRow = {
+  id: string;
+  season: string;
+  team: string | null;
+  competition: string | null;
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+};
+
+export type CoachMediaRow = {
+  id: string;
+  type: "photo" | "video" | "doc";
+  url: string;
+  title: string | null;
+};
+
+export type CoachRecord = {
+  matches: number;
+  wins: number;
+  draws: number;
+  losses: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  winPct: number;
+  goalDiff: number;
+};
+
+const pct = (n: number, total: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
+
+// Aggregate a coach's season rows into a single career record. Percentages are
+// derived here (D6: stored as counts, computed in the front) — this runs in the
+// server component, so the citable record passage is real text in the initial
+// HTML for GEO.
+export function computeCoachRecord(rows: CoachStatRow[]): CoachRecord | null {
+  if (rows.length === 0) return null;
+  const acc = rows.reduce(
+    (a, r) => ({
+      matches: a.matches + (r.matches || 0),
+      wins: a.wins + (r.wins || 0),
+      draws: a.draws + (r.draws || 0),
+      losses: a.losses + (r.losses || 0),
+      goalsFor: a.goalsFor + (r.goalsFor || 0),
+      goalsAgainst: a.goalsAgainst + (r.goalsAgainst || 0),
+    }),
+    { matches: 0, wins: 0, draws: 0, losses: 0, goalsFor: 0, goalsAgainst: 0 },
+  );
+  return { ...acc, winPct: pct(acc.wins, acc.matches), goalDiff: acc.goalsFor - acc.goalsAgainst };
+}
+
 export type CoachPortfolioData = {
   fullName: string;
   roleTitle: string | null;
@@ -50,8 +103,11 @@ export type CoachPortfolioData = {
   methodologyAnalysis: string | null;
   preferredFormations: string[] | null;
   career: CoachCareerRow[];
+  stats: CoachStatRow[];
+  record: CoachRecord | null;
   honours: CoachHonourRow[];
   licenses: CoachLicenseRow[];
+  media: CoachMediaRow[];
   links: CoachLinkRow[];
   isPro: boolean;
 };
@@ -66,6 +122,8 @@ function years(r: { startYear: number | null; endYear: number | null }, present:
 export default async function CoachPortfolio({ data }: { data: CoachPortfolioData }) {
   const t = await getTranslations("portfolio");
   const { firstName, lastName } = splitName(data.fullName);
+  const photos = data.media.filter((m) => m.type === "photo");
+  const videos = data.media.filter((m) => m.type === "video");
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-3xl px-5 py-12 text-bh-fg-1 sm:px-8 sm:py-16">
@@ -176,6 +234,73 @@ export default async function CoachPortfolio({ data }: { data: CoachPortfolioDat
         </section>
       )}
 
+      {/* ---------- Estadísticas / record (D6) ---------- */}
+      {data.record && data.record.matches > 0 && (
+        <section id="stats" className="mt-12">
+          <h2 className="mb-4 font-bh-display text-xs font-bold uppercase tracking-[0.08em] text-bh-fg-4">
+            {t("coach.statsTitle")}
+          </h2>
+
+          {/* Citable record passage — real text for GEO. */}
+          <p className="mb-5 text-[15px] leading-relaxed text-bh-fg-2">
+            {t("coach.recordSummary", {
+              name: data.fullName,
+              matches: data.record.matches,
+              winRate: data.record.winPct,
+              wins: data.record.wins,
+              draws: data.record.draws,
+              losses: data.record.losses,
+            })}
+          </p>
+
+          <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
+            <StatTile label={t("coach.recordMatches")} value={data.record.matches} />
+            <StatTile label={t("coach.recordWins")} value={data.record.wins} />
+            <StatTile label={t("coach.recordDraws")} value={data.record.draws} />
+            <StatTile label={t("coach.recordLosses")} value={data.record.losses} />
+            <StatTile label={t("coach.recordWinRate")} value={`${data.record.winPct}%`} accent />
+            <StatTile
+              label={t("coach.recordGoals")}
+              value={`${data.record.goalsFor}/${data.record.goalsAgainst}`}
+            />
+          </div>
+
+          {data.stats.length > 0 && (
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[420px] border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-white/[0.1] text-left text-[11px] uppercase tracking-[0.06em] text-bh-fg-4">
+                    <th className="py-2 pr-3 font-semibold">{t("coach.seasonLabel")}</th>
+                    <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrMatches")}</th>
+                    <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrWins")}</th>
+                    <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrDraws")}</th>
+                    <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrLosses")}</th>
+                    <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrWinRate")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.stats.map((s) => (
+                    <tr key={s.id} className="border-b border-white/[0.05]">
+                      <td className="py-2 pr-3">
+                        <span className="font-semibold text-bh-fg-1">{s.season}</span>
+                        {s.team && <span className="text-bh-fg-4"> · {s.team}</span>}
+                      </td>
+                      <td className="px-2 py-2 text-center tabular-nums text-bh-fg-2">{s.matches}</td>
+                      <td className="px-2 py-2 text-center tabular-nums text-bh-fg-2">{s.wins}</td>
+                      <td className="px-2 py-2 text-center tabular-nums text-bh-fg-2">{s.draws}</td>
+                      <td className="px-2 py-2 text-center tabular-nums text-bh-fg-2">{s.losses}</td>
+                      <td className="px-2 py-2 text-center tabular-nums font-semibold text-bh-lime">
+                        {pct(s.wins, s.matches)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* ---------- Licencias (verificadas) ---------- */}
       {data.licenses.length > 0 && (
         <section id="licenses" className="mt-12">
@@ -223,6 +348,49 @@ export default async function CoachPortfolio({ data }: { data: CoachPortfolioDat
         </section>
       )}
 
+      {/* ---------- Multimedia ---------- */}
+      {data.media.length > 0 && (
+        <section id="media" className="mt-12">
+          <h2 className="mb-4 font-bh-display text-xs font-bold uppercase tracking-[0.08em] text-bh-fg-4">
+            {t("coach.mediaTitle")}
+          </h2>
+          {photos.length > 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {photos.map((m) => (
+                <div
+                  key={m.id}
+                  className="relative aspect-[4/3] overflow-hidden rounded-bh-lg border border-white/[0.07] bg-bh-surface-1"
+                >
+                  <Image
+                    src={m.url}
+                    alt={m.title ?? data.fullName}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 280px"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+          {videos.length > 0 && (
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {videos.map((m) => (
+                <a
+                  key={m.id}
+                  href={m.url}
+                  target="_blank"
+                  rel="noreferrer nofollow"
+                  className="flex items-center gap-2 rounded-bh-lg border border-white/[0.1] bg-bh-surface-1 px-4 py-3 text-sm text-bh-fg-2 transition-colors hover:border-bh-lime/40 hover:text-bh-fg-1"
+                >
+                  <span aria-hidden className="text-bh-lime">▶</span>
+                  <span className="truncate">{m.title || t("coach.videoFallback")}</span>
+                </a>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
       {/* ---------- Enlaces ---------- */}
       {data.links.length > 0 && (
         <section id="links" className="mt-12">
@@ -256,4 +424,29 @@ function splitName(full: string): { firstName: string; lastName: string } {
   const parts = full.trim().split(/\s+/);
   if (parts.length <= 1) return { firstName: full, lastName: "" };
   return { firstName: parts[0], lastName: parts.slice(1).join(" ") };
+}
+
+function StatTile({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  accent?: boolean;
+}) {
+  return (
+    <div className="rounded-bh-lg border border-white/[0.07] bg-bh-surface-1 p-3 text-center">
+      <p
+        className={`font-bh-display text-xl font-bold tabular-nums ${
+          accent ? "text-bh-lime" : "text-bh-fg-1"
+        }`}
+      >
+        {value}
+      </p>
+      <p className="mt-0.5 text-[10px] uppercase leading-tight tracking-[0.06em] text-bh-fg-4">
+        {label}
+      </p>
+    </div>
+  );
 }

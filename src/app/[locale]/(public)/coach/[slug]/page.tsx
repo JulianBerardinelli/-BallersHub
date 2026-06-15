@@ -5,6 +5,8 @@ import { db } from "@/lib/db";
 import {
   coachProfiles,
   coachCareerItems,
+  coachStatsSeasons,
+  coachMedia,
   coachHonours,
   coachLicenses,
   coachLinks,
@@ -24,8 +26,11 @@ import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
 import CoachPortfolio, {
+  computeCoachRecord,
   type CoachPortfolioData,
   type CoachCareerRow,
+  type CoachStatRow,
+  type CoachMediaRow,
   type CoachHonourRow,
   type CoachLicenseRow,
 } from "./components/CoachPortfolio";
@@ -197,32 +202,43 @@ export default async function CoachPublicPage({
     translation,
   );
 
-  const [careerRows, honourRows, licenseRows, linkRows, proIds, agency] = await Promise.all([
-    db
-      .select()
-      .from(coachCareerItems)
-      .where(eq(coachCareerItems.coachId, coach.id))
-      .orderBy(desc(coachCareerItems.startDate)),
-    db
-      .select()
-      .from(coachHonours)
-      .where(eq(coachHonours.coachId, coach.id))
-      .orderBy(desc(coachHonours.awardedOn)),
-    db
-      .select()
-      .from(coachLicenses)
-      .where(and(eq(coachLicenses.coachId, coach.id), eq(coachLicenses.status, "approved")))
-      .orderBy(coachLicenses.position),
-    db.select().from(coachLinks).where(eq(coachLinks.coachId, coach.id)),
-    resolveProUserIds([coach.userId]),
-    coach.agencyId
-      ? db
-          .select({ name: agencyProfiles.name, slug: agencyProfiles.slug })
-          .from(agencyProfiles)
-          .where(eq(agencyProfiles.id, coach.agencyId))
-          .limit(1)
-      : Promise.resolve([] as { name: string; slug: string }[]),
-  ]);
+  const [careerRows, statRows, mediaRows, honourRows, licenseRows, linkRows, proIds, agency] =
+    await Promise.all([
+      db
+        .select()
+        .from(coachCareerItems)
+        .where(eq(coachCareerItems.coachId, coach.id))
+        .orderBy(desc(coachCareerItems.startDate)),
+      db
+        .select()
+        .from(coachStatsSeasons)
+        .where(eq(coachStatsSeasons.coachId, coach.id))
+        .orderBy(desc(coachStatsSeasons.season)),
+      db
+        .select()
+        .from(coachMedia)
+        .where(and(eq(coachMedia.coachId, coach.id), eq(coachMedia.status, "approved")))
+        .orderBy(desc(coachMedia.createdAt)),
+      db
+        .select()
+        .from(coachHonours)
+        .where(eq(coachHonours.coachId, coach.id))
+        .orderBy(desc(coachHonours.awardedOn)),
+      db
+        .select()
+        .from(coachLicenses)
+        .where(and(eq(coachLicenses.coachId, coach.id), eq(coachLicenses.status, "approved")))
+        .orderBy(coachLicenses.position),
+      db.select().from(coachLinks).where(eq(coachLinks.coachId, coach.id)),
+      resolveProUserIds([coach.userId]),
+      coach.agencyId
+        ? db
+            .select({ name: agencyProfiles.name, slug: agencyProfiles.slug })
+            .from(agencyProfiles)
+            .where(eq(agencyProfiles.id, coach.agencyId))
+            .limit(1)
+        : Promise.resolve([] as { name: string; slug: string }[]),
+    ]);
 
   const isPro = proIds.has(coach.userId);
 
@@ -240,6 +256,29 @@ export default async function CoachPublicPage({
     startYear: yearOf(c.startDate),
     endYear: yearOf(c.endDate),
   }));
+
+  const stats: CoachStatRow[] = statRows.map((s) => ({
+    id: s.id,
+    season: s.season,
+    team: s.team,
+    competition: s.competition,
+    matches: s.matches,
+    wins: s.wins,
+    draws: s.draws,
+    losses: s.losses,
+    goalsFor: s.goalsFor,
+    goalsAgainst: s.goalsAgainst,
+  }));
+  const record = computeCoachRecord(stats);
+
+  const media: CoachMediaRow[] = mediaRows
+    .filter((m) => m.type === "photo" || m.type === "video")
+    .map((m) => ({
+      id: m.id,
+      type: m.type as "photo" | "video",
+      url: m.url,
+      title: m.title,
+    }));
 
   const honours: CoachHonourRow[] = honourRows.map((h) => {
     const tr = honourTr.get(h.id);
@@ -273,8 +312,11 @@ export default async function CoachPublicPage({
     methodologyAnalysis: content.methodologyAnalysis,
     preferredFormations: coach.preferredFormations,
     career,
+    stats,
+    record,
     honours,
     licenses,
+    media,
     links,
     isPro,
   };
@@ -301,6 +343,7 @@ export default async function CoachPublicPage({
     agency: agencyRef ? { name: agencyRef.name, slug: agencyRef.slug } : null,
     licenses: licenses.map((l) => ({ title: l.title, issuer: l.issuer, year: l.year })),
     honours: honours.map((h) => h.title),
+    record: record ? { matches: record.matches, winPct: record.winPct } : null,
   };
 
   return (

@@ -50,6 +50,9 @@ export type CoachJsonLdData = {
   agency?: { name: string; slug: string } | null;
   licenses?: CoachLicense[] | null; // APPROVED only — filtered by the route
   honours?: string[] | null; // award titles
+  // Aggregate coaching record (matches managed + win %). Emitted as
+  // additionalProperty so Google/AI engines can cite the verified record.
+  record?: { matches: number; winPct: number } | null;
 };
 
 type Props = {
@@ -108,6 +111,14 @@ export function CoachJsonLd({ coach, plan, locale }: Props) {
       ? coach.preferredFormations
       : null;
 
+  const recordProps =
+    coach.record && coach.record.matches > 0
+      ? [
+          { "@type": "PropertyValue", name: "Matches managed", value: coach.record.matches },
+          { "@type": "PropertyValue", name: "Win rate", value: `${coach.record.winPct}%` },
+        ]
+      : null;
+
   const personBase = {
     "@type": "Person",
     "@id": personId,
@@ -115,6 +126,7 @@ export function CoachJsonLd({ coach, plan, locale }: Props) {
     url: canonical,
     ...(realImage && { image: realImage }),
     jobTitle,
+    ...(recordProps && { additionalProperty: recordProps }),
     ...(coach.birthDate && { birthDate: coach.birthDate }),
     ...(coach.nationality &&
       coach.nationality.length > 0 && {

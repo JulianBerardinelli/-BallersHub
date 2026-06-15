@@ -349,6 +349,22 @@
     "verified": "Verificada",
     "honoursTitle": "Palmarés",
     "linksTitle": "Links",
-    "footerVerified": "Dados verificados pela equipe da 'BallersHub."
+    "footerVerified": "Dados verificados pela equipe da 'BallersHub.",
+    "statsTitle": "Estatísticas como treinador",
+    "recordSummary": "Em {matches} partidas dirigidas, {name} tem {winRate}% de aproveitamento em vitórias ({wins} vitórias, {draws} empates, {losses} derrotas).",
+    "recordMatches": "Jogos",
+    "recordWins": "Vitórias",
+    "recordDraws": "Empates",
+    "recordLosses": "Derrotas",
+    "recordWinRate": "Aproveitamento",
+    "recordGoals": "Gols (P/C)",
+    "seasonLabel": "Temporada",
+    "abbrMatches": "J",
+    "abbrWins": "V",
+    "abbrDraws": "E",
+    "abbrLosses": "D",
+    "abbrWinRate": "%",
+    "mediaTitle": "Mídia",
+    "videoFallback": "Ver vídeo"
   }
 }
