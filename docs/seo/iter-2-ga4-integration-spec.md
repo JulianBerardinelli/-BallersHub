@@ -1,9 +1,14 @@
 # Iter-2 — GA4 conversion funnel en `/admin/seo`
 
-> **Status**: ✅ **IMPLEMENTADO** (2026-06-14). Fase A = PR #218, Fase B = PR #221.
-> Este doc dejó de ser un spec a-futuro: ahora describe lo que se construyó y
-> los pasos de **activación del owner** (crear propiedad GA4, habilitar API,
-> dar acceso a la SA, env vars, marcar eventos clave).
+> **Status**: 🟡 **Código en review — PRs #218 (Fase A) + #221 (Fase B) OPEN,
+> pendientes de merge** (2026-06-14). Este doc describe lo que esas PRs
+> construyen y cómo activarlo **después** de mergearlas.
+>
+> ⚠️ **Mientras #218 + #221 no estén mergeadas + deployadas, en `main` NO existe
+> el tag GA4, ni los eventos, ni la ruta `/admin/seo/funnel`.** No configures los
+> eventos clave de GA4 esperando data hasta mergear ambas — sin el tag en prod,
+> GA4 recibe **0 eventos**. (El orden es: mergear #218+#221 → deploy → recién ahí
+> activar.)
 
 ## Qué hace
 
