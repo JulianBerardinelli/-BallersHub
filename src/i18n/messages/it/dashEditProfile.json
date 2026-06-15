@@ -34,7 +34,12 @@
       "educationDescription": "Livello di istruzione o titolo conseguito. Max. {max} caratteri.",
       "educationMaxError": "L'istruzione non può superare i {max} caratteri.",
       "successDefault": "Informazioni aggiornate con successo.",
-      "sectionLabel": "le tue informazioni di base"
+      "sectionLabel": "le tue informazioni di base",
+      "genderLabel": "Genere",
+      "genderImmutableNote": "Impostato in fase di registrazione e non modificabile.",
+      "gender_male": "Uomo",
+      "gender_female": "Donna",
+      "gender_unspecified": "Preferisco non specificare"
     },
     "contactInfo": {
       "title": "Dati di contatto",

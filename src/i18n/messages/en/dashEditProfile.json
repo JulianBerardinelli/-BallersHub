@@ -34,7 +34,12 @@
       "educationDescription": "Education level or qualification reached. Max. {max} characters.",
       "educationMaxError": "Education cannot exceed {max} characters.",
       "successDefault": "Information updated successfully.",
-      "sectionLabel": "your basic information"
+      "sectionLabel": "your basic information",
+      "genderLabel": "Gender",
+      "genderImmutableNote": "Set during sign-up and can't be edited.",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "gender_unspecified": "Prefer not to say"
     },
     "contactInfo": {
       "title": "Contact details",

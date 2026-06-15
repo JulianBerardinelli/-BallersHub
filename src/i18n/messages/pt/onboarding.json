@@ -143,7 +143,12 @@
       "positionLabel": "Posição",
       "positionError": "Escolha pelo menos uma subposição.",
       "back": "Voltar",
-      "continue": "Continuar"
+      "continue": "Continuar",
+      "genderLabel": "Gênero",
+      "genderDescription": "Define a categoria: futebol masculino ou feminino.",
+      "gender_male": "Masculino",
+      "gender_female": "Feminino",
+      "gender_unspecified": "Prefiro não especificar"
     },
     "step2": {
       "teamError": "Selecione um clube ou marque que você está sem contrato.",

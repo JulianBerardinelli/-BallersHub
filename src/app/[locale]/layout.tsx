@@ -7,6 +7,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Providers } from "@/app/providers";
 import { routing } from "@/i18n/routing";
 import { HTML_LANG } from "@/i18n/config";
@@ -131,6 +132,16 @@ export default async function RootLayout({
   // Opt into static rendering for this locale.
   setRequestLocale(locale);
 
+  // GA4 tag (organic→Pro funnel, docs/seo/iter-2-ga4-integration-spec.md).
+  // Loads ONLY on the production deployment (VERCEL_ENV) so preview/dev
+  // traffic never pollutes the property — safe even when NEXT_PUBLIC_GA_ID is
+  // present in every environment. Unlike Vercel Analytics (cookieless), GA4
+  // sets cookies.
+  const gaId =
+    process.env.VERCEL_ENV === "production"
+      ? process.env.NEXT_PUBLIC_GA_ID
+      : undefined;
+
   return (
     <html lang={HTML_LANG[locale]} className="dark">
       <body className={`relative min-h-screen overflow-x-clip bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
@@ -168,6 +179,7 @@ export default async function RootLayout({
         */}
         <SpeedInsights />
         <Analytics />
+        {gaId ? <GoogleAnalytics gaId={gaId} /> : null}
       </body>
     </html>
   );

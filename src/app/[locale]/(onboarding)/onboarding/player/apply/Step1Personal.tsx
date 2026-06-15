@@ -5,14 +5,21 @@ import { useTranslations } from "next-intl";
 import {
   DatePicker,
   Button,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import PositionPicker, { type PositionPickerValue } from "@/components/common/PositionPicker";
 import CountryMultiPicker, { type CountryPick } from "@/components/common/CountryMultiPicker";
 import FormField from "@/components/dashboard/client/FormField";
-import { bhDatePickerClassNames } from "@/lib/ui/heroui-brand";
+import { bhDatePickerClassNames, bhSelectClassNames } from "@/lib/ui/heroui-brand";
 
 const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
 type AnyDateValue = any;
+// Mirrors the DB `gender` enum (src/db/schema/enums.ts). Kept as a local
+// literal union so this client component doesn't pull the Drizzle schema
+// into the browser bundle.
+type Gender = "male" | "female" | "unspecified";
+const GENDER_OPTIONS: Gender[] = ["male", "female", "unspecified"];
 
 export default function Step1Personal({
   userEmail,
@@ -24,6 +31,7 @@ export default function Step1Personal({
     fullName: string;
     nationalities: CountryPick[];
     birthDate: AnyDateValue | null;
+    gender: Gender;
     position: PositionPickerValue;
     heightCm: number | null;
     weightKg: number | null;
@@ -35,6 +43,9 @@ export default function Step1Personal({
   const [fullName, setFullName] = React.useState("");
   const [nats, setNats] = React.useState<CountryPick[]>([]);
   const [birthDate, setBirthDate] = React.useState<AnyDateValue | null>(null);
+  // Defaults to "male" per product spec (zero-friction for the common case;
+  // women explicitly pick "female"). Always has a value, so it's never invalid.
+  const [gender, setGender] = React.useState<Gender>("male");
   const [position, setPosition] = React.useState<PositionPickerValue>({ role: "DEL", subs: [] });
   const [heightCm, setHeightCm] = React.useState<string>("");
   const [weightKg, setWeightKg] = React.useState<string>("");
@@ -79,6 +90,7 @@ export default function Step1Personal({
       fullName,
       nationalities: nats,
       birthDate,
+      gender,
       position,
       heightCm: Number(heightCm),
       weightKg: Number(weightKg),
@@ -118,16 +130,20 @@ export default function Step1Personal({
           />
         </div>
 
-        {/* nacionalidades + fecha */}
+        {/* nacionalidades */}
         <div
             onBlurCapture={() => setTouched((t) => ({ ...t, nationalities: true }))}
-            className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
+            className="grid auto-rows-fr gap-3 grid-cols-1">
           <CountryMultiPicker
             defaultValue={[]}
             onChange={setNats}
             isInvalid={natInvalid}
             errorMessage={t("apply.step1.nationalityError")}
           />
+        </div>
+
+        {/* fecha de nacimiento + género */}
+        <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
           <DatePicker
             isRequired
             label={t("apply.step1.birthDateLabel")}
@@ -143,6 +159,24 @@ export default function Step1Personal({
             variant="flat"
             classNames={bhDatePickerClassNames}
           />
+          <Select
+            isRequired
+            label={t("apply.step1.genderLabel")}
+            labelPlacement="outside"
+            variant="flat"
+            disallowEmptySelection
+            selectedKeys={[gender]}
+            onSelectionChange={(keys) => {
+              const next = Array.from(keys)[0] as Gender | undefined;
+              if (next) setGender(next);
+            }}
+            description={t("apply.step1.genderDescription")}
+            classNames={bhSelectClassNames}
+          >
+            {GENDER_OPTIONS.map((value) => (
+              <SelectItem key={value}>{t(`apply.step1.gender_${value}`)}</SelectItem>
+            ))}
+          </Select>
         </div>
 
         {/* medidas arriba de posición */}

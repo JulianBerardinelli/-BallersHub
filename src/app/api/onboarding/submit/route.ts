@@ -6,10 +6,12 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /* ---------------- Tipos que llegan del front ---------------- */
+type Gender = "male" | "female" | "unspecified";
 type Step1 = {
   fullName: string;
   nationalities: { code: string; name: string }[];
   birthDate: unknown | null;
+  gender: Gender;
   position: { role: "ARQ" | "DEF" | "MID" | "DEL"; subs: string[] };
   heightCm: number | null;
   weightKg: number | null;
@@ -105,6 +107,12 @@ export async function POST(req: Request) {
   const nationalityCodes = (step1.nationalities ?? []).map((n) => n.code);
   const positions = [step1.position.role, ...step1.position.subs];
 
+  // Never trust the client value: coerce to the allowed enum, default "male".
+  const ALLOWED_GENDERS: Gender[] = ["male", "female", "unspecified"];
+  const gender: Gender = ALLOWED_GENDERS.includes(step1?.gender as Gender)
+    ? (step1.gender as Gender)
+    : "male";
+
   const isFree = !!step2?.freeAgent || step2?.team?.mode === "free";
 
   let current_team_id: string | null = null;
@@ -155,6 +163,7 @@ export async function POST(req: Request) {
     status: "pending" as const,
     full_name: step1.fullName || null,
     birth_date: formattedBirthDate,
+    gender,
     height_cm: step1.heightCm ?? null,
     weight_kg: step1.weightKg ?? null,
     nationality: nationalityNames as string[],

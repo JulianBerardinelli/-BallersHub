@@ -143,7 +143,12 @@
       "positionLabel": "Posición",
       "positionError": "Elegí al menos una sub-posición.",
       "back": "Volver",
-      "continue": "Continuar"
+      "continue": "Continuar",
+      "genderLabel": "Género",
+      "genderDescription": "Define la categoría: fútbol masculino o femenino.",
+      "gender_male": "Hombre",
+      "gender_female": "Mujer",
+      "gender_unspecified": "Prefiero no especificar"
     },
     "step2": {
       "teamError": "Seleccioná un club o marcá que sos jugador libre.",

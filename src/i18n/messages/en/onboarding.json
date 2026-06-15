@@ -143,7 +143,12 @@
       "positionLabel": "Position",
       "positionError": "Choose at least one sub-position.",
       "back": "Back",
-      "continue": "Continue"
+      "continue": "Continue",
+      "genderLabel": "Gender",
+      "genderDescription": "Sets the category: men's or women's football.",
+      "gender_male": "Male",
+      "gender_female": "Female",
+      "gender_unspecified": "Prefer not to say"
     },
     "step2": {
       "teamError": "Select a club or mark that you are a free agent.",

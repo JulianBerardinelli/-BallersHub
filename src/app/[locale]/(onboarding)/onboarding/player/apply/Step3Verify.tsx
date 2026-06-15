@@ -14,6 +14,7 @@ export type Step1Data = {
   fullName: string;
   nationalities: CountryPick[]; // [{code,name}]
   birthDate: any | null;        // se guarda serializado en notes
+  gender: "male" | "female" | "unspecified"; // enum gender (default "male")
   position: { role: "ARQ" | "DEF" | "MID" | "DEL"; subs: string[] };
   heightCm: number | null;
   weightKg: number | null;

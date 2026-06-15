@@ -34,7 +34,12 @@
       "educationDescription": "Nível de formação ou título alcançado. Máx. {max} caracteres.",
       "educationMaxError": "A formação não pode ultrapassar {max} caracteres.",
       "successDefault": "Informações atualizadas com sucesso.",
-      "sectionLabel": "suas informações básicas"
+      "sectionLabel": "suas informações básicas",
+      "genderLabel": "Gênero",
+      "genderImmutableNote": "Definido no cadastro e não editável.",
+      "gender_male": "Masculino",
+      "gender_female": "Feminino",
+      "gender_unspecified": "Prefiro não especificar"
     },
     "contactInfo": {
       "title": "Dados de contato",

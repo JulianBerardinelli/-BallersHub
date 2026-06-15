@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.8.2",
+    "@next/third-parties": "^15.5.19",
     "@react-email/components": "^1.0.10",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.6.1",

@@ -63,7 +63,12 @@ function getServiceAccountJwt(): JWT {
     // El private_key viene con `\n` escapados cuando se pega en una env var;
     // Vercel los preserva, pero por las dudas también soportamos el caso.
     key: private_key.replace(/\\n/g, "\n"),
-    scopes: ["https://www.googleapis.com/auth/webmasters.readonly"],
+    scopes: [
+      "https://www.googleapis.com/auth/webmasters.readonly",
+      // GA4 Data API (read) for the /admin/seo/funnel panel (iter-2). The SA
+      // has both GSC + GA4 access, so one JWT covers both APIs.
+      "https://www.googleapis.com/auth/analytics.readonly",
+    ],
   });
 
   return _jwtClient;
@@ -83,6 +88,31 @@ export function getGscSiteUrl(): string {
 export function getSearchConsoleClient() {
   const auth = getServiceAccountJwt();
   return google.searchconsole({ version: "v1", auth });
+}
+
+/**
+ * GA4 Data API client (read-only). Reuses the same service-account JWT as
+ * GSC (one JWT, both scopes). Requires the SA added as a Viewer on the GA4
+ * property + the "Google Analytics Data API" enabled in the GCP project.
+ */
+export function getAnalyticsDataClient() {
+  const auth = getServiceAccountJwt();
+  return google.analyticsdata({ version: "v1beta", auth });
+}
+
+/**
+ * GA4 property in `properties/123456789` form (also accepts a bare numeric
+ * id). Throws GoogleApiConfigError when GA4_PROPERTY_ID isn't set so the
+ * funnel panel degrades gracefully instead of crashing the tree.
+ */
+export function getGa4Property(): string {
+  const id = process.env.GA4_PROPERTY_ID;
+  if (!id) {
+    throw new GoogleApiConfigError(
+      "GA4_PROPERTY_ID no está configurada. Ver docs/seo/admin-seo-setup.md (sección GA4).",
+    );
+  }
+  return id.startsWith("properties/") ? id : `properties/${id}`;
 }
 
 /**

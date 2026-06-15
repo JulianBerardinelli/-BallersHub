@@ -1,6 +1,6 @@
 {
-  "id": "8fe9ccf5-f3d3-4e04-8c5f-b4384340dfb3",
-  "prevId": "01e53301-7dcf-4097-af3f-a68b389dfb18",
+  "id": "1bd26c3a-ddac-4d59-8324-758693374293",
+  "prevId": "8fe9ccf5-f3d3-4e04-8c5f-b4384340dfb3",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1402,6 +1402,19 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'es'"
+        },
+        "translation_of_id": {
+          "name": "translation_of_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {
@@ -1476,13 +1489,81 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "blog_posts_locale_status_published_at_idx": {
+          "name": "blog_posts_locale_status_published_at_idx",
+          "columns": [
+            {
+              "expression": "locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "published_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "blog_posts_translation_of_locale_idx": {
+          "name": "blog_posts_translation_of_locale_idx",
+          "columns": [
+            {
+              "expression": "translation_of_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "locale",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "blog_posts_translation_of_id_blog_posts_id_fk": {
+          "name": "blog_posts_translation_of_id_blog_posts_id_fk",
+          "tableFrom": "blog_posts",
+          "tableTo": "blog_posts",
+          "columnsFrom": [
+            "translation_of_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action",
+          "schemaTo": "public"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "blog_posts_locale_check": {
+          "name": "blog_posts_locale_check",
+          "value": "locale IN ('es','en','it','pt')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.blog_authors": {
