@@ -10,9 +10,11 @@ import {
   playerProfiles,
   userProfiles,
   managerProfiles,
+  subscriptions,
   teams,
 } from "@/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import AgencyLayoutResolver, { type AgencyPublicData } from "./components/AgencyLayoutResolver";
 import { AgencyJsonLd } from "@/lib/seo/agencyJsonLd";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
@@ -232,6 +234,49 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
       licenses: (row.licenses ?? []) as Array<{ type: string; number: string; url?: string }>,
     }));
 
+  // Pro layout fallback: if the persisted theme is `pro` but no manager owner
+  // of this agency holds an active Pro subscription right now (cancelled,
+  // expired, downgraded), render Classic. We don't mutate the DB — when the
+  // manager re-subscribes the Pro layout comes back automatically.
+  let effectiveLayout: "pro" | "classic" =
+    theme?.layout === "pro" ? "pro" : "classic";
+  if (effectiveLayout === "pro") {
+    const managerSubs = await db
+      .select({
+        plan: subscriptions.plan,
+        planId: subscriptions.planId,
+        status: subscriptions.status,
+        statusV2: subscriptions.statusV2,
+        processor: subscriptions.processor,
+        processorSubscriptionId: subscriptions.processorSubscriptionId,
+        currentPeriodEnd: subscriptions.currentPeriodEnd,
+        cancelAtPeriodEnd: subscriptions.cancelAtPeriodEnd,
+      })
+      .from(userProfiles)
+      .innerJoin(subscriptions, eq(subscriptions.userId, userProfiles.userId))
+      .where(
+        and(eq(userProfiles.agencyId, agency.id), eq(userProfiles.role, "manager")),
+      );
+
+    const anyManagerIsPro = managerSubs.some(
+      (s) =>
+        resolvePlanAccess({
+          plan: s.plan,
+          planId: s.planId,
+          status: s.status,
+          statusV2: s.statusV2,
+          processor: s.processor,
+          processorSubscriptionId: s.processorSubscriptionId,
+          currentPeriodEnd: s.currentPeriodEnd ? s.currentPeriodEnd.toISOString() : null,
+          cancelAtPeriodEnd: s.cancelAtPeriodEnd ?? false,
+          trialEndsAt: null,
+          canceledAt: null,
+        }).isPro,
+    );
+
+    if (!anyManagerIsPro) effectiveLayout = "classic";
+  }
+
   const data: AgencyPublicData = {
     // Drives the locale switcher inside the Pro header (Classic uses the
     // standalone floating one below). Only locales with a real translation.
@@ -299,7 +344,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
     sections: sections.map((s) => ({ section: s.section, visible: s.visible })),
     theme: theme
       ? {
-          layout: theme.layout,
+          layout: effectiveLayout,
           primaryColor: theme.primaryColor,
           secondaryColor: theme.secondaryColor,
           accentColor: theme.accentColor,
@@ -309,7 +354,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
           heroTagline: theme.heroTagline,
         }
       : {
-          layout: "classic",
+          layout: effectiveLayout,
           primaryColor: "#0a0a0a",
           secondaryColor: "#2A2A2A",
           accentColor: "#10b981",
@@ -322,7 +367,7 @@ export default async function AgencyPublicPage({ params }: { params: Params }) {
 
   // Pro layout mounts the switcher inside its header pill; Classic keeps the
   // standalone floating one.
-  const isProLayout = data.theme?.layout === "pro";
+  const isProLayout = effectiveLayout === "pro";
 
   return (
     <>

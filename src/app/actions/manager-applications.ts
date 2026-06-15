@@ -10,6 +10,7 @@ import { managerApplications, type NewManagerApplication } from "@/db/schema/man
 import { agencyProfiles } from "@/db/schema/agencies";
 import { userProfiles } from "@/db/schema/users";
 import { managerProfiles } from "@/db/schema/managerProfiles";
+import { seedAgencyDefaults } from "@/lib/agency/seed-defaults";
 
 export async function submitManagerApplication(data: Omit<NewManagerApplication, "userId" | "id" | "status" | "createdAt" | "updatedAt">) {
   const supabase = await createSupabaseServerRSC();
@@ -86,6 +87,11 @@ export async function approveManagerApplication(applicationId: string) {
       isApproved: true,
     })
     .returning();
+
+  // 2b. Sembrar theme (layout='classic') + visibilidad de todas las secciones.
+  // Sin esto, la página de "Estructura" del dashboard queda con toggles que se
+  // ven inicializados solo después de que el manager los toca por primera vez.
+  await seedAgencyDefaults(newAgency.id);
 
   // 3. Vincular usuario a su agencia y cambiarle el rol a manager
   await db

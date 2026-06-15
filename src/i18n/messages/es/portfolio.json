@@ -338,6 +338,11 @@
       "roleMember": "Colaborador",
       "roleAdmin": "Admin",
       "roleReviewer": "Reviewer"
+    },
+    "contact": {
+      "title": "Contacto",
+      "email": "Email",
+      "phone": "Teléfono"
     }
   },
   "agencyMod": {
