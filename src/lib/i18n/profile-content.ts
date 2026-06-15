@@ -19,6 +19,12 @@ import {
   type PlayerProfileTranslation,
   type AgencyProfileTranslation,
 } from "@/db/schema/translations";
+import { coachProfiles } from "@/db/schema/coaches";
+import {
+  coachProfileTranslations,
+  coachHonourTranslations,
+  type CoachProfileTranslation,
+} from "@/db/schema/coachTranslations";
 
 export const CONTENT_LOCALES = ["es", "en", "it", "pt"] as const;
 export type ContentLocale = (typeof CONTENT_LOCALES)[number];
@@ -293,6 +299,131 @@ export async function getTranslatedPlayerLocalesBySlug(): Promise<
     .innerJoin(
       playerProfiles,
       eq(playerProfiles.id, playerProfileTranslations.playerId),
+    );
+  const map = new Map<string, ContentLocale[]>();
+  for (const r of rows) {
+    if (!isContentLocale(r.locale)) continue;
+    const arr = map.get(r.slug) ?? [];
+    arr.push(r.locale);
+    map.set(r.slug, arr);
+  }
+  return map;
+}
+
+// ============================ coach ============================
+//
+// Coach translatable fields: bio, careerObjectives, playingStyle (ideas de
+// juego), methodologyAnalysis, analysisAuthor. Same row-existence = published
+// + indexable contract as players (drives hreflang + the noindex fallback).
+
+export type CoachLocalizedFields = {
+  bio: string | null;
+  careerObjectives: string | null;
+  playingStyle: string | null;
+  methodologyAnalysis: string | null;
+  analysisAuthor: string | null;
+};
+
+export async function getCoachTranslations(
+  coachId: string,
+): Promise<Map<ContentLocale, CoachProfileTranslation>> {
+  const rows = await db
+    .select()
+    .from(coachProfileTranslations)
+    .where(eq(coachProfileTranslations.coachId, coachId));
+  const map = new Map<ContentLocale, CoachProfileTranslation>();
+  for (const r of rows) {
+    if (isContentLocale(r.locale)) map.set(r.locale, r);
+  }
+  return map;
+}
+
+export async function getCoachTranslation(
+  coachId: string,
+  locale: string,
+): Promise<CoachProfileTranslation | null> {
+  if (locale === "es" || !isContentLocale(locale)) return null;
+  const [row] = await db
+    .select()
+    .from(coachProfileTranslations)
+    .where(
+      and(
+        eq(coachProfileTranslations.coachId, coachId),
+        eq(coachProfileTranslations.locale, locale),
+      ),
+    )
+    .limit(1);
+  return row ?? null;
+}
+
+export async function getAvailableCoachLocales(
+  coachId: string,
+): Promise<ContentLocale[]> {
+  const map = await getCoachTranslations(coachId);
+  return [
+    "es",
+    ...CONTENT_LOCALES.filter((l) => l !== "es" && map.has(l)),
+  ] as ContentLocale[];
+}
+
+export function mergeCoachContent(
+  base: CoachLocalizedFields,
+  translation: CoachProfileTranslation | null,
+): CoachLocalizedFields {
+  if (!translation) return { ...base };
+  return {
+    bio: pick(translation.bio, base.bio),
+    careerObjectives: pick(translation.careerObjectives, base.careerObjectives),
+    playingStyle: pick(translation.playingStyle, base.playingStyle),
+    methodologyAnalysis: pick(translation.methodologyAnalysis, base.methodologyAnalysis),
+    analysisAuthor: pick(translation.analysisAuthor, base.analysisAuthor),
+  };
+}
+
+/** Per-locale overrides for a set of coach honours (es fallback, defensive). */
+export async function getCoachHonourTranslations(
+  honourIds: string[],
+  locale: string,
+): Promise<Map<string, HonourLocalizedFields>> {
+  if (locale === "es" || !isContentLocale(locale) || honourIds.length === 0) {
+    return new Map();
+  }
+  try {
+    const rows = await db
+      .select()
+      .from(coachHonourTranslations)
+      .where(
+        and(
+          inArray(coachHonourTranslations.honourId, honourIds),
+          eq(coachHonourTranslations.locale, locale),
+        ),
+      );
+    const map = new Map<string, HonourLocalizedFields>();
+    for (const r of rows) {
+      map.set(r.honourId, {
+        title: r.title,
+        competition: r.competition,
+        description: r.description,
+      });
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+export async function getTranslatedCoachLocalesBySlug(): Promise<
+  Map<string, ContentLocale[]>
+> {
+  const rows = await db
+    .select({
+      slug: coachProfiles.slug,
+      locale: coachProfileTranslations.locale,
+    })
+    .from(coachProfileTranslations)
+    .innerJoin(
+      coachProfiles,
+      eq(coachProfiles.id, coachProfileTranslations.coachId),
     );
   const map = new Map<string, ContentLocale[]>();
   for (const r of rows) {

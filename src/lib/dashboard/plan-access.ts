@@ -16,7 +16,7 @@
 
 import type { DashboardSubscription } from "./client/data-provider";
 
-export type PlanAudience = "player" | "agency";
+export type PlanAudience = "player" | "agency" | "coach";
 
 export type PlanSource = "paid" | "comp_grant" | "free";
 
@@ -87,7 +87,8 @@ export function resolvePlanAccess(
   // Either plan_id (the granular pricing-matrix id) or the legacy
   // plan column being 'pro'/'pro_plus' is enough.
   const planId = subscription.planId;
-  const hasPlanIdProTier = planId === "pro-player" || planId === "pro-agency";
+  const hasPlanIdProTier =
+    planId === "pro-player" || planId === "pro-agency" || planId === "pro-coach";
   const hasLegacyProTier = plan === "pro" || plan === "pro_plus";
   if (!hasPlanIdProTier && !hasLegacyProTier) {
     return freeAccess("free");

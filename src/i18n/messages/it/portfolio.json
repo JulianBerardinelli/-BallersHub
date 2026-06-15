@@ -336,5 +336,19 @@
     "tactics": "Caricamento tattica...",
     "career": "Caricamento carriera...",
     "media": "Caricamento contenuti..."
+  },
+  "coach": {
+    "since": "Allena dal {year}",
+    "bioTitle": "Profilo",
+    "playingStyleTitle": "Idea di gioco",
+    "formationsTitle": "Moduli preferiti",
+    "methodologyTitle": "Metodologia",
+    "careerTitle": "Carriera",
+    "present": "Oggi",
+    "licensesTitle": "Licenze",
+    "verified": "Verificata",
+    "honoursTitle": "Palmarès",
+    "linksTitle": "Link",
+    "footerVerified": "Dati verificati dal team di 'BallersHub."
   }
 }

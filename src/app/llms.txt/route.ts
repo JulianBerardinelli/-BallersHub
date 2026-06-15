@@ -22,6 +22,7 @@ import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
 import {
   getIndexablePlayers,
   getIndexableAgencies,
+  getIndexableCoaches,
 } from "@/lib/seo/indexable-profiles";
 import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 
@@ -32,15 +33,22 @@ export async function GET() {
 
   let players: Array<{ slug: string; fullName: string }> = [];
   let agencies: Array<{ slug: string; name: string }> = [];
+  let coaches: Array<{
+    slug: string;
+    fullName: string;
+    roleTitle: string | null;
+    currentClub: string | null;
+  }> = [];
   let posts: Array<{ slug: string; title: string; description: string }> = [];
   let authors: Array<{ slug: string; displayName: string }> = [];
 
   try {
-    [players, agencies, posts, authors] = await Promise.all([
+    [players, agencies, coaches, posts, authors] = await Promise.all([
       // Same indexable set as the sitemap + /players hub (shared predicate) —
       // never surface a thin Free profile that its own page marks `noindex`.
       getIndexablePlayers(),
       getIndexableAgencies(),
+      getIndexableCoaches(),
       db
         .select({
           slug: blogPosts.slug,
@@ -60,7 +68,7 @@ export async function GET() {
   const body = [
     "# 'BallersHub",
     "",
-    "> Plataforma de portfolios profesionales para futbolistas y agencias de representación. Perfiles verificados con trayectoria, estadísticas, galería oficial y contacto.",
+    "> Plataforma de portfolios profesionales para futbolistas, entrenadores (DTs) y agencias de representación. Perfiles verificados con trayectoria, estadísticas, licencias, palmarés y contacto.",
     "",
     "## Información de la marca",
     "",
@@ -84,6 +92,19 @@ export async function GET() {
           .map((a) => `- [${a.name}](${base}/agency/${a.slug}): Agencia de representación ${a.name}`)
           .join("\n")
       : "*(Sin agencias publicadas todavía.)*",
+    "",
+    "## Entrenadores",
+    "",
+    coaches.length > 0
+      ? coaches
+          .map(
+            (c) =>
+              `- [${c.fullName}](${base}/coach/${c.slug}): ${c.roleTitle || "Director Técnico"}${
+                c.currentClub ? ` de ${c.currentClub}` : ""
+              }`,
+          )
+          .join("\n")
+      : "*(Sin entrenadores publicados todavía.)*",
     "",
     "## Blog",
     "",

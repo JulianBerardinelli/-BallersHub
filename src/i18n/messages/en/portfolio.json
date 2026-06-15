@@ -336,5 +336,19 @@
     "tactics": "Loading tactics...",
     "career": "Loading career...",
     "media": "Loading media..."
+  },
+  "coach": {
+    "since": "Coaching since {year}",
+    "bioTitle": "Profile",
+    "playingStyleTitle": "Playing philosophy",
+    "formationsTitle": "Preferred formations",
+    "methodologyTitle": "Methodology",
+    "careerTitle": "Career",
+    "present": "Present",
+    "licensesTitle": "Licenses",
+    "verified": "Verified",
+    "honoursTitle": "Honours",
+    "linksTitle": "Links",
+    "footerVerified": "Data verified by the 'BallersHub team."
   }
 }
