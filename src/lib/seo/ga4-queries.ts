@@ -21,7 +21,7 @@ const ORGANIC = "Organic Search";
 
 export type OrganicFunnel = {
   organicSessions: number;
-  pricingPageViews: number;
+  pricingSessions: number;
   signups: number;
   proActivations: number;
 };
@@ -70,12 +70,15 @@ export const getOrganicFunnel = cache(
           dimensionFilter: organicExpr(),
         },
       }),
-      // 2) Page views orgánicos de /pricing
+      // 2) Sesiones orgánicas que vieron /pricing (cualquier locale).
+      //    `sessions` (no screenPageViews) para que la etapa no se infle con
+      //    reloads/revisitas y nunca supere el tope (evita conversiones >100%).
+      //    ENDS_WITH captura /pricing + /en/pricing + /it/pricing + /pt/pricing.
       client.properties.runReport({
         property,
         requestBody: {
           dateRanges,
-          metrics: [{ name: "screenPageViews" }],
+          metrics: [{ name: "sessions" }],
           dimensionFilter: {
             andGroup: {
               expressions: [
@@ -83,7 +86,7 @@ export const getOrganicFunnel = cache(
                 {
                   filter: {
                     fieldName: "pagePath",
-                    stringFilter: { matchType: "EXACT" as const, value: "/pricing" },
+                    stringFilter: { matchType: "ENDS_WITH" as const, value: "/pricing" },
                   },
                 },
               ],
@@ -126,7 +129,7 @@ export const getOrganicFunnel = cache(
 
     return {
       organicSessions: num(sessionsRes.data.rows?.[0]?.metricValues?.[0]?.value),
-      pricingPageViews: num(pricingRes.data.rows?.[0]?.metricValues?.[0]?.value),
+      pricingSessions: num(pricingRes.data.rows?.[0]?.metricValues?.[0]?.value),
       signups,
       proActivations,
     };
@@ -139,7 +142,7 @@ export const getOrganicFunnel = cache(
 export function deriveFunnelStages(raw: OrganicFunnel): FunnelStage[] {
   const ordered = [
     { label: "Sesiones orgánicas", count: raw.organicSessions },
-    { label: "Vieron /pricing", count: raw.pricingPageViews },
+    { label: "Vieron /pricing", count: raw.pricingSessions },
     { label: "Signups", count: raw.signups },
     { label: "Activaciones Pro", count: raw.proActivations },
   ];
