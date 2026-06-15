@@ -133,10 +133,14 @@ export default async function RootLayout({
   setRequestLocale(locale);
 
   // GA4 tag (organic→Pro funnel, docs/seo/iter-2-ga4-integration-spec.md).
-  // Opt-in via env: only loads when NEXT_PUBLIC_GA_ID is set — set it in the
-  // Production env ONLY so preview/dev traffic never pollutes the property.
-  // Unlike Vercel Analytics (cookieless), GA4 sets cookies.
-  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  // Loads ONLY on the production deployment (VERCEL_ENV) so preview/dev
+  // traffic never pollutes the property — safe even when NEXT_PUBLIC_GA_ID is
+  // present in every environment. Unlike Vercel Analytics (cookieless), GA4
+  // sets cookies.
+  const gaId =
+    process.env.VERCEL_ENV === "production"
+      ? process.env.NEXT_PUBLIC_GA_ID
+      : undefined;
 
   return (
     <html lang={HTML_LANG[locale]} className="dark">
