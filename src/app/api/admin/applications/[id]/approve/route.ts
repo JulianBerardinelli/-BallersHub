@@ -162,6 +162,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
       user_id: app.user_id,
       slug,
       full_name: overrides.full_name ?? app.full_name ?? "Player",
+      gender: app.gender ?? "male", // carry the player's onboarding choice to the profile
       nationality: app.nationality ?? null,
       positions: app.positions ?? null,
       current_club: teamName ?? app.current_club ?? null, // preferimos nombre real del team

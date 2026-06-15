@@ -1,6 +1,6 @@
 // player_applications
 import { pgTable, uuid, text, timestamp, boolean, char, date, integer } from "drizzle-orm/pg-core";
-import { planEnum } from "./enums";
+import { planEnum, genderEnum } from "./enums";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -10,6 +10,9 @@ export const playerApplications = pgTable("player_applications", {
   planRequested: planEnum("plan_requested").notNull().default("free"),
   fullName: text("full_name"),
   birthDate: date("birth_date"),
+  // Player's gender, chosen during onboarding (see genderEnum). Copied to
+  // player_profiles.gender on approval. Defaults to `male`.
+  gender: genderEnum("gender").notNull().default("male"),
   heightCm: integer("height_cm"),
   weightKg: integer("weight_kg"),
   nationality: text("nationality").array(),

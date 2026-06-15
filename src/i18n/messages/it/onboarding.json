@@ -143,7 +143,12 @@
       "positionLabel": "Posizione",
       "positionError": "Scegli almeno una sotto-posizione.",
       "back": "Indietro",
-      "continue": "Continua"
+      "continue": "Continua",
+      "genderLabel": "Genere",
+      "genderDescription": "Definisce la categoria: calcio maschile o femminile.",
+      "gender_male": "Uomo",
+      "gender_female": "Donna",
+      "gender_unspecified": "Preferisco non specificare"
     },
     "step2": {
       "teamError": "Seleziona un club o indica che sei svincolato.",
