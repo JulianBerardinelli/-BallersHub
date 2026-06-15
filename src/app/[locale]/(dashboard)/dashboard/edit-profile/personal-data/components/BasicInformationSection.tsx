@@ -30,10 +30,22 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 type Props = {
   playerId: string;
   initialValues: BasicInfoFormValues;
+  /** Raw `gender` enum value. Read-only here — set once at onboarding. */
+  genderValue?: string;
 };
 
-export default function BasicInformationSection({ playerId, initialValues }: Props) {
+export default function BasicInformationSection({ playerId, initialValues, genderValue }: Props) {
   const t = useTranslations("dashEditProfile");
+
+  // Gender is immutable from the dashboard, so it lives OUTSIDE react-hook-form
+  // (otherwise reset() after a save would wipe the displayed value). Map the
+  // raw enum to a localized label for the read-only field.
+  const genderLabels: Record<string, string> = {
+    male: t("personalData.basicInfo.gender_male"),
+    female: t("personalData.basicInfo.gender_female"),
+    unspecified: t("personalData.basicInfo.gender_unspecified"),
+  };
+  const genderLabel = genderLabels[genderValue ?? "male"] ?? genderLabels.male;
   const [defaults, setDefaults] = useState<BasicInfoFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
   const [status, setStatus] = useState<StatusState>(null);
@@ -160,6 +172,15 @@ export default function BasicInformationSection({ playerId, initialValues }: Pro
             defaultValue={defaults.birthDate}
             errorMessage={errors.birthDate?.message}
             {...register("birthDate")}
+          />
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormField
+            id="gender"
+            label={t("personalData.basicInfo.genderLabel")}
+            description={t("personalData.basicInfo.genderImmutableNote")}
+            readOnly
+            value={genderLabel}
           />
         </div>
         <div className="grid gap-4 md:grid-cols-2">

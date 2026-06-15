@@ -1,7 +1,7 @@
 // player_profiles
 import { pgTable, uuid, text, timestamp, integer, date, numeric, char } from "drizzle-orm/pg-core";
 import { agencyProfiles } from "./agencies";
-import { playerStatusEnum, visibilityEnum, planEnum } from "./enums";
+import { playerStatusEnum, visibilityEnum, planEnum, genderEnum } from "./enums";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -11,6 +11,10 @@ export const playerProfiles = pgTable("player_profiles", {
   slug: text("slug").notNull(),
   fullName: text("full_name").notNull(),
   birthDate: date("birth_date"),
+  // Captured once at onboarding, immutable from the player dashboard.
+  // Defaults to `male` so existing rows backfill and the common case is
+  // zero-friction. See genderEnum in enums.ts.
+  gender: genderEnum("gender").notNull().default("male"),
   nationality: text("nationality").array(),
   foot: text("foot"),
   heightCm: integer("height_cm"),

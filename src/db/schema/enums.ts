@@ -9,6 +9,11 @@ export const planEnum = pgEnum("plan", ["free","pro","pro_plus"]);
 export const reviewerPermStatusEnum = pgEnum("reviewer_perm_status", ["pending","granted","revoked"]);
 export const inviteStatusEnum = pgEnum("invite_status", ["sent","accepted","expired","revoked"]);
 export const playerStatusEnum = pgEnum("player_status", ["draft","pending_review","approved","rejected"]);
+// Gender / competition category (men's vs women's football). `unspecified`
+// lets a player opt out of disclosing it. Default is `male` (see column
+// defaults in players.ts / applications.ts) to keep legacy rows + the common
+// case zero-friction; women explicitly pick `female` during onboarding.
+export const genderEnum = pgEnum("gender", ["male","female","unspecified"]);
 
 export const teamStatusEnum = pgEnum("team_status", ["pending","approved","rejected"]);
 export const divisionStatusEnum = pgEnum("division_status", ["pending","approved","rejected"]);
@@ -55,6 +60,7 @@ export type TaxIdType = (typeof taxIdTypeEnum.enumValues)[number];
 
 export type Visibility = (typeof visibilityEnum.enumValues)[number];
 export type PlayerStatus = (typeof playerStatusEnum.enumValues)[number];
+export type Gender = (typeof genderEnum.enumValues)[number];
 
 // --------------------------------------------------------------
 // Blog enums

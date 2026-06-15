@@ -101,6 +101,16 @@ export default async function PersonalDataPage() {
 
   const metrics = await fetchPlayerTaskMetrics(supabase, profileData.id);
 
+  // Gender is captured once at onboarding and is immutable from the
+  // dashboard, so it's not part of the editable `player_dashboard_state`
+  // view. Read it directly for a read-only display. Defaults to "male".
+  const { data: genderRow } = await supabase
+    .from("player_profiles")
+    .select("gender")
+    .eq("id", profileData.id)
+    .maybeSingle<{ gender: string | null }>();
+  const genderValue = genderRow?.gender ?? "male";
+
   const normalizedProfile: TaskProfileSnapshot = {
     id: profileData.id,
     status: profileData.status,
@@ -243,7 +253,11 @@ export default async function PersonalDataPage() {
         </div>
       </SectionCard>
 
-      <BasicInformationSection playerId={profileData.id} initialValues={basicInfoInitialValues} />
+      <BasicInformationSection
+        playerId={profileData.id}
+        initialValues={basicInfoInitialValues}
+        genderValue={genderValue}
+      />
 
       <ContactInformationSection playerId={profileData.id} initialValues={contactInfoInitialValues} />
     </div>
