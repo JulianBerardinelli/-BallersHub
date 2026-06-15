@@ -29,6 +29,10 @@ import BlogPostApprovedAuthorEmail, {
 import BlogPostRejectedAuthorEmail, {
   type BlogPostRejectedAuthorProps,
 } from "./blog-post-rejected-author";
+import LaunchAnnouncementEmail, {
+  type LaunchAnnouncementProps,
+} from "./launch-announcement";
+import ReEngagementEmail, { type ReEngagementProps } from "./re-engagement";
 
 /**
  * Template registry — every email shipped from 'BallersHub goes through here.
@@ -63,7 +67,9 @@ export type TemplateKey =
   | "payment_failed"
   | "blog_post_pending_admin"
   | "blog_post_approved_author"
-  | "blog_post_rejected_author";
+  | "blog_post_rejected_author"
+  | "launch_announcement"
+  | "re_engagement";
 
 export type TemplateCategory = "marketing" | "transactional";
 
@@ -82,6 +88,8 @@ export type TemplatePropsMap = {
   blog_post_pending_admin: BlogPostPendingAdminProps;
   blog_post_approved_author: BlogPostApprovedAuthorProps;
   blog_post_rejected_author: BlogPostRejectedAuthorProps;
+  launch_announcement: LaunchAnnouncementProps;
+  re_engagement: ReEngagementProps;
 };
 
 const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactElement } = {
@@ -99,6 +107,8 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   blog_post_pending_admin: (props) => BlogPostPendingAdminEmail(props),
   blog_post_approved_author: (props) => BlogPostApprovedAuthorEmail(props),
   blog_post_rejected_author: (props) => BlogPostRejectedAuthorEmail(props),
+  launch_announcement: (props) => LaunchAnnouncementEmail(props),
+  re_engagement: (props) => ReEngagementEmail(props),
 };
 
 /** Render a registered template to its final HTML string. */
@@ -210,5 +220,19 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     label: "Blog — Post rechazado (autor)",
     description:
       "Disparado cuando un admin rechaza un post. Notifica al autor con el feedback editorial + link a editar.",
+  },
+  {
+    key: "launch_announcement",
+    category: "marketing",
+    label: "Lanzamiento — anuncio",
+    description:
+      "Broadcast de lanzamiento de la plataforma. Headline + 3 surface cards (Portfolio Pro, Scouting, Validación) + CTA principal + link secundario para agencias. Override headline/lead para reusarlo en feature drops.",
+  },
+  {
+    key: "re_engagement",
+    category: "marketing",
+    label: "Re-engagement — perfil incompleto",
+    description:
+      "Broadcast para usuarios registrados que NO completaron su perfil. Tres pasos numerados (visibilidad, validación gratis, 15 min de onboarding) + CTA al dashboard. Counterpart manual del drip profile_completion.",
   },
 ];
