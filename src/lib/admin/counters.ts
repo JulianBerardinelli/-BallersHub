@@ -28,6 +28,9 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
     { count: teamsCount },
     { count: divisionsCount },
     { count: agenciesPendingCount },
+    { count: coachCareerRevCount },
+    { count: coachMediaCount },
+    { count: coachLicenseCount },
   ] = await Promise.all([
     supabase
       .from("player_applications")
@@ -65,6 +68,18 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
       .from("agency_profiles")
       .select("id", { count: "exact", head: true })
       .eq("is_approved", false),
+    supabase
+      .from("coach_career_revision_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("coach_media")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("coach_licenses")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
   ]);
 
   let careerRevisionsCount = 0;
@@ -92,6 +107,9 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
     "/admin/teams": teamsCount ?? 0,
     "/admin/divisions": divisionsCount ?? 0,
     "/admin/agencies": agenciesPendingCount ?? 0,
+    "/admin/coach-career-revisions": coachCareerRevCount ?? 0,
+    "/admin/coach-media": coachMediaCount ?? 0,
+    "/admin/coach-licenses": coachLicenseCount ?? 0,
   };
 }
 
@@ -99,7 +117,7 @@ export const ADMIN_COUNTERS_TAG = "admin-counters";
 
 export const getAdminCounters = unstable_cache(
   fetchAdminCounters,
-  ["admin-counters-v1"],
+  ["admin-counters-v2"],
   { tags: [ADMIN_COUNTERS_TAG], revalidate: 60 },
 );
 

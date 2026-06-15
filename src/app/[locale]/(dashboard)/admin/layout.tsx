@@ -38,6 +38,14 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: "Entrenadores",
+    items: [
+      { href: "/admin/coach-career-revisions", label: "Trayectorias DTs", roles: ["admin", "analyst"] },
+      { href: "/admin/coach-media", label: "Multimedia DTs", roles: ["admin", "moderator"] },
+      { href: "/admin/coach-licenses", label: "Licencias DTs", roles: ["admin", "moderator"] },
+    ],
+  },
+  {
     title: "Blog",
     items: [
       { href: "/admin/blog/pending", label: "Cola editorial", roles: ["admin"] },
