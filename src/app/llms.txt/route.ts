@@ -17,7 +17,7 @@
 
 import { db } from "@/lib/db";
 import { blogPosts } from "@/db/schema/blog";
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
 import {
   getIndexablePlayers,
@@ -48,7 +48,9 @@ export async function GET() {
           description: blogPosts.description,
         })
         .from(blogPosts)
-        .where(eq(blogPosts.status, "published"))
+        // Canonical LLM index = es only. Translations live under /<locale>/blog/<slug>
+        // and would be redundant entries here.
+        .where(and(eq(blogPosts.status, "published"), eq(blogPosts.locale, "es")))
         .orderBy(desc(blogPosts.publishedAt))
         .limit(50),
       listAuthorsWithPublishedPosts(),

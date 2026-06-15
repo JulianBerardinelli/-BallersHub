@@ -10,6 +10,7 @@
 // predicate as the sitemap, so the rendered links + JSON-LD never drift from it.
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { getApprovedAgencies } from "@/lib/agencies/directory";
 import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
@@ -24,25 +25,28 @@ import { AgenciesCta } from "@/components/site/agencies/AgenciesCta";
 export const revalidate = 3600;
 
 const PAGE_PATH = "/agencies";
-const PAGE_NAME = "Agencias";
-const PAGE_DESCRIPTION =
-  "Directorio de agencias de representación de futbolistas verificadas en 'BallersHub. Accedé a la cartera oficial de jugadores de cada agencia.";
 
-export const metadata: Metadata = {
-  title: "Agencias de representación",
-  description: PAGE_DESCRIPTION,
-  alternates: { canonical: PAGE_PATH },
-  openGraph: {
-    title: "Agencias de representación · 'BallersHub",
-    description: PAGE_DESCRIPTION,
-    url: PAGE_PATH,
-    type: "website",
-    siteName: "'BallersHub",
-    locale: "es_AR",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("site.agencies");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    alternates: { canonical: PAGE_PATH },
+    openGraph: {
+      title: t("ogTitle"),
+      description: t("metaDescription"),
+      url: PAGE_PATH,
+      type: "website",
+      siteName: "'BallersHub",
+      locale: "es_AR",
+    },
+  };
+}
 
 export default async function AgenciesPage() {
+  const tAgencies = await getTranslations("site.agencies");
+  const PAGE_NAME = tAgencies("pageName");
+  const PAGE_DESCRIPTION = tAgencies("metaDescription");
   let agencies: Awaited<ReturnType<typeof getApprovedAgencies>> = [];
   try {
     agencies = await getApprovedAgencies();

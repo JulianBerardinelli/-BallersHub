@@ -5,6 +5,7 @@
 // matching <h2>/<h3> in the prose).
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { TocHeading } from "@/lib/blog/toc";
 
 export function ArticleToc({
@@ -14,6 +15,7 @@ export function ArticleToc({
   headings: TocHeading[];
   accent: string;
 }) {
+  const t = useTranslations("blog.toc");
   const [activeId, setActiveId] = useState(headings[0]?.id);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ export function ArticleToc({
   return (
     <nav className="sticky top-24">
       <div className="mb-4 font-bh-display text-[12.5px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-        En esta nota
+        {t("heading")}
       </div>
       <div className="flex flex-col gap-0.5 border-l border-white/10">
         {headings.map((h) => {

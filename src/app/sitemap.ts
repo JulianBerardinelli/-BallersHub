@@ -37,7 +37,7 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
 import { blogPosts } from "@/db/schema/blog";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getSiteBaseUrl } from "@/lib/seo/baseUrl";
 import { sitemapLanguages, conditionalSitemapLanguages } from "@/lib/seo/hreflang";
 import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
@@ -163,13 +163,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // ----- Blog posts -----
     // Solo posts publicados. updated_at refleja la última edición
     // (vía trigger set_updated_at), así Google ve cambios post-publish.
+    // Solo emitimos rows en LOCALE='es' como la URL canónica (sin prefijo);
+    // las traducciones tienen su propio slug y se emitirán per-locale via
+    // hreflang `alternates.languages` en un seguimiento (fase 2 i18n blog).
     const blogRows = await db
       .select({
         slug: blogPosts.slug,
         updatedAt: blogPosts.updatedAt,
       })
       .from(blogPosts)
-      .where(eq(blogPosts.status, "published"));
+      .where(
+        and(eq(blogPosts.status, "published"), eq(blogPosts.locale, "es")),
+      );
 
     blogEntries = blogRows.map((p) => ({
       url: `${base}/blog/${p.slug}`,

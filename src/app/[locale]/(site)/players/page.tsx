@@ -19,6 +19,7 @@
 // see DISEÑO.md / INTEGRACION.md for the phased plan).
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { getScoutingPlayers } from "@/lib/scouting/data";
 import { ScoutingExperience } from "@/components/scouting/ScoutingExperience";
@@ -30,25 +31,26 @@ import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
 export const revalidate = 3600;
 
 const PAGE_PATH = "/players";
-const PAGE_NAME = "Jugadores";
-const PAGE_DESCRIPTION =
-  "Mapa del talento: explorá futbolistas con perfil verificado en 'BallersHub. Filtrá por posición, nacionalidad, edad, altura, pie y situación contractual, y abrí el portfolio completo de cada jugador.";
 
-export const metadata: Metadata = {
-  title: "Jugadores validados",
-  description: PAGE_DESCRIPTION,
-  alternates: { canonical: PAGE_PATH },
-  openGraph: {
-    title: "Jugadores validados · 'BallersHub",
-    description: PAGE_DESCRIPTION,
-    url: PAGE_PATH,
-    type: "website",
-    siteName: "'BallersHub",
-    locale: "es_AR",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("scouting");
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+    alternates: { canonical: PAGE_PATH },
+    openGraph: {
+      title: t("meta.ogTitle"),
+      description: t("meta.description"),
+      url: PAGE_PATH,
+      type: "website",
+      siteName: "'BallersHub",
+    },
+  };
+}
 
 export default async function PlayersScoutingPage() {
+  const t = await getTranslations("scouting");
+
   // Show the FULL public directory — Free profiles included (no Pro tag), even
   // the thin-bio ones the sitemap doesn't index.
   const players = await getScoutingPlayers({ includeNonIndexable: true }).catch(
@@ -70,8 +72,8 @@ export default async function PlayersScoutingPage() {
     <>
       <DirectoryJsonLd
         path={PAGE_PATH}
-        name={PAGE_NAME}
-        description={PAGE_DESCRIPTION}
+        name={t("meta.collectionName")}
+        description={t("meta.description")}
         items={jsonLdItems}
       />
       <ScoutingExperience players={players} />

@@ -12,6 +12,7 @@
 // CSS via ./DashJourney.css, zero per-frame re-render (ref-driven `apply(p)`).
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { Eyebrow } from "../HeroJourney/tags";
@@ -47,11 +48,16 @@ const MEDIA: { profile: MediaConfig; dashPreview: MediaConfig; page: MediaConfig
 };
 
 type StepCopy = { eye: string; t1: string; t2: string; p: string; tags: string[]; accent?: string; cta?: boolean };
-const STEP_COPY: StepCopy[] = [
-  { eye: "El producto · 01", t1: "Tu portfolio web", t2: "automatizado.", p: "Plug and play: subís tus datos, los validamos y en segundos tenés tu portfolio profesional 100% automático, online e indexado en Google, listo para enviar a agentes, directivos y clubes.", tags: ["Indexado en Google", "Responsive real", "Listo en segundos"], cta: true },
-  { eye: "El dashboard · 02", t1: "Armá tu carrera,", t2: "paso a paso.", p: "Cargá clubes, temporadas y estadísticas con formularios hechos para futbolistas. Elegí tu identidad visual y publicá. Sin diseñadores, sin fricción.", tags: ["Trayectoria", "Estadísticas", "Identidad visual"] },
-  { eye: "Cuentas de agente · 03", t1: "¿Sos agente?", t2: "Cargá tu roster.", p: "Una central para todos tus representados. Sumá tus licencias, colaboraciones y los clubes con los que trabajaste, y publicá tu página de agente profesional en un clic.", tags: ["Licencias", "Colaboraciones", "Página pública"], accent: BLUE, cta: true },
-];
+// next-intl `t` is callable + signature-overloaded; using a loose typing avoids
+// duplicating its overload set just to thread the translator through.
+type Translator = (key: string) => string;
+function buildStepCopy(t: Translator): StepCopy[] {
+  return [
+    { eye: t("steps.product.eyebrow"), t1: t("steps.product.titleLine1"), t2: t("steps.product.titleLine2"), p: t("steps.product.description"), tags: [t("steps.product.tags.indexedGoogle"), t("steps.product.tags.realResponsive"), t("steps.product.tags.readyInSeconds")], cta: true },
+    { eye: t("steps.dashboard.eyebrow"), t1: t("steps.dashboard.titleLine1"), t2: t("steps.dashboard.titleLine2"), p: t("steps.dashboard.description"), tags: [t("steps.dashboard.tags.career"), t("steps.dashboard.tags.stats"), t("steps.dashboard.tags.visualIdentity")] },
+    { eye: t("steps.agent.eyebrow"), t1: t("steps.agent.titleLine1"), t2: t("steps.agent.titleLine2"), p: t("steps.agent.description"), tags: [t("steps.agent.tags.licenses"), t("steps.agent.tags.collaborations"), t("steps.agent.tags.publicPage")], accent: BLUE, cta: true },
+  ];
+}
 
 // Each scene's elements are absolutely placed inside a design box scaled to fit.
 type Place = { l: number; t: number; w?: number; s?: number };
@@ -120,6 +126,7 @@ const IconShield = ({ color }: { color: string }) => (
   </svg>
 );
 const CtaRow = ({ dark, mob }: { dark?: boolean; mob?: boolean }) => {
+  const t = useTranslations("home.dashJourney");
   const VERIFIED = "#22C55E";
   const base: React.CSSProperties = { display: "inline-flex", alignItems: "center", gap: 8, fontFamily: FONT_BODY, fontWeight: 600, fontSize: mob ? 12.5 : 13.5, padding: mob ? "9px 14px" : "10px 16px", borderRadius: 10, whiteSpace: "nowrap" };
   const verified: React.CSSProperties = dark
@@ -130,8 +137,8 @@ const CtaRow = ({ dark, mob }: { dark?: boolean; mob?: boolean }) => {
     : { ...base, background: "rgba(255,255,255,0.04)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)", cursor: "pointer" };
   return (
     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 10 }}>
-      <span style={verified}><IconShieldCheck color={VERIFIED} />Datos verificados</span>
-      <Link href="/como-validamos" style={{ ...how, textDecoration: "none" }}>¿Cómo validamos?<IconShield color={dark ? "#0a0a0a" : "#fff"} /></Link>
+      <span style={verified}><IconShieldCheck color={VERIFIED} />{t("verifiedData")}</span>
+      <Link href="/como-validamos" style={{ ...how, textDecoration: "none" }}>{t("howWeValidate")}<IconShield color={dark ? "#0a0a0a" : "#fff"} /></Link>
     </div>
   );
 };
@@ -179,28 +186,32 @@ const Txt = ({ reg, idp, copy, accent, x, y = 188, narrow, dark, w, mob }: { reg
 };
 
 /* reduced-motion fallback — three plain stacked sections */
-const DashJourneyStatic = ({ accent }: { accent: string }) => (
-  <section style={{ position: "relative", padding: "90px 0" }}>
-    {STEP_COPY.map((s, i) => {
-      const ac = s.accent || accent;
-      return (
-        <div key={i} style={{ maxWidth: 1180, margin: "0 auto 80px", padding: "0 28px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
-          <div style={{ position: "relative" }}>
-            {i === 0 && <BrowserMock accent={ac} glow><ProfileScreen accent={ac} h={420} /></BrowserMock>}
-            {i === 1 && <BrowserMock accent={ac} url="ballershub.com/dashboard" glow><DashboardScreen accent={ac} h={460} /></BrowserMock>}
-            {i === 2 && <BrowserMock accent={ac} url="ballershub.com/agente" glow><AgentDashScreen accent={ac} h={460} /></BrowserMock>}
+const DashJourneyStatic = ({ accent }: { accent: string }) => {
+  const t = useTranslations("home.dashJourney");
+  const stepCopy = buildStepCopy(t);
+  return (
+    <section style={{ position: "relative", padding: "90px 0" }}>
+      {stepCopy.map((s, i) => {
+        const ac = s.accent || accent;
+        return (
+          <div key={i} style={{ maxWidth: 1180, margin: "0 auto 80px", padding: "0 28px", display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: 48, alignItems: "center" }}>
+            <div style={{ position: "relative" }}>
+              {i === 0 && <BrowserMock accent={ac} glow><ProfileScreen accent={ac} h={420} /></BrowserMock>}
+              {i === 1 && <BrowserMock accent={ac} url="ballershub.com/dashboard" glow><DashboardScreen accent={ac} h={460} /></BrowserMock>}
+              {i === 2 && <BrowserMock accent={ac} url="ballershub.com/agente" glow><AgentDashScreen accent={ac} h={460} /></BrowserMock>}
+            </div>
+            <div>
+              <Eyebrow color={ac}>{s.eye}</Eyebrow>
+              <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 52, lineHeight: 0.96, textTransform: "uppercase", margin: "14px 0 18px", color: "#fff" }}>{s.t1}<br />{s.t2}</h2>
+              <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 440 }}>{s.p}</p>
+              {s.cta && <div style={{ marginTop: 20 }}><CtaRow /></div>}
+            </div>
           </div>
-          <div>
-            <Eyebrow color={ac}>{s.eye}</Eyebrow>
-            <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 52, lineHeight: 0.96, textTransform: "uppercase", margin: "14px 0 18px", color: "#fff" }}>{s.t1}<br />{s.t2}</h2>
-            <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, maxWidth: 440 }}>{s.p}</p>
-            {s.cta && <div style={{ marginTop: 20 }}><CtaRow /></div>}
-          </div>
-        </div>
-      );
-    })}
-  </section>
-);
+        );
+      })}
+    </section>
+  );
+};
 
 export type DashTweaks = { accent?: string; liquidStyle?: "Ola" | "Cresta" | "Diagonal"; step1Bg?: "Lime" | "Oscuro"; uiDensity?: "Mínima" | "Media" | "Completa"; reduceMotion?: boolean };
 
@@ -210,6 +221,7 @@ export default function DashJourney({ tweaks, onSkip }: { tweaks: DashTweaks; on
 }
 
 function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: () => void }) {
+  const t = useTranslations("home.dashJourney");
   const dir: WaveDir = ({ Cresta: "cresta", Diagonal: "diagonal", Ola: "ola" } as const)[tweaks.liquidStyle || "Ola"] || "ola";
   const limeStep1 = (tweaks.step1Bg || "Lime") !== "Oscuro";
   const density = tweaks.uiDensity || "Completa";
@@ -333,7 +345,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
     onSkip?.();
   };
 
-  const C = STEP_COPY;
+  const C = buildStepCopy(t);
   const surf1 = limeStep1 ? LIME : "#0b0c0e";
   const crest1 = limeStep1 ? "rgba(0,0,0,0.16)" : "rgba(255,255,255,0.16)";
 
@@ -406,7 +418,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
         <div ref={guideRef} className="dj-guide" style={{ "--gac": LIME } as React.CSSProperties}>
           <div className="dj-guide-track"><div className="dj-guide-fill" /></div>
           <div className="dj-guide-dots">
-            {["Producto", "Dashboard", "Agente"].map((lab, i) => (
+            {[t("guide.product"), t("guide.dashboard"), t("guide.agent")].map((lab, i) => (
               <div key={i} className="dj-guide-item">
                 <span ref={(el) => { dotRefs.current[i] = el; }} className="dj-guide-dot" />
                 <span className="dj-guide-lab">{lab}</span>
@@ -414,7 +426,7 @@ function DashJourneyTimeline({ tweaks, onSkip }: { tweaks: DashTweaks; onSkip?: 
             ))}
           </div>
           <button type="button" className="dj-skip" onClick={skip}>
-            Saltar<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
+            {t("skip")}<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M13 5l7 7-7 7M5 5l7 7-7 7" /></svg>
           </button>
         </div>
       </div>

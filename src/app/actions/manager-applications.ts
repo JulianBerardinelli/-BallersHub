@@ -11,6 +11,7 @@ import { agencyProfiles } from "@/db/schema/agencies";
 import { userProfiles } from "@/db/schema/users";
 import { managerProfiles } from "@/db/schema/managerProfiles";
 import { seedAgencyDefaults } from "@/lib/agency/seed-defaults";
+import { sendAgencyWelcomeEmail } from "@/lib/resend";
 
 export async function submitManagerApplication(data: Omit<NewManagerApplication, "userId" | "id" | "status" | "createdAt" | "updatedAt">) {
   const supabase = await createSupabaseServerRSC();
@@ -122,6 +123,14 @@ export async function approveManagerApplication(applicationId: string) {
     contactPhone: application.contactPhone,
     licenses: seedLicenses,
   });
+
+  // 5. Welcome email — non-fatal. The agency + manager profile are already
+  // persisted; a transient Resend failure shouldn't break the approval.
+  try {
+    await sendAgencyWelcomeEmail(application.contactEmail, application.fullName);
+  } catch (err) {
+    console.error("[manager-applications.approve] welcome email failed:", err);
+  }
 
   revalidatePath("/admin/manager-applications");
   revalidateAdminCounters();

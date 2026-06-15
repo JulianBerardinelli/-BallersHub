@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { listPublishedPosts } from "@/lib/blog/posts";
 import { hydrateAuthors } from "@/lib/blog/authors";
 import { getBlogActor } from "@/lib/blog/permissions";
@@ -15,25 +16,25 @@ import { BlogIndexClient } from "@/components/blog/BlogIndexClient";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description:
-    "Artículos sobre carrera del jugador, operaciones de agencia y el mercado del fútbol argentino. Escrito por jugadores, scouts y periodistas de la red de 'BallersHub.",
-  alternates: { canonical: "/blog" },
-  openGraph: {
-    title: "Blog · 'BallersHub",
-    description:
-      "Carrera del jugador, operaciones de agencia, industria AR. Análisis con datos y links a portfolios reales.",
-    url: "/blog",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Blog · 'BallersHub",
-    description:
-      "Carrera del jugador, operaciones de agencia, industria AR. Por la red de 'BallersHub.",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("blog.meta");
+  return {
+    title: t("title"),
+    description: t("description"),
+    alternates: { canonical: "/blog" },
+    openGraph: {
+      title: t("ogTitle"),
+      description: t("ogDescription"),
+      url: "/blog",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("ogTitle"),
+      description: t("twitterDescription"),
+    },
+  };
+}
 
 // Break out of the layout's max-w-[1200px] main into a true full-bleed band
 // (same technique as the pricing detail panel).
@@ -43,21 +44,28 @@ const fullBleed = {
   width: "100vw",
 } as const;
 
-export default async function BlogIndexPage() {
-  const [posts, actor] = await Promise.all([listPublishedPosts(20), getBlogActor()]);
+export default async function BlogIndexPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const [posts, actor, t] = await Promise.all([
+    listPublishedPosts({ locale, limit: 20 }),
+    getBlogActor(),
+    getTranslations("blog"),
+  ]);
   const isContributor = Boolean(actor?.isBlogger || actor?.isAdmin);
 
   const authorIds = [...new Set(posts.map((p) => p.authorUserId))];
   const authors = await hydrateAuthors(authorIds);
-  const cards = posts.map((p) => toCardVM(p, authors));
+  const cards = posts.map((p) => toCardVM(p, authors, locale));
 
   return (
     <div style={fullBleed} className="-mt-2">
       {/* SEO/a11y: the masthead uses the wordmark (a span), so keep a real
           h1 for the page — visually hidden, no layout impact. */}
-      <h1 className="sr-only">
-        Blog de &apos;BallersHub — carrera del jugador, operaciones de agencia y mercado del fútbol
-      </h1>
+      <h1 className="sr-only">{t("meta.h1")}</h1>
 
       {isContributor && (
         <div className="border-b border-white/[0.06]">
@@ -66,13 +74,13 @@ export default async function BlogIndexPage() {
               href="/blog/drafts"
               className="rounded-bh-md border border-white/[0.14] px-3.5 py-1.5 font-bh-body text-xs font-semibold uppercase tracking-[0.06em] text-bh-fg-2 transition-colors hover:border-white/30 hover:text-bh-fg-1"
             >
-              Mis borradores
+              {t("listing.contributorDrafts")}
             </Link>
             <Link
               href="/blog/write"
               className="rounded-bh-md bg-bh-lime px-3.5 py-1.5 font-bh-body text-xs font-semibold uppercase tracking-[0.06em] text-bh-black transition-opacity hover:opacity-90"
             >
-              Escribir artículo
+              {t("listing.contributorWrite")}
             </Link>
           </div>
         </div>
@@ -82,10 +90,10 @@ export default async function BlogIndexPage() {
         <div className="mx-auto max-w-[1320px] px-7 py-20 max-md:px-5">
           <div className="rounded-bh-lg border border-dashed border-white/[0.18] bg-bh-surface-1 p-10 text-center">
             <p className="font-bh-display text-2xl font-bold uppercase tracking-tight text-bh-fg-2">
-              Pronto vas a leer las primeras notas
+              {t("listing.emptyTitle")}
             </p>
             <p className="mt-2 font-bh-body text-sm text-bh-fg-3">
-              Estamos curando contenido editorial. Volvé en unos días.
+              {t("listing.emptyBody")}
             </p>
           </div>
         </div>

@@ -4,14 +4,11 @@
 // para ser full-bleed (el stage interno es position: sticky).
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import ValidationFlow from "@/components/site/como-validamos/ValidationFlow";
 import { localizedAlternates } from "@/lib/seo/hreflang";
 import type { Locale } from "@/i18n/routing";
-
-const TITLE = "¿Cómo validamos?";
-const DESCRIPTION =
-  "El flujo de validación de 'BallersHub: cada cambio crítico en un perfil pasa por revisión humana, contraste contra +10 fuentes deportivas (Transfermarkt, Sofascore, FBref…) y verificación con agentes de IA (Gemini, Claude, ChatGPT) antes de publicarse.";
 
 export async function generateMetadata({
   params,
@@ -19,20 +16,24 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "site.comoValidamos" });
+  const title = t("metaTitle");
+  const description = t("metaDescription");
+  const ogTitle = t("ogTitle");
   return {
-    title: TITLE,
-    description: DESCRIPTION,
+    title,
+    description,
     alternates: localizedAlternates(locale as Locale, "/como-validamos"),
     openGraph: {
-      title: `${TITLE} · 'BallersHub`,
-      description: DESCRIPTION,
+      title: ogTitle,
+      description,
       url: "/como-validamos",
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title: `${TITLE} · 'BallersHub`,
-      description: DESCRIPTION,
+      title: ogTitle,
+      description,
     },
   };
 }

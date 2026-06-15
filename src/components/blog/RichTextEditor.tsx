@@ -14,6 +14,7 @@
 //   - Loading state durante upload, error alert si falla
 
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useEditor, EditorContent, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import LinkExt from "@tiptap/extension-link";
@@ -41,6 +42,7 @@ type Props = {
 };
 
 export function RichTextEditor({ initialContent, onChange, placeholder }: Props) {
+  const t = useTranslations("blog.editor");
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -53,7 +55,7 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: Props)
       }),
       ImageExt,
       Placeholder.configure({
-        placeholder: placeholder ?? "Empezá a escribir tu artículo…",
+        placeholder: placeholder ?? t("placeholder"),
       }),
     ],
     content: initialContent ?? "",
@@ -72,7 +74,7 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: Props)
   if (!editor) {
     return (
       <div className="rounded-bh-lg border border-bh-fg-4 bg-bh-surface-1 p-5">
-        <p className="text-sm text-bh-fg-3">Cargando editor…</p>
+        <p className="text-sm text-bh-fg-3">{t("loadingEditor")}</p>
       </div>
     );
   }
@@ -86,12 +88,14 @@ export function RichTextEditor({ initialContent, onChange, placeholder }: Props)
 }
 
 function Toolbar({ editor }: { editor: Editor }) {
+  const t = useTranslations("blog.editor");
+  const tb = useTranslations("blog.editor.toolbar");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
   const promptForLink = () => {
     const previousUrl = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt("URL del link:", previousUrl ?? "https://");
+    const url = window.prompt(t("linkPrompt"), previousUrl ?? "https://");
     if (url === null) return;
     if (url === "") {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
@@ -120,13 +124,13 @@ function Toolbar({ editor }: { editor: Editor }) {
       });
       const json = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !json.url) {
-        window.alert(json.error ?? "No se pudo subir la imagen.");
+        window.alert(json.error ?? t("imageUploadError"));
         return;
       }
       editor.chain().focus().setImage({ src: json.url }).run();
     } catch (err) {
       console.error("[RichTextEditor] image upload failed:", err);
-      window.alert("No se pudo subir la imagen. Probá de nuevo.");
+      window.alert(t("imageUploadErrorRetry"));
     } finally {
       setUploading(false);
     }
@@ -135,14 +139,14 @@ function Toolbar({ editor }: { editor: Editor }) {
   return (
     <div className="flex flex-wrap items-center gap-1 border-b border-bh-fg-4 bg-bh-surface-2 px-2 py-1.5">
       <ToolbarButton
-        label="Negrita (⌘B)"
+        label={tb("bold")}
         active={editor.isActive("bold")}
         onClick={() => editor.chain().focus().toggleBold().run()}
       >
         <Bold className="size-4" aria-hidden />
       </ToolbarButton>
       <ToolbarButton
-        label="Itálica (⌘I)"
+        label={tb("italic")}
         active={editor.isActive("italic")}
         onClick={() => editor.chain().focus().toggleItalic().run()}
       >
@@ -150,14 +154,14 @@ function Toolbar({ editor }: { editor: Editor }) {
       </ToolbarButton>
       <Divider />
       <ToolbarButton
-        label="Heading 2"
+        label={tb("h2")}
         active={editor.isActive("heading", { level: 2 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
       >
         <Heading2 className="size-4" aria-hidden />
       </ToolbarButton>
       <ToolbarButton
-        label="Heading 3"
+        label={tb("h3")}
         active={editor.isActive("heading", { level: 3 })}
         onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
       >
@@ -165,21 +169,21 @@ function Toolbar({ editor }: { editor: Editor }) {
       </ToolbarButton>
       <Divider />
       <ToolbarButton
-        label="Lista bullet"
+        label={tb("bulletList")}
         active={editor.isActive("bulletList")}
         onClick={() => editor.chain().focus().toggleBulletList().run()}
       >
         <List className="size-4" aria-hidden />
       </ToolbarButton>
       <ToolbarButton
-        label="Lista numerada"
+        label={tb("orderedList")}
         active={editor.isActive("orderedList")}
         onClick={() => editor.chain().focus().toggleOrderedList().run()}
       >
         <ListOrdered className="size-4" aria-hidden />
       </ToolbarButton>
       <ToolbarButton
-        label="Cita"
+        label={tb("quote")}
         active={editor.isActive("blockquote")}
         onClick={() => editor.chain().focus().toggleBlockquote().run()}
       >
@@ -187,14 +191,14 @@ function Toolbar({ editor }: { editor: Editor }) {
       </ToolbarButton>
       <Divider />
       <ToolbarButton
-        label="Link (⌘K)"
+        label={tb("link")}
         active={editor.isActive("link")}
         onClick={promptForLink}
       >
         <LinkIcon className="size-4" aria-hidden />
       </ToolbarButton>
       <ToolbarButton
-        label={uploading ? "Subiendo imagen…" : "Insertar imagen"}
+        label={uploading ? tb("imageUploading") : tb("image")}
         onClick={triggerImageUpload}
         disabled={uploading}
       >
@@ -214,14 +218,14 @@ function Toolbar({ editor }: { editor: Editor }) {
       />
       <div className="ml-auto flex items-center gap-1">
         <ToolbarButton
-          label="Deshacer (⌘Z)"
+          label={tb("undo")}
           onClick={() => editor.chain().focus().undo().run()}
           disabled={!editor.can().undo()}
         >
           <Undo2 className="size-4" aria-hidden />
         </ToolbarButton>
         <ToolbarButton
-          label="Rehacer (⌘⇧Z)"
+          label={tb("redo")}
           onClick={() => editor.chain().focus().redo().run()}
           disabled={!editor.can().redo()}
         >

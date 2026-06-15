@@ -13,6 +13,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Loader2, ImageIcon, X } from "lucide-react";
 import { RichTextEditor } from "./RichTextEditor";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
@@ -41,6 +42,8 @@ type Props = {
     heroImageUrl?: string | null;
     cluster?: BlogCluster;
     tags?: string[];
+    /** ISO 639-1 locale for this post (i18n F6). Only editable on create. */
+    locale?: "es" | "en" | "it" | "pt";
   };
 };
 
@@ -53,6 +56,8 @@ type Feedback =
 
 export function BlogPostForm({ mode, initialValues }: Props) {
   const router = useRouter();
+  const t = useTranslations("blog");
+  const tForm = useTranslations("blog.form");
   const [isPending, startTransition] = useTransition();
 
   const [title, setTitle] = useState(initialValues?.title ?? "");
@@ -60,6 +65,11 @@ export function BlogPostForm({ mode, initialValues }: Props) {
   const [heroImageUrl, setHeroImageUrl] = useState(initialValues?.heroImageUrl ?? "");
   const [cluster, setCluster] = useState<BlogCluster>(
     initialValues?.cluster ?? "career_guidance",
+  );
+  // i18n F6: post locale. Editable only on create — on edit it stays fixed
+  // (the post lives at a specific URL per locale).
+  const [postLocale, setPostLocale] = useState<"es" | "en" | "it" | "pt">(
+    initialValues?.locale ?? "es",
   );
   const [tagsInput, setTagsInput] = useState((initialValues?.tags ?? []).join(", "));
   const [contentHtml, setContentHtml] = useState(initialValues?.contentHtml ?? "");
@@ -86,13 +96,13 @@ export function BlogPostForm({ mode, initialValues }: Props) {
       });
       const json = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !json.url) {
-        setHeroError(json.error ?? "No se pudo subir la imagen.");
+        setHeroError(json.error ?? tForm("fields.heroUploadError"));
         return;
       }
       setHeroImageUrl(json.url);
     } catch (err) {
       console.error("[BlogPostForm] hero upload failed:", err);
-      setHeroError("No se pudo subir la imagen. Probá de nuevo.");
+      setHeroError(tForm("fields.heroUploadErrorRetry"));
     } finally {
       setHeroUploading(false);
     }
@@ -116,6 +126,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
     heroImageUrl: heroImageUrl.trim() || null,
     cluster,
     tags: parseTags(tagsInput),
+    locale: postLocale,
   });
 
   const handleSave = () => {
@@ -124,7 +135,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
       if (mode.kind === "create") {
         const result = await createDraft(inputs());
         if (result.success) {
-          setFeedback({ kind: "ok", message: "Borrador creado." });
+          setFeedback({ kind: "ok", message: tForm("feedback.draftCreated") });
           router.push(`/blog/write/${result.data.id}`);
         } else {
           setFeedback({
@@ -136,7 +147,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
       } else {
         const result = await saveDraft({ id: mode.postId, ...inputs() });
         if (result.success) {
-          setFeedback({ kind: "ok", message: "Borrador guardado." });
+          setFeedback({ kind: "ok", message: tForm("feedback.draftSaved") });
           router.refresh();
         } else {
           setFeedback({
@@ -166,7 +177,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
       if (result.success) {
         setFeedback({
           kind: "ok",
-          message: "Enviado para revisión. Te avisamos cuando el admin lo apruebe.",
+          message: tForm("feedback.submitted"),
         });
         router.push("/blog/drafts");
       } else {
@@ -190,63 +201,99 @@ export function BlogPostForm({ mode, initialValues }: Props) {
       {mode.kind === "edit" && mode.currentStatus === "rejected" && mode.rejectionReason && (
         <div className="rounded-bh-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-100">
           <p className="font-semibold uppercase tracking-[0.08em] text-amber-300">
-            Feedback del admin
+            {tForm("rejectionHeading")}
           </p>
           <p className="mt-2 whitespace-pre-wrap leading-relaxed">{mode.rejectionReason}</p>
         </div>
       )}
 
-      <Field label="Título" error={fieldError("title")} hint="Máx 120 caracteres. Pensá keyword-rich.">
+      <Field
+        label={tForm("fields.titleLabel")}
+        error={fieldError("title")}
+        hint={tForm("fields.titleHint")}
+      >
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={120}
           className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-base text-bh-fg-1 focus:border-bh-lime focus:outline-none"
-          placeholder="Ej: Mercado de pases AFA 2026: jugadores libres más buscados"
+          placeholder={tForm("fields.titlePlaceholder")}
         />
       </Field>
 
-      <Field label="Descripción corta" error={fieldError("description")} hint="Aparece en Google y al compartir en redes. Máx 158 caracteres.">
+      <Field
+        label={tForm("fields.descriptionLabel")}
+        error={fieldError("description")}
+        hint={tForm("fields.descriptionHint")}
+      >
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           maxLength={158}
           rows={2}
           className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
-          placeholder="Resumen claro de lo que va a leer."
+          placeholder={tForm("fields.descriptionPlaceholder")}
         />
-        <p className="mt-1 text-[11px] text-bh-fg-3">{description.length} / 158</p>
+        <p className="mt-1 text-[11px] text-bh-fg-3">
+          {tForm("fields.descriptionCounter", { count: description.length })}
+        </p>
       </Field>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <Field label="Cluster" error={fieldError("cluster")} hint="Tema del post.">
+        {mode.kind === "create" ? (
+          <Field
+            label={tForm("fields.localeLabel")}
+            hint={tForm("fields.localeHint")}
+          >
+            <select
+              value={postLocale}
+              onChange={(e) => setPostLocale(e.target.value as typeof postLocale)}
+              className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
+            >
+              <option value="es">{tForm("fields.localeEs")}</option>
+              <option value="en">{tForm("fields.localeEn")}</option>
+              <option value="it">{tForm("fields.localeIt")}</option>
+              <option value="pt">{tForm("fields.localePt")}</option>
+            </select>
+          </Field>
+        ) : null}
+
+        <Field
+          label={tForm("fields.clusterLabel")}
+          error={fieldError("cluster")}
+          hint={tForm("fields.clusterHint")}
+        >
           <select
             value={cluster}
             onChange={(e) => setCluster(e.target.value as BlogCluster)}
             className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
           >
-            {Object.entries(CLUSTER_LABELS).map(([value, label]) => (
+            {(Object.keys(CLUSTER_LABELS) as BlogCluster[]).map((value) => (
               <option key={value} value={value}>
-                {label}
+                {t(`clusters.${value}` as const)}
               </option>
             ))}
           </select>
         </Field>
 
-        <Field label="Tags" error={fieldError("tags")} hint="3-8 tags separados por coma. Mín 2 caracteres cada uno.">
+        <Field
+          label={tForm("fields.tagsLabel")}
+          error={fieldError("tags")}
+          hint={tForm("fields.tagsHint")}
+        >
           <input
             value={tagsInput}
             onChange={(e) => setTagsInput(e.target.value)}
             className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
-            placeholder="scouting, portfolio, primera-nacional"
+            placeholder={tForm("fields.tagsPlaceholder")}
           />
         </Field>
       </div>
 
       <Field
-        label="Imagen principal (hero)"
+        label={tForm("fields.heroLabel")}
         error={fieldError("heroImageUrl") ?? heroError ?? undefined}
-        hint="1200×630 ideal. JPG/PNG/WebP/AVIF, máx 5MB. Se sube a nuestro storage y se transcodea a AVIF automáticamente."
+        hint={tForm("fields.heroHint")}
       >
         <input
           ref={heroFileInputRef}
@@ -266,7 +313,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={heroImageUrl}
-              alt="Vista previa del hero"
+              alt={tForm("fields.heroPreviewAlt")}
               className="block aspect-[16/9] w-full object-cover"
             />
             <div className="flex items-center justify-end gap-2 border-t border-bh-fg-4 bg-bh-surface-1 p-2">
@@ -276,7 +323,9 @@ export function BlogPostForm({ mode, initialValues }: Props) {
                 disabled={heroUploading}
                 className="rounded-bh-sm border border-bh-fg-4 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-bh-fg-2 transition-colors hover:border-bh-fg-3 hover:text-bh-fg-1 disabled:opacity-50"
               >
-                {heroUploading ? "Subiendo…" : "Cambiar"}
+                {heroUploading
+                  ? tForm("fields.heroChangeUploading")
+                  : tForm("fields.heroChange")}
               </button>
               <button
                 type="button"
@@ -285,7 +334,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
                 className="inline-flex items-center gap-1 rounded-bh-sm border border-red-500/40 px-3 py-1 text-[11px] uppercase tracking-[0.08em] text-red-300 transition-colors hover:border-red-400 hover:text-red-200 disabled:opacity-50"
               >
                 <X className="size-3" aria-hidden />
-                Quitar
+                {tForm("fields.heroRemove")}
               </button>
             </div>
           </div>
@@ -299,24 +348,30 @@ export function BlogPostForm({ mode, initialValues }: Props) {
             {heroUploading ? (
               <>
                 <Loader2 className="size-5 animate-spin" aria-hidden />
-                <span>Subiendo imagen…</span>
+                <span>{tForm("fields.heroUploading")}</span>
               </>
             ) : (
               <>
                 <ImageIcon className="size-6" aria-hidden />
-                <span>Subir imagen principal</span>
-                <span className="text-[11px] text-bh-fg-3">JPG / PNG / WebP / AVIF · máx 5MB</span>
+                <span>{tForm("fields.heroUploadCta")}</span>
+                <span className="text-[11px] text-bh-fg-3">
+                  {tForm("fields.heroUploadFormats")}
+                </span>
               </>
             )}
           </button>
         )}
       </Field>
 
-      <Field label="Contenido" error={fieldError("contentHtml")} hint="≥1500 palabras. Mínimo 3 secciones H2. Linkear ≥3 portfolios reales de /[slug].">
+      <Field
+        label={tForm("fields.contentLabel")}
+        error={fieldError("contentHtml")}
+        hint={tForm("fields.contentHint")}
+      >
         <RichTextEditor
           initialContent={initialValues?.contentHtml ?? ""}
           onChange={setContentHtml}
-          placeholder="Empezá con una intro de 2-3 párrafos que enganche al lector…"
+          placeholder={tForm("fields.contentPlaceholder")}
         />
       </Field>
 
@@ -334,7 +389,9 @@ export function BlogPostForm({ mode, initialValues }: Props) {
           disabled={isPending}
           className="rounded-bh-md border border-bh-fg-4 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-bh-fg-2 transition-colors hover:border-bh-fg-3 hover:text-bh-fg-1 disabled:opacity-50"
         >
-          {feedback.kind === "saving" ? "Guardando…" : "Guardar borrador"}
+          {feedback.kind === "saving"
+            ? tForm("actions.saving")
+            : tForm("actions.save")}
         </button>
         {canSubmit && (
           <button
@@ -343,7 +400,9 @@ export function BlogPostForm({ mode, initialValues }: Props) {
             disabled={isPending}
             className="rounded-bh-md bg-bh-lime px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.08em] text-bh-black transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {feedback.kind === "submitting" ? "Enviando…" : "Enviar para revisión"}
+            {feedback.kind === "submitting"
+              ? tForm("actions.submitting")
+              : tForm("actions.submit")}
           </button>
         )}
       </div>
