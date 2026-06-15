@@ -9,6 +9,8 @@ import type { BlogCluster } from "@/db/schema";
 import type { ListedBlogPost } from "./posts";
 import type { HydratedAuthor } from "./authors";
 import { fallbackDisplayName } from "./authors";
+import { dateLocaleTag } from "@/lib/i18n/dates";
+import type { Locale } from "@/i18n/routing";
 
 export type AuthorVM = {
   name: string;
@@ -56,16 +58,29 @@ export function initialsOf(name: string): string {
   return (letters || "BH").toUpperCase();
 }
 
-const DATE_FMT = new Intl.DateTimeFormat("es-AR", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
+// Per-locale formatter cache. Keeps "12 may 2026" / "May 12, 2026" /
+// "12 mag 2026" / "12 de mai 2026" coherent with the page language.
+const DATE_FMT_CACHE = new Map<string, Intl.DateTimeFormat>();
+function dateFormatterFor(locale?: string): Intl.DateTimeFormat {
+  // Fallback to es-AR (the app's canonical Spanish) if no locale supplied —
+  // matches the historical hardcoded format from pre-i18n callers.
+  const tag = locale ? dateLocaleTag(locale as Locale) : "es-AR";
+  let fmt = DATE_FMT_CACHE.get(tag);
+  if (!fmt) {
+    fmt = new Intl.DateTimeFormat(tag, {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+    DATE_FMT_CACHE.set(tag, fmt);
+  }
+  return fmt;
+}
 
-export function formatBlogDate(d: Date): string {
+export function formatBlogDate(d: Date, locale?: string): string {
   // Intl returns "12 may 2026" / "12 may. 2026" depending on ICU; strip the
   // trailing dot on the month abbreviation for a cleaner editorial look.
-  return DATE_FMT.format(d).replace(/\./g, "");
+  return dateFormatterFor(locale).format(d).replace(/\./g, "");
 }
 
 /** Resolve a hydrated author (real blog_authors row or fallback) into a VM. */
@@ -89,6 +104,7 @@ export function buildAuthorVM(
 export function toCardVM(
   post: ListedBlogPost,
   authors: Map<string, HydratedAuthor>,
+  locale?: string,
 ): BlogCardVM {
   return {
     id: post.id,
@@ -99,7 +115,7 @@ export function toCardVM(
     heroImageUrl: post.heroImageUrl,
     readingTimeMin: post.readingTimeMin,
     publishedISO: post.publishedAt ? post.publishedAt.toISOString() : null,
-    dateLabel: post.publishedAt ? formatBlogDate(post.publishedAt) : null,
+    dateLabel: post.publishedAt ? formatBlogDate(post.publishedAt, locale) : null,
     author: buildAuthorVM(post.authorUserId, authors.get(post.authorUserId)),
   };
 }

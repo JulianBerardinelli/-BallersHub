@@ -1,6 +1,10 @@
-// Status chip used in /blog/drafts and /admin/blog.
+// Status chip used in /blog/drafts and /admin/blog. The label resolves via
+// the `blog.status` namespace (registered globally in `src/i18n/request.ts`)
+// so /admin callers don't need to opt in — their layout already provides
+// next-intl messages.
 
-import { STATUS_LABELS, STATUS_TONE } from "@/lib/blog/labels";
+import { useTranslations } from "next-intl";
+import { STATUS_TONE } from "@/lib/blog/labels";
 import type { BlogStatus } from "@/db/schema";
 
 const TONE_CLASSES: Record<(typeof STATUS_TONE)[BlogStatus], string> = {
@@ -11,6 +15,7 @@ const TONE_CLASSES: Record<(typeof STATUS_TONE)[BlogStatus], string> = {
 };
 
 export function StatusBadge({ status }: { status: BlogStatus }) {
+  const t = useTranslations("blog.status");
   const tone = STATUS_TONE[status];
   return (
     <span
@@ -19,7 +24,7 @@ export function StatusBadge({ status }: { status: BlogStatus }) {
         TONE_CLASSES[tone]
       }
     >
-      {STATUS_LABELS[status]}
+      {t(status)}
     </span>
   );
 }

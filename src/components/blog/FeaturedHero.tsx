@@ -3,15 +3,18 @@
 // the left. Used at the top of /blog for the most recent post.
 
 import Link from "next/link";
-import { CLUSTER_LABELS } from "@/lib/blog/labels";
+import { useTranslations } from "next-intl";
 import { accentForCluster, toneForCluster } from "@/lib/blog/clusterAccent";
 import type { BlogCardVM } from "@/lib/blog/view";
 import { CoverArt } from "./CoverArt";
 import { BlogBadge, AuthorChip } from "./primitives";
 
 export function FeaturedHero({ post }: { post: BlogCardVM }) {
+  const t = useTranslations("blog");
   const tone = toneForCluster(post.cluster);
   const accent = accentForCluster(post.cluster);
+  const clusterLabel = t(`clusters.${post.cluster}` as const);
+  const readingLabel = t("featured.readingMin", { n: post.readingTimeMin });
 
   return (
     <Link
@@ -39,9 +42,9 @@ export function FeaturedHero({ post }: { post: BlogCardVM }) {
             className="inline-flex items-center gap-1.5 rounded-bh-pill px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.07em] text-bh-black"
             style={{ background: accent.color }}
           >
-            ★ Destacado
+            {t("featured.badge")}
           </span>
-          <BlogBadge tone={tone}>{CLUSTER_LABELS[post.cluster]}</BlogBadge>
+          <BlogBadge tone={tone}>{clusterLabel}</BlogBadge>
         </div>
         <h2 className="mb-4 font-bh-display text-[clamp(34px,4vw,54px)] font-extrabold uppercase leading-[0.95] tracking-[-0.015em] text-bh-fg-1">
           {post.title}
@@ -53,7 +56,7 @@ export function FeaturedHero({ post }: { post: BlogCardVM }) {
           <AuthorChip author={post.author} />
           <span className="font-bh-mono text-xs" style={{ color: accent.color }}>
             {post.dateLabel ? `${post.dateLabel} · ` : ""}
-            {post.readingTimeMin} min lectura
+            {readingLabel}
           </span>
         </div>
       </div>

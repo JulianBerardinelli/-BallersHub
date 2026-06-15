@@ -2,6 +2,7 @@
 // the author has a blog_authors row (E-E-A-T cross-reference).
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { AuthorVM } from "@/lib/blog/view";
 
 export function AuthorBio({
@@ -13,6 +14,7 @@ export function AuthorBio({
   bio: string | null;
   accent: string;
 }) {
+  const t = useTranslations("blog");
   const nameEl = author.slug ? (
     <Link
       href={`/blog/authors/${author.slug}`}
@@ -36,7 +38,7 @@ export function AuthorBio({
       </div>
       <div>
         <div className="mb-1.5 font-bh-mono text-[11px] uppercase tracking-[0.1em]" style={{ color: accent }}>
-          Escrito por
+          {t("authorBio.writtenBy")}
         </div>
         {nameEl}
         {(author.headline || bio) && (

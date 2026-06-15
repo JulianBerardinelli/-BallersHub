@@ -4,7 +4,7 @@
 // presentational component.
 
 import Link from "next/link";
-import { CLUSTER_LABELS } from "@/lib/blog/labels";
+import { useTranslations } from "next-intl";
 import { accentForCluster, toneForCluster } from "@/lib/blog/clusterAccent";
 import type { BlogCardVM } from "@/lib/blog/view";
 import { CoverArt } from "./CoverArt";
@@ -19,10 +19,13 @@ export function BlogCard({
   variant?: "overlay" | "classic";
   priority?: boolean;
 }) {
+  const t = useTranslations("blog");
   const tone = toneForCluster(post.cluster);
   const accent = accentForCluster(post.cluster);
   const href = `/blog/${post.slug}`;
   const sizes = "(min-width: 1024px) 420px, (min-width: 640px) 50vw, 100vw";
+  const clusterLabel = t(`clusters.${post.cluster}` as const);
+  const readingChip = t("card.readingMin", { n: post.readingTimeMin });
 
   if (variant === "classic") {
     return (
@@ -36,7 +39,7 @@ export function BlogCard({
             <CoverArt slug={post.slug} cluster={post.cluster} heroImageUrl={post.heroImageUrl} alt={post.title} sizes={sizes} priority={priority} />
           </div>
           <div className="absolute left-3.5 top-3.5">
-            <BlogBadge tone={tone}>{CLUSTER_LABELS[post.cluster]}</BlogBadge>
+            <BlogBadge tone={tone}>{clusterLabel}</BlogBadge>
           </div>
         </div>
         <div className="flex flex-1 flex-col p-5">
@@ -49,7 +52,7 @@ export function BlogCard({
           <div className="flex items-center justify-between border-t border-white/[0.07] pt-3.5">
             <AuthorChip author={post.author} size="sm" extra={post.dateLabel ?? undefined} />
             <span className="font-bh-mono text-[11px]" style={{ color: accent.color }}>
-              {post.readingTimeMin} min
+              {readingChip}
             </span>
           </div>
         </div>
@@ -72,7 +75,7 @@ export function BlogCard({
         style={{ background: "linear-gradient(to top, rgba(8,8,8,0.95) 5%, rgba(8,8,8,0.55) 42%, transparent 72%)" }}
       />
       <div className="absolute left-4 top-4">
-        <BlogBadge tone={tone}>{CLUSTER_LABELS[post.cluster]}</BlogBadge>
+        <BlogBadge tone={tone}>{clusterLabel}</BlogBadge>
       </div>
       <div className="absolute inset-x-0 bottom-0 p-5">
         <h3 className="mb-2.5 font-bh-display text-[22px] font-bold uppercase leading-[1.02] tracking-[-0.01em] text-bh-fg-1">
@@ -84,7 +87,7 @@ export function BlogCard({
         <div className="flex items-center justify-between">
           <AuthorChip author={post.author} size="sm" />
           <span className="font-bh-mono text-[11px]" style={{ color: accent.color }}>
-            {post.readingTimeMin} min
+            {readingChip}
           </span>
         </div>
       </div>

@@ -5,15 +5,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getPostBySlug, listPublishedPosts } from "@/lib/blog/posts";
 import { hydrateAuthors, authorSameAs } from "@/lib/blog/authors";
-import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import { estimateWordCount } from "@/lib/blog/reading-time";
 import { processArticleHtml } from "@/lib/blog/toc";
 import { buildAuthorVM, toCardVM } from "@/lib/blog/view";
 import { accentForCluster, toneForCluster } from "@/lib/blog/clusterAccent";
 import { ArticleJsonLd } from "@/lib/seo/articleJsonLd";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
+import { dateLocaleTag } from "@/lib/i18n/dates";
+import type { Locale } from "@/i18n/routing";
+import type { BlogCluster } from "@/db/schema";
 import { ReadingProgress } from "@/components/blog/ReadingProgress";
 import { ArticleCover } from "@/components/blog/ArticleCover";
 import { ArticleToc } from "@/components/blog/ArticleToc";
@@ -38,8 +41,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { slug, locale } = await params;
   const post = await getPostBySlug(slug);
   if (!post) {
+    const t = await getTranslations("blog.meta");
     return {
-      title: "Artículo no encontrado",
+      title: t("notFoundTitle"),
       robots: { index: false, follow: false },
     };
   }
@@ -91,7 +95,10 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   }
 
   // Related: same cluster first, then the rest, excluding the current post.
-  const pool = await listPublishedPosts({ locale, limit: 10 });
+  const [pool, t] = await Promise.all([
+    listPublishedPosts({ locale, limit: 10 }),
+    getTranslations("blog"),
+  ]);
   const relatedRaw = [
     ...pool.filter((p) => p.id !== post.id && p.cluster === post.cluster),
     ...pool.filter((p) => p.id !== post.id && p.cluster !== post.cluster),
@@ -106,13 +113,19 @@ export default async function BlogPostPage({ params }: { params: Params }) {
   const authorBio = blogAuthor?.bio ?? null;
   const authorSameAsUrls = blogAuthor ? authorSameAs(blogAuthor) : [];
 
-  const related = relatedRaw.map((p) => toCardVM(p, authors));
+  const related = relatedRaw.map((p) => toCardVM(p, authors, locale));
 
   const { html, headings } = processArticleHtml(post.contentHtml);
   const accent = accentForCluster(post.cluster).color;
   const tone = toneForCluster(post.cluster);
-  const categoryLabel = CLUSTER_LABELS[post.cluster];
+  const categoryLabel = t(`clusters.${post.cluster}` as const);
   const wordCount = estimateWordCount(post.contentHtml);
+  const longDateFormatter = new Intl.DateTimeFormat(dateLocaleTag(locale as Locale), {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const readingTimeLabel = t("post.readingMin", { n: post.readingTimeMin });
 
   return (
     <>
@@ -128,9 +141,10 @@ export default async function BlogPostPage({ params }: { params: Params }) {
           heroImageUrl={post.heroImageUrl}
           author={author}
           categoryLabel={categoryLabel}
-          dateLabel={post.publishedAt ? new Intl.DateTimeFormat("es-AR", { year: "numeric", month: "long", day: "numeric" }).format(post.publishedAt) : null}
+          breadcrumbLabel={t("post.breadcrumbBlog")}
+          dateLabel={post.publishedAt ? longDateFormatter.format(post.publishedAt) : null}
           publishedISO={post.publishedAt ? post.publishedAt.toISOString() : null}
-          readingTimeMin={post.readingTimeMin}
+          readingTimeLabel={readingTimeLabel}
           accent={accent}
         />
       </div>
@@ -193,7 +207,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             <div className="mt-[70px]">
               <div className="mb-6 flex items-center gap-3.5">
                 <h2 className="m-0 font-bh-display text-[clamp(28px,3vw,40px)] font-extrabold uppercase text-bh-fg-1">
-                  Seguí leyendo
+                  {t("post.relatedHeading")}
                 </h2>
                 <span className="h-px flex-1 bg-white/10" />
                 <Link
@@ -201,7 +215,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
                   className="whitespace-nowrap font-bh-body text-[13.5px] font-semibold"
                   style={{ color: accent }}
                 >
-                  Ver todo →
+                  {t("post.relatedSeeAll")}
                 </Link>
               </div>
               <RelatedPosts posts={related} />

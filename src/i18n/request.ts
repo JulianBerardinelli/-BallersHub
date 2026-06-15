@@ -35,6 +35,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       mobileNav: (await import(`./messages/${locale}/mobileNav.json`)).default,
       home: (await import(`./messages/${locale}/home.json`)).default,
       site: (await import(`./messages/${locale}/site.json`)).default,
+      blog: (await import(`./messages/${locale}/blog.json`)).default,
     },
   };
 });
