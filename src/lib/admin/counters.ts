@@ -20,6 +20,7 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
 
   const [
     { count: appCount },
+    { count: coachAppCount },
     { count: managerAppCount },
     { count: careerItemCount },
     { data: revisionsData },
@@ -30,6 +31,10 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
   ] = await Promise.all([
     supabase
       .from("player_applications")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabase
+      .from("coach_applications")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
     supabase
@@ -78,6 +83,7 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
 
   return {
     "/admin/applications": appCount ?? 0,
+    "/admin/coach-applications": coachAppCount ?? 0,
     "/admin/manager-applications": managerAppCount ?? 0,
     "/admin/career": careerItemCount ?? 0,
     "/admin/revisions": careerRevisionsCount,
