@@ -9,6 +9,7 @@
 
 import Link from "next/link";
 import { useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 import { ClubCrest, Flag, PlayerAvatar } from "./atoms";
 import { countryName } from "@/lib/scouting/taxonomies";
@@ -25,6 +26,7 @@ function fmtValue(v: number | null): string {
 }
 
 function RosterCard({ player }: { player: ScoutPlayer }) {
+  const t = useTranslations("scouting");
   return (
     <Link
       className="cr-card"
@@ -36,7 +38,7 @@ function RosterCard({ player }: { player: ScoutPlayer }) {
         <div className="cr-card-name-block">
           <div className="cr-card-name">
             {player.name}
-            {player.isPro && <span className="pt-pro">Pro</span>}
+            {player.isPro && <span className="pt-pro">{t("table.proBadge")}</span>}
           </div>
           <div className="cr-card-sub">
             {player.nationality && <Flag cc={player.nationality} withCode />}
@@ -47,7 +49,7 @@ function RosterCard({ player }: { player: ScoutPlayer }) {
           <div className="cr-card-rating-n" data-status={player.contract}>
             {fmtValue(player.marketValueEur)}
           </div>
-          <div className="cr-card-rating-l">Valor</div>
+          <div className="cr-card-rating-l">{t("roster.valueLabel")}</div>
         </div>
       </div>
 
@@ -61,10 +63,16 @@ function RosterCard({ player }: { player: ScoutPlayer }) {
             {pos.code}
           </span>
         ))}
-        {player.age != null && <span className="cr-card-mini">{player.age}a</span>}
+        {player.age != null && (
+          <span className="cr-card-mini">
+            {t("roster.ageSuffix", { age: player.age })}
+          </span>
+        )}
         {player.foot && <span className="cr-card-mini">{player.foot}</span>}
         {player.heightCm && (
-          <span className="cr-card-mini">{player.heightCm}cm</span>
+          <span className="cr-card-mini">
+            {t("roster.heightSuffix", { height: player.heightCm })}
+          </span>
         )}
       </div>
 
@@ -76,7 +84,7 @@ function RosterCard({ player }: { player: ScoutPlayer }) {
       )}
 
       <span className="cr-card-cta">
-        Ver perfil completo
+        {t("roster.viewFullProfile")}
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
           <path d="M9 6l6 6-6 6" />
         </svg>
@@ -92,6 +100,7 @@ export function CityRoster({
   city: ScoutCity | null;
   onClose: () => void;
 }) {
+  const t = useTranslations("scouting");
   useEffect(() => {
     if (!city) return;
     const onKey = (e: KeyboardEvent) => {
@@ -103,36 +112,38 @@ export function CityRoster({
 
   if (!city || city.players.length === 0) return null;
 
+  const cityLabel = city.name || countryName(city.countryCode);
+
   return (
     <div className="city-roster-layer">
       <button
         type="button"
         className="cr-backdrop"
-        aria-label="Cerrar"
+        aria-label={t("roster.close")}
         onClick={onClose}
       />
       <div
         className="city-roster"
         role="dialog"
-        aria-label={`Jugadores en ${city.name || countryName(city.countryCode)}`}
+        aria-label={t("roster.dialogLabel", { city: cityLabel })}
       >
         <div className="cr-head">
           <div className="cr-head-titles">
             <div className="cr-eyebrow">
               {city.players.length === 1
-                ? "Jugador"
-                : `${city.players.length} jugadores`}
+                ? t("roster.playerOne")
+                : t("roster.playerCount", { count: city.players.length })}
             </div>
             <div className="cr-title">
               {city.countryCode && <Flag cc={city.countryCode} />}
-              {city.name || countryName(city.countryCode)}
+              {cityLabel}
             </div>
           </div>
           <button
             type="button"
             className="cr-close"
             onClick={onClose}
-            aria-label="Cerrar"
+            aria-label={t("roster.close")}
           >
             <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden>
               <path d="M1 1 L12 12 M12 1 L1 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />

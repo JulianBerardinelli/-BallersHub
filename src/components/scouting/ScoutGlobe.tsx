@@ -15,6 +15,7 @@
 // bundled. Dynamically imported (ssr:false) by the hero.
 
 import { useEffect, useRef, type MutableRefObject } from "react";
+import { useTranslations } from "next-intl";
 import {
   geoContains,
   geoDistance,
@@ -91,6 +92,7 @@ export default function ScoutGlobe({
   selectedCountries?: string[];
   pinPositionsRef?: MutableRefObject<Map<string, PinPos>>;
 }) {
+  const t = useTranslations("scouting");
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -511,12 +513,12 @@ export default function ScoutGlobe({
       <canvas ref={canvasRef} />
       {showZoomControls && (
         <div className="globe-controls">
-          <button type="button" aria-label="Acercar el mapa" onClick={() => applyZoom(1.25)}>
+          <button type="button" aria-label={t("globe.zoomIn")} onClick={() => applyZoom(1.25)}>
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
               <path d="M7 2.5v9 M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>
           </button>
-          <button type="button" aria-label="Alejar el mapa" onClick={() => applyZoom(0.8)}>
+          <button type="button" aria-label={t("globe.zoomOut")} onClick={() => applyZoom(0.8)}>
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
               <path d="M2.5 7h9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
             </svg>

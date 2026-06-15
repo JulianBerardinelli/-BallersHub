@@ -14,12 +14,12 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
+import { useTranslations } from "next-intl";
 
 import "./HeroJourney.css";
 import {
   OverlayText,
   VideoTile,
-  VW_COPY,
   VW_ROWS,
   vwCl,
   vwEo,
@@ -70,18 +70,33 @@ const MULTI_TAGS = 3;
 export type HeroJourneyProps = { tweaks?: Partial<HeroTweaks>; onCta?: () => void; data?: HeroGlobeData };
 
 export default function HeroJourney({ tweaks, onCta, data }: HeroJourneyProps) {
-  const t: HeroTweaks = { ...DEFAULT_TWEAKS, ...tweaks };
+  const tw: HeroTweaks = { ...DEFAULT_TWEAKS, ...tweaks };
+  const tHero = useTranslations("home.hero");
+  // Pre-resolved video-wall copy passed down to the OverlayText so the wall's
+  // headline + CTA inside this scrolljack are localized without touching the
+  // shared VideoWall module.
+  const videoWallCopy: VideoWallCopy = React.useMemo(
+    () => ({
+      eyebrow: tHero("videoWall.eyebrow"),
+      line1: tHero("videoWall.line1"),
+      line2: tHero("videoWall.line2"),
+      accentWord: tHero("videoWall.accentWord"),
+      body: tHero("videoWall.body"),
+      cta: tHero("videoWall.cta"),
+    }),
+    [tHero],
+  );
   const globeData = data ?? MOCK_GLOBE_DATA;
-  if (t.reduceMotion) {
+  if (tw.reduceMotion) {
     // Accessible: static hero stacked above the static VideoWall (no scrolljack).
     return (
       <>
-        <HeroJourneyStatic tweaks={t} onCta={onCta} data={globeData} />
-        <VideoWall reduceMotion onCta={onCta} accent={t.accent} />
+        <HeroJourneyStatic tweaks={tw} onCta={onCta} data={globeData} />
+        <VideoWall reduceMotion onCta={onCta} accent={tw.accent} copy={videoWallCopy} />
       </>
     );
   }
-  return <HeroJourneyTimeline tweaks={t} onCta={onCta} data={globeData} />;
+  return <HeroJourneyTimeline tweaks={tw} onCta={onCta} data={globeData} videoWallCopy={videoWallCopy} />;
 }
 
 /* ─────────────────────────── globe + floating tags ──────────────────────── */
@@ -165,10 +180,20 @@ function JourneyGlobe({
 }
 
 /* ───────────────────────────── the timeline ─────────────────────────────── */
-function HeroJourneyTimeline({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCta?: () => void; data: HeroGlobeData }) {
+function HeroJourneyTimeline({ tweaks, onCta, data, videoWallCopy }: { tweaks: HeroTweaks; onCta?: () => void; data: HeroGlobeData; videoWallCopy: VideoWallCopy }) {
   const accent = tweaks.accent;
-  const copy: VideoWallCopy = { ...VW_COPY };
+  const t = useTranslations("home.hero");
+  const copy: VideoWallCopy = videoWallCopy;
   const rows: VideoSpot[][] = VW_ROWS;
+  const STATS = React.useMemo(
+    () =>
+      [
+        [t("stats.profiles.value"), t("stats.profiles.label")],
+        [t("stats.clubs.value"), t("stats.clubs.label")],
+        [t("stats.references.value"), t("stats.references.label")],
+      ] as const,
+    [t],
+  );
 
   // responsive: phones get a lower-center globe + top-aligned copy
   const [isMobile, setIsMobile] = React.useState(false);
@@ -355,8 +380,8 @@ function HeroJourneyTimeline({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCt
         {/* live counter chip (anchored under the globe) */}
         <div ref={counterRef} style={{ position: "absolute", left: `${rest.cx * 100}%`, bottom: "16vh", transform: "translateX(-50%)", zIndex: 4, display: isMobile ? "none" : "flex", alignItems: "center", gap: 9, padding: "9px 17px", borderRadius: 999, background: "rgba(12,12,14,0.66)", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)", border: "1px solid rgba(255,255,255,0.1)", whiteSpace: "nowrap", pointerEvents: "none", willChange: "transform,opacity" }}>
           <span style={{ width: 8, height: 8, borderRadius: "50%", background: accent, boxShadow: `0 0 10px ${accent}` }} />
-          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, color: "#fff", letterSpacing: "0.01em" }}>+70</span>
-          <span style={{ fontFamily: FONT_BODY, fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>jugadores registrados</span>
+          <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 19, color: "#fff", letterSpacing: "0.01em" }}>{t("counter.value")}</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 12.5, color: "rgba(255,255,255,0.6)" }}>{t("counter.label")}</span>
         </div>
 
         {/* HERO COPY (rest) */}
@@ -365,24 +390,24 @@ function HeroJourneyTimeline({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCt
             <div ref={copyRef} style={{ maxWidth: 520, willChange: "transform,opacity", pointerEvents: "auto" }}>
               <div className="rise" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 14px", borderRadius: 999, border: `1px solid ${accent}40`, background: `${accent}12`, marginBottom: 24 }}>
                 <span style={{ width: 7, height: 7, borderRadius: "50%", background: accent, boxShadow: `0 0 8px ${accent}` }} />
-                <Eyebrow color={accent}>Beta abierta</Eyebrow>
+                <Eyebrow color={accent}>{t("eyebrow")}</Eyebrow>
               </div>
               <Headline which={tweaks.headline} accent={accent} size="clamp(38px, 6.2vw, 64px)" animate />
               <p className="rise" style={{ fontFamily: FONT_BODY, fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, margin: "24px 0 30px", maxWidth: 440, animationDelay: "520ms" }}>
-                Centralizá tu perfil profesional, sumá reseñas verificadas y conectate con clubes que buscan potenciar su plantel. Todo en un solo lugar.
+                {t("description")}
               </p>
               <div className="rise" style={{ display: "flex", flexWrap: "wrap", gap: 12, marginBottom: 30, animationDelay: "600ms" }}>
                 <Btn variant="fill" accent={accent} onClick={onCta}>
-                  Crear mi perfil
+                  {t("cta")}
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
                 </Btn>
                 <Btn variant="outline" href="/como-validamos">
-                  Cómo validamos
+                  {t("howWeValidate")}
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
                 </Btn>
               </div>
               <div className="rise" style={{ display: "flex", flexWrap: "wrap", gap: 26, animationDelay: "680ms" }}>
-                {([["+1.2K", "Perfiles validados"], ["86", "Clubes activos"], ["4.8/5", "Referencias"]] as const).map((s, i) => (
+                {STATS.map((s, i) => (
                   <div key={i}>
                     <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: 30, color: i === 0 ? accent : "#fff", lineHeight: 1 }}>{s[0]}</div>
                     <div style={{ fontFamily: FONT_BODY, fontSize: 12, color: "rgba(255,255,255,0.42)", marginTop: 3 }}>{s[1]}</div>
@@ -395,7 +420,7 @@ function HeroJourneyTimeline({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCt
 
         {/* scroll hint */}
         <div ref={hintRef} style={{ position: "absolute", bottom: 26, left: "50%", transform: "translateX(-50%)", zIndex: 6, display: "flex", flexDirection: "column", alignItems: "center", gap: 6, color: "rgba(255,255,255,0.4)" }}>
-          <span style={{ fontFamily: FONT_BODY, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase" }}>Descendé al mapa</span>
+          <span style={{ fontFamily: FONT_BODY, fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase" }}>{t("scrollHint")}</span>
           <span className="scroll-dot" />
         </div>
 
@@ -435,6 +460,7 @@ function HeroJourneyTimeline({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCt
 /* ── reduced-motion resting hero (static, no scrolljack) ── */
 function HeroJourneyStatic({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCta?: () => void; data: HeroGlobeData }) {
   const accent = tweaks.accent;
+  const t = useTranslations("home.hero");
   const drive = React.useRef<GlobeDrive | null>({ zoom: 1, lookLon: 62, lookLat: 36, lookAmt: 0, cxFrac: 0.5, cyFrac: 0.5, radiusFrac: 0.42, render: true });
   const redraw = React.useRef<(() => void) | null>(null);
   const tagLayer = React.useRef<HTMLDivElement>(null);
@@ -444,15 +470,15 @@ function HeroJourneyStatic({ tweaks, onCta, data }: { tweaks: HeroTweaks; onCta?
         <div>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "5px 14px", borderRadius: 999, border: `1px solid ${accent}40`, background: `${accent}12`, marginBottom: 24 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: accent }} />
-            <Eyebrow color={accent}>Beta abierta</Eyebrow>
+            <Eyebrow color={accent}>{t("eyebrow")}</Eyebrow>
           </div>
           <Headline which={tweaks.headline} accent={accent} size="clamp(38px, 6.2vw, 64px)" animate={false} />
           <p style={{ fontFamily: FONT_BODY, fontSize: 16, color: "rgba(255,255,255,0.55)", lineHeight: 1.65, margin: "24px 0 30px", maxWidth: 440 }}>
-            Centralizá tu perfil profesional, sumá reseñas verificadas y conectate con clubes que buscan potenciar su plantel.
+            {t("descriptionShort")}
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-            <Btn variant="fill" accent={accent} onClick={onCta}>Crear mi perfil</Btn>
-            <Btn variant="outline" href="/como-validamos">Cómo validamos</Btn>
+            <Btn variant="fill" accent={accent} onClick={onCta}>{t("cta")}</Btn>
+            <Btn variant="outline" href="/como-validamos">{t("howWeValidate")}</Btn>
           </div>
         </div>
         <div style={{ position: "relative", aspectRatio: "1 / 1", width: "100%", maxWidth: 520, justifySelf: "end" }}>

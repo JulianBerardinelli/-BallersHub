@@ -1,0 +1,38 @@
+{
+  "agencies": {
+    "pageName": "Agências",
+    "metaTitle": "Agências de representação de jogadores",
+    "metaDescription": "Diretório de agências de representação de jogadores verificadas na 'BallersHub. Acesse o elenco oficial de jogadores de cada agência.",
+    "ogTitle": "Agências de representação · 'BallersHub"
+  },
+  "comoValidamos": {
+    "metaTitle": "Como validamos",
+    "metaDescription": "O fluxo de validação da 'BallersHub: cada mudança crítica em um perfil passa por revisão humana, conferência com mais de 10 fontes esportivas (Transfermarkt, Sofascore, FBref…) e verificação com agentes de IA (Gemini, Claude, ChatGPT) antes de ser publicada.",
+    "ogTitle": "Como validamos · 'BallersHub"
+  },
+  "search": {
+    "title": "Resultados",
+    "searched": "Você buscou: “{q}”",
+    "prompt": "Digite um termo de busca."
+  },
+  "unsubscribe": {
+    "metaTitle": "Cancelar inscrição",
+    "metaDescription": "Cancele sua inscrição nas comunicações da 'BallersHub.",
+    "success": {
+      "title": "Inscrição cancelada",
+      "intro": "Pronto. Não vamos enviar mais e-mails de marketing para ",
+      "fallback": "Você vai continuar recebendo e-mails transacionais (recuperação de senha, confirmações, etc.) porque são necessários para usar a plataforma.",
+      "back": "Voltar ao início"
+    },
+    "error": {
+      "title": "Link inválido",
+      "defaultMessage": "O link de cancelamento é inválido ou expirou.",
+      "contact": "Se quiser cancelar a inscrição, escreva para <email>info@ballershub.co</email> e a gente resolve."
+    },
+    "noToken": {
+      "title": "Cancelar inscrição",
+      "description": "Para cancelar, abra o último e-mail que enviamos e clique em “cancelar inscrição aqui” no rodapé. Esse link contém um token único assinado para o seu endereço.",
+      "contact": "Se não achar o e-mail, escreva para <email>info@ballershub.co</email>."
+    }
+  }
+}

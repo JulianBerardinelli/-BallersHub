@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { verifyUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
 import { suppress } from "@/lib/marketing/suppression";
 import UnsubscribeView from "./UnsubscribeView";
 
-export const metadata: Metadata = {
-  title: "Cancelar suscripción",
-  description: "Cancelá tu suscripción a comunicaciones de 'BallersHub.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("site.unsubscribe");
+  return {
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type Search = Promise<{ token?: string }>;
 
@@ -35,14 +39,13 @@ export default async function UnsubscribePage({ searchParams }: { searchParams: 
     await suppress(email, "user_request");
     return <UnsubscribeView state={{ kind: "success", email }} />;
   } catch (e) {
+    const t = await getTranslations("site.unsubscribe.error");
     return (
       <UnsubscribeView
         state={{
           kind: "error",
           message:
-            e instanceof Error && e.message
-              ? e.message
-              : "El enlace de cancelación no es válido o expiró.",
+            e instanceof Error && e.message ? e.message : t("defaultMessage"),
         }}
       />
     );

@@ -1,0 +1,280 @@
+{
+  "hero": {
+    "eyebrow": "Beta abierta",
+    "description": "Centralizá tu perfil profesional, sumá reseñas verificadas y conectate con clubes que buscan potenciar su plantel. Todo en un solo lugar.",
+    "descriptionShort": "Centralizá tu perfil profesional, sumá reseñas verificadas y conectate con clubes que buscan potenciar su plantel.",
+    "cta": "Crear mi perfil",
+    "howWeValidate": "Cómo validamos",
+    "scrollHint": "Descendé al mapa",
+    "counter": {
+      "value": "+70",
+      "label": "jugadores registrados"
+    },
+    "stats": {
+      "profiles": {
+        "value": "+1.2K",
+        "label": "Perfiles validados"
+      },
+      "clubs": {
+        "value": "86",
+        "label": "Clubes activos"
+      },
+      "references": {
+        "value": "4.8/5",
+        "label": "Referencias"
+      }
+    },
+    "videoWall": {
+      "eyebrow": "Red global de talento",
+      "line1": "Jugadores de todo el mundo,",
+      "line2": "en un solo ",
+      "accentWord": "hub",
+      "body": "Cada perfil está validado: identidad, trayectoria y referencias confirmadas por nuestro equipo.",
+      "cta": "Crear portfolio web"
+    }
+  },
+  "dashJourney": {
+    "verifiedData": "Datos verificados",
+    "howWeValidate": "¿Cómo validamos?",
+    "skip": "Saltar",
+    "steps": {
+      "product": {
+        "eyebrow": "El producto · 01",
+        "titleLine1": "Tu portfolio web",
+        "titleLine2": "automatizado.",
+        "description": "Plug and play: subís tus datos, los validamos y en segundos tenés tu portfolio profesional 100% automático, online e indexado en Google, listo para enviar a agentes, directivos y clubes.",
+        "tags": {
+          "indexedGoogle": "Indexado en Google",
+          "realResponsive": "Responsive real",
+          "readyInSeconds": "Listo en segundos"
+        }
+      },
+      "dashboard": {
+        "eyebrow": "El dashboard · 02",
+        "titleLine1": "Armá tu carrera,",
+        "titleLine2": "paso a paso.",
+        "description": "Cargá clubes, temporadas y estadísticas con formularios hechos para futbolistas. Elegí tu identidad visual y publicá. Sin diseñadores, sin fricción.",
+        "tags": {
+          "career": "Trayectoria",
+          "stats": "Estadísticas",
+          "visualIdentity": "Identidad visual"
+        }
+      },
+      "agent": {
+        "eyebrow": "Cuentas de agente · 03",
+        "titleLine1": "¿Sos agente?",
+        "titleLine2": "Cargá tu roster.",
+        "description": "Una central para todos tus representados. Sumá tus licencias, colaboraciones y los clubes con los que trabajaste, y publicá tu página de agente profesional en un clic.",
+        "tags": {
+          "licenses": "Licencias",
+          "collaborations": "Colaboraciones",
+          "publicPage": "Página pública"
+        }
+      }
+    },
+    "guide": {
+      "product": "Producto",
+      "dashboard": "Dashboard",
+      "agent": "Agente"
+    },
+    "mock": {
+      "profile": {
+        "verifiedChip": "VERIFICADO",
+        "contactCta": "Contactar",
+        "stats": {
+          "matches": "Partidos",
+          "goals": "Goles",
+          "height": "Altura"
+        },
+        "reelLabel": "Reel · 0:38"
+      },
+      "profilePhone": {
+        "role": "MCO · Mediocampista",
+        "statAbbrev": {
+          "matchesPlayed": "PJ",
+          "goals": "G",
+          "rating": "★"
+        },
+        "contactCta": "Contactar a Lucas"
+      },
+      "dashboard": {
+        "sidebar": {
+          "label": "Dashboard",
+          "items": {
+            "profile": "Mi perfil",
+            "career": "Trayectoria",
+            "stats": "Estadísticas",
+            "media": "Multimedia",
+            "visualIdentity": "Identidad visual",
+            "reviews": "Reseñas"
+          }
+        },
+        "header": {
+          "title": "Trayectoria",
+          "subtitle": "Construí tu historia"
+        },
+        "previewLabel": "Vista previa"
+      },
+      "agent": {
+        "sidebar": {
+          "label": "Agente",
+          "items": {
+            "roster": "Cartera",
+            "tracking": "Seguimiento",
+            "dossiers": "Dossiers",
+            "market": "Mercado",
+            "messages": "Mensajes"
+          }
+        },
+        "header": {
+          "title": "Mi cartera",
+          "subtitle": "4 representados"
+        },
+        "kpis": {
+          "portfolioValue": "Valor cartera",
+          "trend90d": "Tendencia 90d",
+          "interestedClubs": "Clubes interesados"
+        },
+        "table": {
+          "player": "Jugador",
+          "club": "Club",
+          "value": "Valor",
+          "trend": "Tend."
+        }
+      },
+      "page": {
+        "role": "DC · Delantero · 🇺🇾",
+        "officialRep": "REP. OFICIAL",
+        "statAbbrev": {
+          "goals": "G",
+          "euros": "€",
+          "age": "a"
+        },
+        "requestDossier": "Solicitar dossier"
+      }
+    },
+    "cards": {
+      "brand": {
+        "title": "Colores de marca",
+        "subtitle": "Elegí una paleta preestablecida o definí los colores manualmente.",
+        "presetLabel": "PRESET",
+        "presets": {
+          "mono": "Monocromo",
+          "cyberpunk": "Cyberpunk",
+          "electricBlue": "Azul Eléctrico",
+          "imperialGold": "Oro Imperial"
+        },
+        "swatches": {
+          "background": "Background",
+          "primary": "Primario",
+          "secondary": "Secundario",
+          "accent": "Acento"
+        }
+      },
+      "career": {
+        "ageGroupLabel": "Juveniles AFA · 2015–2017",
+        "fields": {
+          "club": "Club",
+          "division": "División",
+          "from": "Desde (año)",
+          "to": "Hasta (año)"
+        },
+        "selects": {
+          "division": "Liga Pro"
+        },
+        "toggles": {
+          "current": "Es mi equipo actual",
+          "otherCategory": "Disputé otra categoría/liga"
+        },
+        "verifiedTeam": "Equipo verificado",
+        "actions": {
+          "cancel": "Cancelar",
+          "confirm": "Confirmar etapa",
+          "remove": "Eliminar",
+          "addStage": "Agregar etapa"
+        }
+      },
+      "stats": {
+        "title": "Estadísticas por temporada",
+        "subtitle": "Seguimiento agregado de tus números oficiales para compartir con clubes y representantes.",
+        "headers": {
+          "season": "Temporada",
+          "competition": "Competencia",
+          "matches": "PJ",
+          "goals": "GOL",
+          "assists": "ASI"
+        },
+        "competitionLabel": "Liga",
+        "fields": {
+          "careerStage": "Etapa de trayectoria",
+          "season": "Temporada",
+          "team": "Equipo",
+          "matches": "PJ",
+          "starts": "Titular",
+          "goals": "Goles",
+          "assists": "Asist."
+        },
+        "selects": {
+          "careerStage": "CA Independiente · 2018–2019"
+        },
+        "placeholders": {
+          "season": "Ej: 2023 / 2024",
+          "team": "Club"
+        },
+        "addSeason": "Agregar temporada"
+      }
+    }
+  },
+  "pricing": {
+    "eyebrow": "Planes & precios",
+    "titleLine1": "Elegí el plan que",
+    "titleHighlight": "acelera tu carrera",
+    "subtitle": "Empezá gratis y, cuando estés listo, sumá Pro. Para jugadores y agencias.",
+    "viewFaq": "Ver preguntas frecuentes"
+  },
+  "features": {
+    "eyebrow": "Pensado para profesionales",
+    "title": "Construí un perfil listo para compartir",
+    "subtitle": "Herramientas diseñadas para jugadoras, jugadores y staff técnico que quieren profesionalizar su presencia digital.",
+    "items": {
+      "verification": {
+        "title": "Verificación profesional",
+        "description": "Nuestro equipo valida identidad, contratos y antecedentes para generar confianza en cada perfil.",
+        "tag": "Confianza"
+      },
+      "schedule": {
+        "title": "Agenda deportiva integrada",
+        "description": "Cargá tus próximos partidos y presentaciones. Compartí agenda con clubes y representantes en tiempo real.",
+        "tag": "Visibilidad"
+      },
+      "presentations": {
+        "title": "Presentaciones listas en minutos",
+        "description": "Plantillas inteligentes para enviar tu perfil a clubes con métricas, clips destacados y reseñas.",
+        "tag": "Escalá tu marca"
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Historias reales, impacto tangible",
+    "subtitle": "Una comunidad que crece con validación y acompañamiento constante.",
+    "items": {
+      "maria": {
+        "name": "María López",
+        "role": "Extremo · Primera División Femenina",
+        "quote": "'BallersHub me permitió centralizar videos y referencias en minutos. Ahora cada contacto recibe información actualizada."
+      },
+      "sebastian": {
+        "name": "Sebastián Duarte",
+        "role": "Coordinador de scouting · Club Andino",
+        "quote": "La plataforma nos da transparencia sobre la trayectoria de cada jugadora. Filtramos por posición y estado físico al instante."
+      }
+    }
+  },
+  "cta": {
+    "eyebrow": "Próximo paso",
+    "titleLead": "Prepará tu próxima",
+    "titleHighlight": "transferencia",
+    "description": "Organiza tus datos, compartí tu trayectoria y mantené actualizadas tus referencias con 'BallersHub.",
+    "button": "Crear cuenta gratuita"
+  }
+}

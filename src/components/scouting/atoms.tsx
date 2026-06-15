@@ -5,6 +5,8 @@
 // prototype's placeholders for real data: real avatar photo / club crest when
 // present, deterministic gradient + initials otherwise.
 
+import { useTranslations } from "next-intl";
+
 import type { ContractStatus, ScoutPlayer } from "@/lib/scouting/types";
 
 /** Stable 0–359 hue from a string seed (slug), so each avatar is consistent. */
@@ -119,13 +121,14 @@ export function ClubCrest({
   crestUrl?: string | null;
   size?: number;
 }) {
+  const t = useTranslations("scouting");
   if (crestUrl) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         className="club-crest-img"
         src={crestUrl}
-        alt={`Escudo de ${club}`}
+        alt={t("table.clubCrestAlt", { club })}
         width={size}
         height={size}
         loading="lazy"
@@ -206,12 +209,13 @@ export function PlayerAvatar({
   );
 }
 
-/** Contract status pill — "Libre" (lime) / "Contrato" (blue). */
+/** Contract status pill — localized "Libre" (lime) / "Contrato" (blue). */
 export function ContractTag({ status }: { status: ContractStatus }) {
+  const t = useTranslations("scouting");
   return (
     <span className="contract-tag" data-status={status}>
       <span className="dot" />
-      {status === "free" ? "Libre" : "Contrato"}
+      {status === "free" ? t("contract.free") : t("contract.contracted")}
     </span>
   );
 }

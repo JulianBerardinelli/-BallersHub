@@ -10,6 +10,7 @@
 import dynamic from "next/dynamic";
 import { useState, type MutableRefObject } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 import { CityRoster } from "./CityRoster";
 import { GlobeLegend, type TopCountry } from "./GlobeLegend";
@@ -73,6 +74,7 @@ export function ScoutingHero({
   liveCountries: number;
   stats: HeroStats;
 }) {
+  const t = useTranslations("scouting");
   const [ready, setReady] = useState(false);
   const reduceMotion = useReducedMotion() ?? false;
 
@@ -82,7 +84,7 @@ export function ScoutingHero({
         {!ready && (
           <div className="skel-globe">
             <div className="skel-orb" />
-            <div className="skel-label">Cargando topografía</div>
+            <div className="skel-label">{t("hero.loadingGlobe")}</div>
           </div>
         )}
 
@@ -104,10 +106,10 @@ export function ScoutingHero({
 
         {/* Floating title — top center */}
         <div className="float-title">
-          <div className="ft-eyebrow">Scouting · Búsqueda global</div>
-          <h1 className="ft-headline">El mapa del talento</h1>
+          <div className="ft-eyebrow">{t("hero.eyebrow")}</div>
+          <h1 className="ft-headline">{t("hero.headline")}</h1>
           <div className="ft-sub">
-            {liveCount} jugadores · {liveCountries} países en vivo
+            {t("hero.subtitle", { count: liveCount, countries: liveCountries })}
           </div>
         </div>
 
@@ -120,17 +122,17 @@ export function ScoutingHero({
         <div className="float-stats">
           <div className="fs-row">
             <div className="fs-num">{stats.players}</div>
-            <div className="fs-lbl">Jugadores</div>
+            <div className="fs-lbl">{t("stats.players")}</div>
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
             <div className="fs-num">{stats.countries}</div>
-            <div className="fs-lbl">Países</div>
+            <div className="fs-lbl">{t("stats.countries")}</div>
           </div>
           <div className="fs-divider" />
           <div className="fs-row">
             <div className="fs-num">{stats.cities}</div>
-            <div className="fs-lbl">Ciudades</div>
+            <div className="fs-lbl">{t("stats.cities")}</div>
           </div>
         </div>
 

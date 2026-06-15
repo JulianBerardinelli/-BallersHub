@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 import { useHideDockWhile } from "@/components/layout/mobile-nav/dock-visibility";
 import { ClubCrest, Flag, FlagStack, PlayerAvatar } from "../atoms";
@@ -71,23 +72,24 @@ function MTopBar({
   filterCount: number;
   onFilters: () => void;
 }) {
+  const t = useTranslations("scouting");
   return (
     <div className="m-topbar">
       <div className="m-topbar-left">
         <div className="m-logo">
           <span style={{ color: "var(--bh-lime-200)" }}>&apos;</span>
-          <span>BH</span>
+          <span>{t("mobile.brandShort")}</span>
         </div>
         <div>
-          <div className="m-topbar-eyebrow">Scouting</div>
-          <div className="m-topbar-title">Mapa global</div>
+          <div className="m-topbar-eyebrow">{t("mobile.topbarEyebrow")}</div>
+          <div className="m-topbar-title">{t("mobile.topbarTitle")}</div>
         </div>
       </div>
       <div className="m-topbar-right">
         <button
           type="button"
           className="m-icon-btn m-filter-btn"
-          aria-label="Filtros"
+          aria-label={t("mobile.filtersLabel")}
           onClick={onFilters}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -111,6 +113,7 @@ function MPlayerRow({
   player: ScoutPlayer;
   onOpen: (p: ScoutPlayer) => void;
 }) {
+  const t = useTranslations("scouting");
   return (
     <button
       type="button"
@@ -122,7 +125,7 @@ function MPlayerRow({
       <div className="m-prow-body">
         <div className="m-prow-name">
           {player.name}
-          {player.isPro && <span className="pt-pro">Pro</span>}
+          {player.isPro && <span className="pt-pro">{t("table.proBadge")}</span>}
         </div>
         <div className="m-prow-meta">
           {player.positions.map((pos) => (
@@ -134,8 +137,16 @@ function MPlayerRow({
               {pos.code}
             </span>
           ))}
-          {player.age != null && <span className="m-prow-mini">{player.age}a</span>}
-          {player.heightCm && <span className="m-prow-mini">{player.heightCm}cm</span>}
+          {player.age != null && (
+            <span className="m-prow-mini">
+              {t("mobile.ageSuffix", { age: player.age })}
+            </span>
+          )}
+          {player.heightCm && (
+            <span className="m-prow-mini">
+              {t("mobile.heightSuffix", { height: player.heightCm })}
+            </span>
+          )}
         </div>
         {player.club && (
           <div className="m-prow-club">
@@ -149,7 +160,9 @@ function MPlayerRow({
       <div className="m-prow-right">
         <FlagStack codes={player.nationalities} size={14} />
         <div className={player.contract === "free" ? "m-prow-free" : "m-prow-contract"}>
-          {player.contract === "free" ? "Libre" : "Contrato"}
+          {player.contract === "free"
+            ? t("contract.free")
+            : t("contract.contracted")}
         </div>
       </div>
     </button>
@@ -160,6 +173,7 @@ function MPlayerRow({
 type Chip = { key: string; label: string; onRemove: () => void };
 
 function MChipStrip({ chips, onClear }: { chips: Chip[]; onClear: () => void }) {
+  const t = useTranslations("scouting");
   if (chips.length === 0) {
     return (
       <div className="m-chip-strip m-chip-strip-empty">
@@ -167,7 +181,7 @@ function MChipStrip({ chips, onClear }: { chips: Chip[]; onClear: () => void }) 
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
             <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
           </svg>
-          Sin filtros · tocá Filtros para refinar
+          {t("mobile.noFiltersHint")}
         </span>
       </div>
     );
@@ -183,7 +197,7 @@ function MChipStrip({ chips, onClear }: { chips: Chip[]; onClear: () => void }) 
         </button>
       ))}
       <button type="button" className="m-chip-clear" onClick={onClear}>
-        Limpiar
+        {t("mobile.clearShort")}
       </button>
     </div>
   );
@@ -209,6 +223,7 @@ function MFilterSheet({
   onClear: () => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("scouting");
   const toggle = (key: "positions" | "nationality", val: string) =>
     setFilters((s) => {
       const next = new Set(s[key]);
@@ -256,10 +271,15 @@ function MFilterSheet({
       <div className="m-sheet-grabber" onClick={onClose} />
       <div className="m-sheet-head">
         <div>
-          <div className="m-sheet-eyebrow">Filtros</div>
-          <div className="m-sheet-title">Refinar búsqueda</div>
+          <div className="m-sheet-eyebrow">{t("mobile.sheetEyebrow")}</div>
+          <div className="m-sheet-title">{t("mobile.sheetTitle")}</div>
         </div>
-        <button type="button" className="m-sheet-close" onClick={onClose} aria-label="Cerrar">
+        <button
+          type="button"
+          className="m-sheet-close"
+          onClick={onClose}
+          aria-label={t("mobile.close")}
+        >
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
             <path d="M1 1 L13 13 M13 1 L1 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
@@ -268,7 +288,7 @@ function MFilterSheet({
 
       <div className="m-sheet-body">
         <div className="m-sheet-section">
-          <div className="m-sheet-section-label">Estado contractual</div>
+          <div className="m-sheet-section-label">{t("mobile.sectionStatus")}</div>
           <div className="m-segment">
             {(["all", "free", "contracted"] as const).map((k) => (
               <button
@@ -277,7 +297,11 @@ function MFilterSheet({
                 data-active={filters.status === k}
                 onClick={() => setFilters((s) => ({ ...s, status: k }))}
               >
-                {k === "all" ? "Todos" : k === "free" ? "Libres" : "Con contrato"}
+                {k === "all"
+                  ? t("filters.statusAll")
+                  : k === "free"
+                  ? t("filters.statusFree")
+                  : t("filters.statusContracted")}
               </button>
             ))}
           </div>
@@ -285,7 +309,8 @@ function MFilterSheet({
 
         <div className="m-sheet-section">
           <div className="m-sheet-section-label">
-            Posición <span className="m-sheet-count">{filters.positions.length}</span>
+            {t("mobile.sectionPosition")}{" "}
+            <span className="m-sheet-count">{filters.positions.length}</span>
           </div>
           <div className="m-pos-grid">
             {posGroups.map((p) => (
@@ -306,9 +331,12 @@ function MFilterSheet({
 
         <div className="m-sheet-section">
           <div className="m-sheet-section-label">
-            Edad
+            {t("mobile.sectionAge")}
             <span className="m-sheet-range-val">
-              {filters.age[0]}–{filters.age[1]} años
+              {t("mobile.sectionAgeValue", {
+                lo: filters.age[0],
+                hi: filters.age[1],
+              })}
             </span>
           </div>
           <div className="m-range">
@@ -339,7 +367,8 @@ function MFilterSheet({
         {nationalityOptions.length > 0 && (
           <div className="m-sheet-section">
             <div className="m-sheet-section-label">
-              Nacionalidad <span className="m-sheet-count">{filters.nationality.length}</span>
+              {t("mobile.sectionNationality")}{" "}
+              <span className="m-sheet-count">{filters.nationality.length}</span>
             </div>
             <div className="m-nat-grid">
               {nationalityOptions.map((c) => (
@@ -363,13 +392,13 @@ function MFilterSheet({
         )}
 
         <div className="m-sheet-section">
-          <div className="m-sheet-section-label">Pie hábil</div>
+          <div className="m-sheet-section-label">{t("mobile.sectionFoot")}</div>
           <div className="m-segment">
             {(
               [
-                ["all", "Ambos"],
-                ["D", "Derecho"],
-                ["I", "Izquierdo"],
+                ["all", t("mobile.footBoth")],
+                ["D", t("mobile.footRight")],
+                ["I", t("mobile.footLeft")],
               ] as const
             ).map(([k, l]) => {
               const active =
@@ -398,10 +427,13 @@ function MFilterSheet({
 
       <div className="m-sheet-cta">
         <button type="button" className="m-cta-secondary" onClick={onClear}>
-          Limpiar
+          {t("mobile.clearShort")}
         </button>
         <button type="button" className="m-cta-primary" onClick={onApply}>
-          Ver <strong>{count}</strong> jugadores
+          {t.rich("mobile.applyCount", {
+            count,
+            b: (chunks) => <strong>{chunks}</strong>,
+          })}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
             <path d="M9 6l6 6-6 6" />
           </svg>
@@ -425,6 +457,7 @@ function MCitySheet({
   onClose: () => void;
   onOpenPlayer: (p: ScoutPlayer) => void;
 }) {
+  const t = useTranslations("scouting");
   const [latched, setLatched] = useState<ScoutCity | null>(cityProp);
   useEffect(() => {
     if (cityProp) setLatched(cityProp);
@@ -437,12 +470,19 @@ function MCitySheet({
       <div className="m-sheet-grabber" onClick={onClose} />
       <div className="m-sheet-head">
         <div>
-          <div className="m-sheet-eyebrow">{city.players.length} jugadores</div>
+          <div className="m-sheet-eyebrow">
+            {t("roster.playerCount", { count: city.players.length })}
+          </div>
           <div className="m-sheet-title">
             {city.name || countryName(city.countryCode)}
           </div>
         </div>
-        <button type="button" className="m-sheet-close" onClick={onClose} aria-label="Cerrar">
+        <button
+          type="button"
+          className="m-sheet-close"
+          onClick={onClose}
+          aria-label={t("mobile.close")}
+        >
           <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
             <path d="M1 1 L13 13 M13 1 L1 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
           </svg>
@@ -469,6 +509,7 @@ function MPlayerSheet({
   open: boolean;
   onClose: () => void;
 }) {
+  const t = useTranslations("scouting");
   const [latched, setLatched] = useState<ScoutPlayer | null>(playerProp);
   useEffect(() => {
     if (playerProp) setLatched(playerProp);
@@ -479,7 +520,12 @@ function MPlayerSheet({
   return (
     <div className={`m-psheet ${open ? "open" : ""}`} aria-hidden={!open}>
       <div className="m-sheet-grabber" />
-      <button type="button" className="m-psheet-close" onClick={onClose} aria-label="Cerrar">
+      <button
+        type="button"
+        className="m-psheet-close"
+        onClick={onClose}
+        aria-label={t("mobile.close")}
+      >
         <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden>
           <path d="M1 1 L13 13 M13 1 L1 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
@@ -513,14 +559,14 @@ function MPlayerSheet({
             {player.age != null && (
               <>
                 <span className="m-dotsep">·</span>
-                <span>{player.age}a</span>
+                <span>{t("mobile.ageSuffix", { age: player.age })}</span>
               </>
             )}
           </div>
         </div>
         <div className="m-psheet-rating" data-status={player.contract}>
           <div className="m-psheet-rating-n">{fmtValue(player.marketValueEur)}</div>
-          <div className="m-psheet-rating-l">Valor</div>
+          <div className="m-psheet-rating-l">{t("mobile.valueLabel")}</div>
         </div>
       </div>
 
@@ -528,7 +574,7 @@ function MPlayerSheet({
         <div className="m-psheet-club">
           <ClubCrest club={player.club} crestUrl={player.clubCrestUrl} size={40} />
           <div className="m-psheet-club-info">
-            <div className="m-psheet-club-eyebrow">Club actual</div>
+            <div className="m-psheet-club-eyebrow">{t("mobile.currentClub")}</div>
             <div className="m-psheet-club-name">{player.club}</div>
             <div className="m-psheet-club-loc">
               {player.clubCountryCode && <Flag cc={player.clubCountryCode} />}
@@ -539,7 +585,9 @@ function MPlayerSheet({
           </div>
           <div className="m-psheet-status" data-status={player.contract}>
             <span className="m-status-dot" />
-            {player.contract === "free" ? "Libre" : "Contrato"}
+            {player.contract === "free"
+              ? t("contract.free")
+              : t("contract.contracted")}
           </div>
         </div>
       )}
@@ -547,28 +595,28 @@ function MPlayerSheet({
       <div className="m-psheet-stats">
         <div className="m-pstat">
           <div className="m-pstat-num">{player.foot ?? "—"}</div>
-          <div className="m-pstat-lbl">Pie</div>
+          <div className="m-pstat-lbl">{t("mobile.labelFoot")}</div>
         </div>
         <div className="m-pstat">
           <div className="m-pstat-num">
             {player.heightCm ?? "—"}
-            {player.heightCm && <span>cm</span>}
+            {player.heightCm && <span>{t("table.heightUnit")}</span>}
           </div>
-          <div className="m-pstat-lbl">Altura</div>
+          <div className="m-pstat-lbl">{t("mobile.labelHeight")}</div>
         </div>
         <div className="m-pstat">
           <div className="m-pstat-num">{player.posCode || "—"}</div>
-          <div className="m-pstat-lbl">Pos</div>
+          <div className="m-pstat-lbl">{t("mobile.labelPosition")}</div>
         </div>
         <div className="m-pstat">
           <div className="m-pstat-num">{player.nationality || "—"}</div>
-          <div className="m-pstat-lbl">Nac</div>
+          <div className="m-pstat-lbl">{t("mobile.labelNationality")}</div>
         </div>
       </div>
 
       <div className="m-psheet-cta">
         <Link className="m-cta-primary" href={`/${player.slug}`}>
-          Ver perfil completo
+          {t("mobile.viewProfile")}
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
             <path d="M9 6l6 6-6 6" />
           </svg>
@@ -602,6 +650,7 @@ export function MobileScouting({
   nationalityOptions: CountryOption[];
   onCountryClick: (iso: string) => void;
 }) {
+  const t = useTranslations("scouting");
   const reduceMotion = useReducedMotion() ?? false;
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<ScoutPlayer | null>(null);
@@ -634,7 +683,10 @@ export function MobileScouting({
   if (filters.status !== "all")
     chips.push({
       key: "status",
-      label: filters.status === "free" ? "Libres" : "Con contrato",
+      label:
+        filters.status === "free"
+          ? t("filters.statusFree")
+          : t("filters.statusContracted"),
       onRemove: () => setFilters((s) => ({ ...s, status: "all" })),
     });
   filters.positions.forEach((p) =>
@@ -656,7 +708,7 @@ export function MobileScouting({
   filters.playCountry.forEach((c) =>
     chips.push({
       key: `pc-${c}`,
-      label: `Juega en ${countryName(c)}`,
+      label: t("filters.chipPlayCountry", { country: countryName(c) }),
       onRemove: () =>
         setFilters((s) => ({ ...s, playCountry: s.playCountry.filter((x) => x !== c) })),
     }),
@@ -664,19 +716,27 @@ export function MobileScouting({
   if (filters.age[0] !== AGE_BOUNDS[0] || filters.age[1] !== AGE_BOUNDS[1])
     chips.push({
       key: "age",
-      label: `${filters.age[0]}–${filters.age[1]} años`,
+      label: t("filters.ageRange", { lo: filters.age[0], hi: filters.age[1] }),
       onRemove: () => setFilters((s) => ({ ...s, age: [...AGE_BOUNDS] })),
     });
   if (filters.height[0] !== HEIGHT_BOUNDS[0] || filters.height[1] !== HEIGHT_BOUNDS[1])
     chips.push({
       key: "height",
-      label: `${filters.height[0]}–${filters.height[1]} cm`,
+      label: t("filters.heightRange", {
+        lo: filters.height[0],
+        hi: filters.height[1],
+      }),
       onRemove: () => setFilters((s) => ({ ...s, height: [...HEIGHT_BOUNDS] })),
     });
   filters.foot.forEach((f) =>
     chips.push({
       key: `f-${f}`,
-      label: f === "D" ? "Pie derecho" : f === "I" ? "Pie izquierdo" : "Ambidiestro",
+      label:
+        f === "D"
+          ? t("filters.footRight")
+          : f === "I"
+          ? t("filters.footLeft")
+          : t("filters.footBoth"),
       onRemove: () => setFilters((s) => ({ ...s, foot: s.foot.filter((x) => x !== f) })),
     }),
   );
@@ -753,11 +813,14 @@ export function MobileScouting({
         </div>
 
         <div className="m-float-title">
-          <div className="m-ft-eyebrow">Talento en vivo</div>
-          <div className="m-ft-hed">El mapa del talento</div>
+          <div className="m-ft-eyebrow">{t("mobile.heroEyebrow")}</div>
+          <div className="m-ft-hed">{t("mobile.heroTitle")}</div>
           <div className="m-ft-sub">
             <span className="m-ft-dot" />
-            {filtered.length} jugadores · {liveCountries} países
+            {t("mobile.heroLiveCount", {
+              count: filtered.length,
+              countries: liveCountries,
+            })}
           </div>
         </div>
 
@@ -768,18 +831,18 @@ export function MobileScouting({
               <span className="m-density-flag">{topCountries[0].code}</span>
               <span className="m-density-num">{topCountries[0].count}</span>
             </div>
-            <div className="m-density-label">Top zona</div>
+            <div className="m-density-label">{t("mobile.topZone")}</div>
           </div>
         )}
 
         <div className="m-stats-chip">
           <div className="m-stats-row">
             <div className="m-stats-num">{players.length}</div>
-            <div className="m-stats-lbl">Jugadores</div>
+            <div className="m-stats-lbl">{t("stats.players")}</div>
           </div>
           <div className="m-stats-row">
             <div className="m-stats-num">{cities.length}</div>
-            <div className="m-stats-lbl">Ciudades</div>
+            <div className="m-stats-lbl">{t("stats.cities")}</div>
           </div>
         </div>
       </div>
@@ -787,19 +850,22 @@ export function MobileScouting({
       <MChipStrip chips={chips} onClear={onClear} />
 
       <div className="m-list-head">
-        <div className="m-list-eyebrow">Top resultados</div>
+        <div className="m-list-eyebrow">{t("mobile.topResults")}</div>
         <div className="m-list-count">
-          <strong>{filtered.length}</strong>jugadores
+          {t.rich("mobile.listCount", {
+            count: filtered.length,
+            b: (chunks) => <strong>{chunks}</strong>,
+          })}
         </div>
       </div>
 
       <div className="m-list">
         {filtered.length === 0 ? (
           <div className="m-empty">
-            <div className="m-empty-title">Ningún jugador coincide</div>
-            <div className="m-empty-sub">Ajustá los filtros para ampliar la búsqueda.</div>
+            <div className="m-empty-title">{t("mobile.emptyTitle")}</div>
+            <div className="m-empty-sub">{t("mobile.emptySub")}</div>
             <button type="button" className="m-empty-btn" onClick={onClear}>
-              Limpiar filtros
+              {t("mobile.emptyAction")}
             </button>
           </div>
         ) : (
@@ -812,7 +878,7 @@ export function MobileScouting({
       <button
         type="button"
         className={`m-backdrop ${sheetOpen ? "open" : ""}`}
-        aria-label="Cerrar"
+        aria-label={t("mobile.close")}
         tabIndex={sheetOpen ? 0 : -1}
         onClick={closeAll}
       />
