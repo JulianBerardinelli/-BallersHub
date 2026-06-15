@@ -226,9 +226,9 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
   },
 ];
 
-// Coach (DT) navigation. PR-4a ships Panel + profile edit + settings; the
-// heavier sections (trayectoria con revisiones, licencias, multimedia,
-// traducciones, plantilla) land in PR-4b as their pages are built.
+// Coach (DT) navigation. PR-4a shipped Panel + profile edit + settings; PR-4b
+// adds the moderated sections (trayectoria con revisiones, licencias,
+// multimedia, idiomas). Plantilla/estilos land later.
 export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
   {
     id: "dashboard",
@@ -253,6 +253,34 @@ export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
         title: "Datos del perfil",
         href: "/dashboard/coach/edit",
         description: "Bio, cargo, ideas de juego, formaciones y objetivos.",
+      },
+      {
+        kind: "link",
+        id: "coach-career",
+        title: "Trayectoria",
+        href: "/dashboard/coach/career",
+        description: "Clubes dirigidos y estadísticas por temporada (con revisión).",
+      },
+      {
+        kind: "link",
+        id: "coach-licenses",
+        title: "Licencias",
+        href: "/dashboard/coach/licenses",
+        description: "Titulaciones y certificaciones, verificadas por el equipo.",
+      },
+      {
+        kind: "link",
+        id: "coach-multimedia",
+        title: "Multimedia",
+        href: "/dashboard/coach/multimedia",
+        description: "Fotos y videos de tu trabajo.",
+      },
+      {
+        kind: "link",
+        id: "coach-translations",
+        title: "Idiomas",
+        href: "/dashboard/coach/translations",
+        description: "Publicá tu página en inglés, italiano y portugués (Pro).",
       },
     ],
   },
