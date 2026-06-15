@@ -25,7 +25,7 @@ import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 
 export const revalidate = 3600;
 
-type Params = Promise<{ slug: string }>;
+type Params = Promise<{ slug: string; locale: string }>;
 
 export async function generateMetadata({
   params,
@@ -72,7 +72,7 @@ export async function generateMetadata({
 }
 
 export default async function AuthorHubPage({ params }: { params: Params }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const author = await getAuthorBySlug(slug);
   if (!author) return notFound();
 
@@ -81,7 +81,7 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
   // aprobado + público (gate dentro del helper) — sino el sameAs[]
   // queda sin ese link y el author hub solo refiere al blog.
   const [posts, portfolioSlug] = await Promise.all([
-    listPublishedPostsByAuthorUserId(author.userId),
+    listPublishedPostsByAuthorUserId(author.userId, { locale }),
     getPortfolioSlugForUser(author.userId),
   ]);
   const sameAs = authorSameAs(author);

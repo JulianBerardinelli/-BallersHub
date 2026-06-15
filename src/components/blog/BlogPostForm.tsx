@@ -41,6 +41,8 @@ type Props = {
     heroImageUrl?: string | null;
     cluster?: BlogCluster;
     tags?: string[];
+    /** ISO 639-1 locale for this post (i18n F6). Only editable on create. */
+    locale?: "es" | "en" | "it" | "pt";
   };
 };
 
@@ -60,6 +62,11 @@ export function BlogPostForm({ mode, initialValues }: Props) {
   const [heroImageUrl, setHeroImageUrl] = useState(initialValues?.heroImageUrl ?? "");
   const [cluster, setCluster] = useState<BlogCluster>(
     initialValues?.cluster ?? "career_guidance",
+  );
+  // i18n F6: post locale. Editable only on create — on edit it stays fixed
+  // (the post lives at a specific URL per locale).
+  const [postLocale, setPostLocale] = useState<"es" | "en" | "it" | "pt">(
+    initialValues?.locale ?? "es",
   );
   const [tagsInput, setTagsInput] = useState((initialValues?.tags ?? []).join(", "));
   const [contentHtml, setContentHtml] = useState(initialValues?.contentHtml ?? "");
@@ -116,6 +123,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
     heroImageUrl: heroImageUrl.trim() || null,
     cluster,
     tags: parseTags(tagsInput),
+    locale: postLocale,
   });
 
   const handleSave = () => {
@@ -219,6 +227,24 @@ export function BlogPostForm({ mode, initialValues }: Props) {
       </Field>
 
       <div className="grid gap-4 md:grid-cols-2">
+        {mode.kind === "create" ? (
+          <Field
+            label="Idioma"
+            hint="En qué idioma vas a escribir este post. No se puede cambiar después."
+          >
+            <select
+              value={postLocale}
+              onChange={(e) => setPostLocale(e.target.value as typeof postLocale)}
+              className="w-full rounded-bh-md border border-bh-fg-4 bg-bh-surface-1 px-4 py-2.5 text-sm text-bh-fg-1 focus:border-bh-lime focus:outline-none"
+            >
+              <option value="es">Español (default)</option>
+              <option value="en">English</option>
+              <option value="it">Italiano</option>
+              <option value="pt">Português (Brasil)</option>
+            </select>
+          </Field>
+        ) : null}
+
         <Field label="Cluster" error={fieldError("cluster")} hint="Tema del post.">
           <select
             value={cluster}

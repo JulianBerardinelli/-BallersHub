@@ -4,7 +4,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getPostBySlug, listPublishedPosts } from "@/lib/blog/posts";
 import { hydrateAuthors, authorSameAs } from "@/lib/blog/authors";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
@@ -25,7 +25,7 @@ import { BlogBadge } from "@/components/blog/primitives";
 
 export const revalidate = 3600;
 
-type Params = Promise<{ slug: string }>;
+type Params = Promise<{ slug: string; locale: string }>;
 
 // Full-bleed escape from the layout's max-w-[1200px] main.
 const fullBleed = {
@@ -35,7 +35,7 @@ const fullBleed = {
 } as const;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = await getPostBySlug(slug);
   if (!post) {
     return {
@@ -43,6 +43,9 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       robots: { index: false, follow: false },
     };
   }
+  // If the URL locale doesn't match the post locale, the page itself will
+  // redirect (see below) — metadata still reflects the matched post so the
+  // pre-redirect prefetch HTML is coherent.
 
   return {
     title: post.title,
@@ -54,7 +57,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       url: `/blog/${slug}`,
       type: "article",
       siteName: "'BallersHub",
-      locale: "es_AR",
+      locale: locale === "es" ? "es_AR" : locale,
       ...(post.heroImageUrl && {
         images: [{ url: post.heroImageUrl, alt: post.title }],
       }),
@@ -75,12 +78,20 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function BlogPostPage({ params }: { params: Params }) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return notFound();
 
+  // Redirect to the canonical locale of THIS post: if the URL says /en/blog/foo
+  // but the post is locale='es', go to /blog/foo (canonical es URL is unprefixed).
+  // This keeps each post one URL per locale and avoids language-mismatch indexing.
+  if (post.locale !== locale) {
+    const target = post.locale === "es" ? `/blog/${post.slug}` : `/${post.locale}/blog/${post.slug}`;
+    redirect(target);
+  }
+
   // Related: same cluster first, then the rest, excluding the current post.
-  const pool = await listPublishedPosts(10);
+  const pool = await listPublishedPosts({ locale, limit: 10 });
   const relatedRaw = [
     ...pool.filter((p) => p.id !== post.id && p.cluster === post.cluster),
     ...pool.filter((p) => p.id !== post.id && p.cluster !== post.cluster),

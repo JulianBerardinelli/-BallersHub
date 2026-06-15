@@ -43,8 +43,16 @@ const fullBleed = {
   width: "100vw",
 } as const;
 
-export default async function BlogIndexPage() {
-  const [posts, actor] = await Promise.all([listPublishedPosts(20), getBlogActor()]);
+export default async function BlogIndexPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  const [posts, actor] = await Promise.all([
+    listPublishedPosts({ locale, limit: 20 }),
+    getBlogActor(),
+  ]);
   const isContributor = Boolean(actor?.isBlogger || actor?.isAdmin);
 
   const authorIds = [...new Set(posts.map((p) => p.authorUserId))];
