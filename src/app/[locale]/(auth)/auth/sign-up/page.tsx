@@ -8,6 +8,7 @@ import { Mail, Lock, Eye, EyeOff, UserPlus, CheckCircle2 } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import FormField from "@/components/dashboard/client/FormField";
+import { trackSignUp } from "@/lib/analytics/ga";
 
 export default function SignUpPage() {
   const t = useTranslations("auth");
@@ -36,8 +37,9 @@ export default function SignUpPage() {
 
     if (error) return setError(error.message);
 
-    // Show success state
+    // Show success state + GA4 funnel event (organic→Pro).
     setSuccess(true);
+    trackSignUp("email");
   }
 
   if (success) {
