@@ -1,0 +1,38 @@
+{
+  "agencies": {
+    "pageName": "Agenzie",
+    "metaTitle": "Agenzie di procura per calciatori",
+    "metaDescription": "Directory delle agenzie di procura per calciatori verificate su 'BallersHub. Accedi alla rosa ufficiale di giocatori di ogni agenzia.",
+    "ogTitle": "Agenzie di procura · 'BallersHub"
+  },
+  "comoValidamos": {
+    "metaTitle": "Come validiamo",
+    "metaDescription": "Il flusso di validazione di 'BallersHub: ogni modifica critica a un profilo passa per revisione umana, confronto con oltre 10 fonti sportive (Transfermarkt, Sofascore, FBref…) e verifica con agenti IA (Gemini, Claude, ChatGPT) prima di essere pubblicata.",
+    "ogTitle": "Come validiamo · 'BallersHub"
+  },
+  "search": {
+    "title": "Risultati",
+    "searched": "Hai cercato: “{q}”",
+    "prompt": "Inserisci un termine di ricerca."
+  },
+  "unsubscribe": {
+    "metaTitle": "Cancella iscrizione",
+    "metaDescription": "Cancella l'iscrizione alle comunicazioni di 'BallersHub.",
+    "success": {
+      "title": "Iscrizione cancellata",
+      "intro": "Fatto. Non ti invieremo più email di marketing a ",
+      "fallback": "Continuerai a ricevere email transazionali (recupero password, conferme, ecc.) perché sono necessarie per usare la piattaforma.",
+      "back": "Torna alla home"
+    },
+    "error": {
+      "title": "Link non valido",
+      "defaultMessage": "Il link di cancellazione non è valido o è scaduto.",
+      "contact": "Se vuoi cancellare l'iscrizione, scrivici a <email>info@ballershub.co</email> e ci pensiamo noi."
+    },
+    "noToken": {
+      "title": "Cancella iscrizione",
+      "description": "Per cancellare, apri l'ultima email che ti abbiamo inviato e clicca su “annulla iscrizione qui” in fondo. Quel link contiene un token unico firmato per il tuo indirizzo.",
+      "contact": "Se non trovi l'email, scrivici a <email>info@ballershub.co</email>."
+    }
+  }
+}

@@ -38,6 +38,10 @@ export const saveDraftSchema = z.object({
   heroImageUrl: z.string().url("Subí una URL de imagen válida").nullable().optional(),
   cluster: blogClusterSchema,
   tags: z.array(tagSchema).max(8, "Máximo 8 tags").default([]),
+  // i18n F6: the author writes posts per locale. Only used on CREATE (the post
+  // locale is fixed for life). Optional at the type level so update flows like
+  // submitForReview→saveDraft don't have to thread it.
+  locale: z.enum(["es", "en", "it", "pt"]).optional(),
 });
 
 export type SaveDraftInput = z.infer<typeof saveDraftSchema>;

@@ -9,6 +9,7 @@
 // primary navigation for a scout.
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { ClubCrest, ContractTag, FlagStack, PlayerAvatar } from "./atoms";
 import { cityKeyOf } from "@/lib/scouting/cities";
@@ -23,22 +24,22 @@ type Density = "compact" | "comfortable";
 
 type Column = {
   key: ScoutSortKey;
-  label: string;
+  labelKey: string;
   width: string;
   align?: "right" | "center";
   mono?: boolean;
 };
 
 const COLUMNS: Column[] = [
-  { key: "name", label: "Jugador", width: "minmax(220px, 1.5fr)" },
-  { key: "posCode", label: "Pos", width: "132px" },
-  { key: "age", label: "Edad", width: "58px", align: "right", mono: true },
-  { key: "club", label: "Club", width: "minmax(220px, 1.3fr)" },
-  { key: "nationality", label: "Nac.", width: "104px" },
-  { key: "contract", label: "Estado", width: "120px" },
-  { key: "foot", label: "Pie", width: "54px", align: "center" },
-  { key: "heightCm", label: "Alt.", width: "66px", align: "right", mono: true },
-  { key: "marketValueEur", label: "Valor", width: "92px", align: "right", mono: true },
+  { key: "name", labelKey: "table.columnPlayer", width: "minmax(220px, 1.5fr)" },
+  { key: "posCode", labelKey: "table.columnPosition", width: "132px" },
+  { key: "age", labelKey: "table.columnAge", width: "58px", align: "right", mono: true },
+  { key: "club", labelKey: "table.columnClub", width: "minmax(220px, 1.3fr)" },
+  { key: "nationality", labelKey: "table.columnNationality", width: "104px" },
+  { key: "contract", labelKey: "table.columnStatus", width: "120px" },
+  { key: "foot", labelKey: "table.columnFoot", width: "54px", align: "center" },
+  { key: "heightCm", labelKey: "table.columnHeight", width: "66px", align: "right", mono: true },
+  { key: "marketValueEur", labelKey: "table.columnValue", width: "92px", align: "right", mono: true },
 ];
 
 function formatValue(v: number | null): string {
@@ -86,6 +87,7 @@ export function PlayersTable({
   /** City key active on the globe — rows in that city get highlighted. */
   highlightCityKey?: string | null;
 }) {
+  const t = useTranslations("scouting");
   const colsTpl = COLUMNS.map((c) => c.width).join(" ");
   const rowH = density === "compact" ? 50 : 64;
   const avatarSize = density === "compact" ? 34 : 42;
@@ -93,29 +95,30 @@ export function PlayersTable({
   return (
     <div className="players-table">
       <div className="pt-head" style={{ gridTemplateColumns: colsTpl }}>
-        {COLUMNS.map((c) => (
-          <button
-            key={c.key}
-            type="button"
-            className="pt-h"
-            data-align={c.align ?? "left"}
-            data-active={sort.key === c.key}
-            onClick={() => onSort(c.key)}
-            aria-label={`Ordenar por ${c.label}`}
-          >
-            <span>{c.label}</span>
-            {sort.key === c.key && <SortIcon dir={sort.dir} />}
-          </button>
-        ))}
+        {COLUMNS.map((c) => {
+          const label = t(c.labelKey);
+          return (
+            <button
+              key={c.key}
+              type="button"
+              className="pt-h"
+              data-align={c.align ?? "left"}
+              data-active={sort.key === c.key}
+              onClick={() => onSort(c.key)}
+              aria-label={t("table.sortBy", { label })}
+            >
+              <span>{label}</span>
+              {sort.key === c.key && <SortIcon dir={sort.dir} />}
+            </button>
+          );
+        })}
       </div>
 
       <div className="pt-body">
         {players.length === 0 ? (
           <div className="pt-empty">
-            <div className="pt-empty-title">Ningún jugador coincide</div>
-            <div className="pt-empty-sub">
-              Probá ajustar los filtros para ampliar la búsqueda.
-            </div>
+            <div className="pt-empty-title">{t("table.emptyTitle")}</div>
+            <div className="pt-empty-sub">{t("table.emptySub")}</div>
           </div>
         ) : (
           players.map((p) => (
@@ -138,7 +141,7 @@ export function PlayersTable({
                 <div className="pt-name-wrap">
                   <div className="pt-name">
                     {p.name}
-                    {p.isPro && <span className="pt-pro">Pro</span>}
+                    {p.isPro && <span className="pt-pro">{t("table.proBadge")}</span>}
                   </div>
                   <div className="pt-sub">@{p.slug}</div>
                 </div>
@@ -199,7 +202,7 @@ export function PlayersTable({
                     </div>
                   </>
                 ) : (
-                  <span className="value-dash">Sin club</span>
+                  <span className="value-dash">{t("table.noClub")}</span>
                 )}
               </div>
 
@@ -227,7 +230,7 @@ export function PlayersTable({
                 {p.heightCm ? (
                   <>
                     {p.heightCm}
-                    <span className="pt-unit">cm</span>
+                    <span className="pt-unit">{t("table.heightUnit")}</span>
                   </>
                 ) : (
                   <span className="value-dash">—</span>

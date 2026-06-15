@@ -18,9 +18,10 @@ export function ArticleCover({
   heroImageUrl,
   author,
   categoryLabel,
+  breadcrumbLabel,
   dateLabel,
   publishedISO,
-  readingTimeMin,
+  readingTimeLabel,
   accent,
 }: {
   slug: string;
@@ -30,9 +31,12 @@ export function ArticleCover({
   heroImageUrl: string | null;
   author: AuthorVM;
   categoryLabel: string;
+  /** Localized label for the /blog breadcrumb crumb. */
+  breadcrumbLabel: string;
   dateLabel: string | null;
   publishedISO: string | null;
-  readingTimeMin: number;
+  /** Pre-formatted ICU plural ("X min de lectura"). */
+  readingTimeLabel: string;
   accent: string;
 }) {
   return (
@@ -52,7 +56,7 @@ export function ArticleCover({
       <div className="bh-cine-inner relative mx-auto w-full max-w-[980px] px-7 pb-14 pt-28 max-md:pb-11">
         <div className="mb-5 flex items-center gap-2 font-bh-mono text-xs uppercase tracking-[0.04em] text-bh-fg-2">
           <Link href="/blog" className="text-bh-fg-2 transition-colors hover:text-bh-fg-1">
-            Blog
+            {breadcrumbLabel}
           </Link>
           <span className="opacity-50">/</span>
           <span style={{ color: accent }}>{categoryLabel}</span>
@@ -78,7 +82,7 @@ export function ArticleCover({
             </time>
           )}
           <span className="font-bh-mono text-[12.5px]" style={{ color: accent }}>
-            {readingTimeMin} min de lectura
+            {readingTimeLabel}
           </span>
         </div>
       </div>

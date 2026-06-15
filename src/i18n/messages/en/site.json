@@ -1,0 +1,38 @@
+{
+  "agencies": {
+    "pageName": "Agencies",
+    "metaTitle": "Player representation agencies",
+    "metaDescription": "Directory of verified football player representation agencies on 'BallersHub. Access each agency's official player roster.",
+    "ogTitle": "Player representation agencies · 'BallersHub"
+  },
+  "comoValidamos": {
+    "metaTitle": "How we validate",
+    "metaDescription": "'BallersHub validation flow: every critical change to a profile is reviewed by humans, cross-checked against 10+ sports sources (Transfermarkt, Sofascore, FBref…) and verified by AI agents (Gemini, Claude, ChatGPT) before going live.",
+    "ogTitle": "How we validate · 'BallersHub"
+  },
+  "search": {
+    "title": "Results",
+    "searched": "You searched: “{q}”",
+    "prompt": "Enter a search term."
+  },
+  "unsubscribe": {
+    "metaTitle": "Unsubscribe",
+    "metaDescription": "Unsubscribe from 'BallersHub communications.",
+    "success": {
+      "title": "Subscription cancelled",
+      "intro": "Done. We won't send any more marketing emails to ",
+      "fallback": "You'll keep receiving transactional emails (password recovery, confirmations, etc.) because they are required to use the platform.",
+      "back": "Back to home"
+    },
+    "error": {
+      "title": "Invalid link",
+      "defaultMessage": "The unsubscribe link is invalid or expired.",
+      "contact": "If you want to unsubscribe, email us at <email>info@ballershub.co</email> and we'll handle it."
+    },
+    "noToken": {
+      "title": "Unsubscribe",
+      "description": "To unsubscribe, open the last email we sent you and click “unsubscribe here” at the bottom. That link carries a unique signed token for your address.",
+      "contact": "If you can't find the email, email us at <email>info@ballershub.co</email>."
+    }
+  }
+}

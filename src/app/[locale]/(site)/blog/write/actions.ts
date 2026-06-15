@@ -67,7 +67,12 @@ export async function createDraft(
     };
   }
 
-  const slug = await findFreeSlug(parsed.data.title || "borrador");
+  // For non-es drafts we suffix the base slug with the locale so a translation
+  // never collides with the original (slug stays globally UNIQUE).
+  const postLocale = parsed.data.locale ?? "es";
+  const baseTitle = parsed.data.title || "borrador";
+  const baseSlug = await findFreeSlug(baseTitle);
+  const slug = postLocale === "es" ? baseSlug : `${baseSlug}-${postLocale}`;
 
   const [created] = await db
     .insert(blogPosts)
@@ -82,6 +87,7 @@ export async function createDraft(
       authorUserId: userId,
       status: "draft",
       readingTimeMin: estimateReadingTime(parsed.data.contentHtml || ""),
+      locale: postLocale,
     })
     .returning({ id: blogPosts.id, slug: blogPosts.slug });
 
@@ -262,6 +268,7 @@ export async function submitForReview(
  * doesn't have client JS.
  */
 export async function createDraftAndRedirect(formData: FormData): Promise<void> {
+  const rawLocale = (formData.get("locale") as string | null) ?? "es";
   const input: SaveDraftInput = {
     title: (formData.get("title") as string | null)?.trim() ?? "",
     description: (formData.get("description") as string | null)?.trim() ?? "",
@@ -272,6 +279,9 @@ export async function createDraftAndRedirect(formData: FormData): Promise<void> 
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean),
+    locale: (["es", "en", "it", "pt"].includes(rawLocale)
+      ? rawLocale
+      : "es") as SaveDraftInput["locale"],
   };
   const result = await createDraft(input);
   if (result.success) redirect(`/blog/write/${result.data.id}`);

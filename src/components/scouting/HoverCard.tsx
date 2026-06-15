@@ -16,6 +16,7 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { useTranslations } from "next-intl";
 
 import { ClubCrest, Flag, PlayerAvatar } from "./atoms";
 import { countryName } from "@/lib/scouting/taxonomies";
@@ -35,6 +36,7 @@ function fmtValue(v: number | null): string {
 }
 
 function PinCard({ player }: { player: ScoutPlayer }) {
+  const t = useTranslations("scouting");
   return (
     <Link className="pc-card" href={`/${player.slug}`} data-status={player.contract}>
       <div className="pc-card-top">
@@ -56,7 +58,11 @@ function PinCard({ player }: { player: ScoutPlayer }) {
             {pos.code}
           </span>
         ))}
-        {player.age != null && <span className="pc-card-age">{player.age}a</span>}
+        {player.age != null && (
+          <span className="pc-card-age">
+            {t("hoverCard.ageSuffix", { age: player.age })}
+          </span>
+        )}
       </div>
       {player.club && (
         <div className="pc-card-club">
@@ -85,6 +91,7 @@ export function HoverCard({
   onPanelEnter: () => void;
   onPanelLeave: () => void;
 }) {
+  const t = useTranslations("scouting");
   // Latch the last non-empty set so the exit animation has content to show.
   const [latched, setLatched] = useState<ScoutPlayer[]>(players);
   useEffect(() => {
@@ -156,8 +163,8 @@ export function HoverCard({
         ))}
         {overflow && (
           <button type="button" className="pc-more" onClick={onOverflow}>
-            <span className="pc-more-n">+{restCount}</span>
-            <span className="pc-more-l">Ver todos</span>
+            <span className="pc-more-n">{t("hoverCard.more", { count: restCount })}</span>
+            <span className="pc-more-l">{t("hoverCard.showAll")}</span>
           </button>
         )}
         <div className="pc-arrow" />

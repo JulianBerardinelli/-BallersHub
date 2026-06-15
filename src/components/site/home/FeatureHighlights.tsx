@@ -1,56 +1,42 @@
+import { getTranslations } from "next-intl/server";
 import { CalendarCheck, Sparkles, Trophy } from "lucide-react";
 
-const FEATURES = [
-  {
-    title: "Verificación profesional",
-    description:
-      "Nuestro equipo valida identidad, contratos y antecedentes para generar confianza en cada perfil.",
-    icon: Trophy,
-    tag: "Confianza",
-    accent: "lime" as const,
-  },
-  {
-    title: "Agenda deportiva integrada",
-    description:
-      "Cargá tus próximos partidos y presentaciones. Compartí agenda con clubes y representantes en tiempo real.",
-    icon: CalendarCheck,
-    tag: "Visibilidad",
-    accent: "blue" as const,
-  },
-  {
-    title: "Presentaciones listas en minutos",
-    description:
-      "Plantillas inteligentes para enviar tu perfil a clubes con métricas, clips destacados y reseñas.",
-    icon: Sparkles,
-    tag: "Escalá tu marca",
-    accent: "lime" as const,
-  },
+type FeatureKey = "verification" | "schedule" | "presentations";
+
+const FEATURE_DEFS: ReadonlyArray<{
+  key: FeatureKey;
+  icon: React.ComponentType<{ className?: string }>;
+  accent: "lime" | "blue";
+}> = [
+  { key: "verification", icon: Trophy, accent: "lime" },
+  { key: "schedule", icon: CalendarCheck, accent: "blue" },
+  { key: "presentations", icon: Sparkles, accent: "lime" },
 ];
 
-export default function FeatureHighlights() {
+export default async function FeatureHighlights() {
+  const t = await getTranslations("home.features");
   return (
     <section className="space-y-10">
       <header className="max-w-2xl space-y-3">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-          Pensado para profesionales
+          {t("eyebrow")}
         </span>
         <h2 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          Construí un perfil listo para compartir
+          {t("title")}
         </h2>
         <p className="text-sm leading-[1.6] text-bh-fg-3">
-          Herramientas diseñadas para jugadoras, jugadores y staff técnico que
-          quieren profesionalizar su presencia digital.
+          {t("subtitle")}
         </p>
       </header>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {FEATURES.map(({ title, description, icon: Icon, tag, accent }) => (
+        {FEATURE_DEFS.map(({ key, icon: Icon, accent }) => (
           <FeatureCard
-            key={title}
-            title={title}
-            description={description}
+            key={key}
+            title={t(`items.${key}.title`)}
+            description={t(`items.${key}.description`)}
             Icon={Icon}
-            tag={tag}
+            tag={t(`items.${key}.tag`)}
             accent={accent}
           />
         ))}

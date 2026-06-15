@@ -29,9 +29,13 @@ export default getRequestConfig(async ({ requestLocale }) => {
       dashSettings: (await import(`./messages/${locale}/dashSettings.json`)).default,
       dashEditProfile: (await import(`./messages/${locale}/dashEditProfile.json`)).default,
       dashAgency: (await import(`./messages/${locale}/dashAgency.json`)).default,
+      scouting: (await import(`./messages/${locale}/scouting.json`)).default,
       onboarding: (await import(`./messages/${locale}/onboarding.json`)).default,
       checkout: (await import(`./messages/${locale}/checkout.json`)).default,
       mobileNav: (await import(`./messages/${locale}/mobileNav.json`)).default,
+      home: (await import(`./messages/${locale}/home.json`)).default,
+      site: (await import(`./messages/${locale}/site.json`)).default,
+      blog: (await import(`./messages/${locale}/blog.json`)).default,
     },
   };
 });

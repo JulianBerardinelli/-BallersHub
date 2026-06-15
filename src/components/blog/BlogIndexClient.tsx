@@ -7,6 +7,7 @@
 
 import { Fragment, useMemo, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type { BlogCluster } from "@/db/schema";
 import { CLUSTER_LABELS } from "@/lib/blog/labels";
 import type { BlogCardVM } from "@/lib/blog/view";
@@ -16,13 +17,9 @@ import { AdBanner } from "./AdBanner";
 
 type CatSlug = "all" | BlogCluster;
 
-const CATEGORIES: { slug: CatSlug; label: string }[] = [
-  { slug: "all", label: "Todas" },
-  ...(Object.entries(CLUSTER_LABELS) as [BlogCluster, string][]).map(([slug, label]) => ({
-    slug,
-    label,
-  })),
-];
+// Keys used to enumerate clusters — labels resolved via useTranslations() so
+// the nav reflects the active locale. Order matches CLUSTER_LABELS.
+const CLUSTER_KEYS = Object.keys(CLUSTER_LABELS) as BlogCluster[];
 
 function SearchIcon() {
   return (
@@ -41,15 +38,24 @@ function SearchIcon() {
 }
 
 export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
+  const t = useTranslations("blog");
   const [active, setActive] = useState<CatSlug>("all");
   const [query, setQuery] = useState("");
+
+  const categories = useMemo<{ slug: CatSlug; label: string }[]>(
+    () => [
+      { slug: "all" as const, label: t("listing.categoryAll") },
+      ...CLUSTER_KEYS.map((slug) => ({ slug, label: t(`clusters.${slug}` as const) })),
+    ],
+    [t],
+  );
 
   const featured = posts[0];
   const rest = useMemo(() => posts.slice(1), [posts]);
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: posts.length };
-    for (const [slug] of Object.entries(CLUSTER_LABELS)) {
+    for (const slug of CLUSTER_KEYS) {
       c[slug] = posts.filter((p) => p.cluster === slug).length;
     }
     return c;
@@ -69,7 +75,7 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
     return list;
   }, [posts, rest, active, query, showFeatured]);
 
-  const activeLabel = CATEGORIES.find((c) => c.slug === active)?.label;
+  const activeLabel = categories.find((c) => c.slug === active)?.label;
   // In the default view, if the featured post is the only one there's no grid.
   const showGridSection = !isDefaultView || rest.length > 0;
 
@@ -79,7 +85,7 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
       <div className="sticky top-20 z-40 border-b border-white/[0.10] bg-bh-black/85 backdrop-blur-xl backdrop-saturate-150">
         <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-3 px-7 max-md:px-5 max-md:py-2.5">
           <div className="no-scrollbar flex items-stretch gap-1 overflow-x-auto max-md:order-2">
-            {CATEGORIES.map((cat) => {
+            {categories.map((cat) => {
               const on = cat.slug === active;
               return (
                 <button
@@ -107,8 +113,8 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar notas…"
-              aria-label="Buscar notas"
+              placeholder={t("listing.searchPlaceholder")}
+              aria-label={t("listing.searchAriaLabel")}
               className="w-full rounded-bh-pill border border-white/[0.12] bg-white/[0.04] py-2.5 pl-9 pr-3.5 font-bh-body text-[13.5px] text-bh-fg-1 outline-none transition-colors focus:border-white/25"
             />
           </div>
@@ -131,8 +137,8 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
             <div className="mb-6 flex items-center gap-3.5">
               <h2 className="m-0 font-bh-display text-[26px] font-bold uppercase tracking-[-0.01em] text-bh-fg-1">
                 {isDefaultView
-                  ? "Últimas notas"
-                  : `${filtered.length} ${filtered.length === 1 ? "nota" : "notas"}`}
+                  ? t("listing.headingDefault")
+                  : t("listing.headingCount", { count: filtered.length })}
                 {active !== "all" && <span className="text-bh-fg-3"> · {activeLabel}</span>}
               </h2>
               <span className="h-px flex-1 bg-white/10" />
@@ -144,8 +150,8 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
             {filtered.length === 0 ? (
               <div className="py-20 text-center font-bh-body text-bh-fg-3">
                 {query.trim()
-                  ? `No encontramos artículos para “${query}”.`
-                  : "Todavía no hay notas en esta categoría."}
+                  ? t("listing.noResultsQuery", { query })
+                  : t("listing.noResultsCategory")}
               </div>
             ) : (
               <div key={`${active}|${query}`} className="grid grid-cols-1 gap-[22px] sm:grid-cols-2 lg:grid-cols-3">
@@ -156,7 +162,7 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
                     </div>
                     {i === 2 && (
                       <div className="col-span-full">
-                        <AdBanner variant="horizontal" label="Sponsor" />
+                        <AdBanner variant="horizontal" label={t("listing.adSponsor")} />
                       </div>
                     )}
                   </Fragment>
@@ -179,11 +185,10 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
           <div className="flex flex-wrap items-center justify-between gap-10">
             <div className="max-w-[560px]">
               <h3 className="mb-3 font-bh-display text-[clamp(28px,3vw,40px)] font-extrabold uppercase leading-[0.98] text-bh-fg-1">
-                Dejá de esperar a que te descubran
+                {t("listing.closingTitle")}
               </h3>
               <p className="m-0 font-bh-body text-[15px] leading-[1.6] text-bh-fg-2">
-                Construí tu portfolio profesional en minutos: métricas, highlights y
-                referencias verificadas, listo para compartir con un solo enlace.
+                {t("listing.closingBody")}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -191,13 +196,13 @@ export function BlogIndexClient({ posts }: { posts: BlogCardVM[] }) {
                 href="/auth/sign-up"
                 className="inline-flex items-center justify-center rounded-bh-md bg-bh-lime px-7 py-3.5 font-bh-display text-sm font-bold uppercase tracking-[0.04em] text-bh-black shadow-[0_2px_12px_rgba(204,255,0,0.28)] transition hover:-translate-y-px hover:shadow-[0_8px_28px_rgba(204,255,0,0.28)]"
               >
-                Crear mi perfil gratis
+                {t("listing.closingCtaPrimary")}
               </Link>
               <Link
                 href="/pricing"
                 className="inline-flex items-center justify-center rounded-bh-md border border-white/[0.18] px-7 py-3.5 font-bh-display text-sm font-bold uppercase tracking-[0.04em] text-bh-fg-1 transition hover:bg-white/[0.07]"
               >
-                Ver planes
+                {t("listing.closingCtaSecondary")}
               </Link>
             </div>
           </div>

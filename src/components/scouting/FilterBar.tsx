@@ -9,6 +9,7 @@
 // Events (the prototype was mouse-only — see SKILLS-CLAUDE-CODE §5).
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   POSITION_GROUP_ORDER,
@@ -30,24 +31,9 @@ type DropdownKey =
   | "height"
   | "foot";
 
-const DROPDOWN_TITLE: Record<DropdownKey, string> = {
-  positions: "Posición",
-  nationality: "Nacionalidad",
-  playCountry: "País de juego",
-  age: "Edad",
-  height: "Altura",
-  foot: "Pie hábil",
-};
-
-const FOOT_LABEL: Record<FootCode, string> = {
-  D: "Pie derecho",
-  I: "Pie izquierdo",
-  A: "Ambidiestro",
-};
+type SetFilters = (updater: (prev: ScoutFilters) => ScoutFilters) => void;
 
 const FOOT_OPTIONS: FootCode[] = ["D", "I", "A"];
-
-type SetFilters = (updater: (prev: ScoutFilters) => ScoutFilters) => void;
 
 export function FilterBar({
   filters,
@@ -72,9 +58,25 @@ export function FilterBar({
   ageBounds: [number, number];
   heightBounds: [number, number];
 }) {
+  const t = useTranslations("scouting");
   const [open, setOpen] = useState<DropdownKey | null>(null);
   const [anchor, setAnchor] = useState({ left: 0, top: 0 });
   const barRef = useRef<HTMLDivElement>(null);
+
+  const DROPDOWN_TITLE: Record<DropdownKey, string> = {
+    positions: t("filters.positions"),
+    nationality: t("filters.nationality"),
+    playCountry: t("filters.playCountry"),
+    age: t("filters.age"),
+    height: t("filters.height"),
+    foot: t("filters.foot"),
+  };
+
+  const FOOT_LABEL: Record<FootCode, string> = {
+    D: t("filters.footRight"),
+    I: t("filters.footLeft"),
+    A: t("filters.footBoth"),
+  };
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
@@ -168,27 +170,30 @@ export function FilterBar({
   filters.nationality.forEach((c) =>
     chips.push({
       key: `n-${c}`,
-      label: `Nac: ${countryName(c)}`,
+      label: t("filters.chipNationality", { country: countryName(c) }),
       onRemove: () => toggleSet("nationality", c),
     }),
   );
   filters.playCountry.forEach((c) =>
     chips.push({
       key: `pc-${c}`,
-      label: `Juega en ${countryName(c)}`,
+      label: t("filters.chipPlayCountry", { country: countryName(c) }),
       onRemove: () => toggleSet("playCountry", c),
     }),
   );
   if (ageActive)
     chips.push({
       key: "age",
-      label: `${filters.age[0]}–${filters.age[1]} años`,
+      label: t("filters.ageRange", { lo: filters.age[0], hi: filters.age[1] }),
       onRemove: () => setAge([...ageBounds]),
     });
   if (heightActive)
     chips.push({
       key: "h",
-      label: `${filters.height[0]}–${filters.height[1]} cm`,
+      label: t("filters.heightRange", {
+        lo: filters.height[0],
+        hi: filters.height[1],
+      }),
       onRemove: () => setHeight([...heightBounds]),
     });
   filters.foot.forEach((f) =>
@@ -205,27 +210,31 @@ export function FilterBar({
             onClick={() => setStatus(s)}
             data-active={filters.status === s}
           >
-            {s === "all" ? "Todos" : s === "free" ? "Libres" : "Con contrato"}
+            {s === "all"
+              ? t("filters.statusAll")
+              : s === "free"
+              ? t("filters.statusFree")
+              : t("filters.statusContracted")}
           </button>
         ))}
       </div>
 
       <div className="fb-divider" />
 
-      <FilterButton k="positions" label="Posición" badge={filters.positions.length} />
-      <FilterButton k="nationality" label="Nacionalidad" badge={filters.nationality.length} />
-      <FilterButton k="playCountry" label="País de juego" badge={filters.playCountry.length} />
-      <FilterButton k="age" label="Edad" badge={ageActive ? 1 : 0} />
-      <FilterButton k="height" label="Altura" badge={heightActive ? 1 : 0} />
-      <FilterButton k="foot" label="Pie hábil" badge={filters.foot.length} />
+      <FilterButton k="positions" label={t("filters.positions")} badge={filters.positions.length} />
+      <FilterButton k="nationality" label={t("filters.nationality")} badge={filters.nationality.length} />
+      <FilterButton k="playCountry" label={t("filters.playCountry")} badge={filters.playCountry.length} />
+      <FilterButton k="age" label={t("filters.age")} badge={ageActive ? 1 : 0} />
+      <FilterButton k="height" label={t("filters.height")} badge={heightActive ? 1 : 0} />
+      <FilterButton k="foot" label={t("filters.foot")} badge={filters.foot.length} />
 
       <div className="fb-right">
         <div className="live-count">
           <span className="lc-dot" />
           <span className="lc-num">{count}</span>
-          <span className="lc-lbl">jugadores coinciden</span>
+          <span className="lc-lbl">{t("filters.liveCount", { count })}</span>
         </div>
-        <div className="density-toggle" title="Densidad">
+        <div className="density-toggle" title={t("filters.densityTitle")}>
           {(["compact", "comfortable"] as const).map((k) => (
             <button
               key={k}
@@ -233,7 +242,9 @@ export function FilterBar({
               data-active={density === k}
               onClick={() => setDensity(k)}
             >
-              {k === "compact" ? "Compacto" : "Cómodo"}
+              {k === "compact"
+                ? t("filters.densityCompact")
+                : t("filters.densityComfortable")}
             </button>
           ))}
         </div>
@@ -244,7 +255,11 @@ export function FilterBar({
           {chips.map((c) => (
             <span key={c.key} className="chip">
               {c.label}
-              <button type="button" onClick={c.onRemove} aria-label={`Quitar ${c.label}`}>
+              <button
+                type="button"
+                onClick={c.onRemove}
+                aria-label={t("filters.chipRemove", { label: c.label })}
+              >
                 <svg width="9" height="9" viewBox="0 0 9 9" aria-hidden>
                   <path d="M1 1 L8 8 M8 1 L1 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                 </svg>
@@ -252,7 +267,7 @@ export function FilterBar({
             </span>
           ))}
           <button type="button" className="chip chip-clear" onClick={onClear}>
-            Limpiar todo
+            {t("filters.clearAll")}
           </button>
         </div>
       )}
@@ -265,7 +280,7 @@ export function FilterBar({
               type="button"
               className="dd-close"
               onClick={() => setOpen(null)}
-              aria-label="Cerrar"
+              aria-label={t("filters.close")}
             >
               <svg width="11" height="11" viewBox="0 0 11 11" aria-hidden>
                 <path d="M1 1 L10 10 M10 1 L1 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -292,6 +307,7 @@ export function FilterBar({
               options={nationalityOptions}
               selected={filters.nationality}
               onToggle={(code) => toggleSet("nationality", code)}
+              emptyLabel={t("filters.noCountriesYet")}
             />
           )}
 
@@ -300,6 +316,7 @@ export function FilterBar({
               options={playCountryOptions}
               selected={filters.playCountry}
               onToggle={(code) => toggleSet("playCountry", code)}
+              emptyLabel={t("filters.noCountriesYet")}
             />
           )}
 
@@ -307,7 +324,10 @@ export function FilterBar({
             <RangeControl
               min={ageBounds[0]}
               max={ageBounds[1]}
-              suffix="años"
+              suffix={t("filters.suffixYears")}
+              rangeLabel={t("filters.rangeLabelAge")}
+              minLabel={t("filters.sliderMin")}
+              maxLabel={t("filters.sliderMax")}
               value={filters.age}
               onChange={setAge}
             />
@@ -317,7 +337,10 @@ export function FilterBar({
             <RangeControl
               min={heightBounds[0]}
               max={heightBounds[1]}
-              suffix="cm"
+              suffix={t("filters.suffixCm")}
+              rangeLabel={t("filters.rangeLabelHeight")}
+              minLabel={t("filters.sliderMin")}
+              maxLabel={t("filters.sliderMax")}
               value={filters.height}
               onChange={setHeight}
             />
@@ -379,15 +402,17 @@ function CountryGrid({
   options,
   selected,
   onToggle,
+  emptyLabel,
 }: {
   options: CountryOption[];
   selected: string[];
   onToggle: (code: string) => void;
+  emptyLabel: string;
 }) {
   if (options.length === 0) {
     return (
       <div>
-        <span className="gl-empty">Sin datos de país todavía.</span>
+        <span className="gl-empty">{emptyLabel}</span>
       </div>
     );
   }
@@ -420,23 +445,36 @@ function RangeControl({
   value,
   onChange,
   suffix,
+  rangeLabel,
+  minLabel,
+  maxLabel,
 }: {
   min: number;
   max: number;
   value: [number, number];
   onChange: (v: [number, number]) => void;
   suffix: string;
+  rangeLabel: string;
+  minLabel: string;
+  maxLabel: string;
 }) {
   const [lo, hi] = value;
   return (
     <div style={{ minWidth: 320, padding: "4px 4px 8px" }}>
       <div className="dd-eyebrow" style={{ marginBottom: 14 }}>
-        {suffix === "años" ? "Edad" : "Altura"}:{" "}
+        {rangeLabel}:{" "}
         <span style={{ color: "var(--bh-lime-200)", fontWeight: 700 }}>
           {lo}–{hi} {suffix}
         </span>
       </div>
-      <DualSlider min={min} max={max} value={value} onChange={onChange} />
+      <DualSlider
+        min={min}
+        max={max}
+        value={value}
+        onChange={onChange}
+        minLabel={minLabel}
+        maxLabel={maxLabel}
+      />
       <div
         style={{
           display: "flex",
@@ -463,11 +501,15 @@ function DualSlider({
   max,
   value,
   onChange,
+  minLabel,
+  maxLabel,
 }: {
   min: number;
   max: number;
   value: [number, number];
   onChange: (v: [number, number]) => void;
+  minLabel: string;
+  maxLabel: string;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<"lo" | "hi" | null>(null);
@@ -510,7 +552,7 @@ function DualSlider({
       <div
         className="ds-handle"
         role="slider"
-        aria-label="Mínimo"
+        aria-label={minLabel}
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={value[0]}
@@ -521,7 +563,7 @@ function DualSlider({
       <div
         className="ds-handle"
         role="slider"
-        aria-label="Máximo"
+        aria-label={maxLabel}
         aria-valuemin={min}
         aria-valuemax={max}
         aria-valuenow={value[1]}

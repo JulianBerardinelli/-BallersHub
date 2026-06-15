@@ -5,14 +5,18 @@
 
 import type { Metadata } from "next";
 import { redirect, notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { getBlogActor } from "@/lib/blog/permissions";
 import { getPostById } from "@/lib/blog/posts";
 import { BlogPostForm } from "@/components/blog/BlogPostForm";
 
-export const metadata: Metadata = {
-  title: "Editar artículo",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("blog.meta");
+  return {
+    title: t("editTitle"),
+    robots: { index: false, follow: false },
+  };
+}
 
 type Params = Promise<{ id: string }>;
 
@@ -37,14 +41,15 @@ export default async function EditPostPage({ params }: { params: Params }) {
     redirect("/blog/drafts?msg=in-review");
   }
 
+  const t = await getTranslations("blog.editor");
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 md:py-16">
       <header className="mb-8 space-y-2">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-lime/30 bg-bh-lime/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-lime">
-          Editar borrador
+          {t("editBadge")}
         </span>
         <h1 className="font-bh-display text-3xl font-bold uppercase leading-tight tracking-tight text-bh-fg-1 md:text-4xl">
-          {post.title || "Sin título"}
+          {post.title || t("editFallbackTitle")}
         </h1>
       </header>
 

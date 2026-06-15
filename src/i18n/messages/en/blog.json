@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "title": "Blog",
+    "description": "Articles on player career, agency operations, and the Argentine football market. Written by players, scouts and journalists in the 'BallersHub network.",
+    "ogTitle": "Blog · 'BallersHub",
+    "ogDescription": "Player career, agency operations, AR industry. Data-driven analysis with links to real portfolios.",
+    "twitterDescription": "Player career, agency operations, AR industry. By the 'BallersHub network.",
+    "h1": "'BallersHub blog — player career, agency operations and the football market",
+    "notFoundTitle": "Article not found",
+    "writeTitle": "New article",
+    "editTitle": "Edit article",
+    "draftsTitle": "My drafts"
+  },
+  "listing": {
+    "contributorDrafts": "My drafts",
+    "contributorWrite": "Write article",
+    "emptyTitle": "The first articles are coming soon",
+    "emptyBody": "We are curating editorial content. Check back in a few days.",
+    "categoryAll": "All",
+    "searchPlaceholder": "Search articles…",
+    "searchAriaLabel": "Search articles",
+    "headingDefault": "Latest articles",
+    "headingCount": "{count, plural, one {# article} other {# articles}}",
+    "noResultsQuery": "We couldn't find articles for “{query}”.",
+    "noResultsCategory": "No articles in this category yet.",
+    "adSponsor": "Sponsor",
+    "closingTitle": "Stop waiting to be discovered",
+    "closingBody": "Build your professional portfolio in minutes: metrics, highlights and verified references, ready to share with a single link.",
+    "closingCtaPrimary": "Create my profile for free",
+    "closingCtaSecondary": "See plans"
+  },
+  "featured": {
+    "badge": "★ Featured",
+    "readingMin": "{n, plural, one {1 min read} other {# min read}}"
+  },
+  "card": {
+    "readingMin": "{n, plural, one {1 min} other {# min}}"
+  },
+  "post": {
+    "breadcrumbBlog": "Blog",
+    "readingMin": "{n, plural, one {1 min read} other {# min read}}",
+    "relatedHeading": "Keep reading",
+    "relatedSeeAll": "See all →"
+  },
+  "toc": {
+    "heading": "In this article"
+  },
+  "authorBio": {
+    "writtenBy": "Written by"
+  },
+  "cta": {
+    "title": "Stop waiting to be discovered",
+    "body": "Build your professional portfolio in minutes: metrics, highlights and verified references, ready to share with a single link.",
+    "primary": "Create my profile for free",
+    "secondary": "See examples"
+  },
+  "comments": {
+    "heading": "Comments",
+    "soonBadge": "Coming soon",
+    "soonBody": "We're getting comments ready so you can share your take on every article. In the meantime, share it and keep the conversation going on our social channels."
+  },
+  "author": {
+    "notFoundTitle": "Author not found",
+    "metaTitleSuffix": "— Author at 'BallersHub",
+    "fallbackDescription": "Articles published by {name} on the 'BallersHub blog.",
+    "breadcrumbHome": "Home",
+    "breadcrumbBlog": "Blog",
+    "badge": "Guest author",
+    "linksSiteFallback": "Site",
+    "postsHeading": "Articles by {firstName}",
+    "postsHeadingEmpty": "No articles published yet",
+    "emptyBody": "This author hasn't published articles yet. Check back in a few days."
+  },
+  "editor": {
+    "createBadge": "Write article",
+    "createHeading": "New draft",
+    "createIntro": "Fill in the fields and submit for review when it's ready. You can save intermediate drafts without submitting.",
+    "editBadge": "Edit draft",
+    "editFallbackTitle": "Untitled",
+    "loadingEditor": "Loading editor…",
+    "placeholder": "Start writing your article…",
+    "linkPrompt": "Link URL:",
+    "imageUploadError": "The image could not be uploaded.",
+    "imageUploadErrorRetry": "The image could not be uploaded. Try again.",
+    "toolbar": {
+      "bold": "Bold (⌘B)",
+      "italic": "Italic (⌘I)",
+      "h2": "Heading 2",
+      "h3": "Heading 3",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "quote": "Quote",
+      "link": "Link (⌘K)",
+      "image": "Insert image",
+      "imageUploading": "Uploading image…",
+      "undo": "Undo (⌘Z)",
+      "redo": "Redo (⌘⇧Z)"
+    }
+  },
+  "drafts": {
+    "heading": "My articles",
+    "intro": "Your drafts, posts in review, published and rejected ones.",
+    "ctaWrite": "Write article",
+    "emptyTitle": "You haven't written anything yet",
+    "emptyBody": "Your first article is waiting. Click \"Write article\" above to get started.",
+    "fallbackTitle": "Untitled",
+    "actionViewPublished": "View published",
+    "actionEditRejected": "Edit and resubmit",
+    "actionEdit": "Edit"
+  },
+  "form": {
+    "rejectionHeading": "Admin feedback",
+    "fields": {
+      "titleLabel": "Title",
+      "titleHint": "Max 120 characters. Think keyword-rich.",
+      "titlePlaceholder": "E.g.: 2026 AFA transfer window: most-wanted free agents",
+      "descriptionLabel": "Short description",
+      "descriptionHint": "Appears on Google and when sharing on social. Max 158 characters.",
+      "descriptionPlaceholder": "A clear summary of what readers will find.",
+      "descriptionCounter": "{count} / 158",
+      "localeLabel": "Language",
+      "localeHint": "The language you'll write this post in. It can't be changed later.",
+      "localeEs": "Spanish (default)",
+      "localeEn": "English",
+      "localeIt": "Italian",
+      "localePt": "Portuguese (Brazil)",
+      "clusterLabel": "Cluster",
+      "clusterHint": "Topic of the post.",
+      "tagsLabel": "Tags",
+      "tagsHint": "3–8 tags separated by commas. Min 2 characters each.",
+      "tagsPlaceholder": "scouting, portfolio, primera-nacional",
+      "heroLabel": "Main image (hero)",
+      "heroHint": "1200×630 ideal. JPG/PNG/WebP/AVIF, max 5MB. Uploaded to our storage and auto-transcoded to AVIF.",
+      "heroPreviewAlt": "Hero preview",
+      "heroChange": "Change",
+      "heroChangeUploading": "Uploading…",
+      "heroRemove": "Remove",
+      "heroUploading": "Uploading image…",
+      "heroUploadCta": "Upload main image",
+      "heroUploadFormats": "JPG / PNG / WebP / AVIF · max 5MB",
+      "heroUploadError": "The image could not be uploaded.",
+      "heroUploadErrorRetry": "The image could not be uploaded. Try again.",
+      "contentLabel": "Content",
+      "contentHint": "≥1500 words. At least 3 H2 sections. Link ≥3 real portfolios from /[slug].",
+      "contentPlaceholder": "Start with a 2–3 paragraph intro that hooks the reader…"
+    },
+    "actions": {
+      "save": "Save draft",
+      "saving": "Saving…",
+      "submit": "Submit for review",
+      "submitting": "Submitting…"
+    },
+    "feedback": {
+      "draftCreated": "Draft created.",
+      "draftSaved": "Draft saved.",
+      "submitted": "Submitted for review. We'll let you know when the admin approves it."
+    }
+  },
+  "clusters": {
+    "career_guidance": "Player career",
+    "agency_ops": "Agency operations",
+    "industry_ar": "AR industry"
+  },
+  "status": {
+    "draft": "Draft",
+    "pending_review": "Pending review",
+    "published": "Published",
+    "rejected": "Rejected"
+  }
+}
