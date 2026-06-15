@@ -9,7 +9,11 @@ import {
   Twitter,
   Linkedin,
   ShieldCheck,
+  Mail,
+  Phone,
+  Users,
 } from "lucide-react";
+import { resolveServiceIcon } from "@/lib/agency/service-icons";
 import CountryFlag from "@/components/common/CountryFlag";
 import { formatMarketValueEUR } from "@/lib/format";
 import { getTranslations, getLocale } from "next-intl/server";
@@ -17,6 +21,8 @@ import type { AgencyPublicData } from "./AgencyLayoutResolver";
 
 export default async function ClassicAgencyLayout({ data }: { data: AgencyPublicData }) {
   const { agency, players, sections, staffLicenses } = data;
+  const services = agency.services ?? [];
+  const hasContact = Boolean(agency.contactEmail || agency.contactPhone);
   const t = await getTranslations("portfolio");
   const locale = await getLocale();
 
@@ -65,9 +71,15 @@ export default async function ClassicAgencyLayout({ data }: { data: AgencyPublic
 
         <div className="flex-1 min-w-0 space-y-6">
           <header>
-            <h1 className="text-4xl font-extrabold tracking-tight text-white mb-3">
+            <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
               {agency.name}
             </h1>
+
+            {agency.tagline && (
+              <p className="text-base text-neutral-400 mb-3 leading-snug">
+                {agency.tagline}
+              </p>
+            )}
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-neutral-300">
               {agency.headquarters && (
@@ -282,6 +294,131 @@ export default async function ClassicAgencyLayout({ data }: { data: AgencyPublic
               </p>
             </div>
           )}
+        </section>
+      )}
+
+      {isVisible("staff") && staffLicenses.length > 0 && (
+        <section className="pt-4">
+          <div className="mb-6 flex items-baseline justify-between">
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              {t("agency.staff.title")}
+            </h2>
+            <span className="text-sm font-medium text-neutral-500">
+              {t("agency.staff.membersUnit", { n: staffLicenses.length })}
+            </span>
+          </div>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {staffLicenses.map((member) => (
+              <li
+                key={member.managerId}
+                className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-start gap-3"
+              >
+                <div className="h-10 w-10 shrink-0 rounded-full bg-neutral-800 text-neutral-400 flex items-center justify-center">
+                  <Users className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-white truncate">
+                    {member.managerName}
+                  </p>
+                  {member.licenses.length > 0 && (
+                    <ul className="mt-1 flex flex-wrap gap-1.5">
+                      {member.licenses.map((l, idx) => (
+                        <li
+                          key={`${member.managerId}-${idx}`}
+                          className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-neutral-300 bg-neutral-800/60 border border-neutral-700/60 rounded px-1.5 py-0.5"
+                        >
+                          <ShieldCheck
+                            className="h-3 w-3"
+                            style={{ color: "var(--color-accent)" }}
+                          />
+                          {l.type}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {isVisible("services") && services.length > 0 && (
+        <section className="pt-4">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-white tracking-tight">
+              {t("agency.services.title")}
+            </h2>
+            <p className="mt-1 text-sm text-neutral-400">
+              {t("agency.services.subtitle")}
+            </p>
+          </div>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {services.map((service, idx) => {
+              const Icon = resolveServiceIcon(service.icon);
+              return (
+                <li
+                  key={`${service.title}-${idx}`}
+                  className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-4 flex items-start gap-3"
+                >
+                  <div className="h-10 w-10 shrink-0 rounded-full bg-neutral-800 flex items-center justify-center">
+                    <Icon
+                      className="h-4 w-4"
+                      style={{ color: service.color || "var(--color-accent)" }}
+                    />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-white">
+                      {service.title}
+                    </p>
+                    {service.description && (
+                      <p className="mt-1 text-xs text-neutral-400 leading-relaxed">
+                        {service.description}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {isVisible("contact") && hasContact && (
+        <section className="pt-4">
+          <h2 className="mb-4 text-2xl font-bold text-white tracking-tight">
+            {t("agency.contact.title")}
+          </h2>
+          <ul className="flex flex-wrap gap-3">
+            {agency.contactEmail && (
+              <li>
+                <a
+                  href={`mailto:${agency.contactEmail}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/40 px-4 py-2 text-sm text-neutral-200 hover:text-white hover:border-neutral-700 transition-colors"
+                >
+                  <Mail className="h-4 w-4 text-neutral-500" />
+                  <span className="text-neutral-500 text-xs uppercase tracking-wider">
+                    {t("agency.contact.email")}
+                  </span>
+                  <span className="font-medium">{agency.contactEmail}</span>
+                </a>
+              </li>
+            )}
+            {agency.contactPhone && (
+              <li>
+                <a
+                  href={`tel:${agency.contactPhone.replace(/[^0-9+]/g, "")}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-900/40 px-4 py-2 text-sm text-neutral-200 hover:text-white hover:border-neutral-700 transition-colors"
+                >
+                  <Phone className="h-4 w-4 text-neutral-500" />
+                  <span className="text-neutral-500 text-xs uppercase tracking-wider">
+                    {t("agency.contact.phone")}
+                  </span>
+                  <span className="font-medium">{agency.contactPhone}</span>
+                </a>
+              </li>
+            )}
+          </ul>
         </section>
       )}
     </main>
