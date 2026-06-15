@@ -35,6 +35,7 @@ import { NextResponse } from "next/server";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { revalidatePlayerPublicProfile } from "@/lib/seo/revalidate";
+import { sendPlayerWelcomeEmail } from "@/lib/resend";
 
 function slugify(input: string) {
   return (input || "player")
@@ -234,6 +235,20 @@ export async function POST(req: Request, ctx: { params: Params }) {
   // page we most want Google to discover right away.
   revalidatePlayerPublicProfile(slug);
 
-  // 8) response JSON in AJAX context
+  // 8) Welcome email — non-fatal. The application is already approved and
+  // the profile published; we don't want a transient Resend failure to
+  // break the admin flow. We log and move on.
+  try {
+    const { data: userData } = await admin.auth.admin.getUserById(app.user_id);
+    const userEmail = userData?.user?.email ?? null;
+    if (userEmail) {
+      const playerName = overrides.full_name ?? app.full_name ?? "Jugador";
+      await sendPlayerWelcomeEmail(userEmail, playerName);
+    }
+  } catch (err) {
+    console.error("[admin/applications/approve] welcome email failed:", err);
+  }
+
+  // 9) response JSON in AJAX context
   return NextResponse.json({ success: true, slug });
 }

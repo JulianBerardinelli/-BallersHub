@@ -285,6 +285,20 @@ function buildSampleProps(
         editUrl: `${siteUrl}/blog/write/preview-id`,
         ...overrides,
       };
+    case "launch_announcement":
+      return {
+        ctaPrimaryUrl: `${siteUrl}/auth/sign-up`,
+        ctaPrimaryLabel: "Crear mi cuenta",
+        ctaAgencyUrl: `${siteUrl}/onboarding/manager`,
+        ctaAgencyLabel: "Soy agencia / manager",
+        ...overrides,
+      };
+    case "re_engagement":
+      return {
+        ctaUrl: dashboardUrl,
+        ctaLabel: "Continuar mi perfil",
+        ...overrides,
+      };
     default: {
       const _exhaustive: never = key;
       return _exhaustive;
