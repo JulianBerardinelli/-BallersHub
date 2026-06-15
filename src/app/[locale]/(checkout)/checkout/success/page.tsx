@@ -21,6 +21,7 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { checkoutSessions } from "@/db/schema";
 import CheckoutStepper from "@/components/site/checkout/CheckoutStepper";
+import CheckoutSuccessAnalytics from "@/components/analytics/CheckoutSuccessAnalytics";
 import { PLAN_COPY } from "@/components/site/checkout/data";
 import { CURRENCY_GLYPH } from "@/components/site/pricing/data";
 import {
@@ -97,6 +98,14 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-10">
       <CheckoutStepper current="confirmation" />
+      {session ? (
+        <CheckoutSuccessAnalytics
+          sessionId={session.id}
+          planId={session.planId}
+          currency={currency}
+          processor={session.processor}
+        />
+      ) : null}
 
       <section className="mx-auto max-w-xl space-y-7 py-4 text-center">
         <span className="mx-auto inline-flex h-16 w-16 items-center justify-center rounded-full border border-bh-success/30 bg-bh-success/10 text-bh-success">
