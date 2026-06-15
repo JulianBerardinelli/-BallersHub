@@ -226,6 +226,65 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
   },
 ];
 
+// Coach (DT) navigation. PR-4a ships Panel + profile edit + settings; the
+// heavier sections (trayectoria con revisiones, licencias, multimedia,
+// traducciones, plantilla) land in PR-4b as their pages are built.
+export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
+  {
+    id: "dashboard",
+    title: "Panel",
+    items: [
+      {
+        kind: "link",
+        id: "home",
+        title: "Panel de control",
+        href: "/dashboard",
+        description: "Resumen de tu perfil de entrenador.",
+      },
+    ],
+  },
+  {
+    id: "edit-profile",
+    title: "Editar perfil",
+    items: [
+      {
+        kind: "link",
+        id: "coach-edit",
+        title: "Datos del perfil",
+        href: "/dashboard/coach/edit",
+        description: "Bio, cargo, ideas de juego, formaciones y objetivos.",
+      },
+    ],
+  },
+  {
+    id: "settings",
+    title: "Configuración",
+    items: [
+      {
+        kind: "link",
+        id: "account",
+        title: "Cuenta",
+        href: "/dashboard/settings/account",
+        description: "Datos de acceso y preferencias generales.",
+      },
+      {
+        kind: "link",
+        id: "subscription",
+        title: "Suscripción",
+        href: "/dashboard/settings/subscription",
+        description: "Estado del plan y acciones de facturación.",
+      },
+      {
+        kind: "action",
+        id: "logout",
+        title: "Cerrar sesión",
+        action: "sign-out",
+        description: "Salí del panel de manera segura.",
+      },
+    ],
+  },
+];
+
 export function buildClientDashboardNavigation(
   badges: Partial<Record<string, ClientDashboardNavBadge>> = {},
   isManager: boolean = false

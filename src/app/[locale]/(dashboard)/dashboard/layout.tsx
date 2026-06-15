@@ -33,6 +33,7 @@ import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import { TutorialProvider } from "@/components/tutorial/TutorialProvider";
 import TutorialDock from "@/components/tutorial/TutorialDock";
 import { bootstrapTutorialState } from "@/lib/tutorial/bootstrap";
+import CoachDashboardShell from "./CoachDashboardShell";
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
@@ -41,6 +42,30 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard");
+
+  // Coach early-branch — isolated. Approved coaches (role='coach') and members
+  // with a coach_application render a dedicated coach shell; the player/agency
+  // code path below is left completely unchanged (zero regression surface).
+  try {
+    const coachShell = await loadCoachShellData(supabase, user);
+    if (coachShell) {
+      return (
+        <CoachDashboardShell
+          userEmail={user.email ?? null}
+          profile={coachShell.profile}
+          application={coachShell.application}
+          subscription={coachShell.subscription}
+        >
+          {children}
+        </CoachDashboardShell>
+      );
+    }
+  } catch (err) {
+    console.warn(
+      "[DashboardLayout] coach shell check failed, falling through:",
+      err instanceof Error ? err.message : err,
+    );
+  }
 
   // Defensive: dashboard data fetch (Supabase + Drizzle) can fail when the
   // pooler hiccups or the project is paused. We wrap the whole data layer
@@ -322,6 +347,80 @@ export default async function DashboardLayout({ children }: { children: ReactNod
 type DashboardUser = { id: string; email?: string | null };
 
 type DashboardLayoutData = Awaited<ReturnType<typeof loadDashboardLayoutData>>;
+
+// Coach shell data loader (PR-4a). Returns null for non-coach users so the
+// existing player/agency path proceeds untouched.
+async function loadCoachShellData(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRSC>>,
+  user: DashboardUser,
+) {
+  const { db } = await import("@/lib/db");
+  const up = await db.query.userProfiles.findFirst({
+    where: (profiles, { eq }) => eq(profiles.userId, user.id),
+  });
+  const role = up?.role || "member";
+  // Only coaches (approved) and members (possible pending coach) can match.
+  if (role !== "coach" && role !== "member") return null;
+
+  const { data: application } = await supabase
+    .from("coach_applications")
+    .select("id, status, rejection_reason")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  // A plain member with no coach application is a brand-new / player user —
+  // leave them on the existing path.
+  if (role !== "coach" && !application) return null;
+
+  const { data: profile } = await supabase
+    .from("coach_profiles")
+    .select("slug, full_name, avatar_url, status, visibility")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const { data: sub } = await supabase
+    .from("subscriptions")
+    .select(
+      "plan, status, status_v2, plan_id, processor, processor_subscription_id, current_period_end, trial_ends_at, cancel_at_period_end, canceled_at",
+    )
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return {
+    profile: profile
+      ? {
+          slug: profile.slug as string,
+          fullName: profile.full_name as string,
+          avatarUrl: (profile.avatar_url as string | null) ?? null,
+          status: profile.status as string,
+          visibility: profile.visibility as string,
+        }
+      : null,
+    application: application
+      ? {
+          id: application.id as string,
+          status: (application.status as string | null) ?? null,
+          rejectionReason: (application.rejection_reason as string | null) ?? null,
+        }
+      : null,
+    subscription: sub
+      ? {
+          plan: sub.plan ?? null,
+          status: sub.status ?? null,
+          statusV2: sub.status_v2 ?? null,
+          planId: sub.plan_id ?? null,
+          processor: sub.processor ?? null,
+          processorSubscriptionId: sub.processor_subscription_id ?? null,
+          currentPeriodEnd: sub.current_period_end ?? null,
+          trialEndsAt: sub.trial_ends_at ?? null,
+          cancelAtPeriodEnd: sub.cancel_at_period_end ?? null,
+          canceledAt: sub.canceled_at ?? null,
+        }
+      : null,
+  };
+}
 
 async function loadDashboardLayoutData(
   supabase: Awaited<ReturnType<typeof createSupabaseServerRSC>>,
