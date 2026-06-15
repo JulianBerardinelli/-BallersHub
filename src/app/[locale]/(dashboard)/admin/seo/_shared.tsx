@@ -7,6 +7,7 @@ export const SEO_NAV = [
   { href: "/admin/seo/players", label: "Players (KPI)" },
   { href: "/admin/seo/queries", label: "Top queries" },
   { href: "/admin/seo/pages", label: "Top pages" },
+  { href: "/admin/seo/funnel", label: "Funnel" },
 ];
 
 export function SeoSubNav({ active }: { active: string }) {
