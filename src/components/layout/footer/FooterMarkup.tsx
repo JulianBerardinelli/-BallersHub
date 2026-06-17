@@ -99,10 +99,10 @@ export type FooterProps = {
 };
 
 const DEFAULT_STATS: NonNullable<FooterProps["stats"]> = [
-  { value: "+1.2K", label: "Perfiles validados" },
-  { value: "86", label: "Clubes activos", useAlt: true },
+  { value: "+30", label: "Perfiles validados" },
+  { value: "+130", label: "Clubes activos", useAlt: true },
   { value: "4.8/5", label: "Reseñas verificadas" },
-  { value: "12", label: "Países", useAlt: true },
+  { value: "15", label: "Países", useAlt: true },
 ];
 
 const PRODUCT_LINKS = [
@@ -283,12 +283,12 @@ export default function FooterMarkup({
   theme,
   stats = DEFAULT_STATS,
   ctas,
-  eyebrow = "En vivo · 86 clubes activos",
+  eyebrow = "En vivo · 130 clubes activos",
   headline = {
     lead: "Subí, validá y ",
     highlight: "jugá donde importa.",
   },
-  subheadline = "Más de 1.200 perfiles validados. Reseñas de cuerpo técnico verificadas. Tu próximo club te está buscando.",
+  subheadline = "Más de 30 perfiles validados. Reseñas de cuerpo técnico verificadas. Tu próximo club te está buscando.",
   newsletterAccent,
   showCredits = true,
   linkColumns = DEFAULT_LINK_COLUMNS,

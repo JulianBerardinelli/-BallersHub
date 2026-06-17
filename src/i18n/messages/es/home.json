@@ -7,16 +7,16 @@
     "howWeValidate": "Cómo validamos",
     "scrollHint": "Descendé al mapa",
     "counter": {
-      "value": "+70",
+      "value": "+50",
       "label": "jugadores registrados"
     },
     "stats": {
       "profiles": {
-        "value": "+1.2K",
+        "value": "+30",
         "label": "Perfiles validados"
       },
       "clubs": {
-        "value": "86",
+        "value": "+130",
         "label": "Clubes activos"
       },
       "references": {

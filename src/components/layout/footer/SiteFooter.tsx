@@ -101,10 +101,10 @@ export default async function SiteFooter() {
 
   // Stat values are data (not translated); only their labels are.
   const stats = [
-    { value: "+1.2K", label: t("stats.profiles") },
-    { value: "86", label: t("stats.clubs"), useAlt: true },
+    { value: "+30", label: t("stats.profiles") },
+    { value: "+130", label: t("stats.clubs"), useAlt: true },
     { value: "4.8/5", label: t("stats.reviews") },
-    { value: "12", label: t("stats.countries"), useAlt: true },
+    { value: "15", label: t("stats.countries"), useAlt: true },
   ];
 
   const legalLinks = [
