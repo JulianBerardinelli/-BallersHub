@@ -10,7 +10,10 @@ import {
   TableCell,
   Chip,
   Button,
-  Tooltip,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -20,8 +23,9 @@ import {
   SelectItem,
   User,
 } from "@heroui/react";
-import { Copy, Filter, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { Filter, Settings } from "lucide-react";
+import { useRouter } from "@/i18n/navigation";
+import { ADMIN_EDIT_SECTIONS } from "@/lib/admin/edit-sections";
 import TeamCrest from "@/components/teams/TeamCrest";
 import type { PlayerProfileRow } from "./types";
 import { columns } from "./columns";
@@ -59,13 +63,61 @@ const planLabels: Record<PlayerProfileRow["plan"], string> = {
 
 type SortDir = "ascending" | "descending";
 
+// Per-row options menu (gear): public profile · the 7 edit sections · copy id.
+function RowOptions({
+  a,
+  copyId,
+  router,
+}: {
+  a: PlayerProfileRow;
+  copyId: (id: string) => void;
+  router: ReturnType<typeof useRouter>;
+}) {
+  return (
+    <Dropdown placement="bottom-end">
+      <DropdownTrigger>
+        <Button isIconOnly size="sm" variant="flat" aria-label="Opciones del jugador">
+          <Settings size={16} />
+        </Button>
+      </DropdownTrigger>
+      <DropdownMenu
+        aria-label="Opciones del jugador"
+        onAction={(key) => {
+          const k = String(key);
+          if (k === "public") {
+            if (typeof window !== "undefined") window.open(`/${a.slug}`, "_blank");
+            return;
+          }
+          if (k === "copy") {
+            copyId(a.id);
+            return;
+          }
+          router.push(`/admin/players/${a.id}/edit/${k}`);
+        }}
+      >
+        {[
+          <DropdownItem key="public" showDivider>
+            Ver perfil público
+          </DropdownItem>,
+          ...ADMIN_EDIT_SECTIONS.map((s, i) => (
+            <DropdownItem key={s.key} showDivider={i === ADMIN_EDIT_SECTIONS.length - 1}>
+              {`Editar ${s.label.toLowerCase()}`}
+            </DropdownItem>
+          )),
+          <DropdownItem key="copy">Copiar ID</DropdownItem>,
+        ]}
+      </DropdownMenu>
+    </Dropdown>
+  );
+}
+
 export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] }) {
+  const router = useRouter();
   const [sort, setSort] = React.useState<SortDescriptor>({
     column: "created_at" as Key,
     direction: "descending",
   });
 
-  const [copied, setCopied] = React.useState<string | null>(null);
   const [filters, setFilters] = React.useState({
     status: new Set<string>(),
     plan: new Set<string>(),
@@ -91,8 +143,6 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
 
   const copyId = React.useCallback((id: string) => {
     navigator.clipboard.writeText(id);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 1500);
   }, []);
 
   const allCountries = React.useMemo(
@@ -214,29 +264,8 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
 
         case "actions":
           return (
-            <div className="flex justify-end gap-2">
-              <Tooltip content="Ver Perfil Público">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="flat"
-                  as={Link}
-                  href={`/player/${a.slug}`}
-                  target="_blank"
-                >
-                  <ExternalLink size={16} />
-                </Button>
-              </Tooltip>
-              <Tooltip content={copied === a.id ? "Copiado!" : "Copiar ID"}>
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="faded"
-                  onPress={() => copyId(a.id)}
-                >
-                  <Copy size={16} />
-                </Button>
-              </Tooltip>
+            <div className="flex justify-end">
+              <RowOptions a={a} copyId={copyId} router={router} />
             </div>
           );
 
@@ -246,7 +275,7 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
           ) as React.ReactNode;
       }
     },
-    [copied, copyId],
+    [copyId, router],
   );
 
   const topContent = React.useMemo(() => {
@@ -389,19 +418,8 @@ export default function PlayersTableUI({ items }: { items: PlayerProfileRow[] })
                 <span className="text-bh-fg-3">Libre / Sin Equipo</span>
               )}
             </div>
-            <div className="flex justify-end gap-2">
-              <Tooltip content="Ver Perfil Público">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="flat"
-                  as={Link}
-                  href={`/player/${a.slug}`}
-                  target="_blank"
-                >
-                  <ExternalLink size={16} />
-                </Button>
-              </Tooltip>
+            <div className="flex justify-end">
+              <RowOptions a={a} copyId={copyId} router={router} />
             </div>
           </div>
         ))}

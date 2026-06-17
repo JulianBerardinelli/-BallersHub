@@ -20,6 +20,11 @@ import {
 import { hydrateTaskProfileSnapshot } from "@/lib/dashboard/client/profile-data";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { NotificationBootstrap } from "@/modules/notifications";
+import {
+  ADMIN_EDIT_DOMAIN_HREFS,
+  isAdminEditDomain,
+  type AdminEditDomain,
+} from "@/lib/admin/edit-domains";
 import type { ClientDashboardNavBadge } from "./navigation";
 import {
   hasActiveApplication,
@@ -72,6 +77,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     normalizedApplicationStatus,
     metrics,
     dashboardState,
+    adminEdits,
   } = layoutData;
 
   const normalizedProfile = profile
@@ -158,6 +164,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
               }
             : null
         }
+        adminEdits={adminEdits}
       />
       <div
         className={`mx-auto w-full max-w-[1200px] px-6 py-7 ${
@@ -409,6 +416,34 @@ async function loadDashboardLayoutData(
         contactReferences: 0,
       };
 
+  // Unread "staff corrected your profile" notifications → on-login toast feed.
+  // Cheap indexed query (recipient_user_id, read_at). localStorage dedupes the
+  // toast per device; read_at governs the persistent state.
+  const adminEditRows = await db.query.notifications.findMany({
+    where: (n, { and, eq, isNull }) =>
+      and(
+        eq(n.recipientUserId, user.id),
+        eq(n.kind, "admin.profileCorrected"),
+        isNull(n.readAt),
+      ),
+    orderBy: (n, { desc }) => desc(n.createdAt),
+    limit: 10,
+  });
+
+  const adminEdits = adminEditRows.map((n) => {
+    const payload = (n.payload ?? {}) as { domain?: string; changedFields?: unknown };
+    const domain: AdminEditDomain =
+      payload.domain && isAdminEditDomain(payload.domain) ? payload.domain : "datos";
+    return {
+      id: n.id,
+      domain,
+      changedFields: Array.isArray(payload.changedFields)
+        ? (payload.changedFields as string[])
+        : [],
+      detailsHref: ADMIN_EDIT_DOMAIN_HREFS[domain],
+    };
+  });
+
   return {
     up,
     managerApp,
@@ -421,6 +456,7 @@ async function loadDashboardLayoutData(
     normalizedApplicationStatus,
     metrics,
     dashboardState,
+    adminEdits,
   };
 }
 

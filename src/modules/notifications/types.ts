@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { AdminEditDomain } from "@/lib/admin/edit-domains";
 
 export type NotificationCategory = "onboarding" | "review" | "announcement" | "profile";
 
@@ -12,7 +13,8 @@ export type NotificationTemplateKey =
   | "review.approved"
   | "review.rejected"
   | "announcement.general"
-  | "profile.updated";
+  | "profile.updated"
+  | "admin.profileCorrected";
 
 export type TemplateContextMap = {
   "onboarding.submitted": BaseContext;
@@ -29,6 +31,13 @@ export type TemplateContextMap = {
   };
   "profile.updated": BaseContext & {
     sectionLabel: string;
+    changedFields: string[];
+    detailsHref?: string;
+  };
+  // Staff corrected the player's profile from the admin CRUD. Surfaced on the
+  // player's next login (persisted in the `notifications` table).
+  "admin.profileCorrected": BaseContext & {
+    domain: AdminEditDomain;
     changedFields: string[];
     detailsHref?: string;
   };

@@ -3,6 +3,11 @@ import { localizedSubject, renderTemplate } from "@/emails";
 import { senderFrom, siteUrl } from "@/emails/tokens";
 import { signUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
 import { resolvePreferredLocale } from "@/lib/marketing/recipient-props";
+import {
+  ADMIN_EDIT_DOMAIN_HREFS,
+  ADMIN_EDIT_DOMAIN_NOTICE,
+  type AdminEditDomain,
+} from "@/lib/admin/edit-domains";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -487,6 +492,56 @@ const BLOG_APPROVED_SUBJECT: Record<Locale, (title: string) => string> = {
   it: (t) => `Abbiamo pubblicato il tuo articolo: ${t}`,
   pt: (t) => `Publicamos seu artigo: ${t}`,
 };
+
+// ============================================================================
+// Admin CRUD — staff corrected a player's profile
+// ============================================================================
+
+const ADMIN_CORRECTED_SUBJECT: Record<Locale, string> = {
+  es: "Actualizamos tu perfil en 'BallersHub",
+  en: "We updated your profile on 'BallersHub",
+  it: "Abbiamo aggiornato il tuo profilo su 'BallersHub",
+  pt: "Atualizamos seu perfil na 'BallersHub",
+};
+
+/**
+ * Notifica al jugador que el staff corrigió/editó su perfil desde el CRUD admin.
+ * El email es por dominio (datos, trayectoria, stats, palmarés, scouting, valor,
+ * multimedia). Failure silenciosa — la action ya escribió en vivo, el email no
+ * debe romperla. La resolución del email del jugador (auth.users) la hace el
+ * caller (recordAdminPlayerEdit) vía service-role.
+ */
+export async function sendAdminProfileCorrectedEmail(opts: {
+  email: string;
+  playerName: string;
+  domain: AdminEditDomain;
+  changedFields?: string[];
+}) {
+  if (!resend) {
+    console.log("[Resend Mock] Admin profile corrected →", opts.email, opts.domain);
+    return;
+  }
+  try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
+    const editUrl = `${siteUrl.replace(/\/+$/, "")}${ADMIN_EDIT_DOMAIN_HREFS[opts.domain]}`;
+    const html = await renderTemplate("admin_profile_corrected", {
+      playerName: opts.playerName,
+      notice: ADMIN_EDIT_DOMAIN_NOTICE[opts.domain],
+      changedFields: opts.changedFields ?? [],
+      dashboardUrl: editUrl,
+      recipientEmail: opts.email,
+      locale,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject: ADMIN_CORRECTED_SUBJECT[locale] ?? ADMIN_CORRECTED_SUBJECT.es,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendAdminProfileCorrectedEmail:", error);
+  }
+}
 
 /**
  * Notifica al autor cuando su post es rechazado con feedback. El editor

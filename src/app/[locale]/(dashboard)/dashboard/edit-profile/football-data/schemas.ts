@@ -294,3 +294,46 @@ export const careerRevisionSubmissionSchema = z
   );
 
 export type CareerRevisionSubmissionInput = z.infer<typeof careerRevisionSubmissionSchema>;
+
+// ---------------------------------------------------------------------------
+// player_profiles direct-edit schemas (shared by the player football-data
+// actions and the admin player CRUD). Live in schemas.ts because "use server"
+// modules can't export non-async values.
+// ---------------------------------------------------------------------------
+
+export const sportProfileSchema = z.object({
+  playerId: z.string().uuid(),
+  foot: z.string().trim().max(50, "Ingresá un perfil válido.").optional(),
+  contractStatus: z.string().trim().max(120, "La situación contractual es muy extensa.").optional(),
+  agencyId: z.string().trim().nullable().optional(),
+});
+
+export type SportProfileInput = z.infer<typeof sportProfileSchema>;
+
+export const marketProjectionSchema = z.object({
+  playerId: z.string().uuid(),
+  marketValue: z
+    .string()
+    .trim()
+    .max(32, "El valor de mercado es demasiado largo.")
+    .optional(),
+  careerObjectives: z
+    .string()
+    .trim()
+    .max(600, "Los objetivos deben tener menos de 600 caracteres.")
+    .optional(),
+});
+
+export type MarketProjectionInput = z.infer<typeof marketProjectionSchema>;
+
+export const scoutingAnalysisSchema = z.object({
+  playerId: z.string().uuid(),
+  topCharacteristics: z.string().trim().max(300).optional(),
+  tacticsAnalysis: z.string().trim().max(1000).optional(),
+  physicalAnalysis: z.string().trim().max(1000).optional(),
+  mentalAnalysis: z.string().trim().max(1000).optional(),
+  techniqueAnalysis: z.string().trim().max(1000).optional(),
+  analysisAuthor: z.string().trim().max(120).optional(),
+});
+
+export type ScoutingAnalysisInput = z.infer<typeof scoutingAnalysisSchema>;

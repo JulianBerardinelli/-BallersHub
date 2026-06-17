@@ -13,6 +13,8 @@ interface ProAssetsProps {
   currentModelUrl2: string | null;
   playerId: string;
   userId: string;
+  /** Override the upload action (admin CRUD injects its service-role variant). */
+  action?: typeof updateProAssetAction;
 }
 
 type AssetType = "heroUrl" | "modelUrl1" | "modelUrl2";
@@ -21,8 +23,9 @@ export default function ProAssetsUploaderClient({
   currentHeroUrl,
   currentModelUrl1,
   currentModelUrl2,
-  playerId: _playerId,
+  playerId,
   userId: _userId,
+  action = updateProAssetAction,
 }: ProAssetsProps) {
   const t = useTranslations("dashEditProfile");
   const [isUploading, setIsUploading] = useState<AssetType | null>(null);
@@ -53,8 +56,9 @@ export default function ProAssetsUploaderClient({
       const formData = new FormData();
       formData.append("file", file);
       formData.append("assetType", assetType);
+      formData.append("playerId", playerId);
 
-      const res = await updateProAssetAction(formData);
+      const res = await action(formData);
       if (!res.success) throw new Error(res.error);
 
       setPreviews((prev) => ({ ...prev, [assetType]: res.url as string }));

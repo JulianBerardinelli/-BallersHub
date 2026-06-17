@@ -25,9 +25,18 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 type Props = {
   playerId: string;
   initialValues: MarketProjectionFormValues;
+  /** Override the write action (admin CRUD injects its service-role variant). */
+  action?: typeof updateMarketProjection;
+  /** In admin mode, the Pro lock shows an admin notice instead of the player upgrade modal. */
+  adminMode?: boolean;
 };
 
-export default function MarketProjectionSection({ playerId, initialValues }: Props) {
+export default function MarketProjectionSection({
+  playerId,
+  initialValues,
+  action = updateMarketProjection,
+  adminMode = false,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<MarketProjectionFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
@@ -76,9 +85,18 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
 
   const onSubmit = handleSubmit((values) => {
     if (!access.isPro) {
-      // Soft-save gate: free users see the form but can't persist. Open
+      // Soft-save gate: free users see the form but can't persist. In admin
+      // mode show an admin notice (the player can't "upgrade"); otherwise open
       // the upgrade modal instead of hitting the server.
-      upgradeModal.open("marketValue");
+      if (adminMode) {
+        setStatus({
+          type: "error",
+          message:
+            "Sección Pro — este jugador es Free. Otorgale una cuenta de cortesía en /admin/comp-accounts para editar.",
+        });
+      } else {
+        upgradeModal.open("marketValue");
+      }
       return;
     }
 
@@ -86,7 +104,7 @@ export default function MarketProjectionSection({ playerId, initialValues }: Pro
       setStatus(null);
       clearErrors();
 
-      const result = await updateMarketProjection({
+      const result = await action({
         playerId,
         marketValue: values.marketValue,
         careerObjectives: values.careerObjectives,

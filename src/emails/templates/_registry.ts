@@ -33,6 +33,9 @@ import LaunchAnnouncementEmail, {
   type LaunchAnnouncementProps,
 } from "./launch-announcement";
 import ReEngagementEmail, { type ReEngagementProps } from "./re-engagement";
+import AdminProfileCorrectedEmail, {
+  type AdminProfileCorrectedProps,
+} from "./admin-profile-corrected";
 
 /**
  * Template registry — every email shipped from 'BallersHub goes through here.
@@ -69,7 +72,8 @@ export type TemplateKey =
   | "blog_post_approved_author"
   | "blog_post_rejected_author"
   | "launch_announcement"
-  | "re_engagement";
+  | "re_engagement"
+  | "admin_profile_corrected";
 
 export type TemplateCategory = "marketing" | "transactional";
 
@@ -90,6 +94,7 @@ export type TemplatePropsMap = {
   blog_post_rejected_author: BlogPostRejectedAuthorProps;
   launch_announcement: LaunchAnnouncementProps;
   re_engagement: ReEngagementProps;
+  admin_profile_corrected: AdminProfileCorrectedProps;
 };
 
 const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactElement } = {
@@ -109,6 +114,7 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   blog_post_rejected_author: (props) => BlogPostRejectedAuthorEmail(props),
   launch_announcement: (props) => LaunchAnnouncementEmail(props),
   re_engagement: (props) => ReEngagementEmail(props),
+  admin_profile_corrected: (props) => AdminProfileCorrectedEmail(props),
 };
 
 /** Render a registered template to its final HTML string. */
@@ -234,5 +240,12 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     label: "Re-engagement — perfil incompleto",
     description:
       "Broadcast para usuarios registrados que NO completaron su perfil. Tres pasos numerados (visibilidad, validación gratis, 15 min de onboarding) + CTA al dashboard. Counterpart manual del drip profile_completion.",
+  },
+  {
+    key: "admin_profile_corrected",
+    category: "transactional",
+    label: "Corrección de perfil por staff",
+    description:
+      "Disparado cuando un admin edita/corrige data del jugador desde el CRUD admin (datos, trayectoria, stats, palmarés, scouting, valor, multimedia). Comunica qué sección se corrigió + link al editor.",
   },
 ];

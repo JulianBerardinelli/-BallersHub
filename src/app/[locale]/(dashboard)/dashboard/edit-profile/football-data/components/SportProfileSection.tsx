@@ -25,9 +25,15 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 type Props = {
   playerId: string;
   initialValues: SportProfileFormValues;
+  /** Override the write action (admin CRUD injects its service-role variant). */
+  action?: typeof updateSportProfile;
 };
 
-export default function SportProfileSection({ playerId, initialValues }: Props) {
+export default function SportProfileSection({
+  playerId,
+  initialValues,
+  action = updateSportProfile,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<SportProfileFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
@@ -77,7 +83,7 @@ export default function SportProfileSection({ playerId, initialValues }: Props) 
       setStatus(null);
       clearErrors();
 
-      const result = await updateSportProfile({
+      const result = await action({
         playerId,
         foot: values.foot,
         contractStatus: values.contractStatus,

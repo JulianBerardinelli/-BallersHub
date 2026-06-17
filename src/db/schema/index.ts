@@ -39,3 +39,4 @@ export * from "./tutorialProgress";
 export * from "./blog";
 export * from "./blogAuthors";
 export * from "./translations";
+export * from "./notifications";

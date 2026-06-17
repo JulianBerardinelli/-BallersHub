@@ -28,9 +28,15 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 type Props = {
   playerId: string;
   initialValues: ContactFormValues;
+  /** Override the write action (admin CRUD injects its service-role variant). */
+  action?: typeof updateContactInformation;
 };
 
-export default function ContactInformationSection({ playerId, initialValues }: Props) {
+export default function ContactInformationSection({
+  playerId,
+  initialValues,
+  action = updateContactInformation,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<ContactFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
@@ -81,7 +87,7 @@ export default function ContactInformationSection({ playerId, initialValues }: P
       setStatus(null);
       clearErrors();
 
-      const result = await updateContactInformation({
+      const result = await action({
         playerId,
         ...values,
       });

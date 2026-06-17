@@ -21,9 +21,17 @@ function formatBytes(bytes: number) {
 export default function AvatarUploader({
   playerId,
   currentAvatarUrl,
+  uploadAction,
 }: {
   playerId: string;
   currentAvatarUrl?: string | null;
+  /**
+   * Admin CRUD injects a service-role upload (the client JWT can't write
+   * another player's rows under RLS). When absent, the client-side flow runs.
+   */
+  uploadAction?: (
+    formData: FormData,
+  ) => Promise<{ success: true; url: string } | { success: false; error: string }>;
 }) {
   const t = useTranslations("dashEditProfile");
   const [error, setError] = useState<string | null>(null);
@@ -57,6 +65,20 @@ export default function AvatarUploader({
     setBusy(true);
 
     try {
+      // Admin CRUD path: route another player's avatar upload through the
+      // injected service-role action instead of the RLS-bound client.
+      if (uploadAction) {
+        const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("assetType", "avatarUrl");
+        fd.append("playerId", playerId);
+        const res = await uploadAction(fd);
+        if (!res.success) throw new Error(res.error);
+        if (typeof window !== "undefined") window.location.reload();
+        return;
+      }
+
       const key = `avatars/${playerId}.jpg`;
 
       const { error: uploadError } = await supabase.storage

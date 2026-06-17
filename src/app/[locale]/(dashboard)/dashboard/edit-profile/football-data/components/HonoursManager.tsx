@@ -36,6 +36,11 @@ type Props = {
   playerId: string;
   honours: DashboardHonour[];
   careerOptions: CareerOption[];
+  /** Override the write actions (admin CRUD injects service-role variants). */
+  upsertAction?: typeof upsertPlayerHonour;
+  deleteAction?: typeof deletePlayerHonour;
+  /** In admin mode, the Pro lock shows an admin notice instead of the player upgrade modal. */
+  adminMode?: boolean;
 };
 
 const defaultValues: FormValues = {
@@ -51,7 +56,14 @@ const defaultValues: FormValues = {
 const inputClassName =
   "w-full rounded-md border border-white/[0.08] bg-bh-black px-3 py-2 text-sm text-bh-fg-1 placeholder:text-bh-fg-4 focus:outline-none focus:ring-1 focus:ring-bh-lime/30 disabled:cursor-not-allowed disabled:opacity-60";
 
-export default function HonoursManager({ playerId, honours, careerOptions }: Props) {
+export default function HonoursManager({
+  playerId,
+  honours,
+  careerOptions,
+  upsertAction = upsertPlayerHonour,
+  deleteAction = deletePlayerHonour,
+  adminMode = false,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
@@ -115,9 +127,17 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
 
   const onSubmit = handleSubmit((values) => {
     if (!access.isPro) {
-      // Soft-save gate: free users can fill in the form, but at submit
-      // we surface the upgrade modal and discard.
-      upgradeModal.open("honoursValuation");
+      // Soft-save gate: free users can fill in the form, but at submit we
+      // discard. In admin mode show an admin notice; else the upgrade modal.
+      if (adminMode) {
+        setStatus({
+          type: "error",
+          message:
+            "Sección Pro — este jugador es Free. Otorgale una cuenta de cortesía en /admin/comp-accounts para editar.",
+        });
+      } else {
+        upgradeModal.open("honoursValuation");
+      }
       return;
     }
 
@@ -132,7 +152,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
     }
 
     startTransition(async () => {
-      const result = await upsertPlayerHonour(parsed.data);
+      const result = await upsertAction(parsed.data);
       if (!result.success) {
         setStatus({ type: "error", message: result.message });
         return;
@@ -188,7 +208,7 @@ export default function HonoursManager({ playerId, honours, careerOptions }: Pro
     if (!confirmed) return;
 
     startTransition(async () => {
-      const result = await deletePlayerHonour({ id: honour.id, playerId });
+      const result = await deleteAction({ id: honour.id, playerId });
       if (!result.success) {
         setStatus({ type: "error", message: result.message });
         return;
