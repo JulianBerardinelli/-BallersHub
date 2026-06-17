@@ -16,7 +16,7 @@
 
 import type { DashboardSubscription } from "./client/data-provider";
 
-export type PlanAudience = "player" | "agency";
+export type PlanAudience = "player" | "agency" | "coach";
 
 export type PlanSource = "paid" | "comp_grant" | "free";
 
@@ -87,7 +87,8 @@ export function resolvePlanAccess(
   // Either plan_id (the granular pricing-matrix id) or the legacy
   // plan column being 'pro'/'pro_plus' is enough.
   const planId = subscription.planId;
-  const hasPlanIdProTier = planId === "pro-player" || planId === "pro-agency";
+  const hasPlanIdProTier =
+    planId === "pro-player" || planId === "pro-agency" || planId === "pro-coach";
   const hasLegacyProTier = plan === "pro" || plan === "pro_plus";
   if (!hasPlanIdProTier && !hasLegacyProTier) {
     return freeAccess("free");
@@ -171,6 +172,22 @@ export function buildUpgradeUrl(options: {
   feature?: string;
   currency?: "USD" | "ARS" | "EUR";
 }): string {
+  // Coaches don't have a marketing /pricing surface yet (the audience toggle is
+  // player/agency only), so we send them straight to the pro-coach checkout.
+  // Default currency = ARS (home market, mirrors UpgradeCta); the coach upsell
+  // card offers USD/EUR explicitly. The checkout page reads currency from the
+  // query and lets the user pick their billing country.
+  if (options.audience === "coach") {
+    const params = new URLSearchParams();
+    params.set("currency", options.currency ?? "ARS");
+    if (options.feature) {
+      params.set("utm_source", "dashboard");
+      params.set("utm_medium", "gate");
+      params.set("utm_campaign", options.feature);
+    }
+    return `/checkout/pro-coach?${params.toString()}`;
+  }
+
   const params = new URLSearchParams();
   params.set("audience", options.audience);
   params.set("currency", options.currency ?? "ARS");

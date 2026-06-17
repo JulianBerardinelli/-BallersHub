@@ -226,6 +226,93 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
   },
 ];
 
+// Coach (DT) navigation. PR-4a shipped Panel + profile edit + settings; PR-4b
+// adds the moderated sections (trayectoria con revisiones, licencias,
+// multimedia, idiomas). Plantilla/estilos land later.
+export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
+  {
+    id: "dashboard",
+    title: "Panel",
+    items: [
+      {
+        kind: "link",
+        id: "home",
+        title: "Panel de control",
+        href: "/dashboard",
+        description: "Resumen de tu perfil de entrenador.",
+      },
+    ],
+  },
+  {
+    id: "edit-profile",
+    title: "Editar perfil",
+    items: [
+      {
+        kind: "link",
+        id: "coach-edit",
+        title: "Datos del perfil",
+        href: "/dashboard/coach/edit",
+        description: "Bio, cargo, ideas de juego, formaciones y objetivos.",
+      },
+      {
+        kind: "link",
+        id: "coach-career",
+        title: "Trayectoria",
+        href: "/dashboard/coach/career",
+        description: "Clubes dirigidos y estadísticas por temporada (con revisión).",
+      },
+      {
+        kind: "link",
+        id: "coach-licenses",
+        title: "Licencias",
+        href: "/dashboard/coach/licenses",
+        description: "Titulaciones y certificaciones, verificadas por el equipo.",
+      },
+      {
+        kind: "link",
+        id: "coach-multimedia",
+        title: "Multimedia",
+        href: "/dashboard/coach/multimedia",
+        description: "Fotos y videos de tu trabajo.",
+      },
+      {
+        kind: "link",
+        id: "coach-translations",
+        title: "Idiomas",
+        href: "/dashboard/coach/translations",
+        description: "Publicá tu página en inglés, italiano y portugués (Pro).",
+      },
+    ],
+  },
+  {
+    id: "settings",
+    title: "Configuración",
+    items: [
+      {
+        kind: "link",
+        id: "account",
+        title: "Cuenta",
+        href: "/dashboard/settings/account",
+        description: "Datos de acceso y preferencias generales.",
+      },
+      {
+        kind: "link",
+        id: "subscription",
+        title: "Suscripción",
+        href: "/dashboard/settings/subscription",
+        description: "Estado del plan y acciones de facturación.",
+      },
+      {
+        kind: "action",
+        id: "logout",
+        title: "Cerrar sesión",
+        action: "sign-out",
+        description: "Salí del panel de manera segura.",
+      },
+    ],
+  },
+];
+
 export function buildClientDashboardNavigation(
   badges: Partial<Record<string, ClientDashboardNavBadge>> = {},
   isManager: boolean = false,

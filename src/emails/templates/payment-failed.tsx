@@ -12,7 +12,7 @@ import type { Locale } from "@/i18n/routing";
 
 export type PaymentFailedProps = {
   displayName: string;
-  planId: "pro-player" | "pro-agency";
+  planId: "pro-player" | "pro-agency" | "pro-coach";
   formattedAmount: string;
   /** ISO date for when the next retry will hit (Stripe handles retries). */
   nextRetryAt: string | null;
@@ -130,7 +130,11 @@ export default function PaymentFailedEmail({
   const firstName = (displayName || "").split(" ")[0] || displayName;
   const c = COPY[locale] ?? COPY.es;
   const planLabel =
-    planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
+    planId === "pro-agency"
+      ? "'BallersHub Pro Agency"
+      : planId === "pro-coach"
+        ? "'BallersHub Pro DT"
+        : "'BallersHub Pro Player";
   const retryLine = nextRetryAt
     ? c.retryLine(formatEmailDate(nextRetryAt, locale))
     : c.retryLineSoon;
