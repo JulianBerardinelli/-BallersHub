@@ -17,7 +17,6 @@ const FREE_SECTIONS: SectionItem[] = [
   { id: "bio", key: "bio" },
   { id: "video", key: "video" },
   { id: "career", key: "career" },
-  { id: "links", key: "links" },
   { id: "contact", key: "contact" },
 ];
 
