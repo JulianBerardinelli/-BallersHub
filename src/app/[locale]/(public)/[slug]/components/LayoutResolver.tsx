@@ -64,6 +64,7 @@ export type PublicProfileData = {
     career: FreeLayoutCareerRow[];
     links: FreeLayoutLink[];
     video: FreeLayoutVideo | null;
+    currentTeamName: string | null;
     currentTeamCrestUrl: string | null;
     currentTeamCountryCode: string | null;
     currentDivisionName: string | null;
@@ -130,7 +131,12 @@ export default async function LayoutResolver({ data }: { data: PublicProfileData
         ((player as { nationalityCodes?: string[] | null }).nationalityCodes as
           | string[]
           | null) ?? null,
-      currentClub: player.currentClub ?? null,
+      // Prefer the linked catalog team name (`currentTeamId`); fall back to
+      // the legacy free-text `currentClub`. Mirrors how career rows resolve
+      // `team?.name ?? c.club` — without this, players linked to the teams
+      // catalog (crest/league load fine) showed "Sin club" because the legacy
+      // text field was empty.
+      currentClub: freeData?.currentTeamName ?? player.currentClub ?? null,
       currentTeamCrestUrl: freeData?.currentTeamCrestUrl ?? null,
       currentTeamCountryCode: freeData?.currentTeamCountryCode ?? null,
       currentDivisionName: freeData?.currentDivisionName ?? null,

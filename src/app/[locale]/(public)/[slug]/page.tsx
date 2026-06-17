@@ -695,6 +695,7 @@ export default async function PlayerPublicPage({
           career: freeCareer,
           links: freeLinks,
           video: freeVideo,
+          currentTeamName: currentTeam?.name ?? null,
           currentTeamCrestUrl: currentTeam?.crestUrl ?? null,
           currentTeamCountryCode: currentTeam?.countryCode ?? null,
           currentDivisionName: currentDivision?.name ?? null,
