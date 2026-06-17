@@ -307,7 +307,7 @@ function MethodologyScrollJack({ title, body, accent }: { title: string; body: s
         />
         <motion.h2
           style={{ scale: titleScale, opacity: titleOpacity }}
-          className="font-heading text-[12vw] font-black uppercase leading-none tracking-tighter text-transparent md:text-[8vw]"
+          className="max-w-full px-4 text-center font-heading text-[10vw] font-black uppercase leading-none tracking-tighter text-transparent md:text-[8vw]"
         >
           <span style={{ WebkitTextStroke: `1.5px ${accent}`, paintOrder: "stroke fill" }}>{title}</span>
         </motion.h2>

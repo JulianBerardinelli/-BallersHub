@@ -114,7 +114,7 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
       />
 
       {/* ===================== CINEMATIC HERO ===================== */}
-      <section className="relative h-screen min-h-[850px] w-full flex items-center justify-center overflow-hidden">
+      <section className="relative h-screen min-h-[600px] md:min-h-[850px] w-full flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-black/20 via-black to-black opacity-90" />
         <div
           className="absolute inset-0 z-0 mix-blend-overlay opacity-30 pointer-events-none"
@@ -149,9 +149,9 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
         </div>
 
         {/* Small name + role + flags */}
-        <motion.div className="absolute z-40 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none pl-5 md:pl-0" style={{ y: textY }}>
-          <div className="relative w-fit">
-            <div className="absolute bottom-[90%] left-0 w-full flex flex-col md:flex-row md:justify-between md:items-end items-start gap-1.5 md:gap-0 mb-2 md:mb-4">
+        <motion.div className="absolute z-40 w-full flex flex-col justify-center items-center pointer-events-none select-none px-5 md:px-0" style={{ y: textY }}>
+          <div className="relative w-fit max-w-full">
+            <div className="absolute bottom-[90%] left-0 w-full flex flex-col md:flex-row md:justify-between md:items-end items-center gap-1.5 md:gap-0 mb-2 md:mb-4">
               <motion.div className="flex items-center gap-3 md:gap-5 order-2 md:order-none" initial="hidden" animate="visible" variants={nameVariants}>
                 <div className="w-6 md:w-12 h-[2px] bg-white opacity-40 md:opacity-70" />
                 <motion.div
@@ -196,19 +196,19 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
           { y: trailY2, opacity: 0.28, w: "1.25px" },
           { y: trailY1, opacity: 0.35, w: "1.5px" },
         ].map((tr, i) => (
-          <motion.div key={i} className="absolute z-[15] w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none mix-blend-screen pl-5 md:pl-0" style={{ y: tr.y, opacity: tr.opacity }}>
-            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-fit md:w-full text-left md:text-center" style={{ WebkitTextStroke: `${tr.w} var(--theme-accent)`, paintOrder: "stroke fill" }}>
+          <motion.div key={i} className="absolute z-[15] w-full flex flex-col justify-center items-center pointer-events-none select-none mix-blend-screen px-5 md:px-0" style={{ y: tr.y, opacity: tr.opacity }}>
+            <span aria-hidden="true" className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-transparent w-full text-center" style={{ WebkitTextStroke: `${tr.w} var(--theme-accent)`, paintOrder: "stroke fill" }}>
               {lastName}
             </span>
           </motion.div>
         ))}
 
         {/* White-solid lastName (back) — canonical H1 */}
-        <motion.div className="absolute z-20 w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none pl-5 md:pl-0" style={{ y: textY }}>
+        <motion.div className="absolute z-20 w-full flex flex-col justify-center items-center pointer-events-none select-none px-5 md:px-0" style={{ y: textY }}>
           <motion.h1
             initial="hidden" animate="visible" variants={lastNameVariants}
             aria-label={data.fullName}
-            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-left md:text-center w-fit md:mx-auto"
+            className="font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-white drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] text-center w-full mx-auto"
           >
             <span className="sr-only">{firstName} </span>
             <span aria-hidden="true">{lastName}</span>
@@ -232,12 +232,12 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
               priority
               unoptimized
               sizes="(max-width: 1024px) 100vw, 1200px"
-              className="h-[92vh] max-h-[840px] md:h-full md:max-h-none w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 origin-bottom translate-x-[14%] md:translate-x-0"
+              className="h-[80vh] max-h-[760px] md:h-full md:max-h-none w-auto object-contain object-bottom drop-shadow-[0_0_80px_rgba(0,0,0,0.8)] filter contrast-125 origin-bottom"
             />
           ) : (
-            <div className="mb-[16vh] md:mb-[12vh] relative">
+            <div className="mb-[22vh] md:mb-[12vh] relative">
               <div className="absolute inset-0 rounded-full blur-[60px] opacity-40" style={{ backgroundColor: ACCENT }} />
-              <div className="relative h-[40vh] max-h-[420px] aspect-square overflow-hidden rounded-full ring-2 ring-white/20 shadow-[0_0_80px_rgba(0,0,0,0.8)]">
+              <div className="relative h-[34vh] sm:h-[40vh] max-h-[420px] aspect-square overflow-hidden rounded-full ring-2 ring-white/20 shadow-[0_0_80px_rgba(0,0,0,0.8)]">
                 <Image src={data.avatarUrl} alt={data.fullName} fill priority unoptimized sizes="420px" className="object-cover" />
               </div>
             </div>
@@ -245,11 +245,11 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
         </motion.div>
 
         {/* Accent-outline lastName (front) */}
-        <motion.div className="absolute z-[35] w-full flex flex-col justify-center items-start md:items-center pointer-events-none select-none pl-5 md:pl-0" style={{ y: textY }}>
+        <motion.div className="absolute z-[35] w-full flex flex-col justify-center items-center pointer-events-none select-none px-5 md:px-0" style={{ y: textY }}>
           <motion.span
             initial="hidden" animate="visible" variants={lastNameVariants}
             aria-hidden="true"
-            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-left md:text-center w-fit md:w-full text-transparent"
+            className="block font-heading font-black uppercase text-[12vw] leading-[0.8] tracking-tighter text-center w-full text-transparent"
             style={{ WebkitTextStroke: `1.5px ${ACCENT}`, paintOrder: "stroke fill", filter: `drop-shadow(0px 0px 20px ${ACCENT}40)` }}
           >
             {lastName}
@@ -259,18 +259,21 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
         {/* Record strip */}
         {strip && (
           <motion.div
-            className="absolute bottom-24 left-1/2 -translate-x-1/2 z-[45] flex items-stretch gap-px overflow-hidden rounded-2xl border border-white/10 bg-black/40 backdrop-blur-xl"
+            className="absolute bottom-7 md:bottom-24 left-1/2 -translate-x-1/2 z-[45] flex items-stretch justify-center gap-1.5 md:gap-3 w-[92vw] max-w-[560px]"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.7, ease: "easeOut" }}
           >
             {strip.map((s, i) => (
-              <div key={i} className="flex flex-col items-center justify-center px-4 py-3 md:px-6 md:py-4">
-                <span className="font-bh-display text-xl md:text-3xl font-black tabular-nums" style={{ color: ACCENT }}>
+              <div
+                key={i}
+                className="flex flex-1 min-w-0 flex-col items-center justify-center rounded-xl md:rounded-2xl border border-white/10 bg-black/40 px-1.5 py-2 backdrop-blur-xl md:px-6 md:py-4"
+              >
+                <span className="font-bh-display text-base md:text-3xl font-black tabular-nums" style={{ color: ACCENT }}>
                   <CountUp value={s.value} />
                   {s.suffix ?? ""}
                 </span>
-                <span className="mt-0.5 text-[8px] md:text-[10px] uppercase tracking-[0.12em] text-white/50 text-center leading-tight">
+                <span className="mt-0.5 text-[8px] md:text-[10px] uppercase tracking-[0.08em] md:tracking-[0.12em] text-white/50 text-center leading-tight">
                   {s.label}
                 </span>
               </div>
@@ -279,7 +282,7 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
         )}
 
         <div className="absolute bottom-0 w-full h-[30vh] z-40 pointer-events-none" style={{ background: "linear-gradient(to top, var(--theme-background) 5%, transparent 100%)" }} />
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 text-white/50 flex flex-col items-center animate-bounce">
+        <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 z-50 text-white/50 flex-col items-center animate-bounce ${strip ? "hidden md:flex" : "flex"}`}>
           <span className="text-[10px] tracking-[0.3em] uppercase mb-2">{t("pro.scroll")}</span>
           <div className="w-[1px] h-12 bg-gradient-to-b from-white/50 to-transparent" />
         </div>
@@ -287,7 +290,7 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
 
       {/* ===================== CONTENT ===================== */}
       <div className="relative z-50 w-full min-h-screen pt-24 md:pt-32 pb-24 transition-colors duration-1000" style={{ backgroundColor: "var(--theme-background)" }}>
-        <div className="max-w-[1100px] w-full mx-auto px-6 md:px-12 flex flex-col gap-28 md:gap-40">
+        <div className="max-w-[1100px] w-full mx-auto px-5 sm:px-6 md:px-12 flex flex-col gap-20 md:gap-36">
           <CoachProContent data={data} accent={ACCENT} />
         </div>
       </div>

@@ -146,7 +146,7 @@ export default function ProCoachHeader({
                 onClick={() => scrollToSection(item.id)}
                 aria-label={label}
                 title={label}
-                className={`relative pointer-events-auto rounded-full font-semibold uppercase tracking-widest transition-colors whitespace-nowrap flex items-center justify-center shrink-0 px-2 py-1.5 md:px-3 md:text-xs ${
+                className={`relative pointer-events-auto rounded-full font-semibold uppercase tracking-widest transition-colors whitespace-nowrap flex items-center justify-center shrink-0 px-1.5 py-1.5 md:px-3 md:text-xs ${
                   isActive
                     ? "text-[var(--theme-background,#050505)]"
                     : "text-white/70 hover:text-[var(--theme-accent,#ccff00)]"
