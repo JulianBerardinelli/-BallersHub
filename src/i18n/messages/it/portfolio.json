@@ -408,6 +408,8 @@
     "abbrLosses": "P",
     "abbrWinRate": "%",
     "mediaTitle": "Media",
-    "videoFallback": "Guarda il video"
+    "videoFallback": "Guarda il video",
+    "contactTitle": "Contatti",
+    "proClubsLabel": "Club"
   }
 }

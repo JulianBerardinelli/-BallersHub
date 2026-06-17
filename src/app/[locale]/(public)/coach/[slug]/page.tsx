@@ -35,6 +35,9 @@ import CoachPortfolio, {
   type CoachLicenseRow,
 } from "./components/CoachPortfolio";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
+import SmoothScrollProvider from "./components/pro/SmoothScrollProvider";
+import ProCoachLayout, { type CoachProData } from "./components/pro/ProCoachLayout";
+import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 
 export const revalidate = 3600;
 
@@ -345,6 +348,57 @@ export default async function CoachPublicPage({
     honours: honours.map((h) => h.title),
     record: record ? { matches: record.matches, winPct: record.winPct } : null,
   };
+
+  // Pro coaches get the premium scrolljacking layout (a copy of the player Pro
+  // portfolio, adapted). Free coaches keep the sober editorial dossier.
+  if (isPro) {
+    const proData: CoachProData = {
+      fullName: coach.fullName,
+      roleTitle: coach.roleTitle,
+      avatarUrl: coach.avatarUrl,
+      heroUrl: coach.heroUrl,
+      nationality: coach.nationality,
+      nationalityCodes: coach.nationalityCodes,
+      currentClub: coach.currentClub,
+      coachingSince: coach.coachingSince,
+      bio: content.bio,
+      playingStyle: content.playingStyle,
+      methodologyAnalysis: content.methodologyAnalysis,
+      preferredFormations: coach.preferredFormations,
+      career,
+      stats,
+      record,
+      honours,
+      licenses,
+      media,
+      links,
+      localeSwitch:
+        available.length > 1
+          ? { available, current: locale, basePath: `/coach/${slug}` }
+          : undefined,
+    };
+    return (
+      <>
+        <CoachJsonLd coach={jsonLd} plan={plan} locale={locale} />
+        <SmoothScrollProvider>
+          <div
+            className="relative min-h-screen w-full overflow-x-clip font-body"
+            style={{ backgroundColor: "#050505", color: "#fff" }}
+          >
+            <ProCoachLayout data={proData} />
+          </div>
+          <PortfolioFooter
+            ownerName={coach.fullName}
+            ownerSlug={coach.slug}
+            backgroundColor="#050505"
+            primaryColor="#ccff00"
+            secondaryColor="#050505"
+            accentColor="#ccff00"
+          />
+        </SmoothScrollProvider>
+      </>
+    );
+  }
 
   return (
     <>
