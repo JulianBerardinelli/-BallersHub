@@ -6,8 +6,10 @@ import { useNotificationContext } from "../NotificationProvider";
 import {
   onboardingNotification,
   reviewNotification,
+  adminNotification,
 } from "../builders";
 import { ensureEventRecorded } from "@/modules/notifications/utils/eventStore";
+import type { AdminEditDomain } from "@/lib/admin/edit-domains";
 
 type OnboardingSnapshot = {
   requestId: string;
@@ -29,16 +31,25 @@ type ReviewSnapshot = {
   topicLabel: string;
 };
 
+type AdminEditSnapshot = {
+  /** notifications.id — the stable per-device dedupe key. */
+  id: string;
+  domain: AdminEditDomain;
+  changedFields: string[];
+  detailsHref?: string | null;
+};
+
 type Props = {
   userName?: string | null;
   onboarding?: OnboardingSnapshot | null;
   latestReview?: ReviewSnapshot | null;
+  adminEdits?: AdminEditSnapshot[] | null;
 };
 
 const DASHBOARD_FALLBACK = "/dashboard";
 const REVIEW_DETAILS_FALLBACK = "/dashboard/edit-profile/football-data";
 
-export function NotificationBootstrap({ userName, onboarding, latestReview }: Props) {
+export function NotificationBootstrap({ userName, onboarding, latestReview, adminEdits }: Props) {
   const { enqueue } = useNotificationContext();
 
   useEffect(() => {
@@ -135,6 +146,34 @@ export function NotificationBootstrap({ userName, onboarding, latestReview }: Pr
       );
     }
   }, [enqueue, latestReview, userName]);
+
+  // Staff edits made from the admin CRUD. Each unread `notifications` row is
+  // toasted once per device (dedupe by its stable id); the server-side
+  // `read_at` governs the persistent/cross-device state + future bell center.
+  useEffect(() => {
+    if (!adminEdits || adminEdits.length === 0) {
+      return;
+    }
+
+    for (const edit of adminEdits) {
+      const eventId = `admin.edit:${edit.id}`;
+      if (!ensureEventRecorded(eventId)) {
+        continue;
+      }
+
+      enqueue(
+        adminNotification.profileCorrected(
+          {
+            userName: userName ?? undefined,
+            domain: edit.domain,
+            changedFields: edit.changedFields,
+            detailsHref: edit.detailsHref ?? undefined,
+          },
+          eventId,
+        ),
+      );
+    }
+  }, [enqueue, adminEdits, userName]);
 
   return null;
 }

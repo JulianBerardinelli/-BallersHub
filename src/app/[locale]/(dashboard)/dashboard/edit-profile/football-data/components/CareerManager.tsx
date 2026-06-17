@@ -87,6 +87,12 @@ type Props = {
   playerName?: string | null;
   stages: CareerStage[];
   latestRequest: CareerRequestSnapshot | null;
+  /**
+   * Override the submit action. The admin CRUD injects a service-role variant
+   * that writes career_items LIVE (bypassing the revision queue). Default keeps
+   * the player's review-queue submit.
+   */
+  submitAction?: typeof submitCareerRevision;
 };
 
 type AugmentedCareerItem = CareerItemInput & { originalId?: string | null };
@@ -250,7 +256,13 @@ function formatDate(value: string | null): string {
   }
 }
 
-export default function CareerManager({ playerId, playerName, stages, latestRequest }: Props) {
+export default function CareerManager({
+  playerId,
+  playerName,
+  stages,
+  latestRequest,
+  submitAction = submitCareerRevision,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(DEFAULT_STATUS);
@@ -524,7 +536,7 @@ export default function CareerManager({ playerId, playerName, stages, latestRequ
     };
 
     startTransition(async () => {
-      const result = await submitCareerRevision(payload);
+      const result = await submitAction(payload);
       if (!result.success) {
         setStatus({ type: "error", message: result.message });
         return;

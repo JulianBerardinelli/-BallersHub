@@ -299,6 +299,14 @@ function buildSampleProps(
         ctaLabel: "Continuar mi perfil",
         ...overrides,
       };
+    case "admin_profile_corrected":
+      return {
+        playerName: "Lautaro Sample",
+        notice: "Editamos una etapa de tu trayectoria luego de una revisión.",
+        changedFields: ["Club", "Período"],
+        dashboardUrl: `${siteUrl}/dashboard/edit-profile/football-data`,
+        ...overrides,
+      };
     default: {
       const _exhaustive: never = key;
       return _exhaustive;

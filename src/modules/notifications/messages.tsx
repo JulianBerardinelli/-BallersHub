@@ -1,6 +1,10 @@
 import { Fragment, type ReactNode } from "react";
 
 import { NotificationTemplate, NotificationTemplateKey } from "./types";
+import {
+  ADMIN_EDIT_DOMAIN_LABELS,
+  ADMIN_EDIT_DOMAIN_NOTICE,
+} from "@/lib/admin/edit-domains";
 
 const displayName = (name?: string) => (name ? `${name}, ` : "");
 
@@ -147,5 +151,21 @@ export const notificationTemplates: {
       </>;
     },
     expandable: false,
+  },
+  "admin.profileCorrected": {
+    key: "admin.profileCorrected",
+    category: "profile",
+    tone: "info",
+    headline: ({ userName, domain }) =>
+      `${displayName(userName)}actualizamos tu ${ADMIN_EDIT_DOMAIN_LABELS[domain]} ✏️`,
+    body: ({ domain }) => ADMIN_EDIT_DOMAIN_NOTICE[domain],
+    cta: ({ detailsHref }) =>
+      detailsHref ? { label: "Ver mi perfil", href: detailsHref } : undefined,
+    details: ({ changedFields }) => {
+      const list = formatFieldList(changedFields);
+      if (!list) return undefined;
+      return <>Campos actualizados: {list}.</>;
+    },
+    expandable: true,
   },
 };

@@ -44,6 +44,13 @@ type Props = {
   stats: DashboardSeasonStat[];
   careerOptions: CareerOption[];
   latestRequest?: CareerRequestSnapshot | null;
+  /**
+   * Override the submit/delete actions. The admin CRUD injects a service-role
+   * variant of submit that writes stats LIVE (no revision queue) + an admin
+   * delete. Defaults keep the player's review-queue flow.
+   */
+  submitAction?: typeof submitCareerRevision;
+  deleteAction?: typeof deleteSeasonStat;
 };
 
 const defaultValues: FormValues = {
@@ -86,7 +93,14 @@ type AugmentedStat = {
   originalStatId?: string | null;
 };
 
-export default function SeasonStatsManager({ playerId, stats, careerOptions, latestRequest }: Props) {
+export default function SeasonStatsManager({
+  playerId,
+  stats,
+  careerOptions,
+  latestRequest,
+  submitAction = submitCareerRevision,
+  deleteAction = deleteSeasonStat,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
@@ -365,7 +379,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
     }
 
     startTransition(async () => {
-      const result = await deleteSeasonStat({ id: stat.id, playerId });
+      const result = await deleteAction({ id: stat.id, playerId });
       if (!result.success) {
         setStatus({ type: "error", message: result.message });
         return;
@@ -406,7 +420,7 @@ export default function SeasonStatsManager({ playerId, stats, careerOptions, lat
           })),
       };
 
-      const result = await submitCareerRevision(input);
+      const result = await submitAction(input);
       if (!result.success) {
         setSubmissionStatus({ type: "error", message: result.message });
         return;

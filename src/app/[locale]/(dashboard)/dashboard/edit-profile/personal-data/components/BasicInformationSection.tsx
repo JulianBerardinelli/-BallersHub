@@ -32,9 +32,16 @@ type Props = {
   initialValues: BasicInfoFormValues;
   /** Raw `gender` enum value. Read-only here — set once at onboarding. */
   genderValue?: string;
+  /** Override the write action (admin CRUD injects its service-role variant). */
+  action?: typeof updateBasicInformation;
 };
 
-export default function BasicInformationSection({ playerId, initialValues, genderValue }: Props) {
+export default function BasicInformationSection({
+  playerId,
+  initialValues,
+  genderValue,
+  action = updateBasicInformation,
+}: Props) {
   const t = useTranslations("dashEditProfile");
 
   // Gender is immutable from the dashboard, so it lives OUTSIDE react-hook-form
@@ -94,7 +101,7 @@ export default function BasicInformationSection({ playerId, initialValues, gende
       setStatus(null);
       clearErrors();
 
-      const result = await updateBasicInformation({
+      const result = await action({
         playerId,
         fullName: defaults.fullName,
         birthDate: values.birthDate,

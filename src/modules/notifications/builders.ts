@@ -24,3 +24,7 @@ export const announcementNotification = {
 export const profileNotification = {
   updated: ((context, id?) => ({ template: "profile.updated", context, id })) satisfies Builder<"profile.updated">,
 };
+
+export const adminNotification = {
+  profileCorrected: ((context, id?) => ({ template: "admin.profileCorrected", context, id })) satisfies Builder<"admin.profileCorrected">,
+};

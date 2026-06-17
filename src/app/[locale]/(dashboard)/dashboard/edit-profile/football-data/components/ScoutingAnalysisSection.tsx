@@ -29,9 +29,18 @@ type StatusState = { type: "success" | "error"; message: string } | null;
 type Props = {
   playerId: string;
   initialValues: ScoutingAnalysisFormValues;
+  /** Override the write action (admin CRUD injects its service-role variant). */
+  action?: typeof updateScoutingAnalysis;
+  /** In admin mode, the Pro lock shows an admin notice instead of the player upgrade modal. */
+  adminMode?: boolean;
 };
 
-export default function ScoutingAnalysisSection({ playerId, initialValues }: Props) {
+export default function ScoutingAnalysisSection({
+  playerId,
+  initialValues,
+  action = updateScoutingAnalysis,
+  adminMode = false,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const [defaults, setDefaults] = useState<ScoutingAnalysisFormValues>(initialValues);
   const [isEditing, setIsEditing] = useState(false);
@@ -80,7 +89,15 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
 
   const onSubmit = handleSubmit((values) => {
     if (!access.isPro) {
-      upgradeModal.open("advancedStats");
+      if (adminMode) {
+        setStatus({
+          type: "error",
+          message:
+            "Sección Pro — este jugador es Free. Otorgale una cuenta de cortesía en /admin/comp-accounts para editar.",
+        });
+      } else {
+        upgradeModal.open("advancedStats");
+      }
       return;
     }
 
@@ -88,7 +105,7 @@ export default function ScoutingAnalysisSection({ playerId, initialValues }: Pro
       setStatus(null);
       clearErrors();
 
-      const result = await updateScoutingAnalysis({
+      const result = await action({
         playerId,
         topCharacteristics: values.topCharacteristics,
         tacticsAnalysis: values.tacticsAnalysis,

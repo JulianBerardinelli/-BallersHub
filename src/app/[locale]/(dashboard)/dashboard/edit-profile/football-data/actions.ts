@@ -13,47 +13,25 @@ import {
   honourMutationSchema,
   seasonStatMutationSchema,
   careerRevisionSubmissionSchema,
+  sportProfileSchema,
+  marketProjectionSchema,
+  scoutingAnalysisSchema,
   type LinkMutationInput,
   type HonourMutationInput,
   type SeasonStatMutationInput,
   type CareerRevisionSubmissionInput,
   type CareerStageInput,
 } from "./schemas";
+import {
+  sanitizeText,
+  formatPositions,
+  parseMarketValue,
+  type ChangeLogEntry,
+} from "./normalize";
 
 const DASHBOARD_ROUTE = "/dashboard/edit-profile/football-data";
 const RUN_CAREER_SCRIPT_MESSAGE =
   "Actualizá tu base ejecutando docs/db/client-dashboard-career-requests.sql antes de continuar.";
-
-const sportProfileSchema = z.object({
-  playerId: z.string().uuid(),
-  foot: z.string().trim().max(50, "Ingresá un perfil válido.").optional(),
-  contractStatus: z.string().trim().max(120, "La situación contractual es muy extensa.").optional(),
-  agencyId: z.string().trim().nullable().optional(),
-});
-
-const marketProjectionSchema = z.object({
-  playerId: z.string().uuid(),
-  marketValue: z
-    .string()
-    .trim()
-    .max(32, "El valor de mercado es demasiado largo.")
-    .optional(),
-  careerObjectives: z
-    .string()
-    .trim()
-    .max(600, "Los objetivos deben tener menos de 600 caracteres.")
-    .optional(),
-});
-
-const scoutingAnalysisSchema = z.object({
-  playerId: z.string().uuid(),
-  topCharacteristics: z.string().trim().max(300).optional(),
-  tacticsAnalysis: z.string().trim().max(1000).optional(),
-  physicalAnalysis: z.string().trim().max(1000).optional(),
-  mentalAnalysis: z.string().trim().max(1000).optional(),
-  techniqueAnalysis: z.string().trim().max(1000).optional(),
-  analysisAuthor: z.string().trim().max(120).optional(),
-});
 
 type FormActionSuccess<T> = { success: true; data: T; message?: string; updatedFields: string[] };
 type FormActionFailure = { success: false; message: string; fieldErrors?: Record<string, string | undefined> };
@@ -84,69 +62,6 @@ type ScoutingAnalysisResponse = {
 type ActionResult =
   | { success: true; requestId?: string }
   | { success: false; message: string };
-
-type ChangeLogEntry = { field: string; oldValue: unknown; newValue: unknown };
-
-function sanitizeText(value: string | null | undefined): string | null {
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length === 0 ? null : trimmed;
-}
-
-function formatPositions(positions: string[] | null | undefined): string {
-  if (!Array.isArray(positions) || positions.length === 0) return "";
-  return positions
-    .map((position) => sanitizeText(position) ?? null)
-    .filter((position): position is string => Boolean(position))
-    .join(", ");
-}
-
-function parseMarketValue(
-  value: string | null | undefined,
-): { dbValue: string | null; display: string; error?: string } {
-  const sanitized = sanitizeText(value);
-  if (!sanitized) {
-    return { dbValue: null, display: "" };
-  }
-
-  const stripped = sanitized.replace(/[^0-9.,]/g, "").replace(/\s+/g, "");
-  if (!stripped) {
-    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
-  }
-
-  const lastComma = stripped.lastIndexOf(",");
-  const lastDot = stripped.lastIndexOf(".");
-  let normalized = stripped;
-
-  if (lastComma > lastDot) {
-    const integerPart = stripped.slice(0, lastComma).replace(/[^0-9]/g, "");
-    const decimalPart = stripped.slice(lastComma + 1).replace(/[^0-9]/g, "");
-    normalized = decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : integerPart;
-  } else if (lastDot > lastComma) {
-    const integerPart = stripped.slice(0, lastDot).replace(/[^0-9]/g, "");
-    const decimalPart = stripped.slice(lastDot + 1).replace(/[^0-9]/g, "");
-    normalized = decimalPart ? `${integerPart}.${decimalPart.slice(0, 2)}` : integerPart;
-  } else {
-    normalized = stripped.replace(/[^0-9]/g, "");
-  }
-
-  if (!normalized) {
-    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
-  }
-
-  const numeric = Number(normalized);
-  if (!Number.isFinite(numeric)) {
-    return { dbValue: null, display: "", error: "Ingresá un valor numérico válido." };
-  }
-
-  if (numeric < 0) {
-    return { dbValue: null, display: "", error: "El valor no puede ser negativo." };
-  }
-
-  const dbValue = numeric.toFixed(2);
-  const display = new Intl.NumberFormat("es-AR", { maximumFractionDigits: 2 }).format(numeric);
-  return { dbValue, display };
-}
 
 async function recordChanges(
   supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>,
