@@ -1,6 +1,7 @@
 import { ArrowUpRight, Instagram, Linkedin } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
+import { PLATFORM_STATS } from "@/lib/site/platform-stats";
 
 import AnimatedStat from "./AnimatedStat";
 import NewsletterForm from "./NewsletterForm";
@@ -99,10 +100,10 @@ export type FooterProps = {
 };
 
 const DEFAULT_STATS: NonNullable<FooterProps["stats"]> = [
-  { value: "+30", label: "Perfiles validados" },
-  { value: "+130", label: "Clubes activos", useAlt: true },
-  { value: "4.8/5", label: "Reseñas verificadas" },
-  { value: "15", label: "Países", useAlt: true },
+  { value: PLATFORM_STATS.profiles, label: "Perfiles validados" },
+  { value: PLATFORM_STATS.clubs, label: "Clubes activos", useAlt: true },
+  { value: PLATFORM_STATS.reviews, label: "Reseñas verificadas" },
+  { value: PLATFORM_STATS.countries, label: "Países", useAlt: true },
 ];
 
 const PRODUCT_LINKS = [

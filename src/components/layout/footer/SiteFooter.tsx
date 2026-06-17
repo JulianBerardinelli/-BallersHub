@@ -6,6 +6,7 @@ import {
   resolveFooterCTAState,
   type FooterCTAState,
 } from "./footer-state";
+import { PLATFORM_STATS } from "@/lib/site/platform-stats";
 
 // Translator type — the subset of next-intl's `t` used here (plain key
 // lookups). The real `t` from getTranslations is assignable to this.
@@ -101,10 +102,10 @@ export default async function SiteFooter() {
 
   // Stat values are data (not translated); only their labels are.
   const stats = [
-    { value: "+30", label: t("stats.profiles") },
-    { value: "+130", label: t("stats.clubs"), useAlt: true },
-    { value: "4.8/5", label: t("stats.reviews") },
-    { value: "15", label: t("stats.countries"), useAlt: true },
+    { value: PLATFORM_STATS.profiles, label: t("stats.profiles") },
+    { value: PLATFORM_STATS.clubs, label: t("stats.clubs"), useAlt: true },
+    { value: PLATFORM_STATS.reviews, label: t("stats.reviews") },
+    { value: PLATFORM_STATS.countries, label: t("stats.countries"), useAlt: true },
   ];
 
   const legalLinks = [

@@ -32,6 +32,7 @@ import {
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { bhButtonClass } from "@/components/ui/bh-button-class";
+import { PLATFORM_STATS } from "@/lib/site/platform-stats";
 
 export type PromoVariant = "player" | "showcase" | "agency";
 
@@ -280,8 +281,10 @@ function ProfileMock({ t }: { t: PromoT }) {
 
 function ShowcaseMock({ t }: { t: PromoT }) {
   const stats: Array<[string, string]> = [
-    ["+1.2K", t("promo.showcaseStatProfiles")],
-    ["86", t("promo.showcaseStatClubs")],
+    [PLATFORM_STATS.profiles, t("promo.showcaseStatProfiles")],
+    [PLATFORM_STATS.clubs, t("promo.showcaseStatClubs")],
+    // Banner keeps its own star-formatted rating ("4.8★" vs the "4.8/5" used
+    // in footers); only the score digits track PLATFORM_STATS.reviews.
     ["4.8★", t("promo.showcaseStatReferences")],
   ];
   const features = [
