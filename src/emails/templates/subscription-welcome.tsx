@@ -15,7 +15,7 @@ export type SubscriptionWelcomeProps = {
   /** Display name shown in the greeting; falls back to email handle. */
   displayName: string;
   /** Plan id from the pricing matrix (e.g. "pro-player", "pro-agency"). */
-  planId: "pro-player" | "pro-agency";
+  planId: "pro-player" | "pro-agency" | "pro-coach";
   /** Formatted amount with currency suffix (e.g. "USD 85", "ARS 131.999"). */
   formattedAmount: string;
   /** ISO date string when the trial ends; null if there is no trial. */
@@ -175,7 +175,11 @@ export default function SubscriptionWelcomeEmail({
   const firstName = (displayName || "").split(" ")[0] || displayName;
   const c = COPY[locale] ?? COPY.es;
   const planLabel =
-    planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
+    planId === "pro-agency"
+      ? "'BallersHub Pro Agency"
+      : planId === "pro-coach"
+        ? "'BallersHub Pro DT"
+        : "'BallersHub Pro Player";
   const trialLine = trialEndsAt
     ? c.trialLine(formatEmailDate(trialEndsAt, locale), formattedAmount)
     : c.activeLine(planLabel, formattedAmount);

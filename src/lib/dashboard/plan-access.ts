@@ -172,6 +172,22 @@ export function buildUpgradeUrl(options: {
   feature?: string;
   currency?: "USD" | "ARS" | "EUR";
 }): string {
+  // Coaches don't have a marketing /pricing surface yet (the audience toggle is
+  // player/agency only), so we send them straight to the pro-coach checkout.
+  // Default currency = ARS (home market, mirrors UpgradeCta); the coach upsell
+  // card offers USD/EUR explicitly. The checkout page reads currency from the
+  // query and lets the user pick their billing country.
+  if (options.audience === "coach") {
+    const params = new URLSearchParams();
+    params.set("currency", options.currency ?? "ARS");
+    if (options.feature) {
+      params.set("utm_source", "dashboard");
+      params.set("utm_medium", "gate");
+      params.set("utm_campaign", options.feature);
+    }
+    return `/checkout/pro-coach?${params.toString()}`;
+  }
+
   const params = new URLSearchParams();
   params.set("audience", options.audience);
   params.set("currency", options.currency ?? "ARS");

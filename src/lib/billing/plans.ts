@@ -4,7 +4,7 @@
 
 import "server-only";
 
-export type CheckoutPlanId = "pro-player" | "pro-agency";
+export type CheckoutPlanId = "pro-player" | "pro-agency" | "pro-coach";
 export type CheckoutCurrency = "USD" | "ARS" | "EUR";
 export type CheckoutProcessor = "stripe" | "mercado_pago";
 
@@ -30,6 +30,12 @@ const TABLE: Record<CheckoutPlanId, Record<CheckoutCurrency, CheckoutPlanPrice>>
     EUR: { amount: 146, amountMinor: 14_600, currency: "EUR" },
     ARS: { amount: 264_999, amountMinor: 26_499_900, currency: "ARS" },
   },
+  // D2 (owner, 2026-06-15): Pro Coach (DT) priced identically to Pro Player.
+  "pro-coach": {
+    USD: { amount: 85, amountMinor: 8500, currency: "USD" },
+    EUR: { amount: 73, amountMinor: 7300, currency: "EUR" },
+    ARS: { amount: 131_999, amountMinor: 13_199_900, currency: "ARS" },
+  },
 };
 
 export function getPlanPrice(
@@ -51,7 +57,7 @@ export function processorFor(currency: CheckoutCurrency): CheckoutProcessor {
 }
 
 export function isCheckoutPlanId(value: string): value is CheckoutPlanId {
-  return value === "pro-player" || value === "pro-agency";
+  return value === "pro-player" || value === "pro-agency" || value === "pro-coach";
 }
 
 export function isCheckoutCurrency(value: string): value is CheckoutCurrency {

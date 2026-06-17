@@ -15,6 +15,7 @@ import { COACH_NAVIGATION } from "./navigation";
 import { NotificationBootstrap } from "@/modules/notifications";
 import { PlanAccessProvider } from "@/components/dashboard/plan/PlanAccessProvider";
 import SubscriptionStateBanner from "@/components/dashboard/plan/SubscriptionStateBanner";
+import CoachProUpsell from "@/components/dashboard/plan/CoachProUpsell";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import type { DashboardSubscription } from "@/lib/dashboard/client/data-provider";
 
@@ -161,6 +162,7 @@ export default function CoachDashboardShell({
                 : null
             }
           />
+          {profile && !planAccess.isPro && <CoachProUpsell />}
         </div>
 
         <div className="mt-6 lg:hidden">

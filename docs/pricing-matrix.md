@@ -19,8 +19,10 @@
 |---|---|---|
 | **Player** (jugador / jugadora) | `free-player` | `pro-player` |
 | **Agency** (agencia / representación) | `free-agency` | `pro-agency` |
+| **Coach** (entrenador / DT) | `free-coach` | `pro-coach` |
 
-- 2 planes × 2 audiencias = 4 variantes.
+- 2 planes × 3 audiencias.
+- **Coach (D2, 2026-06-15):** `pro-coach` tiene **el mismo precio que `pro-player`** (USD 85 / ARS 131.999 / EUR 73 anual). El DT se da de alta Free y mejora a Pro desde su dashboard → `/checkout/pro-coach` (sin superficie pública `/pricing` por ahora; el upsell del dashboard muestra las 3 monedas). Pro DT desbloquea: análisis metodológico en la página pública, traducciones (en/it/pt), multimedia ampliada, ficha SEO/GEO Pro y soporte prioritario.
 - En la pricing page hay un **toggle** `Soy jugador / Soy agencia` que swappea las cards (mismo grid, distinto contenido).
 - En el onboarding, el rol del usuario (player vs agency) determina qué set de planes se le muestra. No mezcla.
 
@@ -339,6 +341,7 @@ La pricing page tiene **dos** toggles. El toggle viejo de `Mensual / Anual` se e
 
 ## 9. Changelog
 
+- **2026-06-15 (v6)** — Vertical **Coach (DT)** agregado al billing. **D2 cerrada**: `pro-coach` = mismo precio que `pro-player` (USD 85 / ARS 131.999 / EUR 73 anual). Wiring: `src/lib/billing/plans.ts` (TABLE + `CheckoutPlanId`), checkout genérico reutilizado (`/checkout/pro-coach`, fallback dinámico Stripe `price_data` / MP inline → sin provisionar recursos), copy en `checkout/data.ts`, `buildUpgradeUrl(coach)` → checkout, upsell con las 3 monedas en el shell del coach, emails (welcome/payment-failed/comp-grant) 3-way. **Pendiente ops para prod**: provisionar Stripe Prices canónicos + MP `preapproval_plan` y pinear envs `STRIPE_PRICE_PRO_COACH_{USD,EUR}` / `MP_PLAN_PRO_COACH_ARS` (igual que player/agency; sin esto, el fallback dinámico cobra igual pero MP sin trial nativo).
 - **2026-05-10 (v5)** — Sección B desambiguada: cada cap ahora apunta a la tabla DB que lo cuenta. "Videos de YouTube" = items de `player_media` de tipo video (catálogo de multimedia), no links. "Redes sociales" = `player_links` de tipo redes (instagram, linkedin) y excluye explícitamente perfiles externos profesionales (transfermarkt/besoccer/flashscore — sin cap). "Links a noticias/prensa" = `player_articles` (entidad rica). Los `player_links` kinds `highlight`/`custom` quedan fuera del bucket de prensa (sin cap). Implementación dashboard alineada en este PR.
 - **2026-05-09 (v4)** — Sección C corregida: las **estadísticas por temporada** (PJ/G/A por torneo) ahora son ✓ ✓ (ambos planes). Antes estaban implícitamente gated junto con "advanced stats / scouting". Ahora se distinguen: stats por temporada = libre, análisis cualitativo de scouting = Pro. Implementación dashboard ya alineada (gating quitado de `SeasonStatsManager`, mantenido en `ScoutingAnalysisSection`).
 - **2026-05-03 (v3)** — Precios Player concretados (USD 85, ARS 131.999, EUR 73). Refund policy definida (3 días post-trial = 10 días total). Política trimestral de revisión ARS confirmada. Procesadores asignados (Mercado Pago para ARS, Stripe para USD/EUR). "Listado de profesionales recomendados" renombrado a **"Contactos de referencia"** y se aclaró el módulo (info de contacto unilateral, no requiere acción del referente). Pro Agency queda con precios estimados proporcionales pendientes de confirmación.
