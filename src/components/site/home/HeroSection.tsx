@@ -3,14 +3,14 @@ import { ArrowRight, ShieldCheck, Users } from "lucide-react";
 
 const STATS = [
   {
-    value: "+1.2K",
+    value: "+30",
     label: "Perfiles validados",
     description: "Jugadores con identidad y trayectoria confirmada.",
     accent: "lime" as const,
     delay: "bh-animate-d1",
   },
   {
-    value: "86",
+    value: "+130",
     label: "Clubes activos",
     description: "Equipos que buscan talento en nuestra red.",
     accent: "blue" as const,

@@ -5,6 +5,7 @@ import FooterMarkup, {
   type FooterTheme,
 } from "./FooterMarkup";
 import { buildLinkColumns, resolveFooterCTAState } from "./footer-state";
+import { PLATFORM_STATS } from "@/lib/site/platform-stats";
 
 type PortfolioFooterProps = {
   /** Background of the footer (typically the portfolio's background color). */
@@ -132,10 +133,10 @@ export default async function PortfolioFooter({
   const subheadline = isAgency ? t("portfolio.subAgency") : t("portfolio.subPlayer");
 
   const stats = [
-    { value: "+1.2K", label: t("stats.profiles") },
-    { value: "86", label: t("stats.clubs"), useAlt: true },
-    { value: "4.8/5", label: t("stats.reviews") },
-    { value: "12", label: t("stats.countries"), useAlt: true },
+    { value: PLATFORM_STATS.profiles, label: t("stats.profiles") },
+    { value: PLATFORM_STATS.clubs, label: t("stats.clubs"), useAlt: true },
+    { value: PLATFORM_STATS.reviews, label: t("stats.reviews") },
+    { value: PLATFORM_STATS.countries, label: t("stats.countries"), useAlt: true },
   ];
 
   const legalLinks = [
