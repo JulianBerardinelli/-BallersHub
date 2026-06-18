@@ -253,7 +253,7 @@ const DISCONNECT_SUBJECT: Record<Locale, (player: string) => string> = {
 export async function sendSubscriptionWelcomeEmail(opts: {
   email: string;
   displayName: string;
-  planId: "pro-player" | "pro-agency";
+  planId: "pro-player" | "pro-agency" | "pro-coach";
   formattedAmount: string;
   trialEndsAt: string | null;
   nextChargeAt: string | null;
@@ -276,7 +276,7 @@ export async function sendSubscriptionWelcomeEmail(opts: {
       locale,
     });
     const subjectPlan =
-      opts.planId === "pro-agency" ? "Pro Agency" : "Pro Player";
+      opts.planId === "pro-agency" ? "Pro Agency" : opts.planId === "pro-coach" ? "Pro DT" : "Pro Player";
     await resend.emails.send({
       from: senderFrom,
       to: [opts.email],
@@ -299,7 +299,7 @@ const SUBSCRIPTION_SUBJECT: Record<Locale, (plan: string) => string> = {
 export async function sendCompGrantWelcomeEmail(opts: {
   email: string;
   displayName: string;
-  planId: "pro-player" | "pro-agency";
+  planId: "pro-player" | "pro-agency" | "pro-coach";
   expiresAt: string | null;
   variant: "grant" | "extend";
 }) {
@@ -325,7 +325,7 @@ export async function sendCompGrantWelcomeEmail(opts: {
       locale,
     });
     const subjectPlan =
-      opts.planId === "pro-agency" ? "Pro Agency" : "Pro Player";
+      opts.planId === "pro-agency" ? "Pro Agency" : opts.planId === "pro-coach" ? "Pro DT" : "Pro Player";
     await resend.emails.send({
       from: senderFrom,
       to: [opts.email],
@@ -362,7 +362,7 @@ const COMP_GRANT_SUBJECT: Record<
 export async function sendPaymentFailedEmail(opts: {
   email: string;
   displayName: string;
-  planId: "pro-player" | "pro-agency";
+  planId: "pro-player" | "pro-agency" | "pro-coach";
   formattedAmount: string;
   nextRetryAt: string | null;
 }) {

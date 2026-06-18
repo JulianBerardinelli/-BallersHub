@@ -40,3 +40,15 @@ export * from "./blog";
 export * from "./blogAuthors";
 export * from "./translations";
 export * from "./notifications";
+
+// Coaches vertical
+export * from "./coaches";
+export * from "./coachApplications";
+export * from "./coachCareer";
+export * from "./coachCareerRevisions";
+export * from "./coachStats";
+export * from "./coachMedia";
+export * from "./coachPublishing";
+export * from "./coachLicenses";
+export * from "./coachTranslations";
+export * from "./coachLeads";

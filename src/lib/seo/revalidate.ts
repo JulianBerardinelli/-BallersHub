@@ -78,3 +78,32 @@ export function revalidateAgencyPublicProfile(slug: string | null | undefined): 
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");
 }
+
+/**
+ * Same as the player helper but for coach (DT) portfolios. Busts the
+ * portfolio page, the coaches directory (when it lands), the sitemap and
+ * llms.txt so a freshly-approved or edited coach surfaces immediately
+ * instead of lagging the ISR window.
+ */
+export function revalidateCoachPublicProfile(slug: string | null | undefined): void {
+  if (!slug || slug.length === 0) return;
+  revalidatePath(`/coach/${slug}`);
+  revalidatePath("/coaches");
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/llms.txt");
+}
+
+/** Variant that resolves the coach slug from its UUID, then defers. */
+export async function revalidateCoachPublicProfileById(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabase: SupabaseClient<any, any, any>,
+  coachId: string,
+): Promise<void> {
+  if (!coachId) return;
+  const { data } = await supabase
+    .from("coach_profiles")
+    .select("slug")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null }>();
+  revalidateCoachPublicProfile(data?.slug ?? null);
+}
