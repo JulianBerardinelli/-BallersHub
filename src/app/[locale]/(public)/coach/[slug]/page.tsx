@@ -372,28 +372,34 @@ export default async function CoachPublicPage({
       licenses,
       media,
       links,
+      themePrimaryColor: coach.themePrimaryColor,
+      themeAccentColor: coach.themeAccentColor,
+      themeBackgroundColor: coach.themeBackgroundColor,
       localeSwitch:
         available.length > 1
           ? { available, current: locale, basePath: `/coach/${slug}` }
           : undefined,
     };
+    const themeBg = coach.themeBackgroundColor || "#050505";
+    const themeAccent = coach.themeAccentColor || "#ccff00";
     return (
       <>
         <CoachJsonLd coach={jsonLd} plan={plan} locale={locale} />
         <SmoothScrollProvider>
           <div
             className="relative min-h-screen w-full overflow-x-clip font-body"
-            style={{ backgroundColor: "#050505", color: "#fff" }}
+            style={{ backgroundColor: themeBg, color: "#fff" }}
           >
             <ProCoachLayout data={proData} />
           </div>
           <PortfolioFooter
+            ownerKind="coach"
             ownerName={coach.fullName}
             ownerSlug={coach.slug}
-            backgroundColor="#050505"
-            primaryColor="#ccff00"
-            secondaryColor="#050505"
-            accentColor="#ccff00"
+            backgroundColor={themeBg}
+            primaryColor={coach.themePrimaryColor || themeAccent}
+            secondaryColor={themeBg}
+            accentColor={themeAccent}
           />
         </SmoothScrollProvider>
       </>

@@ -5,6 +5,7 @@ import { Button, Textarea } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
 import { updateCoachProfile, type CoachProfileInput } from "@/app/actions/coach-profile";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
+import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
 
 const textareaClasses = { inputWrapper: "bg-bh-surface-2 border border-white/[0.08]" };
 
@@ -14,6 +15,12 @@ export default function CoachProfileEditor({
   initial: CoachProfileInput & { fullName: string };
 }) {
   const { enqueue } = useNotificationContext();
+  const { access } = usePlanAccess();
+  const [primaryColor, setPrimaryColor] = React.useState(initial.theme?.primaryColor ?? "");
+  const [accentColor, setAccentColor] = React.useState(initial.theme?.accentColor ?? "");
+  const [backgroundColor, setBackgroundColor] = React.useState(
+    initial.theme?.backgroundColor ?? "",
+  );
   const [roleTitle, setRoleTitle] = React.useState(initial.roleTitle ?? "");
   const [bio, setBio] = React.useState(initial.bio ?? "");
   const [careerObjectives, setCareerObjectives] = React.useState(initial.careerObjectives ?? "");
@@ -37,6 +44,11 @@ export default function CoachProfileEditor({
           .split(",")
           .map((s) => s.trim())
           .filter((s) => s.length > 0),
+        theme: {
+          primaryColor: primaryColor || null,
+          accentColor: accentColor || null,
+          backgroundColor: backgroundColor || null,
+        },
       });
       if (res.success) {
         setMsg({ ok: true, text: "Cambios guardados. Tu página pública se actualizó." });
@@ -125,6 +137,22 @@ export default function CoachProfileEditor({
         />
       </div>
 
+      {access.isPro && (
+        <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+          <div className="space-y-1">
+            <h3 className="font-bh-display text-base font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+              Apariencia
+            </h3>
+            <p className="text-[12px] text-bh-fg-3">
+              Colores de tu página pública premium. Dejá un campo vacío para usar el color de la marca.
+            </p>
+          </div>
+          <ColorRow label="Color de acento" value={accentColor} onChange={setAccentColor} fallback="#ccff00" />
+          <ColorRow label="Color primario" value={primaryColor} onChange={setPrimaryColor} fallback="#ccff00" />
+          <ColorRow label="Fondo" value={backgroundColor} onChange={setBackgroundColor} fallback="#050505" />
+        </div>
+      )}
+
       {msg && (
         <p className={`text-sm ${msg.ok ? "text-bh-success" : "text-bh-danger"}`}>{msg.text}</p>
       )}
@@ -139,6 +167,49 @@ export default function CoachProfileEditor({
           Guardar cambios
         </Button>
       </div>
+    </div>
+  );
+}
+
+function ColorRow({
+  label,
+  value,
+  onChange,
+  fallback,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  fallback: string;
+}) {
+  const swatch = /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+  return (
+    <div className="flex items-end gap-3">
+      <input
+        type="color"
+        aria-label={label}
+        value={swatch}
+        onChange={(e) => onChange(e.target.value)}
+        className="h-10 w-12 shrink-0 cursor-pointer rounded-bh-sm border border-white/[0.08] bg-transparent"
+      />
+      <div className="flex-1">
+        <FormField
+          id={`coach-color-${label}`}
+          label={label}
+          placeholder={fallback}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      </div>
+      {value ? (
+        <button
+          type="button"
+          onClick={() => onChange("")}
+          className="pb-2 text-[11px] text-bh-fg-4 hover:text-bh-fg-2"
+        >
+          Reset
+        </button>
+      ) : null}
     </div>
   );
 }

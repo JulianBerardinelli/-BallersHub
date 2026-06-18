@@ -34,6 +34,12 @@ export const coachProfiles = pgTable("coach_profiles", {
   modelUrl1: text("model_url_1"),
   modelUrl2: text("model_url_2"),
   avatarUrl: text("avatar_url").notNull().default("/images/coach-default.jpg"),
+  // Pro-layout theme colors chosen by the coach (hex). NULL → brand defaults
+  // (lime accent / dark background). Only the Pro scrolljacking portfolio
+  // reads these; the Free dossier ignores them.
+  themePrimaryColor: text("theme_primary_color"),
+  themeAccentColor: text("theme_accent_color"),
+  themeBackgroundColor: text("theme_background_color"),
   visibility: visibilityEnum("visibility").notNull().default("public"),
   status: playerStatusEnum("status").notNull().default("draft"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),

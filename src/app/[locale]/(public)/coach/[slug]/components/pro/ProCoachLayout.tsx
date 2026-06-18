@@ -44,13 +44,17 @@ export type CoachProData = {
   media: CoachMediaRow[];
   links: CoachLinkRow[];
   localeSwitch?: { available: string[]; current: string; basePath: string };
+  // Pro-layout theme (chosen by the coach). NULL → brand defaults.
+  themePrimaryColor: string | null;
+  themeAccentColor: string | null;
+  themeBackgroundColor: string | null;
 };
-
-const ACCENT = "#ccff00"; // bh-lime
-const BG = "#050505";
 
 export default function ProCoachLayout({ data }: { data: CoachProData }) {
   const t = useTranslations("portfolio");
+  const ACCENT = data.themeAccentColor || "#ccff00";
+  const PRIMARY = data.themePrimaryColor || ACCENT;
+  const BG = data.themeBackgroundColor || "#050505";
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -103,7 +107,7 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
       className="min-h-[300vh] text-white w-full flex flex-col items-center"
       style={{
         backgroundColor: BG,
-        "--theme-primary": ACCENT,
+        "--theme-primary": PRIMARY,
         "--theme-accent": ACCENT,
         "--theme-background": BG,
       } as React.CSSProperties}
@@ -135,6 +139,10 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[150px] opacity-20 pointer-events-none z-10 mix-blend-screen"
           style={{ backgroundColor: ACCENT }}
+        />
+        <div
+          className="absolute rounded-full blur-[140px] pointer-events-none z-10 mix-blend-screen w-[560px] h-[560px] md:w-[680px] md:h-[680px] opacity-20"
+          style={{ backgroundColor: PRIMARY, top: "14%", left: "8%" }}
         />
 
         {/* Marquee */}

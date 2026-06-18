@@ -11,7 +11,21 @@ export type CoachProfileInput = {
   playingStyle: string | null;
   methodologyAnalysis: string | null;
   preferredFormations: string[];
+  /** Pro-layout theme colors. Omitted by Free editors; only applied when present. */
+  theme?: {
+    primaryColor: string | null;
+    accentColor: string | null;
+    backgroundColor: string | null;
+  };
 };
+
+// Accepts a #rrggbb hex (any case) → normalized lower-case; anything else → null
+// (the Pro layout then falls back to the brand defaults).
+function normHex(v: string | null | undefined): string | null {
+  if (!v) return null;
+  const t = v.trim();
+  return /^#[0-9a-fA-F]{6}$/.test(t) ? t.toLowerCase() : null;
+}
 
 // Edits the coach's own free-text profile fields (non-moderated, like the
 // player's bio/scouting). Runs as the user's session client so RLS
@@ -48,6 +62,11 @@ export async function updateCoachProfile(
       playing_style: input.playingStyle?.trim() || null,
       methodology_analysis: input.methodologyAnalysis?.trim() || null,
       preferred_formations: formations.length > 0 ? formations : null,
+      ...(input.theme && {
+        theme_primary_color: normHex(input.theme.primaryColor),
+        theme_accent_color: normHex(input.theme.accentColor),
+        theme_background_color: normHex(input.theme.backgroundColor),
+      }),
       updated_at: new Date().toISOString(),
     })
     .eq("id", profile.id);

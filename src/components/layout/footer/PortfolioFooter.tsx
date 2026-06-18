@@ -20,7 +20,7 @@ type PortfolioFooterProps = {
   /** Slug of the player (used for anchor); not strictly needed but kept for parity. */
   ownerSlug?: string | null;
   /** Owner type so we can adjust the copy. */
-  ownerKind?: "player" | "agency";
+  ownerKind?: "player" | "agency" | "coach";
 };
 
 function hexToRgba(hex: string, alpha: number): string {
@@ -126,10 +126,23 @@ export default async function PortfolioFooter({
   ];
 
   const isAgency = ownerKind === "agency";
-  const headlineLead = isAgency ? t("portfolio.headlineAgency") : t("portfolio.headlinePlayer");
+  const isCoach = ownerKind === "coach";
+  const headlineLead = isAgency
+    ? t("portfolio.headlineAgency")
+    : isCoach
+      ? t("portfolio.headlineCoach")
+      : t("portfolio.headlinePlayer");
   const highlight = ownerName ? ownerName : "'BallersHub";
-  const eyebrow = isAgency ? t("portfolio.eyebrowAgency") : t("portfolio.eyebrowPlayer");
-  const subheadline = isAgency ? t("portfolio.subAgency") : t("portfolio.subPlayer");
+  const eyebrow = isAgency
+    ? t("portfolio.eyebrowAgency")
+    : isCoach
+      ? t("portfolio.eyebrowCoach")
+      : t("portfolio.eyebrowPlayer");
+  const subheadline = isAgency
+    ? t("portfolio.subAgency")
+    : isCoach
+      ? t("portfolio.subCoach")
+      : t("portfolio.subPlayer");
 
   const stats = [
     { value: "+1.2K", label: t("stats.profiles") },
