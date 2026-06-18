@@ -30,6 +30,7 @@
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { agencyProfiles } from "@/db/schema/agencies";
+import { coachProfiles } from "@/db/schema/coaches";
 import { subscriptions } from "@/db/schema/subscriptions";
 import { and, eq, inArray } from "drizzle-orm";
 
@@ -111,7 +112,9 @@ export async function resolveProUserIds(
         if (!activeOrTrial) return false;
         const legacyPro = s.plan === "pro" || s.plan === "pro_plus";
         const planIdPro =
-          s.planId === "pro-player" || s.planId === "pro-agency";
+          s.planId === "pro-player" ||
+          s.planId === "pro-agency" ||
+          s.planId === "pro-coach";
         return legacyPro || planIdPro;
       })
       .map((s) => s.userId),
@@ -187,4 +190,72 @@ export async function getIndexableAgencies(): Promise<IndexableAgency[]> {
     .where(eq(agencyProfiles.isApproved, true));
 
   return rows.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+}
+
+// ============================ coaches ============================
+
+export type IndexableCoach = {
+  slug: string;
+  fullName: string;
+  roleTitle: string | null;
+  currentClub: string | null;
+  avatarUrl: string | null;
+  updatedAt: Date;
+  isPro: boolean;
+};
+
+/**
+ * Same predicate shape as players: Pro coaches always indexable; Free coaches
+ * need a bio above the thin-content floor. Reuses FREE_BIO_INDEX_MIN_CHARS so
+ * the page-level soft-noindex and the sitemap/llms inclusion never drift.
+ */
+export function isCoachIndexable(input: { isPro: boolean; bio: string | null }): boolean {
+  if (input.isPro) return true;
+  return (input.bio?.trim().length ?? 0) >= FREE_BIO_INDEX_MIN_CHARS;
+}
+
+/**
+ * Every coach profile that should be indexed: approved + public, then through
+ * isCoachIndexable. Sorted Pro-first then most-recently-updated, like players.
+ */
+export async function getIndexableCoaches(): Promise<IndexableCoach[]> {
+  const rows = await db
+    .select({
+      slug: coachProfiles.slug,
+      userId: coachProfiles.userId,
+      fullName: coachProfiles.fullName,
+      roleTitle: coachProfiles.roleTitle,
+      currentClub: coachProfiles.currentClub,
+      avatarUrl: coachProfiles.avatarUrl,
+      bio: coachProfiles.bio,
+      updatedAt: coachProfiles.updatedAt,
+    })
+    .from(coachProfiles)
+    .where(
+      and(
+        eq(coachProfiles.status, "approved"),
+        eq(coachProfiles.visibility, "public"),
+      ),
+    );
+
+  if (rows.length === 0) return [];
+
+  const proUserIds = await resolveProUserIds(rows.map((r) => r.userId));
+
+  return rows
+    .map((r) => ({ ...r, isPro: proUserIds.has(r.userId) }))
+    .filter((r) => isCoachIndexable({ isPro: r.isPro, bio: r.bio }))
+    .map<IndexableCoach>((r) => ({
+      slug: r.slug,
+      fullName: r.fullName,
+      roleTitle: r.roleTitle,
+      currentClub: r.currentClub,
+      avatarUrl: r.avatarUrl,
+      updatedAt: r.updatedAt,
+      isPro: r.isPro,
+    }))
+    .sort((a, b) => {
+      if (a.isPro !== b.isPro) return a.isPro ? -1 : 1;
+      return b.updatedAt.getTime() - a.updatedAt.getTime();
+    });
 }

@@ -66,4 +66,17 @@ export const PLAN_COPY: Record<CheckoutPlanId, CheckoutPlanCopy> = {
       "SEO Pro",
     ],
   },
+  "pro-coach": {
+    name: "Pro DT",
+    tagline: "Tu metodología, visible ante clubes",
+    audienceLabel: "Para entrenadores",
+    features: [
+      "Análisis metodológico en tu página pública",
+      "Traducción a inglés, italiano y portugués",
+      "Multimedia ampliada (fotos + videos)",
+      "Licencias y palmarés verificados destacados",
+      "Ficha enriquecida para Google y buscadores con IA (SEO/GEO Pro)",
+      "Soporte humano prioritario",
+    ],
+  },
 };

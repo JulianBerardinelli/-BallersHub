@@ -14,7 +14,7 @@ export type CompGrantWelcomeProps = {
   /** Display name shown in the greeting; falls back to email handle. */
   displayName: string;
   /** Plan id from the pricing matrix. */
-  planId: "pro-player" | "pro-agency";
+  planId: "pro-player" | "pro-agency" | "pro-coach";
   /** ISO date when the comp expires; null = permanent. */
   expiresAt: string | null;
   /** Whether this is the first grant for this user, or an extension. */
@@ -172,7 +172,11 @@ export default function CompGrantWelcomeEmail({
   const firstName = (displayName || "").split(" ")[0] || displayName;
   const c = COPY[locale] ?? COPY.es;
   const planLabel =
-    planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
+    planId === "pro-agency"
+      ? "'BallersHub Pro Agency"
+      : planId === "pro-coach"
+        ? "'BallersHub Pro DT"
+        : "'BallersHub Pro Player";
   const expiryLine = c.expiryLine(
     expiresAt ? formatEmailDate(expiresAt, locale) : null,
   );

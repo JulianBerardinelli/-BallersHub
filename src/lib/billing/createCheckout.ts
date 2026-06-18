@@ -388,14 +388,24 @@ async function createMpCheckout(args: {
 // Helpers
 // ---------------------------------------------------------------
 
+const PLAN_LABELS: Record<CheckoutPlanId, string> = {
+  "pro-player": "'BallersHub Pro Player",
+  "pro-agency": "'BallersHub Pro Agency",
+  "pro-coach": "'BallersHub Pro DT",
+};
+
+const PLAN_SHORT: Record<CheckoutPlanId, string> = {
+  "pro-player": "Pro Player",
+  "pro-agency": "Pro Agency",
+  "pro-coach": "Pro DT",
+};
+
 function planLabel(planId: CheckoutPlanId): string {
-  return planId === "pro-agency" ? "'BallersHub Pro Agency" : "'BallersHub Pro Player";
+  return PLAN_LABELS[planId];
 }
 
 function planDescription(planId: CheckoutPlanId): string {
-  return planId === "pro-agency"
-    ? "Suscripción anual al plan Pro Agency. Cobro anual, renovable. 7 días de prueba sin cargo."
-    : "Suscripción anual al plan Pro Player. Cobro anual, renovable. 7 días de prueba sin cargo.";
+  return `Suscripción anual al plan ${PLAN_SHORT[planId]}. Cobro anual, renovable. 7 días de prueba sin cargo.`;
 }
 
 function eqId(id: string) {

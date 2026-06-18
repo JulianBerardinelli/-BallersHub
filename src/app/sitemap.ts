@@ -44,10 +44,12 @@ import { listAuthorsWithPublishedPosts } from "@/lib/blog/authors";
 import {
   getIndexablePlayers,
   getIndexableAgencies,
+  getIndexableCoaches,
 } from "@/lib/seo/indexable-profiles";
 import {
   getTranslatedPlayerLocalesBySlug,
   getTranslatedAgencyLocalesBySlug,
+  getTranslatedCoachLocalesBySlug,
 } from "@/lib/i18n/profile-content";
 
 // Revalidate hourly. Sitemap doesn't need to be live-fresh — Google
@@ -127,6 +129,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let playerEntries: SitemapEntry[] = [];
   let agencyEntries: SitemapEntry[] = [];
+  let coachEntries: SitemapEntry[] = [];
   let blogEntries: SitemapEntry[] = [];
   let authorEntries: SitemapEntry[] = [];
 
@@ -135,12 +138,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // The two *LocalesBySlug maps tell us which profiles have REAL en/it/pt
     // translations so we emit per-entry hreflang alternates only for those
     // (F5.2c). A profile with no translations stays a single es URL.
-    const [players, agencies, playerLocales, agencyLocales] = await Promise.all([
-      getIndexablePlayers(),
-      getIndexableAgencies(),
-      getTranslatedPlayerLocalesBySlug(),
-      getTranslatedAgencyLocalesBySlug(),
-    ]);
+    const [players, agencies, coaches, playerLocales, agencyLocales, coachLocales] =
+      await Promise.all([
+        getIndexablePlayers(),
+        getIndexableAgencies(),
+        getIndexableCoaches(),
+        getTranslatedPlayerLocalesBySlug(),
+        getTranslatedAgencyLocalesBySlug(),
+        getTranslatedCoachLocalesBySlug(),
+      ]);
 
     playerEntries = players.map((p) => {
       const locs = playerLocales.get(p.slug);
@@ -173,6 +179,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ? {
               alternates: {
                 languages: conditionalSitemapLanguages(`/agency/${a.slug}`, [
+                  "es",
+                  ...locs,
+                ]),
+              },
+            }
+          : {}),
+      };
+    });
+
+    // ----- Coaches (DTs) -----
+    coachEntries = coaches.map((c) => {
+      const locs = coachLocales.get(c.slug);
+      return {
+        url: `${base}/coach/${c.slug}`,
+        lastModified: c.updatedAt,
+        changeFrequency: "weekly" as const,
+        priority: c.isPro ? 0.9 : 0.6,
+        ...(locs && locs.length > 0
+          ? {
+              alternates: {
+                languages: conditionalSitemapLanguages(`/coach/${c.slug}`, [
                   "es",
                   ...locs,
                 ]),
@@ -227,6 +254,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticEntries,
     ...playerEntries,
     ...agencyEntries,
+    ...coachEntries,
     ...blogEntries,
     ...authorEntries,
   ];

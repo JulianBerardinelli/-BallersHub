@@ -16,9 +16,10 @@ import {
 import type { CheckoutPlanId, CheckoutCurrency } from "@/lib/billing/plans";
 import { PLAN_COPY } from "./data";
 
-const ROLE_BY_PLAN: Record<CheckoutPlanId, "player" | "agent"> = {
+const ROLE_BY_PLAN: Record<CheckoutPlanId, "player" | "agent" | "coach"> = {
   "pro-player": "player",
   "pro-agency": "agent",
+  "pro-coach": "coach",
 };
 
 const CURRENCY_PREFIX: Record<CheckoutCurrency, string> = {
@@ -108,7 +109,7 @@ export default function CheckoutOrderSummary(props: CheckoutOrderSummaryProps) {
               : "border-bh-blue/25 bg-bh-blue/10 text-bh-blue"
           }`}
         >
-          {role === "player" ? "Jugador" : "Agente"}
+          {role === "player" ? "Jugador" : role === "agent" ? "Agente" : "Entrenador"}
         </span>
       </header>
 

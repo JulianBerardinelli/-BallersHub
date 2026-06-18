@@ -173,3 +173,175 @@ export const careerItemsRelations = relations(careerItems, ({ one }) => ({
     references: [divisions.id],
   }),
 }));
+
+// ==========================================
+// COACHES VERTICAL
+// ==========================================
+import { coachProfiles } from "./coaches";
+import { coachCareerItems } from "./coachCareer";
+import {
+  coachCareerRevisionRequests,
+  coachCareerRevisionProposedTeams,
+  coachCareerRevisionItems,
+  coachStatsRevisionItems,
+} from "./coachCareerRevisions";
+import { coachStatsSeasons } from "./coachStats";
+import { coachMedia, coachArticles } from "./coachMedia";
+import {
+  coachHonours,
+  coachLinks,
+  coachPersonalDetails,
+} from "./coachPublishing";
+import { coachLicenses } from "./coachLicenses";
+import { coachChangeLogs } from "./coachLeads";
+
+export const coachProfilesRelations = relations(coachProfiles, ({ one, many }) => ({
+  currentTeam: one(teams, {
+    fields: [coachProfiles.currentTeamId],
+    references: [teams.id],
+  }),
+  agency: one(agencyProfiles, {
+    fields: [coachProfiles.agencyId],
+    references: [agencyProfiles.id],
+  }),
+  career: many(coachCareerItems),
+  media: many(coachMedia),
+  articles: many(coachArticles),
+  honours: many(coachHonours),
+  licenses: many(coachLicenses),
+  seasons: many(coachStatsSeasons),
+  links: many(coachLinks),
+  changeLogs: many(coachChangeLogs),
+  personalDetails: one(coachPersonalDetails, {
+    fields: [coachProfiles.id],
+    references: [coachPersonalDetails.coachId],
+  }),
+}));
+
+export const coachCareerItemsRelations = relations(coachCareerItems, ({ one, many }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachCareerItems.coachId],
+    references: [coachProfiles.id],
+  }),
+  team: one(teams, {
+    fields: [coachCareerItems.teamId],
+    references: [teams.id],
+  }),
+  division: one(divisions, {
+    fields: [coachCareerItems.divisionId],
+    references: [divisions.id],
+  }),
+  honours: many(coachHonours),
+  seasons: many(coachStatsSeasons),
+}));
+
+export const coachStatsSeasonsRelations = relations(coachStatsSeasons, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachStatsSeasons.coachId],
+    references: [coachProfiles.id],
+  }),
+  careerItem: one(coachCareerItems, {
+    fields: [coachStatsSeasons.careerItemId],
+    references: [coachCareerItems.id],
+  }),
+}));
+
+export const coachMediaRelations = relations(coachMedia, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachMedia.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
+export const coachArticlesRelations = relations(coachArticles, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachArticles.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
+export const coachHonoursRelations = relations(coachHonours, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachHonours.coachId],
+    references: [coachProfiles.id],
+  }),
+  careerItem: one(coachCareerItems, {
+    fields: [coachHonours.careerItemId],
+    references: [coachCareerItems.id],
+  }),
+}));
+
+export const coachLinksRelations = relations(coachLinks, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachLinks.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
+export const coachLicensesRelations = relations(coachLicenses, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachLicenses.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
+export const coachPersonalDetailsRelations = relations(coachPersonalDetails, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachPersonalDetails.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
+export const coachChangeLogsRelations = relations(coachChangeLogs, ({ one }) => ({
+  coach: one(coachProfiles, {
+    fields: [coachChangeLogs.coachId],
+    references: [coachProfiles.id],
+  }),
+}));
+
+export const coachCareerRevisionRequestsRelations = relations(
+  coachCareerRevisionRequests,
+  ({ one, many }) => ({
+    coach: one(coachProfiles, {
+      fields: [coachCareerRevisionRequests.coachId],
+      references: [coachProfiles.id],
+    }),
+    items: many(coachCareerRevisionItems),
+    proposedTeams: many(coachCareerRevisionProposedTeams),
+    statsItems: many(coachStatsRevisionItems),
+  }),
+);
+
+export const coachCareerRevisionItemsRelations = relations(
+  coachCareerRevisionItems,
+  ({ one }) => ({
+    request: one(coachCareerRevisionRequests, {
+      fields: [coachCareerRevisionItems.requestId],
+      references: [coachCareerRevisionRequests.id],
+    }),
+    proposedTeam: one(coachCareerRevisionProposedTeams, {
+      fields: [coachCareerRevisionItems.proposedTeamId],
+      references: [coachCareerRevisionProposedTeams.id],
+    }),
+  }),
+);
+
+export const coachCareerRevisionProposedTeamsRelations = relations(
+  coachCareerRevisionProposedTeams,
+  ({ one }) => ({
+    request: one(coachCareerRevisionRequests, {
+      fields: [coachCareerRevisionProposedTeams.requestId],
+      references: [coachCareerRevisionRequests.id],
+    }),
+  }),
+);
+
+export const coachStatsRevisionItemsRelations = relations(
+  coachStatsRevisionItems,
+  ({ one }) => ({
+    request: one(coachCareerRevisionRequests, {
+      fields: [coachStatsRevisionItems.requestId],
+      references: [coachCareerRevisionRequests.id],
+    }),
+  }),
+);
