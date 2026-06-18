@@ -101,6 +101,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.7,
     },
+    // Legal pages — fully translated in all 4 locales → emit hreflang.
+    {
+      url: `${base}/legal/terms`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
+      alternates: { languages: sitemapLanguages("/legal/terms") },
+    },
+    {
+      url: `${base}/legal/privacy`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
+      alternates: { languages: sitemapLanguages("/legal/privacy") },
+    },
+    {
+      url: `${base}/legal/cookies`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
+      alternates: { languages: sitemapLanguages("/legal/cookies") },
+    },
   ];
 
   let playerEntries: SitemapEntry[] = [];
