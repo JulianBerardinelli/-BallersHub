@@ -64,7 +64,9 @@ const optionalUuid = z
 // A coach career stage. Deliberately free-text (club + role + division +
 // years) with NO per-stage team picker — mirrors the onboarding Step2Career
 // shape. Team-catalog mapping (crests) happens at admin approval time.
-export const coachCareerStageSchema = z.object({
+// NOTE: not exported — this is a "use server" module, which may only export
+// async functions. The derived input type below is exported instead.
+const coachCareerStageSchema = z.object({
   id: z.string().uuid().optional(),
   originalId: optionalUuid,
   club: z
@@ -81,7 +83,7 @@ export type CoachCareerStageInput = z.infer<typeof coachCareerStageSchema>;
 
 // A coach season stat row: results-based (matches / W-D-L / goals for-against),
 // per D6. Percentages are derived in the front-end, not stored.
-export const coachSeasonStatSchema = z
+const coachSeasonStatSchema = z
   .object({
     id: z.string().uuid().optional(),
     originalStatId: optionalUuid,
@@ -110,7 +112,7 @@ export const coachSeasonStatSchema = z
 
 export type CoachSeasonStatInput = z.infer<typeof coachSeasonStatSchema>;
 
-export const coachCareerRevisionSubmissionSchema = z
+const coachCareerRevisionSubmissionSchema = z
   .object({
     coachId: z.string().uuid({ message: "Entrenador no reconocido." }),
     items: z.array(coachCareerStageSchema),
