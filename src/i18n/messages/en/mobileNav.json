@@ -64,5 +64,17 @@
     "signOut": "Sign out",
     "signOutDesc": "Leave the dashboard safely"
   },
+  "coach": {
+    "profileData": "Profile data",
+    "profileDataDesc": "Bio, role, game ideas and formations",
+    "career": "Career",
+    "careerDesc": "Clubs managed and statistics",
+    "licenses": "Licenses",
+    "licensesDesc": "Qualifications and certifications",
+    "multimedia": "Media",
+    "multimediaDesc": "Photos and videos of your work",
+    "languages": "Languages",
+    "languagesDesc": "Publish your page in EN · IT · PT"
+  },
   "pro": "PRO"
 }
