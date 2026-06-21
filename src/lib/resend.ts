@@ -5,7 +5,7 @@ import { signUnsubscribeToken } from "@/lib/marketing/unsubscribe-token";
 import { resolvePreferredLocale } from "@/lib/marketing/recipient-props";
 import {
   ADMIN_EDIT_DOMAIN_HREFS,
-  ADMIN_EDIT_DOMAIN_NOTICE,
+  ADMIN_EDIT_DOMAIN_LABELS,
   type AdminEditDomain,
 } from "@/lib/admin/edit-domains";
 import type { Locale } from "@/i18n/routing";
@@ -515,7 +515,7 @@ export async function sendAdminProfileCorrectedEmail(opts: {
   email: string;
   playerName: string;
   domain: AdminEditDomain;
-  changedFields?: string[];
+  note: string;
 }) {
   if (!resend) {
     console.log("[Resend Mock] Admin profile corrected →", opts.email, opts.domain);
@@ -526,8 +526,8 @@ export async function sendAdminProfileCorrectedEmail(opts: {
     const editUrl = `${siteUrl.replace(/\/+$/, "")}${ADMIN_EDIT_DOMAIN_HREFS[opts.domain]}`;
     const html = await renderTemplate("admin_profile_corrected", {
       playerName: opts.playerName,
-      notice: ADMIN_EDIT_DOMAIN_NOTICE[opts.domain],
-      changedFields: opts.changedFields ?? [],
+      sectionLabel: ADMIN_EDIT_DOMAIN_LABELS[opts.domain],
+      note: opts.note,
       dashboardUrl: editUrl,
       recipientEmail: opts.email,
       locale,

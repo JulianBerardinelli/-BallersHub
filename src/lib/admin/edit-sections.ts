@@ -12,6 +12,8 @@ export const ADMIN_EDIT_SECTIONS: { key: AdminEditDomain; label: string }[] = [
   { key: "scouting", label: "Scouting" },
   { key: "valor", label: "Valor de mercado" },
   { key: "multimedia", label: "Multimedia" },
+  { key: "links", label: "Enlaces" },
+  { key: "prensa", label: "Notas de prensa" },
 ];
 
 export function adminEditSectionLabel(key: string): string {

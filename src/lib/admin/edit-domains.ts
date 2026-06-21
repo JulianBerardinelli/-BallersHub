@@ -12,6 +12,8 @@ export const ADMIN_EDIT_DOMAINS = [
   "scouting",
   "valor",
   "multimedia",
+  "links",
+  "prensa",
 ] as const;
 
 export type AdminEditDomain = (typeof ADMIN_EDIT_DOMAINS)[number];
@@ -25,6 +27,8 @@ export const ADMIN_EDIT_DOMAIN_LABELS: Record<AdminEditDomain, string> = {
   scouting: "reporte de scouting",
   valor: "valor de mercado",
   multimedia: "multimedia",
+  links: "enlaces",
+  prensa: "notas de prensa",
 };
 
 /** One-line notice (reused by the in-app toast body + the correction email). */
@@ -36,6 +40,8 @@ export const ADMIN_EDIT_DOMAIN_NOTICE: Record<AdminEditDomain, string> = {
   scouting: "Actualizamos tu reporte de scouting luego de una revisión.",
   valor: "Ajustamos tu valor de mercado luego de una revisión.",
   multimedia: "Actualizamos tu multimedia luego de una revisión.",
+  links: "Actualizamos tus enlaces luego de una revisión.",
+  prensa: "Actualizamos tus notas de prensa luego de una revisión.",
 };
 
 /** Where "Ver mi perfil" sends the player (the matching dashboard editor). */
@@ -47,6 +53,8 @@ export const ADMIN_EDIT_DOMAIN_HREFS: Record<AdminEditDomain, string> = {
   scouting: "/dashboard/edit-profile/football-data",
   valor: "/dashboard/edit-profile/football-data",
   multimedia: "/dashboard/edit-profile/multimedia",
+  links: "/dashboard/edit-profile/football-data",
+  prensa: "/dashboard/edit-profile/multimedia",
 };
 
 export function isAdminEditDomain(value: string): value is AdminEditDomain {

@@ -67,6 +67,9 @@ type Props = {
   playerId: string;
   links: DashboardExternalLink[];
   suggestions: Partial<Record<LinkKind, string | null>>;
+  /** Override the write actions (admin CRUD injects service-role variants). */
+  upsertAction?: typeof upsertPlayerLink;
+  deleteAction?: typeof deletePlayerLink;
 };
 
 const defaultValues: FormValues = {
@@ -112,7 +115,13 @@ function LinkKindIcon({ kind, className }: { kind: string; className?: string })
   }
 }
 
-export default function ExternalLinksManager({ playerId, links, suggestions }: Props) {
+export default function ExternalLinksManager({
+  playerId,
+  links,
+  suggestions,
+  upsertAction = upsertPlayerLink,
+  deleteAction = deletePlayerLink,
+}: Props) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [status, setStatus] = useState<StatusState>(null);
@@ -185,7 +194,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
     }
 
     startTransition(async () => {
-      const result = await upsertPlayerLink(parsed.data);
+      const result = await upsertAction(parsed.data);
       if (!result.success) {
         setStatus({ type: "error", message: result.message });
         return;
@@ -223,7 +232,7 @@ export default function ExternalLinksManager({ playerId, links, suggestions }: P
     if (!confirmed) return;
 
     startTransition(async () => {
-      const result = await deletePlayerLink({ id: link.id, playerId });
+      const result = await deleteAction({ id: link.id, playerId });
       if (!result.success) {
         setStatus({ type: "error", message: result.message });
         return;

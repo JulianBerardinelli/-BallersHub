@@ -11,7 +11,12 @@
 import { z } from "zod";
 
 import { ensureAdminActor } from "@/lib/admin/auth";
-import { recordAdminPlayerEdit, type ChangeLogEntry } from "@/lib/admin/notify";
+import {
+  recordAdminPlayerEdit,
+  sendAdminReviewNotification,
+  type ChangeLogEntry,
+} from "@/lib/admin/notify";
+import { ADMIN_EDIT_DOMAINS, type AdminEditDomain } from "@/lib/admin/edit-domains";
 import { syncPlayerCareerLive } from "@/lib/admin/career-sync";
 import { fetchDashboardState } from "@/lib/dashboard/client/data-provider";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
@@ -21,9 +26,11 @@ import {
   scoutingAnalysisSchema,
   seasonStatMutationSchema,
   honourMutationSchema,
+  linkMutationSchema,
   careerRevisionSubmissionSchema,
   type SeasonStatMutationInput,
   type HonourMutationInput,
+  type LinkMutationInput,
   type CareerRevisionSubmissionInput,
 } from "@/app/[locale]/(dashboard)/dashboard/edit-profile/football-data/schemas";
 import {
@@ -42,7 +49,6 @@ import {
   sanitizeText as pdSanitize,
 } from "@/app/[locale]/(dashboard)/dashboard/edit-profile/personal-data/normalize";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AdminClient = ReturnType<typeof import("@/lib/supabase/admin").createSupabaseAdmin>;
 
 type FormResult<T> =
@@ -143,7 +149,6 @@ export async function adminUpdateSportProfile(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "datos",
     changedFields: updatedFields,
     changeLog,
@@ -221,7 +226,6 @@ export async function adminUpdateMarketValue(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "valor",
     changedFields: updatedFields,
     changeLog,
@@ -327,7 +331,6 @@ export async function adminUpdateScouting(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "scouting",
     changedFields: updatedFields,
     changeLog,
@@ -402,7 +405,6 @@ export async function adminUpsertSeasonStat(input: SeasonStatMutationInput): Pro
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "estadisticas",
     changedFields: [`Temporada ${parsed.data.season}`],
   });
@@ -429,7 +431,6 @@ export async function adminDeleteSeasonStat(input: { id: string; playerId: strin
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "estadisticas",
     changedFields: ["Estadística eliminada"],
   });
@@ -497,7 +498,6 @@ export async function adminSubmitStatsLive(
       actor: auth.actor,
       playerId: target.id,
       targetUserId: target.userId,
-      playerName: target.fullName,
       domain: "estadisticas",
       changedFields: seasons.map((s) => `Temporada ${s}`),
     });
@@ -540,7 +540,6 @@ export async function adminUpsertHonour(input: HonourMutationInput): Promise<Sim
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "palmares",
     changedFields: [parsed.data.title],
   });
@@ -567,7 +566,6 @@ export async function adminDeleteHonour(input: { id: string; playerId: string })
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "palmares",
     changedFields: ["Logro eliminado"],
   });
@@ -618,7 +616,6 @@ export async function adminSubmitCareerLive(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "trayectoria",
     changedFields: ["Trayectoria"],
   });
@@ -756,7 +753,6 @@ export async function adminUpdateBasicInformation(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "datos",
     changedFields: updatedFields,
     changeLog,
@@ -893,7 +889,6 @@ export async function adminUpdateContactInformation(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: "datos",
     changedFields: updatedFields,
     changeLog,
@@ -927,6 +922,14 @@ const ASSET_LABELS: Record<AssetType, string> = {
   heroUrl: "Hero (Pro)",
   modelUrl1: "Modelado 1 (Pro)",
   modelUrl2: "Modelado 2 (Pro)",
+};
+// Pro-asset slot names + provider — MUST match the player flow (pro-assets.ts)
+// so isCatalogPhoto() (provider startsWith "pro_asset_") filters them OUT of
+// the public gallery. Avatar uses provider "upload" and is filtered by URL match.
+const PRO_SLOT_LABELS: Record<Exclude<AssetType, "avatarUrl">, string> = {
+  heroUrl: "Hero Asset",
+  modelUrl1: "Modelado 1",
+  modelUrl2: "Modelado 2",
 };
 
 export async function adminUploadPlayerAsset(
@@ -992,8 +995,13 @@ export async function adminUploadPlayerAsset(
     player_id: target.id,
     type: "photo",
     url: publicUrl,
-    provider: `admin_${assetType}`,
-    title: assetType === "avatarUrl" ? "Avatar principal" : `[Admin] ${ASSET_LABELS[assetType]}`,
+    // Match the player flow exactly so the gallery filter keeps these out:
+    // pro assets → "pro_asset_<slot>"; avatar → "upload" (filtered by URL).
+    provider: assetType === "avatarUrl" ? "upload" : `pro_asset_${assetType}`,
+    title:
+      assetType === "avatarUrl"
+        ? "Avatar principal"
+        : `[Pro Layout] ${PRO_SLOT_LABELS[assetType]}`,
     is_primary: assetType === "avatarUrl",
     is_approved: true,
     is_flagged: false,
@@ -1003,10 +1011,119 @@ export async function adminUploadPlayerAsset(
     actor: auth.actor,
     playerId: target.id,
     targetUserId: target.userId,
-    playerName: target.fullName,
     domain: assetType === "avatarUrl" ? "datos" : "multimedia",
     changedFields: [ASSET_LABELS[assetType]],
   });
 
   return { success: true, url: publicUrl };
+}
+
+// ---------------------------------------------------------------------------
+// Enlaces (player_links)
+// ---------------------------------------------------------------------------
+
+export async function adminUpsertPlayerLink(input: LinkMutationInput): Promise<SimpleResult> {
+  const parsed = linkMutationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: "Revisá los datos del enlace e intentá nuevamente." };
+  }
+  const auth = await ensureAdminActor();
+  if (!auth.ok) return { success: false, message: auth.error };
+  const admin = auth.actor.adminClient;
+
+  const target = await loadTargetPlayer(admin, parsed.data.playerId);
+  if (!target) return { success: false, message: "No encontramos el perfil indicado." };
+
+  const payload = {
+    label: parsed.data.label,
+    url: parsed.data.url,
+    kind: parsed.data.kind,
+    is_primary: parsed.data.isPrimary ?? false,
+    metadata: parsed.data.metadata ?? null,
+  };
+
+  const { error } = parsed.data.id
+    ? await admin.from("player_links").update(payload).eq("id", parsed.data.id).eq("player_id", parsed.data.playerId)
+    : await admin.from("player_links").insert({ ...payload, player_id: parsed.data.playerId });
+  if (error) return { success: false, message: error.message };
+
+  await recordAdminPlayerEdit({
+    actor: auth.actor,
+    playerId: target.id,
+    targetUserId: target.userId,
+    domain: "links",
+    changedFields: ["Enlaces"],
+  });
+
+  return { success: true };
+}
+
+export async function adminDeletePlayerLink(input: { id: string; playerId: string }): Promise<SimpleResult> {
+  const auth = await ensureAdminActor();
+  if (!auth.ok) return { success: false, message: auth.error };
+  const admin = auth.actor.adminClient;
+
+  const target = await loadTargetPlayer(admin, input.playerId);
+  if (!target) return { success: false, message: "No encontramos el perfil indicado." };
+
+  const { error } = await admin
+    .from("player_links")
+    .delete()
+    .eq("id", input.id)
+    .eq("player_id", input.playerId);
+  if (error) return { success: false, message: error.message };
+
+  await recordAdminPlayerEdit({
+    actor: auth.actor,
+    playerId: target.id,
+    targetUserId: target.userId,
+    domain: "links",
+    changedFields: ["Enlace eliminado"],
+  });
+
+  return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// Finalizar revisión — the deliberate "close + note" notification per section.
+// Saves apply live + audit silently; THIS sends the email + in-app toast with
+// the admin's note (the admin corrects AND explains why).
+// ---------------------------------------------------------------------------
+
+const finalizeReviewSchema = z.object({
+  playerId: z.string().uuid(),
+  domain: z.enum(ADMIN_EDIT_DOMAINS),
+  note: z
+    .string()
+    .trim()
+    .min(1, "Escribí una nota para el jugador.")
+    .max(1000, "La nota es demasiado larga (máx. 1000 caracteres)."),
+});
+
+export async function adminFinalizeReview(input: {
+  playerId: string;
+  domain: AdminEditDomain;
+  note: string;
+}): Promise<{ success: true } | { success: false; message: string }> {
+  const parsed = finalizeReviewSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const auth = await ensureAdminActor();
+  if (!auth.ok) return { success: false, message: auth.error };
+  const admin = auth.actor.adminClient;
+
+  const target = await loadTargetPlayer(admin, parsed.data.playerId);
+  if (!target) return { success: false, message: "No encontramos el perfil indicado." };
+
+  await sendAdminReviewNotification({
+    actor: auth.actor,
+    playerId: target.id,
+    targetUserId: target.userId,
+    playerName: target.fullName,
+    domain: parsed.data.domain,
+    note: parsed.data.note,
+  });
+
+  return { success: true };
 }

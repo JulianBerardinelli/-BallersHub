@@ -9,6 +9,7 @@ import { PlanAccessProvider } from "@/components/dashboard/plan/PlanAccessProvid
 
 import AdminPlayerHeader from "./_components/AdminPlayerHeader";
 import EditSectionNav from "./_components/EditSectionNav";
+import FinalizeReviewBar from "./_components/FinalizeReviewBar";
 
 export default async function AdminPlayerEditLayout({
   children,
@@ -68,6 +69,7 @@ export default async function AdminPlayerEditLayout({
           isPro={access.isPro}
         />
         <div>{children}</div>
+        <FinalizeReviewBar playerId={player.id} />
       </div>
     </PlanAccessProvider>
   );

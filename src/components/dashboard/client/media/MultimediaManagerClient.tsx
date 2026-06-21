@@ -27,12 +27,15 @@ export default function MultimediaManagerClient({
   profileContext,
   isPro,
   isFounder = false,
+  apiBase = "/api/media",
 }: {
   media: PlayerMedia[];
   profileContext: ProfileContext;
   isPro: boolean;
   /** Founder accounts bypass the Pro photo cap. */
   isFounder?: boolean;
+  /** Media API base — the admin CRUD injects its per-player admin route. */
+  apiBase?: string;
 }) {
   const t = useTranslations("dashEditProfile");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,7 +50,7 @@ export default function MultimediaManagerClient({
     isSaving: videoReordering,
     moveUp: moveVideoUp,
     moveDown: moveVideoDown,
-  } = useReorderable(videos, "/api/media/reorder");
+  } = useReorderable(videos, `${apiBase}/reorder`);
 
   // Free hard-cap: 2 videos in the catalog (matrix §B "Videos de YouTube"
   // is counted as `player_media` rows of type='video'). Pro is unlimited.
@@ -101,6 +104,7 @@ export default function MultimediaManagerClient({
         onOpenChange={setIsModalOpen}
         profileContext={profileContext}
         videoOnly={!isPro || photosAtCap}
+        uploadUrl={`${apiBase}/upload`}
       />
 
       <div className="flex w-full flex-col">
@@ -131,7 +135,7 @@ export default function MultimediaManagerClient({
             <div className="pt-4">
               {isPro ? (
                 <>
-                  <MediaGalleryGrid items={photos} />
+                  <MediaGalleryGrid items={photos} apiBase={apiBase} />
                   {photosAtCap && (
                     <div className="mt-4 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">
                       <p className="text-[12.5px] leading-[1.55] text-bh-fg-2">
@@ -178,6 +182,7 @@ export default function MultimediaManagerClient({
                 onMoveUp={moveVideoUp}
                 onMoveDown={moveVideoDown}
                 isReordering={videoReordering}
+                apiBase={apiBase}
               />
               {!isPro && videosAtCap && (
                 <div className="mt-4 flex items-center justify-between gap-3 rounded-bh-md border border-bh-lime/20 bg-bh-lime/5 px-4 py-3">

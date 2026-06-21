@@ -431,15 +431,13 @@ async function loadDashboardLayoutData(
   });
 
   const adminEdits = adminEditRows.map((n) => {
-    const payload = (n.payload ?? {}) as { domain?: string; changedFields?: unknown };
+    const payload = (n.payload ?? {}) as { domain?: string; note?: unknown };
     const domain: AdminEditDomain =
       payload.domain && isAdminEditDomain(payload.domain) ? payload.domain : "datos";
     return {
       id: n.id,
       domain,
-      changedFields: Array.isArray(payload.changedFields)
-        ? (payload.changedFields as string[])
-        : [],
+      note: typeof payload.note === "string" ? payload.note : "",
       detailsHref: ADMIN_EDIT_DOMAIN_HREFS[domain],
     };
   });

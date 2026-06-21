@@ -25,6 +25,8 @@ interface ArticleModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   articleToEdit?: Article | null;
+  /** Articles API base — the admin CRUD injects its per-player admin route. */
+  apiBase?: string;
 }
 
 type ScrapeStatus = "idle" | "loading" | "success" | "error";
@@ -47,7 +49,12 @@ function looksLikeUrl(value: string): boolean {
   }
 }
 
-export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: ArticleModalProps) {
+export default function ArticleModal({
+  isOpen,
+  onOpenChange,
+  articleToEdit,
+  apiBase = "/api/articles",
+}: ArticleModalProps) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -163,7 +170,7 @@ export default function ArticleModal({ isOpen, onOpenChange, articleToEdit }: Ar
     try {
       setIsLoading(true);
       const isEdit = !!articleToEdit;
-      const apiUrl = isEdit ? `/api/articles/${articleToEdit.id}` : "/api/articles";
+      const apiUrl = isEdit ? `${apiBase}/${articleToEdit.id}` : apiBase;
       const method = isEdit ? "PATCH" : "POST";
 
       const res = await fetch(apiUrl, {

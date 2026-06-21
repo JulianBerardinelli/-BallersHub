@@ -14,9 +14,17 @@ type MediaUploadModalProps = {
   profileContext?: ProfileContext;
   /** When true, the modal disables photo uploads (Free plan). */
   videoOnly?: boolean;
+  /** Upload endpoint — the admin CRUD injects its per-player admin route. */
+  uploadUrl?: string;
 };
 
-export default function MediaUploadModal({ isOpen, onOpenChange, profileContext, videoOnly = false }: MediaUploadModalProps) {
+export default function MediaUploadModal({
+  isOpen,
+  onOpenChange,
+  profileContext,
+  videoOnly = false,
+  uploadUrl = "/api/media/upload",
+}: MediaUploadModalProps) {
   const router = useRouter();
   const t = useTranslations("dashEditProfile");
   const locale = useLocale();
@@ -108,7 +116,7 @@ export default function MediaUploadModal({ isOpen, onOpenChange, profileContext,
           if (provider) formData.append("provider", provider);
         }
 
-        const response = await fetch("/api/media/upload", {
+        const response = await fetch(uploadUrl, {
           method: "POST",
           body: formData,
         });
