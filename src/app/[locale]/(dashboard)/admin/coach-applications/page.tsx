@@ -56,5 +56,24 @@ export default async function AdminCoachApplicationsPage() {
     );
   }
 
-  return <CoachApplicationsPanel initialItems={apps ?? []} />;
+  // Para las solicitudes ya aprobadas, traemos el slug del coach_profile así el
+  // panel puede linkear al perfil público (/coach/[slug]).
+  const approvedUserIds = Array.from(
+    new Set(apps.filter((a) => a.status === "approved").map((a) => a.user_id as string)),
+  );
+  let slugByUser: Record<string, string> = {};
+  if (approvedUserIds.length > 0) {
+    const { data: profiles } = await supa
+      .from("coach_profiles")
+      .select("user_id, slug")
+      .in("user_id", approvedUserIds);
+    slugByUser = Object.fromEntries(
+      (profiles ?? [])
+        .filter((p): p is { user_id: string; slug: string } => Boolean(p.slug))
+        .map((p) => [p.user_id, p.slug]),
+    );
+  }
+  const appsWithSlug = apps.map((a) => ({ ...a, slug: slugByUser[a.user_id as string] ?? null }));
+
+  return <CoachApplicationsPanel initialItems={appsWithSlug} />;
 }

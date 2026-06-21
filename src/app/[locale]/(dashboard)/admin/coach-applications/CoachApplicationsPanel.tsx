@@ -33,6 +33,9 @@ export type CoachApp = {
   selfie_url: string | null;
   licenses_draft: License[] | null;
   coach_career_item_proposals: Proposal[] | null;
+  // slug del coach_profile resultante (presente en solicitudes aprobadas) →
+  // permite linkear al perfil público.
+  slug: string | null;
 };
 
 function fmtYears(p: Proposal) {
@@ -58,7 +61,11 @@ export default function CoachApplicationsPanel({ initialItems }: { initialItems:
       const res = await fetch(`/api/admin/coach-applications/${id}/approve`, { method: "POST" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-      setItems((prev) => prev.map((a) => (a.id === id ? { ...a, status: "approved" } : a)));
+      setItems((prev) =>
+        prev.map((a) =>
+          a.id === id ? { ...a, status: "approved", slug: data?.slug ?? a.slug } : a,
+        ),
+      );
     } catch (e) {
       setError(e instanceof Error ? e.message : "Error al aprobar");
     } finally {
@@ -269,6 +276,16 @@ export default function CoachApplicationsPanel({ initialItems }: { initialItems:
                 <span className="flex items-center gap-2">
                   {app.status === "rejected" && app.rejection_reason && (
                     <span className="text-xs text-bh-fg-4">“{app.rejection_reason}”</span>
+                  )}
+                  {app.status === "approved" && app.slug && (
+                    <a
+                      href={`/coach/${app.slug}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-medium text-bh-lime hover:underline"
+                    >
+                      Ver perfil público ↗
+                    </a>
                   )}
                   <Chip
                     size="sm"
