@@ -5,6 +5,9 @@ import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { revalidateAgencyPublicProfile } from "@/lib/seo/revalidate";
 import { CONTENT_LOCALES } from "@/lib/i18n/profile-content";
+// Generic per-user subscription → PlanAccess loader (named for its first use in
+// coaches; the subscription is keyed by user_id, role-agnostic).
+import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
 
 // Agency description/tagline live on agency_profiles (es, edited in the agency
 // dashboard); en/it/pt overrides go to agency_profile_translations. Same
@@ -36,8 +39,15 @@ type Owned = {
   slug: string | null;
 };
 
-/** Auth + the user must be staff of this agency (user_profiles.agency_id). */
-async function ensureAgencyStaff(
+/**
+ * Auth + the user must be staff of this agency (user_profiles.agency_id) AND on
+ * a Pro plan. Translations (en/it/pt) are Pro-only, so we enforce the tier
+ * server-side here — the gated page UI alone isn't enough (the plan can lapse
+ * with the editor open, or the action can be invoked directly). Mirrors the
+ * coach/player translation actions. Every translation write path in this file
+ * goes through this guard.
+ */
+async function ensureProAgencyStaff(
   agencyId: string,
 ): Promise<{ owned: Owned | null; error: string | null }> {
   const supabase = await createSupabaseServerRoute();
@@ -53,6 +63,11 @@ async function ensureAgencyStaff(
     .maybeSingle<{ agency_id: string | null }>();
   if (!up || up.agency_id !== agencyId) {
     return { owned: null, error: "No tenés permisos sobre esta agencia." };
+  }
+
+  const access = await loadCoachPlanAccess(supabase, user.id);
+  if (!access.isPro) {
+    return { owned: null, error: "Las traducciones están disponibles en el plan Pro." };
   }
 
   const { data: ag } = await supabase
@@ -84,7 +99,7 @@ export async function saveAgencyTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, locale, fields } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
   const norm = (v: string | undefined) => {
@@ -124,7 +139,7 @@ export async function deleteAgencyTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, locale } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
   const { error: delError } = await owned.supabase
@@ -189,7 +204,7 @@ export async function saveServicesTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, locale, services } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
   // Read the existing description+tagline so the upsert never clobbers them.
@@ -235,7 +250,7 @@ export async function deleteServicesTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, locale } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
   // Null out only the services column — keep description/tagline intact.
@@ -305,7 +320,7 @@ export async function saveAgencyMediaTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, mediaId, locale, fields } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
   if (!(await mediaBelongsToAgency(owned.supabase, mediaId, agencyId))) {
     return { success: false, message: "No encontramos esa imagen en tu agencia." };
@@ -349,7 +364,7 @@ export async function deleteAgencyMediaTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, mediaId, locale } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
   if (!(await mediaBelongsToAgency(owned.supabase, mediaId, agencyId))) {
     return { success: false, message: "No encontramos esa imagen en tu agencia." };
@@ -420,7 +435,7 @@ export async function saveAgencyCountryProfileTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, countryProfileId, locale, fields } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
   if (!(await countryProfileBelongsToAgency(owned.supabase, countryProfileId, agencyId))) {
     return { success: false, message: "No encontramos ese país en tu agencia." };
@@ -463,7 +478,7 @@ export async function deleteAgencyCountryProfileTranslation(input: {
   if (!parsed.success) return { success: false, message: "Datos inválidos." };
   const { agencyId, countryProfileId, locale } = parsed.data;
 
-  const { owned, error } = await ensureAgencyStaff(agencyId);
+  const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
   if (!(await countryProfileBelongsToAgency(owned.supabase, countryProfileId, agencyId))) {
     return { success: false, message: "No encontramos ese país en tu agencia." };
