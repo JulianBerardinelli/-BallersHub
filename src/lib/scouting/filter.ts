@@ -9,6 +9,10 @@ import type { ScoutFilters, ScoutPlayer, ScoutSort } from "./types";
 /** True when `p` passes every active facet of `f`. */
 export function matchPlayer(p: ScoutPlayer, f: ScoutFilters): boolean {
   if (f.status !== "all" && p.contract !== f.status) return false;
+  // Sex facet: "all" passes everyone; a binary choice matches exactly. Legacy
+  // "unspecified" rows only ever surface under "all" (never hidden silently
+  // into the wrong bucket).
+  if (f.gender !== "all" && p.gender !== f.gender) return false;
   // A player matches the position facet if ANY of its positions is selected —
   // a CB who also plays RB shows up under both, not just the primary.
   if (
@@ -45,6 +49,7 @@ export function matchPlayer(p: ScoutPlayer, f: ScoutFilters): boolean {
 export function activeFilterCount(f: ScoutFilters, ageBounds: [number, number], heightBounds: [number, number]): number {
   let n = 0;
   if (f.status !== "all") n += 1;
+  if (f.gender !== "all") n += 1;
   n += f.positions.length;
   n += f.nationality.length;
   n += f.playCountry.length;

@@ -14,6 +14,10 @@
   --pos-rojo: #ff5c5c;
   --pos-celeste: #4fc3ff;
   --pos-verde: #45d483;
+  /* Gender-filter accents: lime = both (brand), blue = men, rose = women. */
+  --scout-gender-both: var(--bh-lime-200);
+  --scout-gender-male: var(--bh-blue-200);
+  --scout-gender-female: #ff5c9d;
   /* Single horizontal inset shared by the filter bar and the table so their
      content bands line up edge-to-edge at every viewport. */
   --scout-inset: clamp(16px, 4vw, 28px);
@@ -368,6 +372,48 @@
 .scouting-root .status-seg button:not([data-active="true"]):hover {
   color: #fff;
 }
+
+/* Gender segment — reuses the segmented-control shell, adds per-option icons +
+   accent colors. The accent persists on the icon (so each option reads as its
+   own color even when idle) and fills the button when active. */
+.scouting-root .gender-seg button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.scouting-root .gender-seg button .g-ico {
+  flex: none;
+  transition: color 150ms var(--bh-ease-snappy);
+}
+.scouting-root .gender-seg button[data-gender="all"] .g-ico {
+  color: var(--scout-gender-both);
+}
+.scouting-root .gender-seg button[data-gender="male"] .g-ico {
+  color: var(--scout-gender-male);
+}
+.scouting-root .gender-seg button[data-gender="female"] .g-ico {
+  color: var(--scout-gender-female);
+}
+.scouting-root .gender-seg button[data-active="true"][data-gender="all"] {
+  background: var(--scout-gender-both);
+  color: #000;
+}
+.scouting-root .gender-seg button[data-active="true"][data-gender="male"] {
+  background: var(--scout-gender-male);
+  color: #001620;
+}
+.scouting-root .gender-seg button[data-active="true"][data-gender="female"] {
+  background: var(--scout-gender-female);
+  color: #2a0016;
+}
+.scouting-root .gender-seg button[data-active="true"] {
+  font-weight: 700;
+}
+/* When active the icon flips to the button's (dark) text color for contrast. */
+.scouting-root .gender-seg button[data-active="true"] .g-ico {
+  color: currentColor;
+}
+
 .scouting-root .fb-divider {
   width: 1px;
   height: 22px;
@@ -843,11 +889,6 @@
   color: #fff;
   line-height: 1.05;
   letter-spacing: 0.005em;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: flex;
-  align-items: center;
-  gap: 7px;
 }
 .scouting-root .pt-pro {
   font-family: var(--font-bh-mono);
@@ -867,6 +908,66 @@
   margin-top: 3px;
   font-family: var(--font-bh-mono);
   letter-spacing: 0.02em;
+}
+
+/* ── Name marquee ─────────────────────────────────────────────
+   Shared overflow-aware scroller (desktop table + mobile rows/sheet). The
+   viewport clips; the track holds the full name + Pro badge and ping-pongs only
+   when it doesn't fit. Transform-only (compositor-cheap), eased, with a pause
+   baked into each end of the keyframe so it never jumps. The full text stays in
+   the DOM for SEO; JS just measures the overflow and sets --mq-shift/--mq-dur. */
+.scouting-root .name-marquee {
+  display: block;
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.scouting-root .name-marquee-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: max-content;
+  max-width: none;
+  /* Promote to its own layer only while it actually animates (see below). */
+}
+.scouting-root .name-marquee[data-overflow] {
+  /* Soft fade at both clip edges so the scroll reads fluid — no hard cut. */
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 16px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 16px),
+    transparent 100%
+  );
+}
+.scouting-root .name-marquee[data-overflow] .name-marquee-track {
+  will-change: transform;
+  animation: name-marquee-pingpong var(--mq-dur, 8s) var(--bh-ease-snappy)
+    infinite alternate;
+}
+@keyframes name-marquee-pingpong {
+  0%,
+  14% {
+    transform: translateX(0);
+  }
+  86%,
+  100% {
+    transform: translateX(calc(-1 * var(--mq-shift, 0px)));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scouting-root .name-marquee[data-overflow] .name-marquee-track {
+    animation: none;
+  }
 }
 .scouting-root .pt-c.club {
   gap: 10px;

@@ -378,9 +378,6 @@
   min-width: 0;
 }
 .scouting-root .m-prow-name {
-  display: flex;
-  align-items: center;
-  gap: 7px;
   font-family: var(--font-bh-display);
   font-weight: 800;
   font-size: 15px;
@@ -388,9 +385,6 @@
   line-height: 1;
   color: #fff;
   margin-bottom: 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .scouting-root .m-prow-meta {
   display: flex;
@@ -636,6 +630,41 @@
   color: #000;
   font-weight: 700;
 }
+
+/* Gender segment — icons + per-option accent colors (mirrors the desktop bar). */
+.scouting-root .m-gender-seg button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.scouting-root .m-gender-seg button .g-ico {
+  flex: none;
+}
+.scouting-root .m-gender-seg button[data-gender="all"] .g-ico {
+  color: var(--scout-gender-both);
+}
+.scouting-root .m-gender-seg button[data-gender="male"] .g-ico {
+  color: var(--scout-gender-male);
+}
+.scouting-root .m-gender-seg button[data-gender="female"] .g-ico {
+  color: var(--scout-gender-female);
+}
+.scouting-root .m-gender-seg button[data-active="true"][data-gender="all"] {
+  background: var(--scout-gender-both);
+  color: #000;
+}
+.scouting-root .m-gender-seg button[data-active="true"][data-gender="male"] {
+  background: var(--scout-gender-male);
+  color: #001620;
+}
+.scouting-root .m-gender-seg button[data-active="true"][data-gender="female"] {
+  background: var(--scout-gender-female);
+  color: #2a0016;
+}
+.scouting-root .m-gender-seg button[data-active="true"] .g-ico {
+  color: currentColor;
+}
 .scouting-root .m-pos-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -829,9 +858,6 @@
   line-height: 1;
   color: #fff;
   margin-bottom: 6px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 .scouting-root .m-psheet-meta {
   display: flex;

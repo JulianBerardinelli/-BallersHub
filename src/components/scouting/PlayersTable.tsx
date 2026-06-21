@@ -11,7 +11,7 @@
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 
-import { ClubCrest, ContractTag, FlagStack, PlayerAvatar } from "./atoms";
+import { ClubCrest, ContractTag, FlagStack, MarqueeText, PlayerAvatar } from "./atoms";
 import { cityKeyOf } from "@/lib/scouting/cities";
 import { countryName } from "@/lib/scouting/taxonomies";
 import type {
@@ -139,10 +139,10 @@ export function PlayersTable({
               <div className="pt-c name">
                 <PlayerAvatar player={p} size={avatarSize} />
                 <div className="pt-name-wrap">
-                  <div className="pt-name">
-                    {p.name}
+                  <MarqueeText className="pt-name" title={p.name}>
+                    <span className="pt-name-text">{p.name}</span>
                     {p.isPro && <span className="pt-pro">{t("table.proBadge")}</span>}
-                  </div>
+                  </MarqueeText>
                   <div className="pt-sub">@{p.slug}</div>
                 </div>
               </div>
