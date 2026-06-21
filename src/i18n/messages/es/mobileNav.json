@@ -14,7 +14,9 @@
     "panel": "Panel",
     "profile": "Perfil",
     "template": "Plantilla",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "agency": "Agencia",
+    "management": "Gestión"
   },
   "sectionsCount": "{count, plural, one {# sección} other {# secciones}}",
   "access": {
@@ -64,5 +66,36 @@
     "signOut": "Cerrar sesión",
     "signOutDesc": "Salí del panel de manera segura"
   },
-  "pro": "PRO"
+  "pro": "PRO",
+  "agency": {
+    "title": "Perfil de la agencia",
+    "profile": "Datos principales",
+    "profileDesc": "Identidad, info y contacto",
+    "services": "Servicios",
+    "servicesDesc": "Qué ofrece tu agencia",
+    "reach": "Alcance",
+    "reachDesc": "Países donde operás",
+    "collaborations": "Clubes",
+    "collaborationsDesc": "Relaciones con clubes",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Galería de imágenes",
+    "languages": "Idiomas",
+    "languagesDesc": "Publicá en EN · IT · PT"
+  },
+  "management": {
+    "title": "Gestión",
+    "managerProfile": "Mi perfil",
+    "managerProfileDesc": "Tu bio y licencias",
+    "players": "Mis jugadores",
+    "playersDesc": "Cartera de representados",
+    "staff": "Staff",
+    "staffDesc": "Colegas y permisos"
+  },
+  "agencyTemplate": {
+    "title": "Editar plantilla",
+    "styles": "Estilos",
+    "stylesDesc": "Variantes visuales y colores",
+    "structure": "Estructura",
+    "structureDesc": "Activá o desactivá bloques"
+  }
 }

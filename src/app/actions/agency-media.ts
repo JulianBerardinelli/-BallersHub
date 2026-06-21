@@ -71,7 +71,7 @@ export async function addAgencyMediaAction(payload: {
     columns: { slug: true },
   });
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
 
   return { success: true, item: inserted[0] };
@@ -117,7 +117,7 @@ export async function deleteAgencyMediaAction(mediaId: string) {
     columns: { slug: true },
   });
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
 
   return { success: true };

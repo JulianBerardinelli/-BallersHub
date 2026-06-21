@@ -66,6 +66,9 @@ async function ensureAgencyStaff(
 
 function revalidateAllLocales(slug: string | null) {
   revalidateAgencyPublicProfile(slug);
+  // Refresh the in-dashboard editors (all agency sub-routes) so saved es-base /
+  // override edits show when bouncing between routes.
+  revalidatePath("/dashboard/agency", "layout");
   if (!slug) return;
   for (const l of CONTENT_LOCALES) {
     if (l !== "es") revalidatePath(`/${l}/agency/${slug}`);

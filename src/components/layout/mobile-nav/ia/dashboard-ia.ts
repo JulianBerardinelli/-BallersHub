@@ -15,9 +15,15 @@ type Translate = (key: string, values?: Record<string, string | number>) => stri
 
 // section id (navigation.ts) → dock tab meta
 const GROUP_META: Record<string, { id: string; labelKey: string; titleKey: string; icon: DockIconName }> = {
+  // Player sections
   "edit-profile": { id: "profile", labelKey: "tabs.profile", titleKey: "profile.title", icon: "user" },
   "edit-template": { id: "template", labelKey: "tabs.template", titleKey: "template.title", icon: "layout" },
   settings: { id: "settings", labelKey: "tabs.settings", titleKey: "settings.title", icon: "cog" },
+  // Manager/agency sections (a dock only ever renders one role, so the shared
+  // "template"/"settings" group ids never collide with the player ones).
+  agency: { id: "agency", labelKey: "tabs.agency", titleKey: "agency.title", icon: "briefcase" },
+  "agency-management": { id: "management", labelKey: "tabs.management", titleKey: "management.title", icon: "users" },
+  "agency-template": { id: "template", labelKey: "tabs.template", titleKey: "agencyTemplate.title", icon: "layout" },
 };
 
 // item id (navigation.ts) → label/desc i18n keys + icon
@@ -31,6 +37,18 @@ const ITEM_META: Record<string, { labelKey: string; descKey: string; icon: DockI
   account: { labelKey: "settings.account", descKey: "settings.accountDesc", icon: "lock" },
   subscription: { labelKey: "settings.subscription", descKey: "settings.subscriptionDesc", icon: "creditcard" },
   logout: { labelKey: "settings.signOut", descKey: "settings.signOutDesc", icon: "logout" },
+  // Manager/agency items
+  "agency-profile": { labelKey: "agency.profile", descKey: "agency.profileDesc", icon: "user" },
+  "agency-services": { labelKey: "agency.services", descKey: "agency.servicesDesc", icon: "sparkle" },
+  "agency-reach": { labelKey: "agency.reach", descKey: "agency.reachDesc", icon: "globe" },
+  "agency-collaborations": { labelKey: "agency.collaborations", descKey: "agency.collaborationsDesc", icon: "share" },
+  "agency-multimedia": { labelKey: "agency.multimedia", descKey: "agency.multimediaDesc", icon: "play" },
+  "agency-translations": { labelKey: "agency.languages", descKey: "agency.languagesDesc", icon: "globe" },
+  "manager-profile": { labelKey: "management.managerProfile", descKey: "management.managerProfileDesc", icon: "user" },
+  "agency-players": { labelKey: "management.players", descKey: "management.playersDesc", icon: "trophy" },
+  "agency-staff": { labelKey: "management.staff", descKey: "management.staffDesc", icon: "users" },
+  "agency-template-styles": { labelKey: "agencyTemplate.styles", descKey: "agencyTemplate.stylesDesc", icon: "sparkle" },
+  "agency-template-structure": { labelKey: "agencyTemplate.structure", descKey: "agencyTemplate.structureDesc", icon: "grid" },
 };
 
 export function buildDashboardGroups(
@@ -73,8 +91,9 @@ export function buildDashboardGroups(
         item.danger = true;
       } else {
         item.href = it.href;
-        // Show the PRO pill on "Idiomas" only to free users.
-        if (it.id === "translations" && !opts.isPro) item.pro = true;
+        // Show the PRO pill on "Idiomas" (player + agency) only to free users.
+        if ((it.id === "translations" || it.id === "agency-translations") && !opts.isPro)
+          item.pro = true;
       }
       return item;
     });

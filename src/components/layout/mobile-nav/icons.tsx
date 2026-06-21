@@ -23,6 +23,8 @@ import {
   LayoutDashboard,
   LayoutTemplate,
   LayoutGrid,
+  Briefcase,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -49,6 +51,8 @@ export const DOCK_ICONS: Record<DockIconName, LucideIcon> = {
   panel: LayoutDashboard,
   layout: LayoutTemplate,
   grid: LayoutGrid,
+  briefcase: Briefcase,
+  users: Users,
 };
 
 type DockIconProps = {
