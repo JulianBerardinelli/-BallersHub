@@ -11,6 +11,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
+import { GenderIcon } from "./atoms";
 import {
   POSITION_GROUP_ORDER,
   SCOUT_POSITIONS,
@@ -78,6 +79,12 @@ export function FilterBar({
     A: t("filters.footBoth"),
   };
 
+  const GENDER_LABEL: Record<ScoutFilters["gender"], string> = {
+    all: t("filters.genderAll"),
+    male: t("filters.genderMale"),
+    female: t("filters.genderFemale"),
+  };
+
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
       if (!barRef.current) return;
@@ -125,6 +132,8 @@ export function FilterBar({
   );
   const setStatus = (status: ScoutFilters["status"]) =>
     setFilters((f) => ({ ...f, status }));
+  const setGender = (gender: ScoutFilters["gender"]) =>
+    setFilters((f) => ({ ...f, gender }));
   const setAge = (age: [number, number]) => setFilters((f) => ({ ...f, age }));
   const setHeight = (height: [number, number]) =>
     setFilters((f) => ({ ...f, height }));
@@ -215,6 +224,29 @@ export function FilterBar({
               : s === "free"
               ? t("filters.statusFree")
               : t("filters.statusContracted")}
+          </button>
+        ))}
+      </div>
+
+      <div className="fb-divider" />
+
+      <div
+        className="status-seg gender-seg"
+        role="group"
+        aria-label={t("filters.gender")}
+      >
+        {(["all", "male", "female"] as const).map((g) => (
+          <button
+            key={g}
+            type="button"
+            data-active={filters.gender === g}
+            data-gender={g}
+            onClick={() => setGender(g)}
+            aria-label={GENDER_LABEL[g]}
+            aria-pressed={filters.gender === g}
+          >
+            <GenderIcon gender={g} />
+            <span>{GENDER_LABEL[g]}</span>
           </button>
         ))}
       </div>

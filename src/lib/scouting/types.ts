@@ -15,6 +15,13 @@ export type ContractStatus = "free" | "contracted";
 /** Strong foot, normalized from the free-text `foot` column. A = ambidextrous. */
 export type FootCode = "D" | "I" | "A";
 
+/**
+ * Player sex — mirrors the DB `gender` enum (default "male"). Drives the
+ * men's / women's football filter. "unspecified" only ever surfaces under the
+ * "all" facet (legacy rows; the binary filter never hides them silently).
+ */
+export type ScoutGender = "male" | "female" | "unspecified";
+
 /** Parent position group — drives the table's position-tag color. */
 export type PositionGroup = "Arquero" | "Defensa" | "Mediocampo" | "Ataque";
 
@@ -71,6 +78,8 @@ export interface ScoutPlayer {
    */
   nationalities: string[];
   contract: ContractStatus;
+  /** Player sex — drives the gender filter (men's / women's football). */
+  gender: ScoutGender;
   foot: FootCode | null;
   heightCm: number | null;
   /** Market value in EUR — the table's headline number (colored by contract). */
@@ -123,6 +132,8 @@ export interface ScoutCity {
 /** Live filter state held by the client island. Mirrors the prototype's `sel`. */
 export interface ScoutFilters {
   status: "all" | ContractStatus;
+  /** Player-sex facet: "all" shows everyone (men + women + unspecified). */
+  gender: "all" | "male" | "female";
   /** Selected position codes — a player matches if ANY of its positions hits. */
   positions: string[];
   /** Selected player nationalities (ISO-2). */
@@ -169,6 +180,7 @@ export interface CountryOption {
 /** Default filter state — the "no filters" baseline (also the reset target). */
 export const DEFAULT_SCOUT_FILTERS: ScoutFilters = {
   status: "all",
+  gender: "all",
   positions: [],
   nationality: [],
   playCountry: [],

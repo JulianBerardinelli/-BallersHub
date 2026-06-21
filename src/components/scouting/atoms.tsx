@@ -5,6 +5,7 @@
 // prototype's placeholders for real data: real avatar photo / club crest when
 // present, deterministic gradient + initials otherwise.
 
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import type { ContractStatus, ScoutPlayer } from "@/lib/scouting/types";
@@ -217,5 +218,152 @@ export function ContractTag({ status }: { status: ContractStatus }) {
       <span className="dot" />
       {status === "free" ? t("contract.free") : t("contract.contracted")}
     </span>
+  );
+}
+
+/**
+ * Overflow-aware marquee for player names. When the content (name + Pro badge)
+ * is wider than the available column width, the inner track ping-pongs — a slow,
+ * eased, paused-at-each-end horizontal scroll (CSS, see `.name-marquee`) — so the
+ * WHOLE name and its badge become legible without clipping. When it fits, it
+ * renders statically (no animation, identical to before).
+ *
+ * The full text is always in the DOM (the track is never removed or truncated),
+ * so the server-rendered crawlable table keeps every name in its SSR HTML. The
+ * measurement runs only on the client (effect), so SSR/first paint is the static
+ * variant and there's no hydration mismatch. `prefers-reduced-motion` stops the
+ * scroll (CSS) and the `title` tooltip carries the full name as the fallback.
+ */
+export function MarqueeText({
+  children,
+  className,
+  title,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  title?: string;
+}) {
+  const viewportRef = useRef<HTMLSpanElement>(null);
+  const trackRef = useRef<HTMLSpanElement>(null);
+  const [shift, setShift] = useState(0);
+
+  useEffect(() => {
+    const vp = viewportRef.current;
+    const tr = trackRef.current;
+    if (!vp || !tr) return;
+    const measure = () => {
+      // Overflow = how much of the track is hidden past the viewport's edge.
+      const over = Math.round(tr.scrollWidth - vp.clientWidth);
+      setShift(over > 2 ? over : 0);
+    };
+    measure();
+    // Re-measure on column/viewport resize, font-load reflows, and content
+    // changes (a different name swaps in → the track's width changes → the
+    // observer on `tr` fires). Each row is keyed by player id, so a mounted
+    // instance keeps the same content — observing is all the re-measure we need.
+    const ro = new ResizeObserver(measure);
+    ro.observe(vp);
+    ro.observe(tr);
+    return () => ro.disconnect();
+  }, []);
+
+  const overflowing = shift > 0;
+  // Constant slow speed (~26px of travel per second of moving time), clamped so
+  // tiny overflows still read as deliberate and very long ones never crawl.
+  const duration = overflowing ? Math.min(16, Math.max(4, shift / 26)) : 0;
+
+  return (
+    <span
+      ref={viewportRef}
+      className={className ? `name-marquee ${className}` : "name-marquee"}
+      data-overflow={overflowing || undefined}
+      title={title}
+      style={
+        overflowing
+          ? ({
+              "--mq-shift": `${shift}px`,
+              "--mq-dur": `${duration}s`,
+            } as React.CSSProperties)
+          : undefined
+      }
+    >
+      <span ref={trackRef} className="name-marquee-track">
+        {children}
+      </span>
+    </span>
+  );
+}
+
+/**
+ * Sex/gender filter glyph (Lucide-derived): Mars (♂) for male, Venus (♀) for
+ * female, and the combined Venus-and-Mars (⚥) for "both". Monochrome
+ * (currentColor) so the button's per-gender accent color comes through.
+ */
+export function GenderIcon({
+  gender,
+  size = 14,
+}: {
+  gender: "all" | "male" | "female";
+  size?: number;
+}) {
+  if (gender === "male") {
+    return (
+      <svg
+        className="g-ico"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <circle cx="10" cy="14" r="6" />
+        <path d="M14.5 9.5 21 3" />
+        <path d="M16 3h5v5" />
+      </svg>
+    );
+  }
+  if (gender === "female") {
+    return (
+      <svg
+        className="g-ico"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden
+      >
+        <circle cx="12" cy="9" r="6" />
+        <path d="M12 15v7" />
+        <path d="M9 19h6" />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      className="g-ico"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="12" cy="11" r="5" />
+      <path d="M12 16v6" />
+      <path d="M10 20h4" />
+      <path d="M17 2h4v4" />
+      <path d="m21 2-5.46 5.46" />
+    </svg>
   );
 }

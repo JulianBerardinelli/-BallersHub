@@ -18,7 +18,7 @@ import { useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
 import { useHideDockWhile } from "@/components/layout/mobile-nav/dock-visibility";
-import { ClubCrest, Flag, FlagStack, PlayerAvatar } from "../atoms";
+import { ClubCrest, Flag, FlagStack, GenderIcon, MarqueeText, PlayerAvatar } from "../atoms";
 import type { TopCountry } from "../GlobeLegend";
 import {
   POSITION_GROUP_ORDER,
@@ -123,10 +123,10 @@ function MPlayerRow({
     >
       <PlayerAvatar player={player} size={42} />
       <div className="m-prow-body">
-        <div className="m-prow-name">
-          {player.name}
+        <MarqueeText className="m-prow-name" title={player.name}>
+          <span className="pt-name-text">{player.name}</span>
           {player.isPro && <span className="pt-pro">{t("table.proBadge")}</span>}
-        </div>
+        </MarqueeText>
         <div className="m-prow-meta">
           {player.positions.map((pos) => (
             <span
@@ -302,6 +302,29 @@ function MFilterSheet({
                   : k === "free"
                   ? t("filters.statusFree")
                   : t("filters.statusContracted")}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="m-sheet-section">
+          <div className="m-sheet-section-label">{t("mobile.sectionGender")}</div>
+          <div className="m-segment m-gender-seg">
+            {(["all", "male", "female"] as const).map((g) => (
+              <button
+                key={g}
+                type="button"
+                data-active={filters.gender === g}
+                data-gender={g}
+                aria-pressed={filters.gender === g}
+                onClick={() => setFilters((s) => ({ ...s, gender: g }))}
+              >
+                <GenderIcon gender={g} size={15} />
+                {g === "all"
+                  ? t("filters.genderAll")
+                  : g === "male"
+                  ? t("filters.genderMale")
+                  : t("filters.genderFemale")}
               </button>
             ))}
           </div>
@@ -544,7 +567,9 @@ function MPlayerSheet({
               </span>
             </div>
           )}
-          <div className="m-psheet-name">{player.name}</div>
+          <MarqueeText className="m-psheet-name" title={player.name}>
+            <span className="pt-name-text">{player.name}</span>
+          </MarqueeText>
           <div className="m-psheet-meta">
             {player.positions.map((pos) => (
               <span
@@ -669,6 +694,7 @@ export function MobileScouting({
     filters.nationality.length +
     filters.playCountry.length +
     (filters.status !== "all" ? 1 : 0) +
+    (filters.gender !== "all" ? 1 : 0) +
     (filters.foot.length ? 1 : 0) +
     (filters.age[0] !== AGE_BOUNDS[0] || filters.age[1] !== AGE_BOUNDS[1] ? 1 : 0) +
     (filters.height[0] !== HEIGHT_BOUNDS[0] || filters.height[1] !== HEIGHT_BOUNDS[1]
@@ -688,6 +714,15 @@ export function MobileScouting({
           ? t("filters.statusFree")
           : t("filters.statusContracted"),
       onRemove: () => setFilters((s) => ({ ...s, status: "all" })),
+    });
+  if (filters.gender !== "all")
+    chips.push({
+      key: "gender",
+      label:
+        filters.gender === "male"
+          ? t("filters.genderMale")
+          : t("filters.genderFemale"),
+      onRemove: () => setFilters((s) => ({ ...s, gender: "all" })),
     });
   filters.positions.forEach((p) =>
     chips.push({

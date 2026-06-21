@@ -35,6 +35,7 @@ import "./scouting.css";
 function freshFilters(): ScoutFilters {
   return {
     status: "all",
+    gender: "all",
     positions: [],
     nationality: [],
     playCountry: [],
