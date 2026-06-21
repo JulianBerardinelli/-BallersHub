@@ -23,6 +23,7 @@ import {
   LayoutDashboard,
   LayoutTemplate,
   LayoutGrid,
+  Award,
   type LucideIcon,
 } from "lucide-react";
 
@@ -49,6 +50,7 @@ export const DOCK_ICONS: Record<DockIconName, LucideIcon> = {
   panel: LayoutDashboard,
   layout: LayoutTemplate,
   grid: LayoutGrid,
+  award: Award,
 };
 
 type DockIconProps = {

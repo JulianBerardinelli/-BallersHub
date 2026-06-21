@@ -1,12 +1,13 @@
-// Information architecture for the DASHBOARD dock (players).
+// Information architecture for the DASHBOARD dock (players + coaches).
 //
-//   Panel · Perfil · Plantilla · Ajustes
+//   Players: Panel · Perfil · Plantilla · Ajustes
+//   Coaches: Panel · Perfil · Ajustes
 //
-// Built by REGROUPING the existing player navigation (navigation.ts — the
+// Built by REGROUPING the existing dashboard navigation (navigation.ts — the
 // single route source of truth) into dock tabs, layering i18n labels on top by
 // item id. Routes are never duplicated here: hrefs come straight from
 // navigation.ts. The first section ("dashboard") becomes a direct-navigate
-// Panel tab; the other three become sheet groups.
+// Panel tab; the others become sheet groups.
 
 import type { ClientDashboardNavSection } from "@/app/[locale]/(dashboard)/dashboard/navigation";
 import type { DockGroup, DockIconName, DockItem } from "../types";
@@ -15,6 +16,8 @@ type Translate = (key: string, values?: Record<string, string | number>) => stri
 
 // section id (navigation.ts) → dock tab meta
 const GROUP_META: Record<string, { id: string; labelKey: string; titleKey: string; icon: DockIconName }> = {
+  // Player sections. "edit-profile" + "settings" are reused by the coach IA
+  // (coaches share the same section ids; only their item ids differ).
   "edit-profile": { id: "profile", labelKey: "tabs.profile", titleKey: "profile.title", icon: "user" },
   "edit-template": { id: "template", labelKey: "tabs.template", titleKey: "template.title", icon: "layout" },
   settings: { id: "settings", labelKey: "tabs.settings", titleKey: "settings.title", icon: "cog" },
@@ -31,6 +34,12 @@ const ITEM_META: Record<string, { labelKey: string; descKey: string; icon: DockI
   account: { labelKey: "settings.account", descKey: "settings.accountDesc", icon: "lock" },
   subscription: { labelKey: "settings.subscription", descKey: "settings.subscriptionDesc", icon: "creditcard" },
   logout: { labelKey: "settings.signOut", descKey: "settings.signOutDesc", icon: "logout" },
+  // Coach (DT) items
+  "coach-edit": { labelKey: "coach.profileData", descKey: "coach.profileDataDesc", icon: "user" },
+  "coach-career": { labelKey: "coach.career", descKey: "coach.careerDesc", icon: "trophy" },
+  "coach-licenses": { labelKey: "coach.licenses", descKey: "coach.licensesDesc", icon: "award" },
+  "coach-multimedia": { labelKey: "coach.multimedia", descKey: "coach.multimediaDesc", icon: "play" },
+  "coach-translations": { labelKey: "coach.languages", descKey: "coach.languagesDesc", icon: "globe" },
 };
 
 export function buildDashboardGroups(
@@ -73,8 +82,9 @@ export function buildDashboardGroups(
         item.danger = true;
       } else {
         item.href = it.href;
-        // Show the PRO pill on "Idiomas" only to free users.
-        if (it.id === "translations" && !opts.isPro) item.pro = true;
+        // Show the PRO pill on "Idiomas" (player + coach) only to free users.
+        if ((it.id === "translations" || it.id === "coach-translations") && !opts.isPro)
+          item.pro = true;
       }
       return item;
     });

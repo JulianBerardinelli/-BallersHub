@@ -1,9 +1,10 @@
 "use client";
 
-// Dashboard dock wrapper (players). Regroups the player navigation into
-// Panel/Perfil/Plantilla/Ajustes, resolves the active route, and wires
-// sign-out (confirm → server action). CSS-gated to < lg (where the desktop
-// sidebar takes over).
+// Dashboard dock wrapper (players + coaches). Regroups the dashboard
+// navigation into tabs (players: Panel/Perfil/Plantilla/Ajustes — coaches:
+// Panel/Perfil/Ajustes), resolves the active route, and wires sign-out
+// (confirm → server action). CSS-gated to < lg (where the desktop sidebar
+// takes over).
 
 import { useCallback, useTransition } from "react";
 import { useTranslations } from "next-intl";
@@ -21,7 +22,7 @@ import {
 import type { DockItemAction } from "./types";
 
 export type DashboardDockProps = {
-  /** Player navigation from navigation.ts (route source of truth). */
+  /** Dashboard navigation from navigation.ts (player or coach source of truth). */
   sections: ClientDashboardNavSection[];
   isPro: boolean;
   onSignOut: () => Promise<void>;

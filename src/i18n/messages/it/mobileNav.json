@@ -64,5 +64,17 @@
     "signOut": "Esci",
     "signOutDesc": "Esci dal pannello in sicurezza"
   },
+  "coach": {
+    "profileData": "Dati del profilo",
+    "profileDataDesc": "Bio, ruolo, idee di gioco e formazioni",
+    "career": "Carriera",
+    "careerDesc": "Club allenati e statistiche",
+    "licenses": "Licenze",
+    "licensesDesc": "Titoli e certificazioni",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Foto e video del tuo lavoro",
+    "languages": "Lingue",
+    "languagesDesc": "Pubblica la tua pagina in EN · IT · PT"
+  },
   "pro": "PRO"
 }
