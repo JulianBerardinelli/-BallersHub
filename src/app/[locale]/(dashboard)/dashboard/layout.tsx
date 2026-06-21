@@ -431,13 +431,27 @@ async function loadDashboardLayoutData(
   });
 
   const adminEdits = adminEditRows.map((n) => {
-    const payload = (n.payload ?? {}) as { domain?: string; note?: unknown };
+    const payload = (n.payload ?? {}) as {
+      domain?: string;
+      note?: unknown;
+      changedFields?: unknown;
+    };
     const domain: AdminEditDomain =
       payload.domain && isAdminEditDomain(payload.domain) ? payload.domain : "datos";
+    // Current rows carry the admin's `note`. Legacy rows (created before the
+    // finalize-with-note change) carried `changedFields` and no note — fall back
+    // so those never render a blank toast.
+    let note = typeof payload.note === "string" ? payload.note.trim() : "";
+    if (!note) {
+      note =
+        Array.isArray(payload.changedFields) && payload.changedFields.length > 0
+          ? `Actualizamos: ${(payload.changedFields as string[]).join(", ")}.`
+          : "Revisamos tu perfil.";
+    }
     return {
       id: n.id,
       domain,
-      note: typeof payload.note === "string" ? payload.note : "",
+      note,
       detailsHref: ADMIN_EDIT_DOMAIN_HREFS[domain],
     };
   });

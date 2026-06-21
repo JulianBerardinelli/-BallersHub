@@ -22,6 +22,7 @@ export default function ArticlesManager({
   articles,
   initialLayout = "newspaper",
   apiBase = "/api/articles",
+  showLayoutPicker = true,
 }: {
   articles: Article[];
   initialLayout?: NotesLayout;
@@ -31,6 +32,12 @@ export default function ArticlesManager({
   isPro?: boolean;
   /** Articles API base — the admin CRUD injects its per-player admin route. */
   apiBase?: string;
+  /**
+   * The press layout picker writes to the SIGNED-IN user's profile (a display
+   * preference). The admin CRUD edits another player, so it hides the picker
+   * to avoid mutating the admin's own profile.
+   */
+  showLayoutPicker?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
@@ -85,7 +92,7 @@ export default function ArticlesManager({
       }
     >
       <div className="flex flex-col gap-4">
-        {access.isPro && (
+        {showLayoutPicker && access.isPro && (
           <NotesLayoutPicker initialLayout={initialLayout} />
         )}
 

@@ -21,6 +21,8 @@ export default async function AdminPrensaPage({
     <ArticlesManager
       articles={(articles ?? []) as Article[]}
       apiBase={`/api/admin/players/${id}/articles`}
+      // The layout picker mutates the signed-in user's profile — hide it for admin.
+      showLayoutPicker={false}
     />
   );
 }
