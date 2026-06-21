@@ -42,7 +42,12 @@ function num(v: number | null | undefined): number | null {
   return typeof v === "number" && Number.isFinite(v) ? v : null;
 }
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export type CreateTeamInput = {
+  // Opcional: el cliente puede generar el id para subir el escudo a
+  // teams/{id}/ ANTES de insertar (subida atómica). Se ignora si no es UUID.
+  id?: string;
   name: string;
   slug?: string | null;
   country?: string | null;
@@ -78,6 +83,7 @@ export async function createTeam(input: CreateTeamInput) {
   const slug = await ensureUniqueTeamSlug(base, admin);
 
   const row = {
+    ...(input.id && UUID_RE.test(input.id) ? { id: input.id } : {}),
     name,
     slug,
     country: input.country?.trim() || null,

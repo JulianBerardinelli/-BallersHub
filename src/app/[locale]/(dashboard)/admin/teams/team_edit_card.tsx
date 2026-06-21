@@ -35,12 +35,13 @@ type Props = {
   team: TeamEditableInput & { division?: { id: string, name: string } | null };
   allDivisions?: any[];
   /** "edit" (default): equipo aprobado/rechazado. "create": alta manual.
-   *  "review": propuesta pendiente — añade aprobar/rechazar y oculta el select de estado. */
+   *  "review": propuesta pendiente — añade "Aprobar equipo" y oculta el select
+   *  de estado. Para descartar una propuesta se usa "Eliminar" (FK en cascada
+   *  limpia las propuestas de trayectoria vinculadas), no un cambio a rejected. */
   mode?: Mode;
   onSaved?: (updated: TeamEditableInput) => void;
   onCreated?: (created: any) => void;
   onApproved?: () => void;
-  onRejected?: () => void;
   onCancel?: () => void;
 };
 
@@ -62,7 +63,7 @@ const statusColor: Record<Props["team"]["status"], "warning" | "success" | "dang
   rejected: "danger",
 };
 
-export default function TeamEditCard({ team, allDivisions, mode = "edit", onSaved, onCreated, onApproved, onRejected, onCancel }: Props) {
+export default function TeamEditCard({ team, allDivisions, mode = "edit", onSaved, onCreated, onApproved, onCancel }: Props) {
   const isCreate = mode === "create";
   const isReview = mode === "review";
 
@@ -92,7 +93,7 @@ export default function TeamEditCard({ team, allDivisions, mode = "edit", onSave
   const [pendingCrestFile, setPendingCrestFile] = React.useState<File | null>(null);
 
   const [busy, setBusy] = React.useState(false);
-  const [action, setAction] = React.useState<null | "save" | "create" | "approve" | "reject">(null);
+  const [action, setAction] = React.useState<null | "save" | "create" | "approve">(null);
   const [err, setErr] = React.useState<string | null>(null);
   const [ok, setOk] = React.useState<string | null>(null);
 
@@ -186,11 +187,27 @@ export default function TeamEditCard({ team, allDivisions, mode = "edit", onSave
     }
   }
 
-  // CREATE — alta manual + subida diferida del escudo.
+  // CREATE — alta manual. El escudo por archivo se sube ANTES de insertar (a
+  // teams/{newId}/) para que la operación sea atómica: si la subida falla, no
+  // se crea el equipo y el error se reporta, en vez de cerrar con el escudo por
+  // defecto en silencio.
   async function handleCreate() {
     setBusy(true); setAction("create"); setErr(null); setOk(null);
     try {
+      const newId = crypto.randomUUID();
+      let crestForInsert: string | null = externalCrestUrl.trim() || null;
+
+      if (pendingCrestFile && !crestForInsert) {
+        const ext = (pendingCrestFile.name.split(".").pop() || "png").toLowerCase();
+        const key = `${newId}/crest.${ext}`;
+        const { error: upErr } = await supabase.storage.from("teams").upload(key, pendingCrestFile, { upsert: true });
+        if (upErr) throw new Error(`No se pudo subir el escudo: ${upErr.message}`);
+        const { data: pub } = supabase.storage.from("teams").getPublicUrl(key);
+        crestForInsert = pub.publicUrl;
+      }
+
       const res = await createTeam({
+        id: newId,
         name,
         slug,
         country,
@@ -205,27 +222,12 @@ export default function TeamEditCard({ team, allDivisions, mode = "edit", onSave
         altNames: csvToArr(altNames),
         status,
         featured,
-        // En create el escudo por archivo se sube después; aquí sólo va el URL externo.
-        crestUrl: externalCrestUrl.trim() || null,
+        crestUrl: crestForInsert,
       });
       if (!res.success || !res.team) throw new Error(res.message ?? "No se pudo crear el equipo.");
 
-      let created = res.team;
-
-      if (pendingCrestFile && !externalCrestUrl.trim()) {
-        const ext = (pendingCrestFile.name.split(".").pop() || "png").toLowerCase();
-        const key = `${created.id}/crest.${ext}`;
-        const { error: upErr } = await supabase.storage.from("teams").upload(key, pendingCrestFile, { upsert: true });
-        if (!upErr) {
-          const { data: pub } = supabase.storage.from("teams").getPublicUrl(key);
-          const url = pub.publicUrl;
-          await supabase.from("teams").update({ crest_url: url, updated_at: new Date().toISOString() }).eq("id", created.id);
-          created = { ...created, crest_url: url };
-        }
-      }
-
       setOk("Equipo creado");
-      onCreated?.(created);
+      onCreated?.(res.team);
     } catch (e: any) {
       setErr(e.message ?? "Error inesperado");
     } finally {
@@ -262,20 +264,6 @@ export default function TeamEditCard({ team, allDivisions, mode = "edit", onSave
       onApproved?.();
     } catch (e: any) {
       setErr(e.message ?? "No se pudo aprobar el equipo");
-    } finally {
-      setBusy(false); setAction(null);
-    }
-  }
-
-  // REVIEW — rechazar: persiste metadatos con estado rejected.
-  async function handleReject() {
-    setBusy(true); setAction("reject"); setErr(null); setOk(null);
-    try {
-      await saveViaEndpoint({ ...buildPayload(), status: "rejected" });
-      setOk("Equipo rechazado");
-      onRejected?.();
-    } catch (e: any) {
-      setErr(e.message ?? "No se pudo rechazar el equipo");
     } finally {
       setBusy(false); setAction(null);
     }
@@ -415,14 +403,9 @@ export default function TeamEditCard({ team, allDivisions, mode = "edit", onSave
           </div>
 
           {isReview ? (
-            <div className="flex flex-col gap-2 md:items-end">
-              <div className="flex flex-col sm:flex-row gap-2 sm:justify-end w-full">
-                <Button variant="flat" onPress={handleSaveDraft} isLoading={busy && action === "save"} isDisabled={busy}>Guardar cambios</Button>
-                <Button color="success" onPress={handleApprove} isLoading={busy && action === "approve"} isDisabled={busy}>Aprobar equipo</Button>
-              </div>
-              <Button size="sm" color="danger" variant="light" onPress={handleReject} isLoading={busy && action === "reject"} isDisabled={busy} className="sm:self-end">
-                Rechazar solicitud
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-2 sm:justify-end md:ml-auto">
+              <Button variant="flat" onPress={handleSaveDraft} isLoading={busy && action === "save"} isDisabled={busy}>Guardar cambios</Button>
+              <Button color="success" onPress={handleApprove} isLoading={busy && action === "approve"} isDisabled={busy}>Aprobar equipo</Button>
             </div>
           ) : (
             <div className="flex flex-col sm:flex-row gap-2 sm:justify-end md:ml-auto">

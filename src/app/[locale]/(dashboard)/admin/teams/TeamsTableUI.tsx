@@ -411,7 +411,6 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
                     mode="review"
                     onSaved={(updated) => applyRowUpdate(updated)}
                     onApproved={() => window.location.reload()}
-                    onRejected={() => window.location.reload()}
                     onCancel={() => setModal({ kind: null, id: null })}
                   />
                 </ModalBody>
