@@ -5,15 +5,15 @@ import * as React from "react";
 import {
   Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
   Chip, Tooltip, Button, Modal, ModalContent, ModalBody,
-  ModalHeader,
+  ModalHeader, ModalFooter,
 } from "@heroui/react";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, Plus, AlertTriangle } from "lucide-react";
 import TeamCrest from "@/components/teams/TeamCrest";
 
-import TeamAdminCard from "./team_admin_card";
 import TeamEditCard, { TeamEditableInput } from "./team_edit_card";
 import CsvImporter from "@/components/admin/CsvImporter";
 import { bulkUpsertTeams } from "./bulkActions";
+import { deleteTeam } from "./actions";
 
 
 import { teamColumns } from "./columns";
@@ -21,7 +21,6 @@ import type { TeamRow } from "./types";
 import type { SortDescriptor, Key } from "@react-types/shared";
 import CountryFlag from "@/components/common/CountryFlag";
 import ClientDate from "@/components/common/ClientDate";
-import { useIsMobile } from "@/hooks/useIsMobile";
 import { useAdminModalPreset } from "../ui/modalPresets";
 import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
 
@@ -54,6 +53,76 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
     () => (modal.id ? items.find((x) => x.id === modal.id) ?? null : null),
     [items, modal.id]
   );
+
+  // Alta manual + borrado
+  const [createOpen, setCreateOpen] = React.useState(false);
+  const [deleteTarget, setDeleteTarget] = React.useState<TeamRow | null>(null);
+  const [deleting, setDeleting] = React.useState(false);
+  const [deleteErr, setDeleteErr] = React.useState<string | null>(null);
+
+  // Merge de una fila editada en la tabla, recomputando la división (que se
+  // muestra en la columna "Categoría") a partir del division_id devuelto.
+  const applyRowUpdate = React.useCallback(
+    (updated: any) => {
+      setItems((prev) =>
+        prev.map((t) => {
+          if (t.id !== updated.id) return t;
+          const divId = updated.division_id ?? updated.division?.id ?? null;
+          const div = (allDivisions ?? []).find((d) => d.id === divId) || null;
+          return {
+            ...t,
+            ...updated,
+            division: div ? { id: div.id, name: div.name, crest_url: div.crest_url } : null,
+          };
+        }),
+      );
+    },
+    [allDivisions],
+  );
+
+  // Inserta el equipo recién creado al tope de la tabla.
+  const applyRowInsert = React.useCallback(
+    (row: any) => {
+      const divId = row.division_id ?? null;
+      const div = (allDivisions ?? []).find((d) => d.id === divId) || null;
+      const newRow: TeamRow = {
+        id: row.id,
+        name: row.name,
+        slug: row.slug ?? null,
+        country: row.country ?? null,
+        country_code: row.country_code ?? null,
+        city: row.city ?? null,
+        latitude: row.latitude ?? null,
+        longitude: row.longitude ?? null,
+        category: row.category ?? null,
+        transfermarkt_url: row.transfermarkt_url ?? null,
+        status: row.status,
+        crest_url: row.crest_url ?? null,
+        created_at: row.created_at,
+        updated_at: row.updated_at ?? null,
+        requested_in_application_id: row.requested_in_application_id ?? null,
+        division: div ? { id: div.id, name: div.name, crest_url: div.crest_url } : null,
+      };
+      setItems((prev) => [newRow, ...prev]);
+    },
+    [allDivisions],
+  );
+
+  async function handleConfirmDelete() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteErr(null);
+    try {
+      const res = await deleteTeam(deleteTarget.id);
+      if (!res.success) throw new Error(res.message ?? "No se pudo eliminar el equipo.");
+      setItems((prev) => prev.filter((t) => t.id !== deleteTarget.id));
+      setDeleteTarget(null);
+    } catch (e: any) {
+      setDeleteErr(e?.message ?? "Error inesperado al eliminar.");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   // Comparador robusto (dates/strings)
   const cmp = React.useCallback((a: unknown, b: unknown, dir: SortDir) => {
@@ -152,7 +221,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
         return (
           <div className="flex justify-end gap-2">
             {t.status === "pending" ? (
-              <Tooltip content="Process team request">
+              <Tooltip content="Procesar solicitud de equipo">
                 <Button
                   size="sm"
                   color="primary"
@@ -165,7 +234,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
               </Tooltip>
             ) : (
               <>
-                <Tooltip content="Team details">
+                <Tooltip content="Detalles del equipo">
                   <Button
                     isIconOnly
                     size="sm"
@@ -176,7 +245,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
 
                   </Button>
                 </Tooltip>
-                <Tooltip content="Edit team">
+                <Tooltip content="Editar equipo">
                   <Button
                     isIconOnly
                     size="sm"
@@ -187,20 +256,21 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
 
                   </Button>
                 </Tooltip>
-                <Tooltip color="danger" content="Delete team (disabled)">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    color="danger"
-                    variant="light"
-                    startContent={<Trash2 className="size-4" />}
-                    isDisabled
-                  >
-
-                  </Button>
-                </Tooltip>
               </>
             )}
+            <Tooltip color="danger" content="Eliminar equipo">
+              <Button
+                isIconOnly
+                size="sm"
+                color="danger"
+                variant="light"
+                aria-label="Eliminar equipo"
+                startContent={<Trash2 className="size-4" />}
+                onPress={() => { setDeleteErr(null); setDeleteTarget(t); }}
+              >
+
+              </Button>
+            </Tooltip>
           </div>
         );
 
@@ -211,14 +281,21 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <CsvImporter 
+      <div className="flex flex-wrap justify-end gap-2 mb-4">
+        <CsvImporter
           buttonLabel="Importar CSV (Equipos)"
           title="Importación Masiva de Equipos"
           expectedColumns={["name", "slug", "country_code", "category", "division_slug", "crest_url", "transfermarkt_url"]}
           onImport={bulkUpsertTeams}
           onSuccess={() => window.location.reload()}
         />
+        <Button
+          color="primary"
+          startContent={<Plus className="size-4" />}
+          onPress={() => setCreateOpen(true)}
+        >
+          Crear equipo
+        </Button>
       </div>
       
       {/* Tabla DESKTOP */}
@@ -296,20 +373,20 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
                     aria-label="Editar equipo"
                     onPress={() => setModal({ kind: "edit", id: t.id })}
                   />
-                  <Button
-                    isIconOnly size="sm" color="danger" variant="light"
-                    startContent={<Trash2 className="size-4" />}
-                    aria-label="Eliminar equipo"
-                    isDisabled
-                  />
                 </>
               )}
+              <Button
+                isIconOnly size="sm" color="danger" variant="light"
+                startContent={<Trash2 className="size-4" />}
+                aria-label="Eliminar equipo"
+                onPress={() => { setDeleteErr(null); setDeleteTarget(t); }}
+              />
             </div>
           </div>
         ))}
       </div>
 
-      {/* Modal: Process (pendiente) → tarjeta de aprobación/meta */}
+      {/* Modal: Process (propuesta pendiente) → mismo formulario que Editar + aprobar/rechazar */}
       <Modal
         isOpen={modal.kind === "review" && !!openItem}
         // usar onOpenChange para cerrar con swipe en mobile y con la X
@@ -319,60 +396,27 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
         {...modalPreset}
       >
         <ModalContent>
-          {(_onClose) => {
-
+          {() => {
             if (!openItem) return null;
-            const item = openItem;
-
             return (
               <>
-                {/* Header propio del modal: deja espacio para la X con pr-12 */}
                 <ModalHeader className={modalPreset.classNames?.header}>
-                  <div className="flex items-center gap-3 min-w-0">
-                    <TeamCrest
-                      src={openItem?.crest_url || null}
-                      size={32}
-                    />
-                    <div className="min-w-0">
-                      <div className="truncate font-semibold">{openItem?.name}</div>
-                      <div className="text-[11px] text-bh-fg-4">
-                        Creado: {openItem ? new Date(openItem.created_at).toLocaleString("es-AR", { hour12: false }) : "—"}
-                      </div>
-                    </div>
-                    <div className="ml-auto">
-                      <Chip size="sm" variant="flat" className="capitalize">
-                        {openItem?.status}
-                      </Chip>
-                    </div>
-                  </div>
+                  <div className="font-medium truncate pr-2">Procesar solicitud de equipo</div>
                 </ModalHeader>
 
                 <ModalBody className={modalPreset.classNames?.body}>
-                  {/* Tu card de administración; mejor sin borde doble adentro del modal */}
-                  <div className="rounded-bh-lg border border-white/[0.08] bg-bh-surface-1">
-                    <TeamAdminCard
-                      team={{
-                        id: openItem.id,
-                        name: openItem.name,
-                        slug: openItem.slug,
-                        country: openItem.country,
-                        crest_url: openItem.crest_url,
-                        requested_by_user_id: null,
-                        requested_in_application_id: openItem.requested_in_application_id,
-                        tags: null,
-                        alt_names: null,
-                        created_at: openItem.created_at,
-                        status: item.status,
-                        category: openItem.category,
-                        transfermarkt_url: openItem.transfermarkt_url,
-                      } as any}
-                    />
-                  </div>
+                  <TeamEditCard
+                    team={openItem as any}
+                    allDivisions={allDivisions}
+                    mode="review"
+                    onSaved={(updated) => applyRowUpdate(updated)}
+                    onApproved={() => window.location.reload()}
+                    onCancel={() => setModal({ kind: null, id: null })}
+                  />
                 </ModalBody>
               </>
-            )
-          }
-          }
+            );
+          }}
         </ModalContent>
       </Modal>
 
@@ -490,7 +534,7 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
                     team={item}
                     allDivisions={allDivisions}
                     onSaved={(updated) => {
-                      setItems((prev) => prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t)));
+                      applyRowUpdate(updated);
                       setModal({ kind: null, id: null });
                     }}
                     onCancel={() => setModal({ kind: null, id: null })}
@@ -499,6 +543,76 @@ export default function TeamsTableUI({ items: initialItems, allDivisions = [] }:
               </>
             );
           }}
+        </ModalContent>
+      </Modal>
+
+      {/* Modal: Crear equipo a mano */}
+      <Modal
+        isOpen={createOpen}
+        onOpenChange={(open) => !open && setCreateOpen(false)}
+        {...modalPreset}
+      >
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader className={modalPreset.classNames?.header}>
+                <div className="font-medium truncate pr-2">Crear equipo</div>
+              </ModalHeader>
+
+              <ModalBody className={modalPreset.classNames?.body}>
+                <TeamEditCard
+                  mode="create"
+                  team={{ id: "", name: "", status: "approved", crest_url: "/images/team-default.svg" }}
+                  allDivisions={allDivisions}
+                  onCreated={(created) => {
+                    applyRowInsert(created);
+                    setCreateOpen(false);
+                  }}
+                  onCancel={() => setCreateOpen(false)}
+                />
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/* Modal: Confirmar eliminación */}
+      <Modal
+        isOpen={!!deleteTarget}
+        onOpenChange={(open) => { if (!open && !deleting) setDeleteTarget(null); }}
+        placement="center"
+        backdrop="blur"
+        classNames={{ base: "bg-bh-surface-1 border border-white/[0.08]" }}
+      >
+        <ModalContent>
+          {() => (
+            <>
+              <ModalHeader className="flex items-center gap-2 text-bh-fg-1">
+                <AlertTriangle className="size-5 text-danger" />
+                Eliminar equipo
+              </ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-bh-fg-2">
+                  Vas a eliminar <span className="font-semibold text-bh-fg-1">{deleteTarget?.name}</span> de
+                  forma permanente. Esta acción no se puede deshacer.
+                </p>
+                <ul className="mt-1 list-disc space-y-1 pl-5 text-[13px] text-bh-fg-3">
+                  <li>Los jugadores y cuerpo técnico que lo tengan como club actual quedarán sin equipo.</li>
+                  <li>Las entradas de trayectoria que lo referencien quedarán sin equipo vinculado.</li>
+                  <li>Se eliminarán sus propuestas y relaciones con agencias asociadas.</li>
+                </ul>
+                {deleteErr && <p className="mt-1 text-sm text-red-500">{deleteErr}</p>}
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" onPress={() => setDeleteTarget(null)} isDisabled={deleting} className="text-bh-fg-3">
+                  Cancelar
+                </Button>
+                <Button color="danger" onPress={handleConfirmDelete} isLoading={deleting}>
+                  Eliminar equipo
+                </Button>
+              </ModalFooter>
+            </>
+          )}
         </ModalContent>
       </Modal>
     </>
