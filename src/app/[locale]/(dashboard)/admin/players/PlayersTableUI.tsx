@@ -77,13 +77,16 @@ const RowOptions = React.memo(function RowOptions({
   copyId: (id: string) => void;
 }) {
   return (
-    <Popover placement="bottom-end">
+    // shouldFlip (default) opens the menu upward when there's no room below
+    // (e.g. the last row). max-h + scroll guarantees the full menu is reachable
+    // even on short viewports where neither direction fully fits.
+    <Popover placement="bottom-end" shouldFlip offset={6}>
       <PopoverTrigger>
         <Button isIconOnly size="sm" variant="flat" aria-label="Opciones del jugador">
           <Settings size={16} />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="min-w-[210px] p-1">
+      <PopoverContent className="max-h-[60vh] min-w-[210px] overflow-y-auto p-1">
         <div className="flex w-full flex-col">
           <Link href={`/${a.slug}`} target="_blank" className={ROW_MENU_ITEM_CLASS}>
             Ver perfil público
