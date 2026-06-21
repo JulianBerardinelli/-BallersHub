@@ -21,7 +21,9 @@
     "contact": "Contact",
     "tactics": "Tactics",
     "press": "Press",
-    "gallery": "Gallery"
+    "gallery": "Gallery",
+    "philosophy": "Philosophy",
+    "licenses": "Licenses"
   },
   "a11y": {
     "backTo": "Back to",
@@ -410,6 +412,44 @@
     "mediaTitle": "Media",
     "videoFallback": "Watch video",
     "contactTitle": "Contact",
-    "proClubsLabel": "Clubs"
+    "proClubsLabel": "Clubs",
+    "free": {
+      "roleFallback": "Head Coach",
+      "vitalExperience": "Experience",
+      "vitalScheme": "Formation",
+      "vitalSchemeSub": "Preferred formation",
+      "philosophyTitleA": "Philosophy",
+      "philosophyTitleB": "& profile",
+      "bioEyebrow": "Biography",
+      "bioEmpty": "This coach hasn't published a biography yet.",
+      "identityEyebrow": "Profile",
+      "identityNationality": "Passport",
+      "identityExperience": "Experience",
+      "identityRole": "Role",
+      "videoEyebrow": "Video",
+      "videoTitleSuffix": "in action",
+      "videoCaption": "Featured video material of the coach.",
+      "careerMeta": "{stages} stages · {matches} matches",
+      "contactTitleA": "Connect with",
+      "contactDescription": "Leave your details and the BallersHub team will connect you with {name}.",
+      "footerProBlurbA": "Activate your Pro portfolio:",
+      "footerProBlurbB": "cinematic design and your brand.",
+      "proLockedEyebrow": "Pro portfolio",
+      "proLockedTitleA": "Cinematic",
+      "proLockedTitleB": "design",
+      "proLockedSubtitle": "Activate Pro and turn your dossier into an immersive experience: cinematic design with your visual identity, methodology analysis and an editorial gallery.",
+      "proActivate": "Activate Pro",
+      "proPromoEyebrow": "Join {brand}",
+      "proPromoTitleA": "A coach?",
+      "proPromoTitleB": "Build your dossier",
+      "proPromoCopy": "Create your coach profile on BallersHub: verified career, licenses and record, ready for clubs and agencies to find you.",
+      "proPromoPrimary": "Create my profile",
+      "proPromoSecondary": "See plans",
+      "proPromoMockLabel": "Verified dossier",
+      "previewStyle": "Style",
+      "previewMethod": "Methodology",
+      "previewRecord": "Record",
+      "previewGallery": "Gallery"
+    }
   }
 }

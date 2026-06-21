@@ -25,7 +25,7 @@ import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
-import CoachPortfolio, {
+import {
   computeCoachRecord,
   type CoachPortfolioData,
   type CoachCareerRow,
@@ -34,6 +34,7 @@ import CoachPortfolio, {
   type CoachHonourRow,
   type CoachLicenseRow,
 } from "./components/CoachPortfolio";
+import CoachFreeLayout from "./components/free/CoachFreeLayout";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
 import SmoothScrollProvider from "./components/pro/SmoothScrollProvider";
 import ProCoachLayout, { type CoachProData } from "./components/pro/ProCoachLayout";
@@ -412,7 +413,7 @@ export default async function CoachPublicPage({
       {available.length > 1 && (
         <PortfolioLocaleSwitcher basePath={`/coach/${slug}`} available={available} current={locale} />
       )}
-      <CoachPortfolio data={data} />
+      <CoachFreeLayout data={data} ownerUserId={coach.userId} />
     </>
   );
 }
