@@ -27,6 +27,7 @@ export type DockIconName =
   | "panel"
   | "layout"
   | "grid"
+  | "award"
   | "briefcase"
   | "users";
 

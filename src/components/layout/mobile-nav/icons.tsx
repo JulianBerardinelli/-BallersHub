@@ -23,6 +23,7 @@ import {
   LayoutDashboard,
   LayoutTemplate,
   LayoutGrid,
+  Award,
   Briefcase,
   Users,
   type LucideIcon,
@@ -51,6 +52,7 @@ export const DOCK_ICONS: Record<DockIconName, LucideIcon> = {
   panel: LayoutDashboard,
   layout: LayoutTemplate,
   grid: LayoutGrid,
+  award: Award,
   briefcase: Briefcase,
   users: Users,
 };

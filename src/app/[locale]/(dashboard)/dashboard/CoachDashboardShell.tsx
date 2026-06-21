@@ -8,9 +8,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { signOutAction } from "@/app/actions/auth";
-import ClientDashboardSidebar, {
-  ClientDashboardSidebarMobile,
-} from "@/components/dashboard/client/Sidebar";
+import ClientDashboardSidebar from "@/components/dashboard/client/Sidebar";
+import { DashboardDock } from "@/components/layout/mobile-nav";
 import { COACH_NAVIGATION } from "./navigation";
 import { NotificationBootstrap } from "@/modules/notifications";
 import { PlanAccessProvider } from "@/components/dashboard/plan/PlanAccessProvider";
@@ -68,7 +67,7 @@ export default function CoachDashboardShell({
             : null
         }
       />
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-7">
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-7 max-lg:pb-32">
         <header className="space-y-5">
           <div className="space-y-2">
             <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
@@ -165,10 +164,6 @@ export default function CoachDashboardShell({
           {profile && !planAccess.isPro && <CoachProUpsell />}
         </div>
 
-        <div className="mt-6 lg:hidden">
-          <ClientDashboardSidebarMobile sections={COACH_NAVIGATION} onSignOut={signOutAction} />
-        </div>
-
         <div className="mt-6 flex flex-col gap-6 lg:flex-row">
           <aside className="lg:w-[260px] lg:shrink-0">
             <div className="sticky top-24 hidden rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-3 lg:block">
@@ -178,6 +173,13 @@ export default function CoachDashboardShell({
           <section className="min-w-0 flex-1 space-y-6">{children}</section>
         </div>
       </div>
+
+      {/* Coach floating dock — Panel · Perfil · Ajustes (lg:hidden, portaled). */}
+      <DashboardDock
+        sections={COACH_NAVIGATION}
+        isPro={planAccess.isPro}
+        onSignOut={signOutAction}
+      />
     </PlanAccessProvider>
   );
 }

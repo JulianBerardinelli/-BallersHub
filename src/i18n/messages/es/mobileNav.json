@@ -66,6 +66,18 @@
     "signOut": "Cerrar sesión",
     "signOutDesc": "Salí del panel de manera segura"
   },
+  "coach": {
+    "profileData": "Datos del perfil",
+    "profileDataDesc": "Bio, cargo, ideas de juego y formaciones",
+    "career": "Trayectoria",
+    "careerDesc": "Clubes dirigidos y estadísticas",
+    "licenses": "Licencias",
+    "licensesDesc": "Titulaciones y certificaciones",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Fotos y videos de tu trabajo",
+    "languages": "Idiomas",
+    "languagesDesc": "Publicá tu página en EN · IT · PT"
+  },
   "pro": "PRO",
   "agency": {
     "title": "Perfil de la agencia",
