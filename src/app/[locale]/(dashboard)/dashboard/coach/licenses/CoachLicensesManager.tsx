@@ -15,6 +15,7 @@ export type CoachLicenseRow = {
   issuer: string;
   awardedYear: number | null;
   expiresYear: number | null;
+  docUrl: string | null;
   status: "pending" | "approved" | "rejected";
   rejectionReason: string | null;
 };
@@ -26,6 +27,7 @@ type DraftRow = {
   issuer: string;
   awardedYear: string;
   expiresYear: string;
+  docUrl: string;
   status: "pending" | "approved" | "rejected" | "draft";
   rejectionReason: string | null;
 };
@@ -37,6 +39,7 @@ const toDraft = (r: CoachLicenseRow): DraftRow => ({
   issuer: r.issuer,
   awardedYear: r.awardedYear != null ? String(r.awardedYear) : "",
   expiresYear: r.expiresYear != null ? String(r.expiresYear) : "",
+  docUrl: r.docUrl ?? "",
   status: r.status,
   rejectionReason: r.rejectionReason,
 });
@@ -48,6 +51,7 @@ const blankDraft = (): DraftRow => ({
   issuer: "",
   awardedYear: "",
   expiresYear: "",
+  docUrl: "",
   status: "draft",
   rejectionReason: null,
 });
@@ -107,7 +111,30 @@ function LicenseCard({
   onSaved: () => void;
 }) {
   const [saving, setSaving] = React.useState(false);
+  const [uploading, setUploading] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  async function onPickDoc(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setMsg(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/coach/license-doc/upload", { method: "POST", body: fd });
+      const json = (await res.json()) as { url?: string; error?: string };
+      if (!res.ok || !json.url) throw new Error(json.error ?? "No se pudo subir el archivo.");
+      onPatch({ docUrl: json.url });
+      setMsg({ ok: true, text: "Documento subido. Guardá para enviarlo a revisión." });
+    } catch (err) {
+      setMsg({ ok: false, text: err instanceof Error ? err.message : "Error al subir." });
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
 
   async function onSave() {
     setSaving(true);
@@ -118,6 +145,7 @@ function LicenseCard({
       issuer: row.issuer || null,
       awardedYear: row.awardedYear.trim() ? Number(row.awardedYear) : null,
       expiresYear: row.expiresYear.trim() ? Number(row.expiresYear) : null,
+      docUrl: row.docUrl.trim() || null,
     });
     setSaving(false);
     if (res.success) {
@@ -199,6 +227,58 @@ function LicenseCard({
           value={row.expiresYear}
           onChange={(e) => onPatch({ expiresYear: e.target.value })}
         />
+      </div>
+
+      {/* Documento de respaldo: PDF/imagen (modal) o link externo (_blank). */}
+      <div className="grid gap-2 rounded-bh-md border border-white/[0.06] bg-bh-surface-2/40 p-3">
+        <p className="text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+          Documento o link de verificación (opcional)
+        </p>
+        <FormField
+          id={`lic-doc-${row.key}`}
+          label=""
+          placeholder="https://… (link al certificado o página de verificación)"
+          value={row.docUrl}
+          onChange={(e) => onPatch({ docUrl: e.target.value })}
+        />
+        <div className="flex flex-wrap items-center gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept="application/pdf,image/jpeg,image/png,image/webp,image/avif"
+            className="hidden"
+            onChange={onPickDoc}
+          />
+          <Button
+            size="sm"
+            variant="flat"
+            isDisabled={uploading || saving}
+            isLoading={uploading}
+            onPress={() => fileRef.current?.click()}
+            className="h-8 rounded-bh-md border border-white/[0.12] bg-transparent px-3 text-[12px] text-bh-fg-2 hover:border-white/[0.24]"
+          >
+            Subir PDF o imagen
+          </Button>
+          {row.docUrl.trim() && (
+            <>
+              <a
+                href={row.docUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[12px] text-bh-lime hover:underline"
+              >
+                Ver documento ↗
+              </a>
+              <button
+                type="button"
+                onClick={() => onPatch({ docUrl: "" })}
+                className="text-[12px] text-bh-fg-4 hover:text-bh-danger"
+              >
+                Quitar
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {msg && (

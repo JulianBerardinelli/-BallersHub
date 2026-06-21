@@ -10,6 +10,7 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useTranslations } from "next-intl";
 import type { CoachProData } from "./ProCoachLayout";
+import CoachLicenseList from "../CoachLicenseList";
 
 const pct = (n: number, total: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
 
@@ -131,24 +132,17 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
       {(data.licenses.length > 0 || data.honours.length > 0) && (
         <Section id="honours" title={t("coach.honoursTitle")} accent={accent}>
           {data.licenses.length > 0 && (
-            <div className="grid gap-3 sm:grid-cols-2">
-              {data.licenses.map((l) => (
-                <Reveal
-                  key={l.id}
-                  className="rounded-2xl border p-4"
-                  style={{ borderColor: `${accent}40`, backgroundColor: `${accent}0a` }}
-                >
-                  <div className="flex items-center gap-2">
-                    <span aria-hidden style={{ color: accent }}>✓</span>
-                    <span className="font-bh-display text-sm font-bold text-white">{l.title}</span>
-                  </div>
-                  <p className="mt-1 text-xs text-white/50">
-                    {[l.issuer, l.year].filter(Boolean).join(" · ")}
-                    <span className="ml-1 text-white/30">· {t("coach.verified")}</span>
-                  </p>
-                </Reveal>
-              ))}
-            </div>
+            <CoachLicenseList
+              licenses={data.licenses.map((l) => ({
+                id: l.id,
+                title: l.title,
+                issuer: l.issuer,
+                year: l.year,
+                docUrl: l.docUrl,
+              }))}
+              verifiedLabel={t("coach.verified")}
+              accent={accent}
+            />
           )}
           {data.honours.length > 0 && (
             <ul className="mt-6 space-y-2">

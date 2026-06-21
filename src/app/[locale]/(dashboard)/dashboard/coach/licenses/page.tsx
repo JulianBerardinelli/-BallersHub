@@ -28,7 +28,7 @@ export default async function CoachLicensesPage() {
 
   const { data: rows } = await supabase
     .from("coach_licenses")
-    .select("id, title, issuer, awarded_year, expires_year, status, rejection_reason")
+    .select("id, title, issuer, awarded_year, expires_year, doc_url, status, rejection_reason")
     .eq("coach_id", profile.id)
     .order("position", { ascending: true })
     .order("created_at", { ascending: true });
@@ -39,6 +39,7 @@ export default async function CoachLicensesPage() {
     issuer: (r.issuer as string | null) ?? "",
     awardedYear: (r.awarded_year as number | null) ?? null,
     expiresYear: (r.expires_year as number | null) ?? null,
+    docUrl: (r.doc_url as string | null) ?? null,
     status: (r.status as "pending" | "approved" | "rejected") ?? "pending",
     rejectionReason: (r.rejection_reason as string | null) ?? null,
   }));

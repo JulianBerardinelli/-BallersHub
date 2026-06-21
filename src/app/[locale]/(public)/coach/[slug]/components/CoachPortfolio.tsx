@@ -11,6 +11,7 @@
 
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import CoachLicenseList from "./CoachLicenseList";
 
 export type CoachCareerRow = {
   id: string;
@@ -33,6 +34,7 @@ export type CoachLicenseRow = {
   title: string;
   issuer: string | null;
   year: number | null;
+  docUrl: string | null;
 };
 
 export type CoachLinkRow = { label: string | null; url: string; kind: string };
@@ -307,23 +309,16 @@ export default async function CoachPortfolio({ data }: { data: CoachPortfolioDat
           <h2 className="mb-4 font-bh-display text-xs font-bold uppercase tracking-[0.08em] text-bh-fg-4">
             {t("coach.licensesTitle")}
           </h2>
-          <ul className="grid gap-3 sm:grid-cols-2">
-            {data.licenses.map((l) => (
-              <li
-                key={l.id}
-                className="rounded-bh-lg border border-bh-lime/25 bg-bh-lime/[0.06] p-4"
-              >
-                <div className="flex items-center gap-2">
-                  <span aria-hidden className="text-bh-lime">✓</span>
-                  <span className="font-bh-display text-sm font-bold">{l.title}</span>
-                </div>
-                <p className="mt-1 text-xs text-bh-fg-3">
-                  {[l.issuer, l.year].filter(Boolean).join(" · ")}
-                  <span className="ml-1 text-bh-fg-4">· {t("coach.verified")}</span>
-                </p>
-              </li>
-            ))}
-          </ul>
+          <CoachLicenseList
+            licenses={data.licenses.map((l) => ({
+              id: l.id,
+              title: l.title,
+              issuer: l.issuer,
+              year: l.year,
+              docUrl: l.docUrl,
+            }))}
+            verifiedLabel={t("coach.verified")}
+          />
         </section>
       )}
 

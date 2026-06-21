@@ -32,6 +32,13 @@ const licenseSchema = z.object({
     .nullable(),
   awardedYear: yearOpt,
   expiresYear: yearOpt,
+  // Documento de respaldo: un archivo subido a coach-media (PDF/imagen) o un
+  // link externo de verificación. Se muestra en la página pública al aprobarse:
+  // PDF/imagen → modal; link externo → _blank.
+  docUrl: z
+    .union([z.string().trim().url("Link inválido."), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+    .nullable(),
 });
 
 export type CoachLicenseInput = z.infer<typeof licenseSchema>;
@@ -80,6 +87,7 @@ export async function upsertCoachLicense(
         issuer: parsed.data.issuer,
         awarded_year: parsed.data.awardedYear,
         expires_year: parsed.data.expiresYear,
+        doc_url: parsed.data.docUrl,
         status: "pending",
         reviewed_by_user_id: null,
         reviewed_at: null,
@@ -115,6 +123,7 @@ export async function upsertCoachLicense(
       issuer: parsed.data.issuer,
       awarded_year: parsed.data.awardedYear,
       expires_year: parsed.data.expiresYear,
+      doc_url: parsed.data.docUrl,
       position: nextPosition,
     })
     .select("id")
