@@ -5,9 +5,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { signOutAction } from "@/app/actions/auth";
-import ClientDashboardSidebar, {
-  ClientDashboardSidebarMobile,
-} from "@/components/dashboard/client/Sidebar";
+import ClientDashboardSidebar from "@/components/dashboard/client/Sidebar";
 import { buildClientDashboardNavigation } from "./navigation";
 import { fetchPlayerTaskMetrics } from "@/lib/dashboard/client/metrics";
 import {
@@ -191,11 +189,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         }
         adminEdits={adminEdits}
       />
-      <div
-        className={`mx-auto w-full max-w-[1200px] px-6 py-7 ${
-          isManager ? "" : "max-lg:pb-32"
-        }`}
-      >
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-7 max-lg:pb-32">
         {/* Header — full-width, scrolls naturally */}
         <header className="space-y-5">
           <div className="space-y-2">
@@ -329,14 +323,6 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           />
         </div>
 
-        {/* Mobile nav: players use the floating bottom dock (mounted below);
-            managers keep the existing left drawer until their dock lands. */}
-        {isManager ? (
-          <div className="mt-6 lg:hidden">
-            <ClientDashboardSidebarMobile sections={navigation} onSignOut={signOutAction} />
-          </div>
-        ) : null}
-
         {/* Floating sidebar + content */}
         <div className="mt-6 flex flex-col gap-6 lg:flex-row">
           <aside className="lg:w-[260px] lg:shrink-0">
@@ -348,15 +334,14 @@ export default async function DashboardLayout({ children }: { children: ReactNod
         </div>
       </div>
 
-      {/* Player floating dock — Panel · Perfil · Plantilla · Ajustes (lg:hidden,
-          portaled). Managers keep the drawer above for now. */}
-      {!isManager ? (
-        <DashboardDock
-          sections={navigation}
-          isPro={planAccess.isPro}
-          onSignOut={signOutAction}
-        />
-      ) : null}
+      {/* Floating bottom dock (lg:hidden, portaled). Players: Panel · Perfil ·
+          Plantilla · Ajustes. Managers: Panel · Agencia · Gestión · Plantilla ·
+          Ajustes. Tabs built from `navigation` by buildDashboardGroups(). */}
+      <DashboardDock
+        sections={navigation}
+        isPro={planAccess.isPro}
+        onSignOut={signOutAction}
+      />
 
       <TutorialDock />
       </TutorialProvider>

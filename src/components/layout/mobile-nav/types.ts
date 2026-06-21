@@ -27,7 +27,9 @@ export type DockIconName =
   | "panel"
   | "layout"
   | "grid"
-  | "award";
+  | "award"
+  | "briefcase"
+  | "users";
 
 /** Non-navigation actions a sheet row can fire instead of routing. */
 export type DockItemAction = "sign-out" | "share" | "login" | "signup";

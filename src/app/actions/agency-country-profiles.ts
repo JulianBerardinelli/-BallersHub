@@ -68,7 +68,7 @@ export async function upsertAgencyCountryProfileAction(payload: {
     columns: { slug: true },
   });
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
 
   return { success: true };
@@ -92,7 +92,7 @@ export async function deleteAgencyCountryProfileAction(countryCode: string) {
     columns: { slug: true },
   });
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
 
   return { success: true };

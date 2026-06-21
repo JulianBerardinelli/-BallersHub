@@ -187,7 +187,7 @@ const AGENCY_COUNTRIES: StepDefinition = {
   id: "agency.countries",
   title: "Definí países operativos",
   subtitle: "Dónde opera tu agencia, para que clubes te encuentren.",
-  href: "/dashboard/agency",
+  href: "/dashboard/agency/reach",
   isCompleted: (s) => s.agencyOperativeCountriesCount > 0,
 };
 
@@ -195,7 +195,7 @@ const AGENCY_SERVICES: StepDefinition = {
   id: "agency.services",
   title: "Listá tus servicios",
   subtitle: "Representación, asesoría legal, scouting, etc.",
-  href: "/dashboard/agency",
+  href: "/dashboard/agency/services",
   isCompleted: (s) => s.agencyServicesCount > 0,
 };
 
@@ -219,7 +219,7 @@ const AGENCY_TEAM_RELATIONS: StepDefinition = {
   id: "agency.team-relations",
   title: "Sumá relaciones con equipos",
   subtitle: "Clubes con los que trabajás, partnerships, alianzas.",
-  href: "/dashboard/agency",
+  href: "/dashboard/agency/collaborations",
   isCompleted: (s) => s.agencyTeamRelationsCount > 0,
 };
 

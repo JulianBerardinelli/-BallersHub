@@ -116,7 +116,7 @@ export async function createAgencyTeamSubmissionAction(payload: {
     })),
   );
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   revalidatePath("/admin/agency-team-proposals");
   revalidateAdminCounters();
 
@@ -148,7 +148,7 @@ export async function cancelAgencyTeamSubmissionAction(submissionId: string) {
     })
     .where(eq(agencyTeamRelationSubmissions.id, submissionId));
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   revalidatePath("/admin/agency-team-proposals");
   revalidateAdminCounters();
   return { success: true };
@@ -172,7 +172,7 @@ export async function deleteAgencyTeamRelationAction(relationId: string) {
     columns: { slug: true },
   });
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
   return { success: true };
 }
@@ -351,7 +351,7 @@ export async function reviewAgencyTeamSubmissionAction(payload: {
   });
 
   revalidatePath("/admin/agency-team-proposals");
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   if (agency?.slug) revalidatePath(`/agency/${agency.slug}`);
 
   return { success: true, status: overallStatus };

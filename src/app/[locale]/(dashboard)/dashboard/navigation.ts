@@ -150,9 +150,57 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
       {
         kind: "link",
         id: "agency-profile",
-        title: "Perfil de la Agencia",
+        title: "Datos principales",
         href: "/dashboard/agency",
-        description: "Detalles, información y verificación.",
+        description: "Identidad, información general y contacto.",
+      },
+      {
+        kind: "link",
+        id: "agency-services",
+        title: "Servicios",
+        href: "/dashboard/agency/services",
+        description: "Qué ofrece tu agencia.",
+      },
+      {
+        kind: "link",
+        id: "agency-reach",
+        title: "Alcance y operativa",
+        href: "/dashboard/agency/reach",
+        description: "Países donde operás y su detalle.",
+      },
+      {
+        kind: "link",
+        id: "agency-collaborations",
+        title: "Clubes",
+        href: "/dashboard/agency/collaborations",
+        description: "Relaciones y propuestas con clubes.",
+      },
+      {
+        kind: "link",
+        id: "agency-multimedia",
+        title: "Multimedia",
+        href: "/dashboard/agency/multimedia",
+        description: "Galería de fotos e imágenes.",
+      },
+      {
+        kind: "link",
+        id: "agency-translations",
+        title: "Idiomas",
+        href: "/dashboard/agency/translations",
+        description: "Publicá tu perfil en inglés, italiano y portugués (Pro).",
+      },
+    ],
+  },
+  {
+    id: "agency-management",
+    title: "Gestión",
+    items: [
+      {
+        kind: "link",
+        id: "manager-profile",
+        title: "Mi perfil",
+        href: "/dashboard/profile",
+        description: "Tu ficha pública: bio y licencias.",
       },
       {
         kind: "link",
@@ -194,13 +242,6 @@ const MANAGER_NAVIGATION: ClientDashboardNavSection[] = [
     id: "settings",
     title: "Configuración",
     items: [
-      {
-        kind: "link",
-        id: "manager-profile",
-        title: "Mi Perfil",
-        href: "/dashboard/profile",
-        description: "Tus datos públicos personales.",
-      },
       {
         kind: "link",
         id: "account",

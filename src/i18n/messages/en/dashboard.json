@@ -207,7 +207,8 @@
       "edit-template": "Edit template",
       "settings": "Settings",
       "agency": "Agency",
-      "agency-template": "Edit template"
+      "agency-template": "Edit template",
+      "agency-management": "Management"
     },
     "player": {
       "home": {
@@ -257,8 +258,8 @@
         "description": "General overview of your agency."
       },
       "agency-profile": {
-        "title": "Agency Profile",
-        "description": "Details, information and verification."
+        "title": "Main details",
+        "description": "Identity, general info and contact."
       },
       "agency-players": {
         "title": "My Players",
@@ -277,8 +278,8 @@
         "description": "Enable or disable content blocks."
       },
       "manager-profile": {
-        "title": "My Profile",
-        "description": "Your personal public details."
+        "title": "My profile",
+        "description": "Your public card: bio and licenses."
       },
       "account": {
         "title": "Account",
@@ -291,6 +292,26 @@
       "logout": {
         "title": "Sign out",
         "description": "Leave the panel securely."
+      },
+      "agency-services": {
+        "title": "Services",
+        "description": "What your agency offers."
+      },
+      "agency-reach": {
+        "title": "Reach & operations",
+        "description": "Countries you operate in and their detail."
+      },
+      "agency-collaborations": {
+        "title": "Clubs",
+        "description": "Club relationships and proposals."
+      },
+      "agency-multimedia": {
+        "title": "Media",
+        "description": "Photo and image gallery."
+      },
+      "agency-translations": {
+        "title": "Languages",
+        "description": "Publish your profile in English, Italian and Portuguese (Pro)."
       }
     }
   },
