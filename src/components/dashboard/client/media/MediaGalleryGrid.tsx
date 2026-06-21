@@ -17,6 +17,7 @@ export default function MediaGalleryGrid({
   onMoveUp,
   onMoveDown,
   isReordering = false,
+  apiBase = "/api/media",
 }: {
   items: PlayerMedia[];
   /** Show up/down controls to reorder items (videos only). */
@@ -25,6 +26,8 @@ export default function MediaGalleryGrid({
   onMoveDown?: (id: string) => void;
   /** Disables all reorder controls while a save is in flight. */
   isReordering?: boolean;
+  /** Media API base — the admin CRUD injects its per-player admin route. */
+  apiBase?: string;
 }) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
@@ -37,7 +40,7 @@ export default function MediaGalleryGrid({
 
     setDeletingId(id);
     try {
-      const res = await fetch(`/api/media/${id}`, { method: "DELETE" });
+      const res = await fetch(`${apiBase}/${id}`, { method: "DELETE" });
       if (!res.ok) {
         throw new Error(t("media.galleryGrid.deleteFetchError"));
       }

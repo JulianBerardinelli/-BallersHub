@@ -21,6 +21,8 @@ const FREE_ARTICLE_CAP = 3;
 export default function ArticlesManager({
   articles,
   initialLayout = "newspaper",
+  apiBase = "/api/articles",
+  showLayoutPicker = true,
 }: {
   articles: Article[];
   initialLayout?: NotesLayout;
@@ -28,6 +30,14 @@ export default function ArticlesManager({
   // visibility uses `access.isPro` from the provider to stay in sync with
   // optimistic subscription state.
   isPro?: boolean;
+  /** Articles API base — the admin CRUD injects its per-player admin route. */
+  apiBase?: string;
+  /**
+   * The press layout picker writes to the SIGNED-IN user's profile (a display
+   * preference). The admin CRUD edits another player, so it hides the picker
+   * to avoid mutating the admin's own profile.
+   */
+  showLayoutPicker?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
   const router = useRouter();
@@ -36,7 +46,7 @@ export default function ArticlesManager({
   const [articleToEdit, setArticleToEdit] = useState<Article | null>(null);
   const { access } = usePlanAccess();
   const upgradeModal = useUpgradeModal();
-  const { ordered, isSaving, moveUp, moveDown } = useReorderable(articles, "/api/articles/reorder");
+  const { ordered, isSaving, moveUp, moveDown } = useReorderable(articles, `${apiBase}/reorder`);
 
   // Free hard-cap: 3 articles (matrix §B "Links a noticias / prensa" =
   // player_articles entity). Editing existing rows is always allowed.
@@ -47,7 +57,7 @@ export default function ArticlesManager({
 
     try {
       setDeletingId(id);
-      const res = await fetch(`/api/articles/${id}`, { method: "DELETE" });
+      const res = await fetch(`${apiBase}/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed to delete article");
       router.refresh();
     } catch (error) {
@@ -82,7 +92,7 @@ export default function ArticlesManager({
       }
     >
       <div className="flex flex-col gap-4">
-        {access.isPro && (
+        {showLayoutPicker && access.isPro && (
           <NotesLayoutPicker initialLayout={initialLayout} />
         )}
 
@@ -194,7 +204,12 @@ export default function ArticlesManager({
         {t("media.articles.footerNote")}
       </p>
 
-      <ArticleModal isOpen={isOpen} onOpenChange={onOpenChange} articleToEdit={articleToEdit} />
+      <ArticleModal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        articleToEdit={articleToEdit}
+        apiBase={apiBase}
+      />
       <UpgradeModal state={upgradeModal.state} onClose={upgradeModal.close} />
     </SectionCard>
   );

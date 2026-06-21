@@ -35,7 +35,7 @@ type AdminEditSnapshot = {
   /** notifications.id — the stable per-device dedupe key. */
   id: string;
   domain: AdminEditDomain;
-  changedFields: string[];
+  note: string;
   detailsHref?: string | null;
 };
 
@@ -166,7 +166,7 @@ export function NotificationBootstrap({ userName, onboarding, latestReview, admi
           {
             userName: userName ?? undefined,
             domain: edit.domain,
-            changedFields: edit.changedFields,
+            note: edit.note,
             detailsHref: edit.detailsHref ?? undefined,
           },
           eventId,

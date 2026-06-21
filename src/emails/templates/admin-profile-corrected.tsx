@@ -12,10 +12,10 @@ import type { Locale } from "@/i18n/routing";
 export type AdminProfileCorrectedProps = {
   /** Display name del jugador (firstname-first si lo derivamos). */
   playerName: string;
-  /** Frase específica del dominio (ADMIN_EDIT_DOMAIN_NOTICE[domain]) — ES. */
-  notice: string;
-  /** Labels de los campos editados (ES; puede venir vacío). */
-  changedFields?: string[];
+  /** Label de la sección revisada (ES, p.ej. "trayectoria"). */
+  sectionLabel: string;
+  /** Nota que el admin escribió al finalizar la revisión. */
+  note: string;
   /** URL al editor del dashboard correspondiente. */
   dashboardUrl: string;
   recipientEmail?: string;
@@ -27,70 +27,68 @@ type Copy = {
   preheader: string;
   eyebrow: string;
   heading: (name: string) => string;
-  intro: string;
-  fieldsLabel: string;
+  intro: (section: string) => string;
+  noteLabel: string;
   cta: string;
   footer: string;
 };
 
 const COPY: Record<Locale, Copy> = {
   es: {
-    preheader: "Hicimos una corrección en tu perfil luego de una revisión.",
-    eyebrow: "Actualización de tu perfil",
+    preheader: "Un miembro del equipo revisó tu perfil y te dejó una nota.",
+    eyebrow: "Revisión de tu perfil",
     heading: (n) => `Revisamos tu perfil, ${n}`,
-    intro:
-      "Nuestro equipo hizo una corrección en tu perfil luego de una revisión. Acá te dejamos el detalle:",
-    fieldsLabel: "Campos actualizados",
+    intro: (section) =>
+      `Un miembro del equipo de 'BallersHub revisó tu ${section} y te dejó esta nota:`,
+    noteLabel: "Nota del equipo",
     cta: "Ver mi perfil",
     footer:
-      "Si tenés dudas sobre este cambio, respondé este correo y te ayudamos. Podés seguir editando tu perfil desde tu dashboard cuando quieras.",
+      "Si tenés dudas sobre esta revisión, respondé este correo y te ayudamos. Podés seguir editando tu perfil desde tu dashboard cuando quieras.",
   },
   en: {
-    preheader: "We made a correction to your profile after a review.",
-    eyebrow: "Profile update",
+    preheader: "A team member reviewed your profile and left you a note.",
+    eyebrow: "Profile review",
     heading: (n) => `We reviewed your profile, ${n}`,
-    intro:
-      "Our team made a correction to your profile after a review. Here's the detail:",
-    fieldsLabel: "Updated fields",
+    intro: (section) =>
+      `A 'BallersHub team member reviewed your ${section} and left you this note:`,
+    noteLabel: "Note from the team",
     cta: "View my profile",
     footer:
-      "If you have questions about this change, just reply to this email. You can keep editing your profile from your dashboard anytime.",
+      "If you have questions about this review, just reply to this email. You can keep editing your profile from your dashboard anytime.",
   },
   it: {
-    preheader: "Abbiamo corretto il tuo profilo dopo una revisione.",
-    eyebrow: "Aggiornamento del profilo",
-    heading: (n) => `Abbiamo rivisto il tuo profilo, ${n}`,
-    intro:
-      "Il nostro team ha apportato una correzione al tuo profilo dopo una revisione. Ecco il dettaglio:",
-    fieldsLabel: "Campi aggiornati",
+    preheader: "Un membro del team ha revisionato il tuo profilo e ti ha lasciato una nota.",
+    eyebrow: "Revisione del profilo",
+    heading: (n) => `Abbiamo revisionato il tuo profilo, ${n}`,
+    intro: (section) =>
+      `Un membro del team di 'BallersHub ha revisionato il tuo ${section} e ti ha lasciato questa nota:`,
+    noteLabel: "Nota del team",
     cta: "Vedi il mio profilo",
     footer:
-      "Se hai domande su questa modifica, rispondi a questa email. Puoi continuare a modificare il tuo profilo dalla tua dashboard quando vuoi.",
+      "Se hai domande su questa revisione, rispondi a questa email. Puoi continuare a modificare il tuo profilo dalla tua dashboard quando vuoi.",
   },
   pt: {
-    preheader: "Fizemos uma correção no seu perfil após uma revisão.",
-    eyebrow: "Atualização do seu perfil",
+    preheader: "Um membro da equipe revisou seu perfil e deixou uma nota.",
+    eyebrow: "Revisão do seu perfil",
     heading: (n) => `Revisamos seu perfil, ${n}`,
-    intro:
-      "Nossa equipe fez uma correção no seu perfil após uma revisão. Aqui está o detalhe:",
-    fieldsLabel: "Campos atualizados",
+    intro: (section) =>
+      `Um membro da equipe da 'BallersHub revisou seu ${section} e deixou esta nota:`,
+    noteLabel: "Nota da equipe",
     cta: "Ver meu perfil",
     footer:
-      "Se tiver dúvidas sobre essa alteração, responda este e-mail. Você pode continuar editando seu perfil no seu painel quando quiser.",
+      "Se tiver dúvidas sobre esta revisão, responda este e-mail. Você pode continuar editando seu perfil no seu painel quando quiser.",
   },
 };
 
 /**
- * Notifica al jugador que el staff corrigió/editó su perfil desde el admin CRUD.
- *
- * Frame localizado por preferred_locale (resuelto en resend.ts; fallback es).
- * El `notice` específico del dominio y los `changedFields` llegan en ES desde
- * el servidor (igual que los blog templates dejan títulos verbatim).
+ * Notifica al jugador que el staff revisó/corrigió una sección de su perfil,
+ * incluyendo la NOTA que el admin escribió al finalizar la revisión.
+ * Frame localizado por preferred_locale; el sectionLabel + note llegan en ES.
  */
 export default function AdminProfileCorrectedEmail({
   playerName,
-  notice,
-  changedFields = [],
+  sectionLabel,
+  note,
   dashboardUrl,
   recipientEmail,
   locale = "es",
@@ -103,17 +101,13 @@ export default function AdminProfileCorrectedEmail({
       <EmailEyebrow>{c.eyebrow}</EmailEyebrow>
       <EmailHeading level={1}>{c.heading(firstName)}</EmailHeading>
 
-      <EmailParagraph>{c.intro}</EmailParagraph>
+      <EmailParagraph>{c.intro(sectionLabel)}</EmailParagraph>
 
       <EmailCard>
+        <EmailParagraph tone="muted">{c.noteLabel}</EmailParagraph>
         <EmailParagraph tone="default">
-          <strong>{notice}</strong>
+          <strong>{note}</strong>
         </EmailParagraph>
-        {changedFields.length > 0 && (
-          <EmailParagraph tone="muted">
-            {c.fieldsLabel}: {changedFields.join(", ")}.
-          </EmailParagraph>
-        )}
       </EmailCard>
 
       <div style={{ marginTop: 24, marginBottom: 8 }}>

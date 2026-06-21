@@ -1,9 +1,15 @@
-// One shared side-effect helper for every admin player edit. Bundles the
-// after-write work — per-field change log, audit row, persistent in-app
-// notification, correction email, and cache revalidation — so each admin
-// action stays small. EVERY step is independently try/catch'd and non-fatal:
-// the live DB write already succeeded by the time we get here, so a failed
-// email/notification must never surface as an error to the admin.
+// Admin player-edit side-effects, split into two phases:
+//
+//  1. recordAdminPlayerEdit  — runs on EVERY save: per-field change log + audit
+//     row + cache revalidation. Silent (no email / no in-app toast).
+//  2. sendAdminReviewNotification — runs when the admin clicks "Finalizar
+//     revisión" and writes a note: the email + persistent in-app notification
+//     that carry the admin's note to the player. This is the deliberate,
+//     note-driven notification (the admin corrects AND explains why).
+//
+// Every step is independently try/catch'd and non-fatal: the live DB write
+// already succeeded, so a failed email/notification must never surface as an
+// error to the admin.
 
 import { revalidatePath } from "next/cache";
 
@@ -21,25 +27,22 @@ function errMsg(err: unknown): string {
   return err instanceof Error ? err.message : String(err);
 }
 
+/** Per-save: change log + audit + revalidate. Silent (notification is deferred
+ * to the "Finalizar revisión" note). */
 export async function recordAdminPlayerEdit(args: {
   actor: AdminActor;
   /** player_profiles.id of the edited player. */
   playerId: string;
-  /** player_profiles.user_id — recipient of the notification + email. */
+  /** player_profiles.user_id — recorded in the audit meta. */
   targetUserId: string;
-  /** player full name, for the email greeting. */
-  playerName: string;
   domain: AdminEditDomain;
   /** human-readable labels of what changed (e.g. "Valor de mercado"). */
   changedFields: string[];
   /** optional per-field diff for profile_change_logs. */
   changeLog?: ChangeLogEntry[];
 }): Promise<void> {
-  const { actor, playerId, targetUserId, playerName, domain, changedFields, changeLog } =
-    args;
+  const { actor, playerId, targetUserId, domain, changedFields, changeLog } = args;
 
-  // Nothing changed → skip the whole side-effect chain (no spurious
-  // notifications/emails when an admin saves an unchanged form).
   if (changedFields.length === 0) return;
 
   // 1. profile_change_logs — per-field diff (actor = admin).
@@ -73,12 +76,59 @@ export async function recordAdminPlayerEdit(args: {
     console.warn("[admin-notify] audit write failed (non-fatal):", errMsg(err));
   }
 
-  // 3. persistent in-app notification → on-login toast (NotificationBootstrap).
+  // 3. revalidate public profile + admin surfaces.
+  try {
+    await revalidatePlayerPublicProfileById(actor.adminClient, playerId);
+    revalidatePath("/admin/players");
+    revalidatePath(`/admin/players/${playerId}/edit/${domain}`);
+    if (domain === "trayectoria") revalidatePath("/dashboard", "layout");
+  } catch (err) {
+    console.warn("[admin-notify] revalidate failed (non-fatal):", errMsg(err));
+  }
+}
+
+/** Lightweight audit-only record for the media/article API routes (which write
+ * via their own service-role client and don't produce a per-field diff). */
+export async function recordAdminPlayerAudit(args: {
+  actorId: string;
+  actorIp: string | null;
+  playerId: string;
+  targetUserId?: string;
+  domain: AdminEditDomain;
+  action: string;
+}): Promise<void> {
+  try {
+    await db.insert(auditLogs).values({
+      userId: args.actorId,
+      actorIp: args.actorIp,
+      action: `admin.player.${args.action}`,
+      subjectTable: "player_profiles",
+      subjectId: args.playerId,
+      meta: { domain: args.domain, targetUserId: args.targetUserId ?? null },
+    });
+  } catch (err) {
+    console.warn("[admin-notify] media audit write failed (non-fatal):", errMsg(err));
+  }
+}
+
+/** "Finalizar revisión": email + persistent in-app notification carrying the
+ * admin's note. The note is the admin's explanation of what was reviewed. */
+export async function sendAdminReviewNotification(args: {
+  actor: AdminActor;
+  playerId: string;
+  targetUserId: string;
+  playerName: string;
+  domain: AdminEditDomain;
+  note: string;
+}): Promise<void> {
+  const { actor, playerId, targetUserId, playerName, domain, note } = args;
+
+  // 1. persistent in-app notification → on-login toast.
   try {
     await createNotification({
       recipientUserId: targetUserId,
       kind: "admin.profileCorrected",
-      payload: { domain, changedFields },
+      payload: { domain, note },
       subjectTable: "player_profiles",
       subjectId: playerId,
       actorUserId: actor.actorId,
@@ -87,25 +137,14 @@ export async function recordAdminPlayerEdit(args: {
     console.warn("[admin-notify] notification write failed (non-fatal):", errMsg(err));
   }
 
-  // 4. correction email — resolve the recipient email via auth.users.
+  // 2. correction email with the note — resolve the recipient email via auth.users.
   try {
     const { data } = await actor.adminClient.auth.admin.getUserById(targetUserId);
     const email = data?.user?.email ?? null;
     if (email) {
-      await sendAdminProfileCorrectedEmail({ email, playerName, domain, changedFields });
+      await sendAdminProfileCorrectedEmail({ email, playerName, domain, note });
     }
   } catch (err) {
     console.warn("[admin-notify] correction email failed (non-fatal):", errMsg(err));
-  }
-
-  // 5. revalidate public profile + admin surfaces.
-  try {
-    await revalidatePlayerPublicProfileById(actor.adminClient, playerId);
-    revalidatePath("/admin/players");
-    revalidatePath(`/admin/players/${playerId}/edit/${domain}`);
-    // Trajectory also feeds the player's own dashboard editor.
-    if (domain === "trayectoria") revalidatePath("/dashboard", "layout");
-  } catch (err) {
-    console.warn("[admin-notify] revalidate failed (non-fatal):", errMsg(err));
   }
 }

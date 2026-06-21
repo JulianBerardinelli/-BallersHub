@@ -302,8 +302,8 @@ function buildSampleProps(
     case "admin_profile_corrected":
       return {
         playerName: "Lautaro Sample",
-        notice: "Editamos una etapa de tu trayectoria luego de una revisión.",
-        changedFields: ["Club", "Período"],
+        sectionLabel: "trayectoria",
+        note: "Corregí las fechas del Club Atlético tras revisar tu Transfermarkt.",
         dashboardUrl: `${siteUrl}/dashboard/edit-profile/football-data`,
         ...overrides,
       };

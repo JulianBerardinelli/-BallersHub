@@ -34,11 +34,11 @@ export type TemplateContextMap = {
     changedFields: string[];
     detailsHref?: string;
   };
-  // Staff corrected the player's profile from the admin CRUD. Surfaced on the
-  // player's next login (persisted in the `notifications` table).
+  // Staff reviewed the player's profile from the admin CRUD and left a note.
+  // Surfaced on the player's next login (persisted in the `notifications` table).
   "admin.profileCorrected": BaseContext & {
     domain: AdminEditDomain;
-    changedFields: string[];
+    note: string;
     detailsHref?: string;
   };
 };
