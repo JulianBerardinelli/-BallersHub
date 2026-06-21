@@ -18,13 +18,28 @@ export type CoachMediaItem = {
   provider: string | null;
 };
 
-export default function CoachMediaManager({ items }: { items: CoachMediaItem[] }) {
+export default function CoachMediaManager({
+  items,
+  isPro = false,
+}: {
+  items: CoachMediaItem[];
+  isPro?: boolean;
+}) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
 
   const photos = items.filter((i) => i.type === "photo");
   const videos = items.filter((i) => i.type === "video");
+
+  // Límites (espeja la RPC coach_max_media_allowed): Pro = 5 fotos · videos
+  // ilimitados; Free = 1 foto · 2 video-links. Avatar y hero son aparte.
+  const photoLimit = isPro ? 5 : 1;
+  const videoLimit = isPro ? Infinity : 2;
+  const photosFull = photos.length >= photoLimit;
+  const videosFull = videos.length >= videoLimit;
+  const photoCounter = `${photos.length} / ${photoLimit}`;
+  const videoCounter = isPro ? `${videos.length} · ilimitado` : `${videos.length} / ${videoLimit}`;
 
   async function upload(form: FormData) {
     setBusy(true);
@@ -64,22 +79,27 @@ export default function CoachMediaManager({ items }: { items: CoachMediaItem[] }
         <p className="text-sm text-bh-fg-3">
           Fotos y videos de tu trabajo. Cada archivo se publica recién cuando el equipo lo aprueba.
         </p>
+        <p className="text-[12px] text-bh-fg-4">
+          {isPro
+            ? "Plan Pro: hasta 5 fotos y videos ilimitados (el avatar y el asset Pro son aparte)."
+            : "Plan Free: 1 foto y 2 videos. Pasá a Pro para 5 fotos y videos ilimitados."}
+        </p>
       </div>
 
       {msg && (
         <p className={`text-sm ${msg.ok ? "text-bh-success" : "text-bh-danger"}`}>{msg.text}</p>
       )}
 
-      <PhotoUploader busy={busy} onUpload={upload} />
-      <VideoUploader busy={busy} onUpload={upload} />
+      <PhotoUploader busy={busy} onUpload={upload} atLimit={photosFull} limitLabel={photoLimit} />
+      <VideoUploader busy={busy} onUpload={upload} atLimit={videosFull} />
 
-      <MediaSection title="Fotos" empty="Todavía no subiste fotos.">
+      <MediaSection title={`Fotos · ${photoCounter}`} empty="Todavía no subiste fotos.">
         {photos.map((item) => (
           <MediaCard key={item.id} item={item} busy={busy} onDelete={() => onDelete(item.id)} />
         ))}
       </MediaSection>
 
-      <MediaSection title="Videos" empty="Todavía no agregaste videos.">
+      <MediaSection title={`Videos · ${videoCounter}`} empty="Todavía no agregaste videos.">
         {videos.map((item) => (
           <MediaCard key={item.id} item={item} busy={busy} onDelete={() => onDelete(item.id)} />
         ))}
@@ -91,9 +111,13 @@ export default function CoachMediaManager({ items }: { items: CoachMediaItem[] }
 function PhotoUploader({
   busy,
   onUpload,
+  atLimit,
+  limitLabel,
 }: {
   busy: boolean;
   onUpload: (form: FormData) => Promise<boolean>;
+  atLimit: boolean;
+  limitLabel: number;
 }) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
@@ -123,13 +147,19 @@ function PhotoUploader({
       <div>
         <Button
           variant="flat"
-          isDisabled={busy}
+          isDisabled={busy || atLimit}
           onPress={() => inputRef.current?.click()}
           className="rounded-bh-md border border-white/[0.12] bg-transparent px-5 py-2 text-[13px] font-medium text-bh-fg-1 hover:border-white/[0.24]"
         >
           Elegir imagen
         </Button>
       </div>
+      {atLimit && (
+        <p className="text-[12px] text-bh-warning">
+          Llegaste al máximo de {limitLabel} foto{limitLabel === 1 ? "" : "s"}. Eliminá una para subir otra
+          {limitLabel === 1 ? " o pasá a Pro para 5." : "."}
+        </p>
+      )}
     </section>
   );
 }
@@ -137,9 +167,11 @@ function PhotoUploader({
 function VideoUploader({
   busy,
   onUpload,
+  atLimit,
 }: {
   busy: boolean;
   onUpload: (form: FormData) => Promise<boolean>;
+  atLimit: boolean;
 }) {
   const [title, setTitle] = React.useState("");
   const [url, setUrl] = React.useState("");
@@ -193,13 +225,18 @@ function VideoUploader({
       </div>
       <div>
         <Button
-          isDisabled={busy || !urlOk}
+          isDisabled={busy || !urlOk || atLimit}
           onPress={onAdd}
           className="rounded-bh-md bg-bh-lime px-5 py-2 text-[13px] font-semibold text-bh-black hover:bg-[#d8ff26]"
         >
           Agregar video
         </Button>
       </div>
+      {atLimit && (
+        <p className="text-[12px] text-bh-warning">
+          Llegaste al máximo de videos del plan Free (2). Pasá a Pro para agregar ilimitados.
+        </p>
+      )}
     </section>
   );
 }
