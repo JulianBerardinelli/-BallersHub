@@ -412,12 +412,28 @@ export async function adminSetCoachStatus(
 // but service-role + target coachId + writes the credential APPROVED directly
 // (admin is the moderator → bypasses the pre-moderation queue).
 
+// License years validate a real range (mirrors the owner upsertCoachLicense
+// schema). The career `yearField` only coerces to a finite number/null with no
+// bounds — fine for trajectory, but admin license writes publish APPROVED
+// instantly, so a typo like 3024 or 12 must be rejected before going live.
+const adminLicenseYear = z
+  .union([z.string(), z.number(), z.null(), z.undefined()])
+  .transform((value) => {
+    if (value === null || value === undefined || value === "") return null;
+    const n = typeof value === "number" ? value : Number(String(value).trim());
+    return Number.isFinite(n) ? Math.trunc(n) : NaN;
+  })
+  .refine((v) => v === null || (!Number.isNaN(v) && v >= 1900 && v <= new Date().getFullYear() + 10), {
+    message: "Ingresá un año válido.",
+  })
+  .nullable();
+
 const adminLicenseSchema = z.object({
   id: z.string().uuid().optional(),
   title: z.string().trim().min(2, "Mínimo 2 caracteres.").max(160),
   issuer: optText(120),
-  awardedYear: yearField,
-  expiresYear: yearField,
+  awardedYear: adminLicenseYear,
+  expiresYear: adminLicenseYear,
   docUrl: z
     .union([z.string().trim().url("Link inválido."), z.literal(""), z.null(), z.undefined()])
     .transform((v) => (v && v.trim() ? v.trim() : null))
