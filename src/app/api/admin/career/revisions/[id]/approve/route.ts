@@ -267,18 +267,10 @@ export async function POST(req: Request, ctx: { params: Params }) {
     }
   }
 
-  const currentStage = resolvedItems.find((item) => item.end_year === null) ?? null;
-  const currentClub = currentStage?.club ?? null;
-  const currentTeamId = currentStage?.resolvedTeamId ?? null;
-
-  await admin
-    .from("player_profiles")
-    .update({
-      current_team_id: currentTeamId,
-      current_club: currentClub,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", playerId);
+  // current_team_id/current_club ya NO se sincronizan acá: el trigger
+  // trg_sync_current_team_from_career (migración 0015g) los deriva de la etapa
+  // actual de la trayectoria ante cualquier cambio en career_items — y los
+  // INSERT/UPDATE/DELETE de arriba ya lo dispararon. Fuente única = la trayectoria.
 
   const resolutionNote = typeof body.resolutionNote === "string" ? body.resolutionNote : null;
 
