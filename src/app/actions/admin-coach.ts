@@ -73,3 +73,195 @@ export async function adminUpdateCoachProfile(
   revalidatePath("/admin/coaches");
   return { success: true };
 }
+
+// ─────────────────────────── trayectoria + stats ───────────────────────────
+
+const intField = z
+  .union([z.string(), z.number(), z.null(), z.undefined()])
+  .transform((v) => {
+    if (v === null || v === undefined || v === "") return 0;
+    const n = typeof v === "number" ? v : Number(String(v).trim());
+    return Number.isFinite(n) ? Math.max(0, Math.trunc(n)) : 0;
+  });
+
+const yearField = z
+  .union([z.string(), z.number(), z.null(), z.undefined()])
+  .transform((v) => {
+    if (v === null || v === undefined || v === "") return null;
+    const n = typeof v === "number" ? v : Number(String(v).trim());
+    return Number.isFinite(n) ? Math.trunc(n) : null;
+  })
+  .nullable();
+
+const careerSchema = z.object({
+  coachId: z.string().uuid(),
+  items: z
+    .array(
+      z.object({
+        club: z.string().trim().min(1, "Club requerido."),
+        roleTitle: optText(120),
+        division: optText(120),
+        startYear: yearField,
+        endYear: yearField,
+      }),
+    )
+    .max(60),
+  stats: z
+    .array(
+      z.object({
+        season: z.string().trim().min(1, "Temporada requerida."),
+        team: optText(120),
+        competition: optText(120),
+        matches: intField,
+        wins: intField,
+        draws: intField,
+        losses: intField,
+        goalsFor: intField,
+        goalsAgainst: intField,
+      }),
+    )
+    .max(120),
+});
+
+export type AdminCoachCareerInput = z.input<typeof careerSchema>;
+
+const toStartDate = (y: number | null) => (y ? `${y}-01-01` : null);
+const toEndDate = (y: number | null) => (y ? `${y}-12-31` : null);
+
+// Direct (review-bypassing) replace of a coach's trayectoria + season stats.
+// Mirrors the career-revision approve route's materialization, but writes the
+// proposed set straight to the live tables. insert-new-then-delete-old so a
+// failed insert never leaves the coach with an empty trayectoria.
+export async function adminReplaceCoachCareer(
+  input: AdminCoachCareerInput,
+): Promise<{ success: boolean; message?: string }> {
+  const parsed = careerSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { coachId, items, stats } = parsed.data;
+
+  const { data: oldCareer } = await admin.from("coach_career_items").select("id").eq("coach_id", coachId);
+  const oldCareerIds = (oldCareer ?? []).map((r) => r.id as string);
+  if (items.length > 0) {
+    const { error } = await admin.from("coach_career_items").insert(
+      items.map((it) => ({
+        coach_id: coachId,
+        club: it.club,
+        role_title: it.roleTitle,
+        division: it.division,
+        start_date: toStartDate(it.startYear),
+        end_date: toEndDate(it.endYear),
+      })),
+    );
+    if (error) return { success: false, message: `Trayectoria: ${error.message}` };
+  }
+  if (oldCareerIds.length > 0) await admin.from("coach_career_items").delete().in("id", oldCareerIds);
+
+  const { data: oldStats } = await admin.from("coach_stats_seasons").select("id").eq("coach_id", coachId);
+  const oldStatIds = (oldStats ?? []).map((r) => r.id as string);
+  if (stats.length > 0) {
+    const { error } = await admin.from("coach_stats_seasons").insert(
+      stats.map((s) => ({
+        coach_id: coachId,
+        season: s.season,
+        team: s.team,
+        competition: s.competition,
+        matches: s.matches,
+        wins: s.wins,
+        draws: s.draws,
+        losses: s.losses,
+        goals_for: s.goalsFor,
+        goals_against: s.goalsAgainst,
+      })),
+    );
+    if (error) return { success: false, message: `Estadísticas: ${error.message}` };
+  }
+  if (oldStatIds.length > 0) await admin.from("coach_stats_seasons").delete().in("id", oldStatIds);
+
+  const openStage = items.find((it) => it.endYear === null);
+  const { data: coachRow } = await admin
+    .from("coach_profiles")
+    .select("slug")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null }>();
+  if (openStage) {
+    await admin
+      .from("coach_profiles")
+      .update({ current_club: openStage.club, updated_at: new Date().toISOString() })
+      .eq("id", coachId);
+  }
+
+  if (coachRow?.slug) revalidateCoachPublicProfile(coachRow.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/trayectoria`);
+  return { success: true };
+}
+
+// ─────────────────────────── multimedia ───────────────────────────
+
+export async function adminSetCoachMediaStatus(
+  mediaId: string,
+  status: "approved" | "rejected",
+): Promise<{ success: boolean; message?: string }> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { data: row } = await admin
+    .from("coach_media")
+    .select("coach_id")
+    .eq("id", mediaId)
+    .maybeSingle<{ coach_id: string }>();
+  const { error } = await admin
+    .from("coach_media")
+    .update({
+      status,
+      reviewed_by_user_id: gate.actor.actorId,
+      reviewed_at: new Date().toISOString(),
+    })
+    .eq("id", mediaId);
+  if (error) return { success: false, message: error.message };
+  if (row?.coach_id) {
+    const { data: c } = await admin
+      .from("coach_profiles")
+      .select("slug")
+      .eq("id", row.coach_id)
+      .maybeSingle<{ slug: string | null }>();
+    if (c?.slug) revalidateCoachPublicProfile(c.slug);
+  }
+  return { success: true };
+}
+
+export async function adminDeleteCoachMedia(
+  mediaId: string,
+): Promise<{ success: boolean; message?: string }> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { data: row } = await admin
+    .from("coach_media")
+    .select("coach_id, url")
+    .eq("id", mediaId)
+    .maybeSingle<{ coach_id: string; url: string | null }>();
+  const { error } = await admin.from("coach_media").delete().eq("id", mediaId);
+  if (error) return { success: false, message: error.message };
+  // Best-effort storage cleanup: derive the object path from the public URL
+  // (.../object/public/coach-media/<path>). Only our own uploads match.
+  const marker = "/coach-media/";
+  const idx = row?.url?.indexOf(marker) ?? -1;
+  if (row?.url && idx >= 0) {
+    const path = row.url.slice(idx + marker.length).split("?")[0];
+    if (path) await admin.storage.from("coach-media").remove([path]);
+  }
+  if (row?.coach_id) {
+    const { data: c } = await admin
+      .from("coach_profiles")
+      .select("slug")
+      .eq("id", row.coach_id)
+      .maybeSingle<{ slug: string | null }>();
+    if (c?.slug) revalidateCoachPublicProfile(c.slug);
+  }
+  return { success: true };
+}

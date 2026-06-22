@@ -77,6 +77,12 @@ const RowOptions = React.memo(function RowOptions({
           <Link href={`/admin/coaches/${a.id}/edit`} className={ROW_MENU_ITEM_CLASS}>
             Editar perfil
           </Link>
+          <Link href={`/admin/coaches/${a.id}/edit/trayectoria`} className={ROW_MENU_ITEM_CLASS}>
+            Editar trayectoria
+          </Link>
+          <Link href={`/admin/coaches/${a.id}/edit/multimedia`} className={ROW_MENU_ITEM_CLASS}>
+            Editar multimedia
+          </Link>
           <div className="my-1 h-px bg-white/[0.08]" />
           <button type="button" onClick={() => copyId(a.id)} className={ROW_MENU_ITEM_CLASS}>
             Copiar ID
