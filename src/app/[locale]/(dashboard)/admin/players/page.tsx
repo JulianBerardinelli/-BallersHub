@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { resolveProUserIds } from "@/lib/seo/indexable-profiles";
 import PlayersTableUI from "./PlayersTableUI";
 import type { PlayerProfileRow } from "./types";
 
@@ -70,6 +71,9 @@ export default async function AdminPlayersPage() {
   }
 
   const rows = (data ?? []) as unknown as RawProfile[];
+  // Plan real desde la subscription, NO desde plan_public (que queda stuck en
+  // 'free' aunque el jugador active Pro). Mismo criterio que el portfolio público.
+  const proUserIds = await resolveProUserIds(rows.map((p) => p.user_id));
   const items: PlayerProfileRow[] = rows.map((profile) => {
     const age = profile.birth_date
       ? Math.floor((Date.now() - new Date(profile.birth_date).getTime()) / 31557600000)
@@ -79,7 +83,7 @@ export default async function AdminPlayersPage() {
       (n) => ({ name: n, code: null }) // Nationality codes are mostly unused in this view
     );
 
-    const plan = profile.plan_public ?? "free";
+    const plan = proUserIds.has(profile.user_id) ? "pro" : (profile.plan_public ?? "free");
 
     return {
       id: profile.id,
