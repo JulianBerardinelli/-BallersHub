@@ -1,4 +1,4 @@
-import { ArrowUpRight, Instagram, Linkedin } from "lucide-react";
+import { ArrowUpRight, Instagram } from "lucide-react";
 
 import { Link } from "@/i18n/navigation";
 import { PLATFORM_STATS } from "@/lib/site/platform-stats";
@@ -598,19 +598,13 @@ export default function FooterMarkup({
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <SocialButton
                 theme={theme}
-                href="https://instagram.com"
+                href="https://instagram.com/ballershub.co"
                 label="Instagram"
                 icon={<Instagram size={14} />}
               />
               <SocialButton
                 theme={theme}
-                href="https://linkedin.com"
-                label="LinkedIn"
-                icon={<Linkedin size={14} />}
-              />
-              <SocialButton
-                theme={theme}
-                href="https://wa.me/"
+                href="https://wa.me/5491133708810"
                 label="WhatsApp"
                 icon={<WhatsAppGlyph />}
               />

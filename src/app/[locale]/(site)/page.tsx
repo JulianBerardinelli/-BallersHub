@@ -1,6 +1,6 @@
 // app/(site)/page.tsx
 
-import { CallToActionBanner, FeatureHighlights, HomeDashJourney, HomeHeroJourney, HomePricing, TestimonialsPreview } from "@/components/site/home";
+import { HomeDashJourney, HomeHeroJourney, HomePricing } from "@/components/site/home";
 import { buildHeroGlobeData } from "@/components/site/home/HeroJourney/buildGlobeData";
 import { getScoutingPlayers } from "@/lib/scouting/data";
 
@@ -30,11 +30,9 @@ export default async function Home() {
         (device mocks + interactive cards). Flows directly out of the videowall.
       */}
       <HomeDashJourney />
-      {/* Pricing plans right below the product tour — same UI as /pricing. */}
+      {/* Pricing plans right below the product tour — same UI as /pricing.
+          The home ends here: nothing after the plan comparison table. */}
       <HomePricing />
-      <FeatureHighlights />
-      <TestimonialsPreview />
-      <CallToActionBanner />
     </div>
   );
 }
