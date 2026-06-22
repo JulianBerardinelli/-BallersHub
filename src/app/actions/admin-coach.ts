@@ -8,11 +8,24 @@ import { z } from "zod";
 import { ensureAdminActor } from "@/lib/admin/auth";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 import { revalidatePath } from "next/cache";
+import {
+  recordAdminCoachEdit,
+  sendAdminCoachReviewNotification,
+} from "@/lib/admin/coach-notify";
+import {
+  COACH_ADMIN_EDIT_DOMAINS,
+  type CoachAdminEditDomain,
+} from "@/lib/admin/coach-edit-sections";
 import type { CoachProfileInput } from "./coach-profile";
 import type {
   CoachCareerRevisionSubmissionInput,
   CoachCareerActionResult,
 } from "./coach-career";
+import type { CoachLicenseInput, CoachLicenseActionResult } from "./coach-licenses";
+import type {
+  CoachTranslationInput,
+  CoachTranslationActionResult,
+} from "./coach-translations";
 
 const normHexValue = (v: string | null | undefined): string | null => {
   if (!v) return null;
@@ -206,8 +219,13 @@ export async function adminReplaceCoachCareer(
       .eq("id", coachId);
   }
 
-  if (coachRow?.slug) revalidateCoachPublicProfile(coachRow.slug);
-  revalidatePath(`/admin/coaches/${coachId}/edit/trayectoria`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    slug: coachRow?.slug ?? null,
+    domain: "trayectoria",
+    changedFields: ["Trayectoria"],
+  });
   return { success: true };
 }
 
@@ -272,7 +290,13 @@ export async function adminDeleteCoachMedia(
       .select("slug")
       .eq("id", row.coach_id)
       .maybeSingle<{ slug: string | null }>();
-    if (c?.slug) revalidateCoachPublicProfile(c.slug);
+    await recordAdminCoachEdit({
+      actor: gate.actor,
+      coachId: row.coach_id,
+      slug: c?.slug ?? null,
+      domain: "multimedia",
+      changedFields: ["Multimedia eliminada"],
+    });
   }
   return { success: true };
 }
@@ -321,8 +345,13 @@ export async function adminUpdateCoachProfileFields(
     .eq("id", coachId);
   if (error) return { success: false, error: error.message };
 
-  if (before?.slug) revalidateCoachPublicProfile(before.slug);
-  revalidatePath(`/admin/coaches/${coachId}/edit`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    slug: before?.slug ?? null,
+    domain: "datos",
+    changedFields: ["Datos del perfil"],
+  });
   return { success: true };
 }
 
@@ -375,5 +404,265 @@ export async function adminSetCoachStatus(
   if (before?.slug) revalidateCoachPublicProfile(before.slug);
   revalidatePath(`/admin/coaches/${coachId}/edit`);
   revalidatePath("/admin/coaches");
+  return { success: true };
+}
+
+// ─────────────────────────── licencias (admin, live) ───────────────────────────
+// Mirrors upsertCoachLicense's signature so CoachLicensesManager can reuse it,
+// but service-role + target coachId + writes the credential APPROVED directly
+// (admin is the moderator → bypasses the pre-moderation queue).
+
+const adminLicenseSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().trim().min(2, "Mínimo 2 caracteres.").max(160),
+  issuer: optText(120),
+  awardedYear: yearField,
+  expiresYear: yearField,
+  docUrl: z
+    .union([z.string().trim().url("Link inválido."), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+    .refine((v) => v === null || /^https?:\/\//i.test(v), {
+      message: "El enlace debe empezar con http:// o https://.",
+    }),
+});
+
+export async function adminUpsertCoachLicense(
+  coachId: string,
+  input: CoachLicenseInput,
+): Promise<CoachLicenseActionResult> {
+  const parsed = adminLicenseSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const d = parsed.data;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const payload = {
+    title: d.title,
+    issuer: d.issuer,
+    awarded_year: d.awardedYear,
+    expires_year: d.expiresYear,
+    doc_url: d.docUrl,
+    status: "approved" as const,
+    reviewed_by_user_id: gate.actor.actorId,
+    reviewed_at: new Date().toISOString(),
+    rejection_reason: null,
+    updated_at: new Date().toISOString(),
+  };
+
+  let licenseId = d.id ?? null;
+  if (d.id) {
+    const { data, error } = await admin
+      .from("coach_licenses")
+      .update(payload)
+      .eq("id", d.id)
+      .eq("coach_id", coachId)
+      .select("id")
+      .maybeSingle<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    if (!data) return { success: false, message: "No se encontró la licencia." };
+    licenseId = data.id;
+  } else {
+    const { data: maxRow } = await admin
+      .from("coach_licenses")
+      .select("position")
+      .eq("coach_id", coachId)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ position: number }>();
+    const nextPosition = (maxRow?.position ?? -1) + 1;
+    const { data, error } = await admin
+      .from("coach_licenses")
+      .insert({ ...payload, coach_id: coachId, position: nextPosition })
+      .select("id")
+      .single<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    licenseId = data.id;
+  }
+
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "licencias",
+    changedFields: [d.title],
+  });
+  return { success: true, id: licenseId ?? undefined };
+}
+
+export async function adminDeleteCoachLicense(
+  coachId: string,
+  id: string,
+): Promise<CoachLicenseActionResult> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+  const { error } = await admin
+    .from("coach_licenses")
+    .delete()
+    .eq("id", id)
+    .eq("coach_id", coachId);
+  if (error) return { success: false, message: error.message };
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "licencias",
+    changedFields: ["Licencia eliminada"],
+  });
+  return { success: true };
+}
+
+// ─────────────────────────── idiomas (admin) ───────────────────────────
+// Mirrors saveCoachTranslation/deleteCoachTranslation, service-role + target
+// coachId. The admin idiomas PAGE gates Pro by the target's plan (like the
+// player Pro sections); the action itself just writes.
+
+const adminTranslationSchema = z.object({
+  locale: z.enum(["en", "it", "pt"]),
+  bio: optText(5000),
+  careerObjectives: optText(5000),
+  playingStyle: optText(5000),
+  methodologyAnalysis: optText(5000),
+  analysisAuthor: optText(5000),
+});
+
+export async function adminSaveCoachTranslation(
+  coachId: string,
+  input: CoachTranslationInput,
+): Promise<CoachTranslationActionResult> {
+  const parsed = adminTranslationSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { locale, bio, careerObjectives, playingStyle, methodologyAnalysis, analysisAuthor } =
+    parsed.data;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const allEmpty =
+    !bio && !careerObjectives && !playingStyle && !methodologyAnalysis && !analysisAuthor;
+  if (allEmpty) {
+    const { error } = await admin
+      .from("coach_profile_translations")
+      .delete()
+      .eq("coach_id", coachId)
+      .eq("locale", locale);
+    if (error) return { success: false, message: error.message };
+  } else {
+    const { error } = await admin.from("coach_profile_translations").upsert(
+      {
+        coach_id: coachId,
+        locale,
+        bio,
+        career_objectives: careerObjectives,
+        playing_style: playingStyle,
+        methodology_analysis: methodologyAnalysis,
+        analysis_author: analysisAuthor,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "coach_id,locale" },
+    );
+    if (error) return { success: false, message: error.message };
+  }
+
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "idiomas",
+    changedFields: [`Traducción ${locale.toUpperCase()}`],
+  });
+  return { success: true };
+}
+
+export async function adminDeleteCoachTranslation(
+  coachId: string,
+  locale: "en" | "it" | "pt",
+): Promise<CoachTranslationActionResult> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+  const { error } = await admin
+    .from("coach_profile_translations")
+    .delete()
+    .eq("coach_id", coachId)
+    .eq("locale", locale);
+  if (error) return { success: false, message: error.message };
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "idiomas",
+    changedFields: [`Traducción ${locale.toUpperCase()} despublicada`],
+  });
+  return { success: true };
+}
+
+// ─────────────────────────── finalizar revisión ───────────────────────────
+// The deliberate "close + note" per section: saves already applied live; THIS
+// sends the email + in-app notification with the admin's note to the coach.
+
+export async function adminFinalizeCoachReview(input: {
+  coachId: string;
+  domain: CoachAdminEditDomain;
+  note: string;
+}): Promise<{ success: boolean; message?: string }> {
+  const note = (input.note ?? "").trim();
+  if (!note) return { success: false, message: "Escribí una nota para el entrenador." };
+  if (note.length > 1000) {
+    return { success: false, message: "La nota es demasiado larga (máx. 1000 caracteres)." };
+  }
+  if (!COACH_ADMIN_EDIT_DOMAINS.includes(input.domain)) {
+    return { success: false, message: "Sección inválida." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("user_id, full_name")
+    .eq("id", input.coachId)
+    .maybeSingle<{ user_id: string | null; full_name: string | null }>();
+  if (!coach?.user_id) return { success: false, message: "No encontramos el perfil indicado." };
+
+  await sendAdminCoachReviewNotification({
+    actor: gate.actor,
+    coachId: input.coachId,
+    targetUserId: coach.user_id,
+    coachName: coach.full_name ?? "",
+    domain: input.domain,
+    note,
+  });
   return { success: true };
 }

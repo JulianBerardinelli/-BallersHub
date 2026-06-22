@@ -7,6 +7,8 @@ import FormField from "@/components/dashboard/client/FormField";
 import {
   upsertCoachLicense,
   deleteCoachLicense,
+  type CoachLicenseActionResult,
+  type CoachLicenseInput,
 } from "@/app/actions/coach-licenses";
 
 export type CoachLicenseRow = {
@@ -56,7 +58,22 @@ const blankDraft = (): DraftRow => ({
   rejectionReason: null,
 });
 
-export default function CoachLicensesManager({ licenses }: { licenses: CoachLicenseRow[] }) {
+export default function CoachLicensesManager({
+  licenses,
+  upsertAction = upsertCoachLicense,
+  deleteAction = deleteCoachLicense,
+  uploadUrl = "/api/coach/license-doc/upload",
+  liveMode = false,
+}: {
+  licenses: CoachLicenseRow[];
+  /** Save action — defaults to the owner's. Admin injects a service-role one. */
+  upsertAction?: (input: CoachLicenseInput) => Promise<CoachLicenseActionResult>;
+  deleteAction?: (id: string) => Promise<CoachLicenseActionResult>;
+  /** Override the doc-upload endpoint (admin edits another coach). */
+  uploadUrl?: string;
+  /** Admin live edit — adjusts copy (writes publish instantly, no moderation). */
+  liveMode?: boolean;
+}) {
   const router = useRouter();
   const [rows, setRows] = React.useState<DraftRow[]>(licenses.map(toDraft));
 
@@ -71,8 +88,9 @@ export default function CoachLicensesManager({ licenses }: { licenses: CoachLice
           Licencias y certificaciones
         </h2>
         <p className="text-sm text-bh-fg-3">
-          Cada licencia se publica recién cuando el equipo la verifica. Si editás una ya aprobada,
-          vuelve a revisión.
+          {liveMode
+            ? "Edición directa: lo que guardás se publica al instante en la página pública del DT."
+            : "Cada licencia se publica recién cuando el equipo la verifica. Si editás una ya aprobada, vuelve a revisión."}
         </p>
       </div>
 
@@ -81,6 +99,10 @@ export default function CoachLicensesManager({ licenses }: { licenses: CoachLice
           <LicenseCard
             key={row.key}
             row={row}
+            upsertAction={upsertAction}
+            deleteAction={deleteAction}
+            uploadUrl={uploadUrl}
+            liveMode={liveMode}
             onPatch={(p) => patch(row.key, p)}
             onRemoveLocal={() => setRows((prev) => prev.filter((r) => r.key !== row.key))}
             onSaved={() => router.refresh()}
@@ -101,11 +123,19 @@ export default function CoachLicensesManager({ licenses }: { licenses: CoachLice
 
 function LicenseCard({
   row,
+  upsertAction,
+  deleteAction,
+  uploadUrl,
+  liveMode,
   onPatch,
   onRemoveLocal,
   onSaved,
 }: {
   row: DraftRow;
+  upsertAction: (input: CoachLicenseInput) => Promise<CoachLicenseActionResult>;
+  deleteAction: (id: string) => Promise<CoachLicenseActionResult>;
+  uploadUrl: string;
+  liveMode: boolean;
   onPatch: (p: Partial<DraftRow>) => void;
   onRemoveLocal: () => void;
   onSaved: () => void;
@@ -123,7 +153,7 @@ function LicenseCard({
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/coach/license-doc/upload", { method: "POST", body: fd });
+      const res = await fetch(uploadUrl, { method: "POST", body: fd });
       const json = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !json.url) throw new Error(json.error ?? "No se pudo subir el archivo.");
       onPatch({ docUrl: json.url });
@@ -139,7 +169,7 @@ function LicenseCard({
   async function onSave() {
     setSaving(true);
     setMsg(null);
-    const res = await upsertCoachLicense({
+    const res = await upsertAction({
       id: row.id ?? undefined,
       title: row.title,
       issuer: row.issuer || null,
@@ -149,7 +179,12 @@ function LicenseCard({
     });
     setSaving(false);
     if (res.success) {
-      setMsg({ ok: true, text: "Guardada. Queda en revisión hasta que el equipo la apruebe." });
+      setMsg({
+        ok: true,
+        text: liveMode
+          ? "Guardada. Publicada al instante en la página pública."
+          : "Guardada. Queda en revisión hasta que el equipo la apruebe.",
+      });
       onSaved();
     } else {
       setMsg({ ok: false, text: res.message ?? "No se pudo guardar." });
@@ -162,7 +197,7 @@ function LicenseCard({
       return;
     }
     setSaving(true);
-    const res = await deleteCoachLicense(row.id);
+    const res = await deleteAction(row.id);
     setSaving(false);
     if (res.success) {
       onSaved();

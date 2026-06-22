@@ -1,5 +1,4 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { resolveProUserIds } from "@/lib/seo/indexable-profiles";
@@ -62,21 +61,11 @@ export default async function AdminCoachMediaPage({
   });
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <Link href={`/admin/coaches/${id}/edit`} className="text-[12px] text-bh-fg-3 hover:text-bh-fg-1">
-          ← {coach.full_name}
-        </Link>
-        <p className="mt-1 text-sm text-neutral-400">
-          Subí o eliminá fotos y videos del DT. Lo que subís acá queda publicado al instante.
-        </p>
-      </div>
-      <CoachMediaManager
-        items={items}
-        isPro={isPro}
-        uploadUrl={`/api/admin/coaches/${id}/media/upload`}
-        deleteAction={adminDeleteCoachMedia}
-      />
-    </main>
+    <CoachMediaManager
+      items={items}
+      isPro={isPro}
+      uploadUrl={`/api/admin/coaches/${id}/media/upload`}
+      deleteAction={adminDeleteCoachMedia}
+    />
   );
 }

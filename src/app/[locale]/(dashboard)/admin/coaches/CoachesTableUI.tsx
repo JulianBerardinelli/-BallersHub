@@ -19,6 +19,7 @@ import {
 } from "@heroui/react";
 import { Filter, Settings } from "lucide-react";
 import { Link } from "@/i18n/navigation";
+import { COACH_ADMIN_EDIT_SECTIONS } from "@/lib/admin/coach-edit-sections";
 import { bhTableClassNames, bhChip } from "@/lib/ui/heroui-brand";
 import type { SortDescriptor, Key } from "@react-types/shared";
 import type { CoachAdminRow, CoachAdminStatus, CoachAdminPlan } from "./types";
@@ -74,15 +75,15 @@ const RowOptions = React.memo(function RowOptions({
             Ver perfil público
           </Link>
           <div className="my-1 h-px bg-white/[0.08]" />
-          <Link href={`/admin/coaches/${a.id}/edit`} className={ROW_MENU_ITEM_CLASS}>
-            Editar perfil
-          </Link>
-          <Link href={`/admin/coaches/${a.id}/edit/trayectoria`} className={ROW_MENU_ITEM_CLASS}>
-            Editar trayectoria
-          </Link>
-          <Link href={`/admin/coaches/${a.id}/edit/multimedia`} className={ROW_MENU_ITEM_CLASS}>
-            Editar multimedia
-          </Link>
+          {COACH_ADMIN_EDIT_SECTIONS.map((s) => (
+            <Link
+              key={s.key}
+              href={`/admin/coaches/${a.id}/edit/${s.key}`}
+              className={ROW_MENU_ITEM_CLASS}
+            >
+              {`Editar ${s.label.toLowerCase()}`}
+            </Link>
+          ))}
           <div className="my-1 h-px bg-white/[0.08]" />
           <button type="button" onClick={() => copyId(a.id)} className={ROW_MENU_ITEM_CLASS}>
             Copiar ID
