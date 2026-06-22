@@ -11,11 +11,12 @@
 
 import "server-only";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { playerProfiles } from "@/db/schema/players";
 import { teams } from "@/db/schema/teams";
+import { careerItems } from "@/db/schema/career";
 // Single source of truth for the Pro predicate — shared with the sitemap and
 // the `/players` directory so the three never drift (and so the `plan_id`
 // fallback is applied everywhere, not just here).
@@ -25,7 +26,6 @@ import {
 } from "@/lib/seo/indexable-profiles";
 import {
   nameInitials,
-  normalizeContract,
   normalizeFoot,
   resolveAllPositions,
   resolveNationalityCodes,
@@ -91,7 +91,6 @@ export async function getScoutingPlayers(
       positions: playerProfiles.positions,
       gender: playerProfiles.gender,
       currentClub: playerProfiles.currentClub,
-      contractStatus: playerProfiles.contractStatus,
       marketValueEur: playerProfiles.marketValueEur,
       avatarUrl: playerProfiles.avatarUrl,
       bio: playerProfiles.bio,
@@ -103,6 +102,12 @@ export async function getScoutingPlayers(
       teamCity: teams.city,
       teamLat: teams.latitude,
       teamLon: teams.longitude,
+      // Estado Libre/Con contrato: la fuente primaria es la TRAYECTORIA, no el
+      // texto libre `contract_status`. "Tiene equipo actual" = existe una etapa
+      // en `career_items` sin fecha de fin (lo que setea el toggle "Es mi
+      // equipo actual" en el editor de trayectoria). El badge final aplica
+      // además un fallback al club asignado — ver más abajo.
+      hasCurrentTeam: sql<boolean>`exists (select 1 from ${careerItems} ci where ci.player_id = ${playerProfiles.id} and ci.end_date is null)`,
     })
     .from(playerProfiles)
     .leftJoin(teams, eq(playerProfiles.currentTeamId, teams.id))
@@ -148,7 +153,12 @@ export async function getScoutingPlayers(
         clubCrestUrl: cleanCrest(r.teamCrestUrl),
         nationality: natCodes[0] ?? null,
         nationalities: natCodes,
-        contract: normalizeContract(r.contractStatus),
+        // Libre = sin etapa actual en la trayectoria Y sin club asignado. El
+        // fallback a `club` (current_team_id/current_club) cubre el perfil que
+        // tiene club pero cuya trayectoria aún no materializó la etapa actual
+        // (p. ej. aprobado antes de procesar los career proposals): así el badge
+        // nunca dice "Libre" al lado de un club visible.
+        contract: r.hasCurrentTeam || club != null ? "contracted" : "free",
         gender: r.gender ?? "male",
         foot: normalizeFoot(r.foot),
         heightCm: r.heightCm ?? null,

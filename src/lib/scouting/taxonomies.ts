@@ -8,7 +8,6 @@
 // ataque=verde.
 
 import type {
-  ContractStatus,
   CountryOption,
   FootCode,
   PositionGroup,
@@ -204,22 +203,11 @@ export function normalizeFoot(raw: string | null | undefined): FootCode | null {
   return null;
 }
 
-/**
- * Normalize the free-text `contract_status` column to the binary the two
- * accents encode. Only an explicit "free/libre" signal flips to free; anything
- * else (including empty) stays contracted, so we never falsely advertise a
- * player as available.
- */
-export function normalizeContract(
-  raw: string | null | undefined,
-): ContractStatus {
-  if (!raw) return "contracted";
-  const s = normalizeText(raw);
-  if (/(libre|free agent|free|sin contrato|agente libre|disponible|sin club)/.test(s)) {
-    return "free";
-  }
-  return "contracted";
-}
+// El estado Libre/Con contrato NO se deriva del texto libre `contract_status`
+// (era editable y contradecía al club: un jugador con equipo actual podía
+// figurar "Libre"). Ahora se calcula desde la TRAYECTORIA en
+// `getScoutingPlayers` — `career_items.end_date IS NULL` = tiene equipo actual.
+// Ver src/lib/scouting/data.ts.
 
 /** ISO-2 → flag emoji via regional-indicator code points. "" if invalid. */
 export function flagEmoji(cc: string | null | undefined): string {
