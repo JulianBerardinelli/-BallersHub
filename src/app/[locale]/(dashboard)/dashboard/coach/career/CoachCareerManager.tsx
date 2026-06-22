@@ -80,16 +80,23 @@ export default function CoachCareerManager({
   career,
   stats,
   latestRequest,
+  submitAction = submitCoachCareerRevision,
+  liveMode = false,
 }: {
   coachId: string;
   coachName: string;
   career: CoachCareerStage[];
   stats: CoachSeasonStat[];
   latestRequest: CoachCareerRequestSnapshot | null;
+  /** Submit action — defaults to the moderated revision flow. Admin injects a
+   *  service-role live-write with the same input shape. */
+  submitAction?: typeof submitCoachCareerRevision;
+  /** Admin live mode: no revision lockout/banners/note, writes apply directly. */
+  liveMode?: boolean;
 }) {
   const router = useRouter();
   const { enqueue } = useNotificationContext();
-  const isLocked = latestRequest?.status === "pending";
+  const isLocked = !liveMode && latestRequest?.status === "pending";
 
   const [items, setItems] = React.useState<CoachCareerStage[]>(career);
   const [seasons, setSeasons] = React.useState<CoachSeasonStat[]>(stats);
@@ -115,7 +122,7 @@ export default function CoachCareerManager({
         setSaving(false);
         return;
       }
-      const res = await submitCoachCareerRevision({
+      const res = await submitAction({
         coachId,
         note: note || null,
         items: cleanItems.map((s) => ({
@@ -142,7 +149,9 @@ export default function CoachCareerManager({
       if (res.success) {
         setMsg({
           ok: true,
-          text: "Solicitud enviada. El equipo va a revisar tu trayectoria antes de publicarla.",
+          text: liveMode
+            ? "Trayectoria actualizada. Se reflejó en la página pública."
+            : "Solicitud enviada. El equipo va a revisar tu trayectoria antes de publicarla.",
         });
         enqueue(
           profileNotification.updated({
@@ -185,7 +194,7 @@ export default function CoachCareerManager({
         </p>
       </div>
 
-      {latestRequest?.status === "pending" && (
+      {!liveMode && latestRequest?.status === "pending" && (
         <Banner tone="warning">
           <p className="font-semibold text-bh-warning">Solicitud en revisión</p>
           <p className="text-bh-fg-2">
@@ -206,7 +215,7 @@ export default function CoachCareerManager({
           </div>
         </Banner>
       )}
-      {latestRequest?.status === "approved" && (
+      {!liveMode && latestRequest?.status === "approved" && (
         <Banner tone="success">
           <p className="font-semibold text-bh-success">Tu última solicitud fue aprobada ✓</p>
           {latestRequest.resolutionNote && (
@@ -214,7 +223,7 @@ export default function CoachCareerManager({
           )}
         </Banner>
       )}
-      {latestRequest?.status === "rejected" && (
+      {!liveMode && latestRequest?.status === "rejected" && (
         <Banner tone="danger">
           <p className="font-semibold text-bh-danger">Tu última solicitud fue rechazada</p>
           {latestRequest.resolutionNote && (
@@ -435,7 +444,7 @@ export default function CoachCareerManager({
       </section>
 
       {/* ───────── Note + submit ───────── */}
-      {!isLocked && (
+      {!isLocked && !liveMode && (
         <section className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
           <FormField
             id="coach-career-note"
@@ -460,7 +469,7 @@ export default function CoachCareerManager({
           isDisabled={saving || isLocked}
           className="rounded-bh-md bg-bh-lime px-6 py-2 text-[13px] font-semibold text-bh-black hover:bg-[#d8ff26]"
         >
-          Enviar a revisión
+          {liveMode ? "Guardar trayectoria" : "Enviar a revisión"}
         </Button>
       </div>
     </div>

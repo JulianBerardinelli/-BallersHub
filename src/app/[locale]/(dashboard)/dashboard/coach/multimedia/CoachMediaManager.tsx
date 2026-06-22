@@ -21,9 +21,15 @@ export type CoachMediaItem = {
 export default function CoachMediaManager({
   items,
   isPro = false,
+  uploadUrl = "/api/coach/media/upload",
+  deleteAction = deleteCoachMedia,
 }: {
   items: CoachMediaItem[];
   isPro?: boolean;
+  /** Override the upload endpoint (admin manages another coach's media). */
+  uploadUrl?: string;
+  /** Override the delete action (admin uses a service-role one). */
+  deleteAction?: (id: string) => Promise<{ success: boolean; message?: string }>;
 }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
@@ -45,7 +51,7 @@ export default function CoachMediaManager({
     setBusy(true);
     setMsg(null);
     try {
-      const res = await fetch("/api/coach/media/upload", { method: "POST", body: form });
+      const res = await fetch(uploadUrl, { method: "POST", body: form });
       const json = (await res.json()) as { error?: string };
       if (!res.ok) {
         setMsg({ ok: false, text: json.error ?? "No se pudo subir." });
@@ -64,7 +70,7 @@ export default function CoachMediaManager({
 
   async function onDelete(id: string) {
     setBusy(true);
-    const res = await deleteCoachMedia(id);
+    const res = await deleteAction(id);
     setBusy(false);
     if (res.success) router.refresh();
     else setMsg({ ok: false, text: res.message ?? "No se pudo eliminar." });

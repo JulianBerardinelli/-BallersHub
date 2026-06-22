@@ -16,9 +16,12 @@ const MAX_BYTES = 8 * 1024 * 1024;
 export default function CoachImageUploader({
   mode,
   currentUrl,
+  uploadUrl = "/api/coach/profile-image/upload",
 }: {
   mode: "avatar" | "hero";
   currentUrl: string | null;
+  /** Override the upload endpoint (admin edits another coach's images). */
+  uploadUrl?: string;
 }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -59,7 +62,7 @@ export default function CoachImageUploader({
       const fd = new FormData();
       fd.append("file", new File([blob], `${mode}.img`, { type: blob.type || "image/jpeg" }));
       fd.append("assetType", mode);
-      const res = await fetch("/api/coach/profile-image/upload", { method: "POST", body: fd });
+      const res = await fetch(uploadUrl, { method: "POST", body: fd });
       const json = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !json.url) throw new Error(json.error ?? "No se pudo subir la imagen.");
       setPreview(json.url);

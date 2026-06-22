@@ -12,12 +12,18 @@ const textareaClasses = { inputWrapper: "bg-bh-surface-2 border border-white/[0.
 
 export default function CoachProfileEditor({
   initial,
+  action = updateCoachProfile,
+  imageUploadUrl,
 }: {
   initial: CoachProfileInput & {
     fullName: string;
     avatarUrl: string | null;
     heroUrl: string | null;
   };
+  /** Save action — defaults to the owner's. Admin injects a service-role one. */
+  action?: (input: CoachProfileInput) => Promise<{ success: boolean; error?: string }>;
+  /** Override the image-upload endpoint (admin edits another coach). */
+  imageUploadUrl?: string;
 }) {
   const { enqueue } = useNotificationContext();
   const { access } = usePlanAccess();
@@ -39,7 +45,7 @@ export default function CoachProfileEditor({
     setSaving(true);
     setMsg(null);
     try {
-      const res = await updateCoachProfile({
+      const res = await action({
         roleTitle: roleTitle || null,
         bio: bio || null,
         careerObjectives: careerObjectives || null,
@@ -93,7 +99,7 @@ export default function CoachProfileEditor({
           <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
             Avatar
           </p>
-          <CoachImageUploader mode="avatar" currentUrl={initial.avatarUrl} />
+          <CoachImageUploader mode="avatar" currentUrl={initial.avatarUrl} uploadUrl={imageUploadUrl} />
         </div>
         <div className="border-t border-white/[0.06] pt-5">
           <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
@@ -103,7 +109,7 @@ export default function CoachProfileEditor({
             </span>
           </p>
           {access.isPro ? (
-            <CoachImageUploader mode="hero" currentUrl={initial.heroUrl} />
+            <CoachImageUploader mode="hero" currentUrl={initial.heroUrl} uploadUrl={imageUploadUrl} />
           ) : (
             <p className="max-w-[420px] text-[12px] leading-[1.5] text-bh-fg-4">
               El asset Pro es la imagen recortada que protagoniza el hero de tu página en el layout

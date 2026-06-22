@@ -8,6 +8,17 @@ import { z } from "zod";
 import { ensureAdminActor } from "@/lib/admin/auth";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 import { revalidatePath } from "next/cache";
+import type { CoachProfileInput } from "./coach-profile";
+import type {
+  CoachCareerRevisionSubmissionInput,
+  CoachCareerActionResult,
+} from "./coach-career";
+
+const normHexValue = (v: string | null | undefined): string | null => {
+  if (!v) return null;
+  const t = v.trim();
+  return /^#[0-9a-fA-F]{6}$/.test(t) ? t.toLowerCase() : null;
+};
 
 const optText = (max: number) =>
   z
@@ -263,5 +274,106 @@ export async function adminDeleteCoachMedia(
       .maybeSingle<{ slug: string | null }>();
     if (c?.slug) revalidateCoachPublicProfile(c.slug);
   }
+  return { success: true };
+}
+
+// ─────────────────────────── editor reuse (admin) ───────────────────────────
+// These mirror the OWNER actions' signatures so the SAME dashboard editor
+// components (CoachProfileEditor, CoachCareerManager) can be reused in admin by
+// injecting these via .bind(null, coachId) — exactly like the player admin.
+
+// Same shape/return as updateCoachProfile, but service-role + target coachId.
+export async function adminUpdateCoachProfileFields(
+  coachId: string,
+  input: CoachProfileInput,
+): Promise<{ success: boolean; error?: string }> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, error: gate.error };
+  const admin = gate.actor.adminClient;
+
+  const formations = (input.preferredFormations ?? [])
+    .map((f) => f.trim())
+    .filter((f) => f.length > 0)
+    .slice(0, 12);
+
+  const { data: before } = await admin
+    .from("coach_profiles")
+    .select("slug")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null }>();
+
+  const { error } = await admin
+    .from("coach_profiles")
+    .update({
+      role_title: input.roleTitle?.trim() || null,
+      bio: input.bio?.trim() || null,
+      career_objectives: input.careerObjectives?.trim() || null,
+      playing_style: input.playingStyle?.trim() || null,
+      methodology_analysis: input.methodologyAnalysis?.trim() || null,
+      preferred_formations: formations.length > 0 ? formations : null,
+      ...(input.theme && {
+        theme_primary_color: normHexValue(input.theme.primaryColor),
+        theme_accent_color: normHexValue(input.theme.accentColor),
+        theme_background_color: normHexValue(input.theme.backgroundColor),
+      }),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", coachId);
+  if (error) return { success: false, error: error.message };
+
+  if (before?.slug) revalidateCoachPublicProfile(before.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit`);
+  return { success: true };
+}
+
+// Same input/return as submitCoachCareerRevision, but writes LIVE (no revision).
+export async function adminSubmitCoachCareerLive(
+  input: CoachCareerRevisionSubmissionInput,
+): Promise<CoachCareerActionResult> {
+  return adminReplaceCoachCareer({
+    coachId: input.coachId,
+    items: (input.items ?? []).map((s) => ({
+      club: s.club,
+      roleTitle: s.roleTitle,
+      division: s.division,
+      startYear: s.startYear,
+      endYear: s.endYear,
+    })),
+    stats: (input.stats ?? []).map((s) => ({
+      season: s.season,
+      team: s.team,
+      competition: s.competition,
+      matches: s.matches,
+      wins: s.wins,
+      draws: s.draws,
+      losses: s.losses,
+      goalsFor: s.goalsFor,
+      goalsAgainst: s.goalsAgainst,
+    })),
+  });
+}
+
+// Status + visibility only (admin meta the owner editor doesn't expose).
+export async function adminSetCoachStatus(
+  coachId: string,
+  status: "draft" | "pending_review" | "approved" | "rejected",
+  visibility: "public" | "private",
+): Promise<{ success: boolean; message?: string }> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const { data: before } = await admin
+    .from("coach_profiles")
+    .select("slug")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null }>();
+  const { error } = await admin
+    .from("coach_profiles")
+    .update({ status, visibility, updated_at: new Date().toISOString() })
+    .eq("id", coachId);
+  if (error) return { success: false, message: error.message };
+  if (before?.slug) revalidateCoachPublicProfile(before.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit`);
+  revalidatePath("/admin/coaches");
   return { success: true };
 }
