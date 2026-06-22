@@ -5,6 +5,7 @@
 // for the design-system CSS variables.
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { SCOUT_COUNTRIES, type ScoutCountry, type TagPlayer } from "./data";
@@ -181,11 +182,18 @@ export const Btn = ({
 };
 
 // ── Headline presets (h1 — SSR'd for SEO) ──
-const HEADLINES: Record<string, { lines: string[][] }> = {
-  visibilidad: { lines: [["El hub donde el"], ["#TALENTO", "futbolístico"], ["gana visibilidad real."]] },
-  datos: { lines: [["Tu carrera."], ["Tu", "#data."], ["Tu futuro."]] },
-  scouting: { lines: [["Donde el", "#scouting"], ["encuentra su"], ["próxima joya."]] },
-  fronteras: { lines: [["El talento no"], ["tiene", "#fronteras."], ["Mostralo al mundo."]] },
+//
+// The localized headlines live in messages `home.hero.headlines.<which>` as an
+// array of LINE strings; `#word` marks the accent-colored word (split client-
+// side by spaces, so word count per line is free per language). This local map
+// is the es fallback (also the source mirrored in es/home.json) used when the
+// message is missing. Read via `t.raw()` to bypass ICU — Italian "L'hub" has an
+// apostrophe that ICU would treat as an escape char.
+const HEADLINE_FALLBACK: Record<string, string[]> = {
+  visibilidad: ["El hub donde el", "#TALENTO futbolístico", "gana visibilidad real."],
+  datos: ["Tu carrera.", "Tu #data.", "Tu futuro."],
+  scouting: ["Donde el #scouting", "encuentra su", "próxima joya."],
+  fronteras: ["El talento no", "tiene #fronteras.", "Mostralo al mundo."],
 };
 
 export const Headline = ({
@@ -199,13 +207,23 @@ export const Headline = ({
   size?: number | string;
   animate?: boolean;
 }) => {
-  const data = HEADLINES[which] || HEADLINES.visibilidad;
+  const t = useTranslations("home");
+  const raw = (() => {
+    try {
+      return t.raw(`hero.headlines.${which}`);
+    } catch {
+      return null;
+    }
+  })();
+  const lines: string[] = Array.isArray(raw)
+    ? (raw as string[])
+    : HEADLINE_FALLBACK[which] ?? HEADLINE_FALLBACK.visibilidad;
   let wi = 0;
   return (
     <h1 style={{ fontFamily: FONT_DISPLAY, fontWeight: 900, fontSize: size, lineHeight: 0.94, textTransform: "uppercase", color: "#fff", margin: 0, letterSpacing: "-0.01em" }}>
-      {data.lines.map((line, li) => (
+      {lines.map((line, li) => (
         <span key={li} style={{ display: "block", overflow: "hidden", padding: "0.02em 0" }}>
-          {line.map((word, i) => {
+          {line.split(" ").map((word, i) => {
             const isAccent = word.startsWith("#");
             const text = isAccent ? word.slice(1) : word;
             const delay = wi++ * 70;

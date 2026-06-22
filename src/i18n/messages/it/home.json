@@ -31,6 +31,28 @@
       "accentWord": "hub",
       "body": "Ogni profilo è validato: identità, carriera e referenze confermate dal nostro team.",
       "cta": "Crea portfolio web"
+    },
+    "headlines": {
+      "visibilidad": [
+        "L'hub dove il",
+        "#TALENTO calcistico",
+        "ottiene visibilità reale."
+      ],
+      "datos": [
+        "La tua carriera.",
+        "I tuoi #dati.",
+        "Il tuo futuro."
+      ],
+      "scouting": [
+        "Dove lo #scouting",
+        "trova la sua",
+        "prossima perla."
+      ],
+      "fronteras": [
+        "Il talento non",
+        "ha #confini.",
+        "Mostralo al mondo."
+      ]
     }
   },
   "dashJourney": {
