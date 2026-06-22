@@ -1,8 +1,6 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
-import { NotificationProvider } from "@/modules/notifications";
 import CoachCareerManager, {
   type CoachCareerStage,
   type CoachSeasonStat,
@@ -87,26 +85,14 @@ export default async function AdminCoachCareerPage({
   });
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6">
-      <div>
-        <Link href={`/admin/coaches/${id}/edit`} className="text-[12px] text-bh-fg-3 hover:text-bh-fg-1">
-          ← {coach.full_name}
-        </Link>
-        <p className="mt-1 text-sm text-neutral-400">
-          Edición directa (sin pasar por revisión): al guardar se reemplaza la trayectoria viva del DT.
-        </p>
-      </div>
-      <NotificationProvider>
-        <CoachCareerManager
-          coachId={id}
-          coachName={coach.full_name}
-          career={career}
-          stats={stats}
-          latestRequest={null}
-          submitAction={adminSubmitCoachCareerLive}
-          liveMode
-        />
-      </NotificationProvider>
-    </main>
+    <CoachCareerManager
+      coachId={id}
+      coachName={coach.full_name}
+      career={career}
+      stats={stats}
+      latestRequest={null}
+      submitAction={adminSubmitCoachCareerLive}
+      liveMode
+    />
   );
 }

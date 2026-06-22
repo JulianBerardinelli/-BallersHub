@@ -14,7 +14,8 @@ export type NotificationTemplateKey =
   | "review.rejected"
   | "announcement.general"
   | "profile.updated"
-  | "admin.profileCorrected";
+  | "admin.profileCorrected"
+  | "admin.coachProfileCorrected";
 
 export type TemplateContextMap = {
   "onboarding.submitted": BaseContext;
@@ -38,6 +39,14 @@ export type TemplateContextMap = {
   // Surfaced on the player's next login (persisted in the `notifications` table).
   "admin.profileCorrected": BaseContext & {
     domain: AdminEditDomain;
+    note: string;
+    detailsHref?: string;
+  };
+  // Coach variant — isolated from the player one (zero player regression). The
+  // coach edit domains differ (licencias/idiomas), so the section label is
+  // resolved server-side and carried verbatim instead of via AdminEditDomain.
+  "admin.coachProfileCorrected": BaseContext & {
+    sectionLabel: string;
     note: string;
     detailsHref?: string;
   };

@@ -32,17 +32,26 @@ export type CoachShellApplication = {
   rejectionReason: string | null;
 };
 
+export type CoachShellAdminEdit = {
+  id: string;
+  sectionLabel: string;
+  note: string;
+  detailsHref?: string | null;
+};
+
 export default function CoachDashboardShell({
   userEmail,
   profile,
   application,
   subscription,
+  adminEdits,
   children,
 }: {
   userEmail: string | null;
   profile: CoachShellProfile | null;
   application: CoachShellApplication | null;
   subscription: DashboardSubscription | null;
+  adminEdits?: CoachShellAdminEdit[] | null;
   children: ReactNode;
 }) {
   const planAccess = resolvePlanAccess(subscription ?? null);
@@ -66,6 +75,7 @@ export default function CoachDashboardShell({
               }
             : null
         }
+        coachAdminEdits={adminEdits ?? undefined}
       />
       <div className="mx-auto w-full max-w-[1200px] px-6 py-7 max-lg:pb-32">
         <header className="space-y-5">

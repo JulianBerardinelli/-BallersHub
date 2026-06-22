@@ -27,4 +27,5 @@ export const profileNotification = {
 
 export const adminNotification = {
   profileCorrected: ((context, id?) => ({ template: "admin.profileCorrected", context, id })) satisfies Builder<"admin.profileCorrected">,
+  coachProfileCorrected: ((context, id?) => ({ template: "admin.coachProfileCorrected", context, id })) satisfies Builder<"admin.coachProfileCorrected">,
 };

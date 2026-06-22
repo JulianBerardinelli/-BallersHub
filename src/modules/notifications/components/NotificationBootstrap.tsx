@@ -39,17 +39,27 @@ type AdminEditSnapshot = {
   detailsHref?: string | null;
 };
 
+type CoachAdminEditSnapshot = {
+  /** notifications.id — the stable per-device dedupe key. */
+  id: string;
+  /** Pre-resolved section label (coach domains differ from AdminEditDomain). */
+  sectionLabel: string;
+  note: string;
+  detailsHref?: string | null;
+};
+
 type Props = {
   userName?: string | null;
   onboarding?: OnboardingSnapshot | null;
   latestReview?: ReviewSnapshot | null;
   adminEdits?: AdminEditSnapshot[] | null;
+  coachAdminEdits?: CoachAdminEditSnapshot[] | null;
 };
 
 const DASHBOARD_FALLBACK = "/dashboard";
 const REVIEW_DETAILS_FALLBACK = "/dashboard/edit-profile/football-data";
 
-export function NotificationBootstrap({ userName, onboarding, latestReview, adminEdits }: Props) {
+export function NotificationBootstrap({ userName, onboarding, latestReview, adminEdits, coachAdminEdits }: Props) {
   const { enqueue } = useNotificationContext();
 
   useEffect(() => {
@@ -174,6 +184,32 @@ export function NotificationBootstrap({ userName, onboarding, latestReview, admi
       );
     }
   }, [enqueue, adminEdits, userName]);
+
+  // Coach variant — same machinery, isolated kind (zero player regression).
+  useEffect(() => {
+    if (!coachAdminEdits || coachAdminEdits.length === 0) {
+      return;
+    }
+
+    for (const edit of coachAdminEdits) {
+      const eventId = `admin.coachEdit:${edit.id}`;
+      if (!ensureEventRecorded(eventId)) {
+        continue;
+      }
+
+      enqueue(
+        adminNotification.coachProfileCorrected(
+          {
+            userName: userName ?? undefined,
+            sectionLabel: edit.sectionLabel,
+            note: edit.note,
+            detailsHref: edit.detailsHref ?? undefined,
+          },
+          eventId,
+        ),
+      );
+    }
+  }, [enqueue, coachAdminEdits, userName]);
 
   return null;
 }

@@ -160,4 +160,16 @@ export const notificationTemplates: {
       detailsHref ? { label: "Ver mi perfil", href: detailsHref } : undefined,
     expandable: true,
   },
+  // Coach variant — the section label is pre-resolved (coach domains differ).
+  "admin.coachProfileCorrected": {
+    key: "admin.coachProfileCorrected",
+    category: "profile",
+    tone: "info",
+    headline: ({ userName, sectionLabel }) =>
+      `${displayName(userName)}revisamos tu ${sectionLabel} 📝`,
+    body: ({ note }) => note,
+    cta: ({ detailsHref }) =>
+      detailsHref ? { label: "Ver mi perfil", href: detailsHref } : undefined,
+    expandable: true,
+  },
 };

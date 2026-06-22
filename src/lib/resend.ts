@@ -8,6 +8,11 @@ import {
   ADMIN_EDIT_DOMAIN_LABELS,
   type AdminEditDomain,
 } from "@/lib/admin/edit-domains";
+import {
+  COACH_ADMIN_EDIT_DOMAIN_HREFS,
+  COACH_ADMIN_EDIT_DOMAIN_LABELS,
+  type CoachAdminEditDomain,
+} from "@/lib/admin/coach-edit-sections";
 import type { Locale } from "@/i18n/routing";
 
 /**
@@ -540,6 +545,43 @@ export async function sendAdminProfileCorrectedEmail(opts: {
     });
   } catch (error) {
     console.error("[resend] sendAdminProfileCorrectedEmail:", error);
+  }
+}
+
+/**
+ * Coach variant of sendAdminProfileCorrectedEmail. Reuses the same (audience-
+ * agnostic) template — the copy says "tu perfil / tu {sección}" — and resolves
+ * the coach edit href + section label from the coach domain map. Silent failure.
+ */
+export async function sendAdminCoachProfileCorrectedEmail(opts: {
+  email: string;
+  coachName: string;
+  domain: CoachAdminEditDomain;
+  note: string;
+}) {
+  if (!resend) {
+    console.log("[Resend Mock] Admin coach profile corrected →", opts.email, opts.domain);
+    return;
+  }
+  try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
+    const editUrl = `${siteUrl.replace(/\/+$/, "")}${COACH_ADMIN_EDIT_DOMAIN_HREFS[opts.domain]}`;
+    const html = await renderTemplate("admin_profile_corrected", {
+      playerName: opts.coachName,
+      sectionLabel: COACH_ADMIN_EDIT_DOMAIN_LABELS[opts.domain],
+      note: opts.note,
+      dashboardUrl: editUrl,
+      recipientEmail: opts.email,
+      locale,
+    });
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject: ADMIN_CORRECTED_SUBJECT[locale] ?? ADMIN_CORRECTED_SUBJECT.es,
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendAdminCoachProfileCorrectedEmail:", error);
   }
 }
 

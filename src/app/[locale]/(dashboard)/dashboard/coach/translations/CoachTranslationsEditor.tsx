@@ -7,6 +7,8 @@ import FormField from "@/components/dashboard/client/FormField";
 import {
   saveCoachTranslation,
   deleteCoachTranslation,
+  type CoachTranslationInput,
+  type CoachTranslationActionResult,
 } from "@/app/actions/coach-translations";
 
 export type CoachTranslatableLocale = "en" | "it" | "pt";
@@ -44,10 +46,15 @@ export default function CoachTranslationsEditor({
   coachName,
   source,
   translations,
+  saveAction = saveCoachTranslation,
+  deleteAction = deleteCoachTranslation,
 }: {
   coachName: string;
   source: CoachLocaleFields;
   translations: Record<CoachTranslatableLocale, CoachLocaleFields>;
+  /** Save action — defaults to the owner's. Admin injects a service-role one. */
+  saveAction?: (input: CoachTranslationInput) => Promise<CoachTranslationActionResult>;
+  deleteAction?: (locale: CoachTranslatableLocale) => Promise<CoachTranslationActionResult>;
 }) {
   const router = useRouter();
   const [active, setActive] = React.useState<CoachTranslatableLocale>("en");
@@ -65,7 +72,7 @@ export default function CoachTranslationsEditor({
   async function onSave() {
     setSaving(true);
     setMsg(null);
-    const res = await saveCoachTranslation({ locale: active, ...current });
+    const res = await saveAction({ locale: active, ...current });
     setSaving(false);
     if (res.success) {
       setMsg({
@@ -83,7 +90,7 @@ export default function CoachTranslationsEditor({
   async function onUnpublish() {
     setSaving(true);
     setMsg(null);
-    const res = await deleteCoachTranslation(active);
+    const res = await deleteAction(active);
     setSaving(false);
     if (res.success) {
       setDrafts((prev) => ({

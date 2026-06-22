@@ -23,6 +23,12 @@ import {
   isAdminEditDomain,
   type AdminEditDomain,
 } from "@/lib/admin/edit-domains";
+import {
+  COACH_ADMIN_EDIT_DOMAIN_HREFS,
+  COACH_ADMIN_EDIT_DOMAIN_LABELS,
+  isCoachAdminEditDomain,
+  type CoachAdminEditDomain,
+} from "@/lib/admin/coach-edit-sections";
 import type { ClientDashboardNavBadge } from "./navigation";
 import {
   hasActiveApplication,
@@ -60,6 +66,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           profile={coachShell.profile}
           application={coachShell.application}
           subscription={coachShell.subscription}
+          adminEdits={coachShell.adminEdits}
         >
           {children}
         </CoachDashboardShell>
@@ -397,7 +404,36 @@ async function loadCoachShellData(
     .eq("user_id", user.id)
     .maybeSingle();
 
+  // Unread "staff corrected your coach profile" notifications → on-login toast.
+  // Mirrors the player path; the isolated coach kind keeps the two separate.
+  const adminEditRows = await db.query.notifications.findMany({
+    where: (n, { and, eq, isNull }) =>
+      and(
+        eq(n.recipientUserId, user.id),
+        eq(n.kind, "admin.coachProfileCorrected"),
+        isNull(n.readAt),
+      ),
+    orderBy: (n, { desc }) => desc(n.createdAt),
+    limit: 10,
+  });
+  const adminEdits = adminEditRows.map((n) => {
+    const payload = (n.payload ?? {}) as { domain?: string; note?: unknown };
+    const domain: CoachAdminEditDomain =
+      payload.domain && isCoachAdminEditDomain(payload.domain) ? payload.domain : "datos";
+    const note =
+      typeof payload.note === "string" && payload.note.trim()
+        ? payload.note.trim()
+        : "Revisamos tu perfil.";
+    return {
+      id: n.id,
+      sectionLabel: COACH_ADMIN_EDIT_DOMAIN_LABELS[domain],
+      note,
+      detailsHref: COACH_ADMIN_EDIT_DOMAIN_HREFS[domain],
+    };
+  });
+
   return {
+    adminEdits,
     profile: profile
       ? {
           slug: profile.slug as string,
