@@ -21,7 +21,9 @@
     "contact": "Contato",
     "tactics": "Tática",
     "press": "Imprensa",
-    "gallery": "Galeria"
+    "gallery": "Galeria",
+    "philosophy": "Filosofia",
+    "licenses": "Licenças"
   },
   "a11y": {
     "backTo": "Voltar para",
@@ -410,6 +412,44 @@
     "mediaTitle": "Mídia",
     "videoFallback": "Ver vídeo",
     "contactTitle": "Contato",
-    "proClubsLabel": "Clubes"
+    "proClubsLabel": "Clubes",
+    "free": {
+      "roleFallback": "Treinador",
+      "vitalExperience": "Experiência",
+      "vitalScheme": "Esquema",
+      "vitalSchemeSub": "Formação preferida",
+      "philosophyTitleA": "Filosofia",
+      "philosophyTitleB": "& perfil",
+      "bioEyebrow": "Biografia",
+      "bioEmpty": "Este treinador ainda não publicou uma biografia.",
+      "identityEyebrow": "Ficha",
+      "identityNationality": "Passaporte",
+      "identityExperience": "Experiência",
+      "identityRole": "Função",
+      "videoEyebrow": "Vídeo",
+      "videoTitleSuffix": "em ação",
+      "videoCaption": "Material audiovisual em destaque do treinador.",
+      "careerMeta": "{stages} etapas · {matches} jogos",
+      "contactTitleA": "Conecte-se com",
+      "contactDescription": "Deixe seus dados e a equipe da BallersHub conecta você com {name}.",
+      "footerProBlurbA": "Ative seu portfólio Pro:",
+      "footerProBlurbB": "design cinematográfico e a sua marca.",
+      "proLockedEyebrow": "Portfólio Pro",
+      "proLockedTitleA": "Design",
+      "proLockedTitleB": "cinematográfico",
+      "proLockedSubtitle": "Ative o Pro e transforme seu dossiê numa experiência imersiva: design cinematográfico com a sua identidade visual, análise metodológica e galeria editorial.",
+      "proActivate": "Ativar Pro",
+      "proPromoEyebrow": "Junte-se à {brand}",
+      "proPromoTitleA": "Treina?",
+      "proPromoTitleB": "Monte seu dossiê",
+      "proPromoCopy": "Crie seu perfil de treinador na BallersHub: trajetória, licenças e retrospecto verificados, prontos para clubes e agências te encontrarem.",
+      "proPromoPrimary": "Criar meu perfil",
+      "proPromoSecondary": "Ver planos",
+      "proPromoMockLabel": "Dossiê verificado",
+      "previewStyle": "Estilo",
+      "previewMethod": "Metodologia",
+      "previewRecord": "Retrospecto",
+      "previewGallery": "Galeria"
+    }
   }
 }

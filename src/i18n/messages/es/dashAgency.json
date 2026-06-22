@@ -426,5 +426,39 @@
     "statusLabel": "Estado",
     "visibilityLabel": "Visibilidad",
     "viewPublicProfile": "Ver perfil público"
+  },
+  "servicesPage": {
+    "metaTitle": "Servicios - Dashboard",
+    "pageTitle": "Servicios",
+    "pageDescription": "Definí los servicios que ofrece tu agencia. Aparecen en tu portfolio público."
+  },
+  "reachPage": {
+    "metaTitle": "Alcance y operativa - Dashboard",
+    "pageTitle": "Alcance y operativa",
+    "pageDescription": "Elegí los países donde operás y contá tu presencia en cada uno."
+  },
+  "collaborationsPage": {
+    "metaTitle": "Clubes - Dashboard",
+    "pageTitle": "Clubes y colaboraciones",
+    "pageDescription": "Gestioná tus relaciones con clubes. Las nuevas propuestas pasan por revisión del equipo."
+  },
+  "multimediaPage": {
+    "metaTitle": "Multimedia - Dashboard",
+    "pageTitle": "Multimedia",
+    "pageDescription": "Subí fotos e imágenes para la galería de tu portfolio público."
+  },
+  "translationsPage": {
+    "metaTitle": "Idiomas - Dashboard",
+    "pageTitle": "Idiomas de la agencia",
+    "pageDescription": "Publicá tu portfolio en inglés, italiano y portugués. Cada idioma que completes se vuelve una página propia, indexable y con hreflang.",
+    "upsell": {
+      "title": "Disponible en Pro",
+      "description": "Con el plan Pro tu agencia llega a scouts y clubes de Brasil, Italia y la anglosfera en su propio idioma, sin perder posicionamiento.",
+      "b1": "Hasta 3 idiomas extra (EN · IT · PT)",
+      "b2": "Una URL indexable por idioma con hreflang",
+      "b3": "Asistente para autocompletar con IA",
+      "b4": "Editás y aprobás vos cada versión",
+      "cta": "Ver planes Pro"
+    }
   }
 }

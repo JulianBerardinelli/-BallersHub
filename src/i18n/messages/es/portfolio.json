@@ -21,7 +21,9 @@
     "contact": "Contacto",
     "tactics": "Táctica",
     "press": "Prensa",
-    "gallery": "Galería"
+    "gallery": "Galería",
+    "philosophy": "Filosofía",
+    "licenses": "Licencias"
   },
   "a11y": {
     "backTo": "Volver a",
@@ -410,6 +412,44 @@
     "mediaTitle": "Multimedia",
     "videoFallback": "Ver video",
     "contactTitle": "Contacto",
-    "proClubsLabel": "Clubes"
+    "proClubsLabel": "Clubes",
+    "free": {
+      "roleFallback": "Director Técnico",
+      "vitalExperience": "Experiencia",
+      "vitalScheme": "Esquema",
+      "vitalSchemeSub": "Formación preferida",
+      "philosophyTitleA": "Filosofía",
+      "philosophyTitleB": "& perfil",
+      "bioEyebrow": "Biografía",
+      "bioEmpty": "Este entrenador todavía no publicó su biografía.",
+      "identityEyebrow": "Ficha",
+      "identityNationality": "Pasaporte",
+      "identityExperience": "Experiencia",
+      "identityRole": "Rol",
+      "videoEyebrow": "Video",
+      "videoTitleSuffix": "en acción",
+      "videoCaption": "Material audiovisual destacado del entrenador.",
+      "careerMeta": "{stages} etapas · {matches} PJ",
+      "contactTitleA": "Conectá con",
+      "contactDescription": "Dejá tus datos y el equipo de 'BallersHub te conecta con {name}.",
+      "footerProBlurbA": "Activá tu portfolio Pro:",
+      "footerProBlurbB": "diseño cinematográfico y tu marca.",
+      "proLockedEyebrow": "Portfolio Pro",
+      "proLockedTitleA": "Diseño",
+      "proLockedTitleB": "cinematográfico",
+      "proLockedSubtitle": "Activá Pro y convertí tu dossier en una experiencia inmersiva: diseño cinematográfico con tu identidad visual, análisis metodológico y galería editorial.",
+      "proActivate": "Activar Pro",
+      "proPromoEyebrow": "Sumate a {brand}",
+      "proPromoTitleA": "¿Dirigís?",
+      "proPromoTitleB": "Armá tu dossier",
+      "proPromoCopy": "Creá tu perfil de entrenador en 'BallersHub: trayectoria, licencias y récord verificados, listos para que clubes y agencias te encuentren.",
+      "proPromoPrimary": "Crear mi perfil",
+      "proPromoSecondary": "Ver planes",
+      "proPromoMockLabel": "Dossier verificado",
+      "previewStyle": "Estilo",
+      "previewMethod": "Metodología",
+      "previewRecord": "Récord",
+      "previewGallery": "Galería"
+    }
   }
 }

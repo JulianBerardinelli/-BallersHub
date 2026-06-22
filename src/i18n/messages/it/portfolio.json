@@ -21,7 +21,9 @@
     "contact": "Contatto",
     "tactics": "Tattica",
     "press": "Stampa",
-    "gallery": "Galleria"
+    "gallery": "Galleria",
+    "philosophy": "Filosofia",
+    "licenses": "Licenze"
   },
   "a11y": {
     "backTo": "Torna a",
@@ -410,6 +412,44 @@
     "mediaTitle": "Media",
     "videoFallback": "Guarda il video",
     "contactTitle": "Contatti",
-    "proClubsLabel": "Club"
+    "proClubsLabel": "Club",
+    "free": {
+      "roleFallback": "Allenatore",
+      "vitalExperience": "Esperienza",
+      "vitalScheme": "Modulo",
+      "vitalSchemeSub": "Modulo preferito",
+      "philosophyTitleA": "Filosofia",
+      "philosophyTitleB": "& profilo",
+      "bioEyebrow": "Biografia",
+      "bioEmpty": "Questo allenatore non ha ancora pubblicato una biografia.",
+      "identityEyebrow": "Scheda",
+      "identityNationality": "Passaporto",
+      "identityExperience": "Esperienza",
+      "identityRole": "Ruolo",
+      "videoEyebrow": "Video",
+      "videoTitleSuffix": "in azione",
+      "videoCaption": "Materiale audiovisivo in evidenza dell'allenatore.",
+      "careerMeta": "{stages} tappe · {matches} partite",
+      "contactTitleA": "Connettiti con",
+      "contactDescription": "Lascia i tuoi dati e il team di BallersHub ti metterà in contatto con {name}.",
+      "footerProBlurbA": "Attiva il tuo portfolio Pro:",
+      "footerProBlurbB": "design cinematografico e il tuo marchio.",
+      "proLockedEyebrow": "Portfolio Pro",
+      "proLockedTitleA": "Design",
+      "proLockedTitleB": "cinematografico",
+      "proLockedSubtitle": "Attiva Pro e trasforma il tuo dossier in un'esperienza immersiva: design cinematografico con la tua identità visiva, analisi metodologica e galleria editoriale.",
+      "proActivate": "Attiva Pro",
+      "proPromoEyebrow": "Unisciti a {brand}",
+      "proPromoTitleA": "Alleni?",
+      "proPromoTitleB": "Crea il tuo dossier",
+      "proPromoCopy": "Crea il tuo profilo da allenatore su BallersHub: carriera, licenze e record verificati, pronti perché club e agenzie ti trovino.",
+      "proPromoPrimary": "Crea il mio profilo",
+      "proPromoSecondary": "Vedi i piani",
+      "proPromoMockLabel": "Dossier verificato",
+      "previewStyle": "Stile",
+      "previewMethod": "Metodologia",
+      "previewRecord": "Record",
+      "previewGallery": "Galleria"
+    }
   }
 }

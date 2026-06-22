@@ -207,7 +207,8 @@
       "edit-template": "Modifica template",
       "settings": "Impostazioni",
       "agency": "Agenzia",
-      "agency-template": "Modifica template"
+      "agency-template": "Modifica template",
+      "agency-management": "Gestione"
     },
     "player": {
       "home": {
@@ -257,8 +258,8 @@
         "description": "Panoramica generale della tua agenzia."
       },
       "agency-profile": {
-        "title": "Profilo dell'Agenzia",
-        "description": "Dettagli, informazioni e verifica."
+        "title": "Dati principali",
+        "description": "Identità, informazioni generali e contatto."
       },
       "agency-players": {
         "title": "I Miei Giocatori",
@@ -277,8 +278,8 @@
         "description": "Attiva o disattiva blocchi di contenuto."
       },
       "manager-profile": {
-        "title": "Il Mio Profilo",
-        "description": "I tuoi dati pubblici personali."
+        "title": "Il mio profilo",
+        "description": "La tua scheda pubblica: bio e licenze."
       },
       "account": {
         "title": "Account",
@@ -291,6 +292,26 @@
       "logout": {
         "title": "Esci",
         "description": "Esci dal pannello in modo sicuro."
+      },
+      "agency-services": {
+        "title": "Servizi",
+        "description": "Cosa offre la tua agenzia."
+      },
+      "agency-reach": {
+        "title": "Copertura e operatività",
+        "description": "Paesi in cui operi e i loro dettagli."
+      },
+      "agency-collaborations": {
+        "title": "Club",
+        "description": "Relazioni e proposte con i club."
+      },
+      "agency-multimedia": {
+        "title": "Multimedia",
+        "description": "Galleria di foto e immagini."
+      },
+      "agency-translations": {
+        "title": "Lingue",
+        "description": "Pubblica il tuo profilo in inglese, italiano e portoghese (Pro)."
       }
     }
   },

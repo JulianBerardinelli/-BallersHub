@@ -106,7 +106,7 @@ export async function updateAgencyProfile(agencyId: string, data: Partial<typeof
     columns: { slug: true },
   });
 
-  revalidatePath("/dashboard/agency");
+  revalidatePath("/dashboard/agency", "layout");
   revalidatePath("/dashboard");
   if (updated?.slug) revalidatePath(`/agency/${updated.slug}`);
 }

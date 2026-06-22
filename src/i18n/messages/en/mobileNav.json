@@ -14,7 +14,9 @@
     "panel": "Panel",
     "profile": "Profile",
     "template": "Template",
-    "settings": "Settings"
+    "settings": "Settings",
+    "agency": "Agency",
+    "management": "Manage"
   },
   "sectionsCount": "{count, plural, one {# section} other {# sections}}",
   "access": {
@@ -76,5 +78,36 @@
     "languages": "Languages",
     "languagesDesc": "Publish your page in EN · IT · PT"
   },
-  "pro": "PRO"
+  "pro": "PRO",
+  "agency": {
+    "title": "Agency profile",
+    "profile": "Main details",
+    "profileDesc": "Identity, info and contact",
+    "services": "Services",
+    "servicesDesc": "What your agency offers",
+    "reach": "Reach",
+    "reachDesc": "Countries you operate in",
+    "collaborations": "Clubs",
+    "collaborationsDesc": "Club relationships",
+    "multimedia": "Media",
+    "multimediaDesc": "Image gallery",
+    "languages": "Languages",
+    "languagesDesc": "Publish in EN · IT · PT"
+  },
+  "management": {
+    "title": "Management",
+    "managerProfile": "My profile",
+    "managerProfileDesc": "Your bio and licenses",
+    "players": "My players",
+    "playersDesc": "Represented roster",
+    "staff": "Staff",
+    "staffDesc": "Colleagues and permissions"
+  },
+  "agencyTemplate": {
+    "title": "Edit template",
+    "styles": "Styles",
+    "stylesDesc": "Visual variants and colors",
+    "structure": "Structure",
+    "structureDesc": "Toggle content blocks"
+  }
 }
