@@ -34,11 +34,15 @@ const licenseSchema = z.object({
   expiresYear: yearOpt,
   // Documento de respaldo: un archivo subido a coach-media (PDF/imagen) o un
   // link externo de verificación. Se muestra en la página pública al aprobarse:
-  // PDF/imagen → modal; link externo → _blank.
+  // PDF/imagen → modal; link externo → _blank. Restringido a http(s) — un
+  // doc_url se renderiza como <a href>/<iframe src> en público, así que un
+  // esquema javascript:/data: sería un vector de XSS.
   docUrl: z
     .union([z.string().trim().url("Link inválido."), z.literal(""), z.null(), z.undefined()])
     .transform((v) => (v && v.trim() ? v.trim() : null))
-    .nullable(),
+    .refine((v) => v === null || /^https?:\/\//i.test(v), {
+      message: "El enlace debe empezar con http:// o https://.",
+    }),
 });
 
 export type CoachLicenseInput = z.infer<typeof licenseSchema>;

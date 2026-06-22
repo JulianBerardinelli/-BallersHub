@@ -6,10 +6,16 @@
 -- Pro quedaba topado en 1 video / 2 fotos.
 --
 -- Ahora es plan-aware y NO depende de limits_json:
---   • Pro  (subscription plan='pro' o plan_id ilike 'pro%'): 5 fotos · videos ilimitados (999)
---   • Free                                                  : 1 foto  · 2 video-links
+--   • Pro  (plan='pro' o plan_id ilike 'pro%' Y vigente): 5 fotos · videos ilimitados (999)
+--   • Free                                              : 1 foto  · 2 video-links
 -- El avatar y el hero/asset Pro son columnas de coach_profiles (avatar_url /
 -- hero_url), NO filas de coach_media, así que no cuentan contra estos límites.
+--
+-- "Vigente" espeja resolvePlanAccess (src/lib/dashboard/plan-access.ts): el
+-- plan/plan_id es un cache que puede quedar lagging tras una cancelación, así
+-- que NO basta — Pro real exige status_v2 active/trialing, o canceled/past_due
+-- todavía dentro del período pago. Sin esto, un DT cuyo Pro venció seguiría con
+-- límites Pro al pegarle directo al endpoint de upload.
 --
 -- Complementario: NO tracked en el journal de Drizzle. Se aplica a mano a dev
 -- (ciolizjshimyvyonlssq) y prod (erdvpcfjynkhcrqktozd) vía MCP.
@@ -27,6 +33,14 @@ AS $function$
       join public.subscriptions s on s.user_id = cp.user_id
       where cp.id = p_coach_id
         and (s.plan = 'pro' or s.plan_id ilike 'pro%')
+        and (
+          s.status_v2 in ('trialing', 'active')
+          or (
+            s.status_v2 in ('canceled', 'past_due')
+            and s.current_period_end is not null
+            and s.current_period_end >= now()
+          )
+        )
     ) as is_pro
   )
   select case

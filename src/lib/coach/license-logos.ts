@@ -56,6 +56,9 @@ export type LicenseDocKind = "pdf" | "image" | "external" | null;
 /** Classify a doc_url so the UI can pick modal (pdf/image) vs _blank (external). */
 export function licenseDocKind(url: string | null): LicenseDocKind {
   if (!url) return null;
+  // Defense-in-depth: only http(s) URLs are ever clickable. A javascript:/data:
+  // scheme (legacy/imported data) would otherwise render as an <a href>/iframe.
+  if (!/^https?:\/\//i.test(url)) return null;
   const clean = url.split("?")[0].toLowerCase();
   if (clean.endsWith(".pdf")) return "pdf";
   if (/\.(jpe?g|png|webp|avif|gif)$/.test(clean)) return "image";
