@@ -19,7 +19,9 @@
 -- Aplicado en dev  (ciolizjshimyvyonlssq) via MCP apply_migration el 2026-06-22.
 --   Smoke test OK: objetos creados, backfill consistente (0 drift), trigger
 --   verificado (cerrar etapa actual ⇒ current_team_id/current_club → NULL, reversible).
--- Aplicado en prod (erdvpcfjynkhcrqktozd) via MCP apply_migration el: PENDIENTE
+-- Aplicado en prod (erdvpcfjynkhcrqktozd) via MCP apply_migration el 2026-06-22.
+--   Smoke test OK: objetos creados, 0 inconsistencias. Backfill corrigió 1 fila
+--   (Siraj El Kadiri: current_team EFB Sentmenat → CE Mercantil = su etapa actual).
 -- ===============================================================
 
 -- 1) Recalcula la etapa actual de UN jugador y la baja a player_profiles.
