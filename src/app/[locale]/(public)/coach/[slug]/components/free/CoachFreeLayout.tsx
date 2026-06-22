@@ -25,6 +25,7 @@ import { Crest, DataRow, ExtIcon, Eyebrow, Flag, LockIcon, VitalCell } from "./a
 import CountUp, { CountBar } from "./CountUp";
 import CoachFreeHeader from "./CoachFreeHeader";
 import CoachProSlot from "./CoachProSlot";
+import CoachLicenseList from "../CoachLicenseList";
 import type { CoachPortfolioData } from "../CoachPortfolio";
 import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import { Instagram } from "@/components/icons/InstagramIcon";
@@ -581,25 +582,16 @@ async function LicensesHonours({ data }: { data: CoachPortfolioData }) {
           </div>
           <div className="space-y-6">
             {data.licenses.length > 0 && (
-              <ul className="grid gap-2.5 sm:grid-cols-2">
-                {data.licenses.map((l) => (
-                  <li
-                    key={l.id}
-                    className="rounded-xl border border-bh-lime/25 bg-bh-lime/[0.06] p-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span aria-hidden className="text-bh-lime">✓</span>
-                      <span className="font-bh-display text-sm font-bold uppercase text-bh-fg-1">
-                        {l.title}
-                      </span>
-                    </div>
-                    <p className="mt-1 font-body text-xs text-bh-fg-3">
-                      {[l.issuer, l.year].filter(Boolean).join(" · ")}
-                      <span className="ml-1 text-bh-fg-4">· {t("coach.verified")}</span>
-                    </p>
-                  </li>
-                ))}
-              </ul>
+              <CoachLicenseList
+                licenses={data.licenses.map((l) => ({
+                  id: l.id,
+                  title: l.title,
+                  issuer: l.issuer,
+                  year: l.year,
+                  docUrl: l.docUrl,
+                }))}
+                verifiedLabel={t("coach.verified")}
+              />
             )}
             {data.honours.length > 0 && (
               <ul className="space-y-2">

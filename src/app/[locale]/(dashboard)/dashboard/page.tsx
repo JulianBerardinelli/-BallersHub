@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { redirect } from "next/navigation";
+import CoachOverview from "./CoachOverview";
 import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/dashboard/client/PageHeader";
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -377,6 +378,58 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/auth/sign-in?redirect=/dashboard");
+
+  // Coach early-branch — coaches render the coach panel, never the player/manager
+  // overview. The layout (loadCoachShellData) already wraps this page in the
+  // coach shell; without this branch the index renders the player empty-state
+  // ("completá tu perfil de jugador" + professional-account CTA) inside it.
+  // Mirrors loadCoachShellData's detection (role='coach', or member + coach app).
+  {
+    const { data: coachUp } = await supabase
+      .from("user_profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .maybeSingle();
+    const coachRole = coachUp?.role ?? "member";
+    if (coachRole === "coach" || coachRole === "member") {
+      const { data: coachApp } = await supabase
+        .from("coach_applications")
+        .select("status, rejection_reason")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (coachRole === "coach" || coachApp) {
+        const { data: coachProfile } = await supabase
+          .from("coach_profiles")
+          .select("slug, full_name, status, visibility")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        return (
+          <CoachOverview
+            profile={
+              coachProfile
+                ? {
+                    slug: coachProfile.slug as string,
+                    fullName: coachProfile.full_name as string,
+                    status: coachProfile.status as string,
+                    visibility: coachProfile.visibility as string,
+                  }
+                : null
+            }
+            application={
+              coachApp
+                ? {
+                    status: (coachApp.status as string | null) ?? null,
+                    rejectionReason: (coachApp.rejection_reason as string | null) ?? null,
+                  }
+                : null
+            }
+          />
+        );
+      }
+    }
+  }
 
   const dashboardState = await fetchDashboardState(supabase, user.id);
 

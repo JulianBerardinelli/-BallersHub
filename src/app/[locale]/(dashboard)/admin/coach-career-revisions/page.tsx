@@ -6,6 +6,9 @@ import CoachCareerRevisionsPanel, {
   type DiffStage,
   type DiffStat,
 } from "./CoachCareerRevisionsPanel";
+import CoachModerationHistory, {
+  type ModerationHistoryEntry,
+} from "../_components/CoachModerationHistory";
 
 export const dynamic = "force-dynamic";
 
@@ -91,5 +94,31 @@ export default async function CoachCareerRevisionsPage() {
     };
   });
 
-  return <CoachCareerRevisionsPanel requests={requests} />;
+  const { data: resolved } = await admin
+    .from("coach_career_revision_requests")
+    .select("id, status, resolution_note, updated_at, coach:coach_profiles ( full_name, slug )")
+    .in("status", ["approved", "rejected", "cancelled"])
+    .order("updated_at", { ascending: false })
+    .limit(40);
+
+  const history: ModerationHistoryEntry[] = (resolved ?? []).map((row) => {
+    const r = row as Record<string, unknown>;
+    const coach = (r.coach ?? {}) as { full_name?: string; slug?: string | null };
+    return {
+      id: r.id as string,
+      primary: coach.full_name ?? "—",
+      secondary: "Revisión de trayectoria",
+      status: (r.status as string) ?? "approved",
+      reason: (r.resolution_note as string | null) ?? null,
+      slug: coach.slug ?? null,
+      at: (r.updated_at as string | null) ?? null,
+    };
+  });
+
+  return (
+    <div className="space-y-8">
+      <CoachCareerRevisionsPanel requests={requests} />
+      <CoachModerationHistory entries={history} />
+    </div>
+  );
 }

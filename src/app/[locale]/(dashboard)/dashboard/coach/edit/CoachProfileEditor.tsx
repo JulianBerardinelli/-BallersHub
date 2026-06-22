@@ -6,13 +6,18 @@ import FormField from "@/components/dashboard/client/FormField";
 import { updateCoachProfile, type CoachProfileInput } from "@/app/actions/coach-profile";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
 import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import CoachImageUploader from "@/components/dashboard/coach/CoachImageUploader";
 
 const textareaClasses = { inputWrapper: "bg-bh-surface-2 border border-white/[0.08]" };
 
 export default function CoachProfileEditor({
   initial,
 }: {
-  initial: CoachProfileInput & { fullName: string };
+  initial: CoachProfileInput & {
+    fullName: string;
+    avatarUrl: string | null;
+    heroUrl: string | null;
+  };
 }) {
   const { enqueue } = useNotificationContext();
   const { access } = usePlanAccess();
@@ -77,6 +82,35 @@ export default function CoachProfileEditor({
         <p className="text-sm text-bh-fg-3">
           {initial.fullName} · estos campos se publican en tu página pública.
         </p>
+      </div>
+
+      {/* Avatar + asset Pro (hero) */}
+      <div className="grid gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+        <h3 className="font-bh-display text-sm font-bold uppercase tracking-[0.04em] text-bh-fg-2">
+          Imagen de perfil
+        </h3>
+        <div>
+          <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+            Avatar
+          </p>
+          <CoachImageUploader mode="avatar" currentUrl={initial.avatarUrl} />
+        </div>
+        <div className="border-t border-white/[0.06] pt-5">
+          <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
+            Asset Pro (hero)
+            <span className="rounded-bh-pill border border-bh-lime/40 bg-bh-lime/10 px-1.5 py-0.5 text-[9px] font-bold tracking-[0.08em] text-bh-lime">
+              Pro
+            </span>
+          </p>
+          {access.isPro ? (
+            <CoachImageUploader mode="hero" currentUrl={initial.heroUrl} />
+          ) : (
+            <p className="max-w-[420px] text-[12px] leading-[1.5] text-bh-fg-4">
+              El asset Pro es la imagen recortada que protagoniza el hero de tu página en el layout
+              Pro. Activá Pro para subirlo.
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">

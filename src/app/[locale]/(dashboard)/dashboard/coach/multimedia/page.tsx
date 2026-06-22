@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
 import CoachMediaManager, { type CoachMediaItem } from "./CoachMediaManager";
 
 export const dynamic = "force-dynamic";
@@ -43,5 +44,30 @@ export default async function CoachMultimediaPage() {
     provider: (r.provider as string | null) ?? null,
   }));
 
-  return <CoachMediaManager items={items} />;
+  // Plan → límites de media (Pro = 5 fotos + videos ilimitados; Free = 1 + 2).
+  const { data: sub } = await supabase
+    .from("subscriptions")
+    .select(
+      "plan, status, status_v2, plan_id, processor, processor_subscription_id, current_period_end, trial_ends_at, cancel_at_period_end, canceled_at",
+    )
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const isPro = resolvePlanAccess(
+    sub
+      ? {
+          plan: sub.plan ?? null,
+          status: sub.status ?? null,
+          statusV2: sub.status_v2 ?? null,
+          planId: sub.plan_id ?? null,
+          processor: sub.processor ?? null,
+          processorSubscriptionId: sub.processor_subscription_id ?? null,
+          currentPeriodEnd: sub.current_period_end ?? null,
+          trialEndsAt: sub.trial_ends_at ?? null,
+          cancelAtPeriodEnd: sub.cancel_at_period_end ?? null,
+          canceledAt: sub.canceled_at ?? null,
+        }
+      : null,
+  ).isPro;
+
+  return <CoachMediaManager items={items} isPro={isPro} />;
 }

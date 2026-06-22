@@ -299,6 +299,7 @@ export default async function CoachPublicPage({
     title: l.title,
     issuer: l.issuer,
     year: l.awardedYear,
+    docUrl: l.docUrl,
   }));
 
   const links = linkRows.map((l) => ({ label: l.label, url: l.url, kind: l.kind }));

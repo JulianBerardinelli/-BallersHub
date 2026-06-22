@@ -14,7 +14,7 @@ export default async function CoachEditPage() {
   const { data: profile } = await supabase
     .from("coach_profiles")
     .select(
-      "full_name, role_title, bio, career_objectives, playing_style, methodology_analysis, preferred_formations, theme_primary_color, theme_accent_color, theme_background_color",
+      "full_name, role_title, bio, career_objectives, playing_style, methodology_analysis, preferred_formations, avatar_url, hero_url, theme_primary_color, theme_accent_color, theme_background_color",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -38,6 +38,8 @@ export default async function CoachEditPage() {
         playingStyle: (profile.playing_style as string | null) ?? null,
         methodologyAnalysis: (profile.methodology_analysis as string | null) ?? null,
         preferredFormations: (profile.preferred_formations as string[] | null) ?? [],
+        avatarUrl: (profile.avatar_url as string | null) ?? null,
+        heroUrl: (profile.hero_url as string | null) ?? null,
         theme: {
           primaryColor: (profile.theme_primary_color as string | null) ?? null,
           accentColor: (profile.theme_accent_color as string | null) ?? null,
