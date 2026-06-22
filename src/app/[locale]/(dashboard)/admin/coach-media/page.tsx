@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import CoachMediaModerationPanel, { type PendingCoachMedia } from "./CoachMediaModerationPanel";
+import CoachModerationHistory, {
+  type ModerationHistoryEntry,
+} from "../_components/CoachModerationHistory";
 
 export const dynamic = "force-dynamic";
 
@@ -39,5 +42,31 @@ export default async function CoachMediaModerationPage() {
     };
   });
 
-  return <CoachMediaModerationPanel items={items} />;
+  const { data: resolved } = await admin
+    .from("coach_media")
+    .select("id, type, title, status, rejection_reason, reviewed_at, coach:coach_profiles ( full_name, slug )")
+    .in("status", ["approved", "rejected"])
+    .order("reviewed_at", { ascending: false, nullsFirst: false })
+    .limit(40);
+
+  const history: ModerationHistoryEntry[] = (resolved ?? []).map((row) => {
+    const r = row as Record<string, unknown>;
+    const coach = (r.coach ?? {}) as { full_name?: string; slug?: string | null };
+    return {
+      id: r.id as string,
+      primary: coach.full_name ?? "—",
+      secondary: [(r.type as string) ?? null, (r.title as string | null) ?? null].filter(Boolean).join(" · ") || null,
+      status: (r.status as string) ?? "approved",
+      reason: (r.rejection_reason as string | null) ?? null,
+      slug: coach.slug ?? null,
+      at: (r.reviewed_at as string | null) ?? null,
+    };
+  });
+
+  return (
+    <div className="space-y-8">
+      <CoachMediaModerationPanel items={items} />
+      <CoachModerationHistory entries={history} />
+    </div>
+  );
 }
