@@ -102,11 +102,11 @@ export async function getScoutingPlayers(
       teamCity: teams.city,
       teamLat: teams.latitude,
       teamLon: teams.longitude,
-      // Estado Libre/Con contrato: la verdad es la TRAYECTORIA, no el texto
-      // libre `contract_status`. "Tiene equipo actual" = existe una etapa en
-      // `career_items` sin fecha de fin (lo que setea el toggle "Es mi equipo
-      // actual" en el editor de trayectoria). Sin etapa actual ⇒ Libre. Así el
-      // badge nunca contradice al club que la tabla muestra.
+      // Estado Libre/Con contrato: la fuente primaria es la TRAYECTORIA, no el
+      // texto libre `contract_status`. "Tiene equipo actual" = existe una etapa
+      // en `career_items` sin fecha de fin (lo que setea el toggle "Es mi
+      // equipo actual" en el editor de trayectoria). El badge final aplica
+      // además un fallback al club asignado — ver más abajo.
       hasCurrentTeam: sql<boolean>`exists (select 1 from ${careerItems} ci where ci.player_id = ${playerProfiles.id} and ci.end_date is null)`,
     })
     .from(playerProfiles)
@@ -153,7 +153,12 @@ export async function getScoutingPlayers(
         clubCrestUrl: cleanCrest(r.teamCrestUrl),
         nationality: natCodes[0] ?? null,
         nationalities: natCodes,
-        contract: r.hasCurrentTeam ? "contracted" : "free",
+        // Libre = sin etapa actual en la trayectoria Y sin club asignado. El
+        // fallback a `club` (current_team_id/current_club) cubre el perfil que
+        // tiene club pero cuya trayectoria aún no materializó la etapa actual
+        // (p. ej. aprobado antes de procesar los career proposals): así el badge
+        // nunca dice "Libre" al lado de un club visible.
+        contract: r.hasCurrentTeam || club != null ? "contracted" : "free",
         gender: r.gender ?? "male",
         foot: normalizeFoot(r.foot),
         heightCm: r.heightCm ?? null,
