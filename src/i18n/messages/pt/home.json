@@ -31,6 +31,33 @@
       "accentWord": "hub",
       "body": "Cada perfil é validado: identidade, trajetória e referências confirmadas pela nossa equipe.",
       "cta": "Criar portfólio web"
+    },
+    "headlines": {
+      "visibilidad": [
+        "O hub onde o",
+        "#TALENTO do futebol",
+        "ganha visibilidade real."
+      ],
+      "datos": [
+        "Sua carreira.",
+        "Seus #dados.",
+        "Seu futuro."
+      ],
+      "scouting": [
+        "Onde o #scouting",
+        "encontra sua",
+        "próxima joia."
+      ],
+      "fronteras": [
+        "O talento não",
+        "tem #fronteiras.",
+        "Mostre ao mundo."
+      ]
+    },
+    "playerTag": {
+      "footLeft": "PE",
+      "footRight": "PD",
+      "ageSuffix": "{age}a"
     }
   },
   "dashJourney": {
