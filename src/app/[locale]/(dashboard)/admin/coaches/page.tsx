@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { resolveProUserIds } from "@/lib/seo/indexable-profiles";
 import CoachesTableUI from "./CoachesTableUI";
 import type { CoachAdminRow, CoachAdminStatus } from "./types";
 
@@ -52,6 +53,10 @@ export default async function AdminCoachesPage() {
   }
 
   const rows = (data ?? []) as RawCoach[];
+  // Plan real desde la subscription (status_v2 active/trialing + plan_id pro-*),
+  // NO desde plan_public — esa columna no se actualiza al activar Pro y queda
+  // siempre en 'free'. Mismo criterio que el portfolio público (resolveProUserIds).
+  const proUserIds = await resolveProUserIds(rows.map((c) => c.user_id));
   const items: CoachAdminRow[] = rows.map((c) => ({
     id: c.id,
     user_id: c.user_id,
@@ -66,7 +71,7 @@ export default async function AdminCoachesPage() {
     visibility: c.visibility === "private" ? "private" : "public",
     avatar_url: c.avatar_url || "/images/coach-default.jpg",
     created_at: c.created_at,
-    plan: c.plan_public === "pro" || c.plan_public === "pro_plus" ? "pro" : "free",
+    plan: proUserIds.has(c.user_id) ? "pro" : "free",
   }));
 
   return (
