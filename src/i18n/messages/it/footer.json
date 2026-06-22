@@ -49,7 +49,7 @@
   "columns": {
     "playersTitle": "Per Giocatori",
     "agenciesTitle": "Per Agenzie",
-    "workTitle": "Lavora con noi",
+    "workTitle": "Chi siamo",
     "createProfile": "Crea profilo",
     "viewValidated": "Sfoglia profili validati",
     "editCareer": "Modifica carriera",
@@ -59,10 +59,7 @@
     "myRoster": "La mia scuderia",
     "officialVerification": "Verifica ufficiale",
     "demo": "Demo",
-    "careers": "Carriere",
-    "partners": "Partner",
-    "ambassadors": "Ambassador",
-    "press": "Stampa"
+    "aboutUs": "Chi siamo"
   },
   "stats": {
     "profiles": "Profili validati",

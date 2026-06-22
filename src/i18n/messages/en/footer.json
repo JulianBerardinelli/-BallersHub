@@ -49,7 +49,7 @@
   "columns": {
     "playersTitle": "For Players",
     "agenciesTitle": "For Agencies",
-    "workTitle": "Work",
+    "workTitle": "About us",
     "createProfile": "Create profile",
     "viewValidated": "Browse verified profiles",
     "editCareer": "Edit career history",
@@ -59,10 +59,7 @@
     "myRoster": "My roster",
     "officialVerification": "Official verification",
     "demo": "Demo",
-    "careers": "Careers",
-    "partners": "Partners",
-    "ambassadors": "Ambassadors",
-    "press": "Press"
+    "aboutUs": "About us"
   },
   "stats": {
     "profiles": "Verified profiles",

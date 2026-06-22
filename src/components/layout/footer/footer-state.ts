@@ -112,19 +112,16 @@ export function buildLinkColumns(
       { label: t("columns.viewAgencies"), href: "/agencies" },
       { label: t("columns.myRoster"), href: "/dashboard/players" },
       { label: t("columns.officialVerification"), href: "/dashboard/agency" },
-      { label: t("columns.demo"), href: "/about" },
+      { label: t("columns.demo"), href: "https://ballershub.co/agency/agency-prueba" },
     ],
   };
 
-  const work: FooterLinkColumn = {
+  // "Sobre nosotros" — a single link to the about page (replaces the old
+  // "Trabajar" careers/partners/press column).
+  const about: FooterLinkColumn = {
     title: t("columns.workTitle"),
-    links: [
-      { label: t("columns.careers"), href: "/about", badge: "Hiring" },
-      { label: t("columns.partners"), href: "/about" },
-      { label: t("columns.ambassadors"), href: "/about" },
-      { label: t("columns.press"), href: "/about" },
-    ],
+    links: [{ label: t("columns.aboutUs"), href: "/about" }],
   };
 
-  return [players, agencies, work];
+  return [players, agencies, about];
 }
