@@ -100,10 +100,11 @@ export const PlayerTag = ({
   accent?: string;
   compact?: boolean;
 }) => {
+  const t = useTranslations("home");
   const country = (countries || SCOUT_COUNTRIES).find((x) => x.code === player.nationality);
   const group = POS_GROUP[player.pos] || "Medio";
   const posColor = GROUP_COLOR[group];
-  const footLabel = player.foot === "I" ? "PI" : "PD";
+  const footLabel = player.foot === "I" ? t("hero.playerTag.footLeft") : t("hero.playerTag.footRight");
   const w = compact ? 244 : 300;
   return (
     <div style={{ width: w, background: "rgba(16,16,18,0.86)", backdropFilter: "blur(18px)", WebkitBackdropFilter: "blur(18px)", border: `1px solid ${accent}40`, borderRadius: 18, padding: compact ? "12px 14px" : "14px 16px", boxShadow: `0 18px 50px rgba(0,0,0,0.6), 0 0 30px ${accent}1f, inset 0 1px 0 rgba(255,255,255,0.05)` }}>
@@ -124,7 +125,7 @@ export const PlayerTag = ({
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 12, letterSpacing: "0.04em", color: posColor, background: posColor + "1a", border: `1px solid ${posColor}40`, borderRadius: 7, padding: "3px 9px" }}>{player.pos}</span>
         <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 12, letterSpacing: "0.04em", color: "#22C55E", background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 7, padding: "3px 9px" }}>{footLabel}</span>
-        <span style={{ marginLeft: "auto", fontFamily: FONT_BODY, fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{player.age}a</span>
+        <span style={{ marginLeft: "auto", fontFamily: FONT_BODY, fontSize: 13, color: "rgba(255,255,255,0.4)" }}>{player.age != null ? t("hero.playerTag.ageSuffix", { age: player.age }) : null}</span>
       </div>
 
       {player.club ? (

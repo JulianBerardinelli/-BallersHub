@@ -53,6 +53,11 @@
         "ha #confini.",
         "Mostralo al mondo."
       ]
+    },
+    "playerTag": {
+      "footLeft": "PS",
+      "footRight": "PD",
+      "ageSuffix": "{age}a"
     }
   },
   "dashJourney": {

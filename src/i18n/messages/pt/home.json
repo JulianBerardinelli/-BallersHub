@@ -53,6 +53,11 @@
         "tem #fronteiras.",
         "Mostre ao mundo."
       ]
+    },
+    "playerTag": {
+      "footLeft": "PE",
+      "footRight": "PD",
+      "ageSuffix": "{age}a"
     }
   },
   "dashJourney": {
