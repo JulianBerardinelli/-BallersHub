@@ -181,7 +181,9 @@ export default async function TranslationsPage() {
   }
   const available: ContentLocale[] = [
     "es",
-    ...(["en", "it", "pt"] as ContentLocale[]).filter((l) => translationsMap.has(l)),
+    ...(["en", "it", "pt", "de", "fr", "fi"] as ContentLocale[]).filter((l) =>
+      translationsMap.has(l),
+    ),
   ];
 
   // Honours (palmarés) — base es + per-locale translations for the editor.

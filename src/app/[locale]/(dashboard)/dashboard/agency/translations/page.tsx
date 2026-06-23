@@ -120,10 +120,10 @@ export default async function AgencyTranslationsPage() {
   // traducciones no está migrada.
   const agencyTrMap = await getAgencyTranslations(agency.id);
   const agencyTranslations: Partial<
-    Record<"en" | "it" | "pt", { description: string | null; tagline: string | null }>
+    Record<"en" | "it" | "pt" | "de" | "fr" | "fi", { description: string | null; tagline: string | null }>
   > = {};
   const agencyServicesTranslations: Partial<
-    Record<"en" | "it" | "pt", Array<{ title?: string; description?: string | null }>>
+    Record<"en" | "it" | "pt" | "de" | "fr" | "fi", Array<{ title?: string; description?: string | null }>>
   > = {};
   for (const [loc, row] of agencyTrMap) {
     if (loc === "es") continue;

@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Información de acceso",
+    "cardDescription": "Actualizá tus credenciales o consultá la información básica de tu cuenta.",
+    "editAria": "Editar información de acceso",
+    "cancelEditAria": "Cancelar edición",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@email.com",
+    "emailConfirmationSent": "Te enviamos un enlace de confirmación a tu correo para validar el cambio.",
+    "updateEmail": "Actualizar correo",
+    "updatingEmail": "Actualizando...",
+    "newPasswordLabel": "Nueva contraseña",
+    "newPasswordPlaceholder": "Mínimo 6 caracteres",
+    "passwordTooShort": "La contraseña debe tener al menos 6 caracteres.",
+    "passwordUpdated": "Contraseña actualizada exitosamente.",
+    "updatePassword": "Actualizar contraseña",
+    "updatingPassword": "Actualizando...",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "passwordLabel": "Contraseña",
+    "roleLabel": "Rol de la cuenta",
+    "roleDescription": "Afecta el tipo de perfil al que tenés acceso.",
+    "roleManager": "Agencia / Representante",
+    "roleAdmin": "Administrador",
+    "roleMember": "Jugador / Miembro",
+    "createdAtLabel": "Alta de la cuenta"
+  },
+  "subscription": {
+    "stripePortalTitle": "Portal de Stripe",
+    "stripePortalDescription": "Actualizá la tarjeta, descargá facturas o cancelá la suscripción.",
+    "openPortal": "Abrir portal",
+    "stripePortalRequestFailed": "Stripe portal request failed",
+    "cancelScheduledNotice": "Tu suscripción está marcada para cancelación al fin del período. Si cambiás de opinión, podés revertirlo desde el portal.",
+    "cancelTitle": "Cancelar suscripción",
+    "cancelDescription": "Mercado Pago corta el acceso de inmediato al cancelar. No hay reembolso parcial del período pagado.",
+    "cancel": "Cancelar",
+    "back": "Volver",
+    "confirmCancel": "Confirmar cancelación",
+    "cancelRequestFailed": "Cancel request failed"
+  },
+  "common": {
+    "invalidLocale": "Idioma inválido.",
+    "mustSignIn": "Debés iniciar sesión.",
+    "localeSaveFailed": "No se pudo guardar el idioma.",
+    "localeUpdated": "Idioma nativo actualizado.",
+    "unknownError": "Error desconocido."
+  }
+}

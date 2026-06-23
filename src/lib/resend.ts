@@ -148,6 +148,9 @@ const LEAD_SUBJECT: Record<Locale, (player: string) => string> = {
   en: (p) => `Access unlocked: ${p}'s contact`,
   it: (p) => `Accesso sbloccato: contatto di ${p}`,
   pt: (p) => `Acesso desbloqueado: contato de ${p}`,
+  de: (p) => `Zugang freigeschaltet: Kontakt von ${p}`,
+  fr: (p) => `Accès débloqué : contact de ${p}`,
+  fi: (p) => `Yhteystiedot avattu: ${p}`,
 };
 
 // ============================================================================
@@ -249,6 +252,9 @@ const DISCONNECT_SUBJECT: Record<Locale, (player: string) => string> = {
   en: (p) => `Representation ended: ${p}`,
   it: (p) => `Rappresentanza terminata: ${p}`,
   pt: (p) => `Representação encerrada: ${p}`,
+  de: (p) => `Vertretung beendet: ${p}`,
+  fr: (p) => `Représentation terminée : ${p}`,
+  fi: (p) => `Edustus päättynyt: ${p}`,
 };
 
 // ============================================================================
@@ -299,6 +305,9 @@ const SUBSCRIPTION_SUBJECT: Record<Locale, (plan: string) => string> = {
   en: (p) => `Your ${p} plan is active`,
   it: (p) => `Il tuo piano ${p} è attivo`,
   pt: (p) => `Seu plano ${p} está ativo`,
+  de: (p) => `Ihr ${p}-Tarif ist aktiv`,
+  fr: (p) => `Votre forfait ${p} est actif`,
+  fi: (p) => `${p}-tilauksesi on aktiivinen`,
 };
 
 export async function sendCompGrantWelcomeEmail(opts: {
@@ -362,6 +371,18 @@ const COMP_GRANT_SUBJECT: Record<
     v === "extend"
       ? `Estendemos sua conta cortesia ${p}`
       : `Sua conta cortesia ${p} está ativa`,
+  de: (p, v) =>
+    v === "extend"
+      ? `Wir haben Ihr kostenloses ${p}-Konto verlängert`
+      : `Ihr kostenloses ${p}-Konto ist aktiv`,
+  fr: (p, v) =>
+    v === "extend"
+      ? `Nous avons prolongé votre compte offert ${p}`
+      : `Votre compte offert ${p} est actif`,
+  fi: (p, v) =>
+    v === "extend"
+      ? `Jatkoimme maksutonta ${p}-tiliäsi`
+      : `Maksuton ${p}-tilisi on aktiivinen`,
 };
 
 export async function sendPaymentFailedEmail(opts: {
@@ -496,6 +517,9 @@ const BLOG_APPROVED_SUBJECT: Record<Locale, (title: string) => string> = {
   en: (t) => `We published your article: ${t}`,
   it: (t) => `Abbiamo pubblicato il tuo articolo: ${t}`,
   pt: (t) => `Publicamos seu artigo: ${t}`,
+  de: (t) => `Wir haben deinen Artikel veröffentlicht: ${t}`,
+  fr: (t) => `Nous avons publié ton article : ${t}`,
+  fi: (t) => `Julkaisimme artikkelisi: ${t}`,
 };
 
 // ============================================================================
@@ -507,6 +531,9 @@ const ADMIN_CORRECTED_SUBJECT: Record<Locale, string> = {
   en: "We updated your profile on 'BallersHub",
   it: "Abbiamo aggiornato il tuo profilo su 'BallersHub",
   pt: "Atualizamos seu perfil na 'BallersHub",
+  de: "Wir haben dein Profil auf 'BallersHub aktualisiert",
+  fr: "Nous avons mis à jour ton profil sur 'BallersHub",
+  fi: "Päivitimme profiilisi 'BallersHubissa",
 };
 
 /**

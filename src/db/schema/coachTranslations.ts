@@ -35,7 +35,7 @@ import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 // Allowed locales — kept as a text CHECK (not a pgEnum) so adding a locale
 // later is a non-destructive constraint swap, not an ALTER TYPE (workflow
 // Tipo C). Mirrors src/i18n/routing.ts locales.
-const LOCALE_CHECK = sql`locale IN ('es','en','it','pt')`;
+const LOCALE_CHECK = sql`locale IN ('es','en','it','pt','de','fr','fi')`;
 
 // -------------------- coach_profile_translations --------------------
 

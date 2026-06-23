@@ -14,7 +14,7 @@ import {
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Editar idiomas - Ballers Hub" };
 
-const LOCALES: CoachTranslatableLocale[] = ["en", "it", "pt"];
+const LOCALES: CoachTranslatableLocale[] = ["en", "it", "pt", "de", "fr", "fi"];
 
 export default async function AdminCoachTranslationsPage({
   params,
@@ -89,6 +89,9 @@ export default async function AdminCoachTranslationsPage({
     en: empty(),
     it: empty(),
     pt: empty(),
+    de: empty(),
+    fr: empty(),
+    fi: empty(),
   };
   for (const r of rows ?? []) {
     const loc = r.locale as CoachTranslatableLocale;

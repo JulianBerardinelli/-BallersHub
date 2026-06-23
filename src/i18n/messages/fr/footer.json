@@ -1,0 +1,97 @@
+{
+  "headline": {
+    "anonymous": {
+      "eyebrow": "En vivo · 130 clubes activos",
+      "lead": "Subí, validá y ",
+      "highlight": "jugá donde importa.",
+      "sub": "Más de 30 perfiles validados. Reseñas de cuerpo técnico verificadas. Tu próximo club te está buscando."
+    },
+    "player": {
+      "eyebrow": "Tu carrera, en movimiento",
+      "lead": "Mantené tu perfil ",
+      "highlight": "siempre actualizado.",
+      "sub": "Subí nuevas fotos, ajustá tus datos futbolísticos y dejá que los clubes te encuentren con la información correcta."
+    },
+    "manager": {
+      "eyebrow": "Tu agencia, sin fricciones",
+      "lead": "Gestioná tu cartera ",
+      "highlight": "con precisión.",
+      "sub": "Sumá jugadores, validá perfiles y compartí el roster oficial de tu agencia con clubes en todo el mundo."
+    },
+    "applicant": {
+      "eyebrow": "Tu solicitud está en marcha",
+      "lead": "Estás a un paso ",
+      "highlight": "de tu cuenta profesional.",
+      "sub": "Mientras revisamos tus datos, podés seguir explorando perfiles validados, casos de éxito y novedades del producto."
+    },
+    "member": {
+      "eyebrow": "Listo cuando vos quieras",
+      "lead": "Convertí tu cuenta en ",
+      "highlight": "un perfil profesional.",
+      "sub": "Solicitá tu cuenta de jugador o agencia y empezá a operar dentro del ecosistema con verificación oficial."
+    }
+  },
+  "cta": {
+    "playerDashboard": "Ir a mi panel",
+    "playerViewProfile": "Ver mi perfil público",
+    "playerEditProfile": "Editar mi perfil",
+    "managerManage": "Gestionar agencia",
+    "managerViewAgency": "Ver perfil de agencia",
+    "managerSetup": "Configurar agencia",
+    "applicantContinue": "Continuar mi solicitud",
+    "applicantStatus": "Ver estado de solicitud",
+    "applicantDashboard": "Ir al panel",
+    "memberRequest": "Solicitar cuenta de profesional",
+    "memberDashboard": "Ir al panel",
+    "anonCreate": "Crear mi perfil",
+    "anonAgency": "Soy una agencia"
+  },
+  "columns": {
+    "playersTitle": "Para Jugadores",
+    "agenciesTitle": "Para Agencias",
+    "workTitle": "Sobre nosotros",
+    "createProfile": "Crear perfil",
+    "viewValidated": "Ver perfiles validados",
+    "editCareer": "Editar trayectoria",
+    "proTemplates": "Plantillas Pro",
+    "createAgency": "Crear agencia",
+    "viewAgencies": "Ver agencias",
+    "myRoster": "Mi cartera",
+    "officialVerification": "Verificación oficial",
+    "demo": "Demo",
+    "aboutUs": "Sobre nosotros"
+  },
+  "stats": {
+    "profiles": "Perfiles validados",
+    "clubs": "Clubes activos",
+    "reviews": "Reseñas verificadas",
+    "countries": "Países"
+  },
+  "tagline": "El ecosistema digital del fútbol profesional.",
+  "legal": {
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "cookies": "Cookies"
+  },
+  "credits": "Desarrollado por",
+  "portfolio": {
+    "eyebrowPlayer": "Perfil verificado en 'BallersHub",
+    "eyebrowAgency": "Agencia verificada en 'BallersHub",
+    "headlinePlayer": "Sumate al ecosistema de ",
+    "headlineAgency": "Conectá con ",
+    "subPlayer": "Trayectoria, datos futbolísticos y multimedia validados. Tu próximo paso, en una plataforma pensada para jugadores profesionales.",
+    "subAgency": "Descubrí la cartera de jugadores que esta agencia representa y operá tus próximos movimientos sin fricciones.",
+    "eyebrowCoach": "Entrenador verificado en 'BallersHub",
+    "headlineCoach": "Conocé el trabajo de ",
+    "subCoach": "Trayectoria, metodología y credenciales verificadas. El perfil profesional del entrenador, en una plataforma pensada para el fútbol.",
+    "ctaContact": "Solicitar contacto"
+  },
+  "newsletter": {
+    "eyebrow": "Newsletter Pro",
+    "copy": "Insights de scouting, nuevas funciones y casos de éxito. Una vez al mes, sin ruido.",
+    "button": "Suscribirme",
+    "submitted": "¡Listo!",
+    "hint": "Sin spam. Cancelás cuando quieras.",
+    "ariaEmail": "Tu email"
+  }
+}

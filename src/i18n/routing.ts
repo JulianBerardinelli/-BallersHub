@@ -10,7 +10,7 @@ import { defineRouting } from "next-intl/routing";
 //
 // See docs/i18n/HANDOFF.md §2 (routing) and §17 (hreflang codes).
 export const routing = defineRouting({
-  locales: ["es", "en", "it", "pt"],
+  locales: ["es", "en", "it", "pt", "de", "fr", "fi"],
   defaultLocale: "es",
   localePrefix: "as-needed",
   // OFF on purpose: a prefix-less URL (e.g. /<slug>, /blog) must always serve

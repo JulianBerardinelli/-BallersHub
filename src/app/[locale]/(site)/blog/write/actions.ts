@@ -279,7 +279,7 @@ export async function createDraftAndRedirect(formData: FormData): Promise<void> 
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean),
-    locale: (["es", "en", "it", "pt"].includes(rawLocale)
+    locale: (["es", "en", "it", "pt", "de", "fr", "fi"].includes(rawLocale)
       ? rawLocale
       : "es") as SaveDraftInput["locale"],
   };

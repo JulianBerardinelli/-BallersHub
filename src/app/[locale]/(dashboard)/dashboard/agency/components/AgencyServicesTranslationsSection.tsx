@@ -13,12 +13,15 @@ import {
   type AgencyServicesTranslationItem,
 } from "@/app/actions/agency-translations";
 
-type TargetLocale = "en" | "it" | "pt";
+type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
 const LOCALES: { code: TargetLocale; label: string; flag: string }[] = [
   { code: "en", label: "English", flag: "🇬🇧" },
   { code: "it", label: "Italiano", flag: "🇮🇹" },
   { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "fi", label: "Suomi", flag: "🇫🇮" },
 ];
 
 export type ServiceBaseItem = {
@@ -66,12 +69,15 @@ export default function AgencyServicesTranslationsSection({
       en: fromOverride(base, translations.en),
       it: fromOverride(base, translations.it),
       pt: fromOverride(base, translations.pt),
+      de: fromOverride(base, translations.de),
+      fr: fromOverride(base, translations.fr),
+      fi: fromOverride(base, translations.fi),
     }),
   );
   const [savedLocales, setSavedLocales] = useState<Set<TargetLocale>>(
     () =>
       new Set(
-        (["en", "it", "pt"] as TargetLocale[]).filter(
+        (["en", "it", "pt", "de", "fr", "fi"] as TargetLocale[]).filter(
           (l) => translations[l] !== undefined,
         ),
       ),

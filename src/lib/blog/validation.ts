@@ -41,7 +41,7 @@ export const saveDraftSchema = z.object({
   // i18n F6: the author writes posts per locale. Only used on CREATE (the post
   // locale is fixed for life). Optional at the type level so update flows like
   // submitForReview→saveDraft don't have to thread it.
-  locale: z.enum(["es", "en", "it", "pt"]).optional(),
+  locale: z.enum(["es", "en", "it", "pt", "de", "fr", "fi"]).optional(),
 });
 
 export type SaveDraftInput = z.infer<typeof saveDraftSchema>;

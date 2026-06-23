@@ -108,6 +108,60 @@ const COPY: Record<Locale, Copy> = {
     cta: "Atualizar método de pagamento",
     help: "Algo não está certo? Responda este e-mail e revisamos a conta com você.",
   },
+  de: {
+    eyebrow: "Zahlung ausstehend",
+    heading: (n) => `${n}, es gibt ein Problem mit der Zahlung`,
+    preheader: (n) => `${n}, wir konnten Ihr Abonnement nicht abbuchen.`,
+    body: (plan, amount, retry) => (
+      <>
+        Wir haben versucht, Ihr Abonnement für <strong>{plan}</strong> in Höhe von{" "}
+        <strong>{amount}</strong> zu verlängern, aber die Abbuchung konnte nicht
+        abgeschlossen werden. {retry} In der Zwischenzeit ist Ihr Zugang ausgesetzt.
+      </>
+    ),
+    retryLine: (d) => `Wir versuchen es am ${d} erneut.`,
+    retryLineSoon: "Wir werden die Abbuchung in den nächsten Tagen erneut versuchen.",
+    reason:
+      "Am wahrscheinlichsten: Die Karte ist abgelaufen, hatte keine ausreichende Deckung oder die Bank hat die Abbuchung blockiert. Die Aktualisierung der Zahlungsmethode dauert weniger als eine Minute.",
+    cta: "Zahlungsmethode aktualisieren",
+    help: "Stimmt etwas nicht? Antworten Sie auf diese E-Mail, und wir prüfen das Konto gemeinsam mit Ihnen.",
+  },
+  fr: {
+    eyebrow: "Paiement en attente",
+    heading: (n) => `${n}, il y a un problème avec le paiement`,
+    preheader: (n) => `${n}, nous n'avons pas pu débiter votre abonnement.`,
+    body: (plan, amount, retry) => (
+      <>
+        Nous avons tenté de renouveler votre abonnement à <strong>{plan}</strong> pour{" "}
+        <strong>{amount}</strong>, mais le prélèvement n&apos;a pas pu aboutir.{" "}
+        {retry} Dans l&apos;intervalle, votre accès est suspendu.
+      </>
+    ),
+    retryLine: (d) => `Nous réessaierons le ${d}.`,
+    retryLineSoon: "Nous réessaierons le prélèvement dans les prochains jours.",
+    reason:
+      "Le plus probable : la carte a expiré, n'avait pas de fonds suffisants ou la banque a bloqué le prélèvement. La mise à jour du moyen de paiement prend moins d'une minute.",
+    cta: "Mettre à jour le moyen de paiement",
+    help: "Quelque chose ne va pas ? Répondez à cet e-mail et nous examinerons le compte avec vous.",
+  },
+  fi: {
+    eyebrow: "Maksu odottaa",
+    heading: (n) => `${n}, maksussa on ongelma`,
+    preheader: (n) => `${n}, emme voineet veloittaa tilaustasi.`,
+    body: (plan, amount, retry) => (
+      <>
+        Yritimme uusia tilauksesi <strong>{plan}</strong> hintaan{" "}
+        <strong>{amount}</strong>, mutta veloitusta ei voitu suorittaa loppuun.{" "}
+        {retry} Sillä välin käyttöoikeutesi on pidossa.
+      </>
+    ),
+    retryLine: (d) => `Yritämme uudelleen ${d}.`,
+    retryLineSoon: "Yritämme veloitusta uudelleen lähipäivinä.",
+    reason:
+      "Todennäköisin syy: kortti vanheni, katetta ei ollut riittävästi tai pankki esti veloituksen. Maksutavan päivittäminen vie alle minuutin.",
+    cta: "Päivitä maksutapa",
+    help: "Eikö jokin täsmää? Vastaa tähän sähköpostiin, niin käymme tilin läpi kanssasi.",
+  },
 };
 
 /**

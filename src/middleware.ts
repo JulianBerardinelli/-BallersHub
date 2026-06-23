@@ -16,12 +16,20 @@ const HISPANIC = new Set([
 ]);
 const LUSOPHONE = new Set(["BR", "PT", "AO", "MZ"]); // → pt (pt-BR)
 const ITALIAN = new Set(["IT", "SM", "VA"]); // → it (CH left out: mostly de/fr)
+// DACH + Liechtenstein → de. CH is a pragmatic default (largest language group).
+const GERMAN = new Set(["DE", "AT", "CH", "LI"]);
+// France + francophone micro-markets → fr. BE/LU are pragmatic defaults.
+const FRENCH = new Set(["FR", "BE", "MC", "LU"]);
+const FINNISH = new Set(["FI"]); // → fi
 
-function localeForCountry(country: string): "es" | "en" | "it" | "pt" {
+function localeForCountry(country: string): "es" | "en" | "it" | "pt" | "de" | "fr" | "fi" {
   if (!country) return "es";
   if (HISPANIC.has(country)) return "es";
   if (LUSOPHONE.has(country)) return "pt";
   if (ITALIAN.has(country)) return "it";
+  if (GERMAN.has(country)) return "de";
+  if (FRENCH.has(country)) return "fr";
+  if (FINNISH.has(country)) return "fi";
   return "en";
 }
 

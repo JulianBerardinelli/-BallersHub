@@ -17,6 +17,8 @@
 import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
 import type { BlogAuthor } from "@/db/schema";
 import { authorSameAs } from "@/lib/blog/authors";
+import type { Locale } from "@/i18n/routing";
+import { HTML_LANG } from "@/i18n/config";
 
 type ProfilePageJsonLdProps = {
   author: BlogAuthor;
@@ -28,11 +30,14 @@ type ProfilePageJsonLdProps = {
    * de ese portfolio". Ver src/lib/seo/cross-ref.ts.
    */
   portfolioSlug?: string | null;
+  /** URL locale — drives `inLanguage` on the ProfilePage node. */
+  locale: Locale;
 };
 
 export function ProfilePageJsonLd({
   author,
   portfolioSlug,
+  locale,
 }: ProfilePageJsonLdProps) {
   const base = getSiteBaseUrl();
   const pageUrl = toCanonicalUrl(`/blog/authors/${author.slug}`);
@@ -68,7 +73,7 @@ export function ProfilePageJsonLd({
     url: pageUrl,
     name: `${author.displayName} — Autor en 'BallersHub`,
     ...(author.bio && { description: author.bio }),
-    inLanguage: "es-AR",
+    inLanguage: HTML_LANG[locale],
     isPartOf: { "@id": `${base}#website` },
     mainEntity: { "@id": personId },
     breadcrumb: { "@id": breadcrumbId },

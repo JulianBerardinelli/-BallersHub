@@ -115,7 +115,7 @@ export const blogPosts = pgTable(
     ).on(table.translationOfId, table.locale),
     blogPostsLocaleCheck: check(
       "blog_posts_locale_check",
-      sql`locale IN ('es','en','it','pt')`,
+      sql`locale IN ('es','en','it','pt','de','fr','fi')`,
     ),
   }),
 );

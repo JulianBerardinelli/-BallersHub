@@ -147,6 +147,87 @@ const COPY: Record<Locale, Copy> = {
       </>
     ),
   },
+  de: {
+    preheader: (n) => `Wir benachrichtigen Sie, sobald neue Profile wie das von ${n} erscheinen.`,
+    eyebrow: "Zugang freigeschaltet",
+    heading: "Danke, dass Sie dabei sind",
+    bodyUnlocked: (name, url) => (
+      <>
+        Sie haben Ihre E-Mail hinterlassen, um die Kontaktdaten von{" "}
+        <EmailLinkInline href={url}>{name}</EmailLinkInline> zu sehen. Erledigt — Sie
+        sehen ab jetzt die vollständigen Kanäle im Portfolio bei jedem Besuch.
+      </>
+    ),
+    noSpam:
+      "Wir benachrichtigen Sie, sobald relevante neue Profile hinzukommen. Kein Spam: höchstens 1 E-Mail alle zwei Wochen, immer mit echten Spielern.",
+    moreControlHeading: "Möchten Sie mehr Kontrolle?",
+    moreControlBody:
+      "Erstellen Sie ein kostenloses Konto, um Lieblingsprofile zu speichern, personalisierte Benachrichtigungen nach Position und Land zu erhalten und Kontakte freizuschalten, ohne erneut Formulare auszufüllen.",
+    ctaSignup: "Mein kostenloses Konto erstellen",
+    footer: (signUpUrl) => (
+      <>
+        Sind Sie selbst Spieler oder vertreten Sie eine Agentur? Sie können auch{" "}
+        <EmailLinkInline href={signUpUrl} tone="subtle">
+          Ihr eigenes professionelles Profil erstellen
+        </EmailLinkInline>{" "}
+        auf &apos;BallersHub.
+      </>
+    ),
+  },
+  fr: {
+    preheader: (n) => `Nous vous préviendrons dès que de nouveaux profils comme celui de ${n} apparaîtront.`,
+    eyebrow: "Accès débloqué",
+    heading: "Merci de nous rejoindre",
+    bodyUnlocked: (name, url) => (
+      <>
+        Vous avez laissé votre e-mail pour voir les coordonnées de{" "}
+        <EmailLinkInline href={url}>{name}</EmailLinkInline>. C&apos;est fait — vous
+        voyez désormais l&apos;ensemble des canaux dans le portfolio à chaque visite.
+      </>
+    ),
+    noSpam:
+      "Nous vous préviendrons lorsque de nouveaux profils pertinents nous rejoindront. Pas de spam : au maximum 1 e-mail toutes les deux semaines, toujours avec de vrais joueurs.",
+    moreControlHeading: "Vous voulez plus de contrôle ?",
+    moreControlBody:
+      "Créez un compte gratuit pour enregistrer vos profils favoris, recevoir des alertes personnalisées par poste et par pays, et débloquer des contacts sans avoir à remplir de nouveau des formulaires.",
+    ctaSignup: "Créer mon compte gratuit",
+    footer: (signUpUrl) => (
+      <>
+        Vous êtes joueur ou représentez une agence ? Vous pouvez aussi{" "}
+        <EmailLinkInline href={signUpUrl} tone="subtle">
+          créer votre propre profil professionnel
+        </EmailLinkInline>{" "}
+        sur &apos;BallersHub.
+      </>
+    ),
+  },
+  fi: {
+    preheader: (n) => `Ilmoitamme sinulle, kun uusia profiileja, kuten ${n}, ilmestyy.`,
+    eyebrow: "Yhteystiedot avattu",
+    heading: "Kiitos, että liityit mukaan",
+    bodyUnlocked: (name, url) => (
+      <>
+        Jätit sähköpostiosoitteesi nähdäksesi pelaajan{" "}
+        <EmailLinkInline href={url}>{name}</EmailLinkInline> yhteystiedot. Valmista —
+        näet nyt kaikki kanavat portfoliossa aina, kun palaat.
+      </>
+    ),
+    noSpam:
+      "Ilmoitamme sinulle, kun mukaan tulee sinulle olennaisia uusia profiileja. Ei roskapostia: korkeintaan 1 sähköposti kahden viikon välein, aina oikeiden pelaajien kanssa.",
+    moreControlHeading: "Haluatko enemmän hallintaa?",
+    moreControlBody:
+      "Luo maksuton tili tallentaaksesi suosikkiprofiilit, saadaksesi yksilöllisiä ilmoituksia pelipaikan ja maan mukaan sekä avataksesi yhteystietoja täyttämättä lomakkeita uudelleen.",
+    ctaSignup: "Luo maksuton tilini",
+    footer: (signUpUrl) => (
+      <>
+        Oletko itse pelaaja tai edustatko agentuuria? Voit myös{" "}
+        <EmailLinkInline href={signUpUrl} tone="subtle">
+          luoda oman ammattimaisen profiilisi
+        </EmailLinkInline>{" "}
+        &apos;BallersHubissa.
+      </>
+    ),
+  },
 };
 
 /**

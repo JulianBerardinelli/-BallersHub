@@ -11,7 +11,7 @@ import {
   type CoachTranslationActionResult,
 } from "@/app/actions/coach-translations";
 
-export type CoachTranslatableLocale = "en" | "it" | "pt";
+export type CoachTranslatableLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
 export type CoachLocaleFields = {
   bio: string;
@@ -25,6 +25,9 @@ const LOCALE_LABELS: Record<CoachTranslatableLocale, string> = {
   en: "Inglés",
   it: "Italiano",
   pt: "Portugués",
+  de: "Alemán",
+  fr: "Francés",
+  fi: "Finés",
 };
 
 const FIELDS: { key: keyof CoachLocaleFields; label: string; rows: number }[] = [

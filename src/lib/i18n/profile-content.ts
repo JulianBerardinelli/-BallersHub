@@ -28,7 +28,7 @@ import {
   type CoachProfileTranslation,
 } from "@/db/schema/coachTranslations";
 
-export const CONTENT_LOCALES = ["es", "en", "it", "pt"] as const;
+export const CONTENT_LOCALES = ["es", "en", "it", "pt", "de", "fr", "fi"] as const;
 export type ContentLocale = (typeof CONTENT_LOCALES)[number];
 
 export function isContentLocale(v: string): v is ContentLocale {

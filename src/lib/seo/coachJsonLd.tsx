@@ -67,6 +67,9 @@ const JOB_TITLE: Record<Locale, string> = {
   en: "Football Manager",
   it: "Allenatore",
   pt: "Treinador de Futebol",
+  de: "Trainer",
+  fr: "Entraîneur",
+  fi: "Valmentaja",
 };
 
 const HOME_LABEL: Record<Locale, string> = {
@@ -74,6 +77,9 @@ const HOME_LABEL: Record<Locale, string> = {
   en: "Home",
   it: "Home",
   pt: "Início",
+  de: "Startseite",
+  fr: "Accueil",
+  fi: "Etusivu",
 };
 
 function buildSameAs(c: CoachJsonLdData): string[] {

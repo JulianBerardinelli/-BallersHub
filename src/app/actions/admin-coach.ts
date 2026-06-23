@@ -617,7 +617,7 @@ export async function adminSaveCoachTranslation(
 
 export async function adminDeleteCoachTranslation(
   coachId: string,
-  locale: "en" | "it" | "pt",
+  locale: "en" | "it" | "pt" | "de" | "fr" | "fi",
 ): Promise<CoachTranslationActionResult> {
   const gate = await ensureAdminActor();
   if (!gate.ok) return { success: false, message: gate.error };
