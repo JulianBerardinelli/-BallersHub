@@ -61,11 +61,24 @@ const optionalUuid = z
 
 // ─────────────────────────── schemas ───────────────────────────────
 
-// A coach career stage. Deliberately free-text (club + role + division +
-// years) with NO per-stage team picker — mirrors the onboarding Step2Career
-// shape. Team-catalog mapping (crests) happens at admin approval time.
-// NOTE: not exported — this is a "use server" module, which may only export
-// async functions. The derived input type below is exported instead.
+// Optional proposed-team payload (when the coach proposes a team not yet in the
+// catalog). Accepted so validation passes; persisting it as a proposed-team row
+// is deferred — v1 stores the club text for proposed teams.
+const proposedTeamInputSchema = z
+  .object({
+    name: z.string().trim().max(160).optional().nullable(),
+    countryCode: z.string().trim().max(2).optional().nullable(),
+    countryName: z.string().trim().max(120).optional().nullable(),
+    transfermarktUrl: z.string().trim().max(500).optional().nullable(),
+  })
+  .nullable()
+  .optional();
+
+// A coach career stage. Now carries the catalog links (team_id, division_id,
+// secondary division) produced by the shared CareerEditor's team/division
+// pickers, mirroring the player career stage. Free-text club/division stays as
+// the legacy cache. NOTE: not exported — this is a "use server" module, which
+// may only export async functions. The derived input type below is exported.
 const coachCareerStageSchema = z.object({
   id: z.string().uuid().optional(),
   originalId: optionalUuid,
@@ -75,8 +88,13 @@ const coachCareerStageSchema = z.object({
     .min(2, "El club debe tener al menos 2 caracteres."),
   roleTitle: optionalText(120, "Máximo 120 caracteres."),
   division: optionalText(120, "Máximo 120 caracteres."),
+  divisionId: optionalUuid,
+  secondaryDivision: optionalText(120, "Máximo 120 caracteres."),
+  secondaryDivisionId: optionalUuid,
   startYear: yearField,
   endYear: yearField,
+  teamId: optionalUuid,
+  proposedTeam: proposedTeamInputSchema,
 });
 
 export type CoachCareerStageInput = z.infer<typeof coachCareerStageSchema>;
@@ -232,8 +250,12 @@ export async function submitCoachCareerRevision(
       club: stage.club,
       role_title: stage.roleTitle,
       division: stage.division,
+      division_id: stage.divisionId ?? null,
+      secondary_division: stage.secondaryDivision ?? null,
+      secondary_division_id: stage.secondaryDivisionId ?? null,
       start_year: stage.startYear,
       end_year: stage.endYear,
+      team_id: stage.teamId ?? null,
       order_index: index,
     }));
     const { error: itemsError } = await supabase

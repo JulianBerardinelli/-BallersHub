@@ -19,6 +19,7 @@ export type TeamMeta = {
 
 export default function CareerRowRead({
     club,
+    roleTitle,
     division,
     secondaryDivision,
     start_year,
@@ -32,6 +33,7 @@ export default function CareerRowRead({
     readOnly = false,
 }: {
     club: string;
+    roleTitle?: string | null;
     division?: string | null;
     secondaryDivision?: string | null;
     start_year?: number | null;
@@ -86,6 +88,12 @@ export default function CareerRowRead({
                         ) : null}
                     </div>
                     <p className="truncate text-[12px] text-bh-fg-3">
+                        {roleTitle ? (
+                            <>
+                                <span className="text-bh-fg-2">{roleTitle}</span>{" "}
+                                <span className="text-bh-fg-4">·</span>{" "}
+                            </>
+                        ) : null}
                         {division || "—"}
                         {secondaryDivision ? (
                             <>

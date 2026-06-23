@@ -117,6 +117,23 @@ const yearField = z
   })
   .nullable();
 
+const optUuid = z
+  .union([z.string().uuid(), z.literal(""), z.null(), z.undefined()])
+  .transform((v) => (v ? v : null))
+  .nullable();
+
+// Proposed-team payload (team not yet in the catalog). Accepted for shape
+// parity with the owner submit; live materialization stores the club text.
+const proposedTeamSchema = z
+  .object({
+    name: z.string().trim().max(160).optional().nullable(),
+    countryCode: z.string().trim().max(2).optional().nullable(),
+    countryName: z.string().trim().max(120).optional().nullable(),
+    transfermarktUrl: z.string().trim().max(500).optional().nullable(),
+  })
+  .nullable()
+  .optional();
+
 const careerSchema = z.object({
   coachId: z.string().uuid(),
   items: z
@@ -125,8 +142,13 @@ const careerSchema = z.object({
         club: z.string().trim().min(1, "Club requerido."),
         roleTitle: optText(120),
         division: optText(120),
+        divisionId: optUuid,
+        secondaryDivision: optText(120),
+        secondaryDivisionId: optUuid,
         startYear: yearField,
         endYear: yearField,
+        teamId: optUuid,
+        proposedTeam: proposedTeamSchema,
       }),
     )
     .max(60),
@@ -177,8 +199,12 @@ export async function adminReplaceCoachCareer(
         club: it.club,
         role_title: it.roleTitle,
         division: it.division,
+        division_id: it.divisionId ?? null,
+        secondary_division: it.secondaryDivision ?? null,
+        secondary_division_id: it.secondaryDivisionId ?? null,
         start_date: toStartDate(it.startYear),
         end_date: toEndDate(it.endYear),
+        team_id: it.teamId ?? null,
       })),
     );
     if (error) return { success: false, message: `Trayectoria: ${error.message}` };
@@ -365,8 +391,13 @@ export async function adminSubmitCoachCareerLive(
       club: s.club,
       roleTitle: s.roleTitle,
       division: s.division,
+      divisionId: s.divisionId ?? null,
+      secondaryDivision: s.secondaryDivision ?? null,
+      secondaryDivisionId: s.secondaryDivisionId ?? null,
       startYear: s.startYear,
       endYear: s.endYear,
+      teamId: s.teamId ?? null,
+      proposedTeam: s.proposedTeam ?? null,
     })),
     stats: (input.stats ?? []).map((s) => ({
       season: s.season,

@@ -22,6 +22,7 @@ export default function CareerEditor({
   showCurrentToggle = true,
   onRequestCurrentChange,
   readOnly = false,
+  showRole = false,
 }: {
   items: CareerItemInput[];
   onChange: (rows: CareerItemInput[]) => void;
@@ -30,6 +31,8 @@ export default function CareerEditor({
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (row: CareerItemInput, selected: boolean) => boolean;
   readOnly?: boolean;
+  /** Coach-only: surface the per-stage "Cargo" (role) field. */
+  showRole?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
   const [skipped, setSkipped] = React.useState(false);
@@ -44,6 +47,7 @@ export default function CareerEditor({
       {
         id: crypto.randomUUID(),
         club: "",
+        role_title: null,
         division: null,
         secondary_division: null,
         secondary_division_id: null,
@@ -162,6 +166,7 @@ export default function CareerEditor({
             {row.confirmed || readOnly ? (
               <CareerRowRead
                 club={row.club}
+                roleTitle={row.role_title ?? null}
                 division={row.division}
                 secondaryDivision={row.secondary_division ?? null}
                 start_year={row.start_year}
@@ -196,6 +201,7 @@ export default function CareerEditor({
                 }}
                 overlapError={overlapMsg(row)}
                 showCurrentToggle={showCurrentToggle && !readOnly}
+                showRole={showRole}
                 onRequestCurrentChange={(selected) =>
                   onRequestCurrentChange ? onRequestCurrentChange(row, selected) : true
                 }
