@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "homeTitle": "'BallersHub — Jalkapalloilijoiden ammattimaiset profiilit",
+    "homeDescription": "'BallersHub kokoaa jokaisen jalkapalloilijan ammattimaisen profiilin: ura, tilastot, virallinen galleria, videot ja yhteystiedot. Pelaajien ja agentuurien vahvistetut profiilit."
+  },
   "agencies": {
     "pageName": "Agentuurit",
     "metaTitle": "Pelaaja-agentuurit",

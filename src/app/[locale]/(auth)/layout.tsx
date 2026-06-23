@@ -6,10 +6,13 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { Wordmark } from "@/components/brand/Wordmark";
 
-export const metadata: Metadata = {
-  title: { default: "Acceder", template: "%s • 'BallersHub" },
-  description: "Accedé a tu cuenta 'BallersHub",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return {
+    title: { default: t("meta.title"), template: "%s • 'BallersHub" },
+    description: t("meta.description"),
+  };
+}
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const t = await getTranslations("common");

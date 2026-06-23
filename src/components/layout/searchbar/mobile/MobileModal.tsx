@@ -2,6 +2,7 @@
 
 import { Modal, ModalContent, ModalBody, Input, ScrollShadow } from "@heroui/react";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import ResultsListMobile from "./ResultsListMobile";
 import type { SearchHit, SearchResults } from "../usePlayerSearch";
 
@@ -16,6 +17,7 @@ export default function MobileModal(props: {
   onHoverHit?: (hit: SearchHit) => void;
 }) {
   const { isOpen, onClose, q, setQ, results, loading, onSelect, onHoverHit } = props;
+  const t = useTranslations("common");
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,8 +46,8 @@ export default function MobileModal(props: {
             <div className="sticky top-0 z-10 bg-content1/80 backdrop-blur px-3 pt-3 pb-2 border-b border-content3/20">
               <form onSubmit={onSubmit}>
                 <Input
-                  aria-label="Buscar jugadores y agencias"
-                  placeholder="Buscar jugadores, agencias…"
+                  aria-label={t("search.ariaFull")}
+                  placeholder={t("search.placeholderMobile")}
                   value={q}
                   onValueChange={setQ}
                   autoFocus

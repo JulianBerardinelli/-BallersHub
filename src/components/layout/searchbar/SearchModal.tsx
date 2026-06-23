@@ -2,6 +2,7 @@
 
 import { Modal, ModalContent, ModalBody, Input, ScrollShadow } from "@heroui/react";
 import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
 import ResultsTable from "./ResultsTable";
 import type { SearchHit, SearchResults } from "./usePlayerSearch";
 
@@ -16,6 +17,7 @@ export default function SearchModal(props: {
   onHoverHit?: (hit: SearchHit) => void;
 }) {
   const { isOpen, onClose, q, setQ, results, loading, onSelect, onHoverHit } = props;
+  const t = useTranslations("common");
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -43,8 +45,8 @@ export default function SearchModal(props: {
             <div className="border-b border-white/[0.06] px-4 py-3">
               <form onSubmit={onSubmit}>
                 <Input
-                  aria-label="Buscar jugadores y agencias"
-                  placeholder="Buscar jugadores, agencias, agentes..."
+                  aria-label={t("search.ariaFull")}
+                  placeholder={t("search.placeholderFull")}
                   value={q}
                   onValueChange={setQ}
                   autoFocus
@@ -82,15 +84,15 @@ export default function SearchModal(props: {
               <span className="rounded-[4px] border border-white/[0.1] bg-white/[0.07] px-1.5 py-[1px] font-bh-mono">
                 ↑↓
               </span>
-              <span>navegar</span>
+              <span>{t("search.hintNavigate")}</span>
               <span className="ml-3 rounded-[4px] border border-white/[0.1] bg-white/[0.07] px-1.5 py-[1px] font-bh-mono">
                 ↵
               </span>
-              <span>seleccionar</span>
+              <span>{t("search.hintSelect")}</span>
               <span className="ml-3 rounded-[4px] border border-white/[0.1] bg-white/[0.07] px-1.5 py-[1px] font-bh-mono">
                 esc
               </span>
-              <span>cerrar</span>
+              <span>{t("search.hintClose")}</span>
             </div>
           </ModalBody>
         )}

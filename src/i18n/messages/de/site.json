@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "homeTitle": "'BallersHub — Professionelle Profile von Fußballspielern",
+    "homeDescription": "'BallersHub bündelt das professionelle Profil jedes Fußballspielers: Laufbahn, Statistiken, offizielle Galerie, Videos und Kontakt. Verifizierte Profile von Spielern und Agenturen."
+  },
   "agencies": {
     "pageName": "Agenturen",
     "metaTitle": "Spielerberatungsagenturen",

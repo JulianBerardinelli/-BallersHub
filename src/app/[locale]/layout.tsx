@@ -4,7 +4,7 @@ import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed, DM_Mono, DM_Sans, Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -51,6 +51,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
+  const t = await getTranslations("site");
   // og:locale per page locale (config.ts is the single source of truth).
   // Falls back to es_AR for any unknown segment (the route 404s anyway).
   const ogLocale =
@@ -58,11 +59,10 @@ export async function generateMetadata({
   return {
     metadataBase: getSiteBaseUrlObject(),
     title: {
-      default: "'BallersHub — Perfiles profesionales de futbolistas",
+      default: t("meta.homeTitle"),
       template: "%s · 'BallersHub",
     },
-    description:
-      "'BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
+    description: t("meta.homeDescription"),
     applicationName: "'BallersHub",
     keywords: [
       "futbolistas",
