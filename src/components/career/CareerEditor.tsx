@@ -73,8 +73,16 @@ export default function CareerEditor({
   }
 
   function overlapMsg(row: CareerItemInput): string | null {
+    // A fully-undated stage (no start AND no end) has no temporal range, so it
+    // can't meaningfully overlap. Legacy coach rows allowed this; the row editor
+    // requires a year to confirm, so players never produce one. Without this, a
+    // legacy null/null row (= -∞/+∞) would overlap every other stage and block
+    // confirming anything.
+    const isUndated = (r: CareerItemInput) => r.start_year == null && r.end_year == null;
+    if (isUndated(row)) return null;
     const others = items.filter((r) => r.id !== row.id && r.confirmed);
     for (const o of others) {
+      if (isUndated(o)) continue;
       if (rangesOverlap(row.start_year ?? null, row.end_year ?? null, o.start_year ?? null, o.end_year ?? null)) {
         return t("careerEditor.overlap", {
           club: o.club,

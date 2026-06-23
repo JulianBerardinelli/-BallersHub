@@ -33,7 +33,10 @@ type AugmentedCareerItem = CareerItemInput & { originalId?: string | null };
 // coach stage → the shared CareerEditor's controlled row. An open-ended stage
 // (no end year) is the "current" club; existing rows load confirmed (collapsed).
 function toEditorItem(stage: CoachEditorStage): AugmentedCareerItem {
-  const isCurrent = stage.endYear === null && (stage.startYear !== null || stage.club.trim().length > 0);
+  // "Current" = an ongoing stage (real start, no end). A fully-undated legacy
+  // row (no start AND no end) is NOT current — keep it a plain manual stage so
+  // it doesn't lock the end field nor seed current_club from a dateless row.
+  const isCurrent = stage.endYear === null && stage.startYear !== null;
   return {
     id: stage.id,
     originalId: stage.originalId,
