@@ -39,7 +39,13 @@ export default async function ClassicAgencyLayout({ data }: { data: AgencyPublic
           ? "it-IT"
           : locale === "en"
             ? "en"
-            : "es-AR",
+            : locale === "de"
+              ? "de-DE"
+              : locale === "fr"
+                ? "fr-FR"
+                : locale === "fi"
+                  ? "fi-FI"
+                  : "es-AR",
     ],
     { type: "region", fallback: "code" },
   );

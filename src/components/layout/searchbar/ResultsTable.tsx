@@ -6,6 +6,7 @@ import {
   Avatar, Skeleton,
 } from "@heroui/react";
 import { Briefcase, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type {
   AgencyHit,
   ManagerHit,
@@ -61,13 +62,14 @@ function PlayersSection({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   return (
-    <Table removeWrapper aria-label="Jugadores" classNames={TABLE_CLASSES}>
+    <Table removeWrapper aria-label={t("search.sectionPlayers")} classNames={TABLE_CLASSES}>
       <TableHeader>
-        <TableColumn className={COLS.player}>Jugador</TableColumn>
-        <TableColumn className={COLS.club}>Club</TableColumn>
-        <TableColumn className={`${COLS.value} text-right`}>Valor</TableColumn>
-        <TableColumn className={`${COLS.reviews} text-right`}>Reviews</TableColumn>
+        <TableColumn className={COLS.player}>{t("search.colPlayer")}</TableColumn>
+        <TableColumn className={COLS.club}>{t("search.colClub")}</TableColumn>
+        <TableColumn className={`${COLS.value} text-right`}>{t("search.colValue")}</TableColumn>
+        <TableColumn className={`${COLS.reviews} text-right`}>{t("search.colReviews")}</TableColumn>
       </TableHeader>
       <TableBody>
         {rows.map((r) => {
@@ -125,13 +127,13 @@ function PlayersSection({
                     <span
                       className="text-xs opacity-60 select-none"
                       aria-disabled="true"
-                      title="Reviews are available on Pro plans"
+                      title={t("search.reviewsProTitle")}
                     >
-                      Requires Pro plan
+                      {t("search.requiresPro")}
                     </span>
                   ) : (
                     <>
-                      <span aria-label="rating" className="mr-2">☆☆☆☆☆</span>
+                      <span aria-label={t("search.ratingAria")} className="mr-2">☆☆☆☆☆</span>
                       <span className="text-xs opacity-70 align-middle">+0</span>
                     </>
                   )}
@@ -152,13 +154,14 @@ function AgenciesSection({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   return (
-    <Table removeWrapper aria-label="Agencias" classNames={TABLE_CLASSES}>
+    <Table removeWrapper aria-label={t("search.sectionAgencies")} classNames={TABLE_CLASSES}>
       <TableHeader>
-        <TableColumn className={COLS.player}>Agencia</TableColumn>
-        <TableColumn className={COLS.club}>Sede</TableColumn>
-        <TableColumn className={`${COLS.value} text-right`}>Países</TableColumn>
-        <TableColumn className={`${COLS.reviews} text-right`}>Servicios</TableColumn>
+        <TableColumn className={COLS.player}>{t("search.colAgency")}</TableColumn>
+        <TableColumn className={COLS.club}>{t("search.colHeadquarters")}</TableColumn>
+        <TableColumn className={`${COLS.value} text-right`}>{t("search.colCountries")}</TableColumn>
+        <TableColumn className={`${COLS.reviews} text-right`}>{t("search.colServices")}</TableColumn>
       </TableHeader>
       <TableBody>
         {rows.map((r) => {
@@ -182,7 +185,7 @@ function AgenciesSection({
                   />
                   <div className="leading-tight min-w-0">
                     <div className="font-medium truncate">{r.name}</div>
-                    <div className="text-xs opacity-70 truncate">Agencia</div>
+                    <div className="text-xs opacity-70 truncate">{t("search.roleAgency")}</div>
                   </div>
                 </div>
               </TableCell>
@@ -202,7 +205,7 @@ function AgenciesSection({
 
               <TableCell className={COLS.reviews}>
                 <div className="text-right text-xs opacity-70">
-                  {services > 0 ? `${services} servicios` : "—"}
+                  {services > 0 ? t("search.countServices", { count: services }) : "—"}
                 </div>
               </TableCell>
             </TableRow>
@@ -220,13 +223,14 @@ function ManagersSection({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   return (
-    <Table removeWrapper aria-label="Managers" classNames={TABLE_CLASSES}>
+    <Table removeWrapper aria-label={t("search.ariaManagers")} classNames={TABLE_CLASSES}>
       <TableHeader>
-        <TableColumn className={COLS.player}>Manager / Agente</TableColumn>
-        <TableColumn className={COLS.club}>Agencia</TableColumn>
+        <TableColumn className={COLS.player}>{t("search.colManager")}</TableColumn>
+        <TableColumn className={COLS.club}>{t("search.colAgency")}</TableColumn>
         <TableColumn className={`${COLS.value} text-right`}> </TableColumn>
-        <TableColumn className={`${COLS.reviews} text-right`}>Contacto</TableColumn>
+        <TableColumn className={`${COLS.reviews} text-right`}>{t("search.colContact")}</TableColumn>
       </TableHeader>
       <TableBody>
         {rows.map((r) => {
@@ -248,7 +252,7 @@ function ManagersSection({
                   />
                   <div className="leading-tight min-w-0">
                     <div className="font-medium truncate">{r.name}</div>
-                    <div className="text-xs opacity-70 truncate">Manager</div>
+                    <div className="text-xs opacity-70 truncate">{t("search.roleManager")}</div>
                   </div>
                 </div>
               </TableCell>
@@ -286,14 +290,15 @@ export default function ResultsTable({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   if (loading) {
     return (
-      <Table removeWrapper aria-label="Search results" classNames={TABLE_CLASSES}>
+      <Table removeWrapper aria-label={t("search.results")} classNames={TABLE_CLASSES}>
         <TableHeader>
-          <TableColumn className={COLS.player}>Jugador</TableColumn>
-          <TableColumn className={COLS.club}>Club</TableColumn>
-          <TableColumn className={`${COLS.value} text-right`}>Valor</TableColumn>
-          <TableColumn className={`${COLS.reviews} text-right`}>Reviews</TableColumn>
+          <TableColumn className={COLS.player}>{t("search.colPlayer")}</TableColumn>
+          <TableColumn className={COLS.club}>{t("search.colClub")}</TableColumn>
+          <TableColumn className={`${COLS.value} text-right`}>{t("search.colValue")}</TableColumn>
+          <TableColumn className={`${COLS.reviews} text-right`}>{t("search.colReviews")}</TableColumn>
         </TableHeader>
         <TableBody>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -336,9 +341,7 @@ export default function ResultsTable({
 
   if (total === 0) {
     const emptyMsg =
-      query.trim().length > 0
-        ? "No results found."
-        : "Type to search players, agencies, managers…";
+      query.trim().length > 0 ? t("search.noResults") : t("search.prompt");
     return (
       <div className="flex h-full items-center justify-center px-6 py-12 text-sm text-bh-fg-3">
         {emptyMsg}
@@ -350,7 +353,7 @@ export default function ResultsTable({
     <div className="flex flex-col">
       {results.players.length > 0 && (
         <section>
-          <SectionHeader label="Jugadores" count={results.players.length} />
+          <SectionHeader label={t("search.sectionPlayers")} count={results.players.length} />
           <PlayersSection
             rows={results.players}
             onSelect={onSelect}
@@ -361,7 +364,7 @@ export default function ResultsTable({
 
       {results.agencies.length > 0 && (
         <section>
-          <SectionHeader label="Agencias" count={results.agencies.length} />
+          <SectionHeader label={t("search.sectionAgencies")} count={results.agencies.length} />
           <AgenciesSection
             rows={results.agencies}
             onSelect={onSelect}
@@ -372,7 +375,7 @@ export default function ResultsTable({
 
       {results.managers.length > 0 && (
         <section>
-          <SectionHeader label="Managers / Agentes" count={results.managers.length} />
+          <SectionHeader label={t("search.sectionManagers")} count={results.managers.length} />
           <ManagersSection
             rows={results.managers}
             onSelect={onSelect}

@@ -95,6 +95,9 @@ const PITCH_CHROME: Record<Locale, { position: string; zone: string }> = {
   en: { position: "Position", zone: "Zone of influence" },
   it: { position: "Ruolo", zone: "Zona d'influenza" },
   pt: { position: "Posição", zone: "Zona de influência" },
+  de: { position: "Position", zone: "Einflusszone" },
+  fr: { position: "Poste", zone: "Zone d'influence" },
+  fi: { position: "Pelipaikka", zone: "Vaikutusalue" },
 };
 
 export default function SoccerPitch3D({

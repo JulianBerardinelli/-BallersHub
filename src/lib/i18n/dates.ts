@@ -9,6 +9,9 @@ const DATE_TAG: Record<Locale, string> = {
   en: "en-US",
   it: "it-IT",
   pt: "pt-BR",
+  de: "de-DE",
+  fr: "fr-FR",
+  fi: "fi-FI",
 };
 
 export function dateLocaleTag(locale: Locale): string {

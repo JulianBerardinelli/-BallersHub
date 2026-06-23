@@ -15,7 +15,7 @@ const path = require("node:path");
 
 const MESSAGES_DIR = path.join(__dirname, "..", "..", "src", "i18n", "messages");
 const REFERENCE = "es";
-const LOCALES = ["es", "en", "it", "pt"];
+const LOCALES = ["es", "en", "it", "pt", "de", "fr", "fi"];
 
 /** Collect every leaf key-path of a JSON value (objects by key, arrays by index). */
 function flatten(value, prefix = "", out = new Set()) {

@@ -627,7 +627,7 @@ export async function adminDeleteCoachLicense(
 // player Pro sections); the action itself just writes.
 
 const adminTranslationSchema = z.object({
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
   bio: optText(5000),
   careerObjectives: optText(5000),
   playingStyle: optText(5000),
@@ -694,7 +694,7 @@ export async function adminSaveCoachTranslation(
 
 export async function adminDeleteCoachTranslation(
   coachId: string,
-  locale: "en" | "it" | "pt",
+  locale: "en" | "it" | "pt" | "de" | "fr" | "fi",
 ): Promise<CoachTranslationActionResult> {
   const gate = await ensureAdminActor();
   if (!gate.ok) return { success: false, message: gate.error };

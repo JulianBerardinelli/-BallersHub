@@ -121,6 +121,72 @@ const COPY: Record<Locale, Copy> = {
     cta: "Ir para meu painel",
     help: "Precisa de ajuda com algum passo? Responda este e-mail — lemos todos.",
   },
+  de: {
+    eyebrow: "Willkommen",
+    heading: (n) => `Willkommen, ${n}`,
+    preheader: (n) => `${n}, so legen Sie auf 'BallersHub los.`,
+    intro:
+      "Sie haben den ersten Schritt gemacht. Klubs, Agenturen und Scouts suchen täglich auf 'BallersHub nach Spielern — um aufzufallen, empfehlen wir Ihnen, diesem kurzen Leitfaden zu folgen.",
+    step1: {
+      title: "Vervollständigen Sie Ihre persönlichen Daten",
+      body: "Foto, Nationalität, Größe/Gewicht, Sprachen und Kontaktdaten. Das ist das Erste, was in Ihrem öffentlichen Profil zu sehen ist.",
+    },
+    step2: {
+      title: "Tragen Sie Ihre fußballerischen Daten ein",
+      badge: "Schlüsselschritt",
+      body: "Positionen, starker Fuß, aktueller Verein und Laufbahn. Je vollständiger es ist, desto leichter werden Sie bei gezielten Suchen gefunden.",
+    },
+    step3: {
+      title: "Laden Sie Medien hoch (Foto + Video)",
+      body: "Hochauflösende Fotos, ein Highlight-Video und Pressestimmen. Ihr Pro-Portfolio erwacht zum Leben, sobald Material vorhanden ist: das Branding übernehmen wir automatisch.",
+    },
+    cta: "Zu meinem Dashboard",
+    help: "Brauchen Sie Hilfe bei einem Schritt? Antworten Sie einfach auf diese E-Mail — wir lesen jede einzelne.",
+  },
+  fr: {
+    eyebrow: "Bienvenue",
+    heading: (n) => `Bienvenue, ${n}`,
+    preheader: (n) => `${n}, voici comment démarrer sur 'BallersHub.`,
+    intro:
+      "Vous avez fait le premier pas. Des clubs, des agences et des recruteurs recherchent chaque jour des joueurs sur 'BallersHub — pour vous démarquer, nous vous recommandons de suivre cette feuille de route concise.",
+    step1: {
+      title: "Complétez vos informations personnelles",
+      body: "Photo, nationalité, taille/poids, langues et coordonnées. C'est la première chose visible sur votre profil public.",
+    },
+    step2: {
+      title: "Renseignez vos données footballistiques",
+      badge: "Étape clé",
+      body: "Postes, pied fort, club actuel et parcours. Plus c'est complet, plus il est facile de vous trouver lors de recherches précises.",
+    },
+    step3: {
+      title: "Ajoutez vos médias (photos + vidéo)",
+      body: "Photos en haute résolution, vidéo de temps forts et coupures de presse. Votre portfolio Pro prend vie avec du contenu : l'habillage, c'est nous qui nous en chargeons automatiquement.",
+    },
+    cta: "Accéder à mon tableau de bord",
+    help: "Besoin d'aide pour une étape ? Répondez simplement à cet e-mail — nous lisons chacun d'eux.",
+  },
+  fi: {
+    eyebrow: "Tervetuloa",
+    heading: (n) => `Tervetuloa, ${n}`,
+    preheader: (n) => `${n}, näin pääset alkuun 'BallersHubissa.`,
+    intro:
+      "Otit ensimmäisen askeleen. Seurat, agentuurit ja partiolaiset etsivät pelaajia 'BallersHubista joka päivä — erottuaksesi suosittelemme, että seuraat tätä lyhyttä etenemissuunnitelmaa.",
+    step1: {
+      title: "Täytä henkilötietosi",
+      body: "Kuva, kansalaisuus, pituus/paino, kielet ja yhteystiedot. Se on ensimmäinen asia, joka näkyy julkisessa profiilissasi.",
+    },
+    step2: {
+      title: "Lisää jalkapallotietosi",
+      badge: "Avainvaihe",
+      body: "Pelipaikat, vahvempi jalka, nykyinen seura ja ura. Mitä täydellisempi se on, sitä helpommin sinut löytää tarkennetuilla hauilla.",
+    },
+    step3: {
+      title: "Lataa mediaa (kuva + video)",
+      body: "Korkearesoluutioisia kuvia, kooste­video ja lehtileikkeitä. Pro-portfoliosi herää eloon, kun materiaalia on: brändäyksen hoidamme automaattisesti.",
+    },
+    cta: "Siirry hallintapaneeliini",
+    help: "Tarvitsetko apua jonkin vaiheen kanssa? Vastaa tähän sähköpostiin — luemme jokaisen.",
+  },
 };
 
 /**

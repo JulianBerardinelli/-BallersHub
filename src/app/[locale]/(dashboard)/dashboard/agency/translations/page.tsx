@@ -120,10 +120,10 @@ export default async function AgencyTranslationsPage() {
   // traducciones no está migrada.
   const agencyTrMap = await getAgencyTranslations(agency.id);
   const agencyTranslations: Partial<
-    Record<"en" | "it" | "pt", { description: string | null; tagline: string | null }>
+    Record<"en" | "it" | "pt" | "de" | "fr" | "fi", { description: string | null; tagline: string | null }>
   > = {};
   const agencyServicesTranslations: Partial<
-    Record<"en" | "it" | "pt", Array<{ title?: string; description?: string | null }>>
+    Record<"en" | "it" | "pt" | "de" | "fr" | "fi", Array<{ title?: string; description?: string | null }>>
   > = {};
   for (const [loc, row] of agencyTrMap) {
     if (loc === "es") continue;
@@ -144,13 +144,13 @@ export default async function AgencyTranslationsPage() {
   );
   const mediaTranslationsForEditor: Record<
     string,
-    Partial<Record<"en" | "it" | "pt", { title: string | null; altText: string | null }>>
+    Partial<Record<"en" | "it" | "pt" | "de" | "fr" | "fi", { title: string | null; altText: string | null }>>
   > = {};
   for (const [mediaId, perLocale] of mediaTrAllLocales) {
     const entry: Partial<
-      Record<"en" | "it" | "pt", { title: string | null; altText: string | null }>
+      Record<"en" | "it" | "pt" | "de" | "fr" | "fi", { title: string | null; altText: string | null }>
     > = {};
-    for (const loc of ["en", "it", "pt"] as const) {
+    for (const loc of ["en", "it", "pt", "de", "fr", "fi"] as const) {
       const tr = perLocale[loc];
       if (tr) entry[loc] = { title: tr.title, altText: tr.altText };
     }
@@ -162,11 +162,11 @@ export default async function AgencyTranslationsPage() {
   );
   const countryTranslationsForEditor: Record<
     string,
-    Partial<Record<"en" | "it" | "pt", { description: string | null }>>
+    Partial<Record<"en" | "it" | "pt" | "de" | "fr" | "fi", { description: string | null }>>
   > = {};
   for (const [countryId, perLocale] of countryTrAllLocales) {
-    const entry: Partial<Record<"en" | "it" | "pt", { description: string | null }>> = {};
-    for (const loc of ["en", "it", "pt"] as const) {
+    const entry: Partial<Record<"en" | "it" | "pt" | "de" | "fr" | "fi", { description: string | null }>> = {};
+    for (const loc of ["en", "it", "pt", "de", "fr", "fi"] as const) {
       const tr = perLocale[loc];
       if (tr) entry[loc] = { description: tr.description };
     }

@@ -14,6 +14,9 @@ const LOCALES: { code: string; flag: string; name: string }[] = [
   { code: "en", flag: "🇬🇧", name: "English" },
   { code: "it", flag: "🇮🇹", name: "Italiano" },
   { code: "pt", flag: "🇧🇷", name: "Português" },
+  { code: "de", flag: "🇩🇪", name: "Deutsch" },
+  { code: "fr", flag: "🇫🇷", name: "Français" },
+  { code: "fi", flag: "🇫🇮", name: "Suomi" },
 ];
 
 export default function NativeLocaleCard({ current }: { current: string }) {

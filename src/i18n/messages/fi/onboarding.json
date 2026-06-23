@@ -1,0 +1,266 @@
+{
+  "kyc": {
+    "docLabel": "Asiakirja (etupuoli tai PDF)",
+    "selfieLabel": "Selfie",
+    "uploadingDoc": "Ladataan asiakirjaa...",
+    "uploadingSelfie": "Ladataan selfietä...",
+    "privacyNote": "Tiedostot tallennetaan yksityisesti, ja vain vahvistustiimi näkee ne.",
+    "errorNoUser": "Käyttäjää ei ole kirjautuneena."
+  },
+  "start": {
+    "review": {
+      "badge": "Käsittelyssä",
+      "title": "Hakemus",
+      "titleHighlight": "käsittelyssä",
+      "description": "Olemme vastaanottaneet tietosi ja vahvistamme niitä parhaillaan. Voit seurata tilannetta hallintapaneelistasi, ja ilmoitamme sinulle sähköpostitse, kun käsittely on valmis.",
+      "viewPanel": "Näytä paneeli",
+      "viewApplication": "Näytä hakemus",
+      "backToDashboard": "Takaisin hallintapaneeliin"
+    },
+    "chooser": {
+      "badge": "Onboarding",
+      "title": "Valitse",
+      "titleHighlight": "tilityyppisi",
+      "subtitle": "Voit muuttaa tätä myöhemmin hallintapaneelista.",
+      "player": {
+        "title": "Olen pelaaja",
+        "description": "Rakenna ammattimainen portfoliosi ja luo yhteyksiä seuroihin."
+      },
+      "agency": {
+        "title": "Olen manageri / agentuuri",
+        "description": "Hallinnoi kokoonpanoasi, vahvista profiileja ja edusta lahjakkuuksia."
+      },
+      "staff": {
+        "title": "Olen valmentaja / skautti / johtaja",
+        "comingSoon": "Tulossa pian."
+      },
+      "coach": {
+        "title": "Olen valmentaja",
+        "description": "Esittele uraasi, lisenssejäsi ja johda seuraavaa projektiasi."
+      },
+      "later": "Teen sen myöhemmin"
+    }
+  },
+  "acceptInvite": {
+    "metaTitle": "Hyväksy kutsu",
+    "invalidLink": {
+      "title": "Virheellinen linkki",
+      "description": "Tämä kutsu ei sisällä kelvollista käyttöoikeustunnusta.",
+      "backHome": "Takaisin etusivulle"
+    },
+    "notFound": {
+      "title": "Kutsua ei löytynyt",
+      "description": "Linkki on saattanut vanhentua tai agentuuri on peruuttanut kutsun.",
+      "goHome": "Siirry 'BallersHub"
+    },
+    "processed": {
+      "title": "Kutsu käsitelty",
+      "description": "Tämä kutsu on jo {status}.",
+      "statusAccepted": "hyväksytty",
+      "statusRejected": "hylätty",
+      "goToPanel": "Siirry paneeliini"
+    },
+    "wrongAccount": {
+      "title": "Väärä tili",
+      "description": "Tämä kutsu on osoitettu sähköpostiin <strong>{targetEmail}</strong>, mutta olet kirjautunut tilillä <strong>{currentEmail}</strong>.",
+      "signOut": "Kirjaudu ulos nykyisestä istunnosta"
+    },
+    "received": {
+      "title": "Kutsu vastaanotettu",
+      "descriptionPlayer": "<strong>{agencyName}</strong> on lähettänyt sinulle virallisen kutsun liittyä alustalle edustettuna pelaajana.",
+      "descriptionManager": "<strong>{agencyName}</strong> on lähettänyt sinulle virallisen kutsun liittyä alustalle agentuurin managerina.",
+      "recipientLabel": "Vastaanottaja",
+      "recipientNote": "Jos et ole tämän sähköpostin omistaja, jätä tämä kutsu huomiotta.",
+      "signInToAccept": "Kirjaudu sisään hyväksyäksesi",
+      "noAccount": "Minulla ei ole vielä tiliä"
+    },
+    "defaultAgencyName": "Agentuuri"
+  },
+  "manager": {
+    "badge": "Manageri · Vaihe {step}/3",
+    "title": "Rekisteröidy",
+    "titleHighlight": "managerina",
+    "subtitle": "Vahvistamme henkilöllisyytesi ja edustusoikeutesi alustan luotettavuuden säilyttämiseksi.",
+    "step1": {
+      "fullName": "Koko nimesi *",
+      "contactEmail": "Yhteyssähköposti *",
+      "phone": "Puhelin",
+      "agencyName": "Agentuurin nimi *",
+      "agencyWebsite": "Agentuurin verkkosivusto",
+      "verifiedLink": "Vahvistuslinkki (Transfermarkt, IG jne.) *"
+    },
+    "step2": {
+      "title": "Virallinen sertifiointi",
+      "subtitle": "Lataa tai linkitä FIFA-, FIGC-, RFEF- tai muun liiton lisenssisi.",
+      "licenseType": "Lisenssityyppi",
+      "licenseTypeNone": "Ei lisenssiä / Muu",
+      "licenseTypeRfef": "RFEF (Espanja)",
+      "licenseTypeFigc": "FIGC (Italia)",
+      "licenseTypeAfa": "AFA (Argentiina)",
+      "licenseDoc": "Lisenssiasiakirja (PDF tai kuva)",
+      "licenseLoaded": "✓ Lisenssi ladattu"
+    },
+    "step3": {
+      "title": "Henkilöllisyyden vahvistus (KYC)",
+      "subtitle": "Alustan luotettavuuden suojaamiseksi meidän on vahvistettava henkilöllisyytesi.",
+      "idReady": "✓ Henkilötodistus valmis",
+      "idMissing": "○ Henkilötodistus puuttuu",
+      "selfieReady": "✓ Selfie valmis",
+      "selfieMissing": "○ Selfie puuttuu",
+      "notes": "Lisähuomautuksia (valinnainen)"
+    },
+    "back": "Takaisin",
+    "next": "Seuraava",
+    "submit": "Lähetä hakemus",
+    "submitting": "Lähetetään...",
+    "errorNoUser": "Käyttäjää ei ole kirjautuneena",
+    "errorUploadLicense": "Lisenssin lataaminen epäonnistui",
+    "errorGeneric": "Tapahtui virhe"
+  },
+  "apply": {
+    "header": {
+      "badge": "Pelaaja · Vaihe {step}/3",
+      "title": "Rekisteröidy",
+      "titleHighlight": "pelaajaksi",
+      "step1Title": "Perustiedot",
+      "step1Sub": "Henkilökohtaiset tietosi",
+      "step2Title": "Jalkapallotiedot",
+      "step2Sub": "Seura ja ura",
+      "step3Title": "Vahvistus",
+      "step3Sub": "Asiakirjat (KYC)"
+    },
+    "step1": {
+      "emailLabel": "Tilin sähköposti",
+      "emailDescription": "Tämä on kirjautumissähköpostisi",
+      "fullNameLabel": "Koko nimi",
+      "fullNamePlaceholder": "Esim. Lionel Messi",
+      "fullNameError": "Syötä vähintään 3 merkkiä.",
+      "nationalityError": "Valitse vähintään yksi kansalaisuus.",
+      "birthDateLabel": "Syntymäaika",
+      "birthDateError": "Valitse syntymäaikasi.",
+      "heightLabel": "Pituus (cm)",
+      "heightPlaceholder": "esim. 178",
+      "heightError": "Syötä kelvollinen pituus (120–230 cm).",
+      "weightLabel": "Paino (kg)",
+      "weightPlaceholder": "esim. 72",
+      "weightError": "Syötä kelvollinen paino (40–140 kg).",
+      "positionLabel": "Pelipaikka",
+      "positionError": "Valitse vähintään yksi alapelipaikka.",
+      "back": "Takaisin",
+      "continue": "Jatka",
+      "genderLabel": "Sukupuoli",
+      "genderDescription": "Määrittää kategorian: miesten vai naisten jalkapallo.",
+      "gender_male": "Mies",
+      "gender_female": "Nainen",
+      "gender_unspecified": "En halua kertoa"
+    },
+    "step2": {
+      "teamError": "Valitse seura tai merkitse, että olet vapaa pelaaja.",
+      "externalProfiles": "Ulkoiset profiilit",
+      "optional": "(valinnainen)",
+      "socialLabel": "Sosiaalinen media",
+      "socialPlaceholder": "https://www.instagram.com/kayttajatunnuksesi",
+      "urlError": "Syötä kelvollinen URL-osoite (https://...).",
+      "back": "Takaisin",
+      "next": "Siirry vahvistukseen"
+    },
+    "step3": {
+      "title": "Henkilöllisyyden vahvistus",
+      "docUploaded": "Asiakirja ladattu",
+      "docPending": "Asiakirja odottaa",
+      "selfieUploaded": "Selfie ladattu",
+      "selfiePending": "Selfie odottaa",
+      "agree": "Hyväksyn käyttöehdot ja tietosuojakäytännön",
+      "back": "Takaisin",
+      "submit": "Lähetä hakemus",
+      "errorKycOrTerms": "Asiakirja/selfie puuttuu tai ehtoja ei ole hyväksytty.",
+      "errorNoSession": "Ei aktiivista istuntoa.",
+      "errorUnexpected": "Odottamaton virhe."
+    }
+  },
+  "coachApply": {
+    "header": {
+      "badge": "Valmentaja · Vaihe {step}/3",
+      "title": "Rekisteröidy",
+      "titleHighlight": "valmentajaksi",
+      "step1Title": "Perustiedot",
+      "step1Sub": "Henkilökohtaiset tietosi",
+      "step2Title": "Ura ja lisenssit",
+      "step2Sub": "Valmennetut seurat ja tutkinnot",
+      "step3Title": "Vahvistus",
+      "step3Sub": "Asiakirjat (KYC)"
+    },
+    "step1": {
+      "emailLabel": "Tilin sähköposti",
+      "emailDescription": "Tämä on kirjautumissähköpostisi",
+      "fullNameLabel": "Koko nimi",
+      "fullNamePlaceholder": "Esim. Marcelo Bielsa",
+      "fullNameError": "Syötä vähintään 3 merkkiä.",
+      "nationalityError": "Valitse vähintään yksi kansalaisuus.",
+      "birthDateLabel": "Syntymäaika",
+      "birthDateError": "Valitse syntymäaikasi.",
+      "roleTitleLabel": "Tehtävä",
+      "roleTitlePlaceholder": "Esim. Päävalmentaja",
+      "roleTitleError": "Ilmoita tehtäväsi (esim. Päävalmentaja).",
+      "back": "Takaisin",
+      "continue": "Jatka"
+    },
+    "step2": {
+      "title": "Ura",
+      "subtitle": "Lisää valmentamasi seurat, tehtäväsi ja ajanjakso.",
+      "teamError": "Valitse seura tai merkitse, että olet ilman seuraa.",
+      "freeAgentLabel": "Tällä hetkellä ilman seuraa",
+      "careerTitle": "Valmennetut seurat",
+      "careerSubtitle": "Lisää jokainen kokemus tehtävineen ja vuosineen.",
+      "clubLabel": "Seura",
+      "clubPlaceholder": "Esim. Athletic Club",
+      "roleTitleLabel": "Tehtävä",
+      "roleTitlePlaceholder": "Esim. Päävalmentaja",
+      "divisionLabel": "Sarja",
+      "divisionPlaceholder": "Esim. Pääsarja",
+      "startYearLabel": "Aloitusvuosi",
+      "endYearLabel": "Päättymisvuosi",
+      "yearPlaceholder": "Esim. 2018",
+      "currentLabel": "Nykyinen",
+      "addCareerItem": "Lisää kokemus",
+      "removeCareerItem": "Poista",
+      "careerEmpty": "Et ole vielä lisännyt yhtään kokemusta.",
+      "licensesTitle": "Ilmoitetut lisenssit",
+      "licensesSubtitle": "Ilmoita valmentajatutkintosi (UEFA Pro, AFA jne.).",
+      "licenseTitle": "Lisenssi",
+      "licenseTitlePlaceholder": "Esim. UEFA Pro",
+      "licenseIssuer": "Myöntävä taho",
+      "licenseIssuerPlaceholder": "Esim. AFA",
+      "licenseYear": "Vuosi",
+      "licenseYearPlaceholder": "Esim. 2015",
+      "addLicense": "Lisää lisenssi",
+      "removeLicense": "Poista",
+      "licensesEmpty": "Et ole vielä lisännyt yhtään lisenssiä.",
+      "externalProfiles": "Ulkoiset profiilit",
+      "optional": "(valinnainen)",
+      "transfermarktLabel": "Transfermarkt-profiili",
+      "transfermarktPlaceholder": "https://www.transfermarkt.com/...",
+      "externalLabel": "Muu profiili tai sivusto",
+      "externalPlaceholder": "https://...",
+      "urlError": "Syötä kelvollinen URL-osoite (https://...).",
+      "back": "Takaisin",
+      "next": "Siirry vahvistukseen"
+    },
+    "step3": {
+      "title": "Henkilöllisyyden vahvistus",
+      "docUploaded": "Asiakirja ladattu",
+      "docPending": "Asiakirja odottaa",
+      "selfieUploaded": "Selfie ladattu",
+      "selfiePending": "Selfie odottaa",
+      "notesLabel": "Lisähuomautuksia (valinnainen)",
+      "notesPlaceholder": "Kerro meille kaikki urasi kannalta olennaiset tiedot.",
+      "agree": "Hyväksyn käyttöehdot ja tietosuojakäytännön",
+      "back": "Takaisin",
+      "submit": "Lähetä hakemus",
+      "submitting": "Lähetetään...",
+      "errorKycOrTerms": "Asiakirja/selfie puuttuu tai ehtoja ei ole hyväksytty.",
+      "errorNoSession": "Ei aktiivista istuntoa.",
+      "errorUnexpected": "Odottamaton virhe."
+    }
+  }
+}

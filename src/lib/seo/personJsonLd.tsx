@@ -58,6 +58,9 @@ const JOB_TITLE: Record<Locale, string> = {
   en: "Footballer",
   it: "Calciatore",
   pt: "Futebolista",
+  de: "Fußballspieler",
+  fr: "Footballeur",
+  fi: "Jalkapalloilija",
 };
 
 const HOME_LABEL: Record<Locale, string> = {
@@ -65,6 +68,9 @@ const HOME_LABEL: Record<Locale, string> = {
   en: "Home",
   it: "Home",
   pt: "Início",
+  de: "Startseite",
+  fr: "Accueil",
+  fi: "Etusivu",
 };
 
 // Position codes → full label per locale (knowsAbout). Keyed by the canonical
@@ -114,6 +120,36 @@ const POSITION_LABELS: Record<Locale, Record<string, string>> = {
     MD: "Meia direita", MI: "Meia esquerda",
     ED: "Ponta direita", EI: "Ponta esquerda", DC: "Centroavante",
     SD: "Segundo atacante",
+  },
+  de: {
+    DEF: "Verteidiger", MID: "Mittelfeldspieler", DEL: "Stürmer",
+    POR: "Torwart", ARQ: "Torwart", DFC: "Innenverteidiger",
+    LD: "Rechtsverteidiger", LI: "Linksverteidiger", CAR: "Außenläufer",
+    MC: "Zentrales Mittelfeld", MCD: "Defensives Mittelfeld",
+    MCO: "Offensives Mittelfeld", INT: "Halbpositions-Spieler",
+    MD: "Rechtes Mittelfeld", MI: "Linkes Mittelfeld",
+    ED: "Rechtsaußen", EI: "Linksaußen", DC: "Mittelstürmer",
+    SD: "Hängende Spitze",
+  },
+  fr: {
+    DEF: "Défenseur", MID: "Milieu de terrain", DEL: "Attaquant",
+    POR: "Gardien de but", ARQ: "Gardien de but", DFC: "Défenseur central",
+    LD: "Arrière droit", LI: "Arrière gauche", CAR: "Piston",
+    MC: "Milieu central", MCD: "Milieu défensif",
+    MCO: "Milieu offensif", INT: "Milieu intérieur",
+    MD: "Milieu droit", MI: "Milieu gauche",
+    ED: "Ailier droit", EI: "Ailier gauche", DC: "Avant-centre",
+    SD: "Second attaquant",
+  },
+  fi: {
+    DEF: "Puolustaja", MID: "Keskikenttäpelaaja", DEL: "Hyökkääjä",
+    POR: "Maalivahti", ARQ: "Maalivahti", DFC: "Keskuspuolustaja",
+    LD: "Oikea laitapuolustaja", LI: "Vasen laitapuolustaja", CAR: "Laitavahti",
+    MC: "Keskikenttäpelaaja", MCD: "Puolustava keskikenttäpelaaja",
+    MCO: "Hyökkäävä keskikenttäpelaaja", INT: "Sisäkenttäpelaaja",
+    MD: "Oikea keskikenttäpelaaja", MI: "Vasen keskikenttäpelaaja",
+    ED: "Oikea laitahyökkääjä", EI: "Vasen laitahyökkääjä", DC: "Keskushyökkääjä",
+    SD: "Tukihyökkääjä",
   },
 };
 

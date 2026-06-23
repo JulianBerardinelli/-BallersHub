@@ -13,6 +13,9 @@ export const HREFLANG_CODE: Record<Locale, string> = {
   en: "en",
   it: "it",
   pt: "pt-BR",
+  de: "de",
+  fr: "fr",
+  fi: "fi",
 };
 
 // <html lang> attribute per locale (describes the real content variant).
@@ -21,6 +24,9 @@ export const HTML_LANG: Record<Locale, string> = {
   en: "en",
   it: "it-IT",
   pt: "pt-BR",
+  de: "de-DE",
+  fr: "fr-FR",
+  fi: "fi-FI",
 };
 
 // Open Graph og:locale per locale.
@@ -29,6 +35,9 @@ export const OG_LOCALE: Record<Locale, string> = {
   en: "en_US",
   it: "it_IT",
   pt: "pt_BR",
+  de: "de_DE",
+  fr: "fr_FR",
+  fi: "fi_FI",
 };
 
 // Human-readable language names for the <LocaleSwitcher /> UI (each shown
@@ -38,6 +47,9 @@ export const LOCALE_LABEL: Record<Locale, string> = {
   en: "English",
   it: "Italiano",
   pt: "Português",
+  de: "Deutsch",
+  fr: "Français",
+  fi: "Suomi",
 };
 
 // flag-icons country code per locale, shown as an icon in the language
@@ -50,4 +62,7 @@ export const LOCALE_FLAG: Record<Locale, string> = {
   en: "gb",
   it: "it",
   pt: "br",
+  de: "de",
+  fr: "fr",
+  fi: "fi",
 };

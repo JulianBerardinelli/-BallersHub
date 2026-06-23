@@ -43,7 +43,7 @@ type Props = {
     cluster?: BlogCluster;
     tags?: string[];
     /** ISO 639-1 locale for this post (i18n F6). Only editable on create. */
-    locale?: "es" | "en" | "it" | "pt";
+    locale?: "es" | "en" | "it" | "pt" | "de" | "fr" | "fi";
   };
 };
 
@@ -68,7 +68,7 @@ export function BlogPostForm({ mode, initialValues }: Props) {
   );
   // i18n F6: post locale. Editable only on create — on edit it stays fixed
   // (the post lives at a specific URL per locale).
-  const [postLocale, setPostLocale] = useState<"es" | "en" | "it" | "pt">(
+  const [postLocale, setPostLocale] = useState<"es" | "en" | "it" | "pt" | "de" | "fr" | "fi">(
     initialValues?.locale ?? "es",
   );
   const [tagsInput, setTagsInput] = useState((initialValues?.tags ?? []).join(", "));
@@ -254,6 +254,9 @@ export function BlogPostForm({ mode, initialValues }: Props) {
               <option value="en">{tForm("fields.localeEn")}</option>
               <option value="it">{tForm("fields.localeIt")}</option>
               <option value="pt">{tForm("fields.localePt")}</option>
+              <option value="de">Deutsch</option>
+              <option value="fr">Français</option>
+              <option value="fi">Suomi</option>
             </select>
           </Field>
         ) : null}

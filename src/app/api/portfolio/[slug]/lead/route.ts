@@ -13,17 +13,26 @@ const bodySchema = z.object({
   email: z.string().email(),
   // Locale of the portfolio page (sent by the client) → localizes the lead
   // welcome email. Leads have no account, so there's no preferred_locale.
-  locale: z.enum(["es", "en", "it", "pt"]).optional(),
+  locale: z.enum(["es", "en", "it", "pt", "de", "fr", "fi"]).optional(),
 });
 
 type Params = Promise<{ slug: string }>;
 
 /** Fallback: parse the locale prefix from the referer (e.g. /pt/<slug>). */
-function localeFromReferer(referer: string | null): "en" | "it" | "pt" | null {
+function localeFromReferer(
+  referer: string | null,
+): "en" | "it" | "pt" | "de" | "fr" | "fi" | null {
   if (!referer) return null;
   try {
     const seg = new URL(referer).pathname.split("/").filter(Boolean)[0];
-    return seg === "en" || seg === "it" || seg === "pt" ? seg : null;
+    return seg === "en" ||
+      seg === "it" ||
+      seg === "pt" ||
+      seg === "de" ||
+      seg === "fr" ||
+      seg === "fi"
+      ? seg
+      : null;
   } catch {
     return null;
   }

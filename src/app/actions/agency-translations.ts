@@ -10,8 +10,57 @@ import { CONTENT_LOCALES } from "@/lib/i18n/profile-content";
 import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
 
 // Agency description/tagline live on agency_profiles (es, edited in the agency
-// dashboard); en/it/pt overrides go to agency_profile_translations. Same
+// dashboard); the override locales go to agency_profile_translations. Same
 // per-field es fallback model as the player profile (F5).
+
+// Translatable (non-es) locales. es is the canonical base, edited elsewhere.
+// 6 overrides → 7 total content locales, but a single plan can only PUBLISH a
+// capped subset (see TIER_LIMIT below).
+const TRANSLATABLE_LOCALES = ["en", "it", "pt", "de", "fr", "fi"] as const;
+
+// Tier cap (decisión 2a): es + up to 3 overrides = 4 total. Mirrors the player
+// translation action (tierLimit=4). A brand-new locale only counts against the
+// cap; an already-published locale can always be re-saved.
+const TIER_LIMIT = 4;
+
+/**
+ * Locales the agency already publishes = es (always) + every distinct locale
+ * with a row in agency_profile_translations. Counted with a direct query (not
+ * getAvailableAgencyLocales, which filters through the 4-value CONTENT_LOCALES
+ * and would silently drop de/fr/fi). Used to enforce TIER_LIMIT before adding a
+ * NEW locale; deletes never call this.
+ */
+async function getPublishedAgencyLocales(
+  supabase: Owned["supabase"],
+  agencyId: string,
+): Promise<string[]> {
+  const { data } = await supabase
+    .from("agency_profile_translations")
+    .select("locale")
+    .eq("agency_id", agencyId);
+  const locales = new Set<string>(["es"]);
+  for (const row of data ?? []) {
+    if (row.locale) locales.add(row.locale as string);
+  }
+  return [...locales];
+}
+
+/**
+ * Reject saving a NOT-yet-published locale once the plan's TIER_LIMIT is hit.
+ * Returns an error string to bubble up, or null when the save may proceed.
+ * (es never reaches here — it's the base; an already-available locale passes.)
+ */
+async function enforceLocaleTier(
+  supabase: Owned["supabase"],
+  agencyId: string,
+  locale: string,
+): Promise<string | null> {
+  const available = await getPublishedAgencyLocales(supabase, agencyId);
+  if (!available.includes(locale) && available.length >= TIER_LIMIT) {
+    return "Tu plan permite hasta 3 idiomas además del español.";
+  }
+  return null;
+}
 
 const fieldsSchema = z.object({
   description: z.string().trim().max(2000).optional(),
@@ -20,13 +69,13 @@ const fieldsSchema = z.object({
 
 const saveSchema = z.object({
   agencyId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]), // es is the base, edited elsewhere
+  locale: z.enum(TRANSLATABLE_LOCALES), // es is the base, edited elsewhere
   fields: fieldsSchema,
 });
 
 const deleteSchema = z.object({
   agencyId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
 });
 
 export type AgencyTranslationFields = z.infer<typeof fieldsSchema>;
@@ -102,6 +151,10 @@ export async function saveAgencyTranslation(input: {
   const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
+  // Tier-cap guard (decisión 2a): only a NEW locale counts against TIER_LIMIT.
+  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  if (tierError) return { success: false, message: tierError };
+
   const norm = (v: string | undefined) => {
     const t = v?.trim();
     return t && t.length > 0 ? t : null;
@@ -175,13 +228,13 @@ const servicesItemSchema = z.object({
 
 const servicesSaveSchema = z.object({
   agencyId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
   services: z.array(servicesItemSchema).max(12),
 });
 
 const servicesDeleteSchema = z.object({
   agencyId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
 });
 
 export type AgencyServicesTranslationItem = z.infer<typeof servicesItemSchema>;
@@ -206,6 +259,12 @@ export async function saveServicesTranslation(input: {
 
   const { owned, error } = await ensureProAgencyStaff(agencyId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
+
+  // Tier-cap guard (decisión 2a): publishing services in a brand-new locale
+  // also creates an agency_profile_translations row, so it counts against the
+  // limit just like the description/tagline save path.
+  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  if (tierError) return { success: false, message: tierError };
 
   // Read the existing description+tagline so the upsert never clobbers them.
   const { data: existing } = await owned.supabase
@@ -283,14 +342,14 @@ const mediaFieldsSchema = z.object({
 const mediaSaveSchema = z.object({
   agencyId: z.string().uuid(),
   mediaId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
   fields: mediaFieldsSchema,
 });
 
 const mediaDeleteSchema = z.object({
   agencyId: z.string().uuid(),
   mediaId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
 });
 
 export type AgencyMediaTranslationFields = z.infer<typeof mediaFieldsSchema>;
@@ -325,6 +384,11 @@ export async function saveAgencyMediaTranslation(input: {
   if (!(await mediaBelongsToAgency(owned.supabase, mediaId, agencyId))) {
     return { success: false, message: "No encontramos esa imagen en tu agencia." };
   }
+
+  // Tier-cap guard (decisión 2a): don't let media content open a new locale
+  // beyond the plan limit.
+  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  if (tierError) return { success: false, message: tierError };
 
   const norm = (v: string | undefined) => {
     const t = v?.trim();
@@ -398,14 +462,14 @@ const countryFieldsSchema = z.object({
 const countrySaveSchema = z.object({
   agencyId: z.string().uuid(),
   countryProfileId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
   fields: countryFieldsSchema,
 });
 
 const countryDeleteSchema = z.object({
   agencyId: z.string().uuid(),
   countryProfileId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(TRANSLATABLE_LOCALES),
 });
 
 export type AgencyCountryProfileTranslationFields = z.infer<typeof countryFieldsSchema>;
@@ -440,6 +504,11 @@ export async function saveAgencyCountryProfileTranslation(input: {
   if (!(await countryProfileBelongsToAgency(owned.supabase, countryProfileId, agencyId))) {
     return { success: false, message: "No encontramos ese país en tu agencia." };
   }
+
+  // Tier-cap guard (decisión 2a): don't let a country profile open a new locale
+  // beyond the plan limit.
+  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  if (tierError) return { success: false, message: tierError };
 
   const norm = (v: string | undefined) => {
     const t = v?.trim();

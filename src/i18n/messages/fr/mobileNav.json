@@ -1,0 +1,113 @@
+{
+  "drawer": {
+    "open": "Ouvrir le menu",
+    "close": "Fermer le menu",
+    "title": "Menu",
+    "navLabel": "Navigation du site"
+  },
+  "tabs": {
+    "home": "Accueil",
+    "network": "Réseau",
+    "plans": "Offres",
+    "access": "Se connecter",
+    "account": "Compte",
+    "panel": "Tableau de bord",
+    "profile": "Profil",
+    "template": "Modèle",
+    "settings": "Paramètres",
+    "agency": "Agence",
+    "management": "Gestion"
+  },
+  "sectionsCount": "{count, plural, one {# section} many {# sections} other {# sections}}",
+  "access": {
+    "title": "Se connecter",
+    "login": "Se connecter",
+    "loginDesc": "Accédez à votre tableau de bord joueur",
+    "signup": "Créer mon profil",
+    "signupDesc": "Gratuit · prêt en 3 minutes"
+  },
+  "account": {
+    "title": "Votre compte",
+    "goPanel": "Aller à mon tableau de bord",
+    "goPanelDesc": "Modifiez votre profil et vos médias",
+    "viewProfile": "Voir mon profil public",
+    "viewProfileFallback": "Votre page publique",
+    "share": "Partager mon lien",
+    "shareDesc": "Copiez ou envoyez votre portfolio",
+    "signOut": "Se déconnecter",
+    "signOutDesc": "Quittez votre compte",
+    "linkCopied": "Lien copié",
+    "shareText": "Découvrez mon profil sur 'BallersHub"
+  },
+  "profile": {
+    "title": "Modifier le profil",
+    "personalData": "Données personnelles",
+    "personalDataDesc": "Informations de base, avatar et contact",
+    "footballData": "Données footballistiques",
+    "footballDataDesc": "Parcours, club actuel et liens",
+    "multimedia": "Multimédia",
+    "multimediaDesc": "Photos, vidéos et articles de presse",
+    "languages": "Langues",
+    "languagesDesc": "Publiez votre profil en EN · IT · PT"
+  },
+  "template": {
+    "title": "Modifier le modèle",
+    "styles": "Styles",
+    "stylesDesc": "Variantes visuelles et couleurs",
+    "structure": "Structure",
+    "structureDesc": "Activez ou désactivez des blocs"
+  },
+  "settings": {
+    "title": "Configuration",
+    "account": "Compte",
+    "accountDesc": "Identifiants de connexion et préférences",
+    "subscription": "Abonnement",
+    "subscriptionDesc": "État de l'offre et facturation",
+    "signOut": "Se déconnecter",
+    "signOutDesc": "Quittez le tableau de bord en toute sécurité"
+  },
+  "coach": {
+    "profileData": "Données du profil",
+    "profileDataDesc": "Bio, poste, idées de jeu et formations",
+    "career": "Parcours",
+    "careerDesc": "Clubs dirigés et statistiques",
+    "licenses": "Licences",
+    "licensesDesc": "Diplômes et certifications",
+    "multimedia": "Multimédia",
+    "multimediaDesc": "Photos et vidéos de votre travail",
+    "languages": "Langues",
+    "languagesDesc": "Publiez votre page en EN · IT · PT"
+  },
+  "pro": "PRO",
+  "agency": {
+    "title": "Profil de l'agence",
+    "profile": "Données principales",
+    "profileDesc": "Identité, infos et contact",
+    "services": "Services",
+    "servicesDesc": "Ce que propose votre agence",
+    "reach": "Portée",
+    "reachDesc": "Pays où vous opérez",
+    "collaborations": "Clubs",
+    "collaborationsDesc": "Relations avec les clubs",
+    "multimedia": "Multimédia",
+    "multimediaDesc": "Galerie d'images",
+    "languages": "Langues",
+    "languagesDesc": "Publiez en EN · IT · PT"
+  },
+  "management": {
+    "title": "Gestion",
+    "managerProfile": "Mon profil",
+    "managerProfileDesc": "Votre bio et vos licences",
+    "players": "Mes joueurs",
+    "playersDesc": "Portefeuille de joueurs représentés",
+    "staff": "Équipe",
+    "staffDesc": "Collègues et autorisations"
+  },
+  "agencyTemplate": {
+    "title": "Modifier le modèle",
+    "styles": "Styles",
+    "stylesDesc": "Variantes visuelles et couleurs",
+    "structure": "Structure",
+    "structureDesc": "Activez ou désactivez des blocs"
+  }
+}

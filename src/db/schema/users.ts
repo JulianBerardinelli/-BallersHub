@@ -25,7 +25,7 @@ export const userProfiles = pgTable(
   (t) => ({
     preferredLocaleCheck: check(
       "user_profiles_preferred_locale_check",
-      sql`preferred_locale IN ('es','en','it','pt')`,
+      sql`preferred_locale IN ('es','en','it','pt','de','fr','fi')`,
     ),
   }),
 );

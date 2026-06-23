@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Zugangsdaten",
+    "cardDescription": "Aktualisieren Sie Ihre Anmeldedaten oder sehen Sie die grundlegenden Informationen Ihres Kontos ein.",
+    "editAria": "Zugangsdaten bearbeiten",
+    "cancelEditAria": "Bearbeitung abbrechen",
+    "emailLabel": "E-Mail-Adresse",
+    "emailPlaceholder": "ihre@email.com",
+    "emailConfirmationSent": "Wir haben Ihnen einen Bestätigungslink an Ihre E-Mail-Adresse gesendet, um die Änderung zu bestätigen.",
+    "updateEmail": "E-Mail aktualisieren",
+    "updatingEmail": "Wird aktualisiert...",
+    "newPasswordLabel": "Neues Passwort",
+    "newPasswordPlaceholder": "Mindestens 6 Zeichen",
+    "passwordTooShort": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+    "passwordUpdated": "Passwort erfolgreich aktualisiert.",
+    "updatePassword": "Passwort aktualisieren",
+    "updatingPassword": "Wird aktualisiert...",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "passwordLabel": "Passwort",
+    "roleLabel": "Kontorolle",
+    "roleDescription": "Bestimmt, auf welchen Profiltyp Sie Zugriff haben.",
+    "roleManager": "Agentur / Vermittler",
+    "roleAdmin": "Administrator",
+    "roleMember": "Spieler / Mitglied",
+    "createdAtLabel": "Konto erstellt am"
+  },
+  "subscription": {
+    "stripePortalTitle": "Stripe-Portal",
+    "stripePortalDescription": "Aktualisieren Sie Ihre Karte, laden Sie Rechnungen herunter oder kündigen Sie das Abonnement.",
+    "openPortal": "Portal öffnen",
+    "stripePortalRequestFailed": "Stripe-Portalanfrage fehlgeschlagen",
+    "cancelScheduledNotice": "Ihr Abonnement ist zur Kündigung zum Ende des Zeitraums vorgemerkt. Falls Sie es sich anders überlegen, können Sie dies über das Portal rückgängig machen.",
+    "cancelTitle": "Abonnement kündigen",
+    "cancelDescription": "Mercado Pago sperrt den Zugang bei der Kündigung sofort. Es gibt keine anteilige Erstattung des bezahlten Zeitraums.",
+    "cancel": "Kündigen",
+    "back": "Zurück",
+    "confirmCancel": "Kündigung bestätigen",
+    "cancelRequestFailed": "Kündigungsanfrage fehlgeschlagen"
+  },
+  "common": {
+    "invalidLocale": "Ungültige Sprache.",
+    "mustSignIn": "Sie müssen sich anmelden.",
+    "localeSaveFailed": "Die Sprache konnte nicht gespeichert werden.",
+    "localeUpdated": "Muttersprache aktualisiert.",
+    "unknownError": "Unbekannter Fehler."
+  }
+}

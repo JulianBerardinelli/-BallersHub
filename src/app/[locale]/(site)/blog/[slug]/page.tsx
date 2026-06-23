@@ -161,6 +161,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             {/* Article */}
             <article className="bh-article-col">
               <ArticleJsonLd
+                locale={locale as Locale}
                 article={{
                   slug: post.slug,
                   title: post.title,

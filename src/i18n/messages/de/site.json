@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "homeTitle": "'BallersHub — Professionelle Profile von Fußballspielern",
+    "homeDescription": "'BallersHub bündelt das professionelle Profil jedes Fußballspielers: Laufbahn, Statistiken, offizielle Galerie, Videos und Kontakt. Verifizierte Profile von Spielern und Agenturen."
+  },
+  "agencies": {
+    "pageName": "Agenturen",
+    "metaTitle": "Spielerberatungsagenturen",
+    "metaDescription": "Verzeichnis verifizierter Spielerberatungsagenturen auf 'BallersHub. Greifen Sie auf das offizielle Spielerportfolio jeder Agentur zu.",
+    "ogTitle": "Spielerberatungsagenturen · 'BallersHub"
+  },
+  "comoValidamos": {
+    "metaTitle": "Wie validieren wir?",
+    "metaDescription": "Der Validierungsprozess von 'BallersHub: Jede kritische Änderung an einem Profil durchläuft eine menschliche Prüfung, einen Abgleich mit über 10 Sportdatenquellen (Transfermarkt, Sofascore, FBref…) und eine Verifizierung durch KI-Agenten (Gemini, Claude, ChatGPT), bevor sie veröffentlicht wird.",
+    "ogTitle": "Wie validieren wir? · 'BallersHub"
+  },
+  "search": {
+    "title": "Ergebnisse",
+    "searched": "Sie haben gesucht: „{q}“",
+    "prompt": "Geben Sie einen Suchbegriff ein."
+  },
+  "unsubscribe": {
+    "metaTitle": "Abonnement abbestellen",
+    "metaDescription": "Bestellen Sie Ihr Abonnement der Mitteilungen von 'BallersHub ab.",
+    "success": {
+      "title": "Abonnement abbestellt",
+      "intro": "Fertig. Wir senden Ihnen keine Marketing-E-Mails mehr an ",
+      "fallback": "Sie erhalten weiterhin transaktionale E-Mails (Passwort-Wiederherstellung, Bestätigungen usw.), da diese für die Nutzung der Plattform erforderlich sind.",
+      "back": "Zurück zur Startseite"
+    },
+    "error": {
+      "title": "Ungültiger Link",
+      "defaultMessage": "Der Abmeldelink ist ungültig oder abgelaufen.",
+      "contact": "Wenn Sie Ihr Abonnement abbestellen möchten, schreiben Sie uns an <email>info@ballershub.co</email> und wir kümmern uns darum."
+    },
+    "noToken": {
+      "title": "Abonnement abbestellen",
+      "description": "Zum Abbestellen öffnen Sie die letzte E-Mail, die wir Ihnen gesendet haben, und klicken Sie unten auf „hier abmelden“. Dieser Link enthält ein eindeutiges, für Ihre Adresse signiertes Token.",
+      "contact": "Wenn Sie die E-Mail nicht finden, schreiben Sie uns an <email>info@ballershub.co</email>."
+    }
+  }
+}

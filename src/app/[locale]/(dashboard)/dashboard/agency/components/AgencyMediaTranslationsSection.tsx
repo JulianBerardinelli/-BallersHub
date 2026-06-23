@@ -12,12 +12,15 @@ import {
   deleteAgencyMediaTranslation,
 } from "@/app/actions/agency-translations";
 
-type TargetLocale = "en" | "it" | "pt";
+type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
 const LOCALES: { code: TargetLocale; label: string; flag: string }[] = [
   { code: "en", label: "English", flag: "🇬🇧" },
   { code: "it", label: "Italiano", flag: "🇮🇹" },
   { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "fi", label: "Suomi", flag: "🇫🇮" },
 ];
 
 export type AgencyMediaItem = {

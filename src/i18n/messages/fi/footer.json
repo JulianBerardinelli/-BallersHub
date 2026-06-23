@@ -1,0 +1,97 @@
+{
+  "headline": {
+    "anonymous": {
+      "eyebrow": "Suorana · 130 aktiivista seuraa",
+      "lead": "Lataa, vahvista ja ",
+      "highlight": "pelaa siellä, missä sillä on merkitystä.",
+      "sub": "Yli 30 vahvistettua profiilia. Valmennustiimien todennetut arviot. Seuraava seurasi etsii jo sinua."
+    },
+    "player": {
+      "eyebrow": "Urasi liikkeessä",
+      "lead": "Pidä profiilisi ",
+      "highlight": "aina ajan tasalla.",
+      "sub": "Lataa uusia kuvia, päivitä jalkapallotietosi ja anna seurojen löytää sinut oikeilla tiedoilla."
+    },
+    "manager": {
+      "eyebrow": "Toimistosi ilman kitkaa",
+      "lead": "Hallinnoi salkkuasi ",
+      "highlight": "tarkasti.",
+      "sub": "Lisää pelaajia, vahvista profiileja ja jaa toimistosi virallinen kokoonpano seuroille ympäri maailman."
+    },
+    "applicant": {
+      "eyebrow": "Hakemuksesi on käsittelyssä",
+      "lead": "Olet vain askeleen päässä ",
+      "highlight": "ammattilaistilistäsi.",
+      "sub": "Kun käymme tietojasi läpi, voit jatkaa vahvistettujen profiilien, menestystarinoiden ja tuoteuutuuksien tutkimista."
+    },
+    "member": {
+      "eyebrow": "Valmiina silloin kun haluat",
+      "lead": "Muuta tilisi ",
+      "highlight": "ammattilaisprofiiliksi.",
+      "sub": "Hae pelaaja- tai toimistotiliä ja aloita toiminta ekosysteemissä virallisella vahvistuksella."
+    }
+  },
+  "cta": {
+    "playerDashboard": "Siirry hallintapaneeliini",
+    "playerViewProfile": "Näytä julkinen profiilini",
+    "playerEditProfile": "Muokkaa profiiliani",
+    "managerManage": "Hallinnoi toimistoa",
+    "managerViewAgency": "Näytä toimiston profiili",
+    "managerSetup": "Määritä toimisto",
+    "applicantContinue": "Jatka hakemustani",
+    "applicantStatus": "Näytä hakemuksen tila",
+    "applicantDashboard": "Siirry hallintapaneeliin",
+    "memberRequest": "Hae ammattilaistiliä",
+    "memberDashboard": "Siirry hallintapaneeliin",
+    "anonCreate": "Luo profiilini",
+    "anonAgency": "Olen toimisto"
+  },
+  "columns": {
+    "playersTitle": "Pelaajille",
+    "agenciesTitle": "Toimistoille",
+    "workTitle": "Tietoa meistä",
+    "createProfile": "Luo profiili",
+    "viewValidated": "Näytä vahvistetut profiilit",
+    "editCareer": "Muokkaa uraa",
+    "proTemplates": "Pro-mallit",
+    "createAgency": "Luo toimisto",
+    "viewAgencies": "Näytä toimistot",
+    "myRoster": "Salkkuni",
+    "officialVerification": "Virallinen vahvistus",
+    "demo": "Demo",
+    "aboutUs": "Tietoa meistä"
+  },
+  "stats": {
+    "profiles": "Vahvistetut profiilit",
+    "clubs": "Aktiiviset seurat",
+    "reviews": "Todennetut arviot",
+    "countries": "Maat"
+  },
+  "tagline": "Ammattilaisjalkapallon digitaalinen ekosysteemi.",
+  "legal": {
+    "terms": "Ehdot",
+    "privacy": "Tietosuoja",
+    "cookies": "Evästeet"
+  },
+  "credits": "Kehittänyt",
+  "portfolio": {
+    "eyebrowPlayer": "Vahvistettu profiili 'BallersHub-palvelussa",
+    "eyebrowAgency": "Vahvistettu toimisto 'BallersHub-palvelussa",
+    "headlinePlayer": "Liity ekosysteemiin ",
+    "headlineAgency": "Yhdistä ",
+    "subPlayer": "Vahvistettu ura, jalkapallotiedot ja media. Seuraava askeleesi alustalla, joka on suunniteltu ammattilaispelaajille.",
+    "subAgency": "Tutustu tämän toimiston edustamaan pelaajasalkkuun ja toteuta seuraavat siirtosi ilman kitkaa.",
+    "eyebrowCoach": "Vahvistettu valmentaja 'BallersHub-palvelussa",
+    "headlineCoach": "Tutustu valmentajan työhön: ",
+    "subCoach": "Vahvistettu ura, metodologia ja pätevyydet. Valmentajan ammattilaisprofiili alustalla, joka on suunniteltu jalkapalloa varten.",
+    "ctaContact": "Pyydä yhteydenottoa"
+  },
+  "newsletter": {
+    "eyebrow": "Pro-uutiskirje",
+    "copy": "Scouting-näkemyksiä, uusia ominaisuuksia ja menestystarinoita. Kerran kuukaudessa, ilman melua.",
+    "button": "Tilaa",
+    "submitted": "Valmista!",
+    "hint": "Ei roskapostia. Voit peruuttaa milloin tahansa.",
+    "ariaEmail": "Sähköpostisi"
+  }
+}

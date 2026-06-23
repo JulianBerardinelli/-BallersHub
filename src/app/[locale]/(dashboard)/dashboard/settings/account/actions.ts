@@ -5,7 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 
-const schema = z.object({ locale: z.enum(["es", "en", "it", "pt"]) });
+const schema = z.object({ locale: z.enum(["es", "en", "it", "pt", "de", "fr", "fi"]) });
 
 export type SetLocaleResult = { success: boolean; message: string };
 

@@ -1,0 +1,92 @@
+{
+  "search": {
+    "placeholder": "Hae pelaajia...",
+    "aria": "Hae pelaajia",
+    "placeholderFull": "Hae pelaajia, agentuureja, agentteja...",
+    "placeholderMobile": "Hae pelaajia, agentuureja…",
+    "ariaFull": "Hae pelaajia ja agentuureja",
+    "noResults": "Ei tuloksia.",
+    "prompt": "Kirjoita hakeaksesi pelaajia, agentuureja, agentteja…",
+    "hintNavigate": "selaa",
+    "hintSelect": "valitse",
+    "hintClose": "sulje",
+    "results": "Hakutulokset",
+    "sectionPlayers": "Pelaajat",
+    "sectionAgencies": "Agentuurit",
+    "sectionManagers": "Managerit / Agentit",
+    "ariaManagers": "Managerit",
+    "colPlayer": "Pelaaja",
+    "colClub": "Seura",
+    "colValue": "Arvo",
+    "colReviews": "Arvostelut",
+    "colAgency": "Agentuuri",
+    "colHeadquarters": "Toimipaikka",
+    "colCountries": "Maat",
+    "colServices": "Palvelut",
+    "colManager": "Manageri / Agentti",
+    "colContact": "Yhteystieto",
+    "roleAgency": "Agentuuri",
+    "roleManager": "Manageri",
+    "requiresPro": "Vaatii Pro-tilauksen",
+    "reviewsProTitle": "Arvostelut ovat saatavilla Pro-tilauksissa",
+    "ratingAria": "arvio",
+    "countCountries": "{count} maata",
+    "countServices": "{count} palvelua"
+  },
+  "nav": {
+    "players": "Pelaajat",
+    "agencies": "Agentuurit",
+    "plans": "Tilaukset",
+    "about": "Tietoa meistä",
+    "howWeValidate": "Miten validoimme?",
+    "blog": "Blogi"
+  },
+  "auth": {
+    "signIn": "Kirjaudu sisään",
+    "signUp": "Rekisteröidy"
+  },
+  "actions": {
+    "save": "Tallenna",
+    "cancel": "Peruuta",
+    "edit": "Muokkaa",
+    "delete": "Poista"
+  },
+  "localeSwitcher": {
+    "label": "Vaihda kieltä"
+  },
+  "authButtons": {
+    "access": "Kirjaudu",
+    "create": "Luo tili"
+  },
+  "back": "Takaisin",
+  "userMenu": {
+    "openMenu": "Avaa käyttäjävalikko",
+    "userActions": "Käyttäjän toiminnot",
+    "signedInAs": "Kirjautuneena nimellä",
+    "defaultName": "Oma tili",
+    "viewPublicProfile": "Näytä julkinen profiili",
+    "agencyInReview": "Agentuuri tarkistettavana",
+    "viewApplication": "Näytä tarkistettavana oleva hakemus",
+    "continueApplication": "Jatka hakemusta",
+    "applyPro": "Hae ammattilaistiliä",
+    "dashboard": "Hallintapaneeli",
+    "viewAgencyPublic": "Näytä agentuurin julkinen profiili",
+    "agencySettings": "Agentuurin asetukset",
+    "managerProfile": "Oma manageriprofiili",
+    "personalData": "Henkilötiedot",
+    "footballData": "Jalkapallotiedot",
+    "media": "Media",
+    "template": "Mallipohja",
+    "subscription": "Tilaus",
+    "settings": "Yleiset asetukset",
+    "language": "Kieli",
+    "signOut": "Kirjaudu ulos",
+    "signOutConfirm": "Haluatko varmasti kirjautua ulos BallersHubista?",
+    "signingOut": "Kirjaudutaan ulos..."
+  },
+  "org": {
+    "description": "Ammattimainen portfolioalusta jalkapalloilijoille ja pelaaja-agentuureille. Jokainen pelaaja ja jokainen agentuuri saa ainutlaatuisen, hakukoneoptimoidun linkin, joka kokoaa yhteen uran, tilastot, fyysiset tiedot ja varmennetun median.",
+    "appDescription": "Verkkosovellus jalkapalloilijoiden ja agentuurien ammattimaisten portfolioiden luomiseen: ainutlaatuinen linkki, keskitetyt tiedot, SEO-valmis ensimmäisestä päivästä alkaen.",
+    "slogan": "Jalkapalloilijoiden ammattimaiset profiilit"
+  }
+}

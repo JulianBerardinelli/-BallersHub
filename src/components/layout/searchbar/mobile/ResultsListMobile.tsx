@@ -3,6 +3,7 @@
 
 import { Avatar } from "@heroui/react";
 import { Briefcase, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
 import VerifiedBadge from "@/components/icons/VerifiedBadge";
 import { formatMarketValueEUR } from "@/lib/format";
 import type {
@@ -41,6 +42,7 @@ function PlayerRow({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   const primaryPos = r.positions?.[0] ?? "-";
   const avatarColor = planToAvatarColor(r.plan) as any;
   return (
@@ -78,10 +80,10 @@ function PlayerRow({
       <div className="text-right">
         <div className="text-sm tabular-nums">{formatMarketValueEUR(r.marketValueEur)}</div>
         {r.plan === "free" ? (
-          <div className="text-[10px] opacity-60">Requires Pro plan</div>
+          <div className="text-[10px] opacity-60">{t("search.requiresPro")}</div>
         ) : (
           <div className="text-[10px] opacity-70">
-            <span aria-label="rating" className="mr-1">☆☆☆☆☆</span>
+            <span aria-label={t("search.ratingAria")} className="mr-1">☆☆☆☆☆</span>
             +0
           </div>
         )}
@@ -97,6 +99,7 @@ function AgencyRow({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   return (
     <li
       className="flex items-center gap-3 py-3 px-4 cursor-pointer hover:bg-content2/40 rounded-lg"
@@ -115,15 +118,15 @@ function AgencyRow({
         <p className="truncate font-medium">{r.name}</p>
         <p className="text-xs opacity-70 truncate flex items-center gap-2">
           <MapPin className="size-3.5 shrink-0 text-bh-fg-3" />
-          <span className="truncate">{r.headquarters ?? "Agencia"}</span>
+          <span className="truncate">{r.headquarters ?? t("search.roleAgency")}</span>
         </p>
       </div>
       <div className="text-right text-[10px] opacity-70 leading-tight">
         {r.operativeCountries && r.operativeCountries.length > 0 && (
-          <div>{r.operativeCountries.length} países</div>
+          <div>{t("search.countCountries", { count: r.operativeCountries.length })}</div>
         )}
         {r.services && r.services.length > 0 && (
-          <div>{r.services.length} servicios</div>
+          <div>{t("search.countServices", { count: r.services.length })}</div>
         )}
       </div>
     </li>
@@ -137,6 +140,7 @@ function ManagerRow({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   const clickable = !!r.agencySlug;
   return (
     <li
@@ -158,7 +162,7 @@ function ManagerRow({
         <p className="truncate font-medium">{r.name}</p>
         <p className="text-xs opacity-70 truncate flex items-center gap-2">
           <Briefcase className="size-3.5 shrink-0 text-bh-fg-3" />
-          <span className="truncate">{r.agencyName ?? "Manager"}</span>
+          <span className="truncate">{r.agencyName ?? t("search.roleManager")}</span>
         </p>
       </div>
       {r.contactEmail && (
@@ -183,6 +187,7 @@ export default function ResultsListMobile({
   onSelect: (hit: SearchHit) => void;
   onHoverHit?: (hit: SearchHit) => void;
 }) {
+  const t = useTranslations("common");
   if (loading) {
     return (
       <ul className="space-y-3 pt-3">
@@ -205,9 +210,7 @@ export default function ResultsListMobile({
 
   if (total === 0) {
     const emptyMsg =
-      query.trim().length > 0
-        ? "No results found."
-        : "Type to search players, agencies, managers…";
+      query.trim().length > 0 ? t("search.noResults") : t("search.prompt");
     return <div className="text-sm opacity-70 py-6 text-center">{emptyMsg}</div>;
   }
 
@@ -215,7 +218,7 @@ export default function ResultsListMobile({
     <div className="flex flex-col">
       {results.players.length > 0 && (
         <section>
-          <SectionHeader label="Jugadores" count={results.players.length} />
+          <SectionHeader label={t("search.sectionPlayers")} count={results.players.length} />
           <ul className="divide-y divide-content3/20">
             {results.players.map((r) => (
               <PlayerRow
@@ -231,7 +234,7 @@ export default function ResultsListMobile({
 
       {results.agencies.length > 0 && (
         <section>
-          <SectionHeader label="Agencias" count={results.agencies.length} />
+          <SectionHeader label={t("search.sectionAgencies")} count={results.agencies.length} />
           <ul className="divide-y divide-content3/20">
             {results.agencies.map((r) => (
               <AgencyRow
@@ -247,7 +250,7 @@ export default function ResultsListMobile({
 
       {results.managers.length > 0 && (
         <section>
-          <SectionHeader label="Managers / Agentes" count={results.managers.length} />
+          <SectionHeader label={t("search.sectionManagers")} count={results.managers.length} />
           <ul className="divide-y divide-content3/20">
             {results.managers.map((r) => (
               <ManagerRow

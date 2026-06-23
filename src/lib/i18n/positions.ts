@@ -42,6 +42,30 @@ const POSITION_LABELS: Record<Locale, Record<string, string>> = {
     MI: "Meia esquerda", DC: "Centroavante", ED: "Ponta direita",
     EI: "Ponta esquerda", SD: "Segundo atacante",
   },
+  de: {
+    POR: "Torwart", DFC: "Innenverteidiger", LD: "Rechtsverteidiger",
+    LI: "Linksverteidiger", CAR: "Außenläufer", MC: "Zentrales Mittelfeld",
+    MCD: "Defensives Mittelfeld", MCO: "Offensives Mittelfeld",
+    INT: "Box-to-Box-Mittelfeldspieler", MD: "Rechtes Mittelfeld",
+    MI: "Linkes Mittelfeld", DC: "Mittelstürmer", ED: "Rechtsaußen",
+    EI: "Linksaußen", SD: "Hängende Spitze",
+  },
+  fr: {
+    POR: "Gardien de but", DFC: "Défenseur central", LD: "Arrière droit",
+    LI: "Arrière gauche", CAR: "Piston", MC: "Milieu central",
+    MCD: "Milieu défensif", MCO: "Milieu offensif",
+    INT: "Milieu relayeur", MD: "Milieu droit",
+    MI: "Milieu gauche", DC: "Avant-centre", ED: "Ailier droit",
+    EI: "Ailier gauche", SD: "Second attaquant",
+  },
+  fi: {
+    POR: "Maalivahti", DFC: "Keskuspuolustaja", LD: "Oikea laitapuolustaja",
+    LI: "Vasen laitapuolustaja", CAR: "Laitavahti", MC: "Keskikenttäpelaaja",
+    MCD: "Puolustava keskikenttäpelaaja", MCO: "Hyökkäävä keskikenttäpelaaja",
+    INT: "Laatikosta laatikkoon -pelaaja", MD: "Oikea keskikenttäpelaaja",
+    MI: "Vasen keskikenttäpelaaja", DC: "Keskushyökkääjä", ED: "Oikea laitahyökkääjä",
+    EI: "Vasen laitahyökkääjä", SD: "Tukihyökkääjä",
+  },
 };
 
 /**
@@ -64,6 +88,9 @@ const FOOT_LABELS: Record<Locale, { D: string; I: string; A: string }> = {
   en: { D: "Right foot", I: "Left foot", A: "Two-footed" },
   it: { D: "Piede destro", I: "Piede sinistro", A: "Ambidestro" },
   pt: { D: "Pé direito", I: "Pé esquerdo", A: "Ambidestro" },
+  de: { D: "Rechter Fuß", I: "Linker Fuß", A: "Beidfüßig" },
+  fr: { D: "Pied droit", I: "Pied gauche", A: "Ambidextre" },
+  fi: { D: "Oikea jalka", I: "Vasen jalka", A: "Molempijalkainen" },
 };
 
 /** Localize the free-text `foot` column to a display label (null if unknown). */

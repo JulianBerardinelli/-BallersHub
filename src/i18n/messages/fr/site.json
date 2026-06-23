@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "homeTitle": "'BallersHub — Profils professionnels de footballeurs",
+    "homeDescription": "'BallersHub centralise le profil professionnel de chaque footballeur : parcours, statistiques, galerie officielle, vidéos et contact. Profils vérifiés de joueurs et d'agences."
+  },
+  "agencies": {
+    "pageName": "Agences",
+    "metaTitle": "Agences de représentation",
+    "metaDescription": "Annuaire des agences de représentation de footballeurs vérifiées sur 'BallersHub. Accédez au portefeuille officiel de joueurs de chaque agence.",
+    "ogTitle": "Agences de représentation · 'BallersHub"
+  },
+  "comoValidamos": {
+    "metaTitle": "Comment validons-nous ?",
+    "metaDescription": "Le processus de validation de 'BallersHub : chaque modification critique d'un profil passe par une révision humaine, une comparaison avec plus de 10 sources sportives (Transfermarkt, Sofascore, FBref…) et une vérification par des agents d'IA (Gemini, Claude, ChatGPT) avant d'être publiée.",
+    "ogTitle": "Comment validons-nous ? · 'BallersHub"
+  },
+  "search": {
+    "title": "Résultats",
+    "searched": "Vous avez recherché : « {q} »",
+    "prompt": "Saisissez un terme de recherche."
+  },
+  "unsubscribe": {
+    "metaTitle": "Se désabonner",
+    "metaDescription": "Désabonnez-vous des communications de 'BallersHub.",
+    "success": {
+      "title": "Abonnement annulé",
+      "intro": "C'est fait. Nous ne vous enverrons plus d'e-mails marketing à ",
+      "fallback": "Vous continuerez à recevoir des e-mails transactionnels (récupération de mot de passe, confirmations, etc.) car ils sont nécessaires à l'utilisation de la plateforme.",
+      "back": "Retour à l'accueil"
+    },
+    "error": {
+      "title": "Lien non valide",
+      "defaultMessage": "Le lien de désabonnement n'est pas valide ou a expiré.",
+      "contact": "Si vous souhaitez vous désabonner, écrivez-nous à <email>info@ballershub.co</email> et nous nous en chargeons."
+    },
+    "noToken": {
+      "title": "Se désabonner",
+      "description": "Pour vous désabonner, ouvrez le dernier e-mail que nous vous avons envoyé et cliquez sur « se désabonner ici » en bas de page. Ce lien contient un jeton unique signé pour votre adresse.",
+      "contact": "Si vous ne trouvez pas l'e-mail, écrivez-nous à <email>info@ballershub.co</email>."
+    }
+  }
+}

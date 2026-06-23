@@ -120,6 +120,72 @@ const COPY: Record<Locale, Copy> = {
     cta: "Ir para meu painel",
     help: "Qualquer dúvida, responda este e-mail e te orientamos.",
   },
+  de: {
+    eyebrow: "Willkommen — Agentur",
+    heading: (n) => `Hallo ${n}`,
+    preheader: (n) => `${n}, organisieren Sie Ihren Kader auf 'BallersHub.`,
+    intro:
+      "'BallersHub ist Ihr Talentverzeichnis. Hier bündeln Sie das Scouting, verwalten Ihre Mandanten und veröffentlichen professionelle Portfolios mit erstklassiger Verarbeitung. Diese drei Schritte sind Ihr erstes Setup.",
+    step1: {
+      title: "Richten Sie Ihre Agentur ein",
+      body: "Laden Sie Ihr Firmenlogo hoch, vervollständigen Sie Biografie und Kontaktdaten. Das ist der erste Eindruck, den Spieler erhalten, wenn Sie sie einladen.",
+    },
+    step2: {
+      title: "Fügen Sie Ihre Spieler hinzu",
+      badge: "Schlüsselschritt",
+      body: "Nutzen Sie das Einladungssystem, um jeden Spieler formal zu verknüpfen. Sobald sie verknüpft sind, zeigt ihr öffentliches Portfolio Ihre Agentur als Vertretung an.",
+    },
+    step3: {
+      title: "Veröffentlichen Sie professionelle Portfolios",
+      body: "Jedes freigegebene Profil wird mit dem Pro-Layout von 'BallersHub dargestellt — Animationen, validierte Daten und hochauflösende Medien. Bereit zum Versand an Klubs.",
+    },
+    cta: "Zu meinem Panel",
+    help: "Bei Fragen antworten Sie einfach auf diese E-Mail, und wir helfen Ihnen weiter.",
+  },
+  fr: {
+    eyebrow: "Bienvenue — Agence",
+    heading: (n) => `Bonjour ${n}`,
+    preheader: (n) => `${n}, organisez votre effectif sur 'BallersHub.`,
+    intro:
+      "'BallersHub est votre annuaire de talents. Vous y centralisez le recrutement, gérez vos joueurs représentés et publiez des portfolios professionnels d'une finition d'élite. Ces trois étapes constituent votre configuration initiale.",
+    step1: {
+      title: "Configurez votre agence",
+      body: "Téléchargez votre logo d'entreprise, complétez votre biographie et vos coordonnées. C'est la première impression que les joueurs ont lorsque vous les invitez.",
+    },
+    step2: {
+      title: "Ajoutez vos joueurs",
+      badge: "Étape clé",
+      body: "Utilisez le système d'invitations pour lier formellement chaque joueur. Une fois liés, leur portfolio public affiche votre agence comme représentant.",
+    },
+    step3: {
+      title: "Publiez des portfolios professionnels",
+      body: "Chaque profil approuvé s'affiche avec la mise en page Pro de 'BallersHub — animations, données validées et médias en haute résolution. Prêts à envoyer aux clubs.",
+    },
+    cta: "Accéder à mon panneau",
+    help: "Pour toute question, répondez à cet e-mail et nous vous guiderons.",
+  },
+  fi: {
+    eyebrow: "Tervetuloa — Agentuuri",
+    heading: (n) => `Hei ${n}`,
+    preheader: (n) => `${n}, järjestä pelaajakaartisi 'BallersHubissa.`,
+    intro:
+      "'BallersHub on lahjakkuushakemistosi. Täällä keskität skouttauksen, hallinnoit edustamiasi pelaajia ja julkaiset ammattimaisia portfolioita huippuluokan viimeistelyllä. Nämä kolme vaihetta ovat alkuasetuksesi.",
+    step1: {
+      title: "Määritä agentuurisi",
+      body: "Lataa yrityslogo, täytä esittely ja yhteystiedot. Se on ensivaikutelma, jonka pelaajat saavat, kun kutsut heidät.",
+    },
+    step2: {
+      title: "Lisää pelaajasi",
+      badge: "Avainvaihe",
+      body: "Käytä kutsujärjestelmää liittääksesi jokaisen pelaajan virallisesti. Kun heidät on liitetty, heidän julkinen portfolionsa näyttää agentuurisi edustajana.",
+    },
+    step3: {
+      title: "Julkaise ammattimaisia portfolioita",
+      body: "Jokainen hyväksytty profiili näytetään 'BallersHubin Pro-asettelulla — animaatiot, vahvistetut tiedot ja korkearesoluutioinen media. Valmiina lähetettäväksi seuroille.",
+    },
+    cta: "Siirry paneeliini",
+    help: "Jos sinulla on kysyttävää, vastaa tähän sähköpostiin, niin opastamme sinua.",
+  },
 };
 
 /**
