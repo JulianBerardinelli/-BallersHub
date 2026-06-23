@@ -1,6 +1,7 @@
 # BallersHub — i18n / Multilang HANDOFF
 
 > **Status:** 🟢 **EJECUTADO** — el plan (§13, F0–F7) está en prod. Ver **§0.1 (Estado de ejecución + tareas pendientes)** para el estado real al 2026-06-12.
+> **Expansión de locales — Fase 1 (de/fr/fi; griego `el` diferido):** plan profesional self-contained en [`EXPANSION-LOCALES.md`](./EXPANSION-LOCALES.md) (2026-06-22, aún NO ejecutado — requiere decisiones del owner). Este HANDOFF cubre los 4 actuales (es/en/it/pt).
 > **Owner:** @julian-berardinelli
 > **Entry point:** este doc es self-contained. Un chat nuevo que retome i18n arranca leyendo esto **+ §0.1**.
 > **Relación con SEO:** adelanta y reemplaza la Phase 4 de [`../seo-strategy.md`](../seo-strategy.md) §8 ("Evaluate English `/en/[slug]` hreflang once AR-only growth plateaus") — ahora se hace bien desde el principio, con 4 locales.
