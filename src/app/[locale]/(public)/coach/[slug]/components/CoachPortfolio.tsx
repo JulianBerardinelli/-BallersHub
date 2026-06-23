@@ -59,6 +59,31 @@ export type CoachMediaRow = {
   title: string | null;
 };
 
+// Press notes (coach_articles). Shape mirrors the player ProfilePressNotesModule
+// `Article` so the agnostic press component can consume it directly.
+export type CoachArticleRow = {
+  id: string;
+  title: string;
+  url: string;
+  imageUrl: string | null;
+  publisher: string | null;
+  publishedAt: string | null;
+  position: number | null;
+};
+
+// Personal details surfaced to the Pro contact module (WhatsApp + show toggle)
+// and any future "personal" facts. Mirrors the relevant coach_personal_details
+// columns; everything optional/nullable so a coach without a row renders fine.
+export type CoachPersonalDetailsData = {
+  whatsapp: string | null;
+  showContactSection: boolean;
+  languages: string[] | null;
+  education: string | null;
+  residenceCity: string | null;
+  residenceCountry: string | null;
+  residenceCountryCode: string | null;
+};
+
 export type CoachRecord = {
   matches: number;
   wins: number;

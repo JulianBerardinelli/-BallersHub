@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { marketingSubscriptions, portfolioLeads } from "@/db/schema";
+import { coachPortfolioLeads, marketingSubscriptions, portfolioLeads } from "@/db/schema";
 import { isSuppressed } from "@/lib/marketing/suppression";
 import { sendLeadWelcomeEmail } from "@/lib/resend";
 
@@ -14,6 +14,9 @@ const bodySchema = z.object({
   // Locale of the portfolio page (sent by the client) → localizes the lead
   // welcome email. Leads have no account, so there's no preferred_locale.
   locale: z.enum(["es", "en", "it", "pt", "de", "fr", "fi"]).optional(),
+  // Portfolio kind. Players and coaches can share a slug (different tables), so
+  // the form tells us which profile type it's on ("coach" from /coach/<slug>).
+  kind: z.enum(["player", "coach"]).optional(),
 });
 
 type Params = Promise<{ slug: string }>;
@@ -65,13 +68,46 @@ export async function POST(req: Request, { params }: { params: Params }) {
     return NextResponse.json({ error: "Ingresá un email válido." }, { status: 400 });
   }
 
-  const player = await db.query.playerProfiles.findFirst({
-    where: (p, { and, eq }) =>
-      and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
-    columns: { id: true, fullName: true, slug: true },
-  });
+  // The contact module is shared by player AND coach portfolios, which can share
+  // a slug (different tables). The form sends `kind` ("coach" from /coach/<slug>)
+  // so a coach lead is never mis-routed to a same-slug player. We resolve the
+  // declared kind first and only fall back to the other type as a safety net.
+  // `target.kind` then drives the lead table + the welcome email's portfolio path.
+  const findPlayer = () =>
+    db.query.playerProfiles.findFirst({
+      where: (p, { and, eq }) =>
+        and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
+      columns: { id: true, fullName: true, slug: true },
+    });
+  const findCoach = () =>
+    db.query.coachProfiles.findFirst({
+      where: (c, { and, eq }) =>
+        and(eq(c.slug, slug), eq(c.visibility, "public"), eq(c.status, "approved")),
+      columns: { id: true, fullName: true, slug: true },
+    });
 
-  if (!player) {
+  type Target =
+    | { kind: "player"; id: string; fullName: string; slug: string }
+    | { kind: "coach"; id: string; fullName: string; slug: string };
+  let target: Target | null = null;
+
+  if (parsed.data.kind === "coach") {
+    const coach = await findCoach();
+    if (coach) target = { kind: "coach", id: coach.id, fullName: coach.fullName, slug: coach.slug };
+    if (!target) {
+      const player = await findPlayer();
+      if (player) target = { kind: "player", id: player.id, fullName: player.fullName, slug: player.slug };
+    }
+  } else {
+    const player = await findPlayer();
+    if (player) target = { kind: "player", id: player.id, fullName: player.fullName, slug: player.slug };
+    if (!target) {
+      const coach = await findCoach();
+      if (coach) target = { kind: "coach", id: coach.id, fullName: coach.fullName, slug: coach.slug };
+    }
+  }
+
+  if (!target) {
     return NextResponse.json({ error: "Perfil no encontrado." }, { status: 404 });
   }
 
@@ -79,14 +115,25 @@ export async function POST(req: Request, { params }: { params: Params }) {
   const referrer = req.headers.get("referer");
   const userAgent = req.headers.get("user-agent");
 
-  // 1) Always log the lead (historical / attribution)
-  await db.insert(portfolioLeads).values({
-    playerId: player.id,
-    email,
-    source: "contact_unlock",
-    referrer: referrer ?? null,
-    userAgent: userAgent ?? null,
-  });
+  // 1) Always log the lead (historical / attribution) — coach leads land in
+  //    their own `coach_portfolio_leads` table.
+  if (target.kind === "coach") {
+    await db.insert(coachPortfolioLeads).values({
+      coachId: target.id,
+      email,
+      source: "contact_unlock",
+      referrer: referrer ?? null,
+      userAgent: userAgent ?? null,
+    });
+  } else {
+    await db.insert(portfolioLeads).values({
+      playerId: target.id,
+      email,
+      source: "contact_unlock",
+      referrer: referrer ?? null,
+      userAgent: userAgent ?? null,
+    });
+  }
 
   // 2) Add to marketing subscriptions (unless previously suppressed)
   const suppressed = await isSuppressed(email);
@@ -113,8 +160,10 @@ export async function POST(req: Request, { params }: { params: Params }) {
     //    not break the unlock flow.
     sendLeadWelcomeEmail({
       email,
-      playerName: player.fullName ?? "el jugador",
-      playerSlug: player.slug ?? slug,
+      playerName: target.fullName ?? (target.kind === "coach" ? "el entrenador" : "el jugador"),
+      playerSlug: target.slug ?? slug,
+      // Coach portfolios live under /coach/<slug>; players at /<slug>.
+      pathPrefix: target.kind === "coach" ? "coach" : undefined,
       // client-provided locale → referer prefix → es
       locale: parsed.data.locale ?? localeFromReferer(referrer) ?? "es",
     }).catch((error) => {

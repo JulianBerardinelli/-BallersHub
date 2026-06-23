@@ -16,10 +16,17 @@ export type PortfolioContactChannel = {
 };
 
 type Props = {
+  /** Bare slug used for the API routes (lead / contact-click). */
   playerSlug: string;
   playerName: string;
   channels: PortfolioContactChannel[];
   unlocked: boolean;
+  /** Portfolio kind sent to the API so a coach/player sharing a slug never
+   *  collide (default "player"). */
+  apiKind?: "player" | "coach";
+  /** Public profile path for the sign-in redirect (e.g. "/coach/<slug>").
+   *  Defaults to "/<playerSlug>" (the player route). */
+  profilePath?: string;
 };
 
 const CHANNEL_BRAND: Record<ContactChannelKind, { tag: string; gradient: string }> = {
@@ -36,8 +43,16 @@ function ChannelIcon({ kind, className }: { kind: ContactChannelKind; className?
   }
 }
 
-export default function PortfolioContact({ playerSlug, playerName, channels, unlocked }: Props) {
+export default function PortfolioContact({
+  playerSlug,
+  playerName,
+  channels,
+  unlocked,
+  apiKind = "player",
+  profilePath,
+}: Props) {
   const t = useTranslations("portfolio");
+  const profileHref = profilePath ?? `/${playerSlug}`;
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -81,9 +96,14 @@ export default function PortfolioContact({ playerSlug, playerName, channels, unl
         </motion.header>
 
         {unlocked ? (
-          <ContactGrid playerSlug={playerSlug} channels={channels} />
+          <ContactGrid playerSlug={playerSlug} channels={channels} apiKind={apiKind} />
         ) : (
-          <LockedStage playerSlug={playerSlug} channels={channels} />
+          <LockedStage
+            playerSlug={playerSlug}
+            channels={channels}
+            apiKind={apiKind}
+            profilePath={profileHref}
+          />
         )}
       </div>
     </section>
@@ -93,9 +113,11 @@ export default function PortfolioContact({ playerSlug, playerName, channels, unl
 function ContactGrid({
   playerSlug,
   channels,
+  apiKind,
 }: {
   playerSlug: string;
   channels: PortfolioContactChannel[];
+  apiKind: "player" | "coach";
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
@@ -105,6 +127,7 @@ function ContactGrid({
           playerSlug={playerSlug}
           channel={channel}
           interactive
+          apiKind={apiKind}
         />
       ))}
     </div>
@@ -114,9 +137,13 @@ function ContactGrid({
 function LockedStage({
   playerSlug,
   channels,
+  apiKind,
+  profilePath,
 }: {
   playerSlug: string;
   channels: PortfolioContactChannel[];
+  apiKind: "player" | "coach";
+  profilePath: string;
 }) {
   // Stack the blurred preview and the form panel in the same grid cell so
   // the container's height grows to fit the form, not just the (small) grid.
@@ -134,6 +161,7 @@ function LockedStage({
               playerSlug={playerSlug}
               channel={channel}
               interactive={false}
+              apiKind={apiKind}
             />
           ))}
         </div>
@@ -147,7 +175,7 @@ function LockedStage({
 
       {/* Centered form panel (same cell, on top) */}
       <div className="[grid-area:1/1] grid place-items-center p-4 md:p-6">
-        <LockedPanel playerSlug={playerSlug} />
+        <LockedPanel playerSlug={playerSlug} apiKind={apiKind} profilePath={profilePath} />
       </div>
     </div>
   );
@@ -157,10 +185,12 @@ function ContactCard({
   playerSlug,
   channel,
   interactive,
+  apiKind,
 }: {
   playerSlug: string;
   channel: PortfolioContactChannel;
   interactive: boolean;
+  apiKind: "player" | "coach";
 }) {
   const t = useTranslations("portfolio");
   const brand = CHANNEL_BRAND[channel.kind];
@@ -171,7 +201,7 @@ function ContactCard({
     fetch(`/api/portfolio/${encodeURIComponent(playerSlug)}/contact-click`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ platform: channel.kind }),
+      body: JSON.stringify({ platform: channel.kind, kind: apiKind }),
       keepalive: true,
     }).catch(() => {});
   }
@@ -229,7 +259,15 @@ function ContactCard({
   );
 }
 
-function LockedPanel({ playerSlug }: { playerSlug: string }) {
+function LockedPanel({
+  playerSlug,
+  apiKind,
+  profilePath,
+}: {
+  playerSlug: string;
+  apiKind: "player" | "coach";
+  profilePath: string;
+}) {
   const t = useTranslations("portfolio");
   const router = useRouter();
   const locale = useLocale();
@@ -251,7 +289,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
         const res = await fetch(`/api/portfolio/${encodeURIComponent(playerSlug)}/lead`, {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ email: trimmed, locale }),
+          body: JSON.stringify({ email: trimmed, locale, kind: apiKind }),
         });
         if (!res.ok) {
           const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -359,7 +397,7 @@ function LockedPanel({ playerSlug }: { playerSlug: string }) {
               {t.rich("modules.contact.signInPrompt", {
                 link: (chunks) => (
                   <a
-                    href={`/auth/sign-in?redirect=/${encodeURIComponent(playerSlug)}`}
+                    href={`/auth/sign-in?redirect=${encodeURIComponent(profilePath)}`}
                     className="text-white/70 underline-offset-2 hover:underline hover:text-white"
                   >
                     {chunks}
