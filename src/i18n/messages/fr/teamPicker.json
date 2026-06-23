@@ -1,67 +1,67 @@
 {
   "label": {
-    "current": "Club actual",
+    "current": "Club actuel",
     "club": "Club"
   },
-  "freeAgent": "Jugador libre",
+  "freeAgent": "Joueur libre",
   "placeholder": {
-    "search": "Escribí el nombre de tu club",
-    "searchTeam": "Escribí para buscar un equipo",
-    "disabledFree": "Deshabilitado por jugador libre"
+    "search": "Saisissez le nom de votre club",
+    "searchTeam": "Saisissez pour rechercher une équipe",
+    "disabledFree": "Désactivé car joueur libre"
   },
   "hint": {
-    "signpost": "¿No encontrás tu club? Vas a poder agregarlo."
+    "signpost": "Vous ne trouvez pas votre club ? Vous pourrez l’ajouter."
   },
   "option": {
-    "add": "Agregar “{name}”",
-    "addHint": "No está en la lista · lo verificamos"
+    "add": "Ajouter « {name} »",
+    "addHint": "Absent de la liste · nous le vérifions"
   },
   "badge": {
-    "new": "Nuevo"
+    "new": "Nouveau"
   },
   "modal": {
-    "title": "Agregar tu club",
-    "intro": "No lo encontramos en nuestra base. Completá estos datos y lo verificamos para dejarlo cargado en tu perfil.",
-    "country": "País del club",
-    "countryRequired": "Elegí un país",
-    "tm": "Transfermarkt (opcional)",
-    "tmInvalid": "URL inválida (https://...)",
-    "cancel": "Cancelar",
-    "save": "Agregar club"
+    "title": "Ajouter votre club",
+    "intro": "Nous ne l’avons pas trouvé dans notre base. Remplissez ces informations et nous le vérifions pour l’enregistrer dans votre profil.",
+    "country": "Pays du club",
+    "countryRequired": "Choisissez un pays",
+    "tm": "Transfermarkt (facultatif)",
+    "tmInvalid": "URL invalide (https://...)",
+    "cancel": "Annuler",
+    "save": "Ajouter le club"
   },
   "chip": {
-    "selected": "Seleccionado: {name}",
-    "added": "Agregado: {name} · pendiente de verificación",
-    "free": "Jugador libre"
+    "selected": "Sélectionné : {name}",
+    "added": "Ajouté : {name} · en attente de vérification",
+    "free": "Joueur libre"
   },
   "details": {
-    "edit": "Editar detalles del club"
+    "edit": "Modifier les détails du club"
   },
   "dashboardPicker": {
-    "currentTeamLabel": "Equipo actual",
-    "currentTeamDescription": "Buscá tu equipo por nombre. Si no existe, podés proponerlo.",
-    "currentTeamPlaceholder": "Ej: Boca Juniors",
-    "countryLabel": "País (nombre o ISO-2)",
-    "countryDescription": "Ej: Argentina o AR",
-    "countryPlaceholder": "Argentina / AR",
-    "resultsTitle": "Resultados",
-    "noResults": "No encontramos equipos con «{q}».",
-    "chooseTeam": "Elegir",
-    "proposeNew": "Proponer equipo nuevo: «{q}»",
-    "proposeHelp": "El equipo no está en nuestra base. Con tu solicitud lo crearemos y verificaremos.",
-    "freeAgentCta": "Soy jugador libre (sin equipo)",
-    "chipSelected": "Seleccionado: {name}",
-    "chipProposed": "Equipo propuesto: {name}",
-    "chipFree": "Jugador libre"
+    "currentTeamLabel": "Équipe actuelle",
+    "currentTeamDescription": "Recherchez votre équipe par son nom. Si elle n’existe pas, vous pouvez la proposer.",
+    "currentTeamPlaceholder": "Ex. : Boca Juniors",
+    "countryLabel": "Pays (nom ou ISO-2)",
+    "countryDescription": "Ex. : Argentine ou AR",
+    "countryPlaceholder": "Argentine / AR",
+    "resultsTitle": "Résultats",
+    "noResults": "Nous n’avons trouvé aucune équipe avec « {q} ».",
+    "chooseTeam": "Choisir",
+    "proposeNew": "Proposer une nouvelle équipe : « {q} »",
+    "proposeHelp": "L’équipe ne figure pas dans notre base. Avec votre demande, nous la créerons et la vérifierons.",
+    "freeAgentCta": "Je suis joueur libre (sans équipe)",
+    "chipSelected": "Sélectionné : {name}",
+    "chipProposed": "Équipe proposée : {name}",
+    "chipFree": "Joueur libre"
   },
   "createModal": {
-    "title": "Nuevo equipo: «{name}»",
-    "countryLabel": "País del club",
-    "countryRequired": "Elegí un país",
-    "tmLabel": "Transfermarkt (opcional)",
+    "title": "Nouvelle équipe : « {name} »",
+    "countryLabel": "Pays du club",
+    "countryRequired": "Choisissez un pays",
+    "tmLabel": "Transfermarkt (facultatif)",
     "tmPlaceholder": "https://www.transfermarkt.com/...",
-    "tmInvalid": "URL inválida (https://...)",
-    "cancel": "Cancelar",
-    "save": "Guardar"
+    "tmInvalid": "URL invalide (https://...)",
+    "cancel": "Annuler",
+    "save": "Enregistrer"
   }
 }

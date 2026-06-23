@@ -1,38 +1,38 @@
 {
   "agencies": {
-    "pageName": "Agencias",
-    "metaTitle": "Agencias de representación",
-    "metaDescription": "Directorio de agencias de representación de futbolistas verificadas en 'BallersHub. Accedé a la cartera oficial de jugadores de cada agencia.",
-    "ogTitle": "Agencias de representación · 'BallersHub"
+    "pageName": "Agences",
+    "metaTitle": "Agences de représentation",
+    "metaDescription": "Annuaire des agences de représentation de footballeurs vérifiées sur 'BallersHub. Accédez au portefeuille officiel de joueurs de chaque agence.",
+    "ogTitle": "Agences de représentation · 'BallersHub"
   },
   "comoValidamos": {
-    "metaTitle": "¿Cómo validamos?",
-    "metaDescription": "El flujo de validación de 'BallersHub: cada cambio crítico en un perfil pasa por revisión humana, contraste contra +10 fuentes deportivas (Transfermarkt, Sofascore, FBref…) y verificación con agentes de IA (Gemini, Claude, ChatGPT) antes de publicarse.",
-    "ogTitle": "¿Cómo validamos? · 'BallersHub"
+    "metaTitle": "Comment validons-nous ?",
+    "metaDescription": "Le processus de validation de 'BallersHub : chaque modification critique d'un profil passe par une révision humaine, une comparaison avec plus de 10 sources sportives (Transfermarkt, Sofascore, FBref…) et une vérification par des agents d'IA (Gemini, Claude, ChatGPT) avant d'être publiée.",
+    "ogTitle": "Comment validons-nous ? · 'BallersHub"
   },
   "search": {
-    "title": "Resultados",
-    "searched": "Buscaste: “{q}”",
-    "prompt": "Ingresá un término de búsqueda."
+    "title": "Résultats",
+    "searched": "Vous avez recherché : « {q} »",
+    "prompt": "Saisissez un terme de recherche."
   },
   "unsubscribe": {
-    "metaTitle": "Cancelar suscripción",
-    "metaDescription": "Cancelá tu suscripción a comunicaciones de 'BallersHub.",
+    "metaTitle": "Se désabonner",
+    "metaDescription": "Désabonnez-vous des communications de 'BallersHub.",
     "success": {
-      "title": "Suscripción cancelada",
-      "intro": "Listo. No vamos a enviarte más emails de marketing a ",
-      "fallback": "Vas a seguir recibiendo emails transaccionales (recuperación de contraseña, confirmaciones, etc.) porque son necesarios para usar la plataforma.",
-      "back": "Volver al inicio"
+      "title": "Abonnement annulé",
+      "intro": "C'est fait. Nous ne vous enverrons plus d'e-mails marketing à ",
+      "fallback": "Vous continuerez à recevoir des e-mails transactionnels (récupération de mot de passe, confirmations, etc.) car ils sont nécessaires à l'utilisation de la plateforme.",
+      "back": "Retour à l'accueil"
     },
     "error": {
-      "title": "Enlace no válido",
-      "defaultMessage": "El enlace de cancelación no es válido o expiró.",
-      "contact": "Si querés cancelar la suscripción, escribinos a <email>info@ballershub.co</email> y nosotros lo gestionamos."
+      "title": "Lien non valide",
+      "defaultMessage": "Le lien de désabonnement n'est pas valide ou a expiré.",
+      "contact": "Si vous souhaitez vous désabonner, écrivez-nous à <email>info@ballershub.co</email> et nous nous en chargeons."
     },
     "noToken": {
-      "title": "Cancelar suscripción",
-      "description": "Para cancelar, abrí el último email que te enviamos y hacé click en “desuscribite acá” al pie. Ese enlace contiene un token único firmado para tu dirección.",
-      "contact": "Si no encontrás el email, escribinos a <email>info@ballershub.co</email>."
+      "title": "Se désabonner",
+      "description": "Pour vous désabonner, ouvrez le dernier e-mail que nous vous avons envoyé et cliquez sur « se désabonner ici » en bas de page. Ce lien contient un jeton unique signé pour votre adresse.",
+      "contact": "Si vous ne trouvez pas l'e-mail, écrivez-nous à <email>info@ballershub.co</email>."
     }
   }
 }

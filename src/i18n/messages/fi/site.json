@@ -1,38 +1,38 @@
 {
   "agencies": {
-    "pageName": "Agencias",
-    "metaTitle": "Agencias de representación",
-    "metaDescription": "Directorio de agencias de representación de futbolistas verificadas en 'BallersHub. Accedé a la cartera oficial de jugadores de cada agencia.",
-    "ogTitle": "Agencias de representación · 'BallersHub"
+    "pageName": "Agentuurit",
+    "metaTitle": "Pelaaja-agentuurit",
+    "metaDescription": "Hakemisto vahvistetuista jalkapalloilijoiden pelaaja-agentuureista 'BallersHubissa. Pääset käsiksi jokaisen agentuurin viralliseen pelaajaportfolioon.",
+    "ogTitle": "Pelaaja-agentuurit · 'BallersHub"
   },
   "comoValidamos": {
-    "metaTitle": "¿Cómo validamos?",
-    "metaDescription": "El flujo de validación de 'BallersHub: cada cambio crítico en un perfil pasa por revisión humana, contraste contra +10 fuentes deportivas (Transfermarkt, Sofascore, FBref…) y verificación con agentes de IA (Gemini, Claude, ChatGPT) antes de publicarse.",
-    "ogTitle": "¿Cómo validamos? · 'BallersHub"
+    "metaTitle": "Miten vahvistamme tiedot?",
+    "metaDescription": "'BallersHubin vahvistusprosessi: jokainen profiilin kriittinen muutos käy läpi ihmisen tekemän tarkistuksen, vertailun yli 10 urheilutietolähteeseen (Transfermarkt, Sofascore, FBref…) ja tekoälyagenttien (Gemini, Claude, ChatGPT) suorittaman varmistuksen ennen julkaisua.",
+    "ogTitle": "Miten vahvistamme tiedot? · 'BallersHub"
   },
   "search": {
-    "title": "Resultados",
-    "searched": "Buscaste: “{q}”",
-    "prompt": "Ingresá un término de búsqueda."
+    "title": "Tulokset",
+    "searched": "Haitsit: ”{q}”",
+    "prompt": "Anna hakusana."
   },
   "unsubscribe": {
-    "metaTitle": "Cancelar suscripción",
-    "metaDescription": "Cancelá tu suscripción a comunicaciones de 'BallersHub.",
+    "metaTitle": "Peruuta tilaus",
+    "metaDescription": "Peruuta 'BallersHubin viestien tilaus.",
     "success": {
-      "title": "Suscripción cancelada",
-      "intro": "Listo. No vamos a enviarte más emails de marketing a ",
-      "fallback": "Vas a seguir recibiendo emails transaccionales (recuperación de contraseña, confirmaciones, etc.) porque son necesarios para usar la plataforma.",
-      "back": "Volver al inicio"
+      "title": "Tilaus peruutettu",
+      "intro": "Valmis. Emme lähetä sinulle enää markkinointisähköposteja osoitteeseen ",
+      "fallback": "Saat edelleen transaktiosähköposteja (salasanan palautus, vahvistukset jne.), koska ne ovat välttämättömiä alustan käyttämiseksi.",
+      "back": "Takaisin etusivulle"
     },
     "error": {
-      "title": "Enlace no válido",
-      "defaultMessage": "El enlace de cancelación no es válido o expiró.",
-      "contact": "Si querés cancelar la suscripción, escribinos a <email>info@ballershub.co</email> y nosotros lo gestionamos."
+      "title": "Virheellinen linkki",
+      "defaultMessage": "Peruutuslinkki ei ole kelvollinen tai se on vanhentunut.",
+      "contact": "Jos haluat peruuttaa tilauksen, kirjoita meille osoitteeseen <email>info@ballershub.co</email>, niin hoidamme sen."
     },
     "noToken": {
-      "title": "Cancelar suscripción",
-      "description": "Para cancelar, abrí el último email que te enviamos y hacé click en “desuscribite acá” al pie. Ese enlace contiene un token único firmado para tu dirección.",
-      "contact": "Si no encontrás el email, escribinos a <email>info@ballershub.co</email>."
+      "title": "Peruuta tilaus",
+      "description": "Peruuta avaamalla viimeisin lähettämämme sähköposti ja napsauttamalla alareunassa olevaa ”peruuta tilaus täältä” -linkkiä. Linkki sisältää yksilöllisen, osoitteellesi allekirjoitetun tunnisteen.",
+      "contact": "Jos et löydä sähköpostia, kirjoita meille osoitteeseen <email>info@ballershub.co</email>."
     }
   }
 }

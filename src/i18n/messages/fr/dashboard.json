@@ -1,478 +1,478 @@
 {
   "home": {
     "header": {
-      "title": "Resumen general",
-      "description": "Visualizá el estado de tu perfil y los próximos pasos recomendados."
+      "title": "Vue d'ensemble",
+      "description": "Visualisez l'état de votre profil et les prochaines étapes recommandées."
     },
     "profileStatusCard": {
-      "title": "Estado del perfil",
-      "description": "Controlá el progreso de tu perfil profesional y accedé rápidamente a las acciones clave."
+      "title": "État du profil",
+      "description": "Suivez la progression de votre profil professionnel et accédez rapidement aux actions clés."
     },
     "progressCard": {
-      "title": "Progreso por secciones",
-      "description": "Identificá qué partes de tu perfil necesitan atención para llegar a la publicación."
+      "title": "Progression par sections",
+      "description": "Identifiez les parties de votre profil qui nécessitent votre attention pour parvenir à la publication."
     },
     "nextStepsCard": {
-      "title": "Próximos pasos",
-      "description": "Estas tareas te ayudarán a completar la información necesaria para publicar tu perfil.",
-      "empty": "¡Excelente! No tenés tareas pendientes. Seguiremos sumando recomendaciones a medida que incorporemos nuevas funcionalidades."
+      "title": "Prochaines étapes",
+      "description": "Ces tâches vous aideront à compléter les informations nécessaires pour publier votre profil.",
+      "empty": "Excellent ! Vous n'avez aucune tâche en attente. Nous ajouterons d'autres recommandations à mesure que nous intégrerons de nouvelles fonctionnalités."
     },
     "quickActionsCard": {
-      "title": "Atajos rápidos",
-      "description": "Accedé directamente a las secciones que vas a utilizar con mayor frecuencia.",
-      "goToSection": "Ir a la sección →"
+      "title": "Raccourcis rapides",
+      "description": "Accédez directement aux sections que vous utiliserez le plus fréquemment.",
+      "goToSection": "Aller à la section →"
     },
     "quickActions": {
       "multimedia": {
-        "title": "Gestionar multimedia",
-        "description": "Fotos, videos y novedades para potenciar tu perfil."
+        "title": "Gérer le multimédia",
+        "description": "Photos, vidéos et actualités pour valoriser votre profil."
       },
       "subscription": {
-        "title": "Estado de la suscripción",
-        "description": "Revisá tu plan actual y próximos cobros."
+        "title": "État de l'abonnement",
+        "description": "Consultez votre plan actuel et les prochains prélèvements."
       },
       "account": {
-        "title": "Preferencias de cuenta",
-        "description": "Actualizá correo, seguridad y notificaciones."
+        "title": "Préférences du compte",
+        "description": "Mettez à jour votre e-mail, la sécurité et les notifications."
       }
     },
     "progress": {
       "personalData": {
-        "title": "Datos personales",
-        "description": "Información básica, contacto y biografía completa."
+        "title": "Données personnelles",
+        "description": "Informations de base, contact et biographie complète."
       },
       "footballData": {
-        "title": "Datos futbolísticos",
-        "description": "Trayectoria deportiva, club actual y posiciones."
+        "title": "Données footballistiques",
+        "description": "Parcours sportif, club actuel et postes."
       },
       "multimedia": {
-        "title": "Multimedia",
-        "description": "Fotos e historias que enriquecen tu perfil público."
+        "title": "Multimédia",
+        "description": "Photos et récits qui enrichissent votre profil public."
       }
     },
     "profileStatus": {
       "draft": {
-        "label": "Borrador",
-        "message": "Tu perfil está en construcción. Completá los pasos pendientes para enviarlo a revisión."
+        "label": "Brouillon",
+        "message": "Votre profil est en cours de construction. Complétez les étapes en attente pour l'envoyer en révision."
       },
       "pendingReview": {
-        "label": "En revisión",
-        "message": "Nuestro equipo está validando la información enviada. Recibirás una notificación con el resultado."
+        "label": "En révision",
+        "message": "Notre équipe valide les informations envoyées. Vous recevrez une notification avec le résultat."
       },
       "approved": {
-        "label": "Publicado",
-        "message": "Tu perfil está aprobado y listo para compartirse con clubes y reclutadores."
+        "label": "Publié",
+        "message": "Votre profil est approuvé et prêt à être partagé avec les clubs et les recruteurs."
       },
       "rejected": {
-        "label": "Rechazado",
-        "message": "Necesitamos ajustes en tu solicitud. Revisá los comentarios y volvé a enviarla."
+        "label": "Refusé",
+        "message": "Nous avons besoin d'ajustements sur votre demande. Consultez les commentaires et renvoyez-la."
       },
       "missing": {
-        "label": "Sin perfil",
-        "message": "Creá tu solicitud para generar el perfil profesional y desbloquear las secciones de edición."
+        "label": "Aucun profil",
+        "message": "Créez votre demande pour générer le profil professionnel et débloquer les sections d'édition."
       }
     },
     "applicationStatus": {
       "pending": {
-        "label": "En revisión",
-        "message": "Recibimos tu solicitud y la estamos evaluando. Mientras tanto podrás seguir consultando el estado desde aquí."
+        "label": "En révision",
+        "message": "Nous avons reçu votre demande et nous l'évaluons. Entre-temps, vous pouvez continuer à consulter son état ici."
       },
       "approved": {
-        "label": "Aprobada",
-        "message": "La solicitud fue aprobada. Ya podés completar y publicar tu perfil profesional."
+        "label": "Approuvée",
+        "message": "La demande a été approuvée. Vous pouvez désormais compléter et publier votre profil professionnel."
       },
       "rejected": {
-        "label": "Rechazada",
-        "message": "Tu solicitud fue rechazada. Podés realizar los ajustes necesarios y reenviarla cuando estés listo."
+        "label": "Refusée",
+        "message": "Votre demande a été refusée. Vous pouvez effectuer les ajustements nécessaires et la renvoyer lorsque vous serez prêt."
       },
-      "unknownMessage": "Consultá con soporte para obtener más información sobre el estado de tu solicitud.",
-      "lastUpdated": "Última actualización: {date}"
+      "unknownMessage": "Contactez le support pour obtenir plus d'informations sur l'état de votre demande.",
+      "lastUpdated": "Dernière mise à jour : {date}"
     },
     "cta": {
-      "viewApplication": "Ver solicitud",
-      "reopenOnboarding": "Reabrir onboarding",
-      "configureProfile": "Configurar perfil",
-      "createApplication": "Crear solicitud",
-      "viewPublicProfile": "Ver perfil público",
-      "configurePublicUrl": "Configurar URL pública",
-      "completePendingData": "Completar datos pendientes"
+      "viewApplication": "Voir la demande",
+      "reopenOnboarding": "Rouvrir l'onboarding",
+      "configureProfile": "Configurer le profil",
+      "createApplication": "Créer une demande",
+      "viewPublicProfile": "Voir le profil public",
+      "configurePublicUrl": "Configurer l'URL publique",
+      "completePendingData": "Compléter les données en attente"
     }
   },
   "settings": {
-    "nativeTitle": "Idioma nativo",
-    "nativeDescription": "El idioma en el que escribís tu perfil. Elegí en cuál trabajás más cómodo.",
-    "nativeHint": "Tu perfil público siempre mantiene una versión en español (es la URL principal). El asistente puede traducir desde tu idioma a los demás.",
-    "nativeSave": "Guardar idioma",
-    "subscriptionTitle": "Suscripción",
-    "subscriptionDescription": "Gestioná tu plan, descargas, métodos de pago y cancelaciones.",
-    "alreadySubscribed": "Ya tenés un plan {plan} activo. Si querés cambiar, podés gestionarlo desde acá o cancelar primero el actual.",
-    "canceledNotice": "Listo, tu suscripción quedó marcada para cancelación. Mantenés acceso hasta el final del período actual.",
-    "currentStatusTitle": "Estado actual",
-    "currentStatusDescription": "Información del plan que se encuentra activo en este momento.",
+    "nativeTitle": "Langue maternelle",
+    "nativeDescription": "La langue dans laquelle vous rédigez votre profil. Choisissez celle avec laquelle vous êtes le plus à l'aise.",
+    "nativeHint": "Votre profil public conserve toujours une version en espagnol (c'est l'URL principale). L'assistant peut traduire depuis votre langue vers les autres.",
+    "nativeSave": "Enregistrer la langue",
+    "subscriptionTitle": "Abonnement",
+    "subscriptionDescription": "Gérez votre plan, vos téléchargements, vos moyens de paiement et vos annulations.",
+    "alreadySubscribed": "Vous avez déjà un plan {plan} actif. Si vous souhaitez en changer, vous pouvez le gérer ici ou annuler d'abord l'actuel.",
+    "canceledNotice": "C'est fait, votre abonnement est marqué pour annulation. Vous conservez l'accès jusqu'à la fin de la période en cours.",
+    "currentStatusTitle": "État actuel",
+    "currentStatusDescription": "Informations sur le plan actuellement actif.",
     "fieldPlan": "Plan",
-    "compBadge": "Cortesía",
-    "amountPerYear": "{amount} / año",
-    "fieldStatus": "Estado",
-    "endsOn": "Termina el {date}",
-    "fieldTrialEnd": "Fin del período de prueba",
-    "fieldNextRenewal": "Próxima renovación",
-    "canceledOn": "Cancelado el {date}",
-    "refundWindow": "Tenés hasta el <strong>{date}</strong> para cancelar dentro del período de garantía de {days} días. Si cancelás dentro de la ventana, te devolvemos el cobro inicial.",
-    "subStatusTrialing": "Período de prueba",
-    "subStatusActive": "Activa",
-    "subStatusPastDue": "Pago pendiente",
-    "subStatusPaused": "Pausada",
-    "subStatusCanceled": "Cancelada",
-    "subStatusIncomplete": "Incompleta",
-    "subStatusInactive": "Sin suscripción",
-    "compAccountTitle": "Cuenta de cortesía",
-    "compAccountDescription": "Tu acceso Pro fue activado por el equipo de BallersHub — no hay cobros asociados.",
-    "compAccountBody": "Esta suscripción está gestionada directamente por el equipo de BallersHub. Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a <link>info@ballershub.co</link>.",
-    "subActionsTitle": "Acciones sobre la suscripción",
-    "subActionsStripeDescription": "Stripe gestiona el portal de facturación: actualizá tarjeta, descargá facturas o cancelá desde un único lugar.",
-    "subActionsMpDescription": "Mercado Pago no expone un portal autoservicio. Desde acá cancelás directamente — el acceso se cierra al instante.",
-    "yourPlanProAgency": "Tu plan Pro Agency",
-    "yourPlanProPlayer": "Tu plan Pro Player",
-    "planBenefitsDescription": "Beneficios incluidos en el plan.",
-    "proPlayerFeature1": "Plantillas premium y personalización avanzada",
-    "proPlayerFeature2": "Dominio personalizado y branding libre",
-    "proPlayerFeature3": "Secciones multimedia ilimitadas",
-    "proPlayerFeature4": "Prioridad en soporte y revisiones de perfil",
-    "proAgencyFeature1": "Panel multi-jugador con métricas comparadas",
-    "proAgencyFeature2": "Invitaciones ilimitadas y staff colaborador",
-    "proAgencyFeature3": "Branding de agencia en cada portfolio publicado",
-    "proAgencyFeature4": "Soporte prioritario para campañas y outreach",
-    "noPlanCta": "Todavía no tenés un plan activo. Probá Pro {days} días sin cargo.",
-    "viewPlans": "Ver planes",
-    "billingSupportTitle": "Soporte de facturación",
-    "billingSupportDescription": "¿Algún problema con un cobro o factura?",
-    "billingSupportBody": "Escribinos a <link>info@ballershub.co</link> y te respondemos el mismo día hábil.",
-    "accountTitle": "Configuración de la cuenta",
-    "accountDescription": "Gestioná tus credenciales, seguridad y preferencias generales del panel.",
-    "securityTitle": "Seguridad",
-    "securityDescription": "Planes para autenticar de forma segura y monitorear accesos.",
-    "twoFactorLabel": "Autenticación en dos pasos",
-    "twoFactorDescription": "Podrás habilitar códigos temporales o aplicaciones de autenticación para fortalecer la seguridad.",
-    "comingSoon": "Próximamente",
-    "federatedLoginLabel": "Accesos federados",
-    "federatedLoginDescription": "Configurar inicio de sesión con Google, Apple u otros proveedores.",
-    "onRoadmap": "En roadmap",
-    "notificationsTitle": "Notificaciones",
-    "notificationsDescription": "Definí cómo querés recibir alertas sobre tu perfil, solicitudes y suscripción.",
-    "notifProfileLabel": "Cambios en mi perfil",
-    "notifProfileDescription": "Alertas cuando un miembro del staff actualice mi información",
-    "notifApplicationsLabel": "Estado de solicitudes",
-    "notifApplicationsDescription": "Notificaciones sobre revisión de cuentas o nuevos requerimientos",
-    "notifBillingLabel": "Facturación y pagos",
-    "notifBillingDescription": "Avisos de próximas renovaciones o problemas con el cobro",
-    "notificationsFootnote": "Podrás seleccionar canales (email, WhatsApp, app) y frecuencia personalizada en próximas versiones.",
-    "activeSessionsTitle": "Sesiones activas",
-    "activeSessionsDescription": "Visualizá dispositivos con acceso para gestionar cierres remotos.",
-    "currentSessionLabel": "Sesión actual",
-    "currentSessionDescription": "Dispositivo actual (detalles disponibles próximamente)",
-    "sessionsIntegrationNote": "El detalle de dispositivos y la opción de cerrar sesiones se integrará con Supabase Auth Management.",
-    "suspiciousActivity": "Si detectás actividad sospechosa contactanos en <link>info@ballershub.co</link>."
+    "compBadge": "Offert",
+    "amountPerYear": "{amount} / an",
+    "fieldStatus": "État",
+    "endsOn": "Se termine le {date}",
+    "fieldTrialEnd": "Fin de la période d'essai",
+    "fieldNextRenewal": "Prochain renouvellement",
+    "canceledOn": "Annulé le {date}",
+    "refundWindow": "Vous avez jusqu'au <strong>{date}</strong> pour annuler dans le cadre de la période de garantie de {days} jours. Si vous annulez dans ce délai, nous vous remboursons le premier prélèvement.",
+    "subStatusTrialing": "Période d'essai",
+    "subStatusActive": "Actif",
+    "subStatusPastDue": "Paiement en attente",
+    "subStatusPaused": "En pause",
+    "subStatusCanceled": "Annulé",
+    "subStatusIncomplete": "Incomplet",
+    "subStatusInactive": "Aucun abonnement",
+    "compAccountTitle": "Compte offert",
+    "compAccountDescription": "Votre accès Pro a été activé par l'équipe de BallersHub — aucun frais n'est associé.",
+    "compAccountBody": "Cet abonnement est géré directement par l'équipe de BallersHub. Si vous avez des questions sur votre échéance ou souhaitez la prolonger, écrivez-nous à <link>info@ballershub.co</link>.",
+    "subActionsTitle": "Actions sur l'abonnement",
+    "subActionsStripeDescription": "Stripe gère le portail de facturation : mettez à jour votre carte, téléchargez vos factures ou annulez depuis un seul endroit.",
+    "subActionsMpDescription": "Mercado Pago ne propose pas de portail en libre-service. Ici, vous annulez directement — l'accès se ferme instantanément.",
+    "yourPlanProAgency": "Votre plan Pro Agency",
+    "yourPlanProPlayer": "Votre plan Pro Player",
+    "planBenefitsDescription": "Avantages inclus dans le plan.",
+    "proPlayerFeature1": "Modèles premium et personnalisation avancée",
+    "proPlayerFeature2": "Domaine personnalisé et image de marque libre",
+    "proPlayerFeature3": "Sections multimédias illimitées",
+    "proPlayerFeature4": "Priorité au support et aux révisions de profil",
+    "proAgencyFeature1": "Panneau multi-joueurs avec métriques comparées",
+    "proAgencyFeature2": "Invitations illimitées et personnel collaborateur",
+    "proAgencyFeature3": "Image de marque de l'agence sur chaque portfolio publié",
+    "proAgencyFeature4": "Support prioritaire pour les campagnes et le démarchage",
+    "noPlanCta": "Vous n'avez pas encore de plan actif. Essayez Pro pendant {days} jours sans frais.",
+    "viewPlans": "Voir les plans",
+    "billingSupportTitle": "Support de facturation",
+    "billingSupportDescription": "Un problème avec un prélèvement ou une facture ?",
+    "billingSupportBody": "Écrivez-nous à <link>info@ballershub.co</link> et nous vous répondons le jour ouvré même.",
+    "accountTitle": "Configuration du compte",
+    "accountDescription": "Gérez vos identifiants, la sécurité et les préférences générales du panneau.",
+    "securityTitle": "Sécurité",
+    "securityDescription": "Options pour vous authentifier de manière sécurisée et surveiller les accès.",
+    "twoFactorLabel": "Authentification à deux facteurs",
+    "twoFactorDescription": "Vous pourrez activer des codes temporaires ou des applications d'authentification pour renforcer la sécurité.",
+    "comingSoon": "Bientôt disponible",
+    "federatedLoginLabel": "Connexions fédérées",
+    "federatedLoginDescription": "Configurer la connexion avec Google, Apple ou d'autres fournisseurs.",
+    "onRoadmap": "Au programme",
+    "notificationsTitle": "Notifications",
+    "notificationsDescription": "Définissez comment vous souhaitez recevoir les alertes concernant votre profil, vos demandes et votre abonnement.",
+    "notifProfileLabel": "Modifications de mon profil",
+    "notifProfileDescription": "Alertes lorsqu'un membre du personnel met à jour mes informations",
+    "notifApplicationsLabel": "État des demandes",
+    "notifApplicationsDescription": "Notifications sur la révision des comptes ou les nouvelles exigences",
+    "notifBillingLabel": "Facturation et paiements",
+    "notifBillingDescription": "Avis de renouvellements à venir ou de problèmes de prélèvement",
+    "notificationsFootnote": "Vous pourrez sélectionner des canaux (e-mail, WhatsApp, application) et une fréquence personnalisée dans les prochaines versions.",
+    "activeSessionsTitle": "Sessions actives",
+    "activeSessionsDescription": "Visualisez les appareils ayant accès pour gérer les déconnexions à distance.",
+    "currentSessionLabel": "Session actuelle",
+    "currentSessionDescription": "Appareil actuel (détails disponibles prochainement)",
+    "sessionsIntegrationNote": "Le détail des appareils et l'option de fermeture des sessions seront intégrés avec Supabase Auth Management.",
+    "suspiciousActivity": "Si vous détectez une activité suspecte, contactez-nous à <link>info@ballershub.co</link>."
   },
   "editProfile": {
-    "personalDataTitle": "Datos personales",
-    "personalDataNoProfileDescription": "Creá tu perfil para habilitar la edición de datos personales.",
-    "personalDataDescription": "Gestioná tu información básica y de contacto. Estos datos se utilizarán para tu perfil público y comunicaciones.",
-    "avatarIdentityTitle": "Avatar e identidad",
-    "avatarIdentityDescription": "Actualizá tu foto y datos principales para mantener tu perfil profesional coherente.",
-    "avatarCurrentAlt": "Avatar actual",
-    "avatarHelpText": "Utilizá una imagen en alta resolución, formato cuadrado. Las imágenes se utilizarán en tu CV automatizado y perfil público.",
-    "footballDataTitle": "Datos futbolísticos",
-    "footballDataNoProfileDescription": "Creá tu perfil para gestionar trayectoria, estadísticas y enlaces deportivos.",
-    "footballDataDescription": "Organizá toda tu información deportiva para construir un perfil completo y actualizado.",
-    "careerHistoryTitle": "Trayectoria",
-    "careerHistoryDescription": "Gestioná tu historial deportivo y enviá cambios al equipo de Ballers para su validación.",
-    "seasonStatsTitle": "Estadísticas por temporada",
-    "seasonStatsDescription": "Seguimiento agregado de tus números oficiales para compartir con clubes y representantes.",
-    "referencesLinksTitle": "Referencias y enlaces",
-    "referencesLinksDescription": "Conectá tu perfil con plataformas externas para validar tu experiencia.",
-    "honoursTitle": "Palmarés y reconocimientos",
-    "honoursDescriptionPro": "Documentá títulos, premios individuales y estadísticas destacadas.",
-    "honoursDescriptionFree": "Cargá títulos y premios. Para guardarlos en tu perfil necesitás Pro.",
-    "honoursChipChampionships": "Campeonatos",
-    "honoursChipIndividualAwards": "Premios individuales",
-    "honoursChipKeyStats": "Estadísticas clave",
-    "multimediaTitle": "Multimedia",
-    "multimediaNoProfileDescription": "Creá tu perfil para gestionar galerías, videos y notas de prensa.",
-    "multimediaDescription": "Centralizá imágenes, videos y artículos destacados para potenciar tu presencia digital."
+    "personalDataTitle": "Données personnelles",
+    "personalDataNoProfileDescription": "Créez votre profil pour activer l'édition des données personnelles.",
+    "personalDataDescription": "Gérez vos informations de base et de contact. Ces données seront utilisées pour votre profil public et vos communications.",
+    "avatarIdentityTitle": "Avatar et identité",
+    "avatarIdentityDescription": "Mettez à jour votre photo et vos données principales pour garder votre profil professionnel cohérent.",
+    "avatarCurrentAlt": "Avatar actuel",
+    "avatarHelpText": "Utilisez une image en haute résolution, au format carré. Les images seront utilisées dans votre CV automatisé et votre profil public.",
+    "footballDataTitle": "Données footballistiques",
+    "footballDataNoProfileDescription": "Créez votre profil pour gérer votre parcours, vos statistiques et vos liens sportifs.",
+    "footballDataDescription": "Organisez toutes vos informations sportives pour construire un profil complet et à jour.",
+    "careerHistoryTitle": "Parcours",
+    "careerHistoryDescription": "Gérez votre historique sportif et envoyez les modifications à l'équipe de Ballers pour validation.",
+    "seasonStatsTitle": "Statistiques par saison",
+    "seasonStatsDescription": "Suivi agrégé de vos chiffres officiels à partager avec les clubs et les agents.",
+    "referencesLinksTitle": "Références et liens",
+    "referencesLinksDescription": "Connectez votre profil à des plateformes externes pour valider votre expérience.",
+    "honoursTitle": "Palmarès et distinctions",
+    "honoursDescriptionPro": "Documentez vos titres, vos distinctions individuelles et vos statistiques marquantes.",
+    "honoursDescriptionFree": "Ajoutez vos titres et distinctions. Pour les enregistrer dans votre profil, vous avez besoin de Pro.",
+    "honoursChipChampionships": "Championnats",
+    "honoursChipIndividualAwards": "Distinctions individuelles",
+    "honoursChipKeyStats": "Statistiques clés",
+    "multimediaTitle": "Multimédia",
+    "multimediaNoProfileDescription": "Créez votre profil pour gérer vos galeries, vidéos et communiqués de presse.",
+    "multimediaDescription": "Centralisez vos images, vidéos et articles marquants pour renforcer votre présence numérique."
   },
   "nav": {
     "sections": {
-      "dashboard": "Panel",
-      "edit-profile": "Editar perfil",
-      "edit-template": "Editar plantilla",
-      "settings": "Configuración",
-      "agency": "Agencia",
-      "agency-template": "Editar plantilla",
-      "agency-management": "Gestión"
+      "dashboard": "Panneau",
+      "edit-profile": "Modifier le profil",
+      "edit-template": "Modifier le modèle",
+      "settings": "Configuration",
+      "agency": "Agence",
+      "agency-template": "Modifier le modèle",
+      "agency-management": "Gestion"
     },
     "player": {
       "home": {
-        "title": "Panel de control",
-        "description": "Resumen general y próximos pasos prioritarios."
+        "title": "Tableau de bord",
+        "description": "Vue d'ensemble et prochaines étapes prioritaires."
       },
       "personal-data": {
-        "title": "Datos personales",
-        "description": "Información básica, avatar y datos de contacto."
+        "title": "Données personnelles",
+        "description": "Informations de base, avatar et coordonnées."
       },
       "football-data": {
-        "title": "Datos futbolísticos",
-        "description": "Trayectoria, club actual y links destacados."
+        "title": "Données footballistiques",
+        "description": "Parcours, club actuel et liens marquants."
       },
       "multimedia": {
-        "title": "Multimedia",
-        "description": "Fotos, videos y notas de prensa."
+        "title": "Multimédia",
+        "description": "Photos, vidéos et communiqués de presse."
       },
       "translations": {
-        "title": "Idiomas",
-        "description": "Publicá tu perfil en inglés, italiano y portugués (Pro)."
+        "title": "Langues",
+        "description": "Publiez votre profil en anglais, italien et portugais (Pro)."
       },
       "template-styles": {
-        "title": "Estilos",
-        "description": "Seleccioná variantes visuales y colores."
+        "title": "Styles",
+        "description": "Sélectionnez des variantes visuelles et des couleurs."
       },
       "template-structure": {
-        "title": "Estructura",
-        "description": "Activa o desactiva bloques de contenido."
+        "title": "Structure",
+        "description": "Activez ou désactivez des blocs de contenu."
       },
       "account": {
-        "title": "Cuenta",
-        "description": "Datos de acceso y preferencias generales."
+        "title": "Compte",
+        "description": "Données d'accès et préférences générales."
       },
       "subscription": {
-        "title": "Suscripción",
-        "description": "Estado del plan y acciones de facturación."
+        "title": "Abonnement",
+        "description": "État du plan et actions de facturation."
       },
       "logout": {
-        "title": "Cerrar sesión",
-        "description": "Salí del panel de manera segura."
+        "title": "Se déconnecter",
+        "description": "Quittez le panneau en toute sécurité."
       }
     },
     "manager": {
       "home": {
-        "title": "Panel de control",
-        "description": "Resumen general de tu agencia."
+        "title": "Tableau de bord",
+        "description": "Vue d'ensemble de votre agence."
       },
       "agency-profile": {
-        "title": "Datos principales",
-        "description": "Identidad, información general y contacto."
+        "title": "Données principales",
+        "description": "Identité, informations générales et contact."
       },
       "agency-players": {
-        "title": "Mis Jugadores",
-        "description": "Cartera de futbolistas representados."
+        "title": "Mes joueurs",
+        "description": "Portefeuille de footballeurs représentés."
       },
       "agency-staff": {
-        "title": "Equipo Staff",
-        "description": "Invita colegas y gestiona permisos."
+        "title": "Équipe Staff",
+        "description": "Invitez des collègues et gérez les autorisations."
       },
       "agency-template-styles": {
-        "title": "Estilos",
-        "description": "Plantilla, paleta y tipografía del portfolio público."
+        "title": "Styles",
+        "description": "Modèle, palette et typographie du portfolio public."
       },
       "agency-template-structure": {
-        "title": "Estructura",
-        "description": "Activa o desactiva bloques de contenido."
+        "title": "Structure",
+        "description": "Activez ou désactivez des blocs de contenu."
       },
       "manager-profile": {
-        "title": "Mi perfil",
-        "description": "Tu ficha pública: bio y licencias."
+        "title": "Mon profil",
+        "description": "Votre fiche publique : bio et licences."
       },
       "account": {
-        "title": "Cuenta",
-        "description": "Datos de acceso y preferencias generales."
+        "title": "Compte",
+        "description": "Données d'accès et préférences générales."
       },
       "subscription": {
-        "title": "Suscripción",
-        "description": "Estado del plan y facturación."
+        "title": "Abonnement",
+        "description": "État du plan et facturation."
       },
       "logout": {
-        "title": "Cerrar sesión",
-        "description": "Salí del panel de manera segura."
+        "title": "Se déconnecter",
+        "description": "Quittez le panneau en toute sécurité."
       },
       "agency-services": {
-        "title": "Servicios",
-        "description": "Qué ofrece tu agencia."
+        "title": "Services",
+        "description": "Ce que propose votre agence."
       },
       "agency-reach": {
-        "title": "Alcance y operativa",
-        "description": "Países donde operás y su detalle."
+        "title": "Portée et activité",
+        "description": "Pays où vous opérez et leur détail."
       },
       "agency-collaborations": {
-        "title": "Clubes",
-        "description": "Relaciones y propuestas con clubes."
+        "title": "Clubs",
+        "description": "Relations et propositions avec les clubs."
       },
       "agency-multimedia": {
-        "title": "Multimedia",
-        "description": "Galería de fotos e imágenes."
+        "title": "Multimédia",
+        "description": "Galerie de photos et d'images."
       },
       "agency-translations": {
-        "title": "Idiomas",
-        "description": "Publicá tu perfil en inglés, italiano y portugués (Pro)."
+        "title": "Langues",
+        "description": "Publiez votre profil en anglais, italien et portugais (Pro)."
       }
     }
   },
   "sidebar": {
-    "signOutTitle": "Cerrar Sesión",
-    "signOutConfirm": "¿Estás seguro que deseas cerrar tu sesión en 'BallersHub?",
-    "cancel": "Cancelar",
-    "signingOut": "Saliendo...",
-    "signOut": "Cerrar sesión",
-    "mainMenu": "Menú principal",
-    "navigation": "Navegación"
+    "signOutTitle": "Se déconnecter",
+    "signOutConfirm": "Êtes-vous sûr de vouloir vous déconnecter de BallersHub ?",
+    "cancel": "Annuler",
+    "signingOut": "Déconnexion...",
+    "signOut": "Se déconnecter",
+    "mainMenu": "Menu principal",
+    "navigation": "Navigation"
   },
   "shell": {
     "roleManager": "Manager",
-    "roleClient": "Cliente",
-    "headingManager": "Área de <hl>agencia</hl>",
-    "headingClient": "Área del <hl>cliente</hl>",
-    "subtitleManager": "Gestioná la representación de tus jugadores, permisos del staff y perfil institucional.",
-    "subtitleClient": "Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta.",
-    "activeSession": "Sesión activa"
+    "roleClient": "Client",
+    "headingManager": "Espace <hl>agence</hl>",
+    "headingClient": "Espace <hl>client</hl>",
+    "subtitleManager": "Gérez la représentation de vos joueurs, les autorisations du staff et le profil institutionnel.",
+    "subtitleClient": "Gérez votre profil professionnel, personnalisez votre modèle et administrez votre compte.",
+    "activeSession": "Session active"
   },
   "overview": {
     "progressList": {
-      "progressAriaLabel": "Progreso {title}",
-      "sectionComplete": "¡Todo listo! Seguimos actualizando tu perfil en esta sección.",
-      "openSection": "Abrir sección"
+      "progressAriaLabel": "Progression {title}",
+      "sectionComplete": "Tout est prêt ! Nous continuons à mettre à jour votre profil dans cette section.",
+      "openSection": "Ouvrir la section"
     },
     "statusSummary": {
-      "visibilityPublic": "Perfil público",
-      "visibilityPrivate": "Perfil privado",
-      "visibilityOther": "Visibilidad: {visibility}",
-      "updatedAt": "Actualizado el {date}",
-      "publicUrlLabel": "URL pública:",
-      "applicationChip": "Solicitud: {label}",
-      "noApplicationYet": "Todavía no registramos una solicitud activa. Iniciá el proceso de onboarding para generar tu perfil profesional."
+      "visibilityPublic": "Profil public",
+      "visibilityPrivate": "Profil privé",
+      "visibilityOther": "Visibilité : {visibility}",
+      "updatedAt": "Mis à jour le {date}",
+      "publicUrlLabel": "URL publique :",
+      "applicationChip": "Demande : {label}",
+      "noApplicationYet": "Nous n'avons pas encore enregistré de demande active. Lancez le processus d'onboarding pour générer votre profil professionnel."
     },
     "applicationReview": {
-      "titlePlayer": "Tu solicitud de jugador",
-      "titleManager": "Tu solicitud de agencia",
-      "subtitlePending": "Estamos revisando los datos enviados. Recibirás un mail apenas tengamos novedades.",
-      "subtitleResolved": "Detalle del estado actual de tu solicitud.",
-      "applicationIdLabel": "ID de solicitud",
-      "copyId": "Copiar ID completo",
-      "copiedId": "Copiado",
-      "copyIdAriaLabel": "Copiar identificador de solicitud",
-      "rowSubmittedAt": "Fecha de envío",
-      "rowUpdatedAt": "Última actualización",
-      "rowPlanRequested": "Plan solicitado",
-      "rowFullName": "Nombre",
-      "rowPositions": "Posiciones",
-      "rowNationality": "Nacionalidad",
-      "rowCurrentClub": "Club declarado",
+      "titlePlayer": "Votre demande de joueur",
+      "titleManager": "Votre demande d'agence",
+      "subtitlePending": "Nous examinons les données envoyées. Vous recevrez un e-mail dès que nous aurons du nouveau.",
+      "subtitleResolved": "Détail de l'état actuel de votre demande.",
+      "applicationIdLabel": "ID de la demande",
+      "copyId": "Copier l'ID complet",
+      "copiedId": "Copié",
+      "copyIdAriaLabel": "Copier l'identifiant de la demande",
+      "rowSubmittedAt": "Date d'envoi",
+      "rowUpdatedAt": "Dernière mise à jour",
+      "rowPlanRequested": "Plan demandé",
+      "rowFullName": "Nom",
+      "rowPositions": "Postes",
+      "rowNationality": "Nationalité",
+      "rowCurrentClub": "Club déclaré",
       "rowResponsible": "Responsable",
-      "rowAgency": "Agencia",
-      "rowWebsite": "Sitio web",
-      "rowContactEmail": "Email de contacto",
-      "rowContactPhone": "Teléfono",
-      "notesTitle": "Notas enviadas",
-      "pendingNoticeLead": "Mientras revisamos tu solicitud no podés editar el perfil. El proceso normalmente toma",
-      "pendingNoticeDuration": "24 a 72 horas hábiles",
-      "pendingNoticeContact": "Si necesitás corregir un dato urgente, escribinos a",
-      "pendingNoticeIdRef": "citando el ID de arriba.",
-      "close": "Cerrar"
+      "rowAgency": "Agence",
+      "rowWebsite": "Site web",
+      "rowContactEmail": "E-mail de contact",
+      "rowContactPhone": "Téléphone",
+      "notesTitle": "Notes envoyées",
+      "pendingNoticeLead": "Pendant que nous examinons votre demande, vous ne pouvez pas modifier le profil. Le processus prend généralement",
+      "pendingNoticeDuration": "24 à 72 heures ouvrées",
+      "pendingNoticeContact": "Si vous devez corriger une donnée urgente, écrivez-nous à",
+      "pendingNoticeIdRef": "en citant l'ID ci-dessus.",
+      "close": "Fermer"
     },
     "taskCallouts": {
-      "title": "Tareas pendientes en esta sección",
-      "pendingCount": "{count} pendiente(s)",
-      "viewDetail": "Ver detalle"
+      "title": "Tâches en attente dans cette section",
+      "pendingCount": "{count} en attente",
+      "viewDetail": "Voir le détail"
     }
   },
   "managerOverview": {
     "header": {
-      "title": "Resumen general de Agencia",
-      "description": "Visualizá el estado de tu empresa, tu cartera de jugadores y accesos rápidos."
+      "title": "Vue d'ensemble de l'agence",
+      "description": "Visualisez l'état de votre entreprise, votre portefeuille de joueurs et les accès rapides."
     },
     "operationalStatus": {
-      "title": "Estado Operativo",
-      "description": "Controlá tu visibilidad pública y el estado de tu licencia institucional."
+      "title": "État opérationnel",
+      "description": "Suivez votre visibilité publique et l'état de votre licence institutionnelle."
     },
     "status": {
-      "pendingLabel": "En revisión",
-      "pendingMessage": "Tu solicitud para operar una agencia está siendo evaluada por administración.",
-      "approvedLabel": "Agencia Activa y Validada",
-      "approvedMessage": "Representas a {agencyName}. Mantén tu perfil actualizado para lograr mayor exposición con clubes y reclutadores.",
-      "agencyFallback": "tu Agencia",
-      "rejectedLabel": "Solicitud Rechazada",
-      "rejectedMessage": "Tu permiso operativo dentro del sistema fue rechazado. Contáctanos para más detalles."
+      "pendingLabel": "En révision",
+      "pendingMessage": "Votre demande pour exploiter une agence est en cours d'évaluation par l'administration.",
+      "approvedLabel": "Agence active et validée",
+      "approvedMessage": "Vous représentez {agencyName}. Gardez votre profil à jour pour gagner en visibilité auprès des clubs et des recruteurs.",
+      "agencyFallback": "votre agence",
+      "rejectedLabel": "Demande refusée",
+      "rejectedMessage": "Votre autorisation d'exploitation dans le système a été refusée. Contactez-nous pour plus de détails."
     },
     "cta": {
-      "viewApplication": "Ver solicitud",
-      "viewPublicAgency": "Ver perfil público de agencia",
-      "configurePublicUrl": "Configurar URL Pública"
+      "viewApplication": "Voir la demande",
+      "viewPublicAgency": "Voir le profil public de l'agence",
+      "configurePublicUrl": "Configurer l'URL publique"
     },
     "directory": {
-      "playersTitle": "Directorio de Jugadores",
-      "playersDescription": "Tus jugadores representados activos.",
-      "playersBadge": "Jugadores Vinculados",
-      "playersCta": "Ver directorio completo →",
-      "staffTitle": "Equipo de Representación",
-      "staffDescription": "Mánagers pertenecientes a la institución.",
-      "staffBadge": "Agentes Activos",
-      "staffCta": "Gestionar Staff →"
+      "playersTitle": "Répertoire des joueurs",
+      "playersDescription": "Vos joueurs représentés actifs.",
+      "playersBadge": "Joueurs liés",
+      "playersCta": "Voir le répertoire complet →",
+      "staffTitle": "Équipe de représentation",
+      "staffDescription": "Managers appartenant à l'institution.",
+      "staffBadge": "Agents actifs",
+      "staffCta": "Gérer le staff →"
     },
     "quickActions": {
-      "title": "Atajos rápidos",
-      "description": "Accedé directamente a las secciones operativas que vas a utilizar con mayor frecuencia.",
-      "goToSection": "Ir a la sección →",
+      "title": "Raccourcis rapides",
+      "description": "Accédez directement aux sections opérationnelles que vous utiliserez le plus fréquemment.",
+      "goToSection": "Aller à la section →",
       "agency": {
-        "title": "Editar Perfil de Agencia",
-        "description": "Modifica información pública, contacto y logo."
+        "title": "Modifier le profil de l'agence",
+        "description": "Modifiez les informations publiques, le contact et le logo."
       },
       "templateStyles": {
-        "title": "Plantilla del Portfolio",
-        "description": "Elegí Pro o Clásica, paleta de marca y tipografía."
+        "title": "Modèle du portfolio",
+        "description": "Choisissez Pro ou Classique, la palette de marque et la typographie."
       },
       "players": {
-        "title": "Cartera de Jugadores",
-        "description": "Administra tu roster y asigna tareas pendientes."
+        "title": "Portefeuille de joueurs",
+        "description": "Administrez votre effectif et attribuez les tâches en attente."
       },
       "staff": {
-        "title": "Equipo Staff",
-        "description": "Invita colegas y visualiza miembros activos."
+        "title": "Équipe Staff",
+        "description": "Invitez des collègues et visualisez les membres actifs."
       }
     }
   },
   "paywall": {
     "subscriptionBanner": {
-      "trialingTitle": "Estás en tu trial Pro · te {daysCopy}.",
-      "trialingDaysSingular": "queda 1 día",
-      "trialingDaysPlural": "quedan {days} días",
-      "trialingBody": "Después del trial te cobramos automáticamente. Cancelable durante el trial sin cargo.",
-      "trialingCta": "Gestionar suscripción",
-      "cancelingSoonTitle": "Tu plan Pro está activo pero no se va a renovar.",
-      "cancelingSoonBodyWithDate": "El acceso Pro continúa hasta {date}.",
-      "cancelingSoonBodyNoDate": "El acceso Pro continúa hasta el fin del período actual.",
-      "cancelingSoonCta": "Reactivar",
-      "pastDueTitle": "Hubo un problema con tu pago.",
-      "pastDueBody": "Actualizá el método de pago para evitar perder el acceso Pro.",
-      "pastDueCta": "Actualizar pago",
-      "expiredTitle": "Tu plan Pro venció.",
-      "expiredBody": "Recuperá las plantillas y secciones premium con un nuevo ciclo Pro.",
-      "expiredCta": "Renovar Pro",
-      "compGrantWithDate": "Cuenta de cortesía Pro · vigente hasta {date}",
-      "compGrantNoDate": "Cuenta de cortesía Pro · sin vencimiento"
+      "trialingTitle": "Vous êtes dans votre essai Pro · {daysCopy}.",
+      "trialingDaysSingular": "il vous reste 1 jour",
+      "trialingDaysPlural": "il vous reste {days} jours",
+      "trialingBody": "À la fin de l'essai, nous vous prélevons automatiquement. Annulable pendant l'essai sans frais.",
+      "trialingCta": "Gérer l'abonnement",
+      "cancelingSoonTitle": "Votre plan Pro est actif mais ne se renouvellera pas.",
+      "cancelingSoonBodyWithDate": "L'accès Pro se poursuit jusqu'au {date}.",
+      "cancelingSoonBodyNoDate": "L'accès Pro se poursuit jusqu'à la fin de la période en cours.",
+      "cancelingSoonCta": "Réactiver",
+      "pastDueTitle": "Un problème est survenu avec votre paiement.",
+      "pastDueBody": "Mettez à jour le moyen de paiement pour ne pas perdre l'accès Pro.",
+      "pastDueCta": "Mettre à jour le paiement",
+      "expiredTitle": "Votre plan Pro a expiré.",
+      "expiredBody": "Récupérez les modèles et sections premium avec un nouveau cycle Pro.",
+      "expiredCta": "Renouveler Pro",
+      "compGrantWithDate": "Compte Pro offert · valable jusqu'au {date}",
+      "compGrantNoDate": "Compte Pro offert · sans échéance"
     }
   },
   "invites": {
     "pendingModal": {
-      "title": "¡Tienes una invitación pendiente!",
-      "bodyLead": "Has sido invitado a formar parte del staff de la agencia <strong>{agencyName}</strong>.",
-      "bodyConsequence": "Al aceptar, tu cuenta cambiará a perfil de Manager y tendrás acceso a los jugadores representados por esta agencia.",
-      "decline": "Rechazar",
-      "accept": "Aceptar Invitación"
+      "title": "Vous avez une invitation en attente !",
+      "bodyLead": "Vous avez été invité à faire partie du staff de l'agence <strong>{agencyName}</strong>.",
+      "bodyConsequence": "En acceptant, votre compte passera en profil de Manager et vous aurez accès aux joueurs représentés par cette agence.",
+      "decline": "Refuser",
+      "accept": "Accepter l'invitation"
     },
     "playerPendingModal": {
-      "title": "¡Nuevas oportunidades!",
-      "bodyLead": "La agencia <strong>{agencyName}</strong> ha solicitado incluirte en su cartera de jugadores representados en BallersHub.",
-      "contractDuration": "Duración del vínculo registrada: {date}.",
-      "bodyConsequence": "Al aceptar esta invitación, tu perfil deportivo mostrará públicamente a esta agencia como tu representante oficial.",
-      "decline": "Rechazar",
-      "accept": "Vincular mi perfil"
+      "title": "Nouvelles opportunités !",
+      "bodyLead": "L'agence <strong>{agencyName}</strong> a demandé à vous inclure dans son portefeuille de joueurs représentés sur BallersHub.",
+      "contractDuration": "Durée du lien enregistrée : {date}.",
+      "bodyConsequence": "En acceptant cette invitation, votre profil sportif affichera publiquement cette agence comme votre représentant officiel.",
+      "decline": "Refuser",
+      "accept": "Lier mon profil"
     }
   }
 }

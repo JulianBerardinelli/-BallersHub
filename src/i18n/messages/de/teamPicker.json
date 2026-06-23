@@ -1,67 +1,67 @@
 {
   "label": {
-    "current": "Club actual",
-    "club": "Club"
+    "current": "Aktueller Verein",
+    "club": "Verein"
   },
-  "freeAgent": "Jugador libre",
+  "freeAgent": "Vereinsloser Spieler",
   "placeholder": {
-    "search": "Escribí el nombre de tu club",
-    "searchTeam": "Escribí para buscar un equipo",
-    "disabledFree": "Deshabilitado por jugador libre"
+    "search": "Geben Sie den Namen Ihres Vereins ein",
+    "searchTeam": "Tippen Sie, um ein Team zu suchen",
+    "disabledFree": "Deaktiviert wegen vereinslosem Spieler"
   },
   "hint": {
-    "signpost": "¿No encontrás tu club? Vas a poder agregarlo."
+    "signpost": "Sie finden Ihren Verein nicht? Sie können ihn hinzufügen."
   },
   "option": {
-    "add": "Agregar “{name}”",
-    "addHint": "No está en la lista · lo verificamos"
+    "add": "„{name}“ hinzufügen",
+    "addHint": "Nicht in der Liste · wir prüfen es"
   },
   "badge": {
-    "new": "Nuevo"
+    "new": "Neu"
   },
   "modal": {
-    "title": "Agregar tu club",
-    "intro": "No lo encontramos en nuestra base. Completá estos datos y lo verificamos para dejarlo cargado en tu perfil.",
-    "country": "País del club",
-    "countryRequired": "Elegí un país",
-    "tm": "Transfermarkt (opcional)",
-    "tmInvalid": "URL inválida (https://...)",
-    "cancel": "Cancelar",
-    "save": "Agregar club"
+    "title": "Ihren Verein hinzufügen",
+    "intro": "Wir haben ihn nicht in unserer Datenbank gefunden. Füllen Sie diese Angaben aus, und wir prüfen ihn, um ihn in Ihrem Profil zu hinterlegen.",
+    "country": "Land des Vereins",
+    "countryRequired": "Wählen Sie ein Land",
+    "tm": "Transfermarkt (optional)",
+    "tmInvalid": "Ungültige URL (https://...)",
+    "cancel": "Abbrechen",
+    "save": "Verein hinzufügen"
   },
   "chip": {
-    "selected": "Seleccionado: {name}",
-    "added": "Agregado: {name} · pendiente de verificación",
-    "free": "Jugador libre"
+    "selected": "Ausgewählt: {name}",
+    "added": "Hinzugefügt: {name} · Prüfung ausstehend",
+    "free": "Vereinsloser Spieler"
   },
   "details": {
-    "edit": "Editar detalles del club"
+    "edit": "Vereinsdetails bearbeiten"
   },
   "dashboardPicker": {
-    "currentTeamLabel": "Equipo actual",
-    "currentTeamDescription": "Buscá tu equipo por nombre. Si no existe, podés proponerlo.",
-    "currentTeamPlaceholder": "Ej: Boca Juniors",
-    "countryLabel": "País (nombre o ISO-2)",
-    "countryDescription": "Ej: Argentina o AR",
-    "countryPlaceholder": "Argentina / AR",
-    "resultsTitle": "Resultados",
-    "noResults": "No encontramos equipos con «{q}».",
-    "chooseTeam": "Elegir",
-    "proposeNew": "Proponer equipo nuevo: «{q}»",
-    "proposeHelp": "El equipo no está en nuestra base. Con tu solicitud lo crearemos y verificaremos.",
-    "freeAgentCta": "Soy jugador libre (sin equipo)",
-    "chipSelected": "Seleccionado: {name}",
-    "chipProposed": "Equipo propuesto: {name}",
-    "chipFree": "Jugador libre"
+    "currentTeamLabel": "Aktuelles Team",
+    "currentTeamDescription": "Suchen Sie Ihr Team nach Namen. Falls es nicht existiert, können Sie es vorschlagen.",
+    "currentTeamPlaceholder": "Z. B.: Boca Juniors",
+    "countryLabel": "Land (Name oder ISO-2)",
+    "countryDescription": "Z. B.: Argentinien oder AR",
+    "countryPlaceholder": "Argentinien / AR",
+    "resultsTitle": "Ergebnisse",
+    "noResults": "Wir haben keine Teams mit „{q}“ gefunden.",
+    "chooseTeam": "Auswählen",
+    "proposeNew": "Neues Team vorschlagen: „{q}“",
+    "proposeHelp": "Das Team ist nicht in unserer Datenbank. Mit Ihrer Anfrage erstellen und prüfen wir es.",
+    "freeAgentCta": "Ich bin vereinsloser Spieler (ohne Team)",
+    "chipSelected": "Ausgewählt: {name}",
+    "chipProposed": "Vorgeschlagenes Team: {name}",
+    "chipFree": "Vereinsloser Spieler"
   },
   "createModal": {
-    "title": "Nuevo equipo: «{name}»",
-    "countryLabel": "País del club",
-    "countryRequired": "Elegí un país",
-    "tmLabel": "Transfermarkt (opcional)",
+    "title": "Neues Team: „{name}“",
+    "countryLabel": "Land des Vereins",
+    "countryRequired": "Wählen Sie ein Land",
+    "tmLabel": "Transfermarkt (optional)",
     "tmPlaceholder": "https://www.transfermarkt.com/...",
-    "tmInvalid": "URL inválida (https://...)",
-    "cancel": "Cancelar",
-    "save": "Guardar"
+    "tmInvalid": "Ungültige URL (https://...)",
+    "cancel": "Abbrechen",
+    "save": "Speichern"
   }
 }

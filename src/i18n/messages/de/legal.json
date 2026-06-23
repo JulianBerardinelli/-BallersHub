@@ -1,347 +1,347 @@
 {
   "common": {
-    "eyebrow": "Legal",
-    "updatedLabel": "Última actualización",
-    "tocLabel": "En esta página",
-    "relatedLabel": "Documentos relacionados",
-    "contactTitle": "¿Tenés preguntas?",
-    "contactBody": "Si tenés dudas sobre este documento o querés ejercer tus derechos sobre tus datos, escribinos y te ayudamos.",
-    "contactCta": "Escribir a info@ballershub.co",
+    "eyebrow": "Rechtliches",
+    "updatedLabel": "Zuletzt aktualisiert",
+    "tocLabel": "Auf dieser Seite",
+    "relatedLabel": "Verwandte Dokumente",
+    "contactTitle": "Haben Sie Fragen?",
+    "contactBody": "Wenn Sie Fragen zu diesem Dokument haben oder Ihre Rechte in Bezug auf Ihre Daten ausüben möchten, schreiben Sie uns und wir helfen Ihnen weiter.",
+    "contactCta": "Schreiben Sie an info@ballershub.co",
     "nav": {
-      "terms": "Términos",
-      "privacy": "Privacidad",
+      "terms": "AGB",
+      "privacy": "Datenschutz",
       "cookies": "Cookies"
     }
   },
   "terms": {
-    "metaTitle": "Términos del Servicio",
-    "metaDescription": "Términos y condiciones de uso de BallersHub: cuentas, planes Pro, verificación de perfiles, contenido y responsabilidades.",
-    "ogTitle": "Términos del Servicio · 'BallersHub",
-    "title": "Términos del Servicio",
-    "updated": "17 de junio de 2026",
-    "intro": "Estos Términos regulan el uso de BallersHub. Leelos con atención: al crear una cuenta o usar la plataforma, aceptás todo lo que sigue.",
+    "metaTitle": "Nutzungsbedingungen",
+    "metaDescription": "Allgemeine Geschäftsbedingungen für die Nutzung von BallersHub: Konten, Pro-Tarife, Profilverifizierung, Inhalte und Verantwortlichkeiten.",
+    "ogTitle": "Nutzungsbedingungen · 'BallersHub",
+    "title": "Nutzungsbedingungen",
+    "updated": "17. Juni 2026",
+    "intro": "Diese Bedingungen regeln die Nutzung von BallersHub. Lesen Sie sie aufmerksam: Mit der Erstellung eines Kontos oder der Nutzung der Plattform akzeptieren Sie alles Folgende.",
     "sections": [
       {
         "id": "servicio",
-        "title": "1. Qué es BallersHub y aceptación de los Términos",
+        "title": "1. Was ist BallersHub und Annahme der Bedingungen",
         "blocks": [
-          { "type": "p", "text": "BallersHub es una plataforma en línea que permite a futbolistas, atletas y agencias de representación crear un portfolio web profesional con un enlace propio, donde centralizan su trayectoria, estadísticas, datos y contenido multimedia. El servicio está disponible en ballershub.co y es operado por Julián Berardinelli, en la República Argentina (el Titular, nosotros)." },
-          { "type": "p", "text": "Estos Términos del Servicio (los Términos) regulan el acceso y uso de la plataforma. Al crear una cuenta, completar un perfil o usar cualquier funcionalidad de BallersHub, aceptás estos Términos y nuestra Política de Privacidad. Si no estás de acuerdo, no uses la plataforma." }
+          { "type": "p", "text": "BallersHub ist eine Online-Plattform, die es Fußballern, Athletinnen und Spielervermittlungsagenturen ermöglicht, ein professionelles Web-Portfolio mit einem eigenen Link zu erstellen, in dem sie ihren Werdegang, Statistiken, Daten und Multimedia-Inhalte bündeln. Der Dienst ist unter ballershub.co verfügbar und wird von Julián Berardinelli in der Republik Argentinien betrieben (der Inhaber, wir)." },
+          { "type": "p", "text": "Diese Nutzungsbedingungen (die Bedingungen) regeln den Zugang zur und die Nutzung der Plattform. Mit der Erstellung eines Kontos, dem Ausfüllen eines Profils oder der Nutzung jeglicher Funktion von BallersHub akzeptieren Sie diese Bedingungen und unsere Datenschutzrichtlinie. Wenn Sie nicht einverstanden sind, nutzen Sie die Plattform nicht." }
         ]
       },
       {
         "id": "elegibilidad",
-        "title": "2. Quién puede usar la plataforma",
+        "title": "2. Wer die Plattform nutzen darf",
         "blocks": [
-          { "type": "p", "text": "Para contratar planes y administrar una cuenta por cuenta propia tenés que ser mayor de 18 años y contar con capacidad legal para obligarte." },
-          { "type": "p", "text": "BallersHub también está orientada al fútbol juvenil. Los perfiles de personas menores de 18 años solo pueden crearse y administrarse por su madre, padre, tutor legal o por la agencia que la representa con autorización de su tutor. Quien crea o gestiona el perfil de un menor declara contar con esa autorización, acepta estos Términos en su nombre y es responsable del uso de la cuenta y del contenido publicado." },
-          { "type": "p", "text": "Podemos solicitar en cualquier momento documentación que acredite la edad, la identidad o la representación invocada, y suspender perfiles cuando esa información no pueda verificarse." }
+          { "type": "p", "text": "Um Tarife abzuschließen und ein Konto eigenständig zu verwalten, müssen Sie mindestens 18 Jahre alt sein und die rechtliche Fähigkeit besitzen, sich zu verpflichten." },
+          { "type": "p", "text": "BallersHub richtet sich auch an den Jugendfußball. Profile von Personen unter 18 Jahren dürfen ausschließlich von ihrer Mutter, ihrem Vater, ihrem gesetzlichen Vormund oder von der sie vertretenden Agentur mit Genehmigung des Vormunds erstellt und verwaltet werden. Wer das Profil eines Minderjährigen erstellt oder verwaltet, erklärt, über diese Genehmigung zu verfügen, akzeptiert diese Bedingungen in dessen Namen und ist für die Nutzung des Kontos und die veröffentlichten Inhalte verantwortlich." },
+          { "type": "p", "text": "Wir können jederzeit Unterlagen anfordern, die das Alter, die Identität oder die geltend gemachte Vertretung belegen, und Profile sperren, wenn diese Informationen nicht überprüft werden können." }
         ]
       },
       {
         "id": "cuentas",
-        "title": "3. Cuentas y registro",
+        "title": "3. Konten und Registrierung",
         "blocks": [
-          { "type": "p", "text": "Para usar la mayoría de las funciones necesitás registrar una cuenta con un email válido. Te comprometés a brindar información veraz, completa y actualizada, y a mantenerla así." },
-          { "type": "p", "text": "Sos responsable de la confidencialidad de tus credenciales y de toda la actividad que ocurra en tu cuenta. Avisanos de inmediato ante cualquier uso no autorizado." }
+          { "type": "p", "text": "Um die meisten Funktionen zu nutzen, müssen Sie ein Konto mit einer gültigen E-Mail-Adresse registrieren. Sie verpflichten sich, wahrheitsgemäße, vollständige und aktuelle Informationen anzugeben und diese aktuell zu halten." },
+          { "type": "p", "text": "Sie sind für die Vertraulichkeit Ihrer Zugangsdaten und für sämtliche Aktivitäten in Ihrem Konto verantwortlich. Benachrichtigen Sie uns unverzüglich bei jeglicher unbefugten Nutzung." }
         ]
       },
       {
         "id": "planes",
-        "title": "4. Planes, suscripciones y pagos",
+        "title": "4. Tarife, Abonnements und Zahlungen",
         "blocks": [
-          { "type": "p", "text": "BallersHub ofrece un plan gratuito y planes pagos (Pro) con funcionalidades adicionales. El detalle de cada plan y los precios vigentes se muestran en la página de planes." },
-          { "type": "p", "text": "Los planes Pro son suscripciones de renovación automática. Según tu moneda y ubicación, el pago se procesa a través de Stripe (USD/EUR) o Mercado Pago (ARS). Al suscribirte autorizás los cobros recurrentes del plan elegido hasta que lo canceles. Los procesadores de pago son terceros independientes y el tratamiento de tus datos de pago se rige también por sus propios términos y políticas." },
-          { "type": "p", "text": "Los precios pueden incluir o excluir impuestos según tu jurisdicción. Podemos modificar precios y planes; los cambios se aplican a los períodos de facturación posteriores y, cuando corresponda, te los notificaremos con antelación razonable." }
+          { "type": "p", "text": "BallersHub bietet einen kostenlosen Tarif sowie kostenpflichtige Tarife (Pro) mit zusätzlichen Funktionen an. Die Einzelheiten jedes Tarifs und die jeweils geltenden Preise werden auf der Tarifseite angezeigt." },
+          { "type": "p", "text": "Die Pro-Tarife sind Abonnements mit automatischer Verlängerung. Je nach Ihrer Währung und Ihrem Standort wird die Zahlung über Stripe (USD/EUR) oder Mercado Pago (ARS) abgewickelt. Mit dem Abschluss des Abonnements ermächtigen Sie die wiederkehrenden Abbuchungen des gewählten Tarifs, bis Sie es kündigen. Die Zahlungsdienstleister sind unabhängige Dritte, und die Verarbeitung Ihrer Zahlungsdaten unterliegt auch deren eigenen Bedingungen und Richtlinien." },
+          { "type": "p", "text": "Die Preise können je nach Ihrer Rechtsordnung Steuern enthalten oder ausschließen. Wir können Preise und Tarife ändern; die Änderungen gelten für die nachfolgenden Abrechnungszeiträume und werden Ihnen, sofern zutreffend, mit angemessener Vorlaufzeit mitgeteilt." }
         ]
       },
       {
         "id": "bajas",
-        "title": "5. Cancelación, renovación y reembolsos",
+        "title": "5. Kündigung, Verlängerung und Erstattungen",
         "blocks": [
-          { "type": "p", "text": "Podés cancelar tu suscripción en cualquier momento desde tu cuenta. La cancelación detiene las renovaciones futuras; conservás el acceso a las funciones Pro hasta el final del período ya abonado." },
-          { "type": "p", "text": "Salvo que la ley aplicable disponga lo contrario o que lo indiquemos expresamente, los pagos del período en curso no son reembolsables. Cuando exista un derecho de arrepentimiento o desistimiento previsto por la normativa de consumo aplicable, podrás ejercerlo en los términos y plazos que esa normativa establezca." }
+          { "type": "p", "text": "Sie können Ihr Abonnement jederzeit über Ihr Konto kündigen. Die Kündigung stoppt zukünftige Verlängerungen; den Zugang zu den Pro-Funktionen behalten Sie bis zum Ende des bereits bezahlten Zeitraums." },
+          { "type": "p", "text": "Sofern das anwendbare Recht nichts anderes vorsieht oder wir es nicht ausdrücklich angeben, sind die Zahlungen für den laufenden Zeitraum nicht erstattungsfähig. Besteht ein Widerrufs- oder Rücktrittsrecht nach den geltenden Verbraucherschutzvorschriften, können Sie es zu den dort festgelegten Bedingungen und Fristen ausüben." }
         ]
       },
       {
         "id": "contenido",
-        "title": "6. Tu contenido y licencia de uso",
+        "title": "6. Ihre Inhalte und Nutzungslizenz",
         "blocks": [
-          { "type": "p", "text": "Mantenés la titularidad de la información, imágenes, videos y demás contenido que cargás en tu perfil (tu contenido). Para poder mostrar tu portfolio y operar el servicio, nos otorgás una licencia mundial, no exclusiva y gratuita para alojar, reproducir, adaptar técnicamente, publicar y mostrar tu contenido dentro de la plataforma y en su promoción." },
-          { "type": "p", "text": "Al publicar contenido declarás que tenés los derechos necesarios sobre él, que es veraz y que no infringe derechos de terceros ni normas aplicables. Sos responsable del contenido que publicás." },
-          { "type": "p", "text": "Podemos remover o despublicar contenido que infrinja estos Términos, derechos de terceros o la ley, o que comprometa la seguridad o la reputación de la plataforma." }
+          { "type": "p", "text": "Sie behalten die Inhaberschaft an den Informationen, Bildern, Videos und sonstigen Inhalten, die Sie in Ihr Profil hochladen (Ihre Inhalte). Um Ihr Portfolio anzeigen und den Dienst betreiben zu können, gewähren Sie uns eine weltweite, nicht ausschließliche und unentgeltliche Lizenz zum Hosten, Vervielfältigen, technischen Anpassen, Veröffentlichen und Anzeigen Ihrer Inhalte innerhalb der Plattform und in deren Bewerbung." },
+          { "type": "p", "text": "Mit der Veröffentlichung von Inhalten erklären Sie, dass Sie über die erforderlichen Rechte daran verfügen, dass diese wahrheitsgemäß sind und weder Rechte Dritter noch geltende Vorschriften verletzen. Sie sind für die von Ihnen veröffentlichten Inhalte verantwortlich." },
+          { "type": "p", "text": "Wir können Inhalte entfernen oder von der Veröffentlichung ausschließen, die gegen diese Bedingungen, Rechte Dritter oder das Gesetz verstoßen oder die Sicherheit oder den Ruf der Plattform gefährden." }
         ]
       },
       {
         "id": "verificacion",
-        "title": "7. Verificación y validación de perfiles",
+        "title": "7. Verifizierung und Validierung von Profilen",
         "blocks": [
-          { "type": "p", "text": "BallersHub puede verificar la identidad y los datos de los perfiles mediante revisión humana, contraste contra fuentes deportivas públicas y procesos de verificación de identidad (KYC) que pueden requerir un documento y una selfie. El tratamiento de esos datos se describe en la Política de Privacidad." },
-          { "type": "p", "text": "La verificación busca dar confianza sobre la veracidad de la información, pero no constituye una recomendación, aval ni garantía de nuestra parte respecto de ninguna persona, agencia o club. Podemos otorgar, suspender o retirar distintivos de verificación a nuestro criterio razonable." }
+          { "type": "p", "text": "BallersHub kann die Identität und die Daten der Profile durch menschliche Überprüfung, Abgleich mit öffentlichen Sportdatenquellen und Identitätsprüfungsverfahren (KYC) überprüfen, die ein Ausweisdokument und ein Selfie erfordern können. Die Verarbeitung dieser Daten wird in der Datenschutzrichtlinie beschrieben." },
+          { "type": "p", "text": "Die Verifizierung soll Vertrauen in die Richtigkeit der Informationen schaffen, stellt jedoch keine Empfehlung, Befürwortung oder Garantie unsererseits in Bezug auf eine Person, Agentur oder einen Verein dar. Wir können Verifizierungsabzeichen nach unserem vernünftigen Ermessen vergeben, aussetzen oder entziehen." }
         ]
       },
       {
         "id": "conducta",
-        "title": "8. Uso aceptable",
+        "title": "8. Zulässige Nutzung",
         "blocks": [
-          { "type": "p", "text": "Al usar BallersHub te comprometés a no:" },
+          { "type": "p", "text": "Bei der Nutzung von BallersHub verpflichten Sie sich, Folgendes zu unterlassen:" },
           { "type": "list", "items": [
-            "Suplantar la identidad de otra persona o agencia, o publicar datos falsos o engañosos.",
-            "Cargar contenido ilícito, difamatorio, discriminatorio, que vulnere la intimidad o que infrinja derechos de terceros.",
-            "Usar la plataforma para acosar, extorsionar o poner en riesgo a personas menores de edad.",
-            "Extraer datos de forma automatizada (scraping), revender el acceso o sobrecargar la infraestructura.",
-            "Intentar vulnerar la seguridad, acceder a cuentas ajenas o eludir restricciones técnicas."
+            "Sich als eine andere Person oder Agentur auszugeben oder falsche oder irreführende Daten zu veröffentlichen.",
+            "Rechtswidrige, verleumderische oder diskriminierende Inhalte hochzuladen, die die Privatsphäre verletzen oder Rechte Dritter beeinträchtigen.",
+            "Die Plattform zu nutzen, um Minderjährige zu belästigen, zu erpressen oder zu gefährden.",
+            "Daten automatisiert zu extrahieren (Scraping), den Zugang weiterzuverkaufen oder die Infrastruktur zu überlasten.",
+            "Zu versuchen, die Sicherheit zu umgehen, auf fremde Konten zuzugreifen oder technische Beschränkungen zu umgehen."
           ] }
         ]
       },
       {
         "id": "propiedad",
-        "title": "9. Propiedad intelectual de BallersHub",
+        "title": "9. Geistiges Eigentum von BallersHub",
         "blocks": [
-          { "type": "p", "text": "La marca BallersHub, el software, el diseño, los textos propios y demás elementos de la plataforma pertenecen al Titular o a sus licenciantes y están protegidos por la normativa de propiedad intelectual. No podés copiarlos ni explotarlos sin autorización, salvo el uso normal de la plataforma." }
+          { "type": "p", "text": "Die Marke BallersHub, die Software, das Design, die eigenen Texte und sonstige Elemente der Plattform gehören dem Inhaber oder seinen Lizenzgebern und sind durch die Vorschriften zum geistigen Eigentum geschützt. Sie dürfen sie ohne Genehmigung nicht kopieren oder verwerten, abgesehen von der üblichen Nutzung der Plattform." }
         ]
       },
       {
         "id": "terceros",
-        "title": "10. Servicios de terceros",
+        "title": "10. Dienste Dritter",
         "blocks": [
-          { "type": "p", "text": "La plataforma se apoya en proveedores externos (por ejemplo, alojamiento, procesadores de pago, envío de emails y analítica) y puede contener enlaces a sitios de terceros. No somos responsables por el contenido, las prácticas ni la disponibilidad de esos terceros, cuyo uso se rige por sus propios términos." }
+          { "type": "p", "text": "Die Plattform stützt sich auf externe Anbieter (zum Beispiel Hosting, Zahlungsdienstleister, E-Mail-Versand und Analyse) und kann Links zu Websites Dritter enthalten. Wir sind nicht für die Inhalte, die Praktiken oder die Verfügbarkeit dieser Dritten verantwortlich, deren Nutzung deren eigenen Bedingungen unterliegt." }
         ]
       },
       {
         "id": "disponibilidad",
-        "title": "11. Disponibilidad, cambios y funciones beta",
+        "title": "11. Verfügbarkeit, Änderungen und Beta-Funktionen",
         "blocks": [
-          { "type": "p", "text": "Trabajamos para mantener el servicio disponible, pero se ofrece tal cual y según disponibilidad, sin garantía de operación ininterrumpida o libre de errores. Podemos modificar, suspender o discontinuar funcionalidades." },
-          { "type": "p", "text": "Algunas funciones pueden ofrecerse como beta o en fase de prueba y estar sujetas a cambios o limitaciones." }
+          { "type": "p", "text": "Wir arbeiten daran, den Dienst verfügbar zu halten, er wird jedoch wie besehen und nach Verfügbarkeit angeboten, ohne Garantie für einen unterbrechungsfreien oder fehlerfreien Betrieb. Wir können Funktionen ändern, aussetzen oder einstellen." },
+          { "type": "p", "text": "Einige Funktionen können als Beta oder in der Testphase angeboten werden und Änderungen oder Einschränkungen unterliegen." }
         ]
       },
       {
         "id": "responsabilidad",
-        "title": "12. Limitación de responsabilidad",
+        "title": "12. Haftungsbeschränkung",
         "blocks": [
-          { "type": "p", "text": "En la máxima medida permitida por la ley aplicable, no seremos responsables por daños indirectos, incidentales o por lucro cesante derivados del uso o de la imposibilidad de uso de la plataforma. Nada en estos Términos limita responsabilidades que no puedan excluirse legalmente, en especial frente a consumidores." }
+          { "type": "p", "text": "Im größtmöglichen nach anwendbarem Recht zulässigen Umfang haften wir nicht für indirekte Schäden, Folgeschäden oder entgangenen Gewinn, die aus der Nutzung oder der Unmöglichkeit der Nutzung der Plattform entstehen. Nichts in diesen Bedingungen beschränkt Haftungen, die gesetzlich nicht ausgeschlossen werden können, insbesondere gegenüber Verbrauchern." }
         ]
       },
       {
         "id": "indemnidad",
-        "title": "13. Indemnidad",
+        "title": "13. Schadloshaltung",
         "blocks": [
-          { "type": "p", "text": "Te comprometés a mantener indemne al Titular frente a reclamos de terceros que deriven de tu contenido, de tu uso de la plataforma o del incumplimiento de estos Términos o de la ley." }
+          { "type": "p", "text": "Sie verpflichten sich, den Inhaber von Ansprüchen Dritter freizuhalten, die aus Ihren Inhalten, Ihrer Nutzung der Plattform oder dem Verstoß gegen diese Bedingungen oder das Gesetz entstehen." }
         ]
       },
       {
         "id": "suspension",
-        "title": "14. Suspensión y baja de cuentas",
+        "title": "14. Sperrung und Löschung von Konten",
         "blocks": [
-          { "type": "p", "text": "Podemos suspender o dar de baja cuentas que incumplan estos Términos, que publiquen información falsa, que pongan en riesgo a otras personas o que comprometan la seguridad de la plataforma. Cuando sea razonable, te avisaremos y te daremos la posibilidad de regularizar la situación." }
+          { "type": "p", "text": "Wir können Konten sperren oder löschen, die gegen diese Bedingungen verstoßen, die falsche Informationen veröffentlichen, die andere Personen gefährden oder die Sicherheit der Plattform beeinträchtigen. Sofern angemessen, benachrichtigen wir Sie und geben Ihnen die Möglichkeit, die Situation zu bereinigen." }
         ]
       },
       {
         "id": "modificaciones",
-        "title": "15. Modificaciones de los Términos",
+        "title": "15. Änderungen der Bedingungen",
         "blocks": [
-          { "type": "p", "text": "Podemos actualizar estos Términos para reflejar cambios en el servicio o en la normativa. Publicaremos la versión vigente en esta página con su fecha de actualización y, ante cambios relevantes, procuraremos avisarte. El uso continuado del servicio luego de la entrada en vigencia implica la aceptación de los Términos actualizados." }
+          { "type": "p", "text": "Wir können diese Bedingungen aktualisieren, um Änderungen des Dienstes oder der Rechtslage abzubilden. Wir veröffentlichen die jeweils geltende Fassung auf dieser Seite mit dem Datum ihrer Aktualisierung und bemühen uns, Sie bei wesentlichen Änderungen zu benachrichtigen. Die weitere Nutzung des Dienstes nach dem Inkrafttreten gilt als Annahme der aktualisierten Bedingungen." }
         ]
       },
       {
         "id": "ley",
-        "title": "16. Ley aplicable y jurisdicción",
+        "title": "16. Anwendbares Recht und Gerichtsstand",
         "blocks": [
-          { "type": "p", "text": "Estos Términos se rigen por las leyes de la República Argentina. Ante cualquier controversia se aplicará la jurisdicción de los tribunales ordinarios competentes de la República Argentina, sin perjuicio de los derechos que la normativa de defensa del consumidor reconozca al usuario para acudir a los tribunales o autoridades de su domicilio." }
+          { "type": "p", "text": "Diese Bedingungen unterliegen dem Recht der Republik Argentinien. Bei Streitigkeiten gilt die Zuständigkeit der ordentlichen zuständigen Gerichte der Republik Argentinien, unbeschadet der Rechte, die die Verbraucherschutzvorschriften dem Nutzer einräumen, sich an die Gerichte oder Behörden seines Wohnsitzes zu wenden." }
         ]
       }
     ]
   },
   "privacy": {
-    "metaTitle": "Política de Privacidad",
-    "metaDescription": "Cómo BallersHub recopila, usa y protege tus datos personales: perfiles, verificación de identidad (KYC), pagos, cookies y tus derechos.",
-    "ogTitle": "Política de Privacidad · 'BallersHub",
-    "title": "Política de Privacidad",
-    "updated": "17 de junio de 2026",
-    "intro": "Tu confianza es parte del producto. Acá te explicamos, en lenguaje claro, qué datos tratamos, para qué los usamos y qué control tenés sobre ellos.",
+    "metaTitle": "Datenschutzrichtlinie",
+    "metaDescription": "Wie BallersHub Ihre personenbezogenen Daten erhebt, verwendet und schützt: Profile, Identitätsprüfung (KYC), Zahlungen, Cookies und Ihre Rechte.",
+    "ogTitle": "Datenschutzrichtlinie · 'BallersHub",
+    "title": "Datenschutzrichtlinie",
+    "updated": "17. Juni 2026",
+    "intro": "Ihr Vertrauen ist Teil des Produkts. Hier erklären wir Ihnen in klarer Sprache, welche Daten wir verarbeiten, wofür wir sie verwenden und welche Kontrolle Sie darüber haben.",
     "sections": [
       {
         "id": "intro",
-        "title": "1. Introducción y responsable del tratamiento",
+        "title": "1. Einleitung und Verantwortlicher für die Verarbeitung",
         "blocks": [
-          { "type": "p", "text": "Esta Política de Privacidad explica cómo BallersHub recopila, usa, comparte y protege los datos personales de quienes usan la plataforma (ballershub.co). Es complementaria de los Términos del Servicio." },
-          { "type": "p", "text": "El responsable del tratamiento es Julián Berardinelli, en la República Argentina. Para cualquier consulta sobre tus datos o sobre esta política, escribinos a info@ballershub.co." }
+          { "type": "p", "text": "Diese Datenschutzrichtlinie erläutert, wie BallersHub die personenbezogenen Daten der Personen, die die Plattform (ballershub.co) nutzen, erhebt, verwendet, weitergibt und schützt. Sie ergänzt die Nutzungsbedingungen." },
+          { "type": "p", "text": "Verantwortlicher für die Verarbeitung ist Julián Berardinelli in der Republik Argentinien. Bei Fragen zu Ihren Daten oder zu dieser Richtlinie schreiben Sie uns an info@ballershub.co." }
         ]
       },
       {
         "id": "datos",
-        "title": "2. Qué datos recopilamos",
+        "title": "2. Welche Daten wir erheben",
         "blocks": [
-          { "type": "p", "text": "Según cómo uses la plataforma, podemos tratar las siguientes categorías de datos:" },
+          { "type": "p", "text": "Je nachdem, wie Sie die Plattform nutzen, können wir die folgenden Datenkategorien verarbeiten:" },
           { "type": "list", "items": [
-            "Datos de cuenta: email e idioma. La contraseña la gestiona nuestro proveedor de autenticación y no la almacenamos en texto plano.",
-            "Datos de perfil del jugador: nombre, fecha de nacimiento, género, nacionalidad, altura y peso, posición, club y situación contractual, idiomas, formación, objetivos y foto o avatar.",
-            "Datos de contacto: teléfono o WhatsApp y ciudad o país de residencia (algunos podés elegir mostrarlos u ocultarlos).",
-            "Documentos de verificación de identidad (KYC): un documento de identidad y una selfie, junto con su tipo, número y país, cuando corresponde verificar el perfil.",
-            "Datos de agencias y representantes: nombre, logo, datos de contacto, países de operación, redes y licencias profesionales.",
-            "Contenido multimedia: fotos, videos y material que cargás en tu portfolio.",
-            "Datos de facturación y pago: dirección de facturación e identificador fiscal. Los datos de la tarjeta los procesan directamente Stripe o Mercado Pago; nosotros no almacenamos el número completo de tu tarjeta.",
-            "Datos de uso y técnicos: información de navegación, dispositivo, métricas de rendimiento y registros, recopilados mediante cookies y tecnologías similares (ver la Política de Cookies).",
-            "Comunicaciones y preferencias de marketing: tus consentimientos para recibir novedades, ofertas o anuncios de funciones, y la interacción con nuestros emails.",
-            "Datos de visitantes (leads): si dejás tu email en el portfolio público de un jugador para contactarlo, tratamos ese email para gestionar el contacto."
+            "Kontodaten: E-Mail-Adresse und Sprache. Das Passwort wird von unserem Authentifizierungsanbieter verwaltet und nicht im Klartext gespeichert.",
+            "Profildaten des Spielers: Name, Geburtsdatum, Geschlecht, Staatsangehörigkeit, Größe und Gewicht, Position, Verein und Vertragssituation, Sprachen, Ausbildung, Ziele sowie Foto oder Avatar.",
+            "Kontaktdaten: Telefon oder WhatsApp und Wohnort oder Wohnsitzland (einige können Sie ein- oder ausblenden).",
+            "Dokumente zur Identitätsprüfung (KYC): ein Ausweisdokument und ein Selfie, zusammen mit dessen Typ, Nummer und Land, wenn die Verifizierung des Profils erforderlich ist.",
+            "Daten von Agenturen und Vermittlern: Name, Logo, Kontaktdaten, Tätigkeitsländer, Netzwerke und Berufslizenzen.",
+            "Multimedia-Inhalte: Fotos, Videos und Material, die Sie in Ihr Portfolio hochladen.",
+            "Abrechnungs- und Zahlungsdaten: Rechnungsadresse und Steuernummer. Die Kartendaten werden direkt von Stripe oder Mercado Pago verarbeitet; wir speichern nicht die vollständige Nummer Ihrer Karte.",
+            "Nutzungs- und technische Daten: Informationen zum Browserverhalten, Gerät, Leistungskennzahlen und Protokolle, die über Cookies und ähnliche Technologien erhoben werden (siehe die Cookie-Richtlinie).",
+            "Kommunikation und Marketing-Präferenzen: Ihre Einwilligungen zum Erhalt von Neuigkeiten, Angeboten oder Ankündigungen von Funktionen sowie die Interaktion mit unseren E-Mails.",
+            "Daten von Besuchern (Leads): Wenn Sie Ihre E-Mail-Adresse im öffentlichen Portfolio eines Spielers hinterlassen, um ihn zu kontaktieren, verarbeiten wir diese E-Mail-Adresse zur Abwicklung des Kontakts."
           ] }
         ]
       },
       {
         "id": "finalidades",
-        "title": "3. Para qué usamos tus datos",
+        "title": "3. Wofür wir Ihre Daten verwenden",
         "blocks": [
-          { "type": "p", "text": "Tratamos tus datos para:" },
+          { "type": "p", "text": "Wir verarbeiten Ihre Daten, um:" },
           { "type": "list", "items": [
-            "Crear y operar tu cuenta y publicar tu portfolio.",
-            "Verificar la identidad y la veracidad de los perfiles.",
-            "Procesar suscripciones, pagos y facturación.",
-            "Enviarte comunicaciones del servicio y, si lo consentís, comunicaciones de marketing.",
-            "Medir el uso, mejorar el producto y la experiencia, y prevenir fraudes y abusos.",
-            "Cumplir obligaciones legales, contables y de seguridad."
+            "Ihr Konto zu erstellen und zu betreiben und Ihr Portfolio zu veröffentlichen.",
+            "Die Identität und die Richtigkeit der Profile zu überprüfen.",
+            "Abonnements, Zahlungen und die Abrechnung abzuwickeln.",
+            "Ihnen Mitteilungen zum Dienst und, sofern Sie einwilligen, Marketing-Mitteilungen zu senden.",
+            "Die Nutzung zu messen, das Produkt und das Erlebnis zu verbessern sowie Betrug und Missbrauch vorzubeugen.",
+            "Gesetzliche, buchhalterische und sicherheitsbezogene Pflichten zu erfüllen."
           ] }
         ]
       },
       {
         "id": "bases",
-        "title": "4. Bases que legitiman el tratamiento",
+        "title": "4. Rechtsgrundlagen der Verarbeitung",
         "blocks": [
-          { "type": "p", "text": "Tratamos tus datos sobre la base de la ejecución del contrato (prestarte el servicio), tu consentimiento (por ejemplo, para marketing o para el tratamiento de documentos de identidad), el cumplimiento de obligaciones legales y nuestro interés legítimo en operar y mejorar la plataforma de forma segura. Podés retirar tu consentimiento en cualquier momento, sin que ello afecte la licitud del tratamiento previo." }
+          { "type": "p", "text": "Wir verarbeiten Ihre Daten auf Grundlage der Vertragserfüllung (um Ihnen den Dienst bereitzustellen), Ihrer Einwilligung (zum Beispiel für Marketing oder für die Verarbeitung von Ausweisdokumenten), der Erfüllung gesetzlicher Pflichten und unseres berechtigten Interesses, die Plattform sicher zu betreiben und zu verbessern. Sie können Ihre Einwilligung jederzeit widerrufen, ohne dass dies die Rechtmäßigkeit der vorherigen Verarbeitung berührt." }
         ]
       },
       {
         "id": "menores",
-        "title": "5. Menores de edad",
+        "title": "5. Minderjährige",
         "blocks": [
-          { "type": "p", "text": "BallersHub abarca el fútbol juvenil. Los perfiles de personas menores de 18 años solo deben ser creados y administrados por su madre, padre, tutor legal o por la agencia que la representa con autorización del tutor, quienes brindan el consentimiento para el tratamiento de los datos del menor y son responsables de la cuenta." },
-          { "type": "p", "text": "No recopilamos datos de menores de forma consciente fuera de ese marco. Si creés que tratamos datos de un menor sin la autorización correspondiente, escribinos a info@ballershub.co y los daremos de baja." }
+          { "type": "p", "text": "BallersHub umfasst den Jugendfußball. Profile von Personen unter 18 Jahren dürfen ausschließlich von ihrer Mutter, ihrem Vater, ihrem gesetzlichen Vormund oder von der sie vertretenden Agentur mit Genehmigung des Vormunds erstellt und verwaltet werden, die die Einwilligung zur Verarbeitung der Daten des Minderjährigen erteilen und für das Konto verantwortlich sind." },
+          { "type": "p", "text": "Außerhalb dieses Rahmens erheben wir nicht wissentlich Daten von Minderjährigen. Wenn Sie glauben, dass wir Daten eines Minderjährigen ohne die entsprechende Genehmigung verarbeiten, schreiben Sie uns an info@ballershub.co, und wir löschen sie." }
         ]
       },
       {
         "id": "encargados",
-        "title": "6. Con quién compartimos tus datos",
+        "title": "6. Mit wem wir Ihre Daten teilen",
         "blocks": [
-          { "type": "p", "text": "No vendemos tus datos personales. Los compartimos con proveedores que nos prestan servicios (encargados del tratamiento), únicamente en lo necesario para operar la plataforma:" },
+          { "type": "p", "text": "Wir verkaufen Ihre personenbezogenen Daten nicht. Wir teilen sie mit Anbietern, die uns Dienstleistungen erbringen (Auftragsverarbeiter), ausschließlich im für den Betrieb der Plattform erforderlichen Umfang:" },
           { "type": "table",
-            "headers": ["Proveedor", "Finalidad", "Ubicación"],
+            "headers": ["Anbieter", "Zweck", "Standort"],
             "rows": [
-              ["Supabase", "Autenticación, base de datos y almacenamiento de archivos (incluidos documentos KYC y media)", "EE. UU."],
-              ["Stripe", "Procesamiento de pagos (USD/EUR)", "EE. UU. / UE"],
-              ["Mercado Pago", "Procesamiento de pagos (ARS)", "Argentina / Brasil"],
-              ["Resend", "Envío de emails transaccionales y de marketing", "EE. UU."],
-              ["Vercel", "Alojamiento, analítica de rendimiento y traducción asistida por IA", "EE. UU."],
-              ["Google", "Analítica de audiencia (Google Analytics) y traducción de perfiles (modelo de IA)", "EE. UU."]
+              ["Supabase", "Authentifizierung, Datenbank und Dateispeicherung (einschließlich KYC-Dokumenten und Medien)", "USA"],
+              ["Stripe", "Zahlungsabwicklung (USD/EUR)", "USA / EU"],
+              ["Mercado Pago", "Zahlungsabwicklung (ARS)", "Argentinien / Brasilien"],
+              ["Resend", "Versand von Transaktions- und Marketing-E-Mails", "USA"],
+              ["Vercel", "Hosting, Leistungsanalyse und KI-gestützte Übersetzung", "USA"],
+              ["Google", "Zielgruppenanalyse (Google Analytics) und Profilübersetzung (KI-Modell)", "USA"]
             ]
           },
-          { "type": "p", "text": "También podemos divulgar datos cuando lo exija la ley, una orden de autoridad competente o para proteger derechos, la seguridad de las personas o la integridad de la plataforma." }
+          { "type": "p", "text": "Wir können Daten auch offenlegen, wenn das Gesetz oder eine Anordnung einer zuständigen Behörde dies verlangt oder um Rechte, die Sicherheit von Personen oder die Integrität der Plattform zu schützen." }
         ]
       },
       {
         "id": "transferencias",
-        "title": "7. Transferencias internacionales",
+        "title": "7. Internationale Übermittlungen",
         "blocks": [
-          { "type": "p", "text": "Algunos de nuestros proveedores procesan datos fuera de la Argentina, principalmente en Estados Unidos. Cuando esto ocurre, procuramos que existan resguardos contractuales y técnicos adecuados para proteger tus datos conforme a la normativa aplicable." }
+          { "type": "p", "text": "Einige unserer Anbieter verarbeiten Daten außerhalb Argentiniens, hauptsächlich in den Vereinigten Staaten. Wenn dies geschieht, sorgen wir dafür, dass angemessene vertragliche und technische Schutzmaßnahmen bestehen, um Ihre Daten gemäß den geltenden Vorschriften zu schützen." }
         ]
       },
       {
         "id": "conservacion",
-        "title": "8. Cuánto tiempo conservamos los datos",
+        "title": "8. Wie lange wir die Daten aufbewahren",
         "blocks": [
-          { "type": "p", "text": "Conservamos tus datos mientras tu cuenta esté activa y durante el tiempo necesario para cumplir las finalidades descriptas. Los documentos de verificación de identidad se conservan por el plazo necesario para acreditar la verificación; los datos de facturación, por el plazo que exige la normativa fiscal y contable. Luego los eliminamos o anonimizamos." }
+          { "type": "p", "text": "Wir bewahren Ihre Daten auf, solange Ihr Konto aktiv ist, und für den Zeitraum, der zur Erfüllung der beschriebenen Zwecke erforderlich ist. Die Dokumente zur Identitätsprüfung werden für den zum Nachweis der Verifizierung erforderlichen Zeitraum aufbewahrt; die Abrechnungsdaten für den von den Steuer- und Buchhaltungsvorschriften vorgeschriebenen Zeitraum. Danach löschen oder anonymisieren wir sie." }
         ]
       },
       {
         "id": "derechos",
-        "title": "9. Tus derechos",
+        "title": "9. Ihre Rechte",
         "blocks": [
-          { "type": "p", "text": "Podés solicitar el acceso, la rectificación, la actualización y la supresión de tus datos, así como oponerte a ciertos tratamientos o retirar tu consentimiento. Para ejercer estos derechos, escribinos a info@ballershub.co; podremos pedirte que acredites tu identidad." },
-          { "type": "p", "text": "El titular de los datos personales tiene la facultad de ejercer el derecho de acceso en forma gratuita a intervalos no inferiores a seis meses, salvo que se acredite un interés legítimo. La AGENCIA DE ACCESO A LA INFORMACIÓN PÚBLICA, órgano de control de la Ley 25.326, tiene la atribución de atender las denuncias y reclamos que se interpongan respecto del incumplimiento de las normas sobre protección de datos personales." }
+          { "type": "p", "text": "Sie können den Zugang zu, die Berichtigung, die Aktualisierung und die Löschung Ihrer Daten verlangen sowie bestimmten Verarbeitungen widersprechen oder Ihre Einwilligung widerrufen. Um diese Rechte auszuüben, schreiben Sie uns an info@ballershub.co; wir können Sie bitten, Ihre Identität nachzuweisen." },
+          { "type": "p", "text": "Die betroffene Person hat das Recht, das Auskunftsrecht in Abständen von nicht weniger als sechs Monaten kostenlos auszuüben, es sei denn, es wird ein berechtigtes Interesse nachgewiesen. Die AGENCIA DE ACCESO A LA INFORMACIÓN PÚBLICA, die Kontrollbehörde des Gesetzes 25.326, ist befugt, Anzeigen und Beschwerden in Bezug auf die Nichteinhaltung der Vorschriften zum Schutz personenbezogener Daten zu bearbeiten." }
         ]
       },
       {
         "id": "seguridad",
-        "title": "10. Seguridad de los datos",
+        "title": "10. Datensicherheit",
         "blocks": [
-          { "type": "p", "text": "Aplicamos medidas técnicas y organizativas para proteger tus datos, como el cifrado en tránsito, controles de acceso, reglas de seguridad a nivel de base de datos y almacenamiento privado para los documentos sensibles. Ningún sistema es completamente infalible, pero trabajamos para reducir los riesgos y responder ante incidentes." }
+          { "type": "p", "text": "Wir wenden technische und organisatorische Maßnahmen zum Schutz Ihrer Daten an, wie Verschlüsselung bei der Übertragung, Zugriffskontrollen, Sicherheitsregeln auf Datenbankebene und privaten Speicher für sensible Dokumente. Kein System ist vollständig unfehlbar, aber wir arbeiten daran, die Risiken zu verringern und auf Vorfälle zu reagieren." }
         ]
       },
       {
         "id": "cookies",
-        "title": "11. Cookies y tecnologías similares",
+        "title": "11. Cookies und ähnliche Technologien",
         "blocks": [
-          { "type": "p", "text": "Usamos cookies y tecnologías de almacenamiento para que la plataforma funcione, recordar tus preferencias y medir el uso. Podés conocer el detalle y cómo gestionarlas en nuestra Política de Cookies." }
+          { "type": "p", "text": "Wir verwenden Cookies und Speichertechnologien, damit die Plattform funktioniert, Ihre Präferenzen gespeichert werden und die Nutzung gemessen wird. Die Einzelheiten und wie Sie diese verwalten, finden Sie in unserer Cookie-Richtlinie." }
         ]
       },
       {
         "id": "cambios",
-        "title": "12. Cambios en esta política",
+        "title": "12. Änderungen dieser Richtlinie",
         "blocks": [
-          { "type": "p", "text": "Podemos actualizar esta Política de Privacidad para reflejar cambios en el servicio o en la normativa. Publicaremos la versión vigente en esta página con su fecha de actualización y, ante cambios relevantes, procuraremos avisarte." }
+          { "type": "p", "text": "Wir können diese Datenschutzrichtlinie aktualisieren, um Änderungen des Dienstes oder der Rechtslage abzubilden. Wir veröffentlichen die jeweils geltende Fassung auf dieser Seite mit dem Datum ihrer Aktualisierung und bemühen uns, Sie bei wesentlichen Änderungen zu benachrichtigen." }
         ]
       }
     ]
   },
   "cookies": {
-    "metaTitle": "Política de Cookies",
-    "metaDescription": "Qué cookies y tecnologías de almacenamiento usa BallersHub, para qué sirven y cómo gestionarlas.",
-    "ogTitle": "Política de Cookies · 'BallersHub",
-    "title": "Política de Cookies",
-    "updated": "17 de junio de 2026",
-    "intro": "Esta política explica qué cookies y tecnologías de almacenamiento usamos en BallersHub y cómo podés gestionarlas.",
+    "metaTitle": "Cookie-Richtlinie",
+    "metaDescription": "Welche Cookies und Speichertechnologien BallersHub verwendet, wozu sie dienen und wie Sie sie verwalten.",
+    "ogTitle": "Cookie-Richtlinie · 'BallersHub",
+    "title": "Cookie-Richtlinie",
+    "updated": "17. Juni 2026",
+    "intro": "Diese Richtlinie erläutert, welche Cookies und Speichertechnologien wir bei BallersHub verwenden und wie Sie sie verwalten können.",
     "sections": [
       {
         "id": "que-son",
-        "title": "1. Qué son las cookies y tecnologías similares",
+        "title": "1. Was Cookies und ähnliche Technologien sind",
         "blocks": [
-          { "type": "p", "text": "Las cookies son pequeños archivos que un sitio guarda en tu navegador. Junto con tecnologías similares, como el almacenamiento local (localStorage y sessionStorage), permiten que la plataforma funcione, recuerde tus preferencias y entienda cómo se usa. En esta política usamos la palabra cookies para referirnos a todas ellas." }
+          { "type": "p", "text": "Cookies sind kleine Dateien, die eine Website in Ihrem Browser speichert. Zusammen mit ähnlichen Technologien wie dem lokalen Speicher (localStorage und sessionStorage) ermöglichen sie, dass die Plattform funktioniert, Ihre Präferenzen gespeichert werden und nachvollzogen wird, wie sie genutzt wird. In dieser Richtlinie verwenden wir das Wort Cookies, um auf alle diese zu verweisen." }
         ]
       },
       {
         "id": "como-usamos",
-        "title": "2. Cómo las usamos",
+        "title": "2. Wie wir sie verwenden",
         "blocks": [
-          { "type": "p", "text": "Usamos estas tecnologías para mantener tu sesión iniciada, recordar tu idioma y otras preferencias, y medir de forma agregada el uso de la plataforma para mejorarla." }
+          { "type": "p", "text": "Wir verwenden diese Technologien, um Ihre Sitzung angemeldet zu halten, Ihre Sprache und andere Präferenzen zu speichern und die Nutzung der Plattform in aggregierter Form zu messen, um sie zu verbessern." }
         ]
       },
       {
         "id": "tipos",
-        "title": "3. Qué cookies y almacenamiento usamos",
+        "title": "3. Welche Cookies und welchen Speicher wir verwenden",
         "blocks": [
-          { "type": "p", "text": "Las principales tecnologías que usamos son:" },
+          { "type": "p", "text": "Die wichtigsten Technologien, die wir verwenden, sind:" },
           { "type": "table",
-            "headers": ["Nombre", "Tipo", "Finalidad", "Duración"],
+            "headers": ["Name", "Typ", "Zweck", "Dauer"],
             "rows": [
-              ["sb-*-auth-token", "Esencial (Supabase)", "Mantener tu sesión iniciada", "Sesión"],
-              ["NEXT_LOCALE", "Esencial", "Recordar tu idioma", "Persistente"],
-              ["_ga, _ga_*, _gid, _gat", "Analítica (Google Analytics 4)", "Medir audiencia y uso de forma agregada (solo en producción)", "Hasta 2 años"],
-              ["PRICING_CONTEXT_CURRENCY", "Preferencia (localStorage)", "Recordar la moneda elegida en la página de planes", "Persistente"],
-              ["Almacenamiento de interfaz", "Preferencia (local o session storage)", "Recordar interacciones de la interfaz, como avisos cerrados o el estado de una página", "Sesión o persistente"]
+              ["sb-*-auth-token", "Essenziell (Supabase)", "Ihre Sitzung angemeldet halten", "Sitzung"],
+              ["NEXT_LOCALE", "Essenziell", "Ihre Sprache speichern", "Dauerhaft"],
+              ["_ga, _ga_*, _gid, _gat", "Analyse (Google Analytics 4)", "Zielgruppe und Nutzung in aggregierter Form messen (nur in der Produktion)", "Bis zu 2 Jahre"],
+              ["PRICING_CONTEXT_CURRENCY", "Präferenz (localStorage)", "Die auf der Tarifseite gewählte Währung speichern", "Dauerhaft"],
+              ["Oberflächenspeicher", "Präferenz (local oder session storage)", "Oberflächeninteraktionen speichern, wie geschlossene Hinweise oder den Zustand einer Seite", "Sitzung oder dauerhaft"]
             ]
           },
-          { "type": "p", "text": "La analítica de rendimiento que usamos (Vercel Analytics y Speed Insights) no utiliza cookies." }
+          { "type": "p", "text": "Die von uns verwendete Leistungsanalyse (Vercel Analytics und Speed Insights) verwendet keine Cookies." }
         ]
       },
       {
         "id": "terceros",
-        "title": "4. Cookies de terceros",
+        "title": "4. Cookies von Drittanbietern",
         "blocks": [
-          { "type": "p", "text": "Algunas cookies las colocan terceros. Google Analytics utiliza sus propias cookies para medir la audiencia; durante el proceso de pago, los procesadores (Stripe o Mercado Pago) pueden colocar cookies necesarias para completar la transacción de forma segura. El tratamiento por parte de esos terceros se rige por sus respectivas políticas." }
+          { "type": "p", "text": "Einige Cookies werden von Dritten gesetzt. Google Analytics verwendet eigene Cookies, um die Zielgruppe zu messen; während des Zahlungsvorgangs können die Zahlungsdienstleister (Stripe oder Mercado Pago) Cookies setzen, die zur sicheren Abwicklung der Transaktion erforderlich sind. Die Verarbeitung durch diese Dritten unterliegt deren jeweiligen Richtlinien." }
         ]
       },
       {
         "id": "gestion",
-        "title": "5. Cómo gestionar o desactivar las cookies",
+        "title": "5. Wie Sie Cookies verwalten oder deaktivieren",
         "blocks": [
-          { "type": "p", "text": "Podés controlar y eliminar las cookies desde la configuración de tu navegador. Si bloqueás las cookies esenciales, es posible que algunas funciones (como iniciar sesión) dejen de funcionar correctamente." },
-          { "type": "p", "text": "Para la analítica de Google podés instalar el complemento de inhabilitación de Google Analytics o ajustar las cookies desde tu navegador. También podés borrar el almacenamiento local del sitio desde las opciones de tu navegador." }
+          { "type": "p", "text": "Sie können Cookies über die Einstellungen Ihres Browsers steuern und löschen. Wenn Sie die essenziellen Cookies blockieren, ist es möglich, dass einige Funktionen (wie das Anmelden) nicht mehr richtig funktionieren." },
+          { "type": "p", "text": "Für die Analyse von Google können Sie das Browser-Add-on zur Deaktivierung von Google Analytics installieren oder die Cookies über Ihren Browser anpassen. Sie können auch den lokalen Speicher der Website über die Optionen Ihres Browsers löschen." }
         ]
       },
       {
         "id": "cambios",
-        "title": "6. Cambios en esta política",
+        "title": "6. Änderungen dieser Richtlinie",
         "blocks": [
-          { "type": "p", "text": "Podemos actualizar esta Política de Cookies cuando incorporemos o modifiquemos las tecnologías que usamos. Publicaremos la versión vigente en esta página con su fecha de actualización." }
+          { "type": "p", "text": "Wir können diese Cookie-Richtlinie aktualisieren, wenn wir die von uns verwendeten Technologien hinzufügen oder ändern. Wir veröffentlichen die jeweils geltende Fassung auf dieser Seite mit dem Datum ihrer Aktualisierung." }
         ]
       }
     ]

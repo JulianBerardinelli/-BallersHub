@@ -1,58 +1,58 @@
 {
   "nav": {
-    "players": "Jugadores",
-    "agencies": "Agencias",
-    "plans": "Planes",
-    "about": "Nosotros",
-    "howWeValidate": "¿Cómo validamos?",
+    "players": "Joueurs",
+    "agencies": "Agences",
+    "plans": "Forfaits",
+    "about": "À propos",
+    "howWeValidate": "Comment validons-nous ?",
     "blog": "Blog"
   },
   "auth": {
-    "signIn": "Iniciar sesión",
-    "signUp": "Registrarse"
+    "signIn": "Se connecter",
+    "signUp": "S'inscrire"
   },
   "actions": {
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "edit": "Editar",
-    "delete": "Eliminar"
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer"
   },
   "localeSwitcher": {
-    "label": "Cambiar idioma"
+    "label": "Changer de langue"
   },
   "authButtons": {
-    "access": "Acceder",
-    "create": "Crear cuenta"
+    "access": "Accéder",
+    "create": "Créer un compte"
   },
-  "back": "Volver",
+  "back": "Retour",
   "userMenu": {
-    "openMenu": "Abrir menú de usuario",
-    "userActions": "Acciones de usuario",
-    "signedInAs": "Sesión iniciada como",
-    "defaultName": "Mi cuenta",
-    "viewPublicProfile": "Ver perfil público",
-    "agencyInReview": "Agencia en revisión",
-    "viewApplication": "Ver solicitud en revisión",
-    "continueApplication": "Continuar solicitud",
-    "applyPro": "Solicitar cuenta de profesional",
-    "dashboard": "Dashboard",
-    "viewAgencyPublic": "Ver perfil público de Agencia",
-    "agencySettings": "Configuración de Agencia",
-    "managerProfile": "Mi Perfil Manager",
-    "personalData": "Datos personales",
-    "footballData": "Datos futbolísticos",
-    "media": "Multimedia",
-    "template": "Plantilla",
-    "subscription": "Suscripción",
-    "settings": "Configuración general",
-    "language": "Idioma",
-    "signOut": "Cerrar sesión",
-    "signOutConfirm": "¿Estás seguro que deseas cerrar tu sesión en 'BallersHub?",
-    "signingOut": "Saliendo..."
+    "openMenu": "Ouvrir le menu utilisateur",
+    "userActions": "Actions utilisateur",
+    "signedInAs": "Connecté en tant que",
+    "defaultName": "Mon compte",
+    "viewPublicProfile": "Voir le profil public",
+    "agencyInReview": "Agence en cours d'examen",
+    "viewApplication": "Voir la demande en cours d'examen",
+    "continueApplication": "Continuer la demande",
+    "applyPro": "Demander un compte professionnel",
+    "dashboard": "Tableau de bord",
+    "viewAgencyPublic": "Voir le profil public de l'agence",
+    "agencySettings": "Paramètres de l'agence",
+    "managerProfile": "Mon profil de manager",
+    "personalData": "Données personnelles",
+    "footballData": "Données footballistiques",
+    "media": "Médias",
+    "template": "Modèle",
+    "subscription": "Abonnement",
+    "settings": "Paramètres généraux",
+    "language": "Langue",
+    "signOut": "Se déconnecter",
+    "signOutConfirm": "Êtes-vous sûr de vouloir vous déconnecter de BallersHub ?",
+    "signingOut": "Déconnexion en cours..."
   },
   "org": {
-    "description": "Plataforma de portfolios profesionales para futbolistas y agencias de representación. Cada jugador y cada agencia obtiene un link único optimizado para SEO que centraliza trayectoria, estadísticas, datos físicos y media verificada.",
-    "appDescription": "Aplicación web para crear portfolios profesionales de futbolistas y agencias: link único, datos centralizados, SEO listo desde el primer día.",
-    "slogan": "Perfiles profesionales de futbolistas"
+    "description": "Plateforme de portfolios professionnels pour les footballeurs et les agences de représentation. Chaque joueur et chaque agence obtient un lien unique optimisé pour le SEO qui centralise le parcours, les statistiques, les données physiques et les médias vérifiés.",
+    "appDescription": "Application web pour créer des portfolios professionnels de footballeurs et d'agences : lien unique, données centralisées, prêt pour le SEO dès le premier jour.",
+    "slogan": "Profils professionnels de footballeurs"
   }
 }

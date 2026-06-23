@@ -1,97 +1,97 @@
 {
   "headline": {
     "anonymous": {
-      "eyebrow": "En vivo · 130 clubes activos",
-      "lead": "Subí, validá y ",
-      "highlight": "jugá donde importa.",
-      "sub": "Más de 30 perfiles validados. Reseñas de cuerpo técnico verificadas. Tu próximo club te está buscando."
+      "eyebrow": "Suorana · 130 aktiivista seuraa",
+      "lead": "Lataa, vahvista ja ",
+      "highlight": "pelaa siellä, missä sillä on merkitystä.",
+      "sub": "Yli 30 vahvistettua profiilia. Valmennustiimien todennetut arviot. Seuraava seurasi etsii jo sinua."
     },
     "player": {
-      "eyebrow": "Tu carrera, en movimiento",
-      "lead": "Mantené tu perfil ",
-      "highlight": "siempre actualizado.",
-      "sub": "Subí nuevas fotos, ajustá tus datos futbolísticos y dejá que los clubes te encuentren con la información correcta."
+      "eyebrow": "Urasi liikkeessä",
+      "lead": "Pidä profiilisi ",
+      "highlight": "aina ajan tasalla.",
+      "sub": "Lataa uusia kuvia, päivitä jalkapallotietosi ja anna seurojen löytää sinut oikeilla tiedoilla."
     },
     "manager": {
-      "eyebrow": "Tu agencia, sin fricciones",
-      "lead": "Gestioná tu cartera ",
-      "highlight": "con precisión.",
-      "sub": "Sumá jugadores, validá perfiles y compartí el roster oficial de tu agencia con clubes en todo el mundo."
+      "eyebrow": "Toimistosi ilman kitkaa",
+      "lead": "Hallinnoi salkkuasi ",
+      "highlight": "tarkasti.",
+      "sub": "Lisää pelaajia, vahvista profiileja ja jaa toimistosi virallinen kokoonpano seuroille ympäri maailman."
     },
     "applicant": {
-      "eyebrow": "Tu solicitud está en marcha",
-      "lead": "Estás a un paso ",
-      "highlight": "de tu cuenta profesional.",
-      "sub": "Mientras revisamos tus datos, podés seguir explorando perfiles validados, casos de éxito y novedades del producto."
+      "eyebrow": "Hakemuksesi on käsittelyssä",
+      "lead": "Olet vain askeleen päässä ",
+      "highlight": "ammattilaistilistäsi.",
+      "sub": "Kun käymme tietojasi läpi, voit jatkaa vahvistettujen profiilien, menestystarinoiden ja tuoteuutuuksien tutkimista."
     },
     "member": {
-      "eyebrow": "Listo cuando vos quieras",
-      "lead": "Convertí tu cuenta en ",
-      "highlight": "un perfil profesional.",
-      "sub": "Solicitá tu cuenta de jugador o agencia y empezá a operar dentro del ecosistema con verificación oficial."
+      "eyebrow": "Valmiina silloin kun haluat",
+      "lead": "Muuta tilisi ",
+      "highlight": "ammattilaisprofiiliksi.",
+      "sub": "Hae pelaaja- tai toimistotiliä ja aloita toiminta ekosysteemissä virallisella vahvistuksella."
     }
   },
   "cta": {
-    "playerDashboard": "Ir a mi panel",
-    "playerViewProfile": "Ver mi perfil público",
-    "playerEditProfile": "Editar mi perfil",
-    "managerManage": "Gestionar agencia",
-    "managerViewAgency": "Ver perfil de agencia",
-    "managerSetup": "Configurar agencia",
-    "applicantContinue": "Continuar mi solicitud",
-    "applicantStatus": "Ver estado de solicitud",
-    "applicantDashboard": "Ir al panel",
-    "memberRequest": "Solicitar cuenta de profesional",
-    "memberDashboard": "Ir al panel",
-    "anonCreate": "Crear mi perfil",
-    "anonAgency": "Soy una agencia"
+    "playerDashboard": "Siirry hallintapaneeliini",
+    "playerViewProfile": "Näytä julkinen profiilini",
+    "playerEditProfile": "Muokkaa profiiliani",
+    "managerManage": "Hallinnoi toimistoa",
+    "managerViewAgency": "Näytä toimiston profiili",
+    "managerSetup": "Määritä toimisto",
+    "applicantContinue": "Jatka hakemustani",
+    "applicantStatus": "Näytä hakemuksen tila",
+    "applicantDashboard": "Siirry hallintapaneeliin",
+    "memberRequest": "Hae ammattilaistiliä",
+    "memberDashboard": "Siirry hallintapaneeliin",
+    "anonCreate": "Luo profiilini",
+    "anonAgency": "Olen toimisto"
   },
   "columns": {
-    "playersTitle": "Para Jugadores",
-    "agenciesTitle": "Para Agencias",
-    "workTitle": "Sobre nosotros",
-    "createProfile": "Crear perfil",
-    "viewValidated": "Ver perfiles validados",
-    "editCareer": "Editar trayectoria",
-    "proTemplates": "Plantillas Pro",
-    "createAgency": "Crear agencia",
-    "viewAgencies": "Ver agencias",
-    "myRoster": "Mi cartera",
-    "officialVerification": "Verificación oficial",
+    "playersTitle": "Pelaajille",
+    "agenciesTitle": "Toimistoille",
+    "workTitle": "Tietoa meistä",
+    "createProfile": "Luo profiili",
+    "viewValidated": "Näytä vahvistetut profiilit",
+    "editCareer": "Muokkaa uraa",
+    "proTemplates": "Pro-mallit",
+    "createAgency": "Luo toimisto",
+    "viewAgencies": "Näytä toimistot",
+    "myRoster": "Salkkuni",
+    "officialVerification": "Virallinen vahvistus",
     "demo": "Demo",
-    "aboutUs": "Sobre nosotros"
+    "aboutUs": "Tietoa meistä"
   },
   "stats": {
-    "profiles": "Perfiles validados",
-    "clubs": "Clubes activos",
-    "reviews": "Reseñas verificadas",
-    "countries": "Países"
+    "profiles": "Vahvistetut profiilit",
+    "clubs": "Aktiiviset seurat",
+    "reviews": "Todennetut arviot",
+    "countries": "Maat"
   },
-  "tagline": "El ecosistema digital del fútbol profesional.",
+  "tagline": "Ammattilaisjalkapallon digitaalinen ekosysteemi.",
   "legal": {
-    "terms": "Términos",
-    "privacy": "Privacidad",
-    "cookies": "Cookies"
+    "terms": "Ehdot",
+    "privacy": "Tietosuoja",
+    "cookies": "Evästeet"
   },
-  "credits": "Desarrollado por",
+  "credits": "Kehittänyt",
   "portfolio": {
-    "eyebrowPlayer": "Perfil verificado en 'BallersHub",
-    "eyebrowAgency": "Agencia verificada en 'BallersHub",
-    "headlinePlayer": "Sumate al ecosistema de ",
-    "headlineAgency": "Conectá con ",
-    "subPlayer": "Trayectoria, datos futbolísticos y multimedia validados. Tu próximo paso, en una plataforma pensada para jugadores profesionales.",
-    "subAgency": "Descubrí la cartera de jugadores que esta agencia representa y operá tus próximos movimientos sin fricciones.",
-    "eyebrowCoach": "Entrenador verificado en 'BallersHub",
-    "headlineCoach": "Conocé el trabajo de ",
-    "subCoach": "Trayectoria, metodología y credenciales verificadas. El perfil profesional del entrenador, en una plataforma pensada para el fútbol.",
-    "ctaContact": "Solicitar contacto"
+    "eyebrowPlayer": "Vahvistettu profiili 'BallersHub-palvelussa",
+    "eyebrowAgency": "Vahvistettu toimisto 'BallersHub-palvelussa",
+    "headlinePlayer": "Liity ekosysteemiin ",
+    "headlineAgency": "Yhdistä ",
+    "subPlayer": "Vahvistettu ura, jalkapallotiedot ja media. Seuraava askeleesi alustalla, joka on suunniteltu ammattilaispelaajille.",
+    "subAgency": "Tutustu tämän toimiston edustamaan pelaajasalkkuun ja toteuta seuraavat siirtosi ilman kitkaa.",
+    "eyebrowCoach": "Vahvistettu valmentaja 'BallersHub-palvelussa",
+    "headlineCoach": "Tutustu valmentajan työhön: ",
+    "subCoach": "Vahvistettu ura, metodologia ja pätevyydet. Valmentajan ammattilaisprofiili alustalla, joka on suunniteltu jalkapalloa varten.",
+    "ctaContact": "Pyydä yhteydenottoa"
   },
   "newsletter": {
-    "eyebrow": "Newsletter Pro",
-    "copy": "Insights de scouting, nuevas funciones y casos de éxito. Una vez al mes, sin ruido.",
-    "button": "Suscribirme",
-    "submitted": "¡Listo!",
-    "hint": "Sin spam. Cancelás cuando quieras.",
-    "ariaEmail": "Tu email"
+    "eyebrow": "Pro-uutiskirje",
+    "copy": "Scouting-näkemyksiä, uusia ominaisuuksia ja menestystarinoita. Kerran kuukaudessa, ilman melua.",
+    "button": "Tilaa",
+    "submitted": "Valmista!",
+    "hint": "Ei roskapostia. Voit peruuttaa milloin tahansa.",
+    "ariaEmail": "Sähköpostisi"
   }
 }

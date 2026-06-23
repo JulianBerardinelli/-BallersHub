@@ -1,170 +1,170 @@
 {
   "meta": {
-    "title": "Blog",
-    "description": "Artículos sobre carrera del jugador, operaciones de agencia y el mercado del fútbol argentino. Escrito por jugadores, scouts y periodistas de la red de 'BallersHub.",
-    "ogTitle": "Blog · 'BallersHub",
-    "ogDescription": "Carrera del jugador, operaciones de agencia, industria AR. Análisis con datos y links a portfolios reales.",
-    "twitterDescription": "Carrera del jugador, operaciones de agencia, industria AR. Por la red de 'BallersHub.",
-    "h1": "Blog de 'BallersHub — carrera del jugador, operaciones de agencia y mercado del fútbol",
-    "notFoundTitle": "Artículo no encontrado",
-    "writeTitle": "Nuevo artículo",
-    "editTitle": "Editar artículo",
-    "draftsTitle": "Mis borradores"
+    "title": "Blogi",
+    "description": "Artikkeleita pelaajan urasta, agentuurin toiminnasta ja Argentiinan jalkapallomarkkinasta. Kirjoittajina 'BallersHub-verkoston pelaajia, kykyjenetsijöitä ja toimittajia.",
+    "ogTitle": "Blogi · 'BallersHub",
+    "ogDescription": "Pelaajan ura, agentuurin toiminta, AR-toimiala. Dataan perustuvia analyysejä ja linkkejä oikeisiin portfolioihin.",
+    "twitterDescription": "Pelaajan ura, agentuurin toiminta, AR-toimiala. 'BallersHub-verkostolta.",
+    "h1": "'BallersHubin blogi — pelaajan ura, agentuurin toiminta ja jalkapallomarkkina",
+    "notFoundTitle": "Artikkelia ei löytynyt",
+    "writeTitle": "Uusi artikkeli",
+    "editTitle": "Muokkaa artikkelia",
+    "draftsTitle": "Omat luonnokset"
   },
   "listing": {
-    "contributorDrafts": "Mis borradores",
-    "contributorWrite": "Escribir artículo",
-    "emptyTitle": "Pronto vas a leer las primeras notas",
-    "emptyBody": "Estamos curando contenido editorial. Volvé en unos días.",
-    "categoryAll": "Todas",
-    "searchPlaceholder": "Buscar notas…",
-    "searchAriaLabel": "Buscar notas",
-    "headingDefault": "Últimas notas",
-    "headingCount": "{count, plural, one {# nota} other {# notas}}",
-    "noResultsQuery": "No encontramos artículos para “{query}”.",
-    "noResultsCategory": "Todavía no hay notas en esta categoría.",
-    "adSponsor": "Sponsor",
-    "closingTitle": "Dejá de esperar a que te descubran",
-    "closingBody": "Construí tu portfolio profesional en minutos: métricas, highlights y referencias verificadas, listo para compartir con un solo enlace.",
-    "closingCtaPrimary": "Crear mi perfil gratis",
-    "closingCtaSecondary": "Ver planes"
+    "contributorDrafts": "Omat luonnokset",
+    "contributorWrite": "Kirjoita artikkeli",
+    "emptyTitle": "Pian luet ensimmäiset artikkelit",
+    "emptyBody": "Kokoamme parhaillaan toimituksellista sisältöä. Palaa muutaman päivän kuluttua.",
+    "categoryAll": "Kaikki",
+    "searchPlaceholder": "Hae artikkeleita…",
+    "searchAriaLabel": "Hae artikkeleita",
+    "headingDefault": "Uusimmat artikkelit",
+    "headingCount": "{count, plural, one {# artikkeli} other {# artikkelia}}",
+    "noResultsQuery": "Emme löytäneet artikkeleita haulle ”{query}”.",
+    "noResultsCategory": "Tässä kategoriassa ei ole vielä artikkeleita.",
+    "adSponsor": "Sponsori",
+    "closingTitle": "Älä jää odottamaan, että sinut löydetään",
+    "closingBody": "Rakenna ammattimainen portfoliosi muutamassa minuutissa: tilastot, kohokohdat ja vahvistetut suositukset, valmiina jaettavaksi yhdellä linkillä.",
+    "closingCtaPrimary": "Luo profiilini ilmaiseksi",
+    "closingCtaSecondary": "Katso paketit"
   },
   "featured": {
-    "badge": "★ Destacado",
-    "readingMin": "{n, plural, one {1 min lectura} other {# min lectura}}"
+    "badge": "★ Suositeltu",
+    "readingMin": "{n, plural, one {1 min lukuaika} other {# min lukuaika}}"
   },
   "card": {
     "readingMin": "{n, plural, one {1 min} other {# min}}"
   },
   "post": {
-    "breadcrumbBlog": "Blog",
-    "readingMin": "{n, plural, one {1 min de lectura} other {# min de lectura}}",
-    "relatedHeading": "Seguí leyendo",
-    "relatedSeeAll": "Ver todo →"
+    "breadcrumbBlog": "Blogi",
+    "readingMin": "{n, plural, one {1 min lukuaika} other {# min lukuaika}}",
+    "relatedHeading": "Jatka lukemista",
+    "relatedSeeAll": "Katso kaikki →"
   },
   "toc": {
-    "heading": "En esta nota"
+    "heading": "Tässä artikkelissa"
   },
   "authorBio": {
-    "writtenBy": "Escrito por"
+    "writtenBy": "Kirjoittanut"
   },
   "cta": {
-    "title": "Dejá de esperar a que te descubran",
-    "body": "Construí tu portfolio profesional en minutos: métricas, highlights y referencias verificadas, listo para compartir con un solo enlace.",
-    "primary": "Crear mi perfil gratis",
-    "secondary": "Ver ejemplos"
+    "title": "Älä jää odottamaan, että sinut löydetään",
+    "body": "Rakenna ammattimainen portfoliosi muutamassa minuutissa: tilastot, kohokohdat ja vahvistetut suositukset, valmiina jaettavaksi yhdellä linkillä.",
+    "primary": "Luo profiilini ilmaiseksi",
+    "secondary": "Katso esimerkkejä"
   },
   "comments": {
-    "heading": "Comentarios",
-    "soonBadge": "Próximamente",
-    "soonBody": "Estamos preparando los comentarios para que puedas sumar tu mirada a cada nota. Mientras tanto, compartila y seguí la conversación en nuestras redes."
+    "heading": "Kommentit",
+    "soonBadge": "Tulossa pian",
+    "soonBody": "Valmistelemme kommentteja, jotta voit lisätä oman näkemyksesi jokaiseen artikkeliin. Jaa se sillä välin ja jatka keskustelua sosiaalisessa mediassamme."
   },
   "author": {
-    "notFoundTitle": "Autor no encontrado",
-    "metaTitleSuffix": "— Autor en 'BallersHub",
-    "fallbackDescription": "Artículos publicados por {name} en el blog de 'BallersHub.",
-    "breadcrumbHome": "Inicio",
-    "breadcrumbBlog": "Blog",
-    "badge": "Autor invitado",
-    "linksSiteFallback": "Sitio",
-    "postsHeading": "Artículos de {firstName}",
-    "postsHeadingEmpty": "Sin artículos publicados todavía",
-    "emptyBody": "Este autor todavía no publicó artículos. Volvé en unos días."
+    "notFoundTitle": "Kirjoittajaa ei löytynyt",
+    "metaTitleSuffix": "— Kirjoittaja 'BallersHubissa",
+    "fallbackDescription": "Artikkelit, jotka {name} on julkaissut 'BallersHubin blogissa.",
+    "breadcrumbHome": "Etusivu",
+    "breadcrumbBlog": "Blogi",
+    "badge": "Vieraskirjoittaja",
+    "linksSiteFallback": "Sivusto",
+    "postsHeading": "Kirjoittajan {firstName} artikkelit",
+    "postsHeadingEmpty": "Ei vielä julkaistuja artikkeleita",
+    "emptyBody": "Tämä kirjoittaja ei ole vielä julkaissut artikkeleita. Palaa muutaman päivän kuluttua."
   },
   "editor": {
-    "createBadge": "Escribir artículo",
-    "createHeading": "Nuevo borrador",
-    "createIntro": "Llená los campos y cuando esté listo enviá a revisión. Podés guardar borradores intermedios sin enviar.",
-    "editBadge": "Editar borrador",
-    "editFallbackTitle": "Sin título",
-    "loadingEditor": "Cargando editor…",
-    "placeholder": "Empezá a escribir tu artículo…",
-    "linkPrompt": "URL del link:",
-    "imageUploadError": "No se pudo subir la imagen.",
-    "imageUploadErrorRetry": "No se pudo subir la imagen. Probá de nuevo.",
+    "createBadge": "Kirjoita artikkeli",
+    "createHeading": "Uusi luonnos",
+    "createIntro": "Täytä kentät ja lähetä tarkistettavaksi, kun se on valmis. Voit tallentaa välitallennuksia lähettämättä.",
+    "editBadge": "Muokkaa luonnosta",
+    "editFallbackTitle": "Ei otsikkoa",
+    "loadingEditor": "Ladataan editoria…",
+    "placeholder": "Aloita artikkelisi kirjoittaminen…",
+    "linkPrompt": "Linkin URL-osoite:",
+    "imageUploadError": "Kuvaa ei voitu ladata.",
+    "imageUploadErrorRetry": "Kuvaa ei voitu ladata. Yritä uudelleen.",
     "toolbar": {
-      "bold": "Negrita (⌘B)",
-      "italic": "Itálica (⌘I)",
-      "h2": "Heading 2",
-      "h3": "Heading 3",
-      "bulletList": "Lista bullet",
-      "orderedList": "Lista numerada",
-      "quote": "Cita",
-      "link": "Link (⌘K)",
-      "image": "Insertar imagen",
-      "imageUploading": "Subiendo imagen…",
-      "undo": "Deshacer (⌘Z)",
-      "redo": "Rehacer (⌘⇧Z)"
+      "bold": "Lihavoitu (⌘B)",
+      "italic": "Kursivoitu (⌘I)",
+      "h2": "Otsikko 2",
+      "h3": "Otsikko 3",
+      "bulletList": "Luettelo",
+      "orderedList": "Numeroitu luettelo",
+      "quote": "Lainaus",
+      "link": "Linkki (⌘K)",
+      "image": "Lisää kuva",
+      "imageUploading": "Ladataan kuvaa…",
+      "undo": "Kumoa (⌘Z)",
+      "redo": "Tee uudelleen (⌘⇧Z)"
     }
   },
   "drafts": {
-    "heading": "Mis artículos",
-    "intro": "Tus borradores, posts en revisión, publicados y rechazados.",
-    "ctaWrite": "Escribir artículo",
-    "emptyTitle": "Todavía no escribiste nada",
-    "emptyBody": "Tu primer artículo te espera. Hacé click en \"Escribir artículo\" arriba para empezar.",
-    "fallbackTitle": "Sin título",
-    "actionViewPublished": "Ver publicado",
-    "actionEditRejected": "Editar y reenviar",
-    "actionEdit": "Editar"
+    "heading": "Omat artikkelit",
+    "intro": "Luonnoksesi, tarkistuksessa olevat, julkaistut ja hylätyt artikkelit.",
+    "ctaWrite": "Kirjoita artikkeli",
+    "emptyTitle": "Et ole vielä kirjoittanut mitään",
+    "emptyBody": "Ensimmäinen artikkelisi odottaa sinua. Aloita klikkaamalla yllä \"Kirjoita artikkeli\".",
+    "fallbackTitle": "Ei otsikkoa",
+    "actionViewPublished": "Näytä julkaistu",
+    "actionEditRejected": "Muokkaa ja lähetä uudelleen",
+    "actionEdit": "Muokkaa"
   },
   "form": {
-    "rejectionHeading": "Feedback del admin",
+    "rejectionHeading": "Palaute ylläpidolta",
     "fields": {
-      "titleLabel": "Título",
-      "titleHint": "Máx 120 caracteres. Pensá keyword-rich.",
-      "titlePlaceholder": "Ej: Mercado de pases AFA 2026: jugadores libres más buscados",
-      "descriptionLabel": "Descripción corta",
-      "descriptionHint": "Aparece en Google y al compartir en redes. Máx 158 caracteres.",
-      "descriptionPlaceholder": "Resumen claro de lo que va a leer.",
+      "titleLabel": "Otsikko",
+      "titleHint": "Enint. 120 merkkiä. Mieti avainsanarikasta otsikkoa.",
+      "titlePlaceholder": "Esim.: AFA-siirtomarkkina 2026: kysytyimmät sopimuksettomat pelaajat",
+      "descriptionLabel": "Lyhyt kuvaus",
+      "descriptionHint": "Näkyy Googlessa ja somessa jaettaessa. Enint. 158 merkkiä.",
+      "descriptionPlaceholder": "Selkeä tiivistelmä siitä, mitä luetaan.",
       "descriptionCounter": "{count} / 158",
-      "localeLabel": "Idioma",
-      "localeHint": "En qué idioma vas a escribir este post. No se puede cambiar después.",
+      "localeLabel": "Kieli",
+      "localeHint": "Millä kielellä kirjoitat tämän artikkelin. Ei voi muuttaa myöhemmin.",
       "localeEs": "Español (default)",
       "localeEn": "English",
       "localeIt": "Italiano",
       "localePt": "Português (Brasil)",
       "clusterLabel": "Cluster",
-      "clusterHint": "Tema del post.",
-      "tagsLabel": "Tags",
-      "tagsHint": "3-8 tags separados por coma. Mín 2 caracteres cada uno.",
+      "clusterHint": "Artikkelin aihe.",
+      "tagsLabel": "Tagit",
+      "tagsHint": "3-8 tagia pilkulla erotettuna. Vähintään 2 merkkiä kukin.",
       "tagsPlaceholder": "scouting, portfolio, primera-nacional",
-      "heroLabel": "Imagen principal (hero)",
-      "heroHint": "1200×630 ideal. JPG/PNG/WebP/AVIF, máx 5MB. Se sube a nuestro storage y se transcodea a AVIF automáticamente.",
-      "heroPreviewAlt": "Vista previa del hero",
-      "heroChange": "Cambiar",
-      "heroChangeUploading": "Subiendo…",
-      "heroRemove": "Quitar",
-      "heroUploading": "Subiendo imagen…",
-      "heroUploadCta": "Subir imagen principal",
-      "heroUploadFormats": "JPG / PNG / WebP / AVIF · máx 5MB",
-      "heroUploadError": "No se pudo subir la imagen.",
-      "heroUploadErrorRetry": "No se pudo subir la imagen. Probá de nuevo.",
-      "contentLabel": "Contenido",
-      "contentHint": "≥1500 palabras. Mínimo 3 secciones H2. Linkear ≥3 portfolios reales de /[slug].",
-      "contentPlaceholder": "Empezá con una intro de 2-3 párrafos que enganche al lector…"
+      "heroLabel": "Pääkuva (hero)",
+      "heroHint": "1200×630 ihanteellinen. JPG/PNG/WebP/AVIF, enint. 5 Mt. Lataus tallennustilaamme ja automaattinen muunnos AVIF-muotoon.",
+      "heroPreviewAlt": "Pääkuvan esikatselu",
+      "heroChange": "Vaihda",
+      "heroChangeUploading": "Ladataan…",
+      "heroRemove": "Poista",
+      "heroUploading": "Ladataan kuvaa…",
+      "heroUploadCta": "Lataa pääkuva",
+      "heroUploadFormats": "JPG / PNG / WebP / AVIF · enint. 5 Mt",
+      "heroUploadError": "Kuvaa ei voitu ladata.",
+      "heroUploadErrorRetry": "Kuvaa ei voitu ladata. Yritä uudelleen.",
+      "contentLabel": "Sisältö",
+      "contentHint": "≥1500 sanaa. Vähintään 3 H2-osiota. Linkitä ≥3 oikeaa portfoliota osoitteesta /[slug].",
+      "contentPlaceholder": "Aloita 2-3 kappaleen johdannolla, joka koukuttaa lukijan…"
     },
     "actions": {
-      "save": "Guardar borrador",
-      "saving": "Guardando…",
-      "submit": "Enviar para revisión",
-      "submitting": "Enviando…"
+      "save": "Tallenna luonnos",
+      "saving": "Tallennetaan…",
+      "submit": "Lähetä tarkistettavaksi",
+      "submitting": "Lähetetään…"
     },
     "feedback": {
-      "draftCreated": "Borrador creado.",
-      "draftSaved": "Borrador guardado.",
-      "submitted": "Enviado para revisión. Te avisamos cuando el admin lo apruebe."
+      "draftCreated": "Luonnos luotu.",
+      "draftSaved": "Luonnos tallennettu.",
+      "submitted": "Lähetetty tarkistettavaksi. Ilmoitamme, kun ylläpito on hyväksynyt sen."
     }
   },
   "clusters": {
-    "career_guidance": "Carrera del jugador",
-    "agency_ops": "Operaciones de agencia",
-    "industry_ar": "Industria AR"
+    "career_guidance": "Pelaajan ura",
+    "agency_ops": "Agentuurin toiminta",
+    "industry_ar": "AR-toimiala"
   },
   "status": {
-    "draft": "Borrador",
-    "pending_review": "Pendiente de revisión",
-    "published": "Publicado",
-    "rejected": "Rechazado"
+    "draft": "Luonnos",
+    "pending_review": "Odottaa tarkistusta",
+    "published": "Julkaistu",
+    "rejected": "Hylätty"
   }
 }

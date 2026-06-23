@@ -1,67 +1,67 @@
 {
   "label": {
-    "current": "Club actual",
-    "club": "Club"
+    "current": "Nykyinen seura",
+    "club": "Seura"
   },
-  "freeAgent": "Jugador libre",
+  "freeAgent": "Vapaa pelaaja",
   "placeholder": {
-    "search": "Escribí el nombre de tu club",
-    "searchTeam": "Escribí para buscar un equipo",
-    "disabledFree": "Deshabilitado por jugador libre"
+    "search": "Kirjoita seurasi nimi",
+    "searchTeam": "Kirjoita hakeaksesi joukkuetta",
+    "disabledFree": "Poistettu käytöstä vapaan pelaajan vuoksi"
   },
   "hint": {
-    "signpost": "¿No encontrás tu club? Vas a poder agregarlo."
+    "signpost": "Etkö löydä seuraasi? Voit lisätä sen."
   },
   "option": {
-    "add": "Agregar “{name}”",
-    "addHint": "No está en la lista · lo verificamos"
+    "add": "Lisää ”{name}”",
+    "addHint": "Ei listalla · vahvistamme sen"
   },
   "badge": {
-    "new": "Nuevo"
+    "new": "Uusi"
   },
   "modal": {
-    "title": "Agregar tu club",
-    "intro": "No lo encontramos en nuestra base. Completá estos datos y lo verificamos para dejarlo cargado en tu perfil.",
-    "country": "País del club",
-    "countryRequired": "Elegí un país",
-    "tm": "Transfermarkt (opcional)",
-    "tmInvalid": "URL inválida (https://...)",
-    "cancel": "Cancelar",
-    "save": "Agregar club"
+    "title": "Lisää seurasi",
+    "intro": "Emme löytäneet sitä tietokannastamme. Täytä nämä tiedot, niin vahvistamme sen ja tallennamme sen profiiliisi.",
+    "country": "Seuran maa",
+    "countryRequired": "Valitse maa",
+    "tm": "Transfermarkt (valinnainen)",
+    "tmInvalid": "Virheellinen URL (https://...)",
+    "cancel": "Peruuta",
+    "save": "Lisää seura"
   },
   "chip": {
-    "selected": "Seleccionado: {name}",
-    "added": "Agregado: {name} · pendiente de verificación",
-    "free": "Jugador libre"
+    "selected": "Valittu: {name}",
+    "added": "Lisätty: {name} · vahvistusta odottamassa",
+    "free": "Vapaa pelaaja"
   },
   "details": {
-    "edit": "Editar detalles del club"
+    "edit": "Muokkaa seuran tietoja"
   },
   "dashboardPicker": {
-    "currentTeamLabel": "Equipo actual",
-    "currentTeamDescription": "Buscá tu equipo por nombre. Si no existe, podés proponerlo.",
-    "currentTeamPlaceholder": "Ej: Boca Juniors",
-    "countryLabel": "País (nombre o ISO-2)",
-    "countryDescription": "Ej: Argentina o AR",
-    "countryPlaceholder": "Argentina / AR",
-    "resultsTitle": "Resultados",
-    "noResults": "No encontramos equipos con «{q}».",
-    "chooseTeam": "Elegir",
-    "proposeNew": "Proponer equipo nuevo: «{q}»",
-    "proposeHelp": "El equipo no está en nuestra base. Con tu solicitud lo crearemos y verificaremos.",
-    "freeAgentCta": "Soy jugador libre (sin equipo)",
-    "chipSelected": "Seleccionado: {name}",
-    "chipProposed": "Equipo propuesto: {name}",
-    "chipFree": "Jugador libre"
+    "currentTeamLabel": "Nykyinen joukkue",
+    "currentTeamDescription": "Hae joukkuettasi nimellä. Jos sitä ei ole, voit ehdottaa sitä.",
+    "currentTeamPlaceholder": "Esim.: Boca Juniors",
+    "countryLabel": "Maa (nimi tai ISO-2)",
+    "countryDescription": "Esim.: Argentiina tai AR",
+    "countryPlaceholder": "Argentiina / AR",
+    "resultsTitle": "Tulokset",
+    "noResults": "Emme löytäneet joukkueita haulla ”{q}”.",
+    "chooseTeam": "Valitse",
+    "proposeNew": "Ehdota uutta joukkuetta: ”{q}”",
+    "proposeHelp": "Joukkue ei ole tietokannassamme. Pyyntösi perusteella luomme ja vahvistamme sen.",
+    "freeAgentCta": "Olen vapaa pelaaja (ilman joukkuetta)",
+    "chipSelected": "Valittu: {name}",
+    "chipProposed": "Ehdotettu joukkue: {name}",
+    "chipFree": "Vapaa pelaaja"
   },
   "createModal": {
-    "title": "Nuevo equipo: «{name}»",
-    "countryLabel": "País del club",
-    "countryRequired": "Elegí un país",
-    "tmLabel": "Transfermarkt (opcional)",
+    "title": "Uusi joukkue: ”{name}”",
+    "countryLabel": "Seuran maa",
+    "countryRequired": "Valitse maa",
+    "tmLabel": "Transfermarkt (valinnainen)",
     "tmPlaceholder": "https://www.transfermarkt.com/...",
-    "tmInvalid": "URL inválida (https://...)",
-    "cancel": "Cancelar",
-    "save": "Guardar"
+    "tmInvalid": "Virheellinen URL (https://...)",
+    "cancel": "Peruuta",
+    "save": "Tallenna"
   }
 }

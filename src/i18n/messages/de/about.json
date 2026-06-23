@@ -1,272 +1,272 @@
 {
   "hero": {
-    "eyebrow": "Quiénes somos",
-    "titleLine1": "Donde los futbolistas",
-    "titleHighlight": "se venden",
-    "titleLine2": "y conquistan sus objetivos.",
-    "description": "Centralizamos trayectoria, estadísticas, datos y media de cada jugador y agencia en un portfolio web con link propio, optimizado para SEO. Construimos la plataforma de referencia mundial — empezando por LATAM y España.",
-    "primaryCta": "Crear mi portfolio",
-    "secondaryCta": "Hablar con el equipo",
-    "imageAlt": "Equipo 'BallersHub durante una jornada de scouting"
+    "eyebrow": "Wer wir sind",
+    "titleLine1": "Wo Fußballer",
+    "titleHighlight": "sich vermarkten",
+    "titleLine2": "und ihre Ziele erreichen.",
+    "description": "Wir bündeln Werdegang, Statistiken, Daten und Medien jedes Spielers und jeder Agentur in einem Web-Portfolio mit eigenem Link, optimiert für SEO. Wir bauen die weltweit führende Plattform – beginnend mit Lateinamerika und Spanien.",
+    "primaryCta": "Mein Portfolio erstellen",
+    "secondaryCta": "Mit dem Team sprechen",
+    "imageAlt": "BallersHub-Team während eines Scouting-Tages"
   },
   "pillars": {
     "mission": {
-      "title": "Misión",
-      "tag": "Nuestro foco",
-      "description": "Convertir a cada futbolista —profesional, semi-profesional o amateur— y a cada agencia en un portfolio web profesional: un único link donde centralizan trayectoria, estadísticas, datos y media para venderse e impulsar su carrera en internet."
+      "title": "Mission",
+      "tag": "Unser Fokus",
+      "description": "Jeden Fußballer – ob Profi, Halbprofi oder Amateur – und jede Agentur in ein professionelles Web-Portfolio zu verwandeln: ein einziger Link, in dem Werdegang, Statistiken, Daten und Medien gebündelt sind, um sich zu vermarkten und die Karriere im Internet voranzutreiben."
     },
     "vision": {
-      "title": "Visión",
-      "tag": "Hacia dónde vamos",
-      "description": "Ser la página número uno a nivel mundial donde los futbolistas se presentan, muestran sus datos y conquistan sus objetivos. La referencia global cuando un club, periodista o scout busca talento — en cualquier nivel competitivo."
+      "title": "Vision",
+      "tag": "Wohin wir gehen",
+      "description": "Die weltweite Nummer eins zu sein, auf der sich Fußballer präsentieren, ihre Daten zeigen und ihre Ziele erreichen. Die globale Referenz, wenn ein Verein, Journalist oder Scout nach Talenten sucht – auf jedem Leistungsniveau."
     },
     "objectives": {
-      "title": "Objetivos",
-      "tag": "Lo que queremos lograr",
-      "description": "Empezar por LATAM y España y escalar a mercados globales. Que cualquier futbolista o agencia pueda venderse online con un portfolio escalable, SEO-ready, con reviews verificadas (próxima beta) y conectado a una futura red activa de scouting."
+      "title": "Ziele",
+      "tag": "Was wir erreichen wollen",
+      "description": "Mit Lateinamerika und Spanien beginnen und auf globale Märkte skalieren. Damit jeder Fußballer oder jede Agentur sich online vermarkten kann – mit einem skalierbaren, SEO-fähigen Portfolio, mit verifizierten Reviews (kommende Beta) und verbunden mit einem künftigen aktiven Scouting-Netzwerk."
     }
   },
   "audiencesHeader": {
-    "eyebrow": "Para quién lo construimos",
-    "titlePlain": "Construido para todo el",
-    "titleHighlight": "ecosistema del fútbol",
-    "description": "El producto está diseñado para que el jugador sea el protagonista, las agencias escalen su carpeta y el ecosistema (clubes, comunidad y prensa) descubra talento con datos reales.",
-    "primaryGroupTitle": "Crean su portfolio",
-    "secondaryGroupTitle": "Descubren talento y contenido"
+    "eyebrow": "Für wen wir es bauen",
+    "titlePlain": "Gebaut für das gesamte",
+    "titleHighlight": "Fußball-Ökosystem",
+    "description": "Das Produkt ist so gestaltet, dass der Spieler im Mittelpunkt steht, Agenturen ihr Portfolio skalieren und das Ökosystem (Vereine, Community und Presse) Talente mit echten Daten entdeckt.",
+    "primaryGroupTitle": "Erstellen ihr Portfolio",
+    "secondaryGroupTitle": "Entdecken Talente und Inhalte"
   },
   "audiences": {
     "players": {
-      "title": "Jugadores y atletas",
-      "subtitle": "Audiencia principal — el protagonista",
-      "description": "Sos el centro de la plataforma. Profesional, semi-profesional o amateur: armás tu portfolio en minutos y empezás a venderte con un link propio listo para compartir.",
+      "title": "Spieler und Athleten",
+      "subtitle": "Hauptzielgruppe – der Protagonist",
+      "description": "Sie stehen im Mittelpunkt der Plattform. Profi, Halbprofi oder Amateur: Sie erstellen Ihr Portfolio in wenigen Minuten und beginnen, sich mit einem eigenen, teilbereiten Link zu vermarkten.",
       "bullets": [
-        "Trayectoria, estadísticas y datos físicos centralizados",
-        "Galería de media (fotos, clips, partidos)",
-        "Link único optimizado para SEO",
-        "Reviews verificadas (próxima beta)"
+        "Werdegang, Statistiken und körperliche Daten gebündelt",
+        "Mediengalerie (Fotos, Clips, Spiele)",
+        "Einziger, für SEO optimierter Link",
+        "Verifizierte Reviews (kommende Beta)"
       ],
-      "cta": "Crear mi portfolio"
+      "cta": "Mein Portfolio erstellen"
     },
     "agencies": {
-      "title": "Agencias y representantes",
-      "subtitle": "Persona aliada — escalan su carpeta",
-      "description": "Mostrá toda la carpeta de jugadores que representás con un sitio profesional, identidad propia y datos consolidados. Posicionate en internet como una agencia seria.",
+      "title": "Agenturen und Berater",
+      "subtitle": "Partner – skalieren ihr Portfolio",
+      "description": "Zeigen Sie Ihr gesamtes Portfolio an Spielern, die Sie vertreten, mit einer professionellen Website, eigener Identität und konsolidierten Daten. Positionieren Sie sich im Internet als seriöse Agentur.",
       "bullets": [
-        "Portfolio de agencia con tu marca",
-        "Carpeta completa de representados",
-        "Dashboard con métricas agregadas",
-        "Onboarding asistido para tus jugadores"
+        "Agentur-Portfolio mit Ihrer Marke",
+        "Vollständiges Portfolio Ihrer Klienten",
+        "Dashboard mit aggregierten Kennzahlen",
+        "Begleitetes Onboarding für Ihre Spieler"
       ],
-      "cta": "Soy una agencia"
+      "cta": "Ich bin eine Agentur"
     },
     "clubs": {
-      "title": "Clubes profesionales",
-      "subtitle": "Buscan talento real",
-      "description": "Departamentos deportivos y cuerpos técnicos que filtran candidatos por posición, edad, métricas y disponibilidad — con datos verificados, no rumores."
+      "title": "Profivereine",
+      "subtitle": "Suchen echtes Talent",
+      "description": "Sportabteilungen und Trainerstäbe, die Kandidaten nach Position, Alter, Kennzahlen und Verfügbarkeit filtern – mit verifizierten Daten, keinen Gerüchten."
     },
     "fans": {
-      "title": "Comunidad y fans",
-      "subtitle": "Siguen carreras de cerca",
-      "description": "El fútbol es de la gente. Aficionados que quieren conocer la carrera completa de cada jugador, su trayectoria y sus números — sin filtros editoriales."
+      "title": "Community und Fans",
+      "subtitle": "Verfolgen Karrieren aus der Nähe",
+      "description": "Fußball gehört den Menschen. Fans, die den gesamten Werdegang jedes Spielers kennenlernen möchten, seinen Karriereverlauf und seine Zahlen – ohne redaktionelle Filter."
     },
     "journalists": {
-      "title": "Periodistas deportivos",
-      "subtitle": "Cobertura con datos",
-      "description": "Una fuente confiable y siempre actualizada para investigaciones, notas y coberturas — con stats, trayectoria y referencias verificables al alcance del link."
+      "title": "Sportjournalisten",
+      "subtitle": "Berichterstattung mit Daten",
+      "description": "Eine verlässliche und stets aktuelle Quelle für Recherchen, Artikel und Berichte – mit Statistiken, Werdegang und überprüfbaren Referenzen, nur einen Link entfernt."
     }
   },
   "values": {
     "ownLink": {
-      "title": "Link propio para venderte",
-      "description": "Cada jugador y cada agencia tiene su URL única. Compartila por WhatsApp, mail o redes y abrí la puerta a clubes y representantes."
+      "title": "Eigener Link zur Vermarktung",
+      "description": "Jeder Spieler und jede Agentur hat eine eigene URL. Teilen Sie sie per WhatsApp, E-Mail oder in sozialen Netzwerken und öffnen Sie die Tür zu Vereinen und Beratern."
     },
     "seo": {
-      "title": "Optimizado para SEO",
-      "description": "Construido para aparecer en Google cuando alguien busca tu nombre, tu posición o tu club. Tu portfolio trabaja para vos 24/7."
+      "title": "Optimiert für SEO",
+      "description": "Gebaut, um bei Google zu erscheinen, wenn jemand nach Ihrem Namen, Ihrer Position oder Ihrem Verein sucht. Ihr Portfolio arbeitet rund um die Uhr für Sie."
     },
     "centralized": {
-      "title": "Toda tu carrera centralizada",
-      "description": "Trayectoria, estadísticas, datos físicos y media (fotos, clips, partidos) en un único lugar — fácil de mantener, listo para presentar."
+      "title": "Ihre gesamte Karriere gebündelt",
+      "description": "Werdegang, Statistiken, körperliche Daten und Medien (Fotos, Clips, Spiele) an einem einzigen Ort – leicht zu pflegen, bereit zum Präsentieren."
     },
     "reviews": {
-      "title": "Reviews verificadas",
-      "description": "Reseñas firmadas por cuentas verificadas (cuerpo técnico, scouts, ex-compañeros) que respaldan tu trayectoria. Próxima beta."
+      "title": "Verifizierte Reviews",
+      "description": "Bewertungen, signiert von verifizierten Accounts (Trainerstab, Scouts, ehemalige Mitspieler), die Ihren Werdegang bestätigen. Kommende Beta."
     },
     "agencies": {
-      "title": "Pensado para agencias",
-      "description": "Sumá toda tu carpeta de jugadores, mostrá datos consolidados y posicioná la identidad de tu agencia con un sitio profesional."
+      "title": "Für Agenturen gedacht",
+      "description": "Fügen Sie Ihr gesamtes Spielerportfolio hinzu, zeigen Sie konsolidierte Daten und positionieren Sie die Identität Ihrer Agentur mit einer professionellen Website."
     },
     "scouting": {
-      "title": "Red de scouting (próxima)",
-      "description": "Una base de datos viva donde clubes y scouts descubren talento por filtros reales: posición, edad, métricas y disponibilidad."
+      "title": "Scouting-Netzwerk (kommend)",
+      "description": "Eine lebendige Datenbank, in der Vereine und Scouts Talente nach echten Filtern entdecken: Position, Alter, Kennzahlen und Verfügbarkeit."
     }
   },
   "milestones": {
     "start": {
-      "year": "Ago 2025",
-      "title": "Arranca el proyecto",
-      "description": "Detectamos el mismo problema en jugadores y agencias: fichas en PDF, links rotos a videos de YouTube, redes informales. Ningún portfolio profesional con identidad propia. Decidimos construir la solución."
+      "year": "Aug 2025",
+      "title": "Das Projekt startet",
+      "description": "Wir erkannten dasselbe Problem bei Spielern und Agenturen: Steckbriefe als PDF, kaputte Links zu YouTube-Videos, informelle Netzwerke. Kein professionelles Portfolio mit eigener Identität. Wir beschlossen, die Lösung zu bauen."
     },
     "prototype": {
       "year": "Nov 2025",
-      "title": "Primer prototipo del portfolio",
-      "description": "Armamos la primera versión del producto: portfolio con link único, carga de trayectoria, datos físicos y media. Pruebas internas con jugadores y agencias cercanos."
+      "title": "Erster Prototyp des Portfolios",
+      "description": "Wir entwickelten die erste Version des Produkts: Portfolio mit eigenem Link, Erfassung von Werdegang, körperlichen Daten und Medien. Interne Tests mit nahestehenden Spielern und Agenturen."
     },
     "beta": {
-      "year": "Mar 2026",
-      "title": "Beta cerrada · pilotos en LATAM + España",
-      "description": "Validamos el producto con un grupo acotado de jugadores y agencias piloto en Latinoamérica y España. Cada portfolio nace optimizado para SEO y listo para compartirse con su link propio."
+      "year": "Mär 2026",
+      "title": "Geschlossene Beta · Piloten in Lateinamerika + Spanien",
+      "description": "Wir validierten das Produkt mit einer begrenzten Gruppe von Pilotspielern und -agenturen in Lateinamerika und Spanien. Jedes Portfolio entsteht für SEO optimiert und bereit, über den eigenen Link geteilt zu werden."
     },
     "launch": {
       "year": "Jun 2026",
-      "title": "Lanzamiento oficial",
-      "description": "Apertura pública para jugadores y agencias en LATAM y España. Acceso libre al portfolio con link único, datos centralizados y posicionamiento en internet desde el día uno."
+      "title": "Offizieller Launch",
+      "description": "Öffentliche Eröffnung für Spieler und Agenturen in Lateinamerika und Spanien. Freier Zugang zum Portfolio mit eigenem Link, gebündelten Daten und Online-Positionierung ab dem ersten Tag."
     },
     "next": {
-      "year": "Próximo",
-      "title": "Reviews verificadas + red de scouting global",
-      "description": "Reseñas firmadas por cuentas verificadas (cuerpo técnico, scouts, ex-compañeros) y una base de datos activa donde clubes descubren talento por posición, edad y métricas. El camino hacia ser la página #1 a nivel mundial."
+      "year": "Demnächst",
+      "title": "Verifizierte Reviews + globales Scouting-Netzwerk",
+      "description": "Bewertungen, signiert von verifizierten Accounts (Trainerstab, Scouts, ehemalige Mitspieler), und eine aktive Datenbank, in der Vereine Talente nach Position, Alter und Kennzahlen entdecken. Der Weg zur weltweiten Nummer 1."
     }
   },
   "stats": {
     "projectStart": {
-      "value": "Ago 2025",
-      "label": "Inicio del proyecto",
-      "description": "8 meses construyendo con jugadores y agencias piloto."
+      "value": "Aug 2025",
+      "label": "Projektstart",
+      "description": "8 Monate Entwicklung mit Pilotspielern und -agenturen."
     },
     "launch": {
       "value": "Jun 2026",
-      "label": "Lanzamiento oficial",
-      "description": "Apertura pública en LATAM y España con SEO desde el día 1."
+      "label": "Offizieller Launch",
+      "description": "Öffentliche Eröffnung in Lateinamerika und Spanien mit SEO ab Tag 1."
     },
     "seo": {
       "value": "100%",
-      "label": "Optimizados para SEO",
-      "description": "Cada portfolio nace listo para aparecer en Google."
+      "label": "Für SEO optimiert",
+      "description": "Jedes Portfolio entsteht bereit, bei Google zu erscheinen."
     },
     "reviews": {
       "value": "Beta",
-      "label": "Reviews verificadas",
-      "description": "Reseñas firmadas por cuentas verificadas — próximamente."
+      "label": "Verifizierte Reviews",
+      "description": "Bewertungen, signiert von verifizierten Accounts – demnächst."
     }
   },
   "team": {
     "julian": {
-      "role": "Co-Founder & Desarrollador",
-      "bio": "Jugador profesional de fútbol, ideador y desarrollador de 'BallersHub. Vivió en carne propia la falta de una plataforma seria para que un jugador se venda profesionalmente — así que decidió construirla. Combina cancha, código y producto para que cada portfolio se sienta hecho por alguien que entiende el deporte desde adentro."
+      "role": "Co-Founder & Entwickler",
+      "bio": "Profifußballer, Ideengeber und Entwickler von BallersHub. Er erlebte am eigenen Leib das Fehlen einer seriösen Plattform, auf der sich ein Spieler professionell vermarkten kann – also beschloss er, sie zu bauen. Er verbindet Platz, Code und Produkt, damit sich jedes Portfolio anfühlt, als wäre es von jemandem gemacht, der den Sport von innen versteht."
     },
     "validation": {
-      "name": "Federico y Felipe Sarra",
-      "role": "Jugadores · Producto",
-      "bio": "Futbolistas y creadores con ojo de adentro. Validan perfiles, testean la plataforma y mantienen el estándar de la red. También aportan análisis de mercado y propuestas de mejora concretas para que 'BallersHub siga creciendo desde el fútbol real."
+      "name": "Federico und Felipe Sarra",
+      "role": "Spieler · Produkt",
+      "bio": "Fußballer und Creator mit dem Blick von innen. Sie validieren Profile, testen die Plattform und halten den Standard des Netzwerks aufrecht. Sie liefern außerdem Marktanalysen und konkrete Verbesserungsvorschläge, damit BallersHub weiter aus dem echten Fußball heraus wächst."
     }
   },
   "partners": {
-    "techPartner": "Aliado tecnológico",
-    "federation": "Federación",
-    "alliedClub": "Club aliado"
+    "techPartner": "Technologiepartner",
+    "federation": "Verband",
+    "alliedClub": "Partnerverein"
   },
   "cta": {
-    "eyebrow": "Sumate a 'BallersHub",
-    "title": "Tu portfolio. Tu link. Tu carrera.",
-    "description": "Centralizá tu trayectoria, mostrá tus datos y posicionate en internet. Para jugadores que quieren venderse profesionalmente y para agencias que quieren escalar su identidad.",
-    "primaryCta": "Crear mi portfolio",
-    "secondaryCta": "Soy una agencia"
+    "eyebrow": "Werden Sie Teil von BallersHub",
+    "title": "Ihr Portfolio. Ihr Link. Ihre Karriere.",
+    "description": "Bündeln Sie Ihren Werdegang, zeigen Sie Ihre Daten und positionieren Sie sich im Internet. Für Spieler, die sich professionell vermarkten wollen, und für Agenturen, die ihre Identität skalieren wollen.",
+    "primaryCta": "Mein Portfolio erstellen",
+    "secondaryCta": "Ich bin eine Agentur"
   },
   "sections": {
     "missionVision": {
-      "eyebrow": "Misión · Visión · Objetivos",
-      "titlePlain": "Tres pilares que sostienen",
-      "titleHighlight": "cada decisión",
-      "description": "Misión, visión y objetivos no son frases en una pared: son el filtro con el que decidimos qué construir, qué priorizar y cómo acompañar a jugadores y agencias."
+      "eyebrow": "Mission · Vision · Ziele",
+      "titlePlain": "Drei Säulen, die",
+      "titleHighlight": "jede Entscheidung tragen",
+      "description": "Mission, Vision und Ziele sind keine Sprüche an einer Wand: Sie sind der Filter, mit dem wir entscheiden, was wir bauen, was wir priorisieren und wie wir Spieler und Agenturen begleiten."
     },
     "values": {
-      "eyebrow": "Qué nos hace distintos",
-      "titlePlain": "Lo que vas a encontrar en",
-      "titleHighlight": "tu portfolio",
-      "description": "No es otra ficha de jugador en PDF. Es una plataforma diseñada para que tu carrera o tu agencia se vendan profesionalmente en internet — con identidad propia, datos centralizados y conexión real con el ecosistema."
+      "eyebrow": "Was uns unterscheidet",
+      "titlePlain": "Was Sie in",
+      "titleHighlight": "Ihrem Portfolio finden",
+      "description": "Es ist kein weiterer Spielersteckbrief als PDF. Es ist eine Plattform, die dafür gestaltet ist, dass sich Ihre Karriere oder Ihre Agentur professionell im Internet vermarkten – mit eigener Identität, gebündelten Daten und echter Verbindung zum Ökosystem."
     },
     "impact": {
-      "eyebrow": "Estado del proyecto",
-      "titlePlain": "En camino al",
-      "titleHighlight": "lanzamiento",
-      "description": "Construimos en silencio durante 8 meses con jugadores y agencias piloto. En junio de 2026 abrimos la plataforma para LATAM y España."
+      "eyebrow": "Projektstatus",
+      "titlePlain": "Auf dem Weg zum",
+      "titleHighlight": "Launch",
+      "description": "Wir haben 8 Monate lang still mit Pilotspielern und -agenturen entwickelt. Im Juni 2026 öffnen wir die Plattform für Lateinamerika und Spanien."
     },
     "story": {
-      "eyebrow": "Nuestra historia",
-      "titlePlain": "De una idea en cancha a una red",
-      "titleHighlight": "en expansión",
-      "description": "Cada hito está marcado por feedback real de la comunidad. Iteramos rápido, escuchamos primero y construimos a largo plazo."
+      "eyebrow": "Unsere Geschichte",
+      "titlePlain": "Von einer Idee auf dem Platz zu einem",
+      "titleHighlight": "wachsenden Netzwerk",
+      "description": "Jeder Meilenstein ist von echtem Feedback der Community geprägt. Wir iterieren schnell, hören zuerst zu und bauen langfristig."
     },
     "team": {
-      "eyebrow": "El equipo",
-      "titlePlain": "Personas reales detrás de",
-      "titleHighlight": "cada validación",
-      "slogan": "De Jugadores, para Jugadores.",
-      "description": "No somos un equipo de oficina mirando el fútbol desde afuera. Somos jugadores en actividad, ex-jugadores y analistas que entendemos lo que necesita un futbolista para venderse — porque lo vivimos en carne propia."
+      "eyebrow": "Das Team",
+      "titlePlain": "Echte Menschen hinter",
+      "titleHighlight": "jeder Validierung",
+      "slogan": "Von Spielern, für Spieler.",
+      "description": "Wir sind kein Büroteam, das den Fußball von außen betrachtet. Wir sind aktive Spieler, ehemalige Spieler und Analysten, die verstehen, was ein Fußballer braucht, um sich zu vermarkten – weil wir es am eigenen Leib erlebt haben."
     },
     "partners": {
-      "eyebrow": "Partners y aliados",
-      "titlePlain": "Confían en"
+      "eyebrow": "Partner und Verbündete",
+      "titlePlain": "Vertrauen auf"
     }
   },
   "heroExtra": {
-    "betaBadge": "Beta · Lanzamiento Jun 2026",
-    "humanBadge": "Validados por humanos",
-    "photoSlot": "Foto del equipo",
-    "figureStartValue": "Ago 2025",
-    "figureStartLabel": "Arranque del proyecto",
+    "betaBadge": "Beta · Launch Jun 2026",
+    "humanBadge": "Von Menschen validiert",
+    "photoSlot": "Foto des Teams",
+    "figureStartValue": "Aug 2025",
+    "figureStartLabel": "Projektstart",
     "figureLaunchValue": "Jun 2026",
-    "figureLaunchLabel": "Lanzamiento oficial"
+    "figureLaunchLabel": "Offizieller Launch"
   },
   "meta": {
-    "title": "Nosotros",
-    "description": "Conocé al equipo, la misión, visión y valores detrás de 'BallersHub: el hub donde el talento futbolístico gana visibilidad real y verificada."
+    "title": "Über uns",
+    "description": "Lernen Sie das Team, die Mission, Vision und Werte hinter BallersHub kennen: der Hub, auf dem Fußballtalent echte und verifizierte Sichtbarkeit gewinnt."
   },
   "sections": {
     "missionVision": {
-      "eyebrow": "Misión · Visión · Objetivos",
-      "titlePlain": "Tres pilares que sostienen",
-      "titleHighlight": "cada decisión",
-      "description": "Misión, visión y objetivos no son frases en una pared: son el filtro con el que decidimos qué construir, qué priorizar y cómo acompañar a jugadores y agencias."
+      "eyebrow": "Mission · Vision · Ziele",
+      "titlePlain": "Drei Säulen, die",
+      "titleHighlight": "jede Entscheidung tragen",
+      "description": "Mission, Vision und Ziele sind keine Sprüche an einer Wand: Sie sind der Filter, mit dem wir entscheiden, was wir bauen, was wir priorisieren und wie wir Spieler und Agenturen begleiten."
     },
     "values": {
-      "eyebrow": "Qué nos hace distintos",
-      "titlePlain": "Lo que vas a encontrar en",
-      "titleHighlight": "tu portfolio",
-      "description": "No es otra ficha de jugador en PDF. Es una plataforma diseñada para que tu carrera o tu agencia se vendan profesionalmente en internet — con identidad propia, datos centralizados y conexión real con el ecosistema."
+      "eyebrow": "Was uns unterscheidet",
+      "titlePlain": "Was Sie in",
+      "titleHighlight": "Ihrem Portfolio finden",
+      "description": "Es ist kein weiterer Spielersteckbrief als PDF. Es ist eine Plattform, die dafür gestaltet ist, dass sich Ihre Karriere oder Ihre Agentur professionell im Internet vermarkten – mit eigener Identität, gebündelten Daten und echter Verbindung zum Ökosystem."
     },
     "impact": {
-      "eyebrow": "Estado del proyecto",
-      "titlePlain": "En camino al",
-      "titleHighlight": "lanzamiento",
-      "description": "Construimos en silencio durante 8 meses con jugadores y agencias piloto. En junio de 2026 abrimos la plataforma para LATAM y España."
+      "eyebrow": "Projektstatus",
+      "titlePlain": "Auf dem Weg zum",
+      "titleHighlight": "Launch",
+      "description": "Wir haben 8 Monate lang still mit Pilotspielern und -agenturen entwickelt. Im Juni 2026 öffnen wir die Plattform für Lateinamerika und Spanien."
     },
     "story": {
-      "eyebrow": "Nuestra historia",
-      "titlePlain": "De una idea en cancha a una red",
-      "titleHighlight": "en expansión",
-      "description": "Cada hito está marcado por feedback real de la comunidad. Iteramos rápido, escuchamos primero y construimos a largo plazo."
+      "eyebrow": "Unsere Geschichte",
+      "titlePlain": "Von einer Idee auf dem Platz zu einem",
+      "titleHighlight": "wachsenden Netzwerk",
+      "description": "Jeder Meilenstein ist von echtem Feedback der Community geprägt. Wir iterieren schnell, hören zuerst zu und bauen langfristig."
     },
     "team": {
-      "eyebrow": "El equipo",
-      "titlePlain": "Personas reales detrás de",
-      "titleHighlight": "cada validación",
-      "slogan": "“De Jugadores, para Jugadores.”",
-      "description": "No somos un equipo de oficina mirando el fútbol desde afuera. Somos jugadores en actividad, ex-jugadores y analistas que entendemos lo que necesita un futbolista para venderse — porque lo vivimos en carne propia."
+      "eyebrow": "Das Team",
+      "titlePlain": "Echte Menschen hinter",
+      "titleHighlight": "jeder Validierung",
+      "slogan": "„Von Spielern, für Spieler.“",
+      "description": "Wir sind kein Büroteam, das den Fußball von außen betrachtet. Wir sind aktive Spieler, ehemalige Spieler und Analysten, die verstehen, was ein Fußballer braucht, um sich zu vermarkten – weil wir es am eigenen Leib erlebt haben."
     },
     "partners": {
-      "eyebrow": "Partners y aliados",
-      "titlePlain": "Confían en"
+      "eyebrow": "Partner und Verbündete",
+      "titlePlain": "Vertrauen auf"
     }
   },
   "heroExtra": {
-    "betaBadge": "Beta · Lanzamiento Jun 2026",
-    "humanBadge": "Validados por humanos",
-    "photoBadge": "Foto del equipo",
-    "figureStartValue": "Ago 2025",
-    "figureStartLabel": "Arranque del proyecto",
+    "betaBadge": "Beta · Launch Jun 2026",
+    "humanBadge": "Von Menschen validiert",
+    "photoBadge": "Foto des Teams",
+    "figureStartValue": "Aug 2025",
+    "figureStartLabel": "Projektstart",
     "figureLaunchValue": "Jun 2026",
-    "figureLaunchLabel": "Lanzamiento oficial"
+    "figureLaunchLabel": "Offizieller Launch"
   }
 }

@@ -1,170 +1,170 @@
 {
   "meta": {
     "title": "Blog",
-    "description": "Artículos sobre carrera del jugador, operaciones de agencia y el mercado del fútbol argentino. Escrito por jugadores, scouts y periodistas de la red de 'BallersHub.",
+    "description": "Artikel über die Spielerkarriere, den Agenturbetrieb und den argentinischen Fußballmarkt. Geschrieben von Spielern, Scouts und Journalisten aus dem Netzwerk von 'BallersHub.",
     "ogTitle": "Blog · 'BallersHub",
-    "ogDescription": "Carrera del jugador, operaciones de agencia, industria AR. Análisis con datos y links a portfolios reales.",
-    "twitterDescription": "Carrera del jugador, operaciones de agencia, industria AR. Por la red de 'BallersHub.",
-    "h1": "Blog de 'BallersHub — carrera del jugador, operaciones de agencia y mercado del fútbol",
-    "notFoundTitle": "Artículo no encontrado",
-    "writeTitle": "Nuevo artículo",
-    "editTitle": "Editar artículo",
-    "draftsTitle": "Mis borradores"
+    "ogDescription": "Spielerkarriere, Agenturbetrieb, Branche AR. Datenbasierte Analysen mit Links zu echten Portfolios.",
+    "twitterDescription": "Spielerkarriere, Agenturbetrieb, Branche AR. Vom Netzwerk von 'BallersHub.",
+    "h1": "Blog von 'BallersHub — Spielerkarriere, Agenturbetrieb und Fußballmarkt",
+    "notFoundTitle": "Artikel nicht gefunden",
+    "writeTitle": "Neuer Artikel",
+    "editTitle": "Artikel bearbeiten",
+    "draftsTitle": "Meine Entwürfe"
   },
   "listing": {
-    "contributorDrafts": "Mis borradores",
-    "contributorWrite": "Escribir artículo",
-    "emptyTitle": "Pronto vas a leer las primeras notas",
-    "emptyBody": "Estamos curando contenido editorial. Volvé en unos días.",
-    "categoryAll": "Todas",
-    "searchPlaceholder": "Buscar notas…",
-    "searchAriaLabel": "Buscar notas",
-    "headingDefault": "Últimas notas",
-    "headingCount": "{count, plural, one {# nota} other {# notas}}",
-    "noResultsQuery": "No encontramos artículos para “{query}”.",
-    "noResultsCategory": "Todavía no hay notas en esta categoría.",
+    "contributorDrafts": "Meine Entwürfe",
+    "contributorWrite": "Artikel schreiben",
+    "emptyTitle": "Bald lesen Sie die ersten Beiträge",
+    "emptyBody": "Wir kuratieren gerade redaktionelle Inhalte. Schauen Sie in ein paar Tagen wieder vorbei.",
+    "categoryAll": "Alle",
+    "searchPlaceholder": "Beiträge suchen…",
+    "searchAriaLabel": "Beiträge suchen",
+    "headingDefault": "Neueste Beiträge",
+    "headingCount": "{count, plural, one {# Beitrag} other {# Beiträge}}",
+    "noResultsQuery": "Wir haben keine Artikel zu „{query}“ gefunden.",
+    "noResultsCategory": "In dieser Kategorie gibt es noch keine Beiträge.",
     "adSponsor": "Sponsor",
-    "closingTitle": "Dejá de esperar a que te descubran",
-    "closingBody": "Construí tu portfolio profesional en minutos: métricas, highlights y referencias verificadas, listo para compartir con un solo enlace.",
-    "closingCtaPrimary": "Crear mi perfil gratis",
-    "closingCtaSecondary": "Ver planes"
+    "closingTitle": "Warten Sie nicht länger darauf, entdeckt zu werden",
+    "closingBody": "Erstellen Sie Ihr professionelles Portfolio in wenigen Minuten: Statistiken, Highlights und verifizierte Referenzen, bereit zum Teilen über einen einzigen Link.",
+    "closingCtaPrimary": "Mein Profil kostenlos erstellen",
+    "closingCtaSecondary": "Tarife ansehen"
   },
   "featured": {
-    "badge": "★ Destacado",
-    "readingMin": "{n, plural, one {1 min lectura} other {# min lectura}}"
+    "badge": "★ Empfohlen",
+    "readingMin": "{n, plural, one {1 Min. Lesezeit} other {# Min. Lesezeit}}"
   },
   "card": {
-    "readingMin": "{n, plural, one {1 min} other {# min}}"
+    "readingMin": "{n, plural, one {1 Min.} other {# Min.}}"
   },
   "post": {
     "breadcrumbBlog": "Blog",
-    "readingMin": "{n, plural, one {1 min de lectura} other {# min de lectura}}",
-    "relatedHeading": "Seguí leyendo",
-    "relatedSeeAll": "Ver todo →"
+    "readingMin": "{n, plural, one {1 Min. Lesezeit} other {# Min. Lesezeit}}",
+    "relatedHeading": "Weiterlesen",
+    "relatedSeeAll": "Alle ansehen →"
   },
   "toc": {
-    "heading": "En esta nota"
+    "heading": "In diesem Beitrag"
   },
   "authorBio": {
-    "writtenBy": "Escrito por"
+    "writtenBy": "Geschrieben von"
   },
   "cta": {
-    "title": "Dejá de esperar a que te descubran",
-    "body": "Construí tu portfolio profesional en minutos: métricas, highlights y referencias verificadas, listo para compartir con un solo enlace.",
-    "primary": "Crear mi perfil gratis",
-    "secondary": "Ver ejemplos"
+    "title": "Warten Sie nicht länger darauf, entdeckt zu werden",
+    "body": "Erstellen Sie Ihr professionelles Portfolio in wenigen Minuten: Statistiken, Highlights und verifizierte Referenzen, bereit zum Teilen über einen einzigen Link.",
+    "primary": "Mein Profil kostenlos erstellen",
+    "secondary": "Beispiele ansehen"
   },
   "comments": {
-    "heading": "Comentarios",
-    "soonBadge": "Próximamente",
-    "soonBody": "Estamos preparando los comentarios para que puedas sumar tu mirada a cada nota. Mientras tanto, compartila y seguí la conversación en nuestras redes."
+    "heading": "Kommentare",
+    "soonBadge": "Demnächst",
+    "soonBody": "Wir bereiten die Kommentare vor, damit Sie zu jedem Beitrag Ihre Sicht beitragen können. Teilen Sie ihn in der Zwischenzeit und verfolgen Sie die Diskussion in unseren sozialen Netzwerken."
   },
   "author": {
-    "notFoundTitle": "Autor no encontrado",
-    "metaTitleSuffix": "— Autor en 'BallersHub",
-    "fallbackDescription": "Artículos publicados por {name} en el blog de 'BallersHub.",
-    "breadcrumbHome": "Inicio",
+    "notFoundTitle": "Autor nicht gefunden",
+    "metaTitleSuffix": "— Autor bei 'BallersHub",
+    "fallbackDescription": "Von {name} im Blog von 'BallersHub veröffentlichte Artikel.",
+    "breadcrumbHome": "Startseite",
     "breadcrumbBlog": "Blog",
-    "badge": "Autor invitado",
-    "linksSiteFallback": "Sitio",
-    "postsHeading": "Artículos de {firstName}",
-    "postsHeadingEmpty": "Sin artículos publicados todavía",
-    "emptyBody": "Este autor todavía no publicó artículos. Volvé en unos días."
+    "badge": "Gastautor",
+    "linksSiteFallback": "Website",
+    "postsHeading": "Artikel von {firstName}",
+    "postsHeadingEmpty": "Noch keine Artikel veröffentlicht",
+    "emptyBody": "Dieser Autor hat noch keine Artikel veröffentlicht. Schauen Sie in ein paar Tagen wieder vorbei."
   },
   "editor": {
-    "createBadge": "Escribir artículo",
-    "createHeading": "Nuevo borrador",
-    "createIntro": "Llená los campos y cuando esté listo enviá a revisión. Podés guardar borradores intermedios sin enviar.",
-    "editBadge": "Editar borrador",
-    "editFallbackTitle": "Sin título",
-    "loadingEditor": "Cargando editor…",
-    "placeholder": "Empezá a escribir tu artículo…",
-    "linkPrompt": "URL del link:",
-    "imageUploadError": "No se pudo subir la imagen.",
-    "imageUploadErrorRetry": "No se pudo subir la imagen. Probá de nuevo.",
+    "createBadge": "Artikel schreiben",
+    "createHeading": "Neuer Entwurf",
+    "createIntro": "Füllen Sie die Felder aus und senden Sie den Beitrag zur Prüfung, sobald er fertig ist. Sie können Zwischenentwürfe speichern, ohne sie zu senden.",
+    "editBadge": "Entwurf bearbeiten",
+    "editFallbackTitle": "Ohne Titel",
+    "loadingEditor": "Editor wird geladen…",
+    "placeholder": "Beginnen Sie, Ihren Artikel zu schreiben…",
+    "linkPrompt": "Link-URL:",
+    "imageUploadError": "Das Bild konnte nicht hochgeladen werden.",
+    "imageUploadErrorRetry": "Das Bild konnte nicht hochgeladen werden. Versuchen Sie es erneut.",
     "toolbar": {
-      "bold": "Negrita (⌘B)",
-      "italic": "Itálica (⌘I)",
-      "h2": "Heading 2",
-      "h3": "Heading 3",
-      "bulletList": "Lista bullet",
-      "orderedList": "Lista numerada",
-      "quote": "Cita",
+      "bold": "Fett (⌘B)",
+      "italic": "Kursiv (⌘I)",
+      "h2": "Überschrift 2",
+      "h3": "Überschrift 3",
+      "bulletList": "Aufzählungsliste",
+      "orderedList": "Nummerierte Liste",
+      "quote": "Zitat",
       "link": "Link (⌘K)",
-      "image": "Insertar imagen",
-      "imageUploading": "Subiendo imagen…",
-      "undo": "Deshacer (⌘Z)",
-      "redo": "Rehacer (⌘⇧Z)"
+      "image": "Bild einfügen",
+      "imageUploading": "Bild wird hochgeladen…",
+      "undo": "Rückgängig (⌘Z)",
+      "redo": "Wiederholen (⌘⇧Z)"
     }
   },
   "drafts": {
-    "heading": "Mis artículos",
-    "intro": "Tus borradores, posts en revisión, publicados y rechazados.",
-    "ctaWrite": "Escribir artículo",
-    "emptyTitle": "Todavía no escribiste nada",
-    "emptyBody": "Tu primer artículo te espera. Hacé click en \"Escribir artículo\" arriba para empezar.",
-    "fallbackTitle": "Sin título",
-    "actionViewPublished": "Ver publicado",
-    "actionEditRejected": "Editar y reenviar",
-    "actionEdit": "Editar"
+    "heading": "Meine Artikel",
+    "intro": "Ihre Entwürfe, Beiträge in Prüfung, veröffentlichte und abgelehnte Beiträge.",
+    "ctaWrite": "Artikel schreiben",
+    "emptyTitle": "Sie haben noch nichts geschrieben",
+    "emptyBody": "Ihr erster Artikel wartet auf Sie. Klicken Sie oben auf \"Artikel schreiben\", um zu beginnen.",
+    "fallbackTitle": "Ohne Titel",
+    "actionViewPublished": "Veröffentlicht ansehen",
+    "actionEditRejected": "Bearbeiten und erneut senden",
+    "actionEdit": "Bearbeiten"
   },
   "form": {
-    "rejectionHeading": "Feedback del admin",
+    "rejectionHeading": "Feedback vom Admin",
     "fields": {
-      "titleLabel": "Título",
-      "titleHint": "Máx 120 caracteres. Pensá keyword-rich.",
-      "titlePlaceholder": "Ej: Mercado de pases AFA 2026: jugadores libres más buscados",
-      "descriptionLabel": "Descripción corta",
-      "descriptionHint": "Aparece en Google y al compartir en redes. Máx 158 caracteres.",
-      "descriptionPlaceholder": "Resumen claro de lo que va a leer.",
+      "titleLabel": "Titel",
+      "titleHint": "Max. 120 Zeichen. Denken Sie keyword-reich.",
+      "titlePlaceholder": "Z. B.: AFA-Transfermarkt 2026: die gefragtesten vertragslosen Spieler",
+      "descriptionLabel": "Kurzbeschreibung",
+      "descriptionHint": "Erscheint bei Google und beim Teilen in sozialen Netzwerken. Max. 158 Zeichen.",
+      "descriptionPlaceholder": "Klare Zusammenfassung dessen, was gelesen wird.",
       "descriptionCounter": "{count} / 158",
-      "localeLabel": "Idioma",
-      "localeHint": "En qué idioma vas a escribir este post. No se puede cambiar después.",
+      "localeLabel": "Sprache",
+      "localeHint": "In welcher Sprache Sie diesen Beitrag schreiben. Kann später nicht geändert werden.",
       "localeEs": "Español (default)",
       "localeEn": "English",
       "localeIt": "Italiano",
       "localePt": "Português (Brasil)",
       "clusterLabel": "Cluster",
-      "clusterHint": "Tema del post.",
+      "clusterHint": "Thema des Beitrags.",
       "tagsLabel": "Tags",
-      "tagsHint": "3-8 tags separados por coma. Mín 2 caracteres cada uno.",
+      "tagsHint": "3-8 Tags durch Komma getrennt. Jeweils mind. 2 Zeichen.",
       "tagsPlaceholder": "scouting, portfolio, primera-nacional",
-      "heroLabel": "Imagen principal (hero)",
-      "heroHint": "1200×630 ideal. JPG/PNG/WebP/AVIF, máx 5MB. Se sube a nuestro storage y se transcodea a AVIF automáticamente.",
-      "heroPreviewAlt": "Vista previa del hero",
-      "heroChange": "Cambiar",
-      "heroChangeUploading": "Subiendo…",
-      "heroRemove": "Quitar",
-      "heroUploading": "Subiendo imagen…",
-      "heroUploadCta": "Subir imagen principal",
-      "heroUploadFormats": "JPG / PNG / WebP / AVIF · máx 5MB",
-      "heroUploadError": "No se pudo subir la imagen.",
-      "heroUploadErrorRetry": "No se pudo subir la imagen. Probá de nuevo.",
-      "contentLabel": "Contenido",
-      "contentHint": "≥1500 palabras. Mínimo 3 secciones H2. Linkear ≥3 portfolios reales de /[slug].",
-      "contentPlaceholder": "Empezá con una intro de 2-3 párrafos que enganche al lector…"
+      "heroLabel": "Hauptbild (Hero)",
+      "heroHint": "1200×630 ideal. JPG/PNG/WebP/AVIF, max. 5MB. Wird in unseren Speicher hochgeladen und automatisch in AVIF transkodiert.",
+      "heroPreviewAlt": "Vorschau des Hero-Bilds",
+      "heroChange": "Ändern",
+      "heroChangeUploading": "Wird hochgeladen…",
+      "heroRemove": "Entfernen",
+      "heroUploading": "Bild wird hochgeladen…",
+      "heroUploadCta": "Hauptbild hochladen",
+      "heroUploadFormats": "JPG / PNG / WebP / AVIF · max. 5MB",
+      "heroUploadError": "Das Bild konnte nicht hochgeladen werden.",
+      "heroUploadErrorRetry": "Das Bild konnte nicht hochgeladen werden. Versuchen Sie es erneut.",
+      "contentLabel": "Inhalt",
+      "contentHint": "≥1500 Wörter. Mindestens 3 H2-Abschnitte. Mind. 3 echte Portfolios von /[slug] verlinken.",
+      "contentPlaceholder": "Beginnen Sie mit einer Einleitung von 2-3 Absätzen, die den Leser fesselt…"
     },
     "actions": {
-      "save": "Guardar borrador",
-      "saving": "Guardando…",
-      "submit": "Enviar para revisión",
-      "submitting": "Enviando…"
+      "save": "Entwurf speichern",
+      "saving": "Wird gespeichert…",
+      "submit": "Zur Prüfung senden",
+      "submitting": "Wird gesendet…"
     },
     "feedback": {
-      "draftCreated": "Borrador creado.",
-      "draftSaved": "Borrador guardado.",
-      "submitted": "Enviado para revisión. Te avisamos cuando el admin lo apruebe."
+      "draftCreated": "Entwurf erstellt.",
+      "draftSaved": "Entwurf gespeichert.",
+      "submitted": "Zur Prüfung gesendet. Wir benachrichtigen Sie, sobald der Admin ihn genehmigt."
     }
   },
   "clusters": {
-    "career_guidance": "Carrera del jugador",
-    "agency_ops": "Operaciones de agencia",
-    "industry_ar": "Industria AR"
+    "career_guidance": "Spielerkarriere",
+    "agency_ops": "Agenturbetrieb",
+    "industry_ar": "Branche AR"
   },
   "status": {
-    "draft": "Borrador",
-    "pending_review": "Pendiente de revisión",
-    "published": "Publicado",
-    "rejected": "Rechazado"
+    "draft": "Entwurf",
+    "pending_review": "Prüfung ausstehend",
+    "published": "Veröffentlicht",
+    "rejected": "Abgelehnt"
   }
 }

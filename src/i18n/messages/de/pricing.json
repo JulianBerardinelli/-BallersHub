@@ -1,264 +1,264 @@
 {
   "hero": {
-    "badge": "Planes & precios",
-    "title": "Elegí el plan que acelera tu carrera",
-    "description": "Dos formas de potenciar tu visibilidad en 'BallersHub. Empezá gratis y cuando estés listo, sumá Pro para desbloquear plantilla pro, métricas, reviews y mucho más."
+    "badge": "Pläne & Preise",
+    "title": "Wählen Sie den Plan, der Ihre Karriere beschleunigt",
+    "description": "Zwei Wege, um Ihre Sichtbarkeit auf 'BallersHub zu steigern. Starten Sie kostenlos und fügen Sie Pro hinzu, sobald Sie bereit sind, um Pro-Vorlage, Kennzahlen, Bewertungen und vieles mehr freizuschalten."
   },
   "toggles": {
-    "audienceLabel": "Soy",
-    "currencyLabel": "Moneda",
-    "player": "Jugador",
-    "agency": "Agencia"
+    "audienceLabel": "Ich bin",
+    "currencyLabel": "Währung",
+    "player": "Spieler",
+    "agency": "Agentur"
   },
   "valueGrid": {
-    "badge": "Incluido en todos los planes",
-    "title": "Todo lo que necesitás para profesionalizar tu juego",
-    "validationTitle": "Validación humana",
-    "validationDesc": "Cada perfil pasa por un control de identidad y trayectoria por nuestro equipo.",
-    "metricsTitle": "Métricas accionables",
-    "metricsDesc": "Visitas, contactos y reseñas medidas en tiempo real para entender tu impacto.",
-    "communityTitle": "Comunidad activa",
-    "communityDesc": "Clubes, agentes y staff técnico que ya usan 'BallersHub para descubrir talento.",
-    "setupTitle": "Setup inmediato",
-    "setupDesc": "Plantillas listas y carga guiada: tu primer perfil queda armado en minutos."
+    "badge": "In allen Plänen enthalten",
+    "title": "Alles, was Sie brauchen, um Ihr Spiel zu professionalisieren",
+    "validationTitle": "Menschliche Validierung",
+    "validationDesc": "Jedes Profil durchläuft eine Identitäts- und Laufbahnprüfung durch unser Team.",
+    "metricsTitle": "Umsetzbare Kennzahlen",
+    "metricsDesc": "Aufrufe, Kontakte und Bewertungen werden in Echtzeit gemessen, damit Sie Ihre Wirkung verstehen.",
+    "communityTitle": "Aktive Community",
+    "communityDesc": "Vereine, Berater und Trainerstab, die 'BallersHub bereits nutzen, um Talente zu entdecken.",
+    "setupTitle": "Sofortige Einrichtung",
+    "setupDesc": "Fertige Vorlagen und geführte Eingabe: Ihr erstes Profil ist in Minuten erstellt."
   },
   "faq": {
-    "badge": "Preguntas frecuentes",
-    "title": "Todo lo que necesitás saber",
-    "q1": "¿Puedo probar antes de pagar?",
-    "a1": "Sí. Todos los planes pagos incluyen 14 días de prueba sin compromiso y podés cancelar en cualquier momento desde tu panel.",
-    "q2": "¿Cómo funciona la validación de mi perfil?",
-    "a2": "Nuestro equipo verifica identidad, trayectoria y referencias antes de mostrar la insignia de perfil validado. El proceso normalmente toma 24–72 hs.",
-    "q3": "¿Puedo cambiar de plan más adelante?",
-    "a3": "Podés escalar o bajar de plan cuando quieras. Las diferencias se prorratean automáticamente en la próxima facturación.",
-    "q4": "¿Hay un plan para clubes con varios usuarios?",
-    "a4": "El plan Elite Scouting incluye accesos para staff. Si tu organización necesita configuraciones a medida, escribinos y armamos una propuesta."
+    "badge": "Häufig gestellte Fragen",
+    "title": "Alles, was Sie wissen müssen",
+    "q1": "Kann ich vor dem Bezahlen testen?",
+    "a1": "Ja. Alle kostenpflichtigen Pläne beinhalten 14 Tage unverbindliche Testphase und Sie können jederzeit über Ihr Dashboard kündigen.",
+    "q2": "Wie funktioniert die Validierung meines Profils?",
+    "a2": "Unser Team überprüft Identität, Laufbahn und Referenzen, bevor das Abzeichen für validierte Profile angezeigt wird. Der Vorgang dauert in der Regel 24–72 Std.",
+    "q3": "Kann ich meinen Plan später wechseln?",
+    "a3": "Sie können Ihren Plan jederzeit hoch- oder herunterstufen. Die Differenzen werden bei der nächsten Abrechnung automatisch anteilig berechnet.",
+    "q4": "Gibt es einen Plan für Vereine mit mehreren Nutzern?",
+    "a4": "Der Plan Elite Scouting beinhaltet Zugänge für den Stab. Wenn Ihre Organisation maßgeschneiderte Konfigurationen benötigt, schreiben Sie uns und wir erstellen ein Angebot."
   },
   "cta": {
-    "badge": "¿Necesitás algo a medida?",
-    "title": "Hablemos de tu proyecto",
-    "description": "Para clubes, federaciones y agencias armamos propuestas a medida con volumen de cuentas, integraciones y soporte dedicado.",
-    "signup": "Crear cuenta gratis",
-    "contact": "Hablar con ventas"
+    "badge": "Brauchen Sie etwas Maßgeschneidertes?",
+    "title": "Sprechen wir über Ihr Projekt",
+    "description": "Für Vereine, Verbände und Agenturen erstellen wir maßgeschneiderte Angebote mit Kontingenten an Konten, Integrationen und dediziertem Support.",
+    "signup": "Kostenloses Konto erstellen",
+    "contact": "Mit dem Vertrieb sprechen"
   },
   "mocks": {
     "desktop": "Desktop",
-    "verified": "Verificado",
+    "verified": "Verifiziert",
     "pro": "Pro",
-    "mockupDefault": "Mockup default"
+    "mockupDefault": "Standard-Mockup"
   },
   "meta": {
-    "title": "Planes y precios",
-    "description": "Elegí el plan que potencia tu carrera o agencia. Free incluye perfil verificado y URL pública. Pro suma galería extendida, prensa, SEO avanzado y schema en JSON-LD.",
-    "ogTitle": "Planes y precios — 'BallersHub",
-    "ogDescription": "Free vs Pro para jugadores y agencias. Suscripción anual con trial de 7 días en Pro."
+    "title": "Pläne und Preise",
+    "description": "Wählen Sie den Plan, der Ihre Karriere oder Agentur voranbringt. Free beinhaltet ein verifiziertes Profil und eine öffentliche URL. Pro ergänzt erweiterte Galerie, Presse, fortgeschrittenes SEO und JSON-LD-Schema.",
+    "ogTitle": "Pläne und Preise — 'BallersHub",
+    "ogDescription": "Free vs. Pro für Spieler und Agenturen. Jahresabo mit 7-tägiger Testphase bei Pro."
   },
   "plans": {
-    "srTitle": "Planes disponibles",
-    "priceFree": "Gratis",
-    "forever": "Para siempre · sin tarjeta",
-    "perMonth": "/mes",
-    "billedAnnually": "Facturado anualmente · ",
-    "perYear": "/ año",
-    "viewDemo": "Ver demo",
-    "disclaimer": "Cobro anual · Cancelable sin cargo dentro de los 3 días posteriores al fin del trial",
+    "srTitle": "Verfügbare Pläne",
+    "priceFree": "Kostenlos",
+    "forever": "Für immer · ohne Karte",
+    "perMonth": "/Monat",
+    "billedAnnually": "Jährlich abgerechnet · ",
+    "perYear": "/ Jahr",
+    "viewDemo": "Demo ansehen",
+    "disclaimer": "Jährliche Abrechnung · Kostenlos kündbar innerhalb von 3 Tagen nach Ende der Testphase",
     "freePlayer": {
       "name": "Free",
-      "tagline": "Empezá tu identidad",
-      "description": "Construí tu perfil esencial con identidad verificable. Lo necesario para que clubes y agentes te encuentren.",
-      "ctaLabel": "Empezar gratis",
+      "tagline": "Starten Sie Ihre Identität",
+      "description": "Erstellen Sie Ihr Basisprofil mit überprüfbarer Identität. Das Nötige, damit Vereine und Berater Sie finden.",
+      "ctaLabel": "Kostenlos starten",
       "features": [
-        "Perfil profesional verificado",
-        "URL pública personalizable",
-        "Plantilla default",
-        "2 videos de catálogo · 3 redes · 3 notas de prensa",
-        "Trayectoria + estadísticas por temporada",
-        "2 solicitudes de corrección por rubro / semana",
-        "Plantilla Pro Portfolio (motions + assets)",
-        "Galería catálogo (5 imágenes)",
-        "Valor de mercado y palmarés",
-        "Análisis de scouting (táctico, físico, mental, técnico)",
-        "Reviews y contactos de referencia"
+        "Verifiziertes Profi-Profil",
+        "Anpassbare öffentliche URL",
+        "Standard-Vorlage",
+        "2 Katalogvideos · 3 Netzwerke · 3 Pressemitteilungen",
+        "Laufbahn + Statistiken pro Saison",
+        "2 Korrekturanfragen pro Bereich / Woche",
+        "Pro-Portfolio-Vorlage (Motions + Assets)",
+        "Katalog-Galerie (5 Bilder)",
+        "Marktwert und Palmarès",
+        "Scouting-Analyse (taktisch, physisch, mental, technisch)",
+        "Bewertungen und Referenzkontakte"
       ]
     },
     "proPlayer": {
       "name": "Pro",
-      "tagline": "Visibilidad real",
-      "description": "Plantilla pro, multimedia ilimitada y la información completa para impulsar tu próxima transferencia.",
-      "ctaLabel": "Probar 7 días gratis",
-      "badge": "Más elegido",
+      "tagline": "Echte Sichtbarkeit",
+      "description": "Pro-Vorlage, unbegrenzte Multimedia-Inhalte und vollständige Informationen, um Ihren nächsten Transfer voranzutreiben.",
+      "ctaLabel": "7 Tage kostenlos testen",
+      "badge": "Am häufigsten gewählt",
       "features": [
-        "Todo lo del Free",
-        "Plantilla Pro Portfolio (motions + assets pro)",
-        "Galería catálogo de 5 imágenes",
-        "Videos · redes · notas de prensa ilimitados",
-        "Valor de mercado y palmarés visibles",
-        "Análisis de scouting (táctico, físico, mental, técnico)",
-        "Descripciones por etapa de carrera",
-        "Reviews con invitación + contactos de referencia",
-        "5 solicitudes de corrección por rubro / semana",
-        "Soporte humano prioritario · SEO Pro"
+        "Alles aus Free",
+        "Pro-Portfolio-Vorlage (Motions + Pro-Assets)",
+        "Katalog-Galerie mit 5 Bildern",
+        "Unbegrenzte Videos · Netzwerke · Pressemitteilungen",
+        "Marktwert und Palmarès sichtbar",
+        "Scouting-Analyse (taktisch, physisch, mental, technisch)",
+        "Beschreibungen pro Karrierephase",
+        "Bewertungen mit Einladung + Referenzkontakte",
+        "5 Korrekturanfragen pro Bereich / Woche",
+        "Vorrangiger menschlicher Support · SEO Pro"
       ]
     },
     "freeAgency": {
       "name": "Free",
-      "tagline": "Mostrá tu agencia",
-      "description": "Presencia esencial para tu agencia. Cartera limitada y plantilla default para empezar a operar.",
-      "ctaLabel": "Crear cuenta gratis",
+      "tagline": "Zeigen Sie Ihre Agentur",
+      "description": "Grundlegende Präsenz für Ihre Agentur. Begrenztes Portfolio und Standard-Vorlage, um den Betrieb zu starten.",
+      "ctaLabel": "Kostenloses Konto erstellen",
       "features": [
-        "URL pública personalizable",
-        "Plantilla default",
-        "Hasta 2 members del equipo (incluye owner)",
-        "Cartera de hasta 5 jugadores representados",
-        "2 videos de catálogo · 3 redes · 3 notas de prensa",
-        "2 solicitudes de corrección por rubro / semana",
-        "Plantilla Pro Portfolio (versión agency)",
-        "Members ilimitados",
-        "5 slots de Pro otorgables a representados",
-        "Reviews y contactos de referencia"
+        "Anpassbare öffentliche URL",
+        "Standard-Vorlage",
+        "Bis zu 2 Teammitglieder (inkl. Owner)",
+        "Portfolio von bis zu 5 vertretenen Spielern",
+        "2 Katalogvideos · 3 Netzwerke · 3 Pressemitteilungen",
+        "2 Korrekturanfragen pro Bereich / Woche",
+        "Pro-Portfolio-Vorlage (Agentur-Version)",
+        "Unbegrenzte Mitglieder",
+        "5 Pro-Slots, übertragbar an Vertretene",
+        "Bewertungen und Referenzkontakte"
       ]
     },
     "proAgency": {
       "name": "Pro",
-      "tagline": "Stack profesional",
-      "description": "Cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados. El stack completo de la agencia.",
-      "ctaLabel": "Probar 7 días gratis",
-      "badge": "Recomendado",
+      "tagline": "Professioneller Stack",
+      "description": "Unbegrenztes Portfolio, Team ohne Limits und 5 Pro-Player-Slots für Ihre Vertretenen. Der komplette Stack der Agentur.",
+      "ctaLabel": "7 Tage kostenlos testen",
+      "badge": "Empfohlen",
       "features": [
-        "Todo lo del Free Agency",
-        "Plantilla Pro Portfolio (versión agency)",
-        "Members del equipo ilimitados",
-        "Cartera ilimitada de jugadores representados",
-        "5 slots de Pro Player para tus representados",
-        "Galería catálogo de 5 imágenes",
-        "Reviews con invitación",
-        "Contactos de referencia",
-        "Soporte humano prioritario",
+        "Alles aus Free Agency",
+        "Pro-Portfolio-Vorlage (Agentur-Version)",
+        "Unbegrenzte Teammitglieder",
+        "Unbegrenztes Portfolio vertretener Spieler",
+        "5 Pro-Player-Slots für Ihre Vertretenen",
+        "Katalog-Galerie mit 5 Bildern",
+        "Bewertungen mit Einladung",
+        "Referenzkontakte",
+        "Vorrangiger menschlicher Support",
         "SEO Pro"
       ]
     }
   },
   "comparison": {
-    "badge": "Comparativa detallada",
-    "title": "Todo lo que cada plan incluye",
-    "description": "Las funciones agrupadas por área. La columna de la derecha es la opción Pro recomendada para sacarle todo al producto.",
-    "feature": "Característica",
+    "badge": "Detaillierter Vergleich",
+    "title": "Alles, was jeder Plan beinhaltet",
+    "description": "Die Funktionen nach Bereich gruppiert. Die rechte Spalte ist die empfohlene Pro-Option, um das Maximum aus dem Produkt herauszuholen.",
+    "feature": "Funktion",
     "free": "Free",
     "pro": "Pro",
     "top": "Top",
-    "included": "Incluido",
-    "notIncluded": "No incluido",
+    "included": "Enthalten",
+    "notIncluded": "Nicht enthalten",
     "player": [
-      { "title": "Identidad y perfil", "rows": [
-        { "label": "Perfil profesional verificado", "values": [true, true] },
-        { "label": "URL pública personalizable", "values": [true, true] },
-        { "label": "Plantilla del perfil", "values": ["Default", "Pro Portfolio"] },
-        { "label": "Galería catálogo (imágenes)", "values": ["—", "5"] },
+      { "title": "Identität und Profil", "rows": [
+        { "label": "Verifiziertes Profi-Profil", "values": [true, true] },
+        { "label": "Anpassbare öffentliche URL", "values": [true, true] },
+        { "label": "Profil-Vorlage", "values": ["Standard", "Pro Portfolio"] },
+        { "label": "Katalog-Galerie (Bilder)", "values": ["—", "5"] },
         { "label": "Avatar", "values": ["1", "1"] }
       ]},
-      { "title": "Multimedia y links", "rows": [
-        { "label": "Videos de catálogo (player_media)", "values": ["2", "Ilimitados"] },
-        { "label": "Redes sociales", "values": ["3", "Ilimitadas"] },
-        { "label": "Notas de prensa", "values": ["3", "Ilimitadas"] },
-        { "label": "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)", "values": ["Sin cap", "Sin cap"] }
+      { "title": "Multimedia und Links", "rows": [
+        { "label": "Katalogvideos (player_media)", "values": ["2", "Unbegrenzt"] },
+        { "label": "Soziale Netzwerke", "values": ["3", "Unbegrenzt"] },
+        { "label": "Pressemitteilungen", "values": ["3", "Unbegrenzt"] },
+        { "label": "Externe Profile (Transfermarkt, BeSoccer, Flashscore)", "values": ["Ohne Limit", "Ohne Limit"] }
       ]},
-      { "title": "Información profesional", "rows": [
-        { "label": "Datos básicos (posición, club, edad)", "values": [true, true] },
-        { "label": "Trayectoria / clubes", "values": [true, true] },
-        { "label": "Estadísticas por temporada (PJ/G/A)", "values": [true, true] },
-        { "label": "Valor de mercado", "values": [false, true] },
-        { "label": "Palmarés / reconocimientos", "values": [false, true] },
-        { "label": "Análisis de scouting (táctico, físico, mental, técnico)", "values": [false, true] },
-        { "label": "Descripciones por etapa de carrera", "values": [false, true] }
+      { "title": "Professionelle Informationen", "rows": [
+        { "label": "Basisdaten (Position, Verein, Alter)", "values": [true, true] },
+        { "label": "Laufbahn / Vereine", "values": [true, true] },
+        { "label": "Statistiken pro Saison (Sp/T/V)", "values": [true, true] },
+        { "label": "Marktwert", "values": [false, true] },
+        { "label": "Palmarès / Auszeichnungen", "values": [false, true] },
+        { "label": "Scouting-Analyse (taktisch, physisch, mental, technisch)", "values": [false, true] },
+        { "label": "Beschreibungen pro Karrierephase", "values": [false, true] }
       ]},
-      { "title": "Validación social", "rows": [
-        { "label": "Reviews recibidas (con invitación)", "values": [false, true] },
-        { "label": "Contactos de referencia", "values": [false, true] }
+      { "title": "Soziale Validierung", "rows": [
+        { "label": "Erhaltene Bewertungen (mit Einladung)", "values": [false, true] },
+        { "label": "Referenzkontakte", "values": [false, true] }
       ]},
-      { "title": "Soporte", "rows": [
-        { "label": "Solicitudes de corrección por rubro / semana", "values": ["2", "5"] },
-        { "label": "Soporte humano prioritario", "values": [false, true] }
+      { "title": "Support", "rows": [
+        { "label": "Korrekturanfragen pro Bereich / Woche", "values": ["2", "5"] },
+        { "label": "Vorrangiger menschlicher Support", "values": [false, true] }
       ]},
       { "title": "SEO", "rows": [
-        { "label": "Meta tags básicos + OG mínimo", "values": [true, true] },
-        { "label": "Schema.org + sitemap dedicado + OG dinámico", "values": [false, true] }
+        { "label": "Basis-Meta-Tags + minimales OG", "values": [true, true] },
+        { "label": "Schema.org + dedizierte Sitemap + dynamisches OG", "values": [false, true] }
       ]}
     ],
     "agency": [
-      { "title": "Identidad y perfil", "rows": [
-        { "label": "URL pública personalizable", "values": [true, true] },
-        { "label": "Plantilla del perfil", "values": ["Default", "Pro Portfolio (agency)"] },
-        { "label": "Galería catálogo (imágenes)", "values": ["—", "5"] }
+      { "title": "Identität und Profil", "rows": [
+        { "label": "Anpassbare öffentliche URL", "values": [true, true] },
+        { "label": "Profil-Vorlage", "values": ["Standard", "Pro Portfolio (Agentur)"] },
+        { "label": "Katalog-Galerie (Bilder)", "values": ["—", "5"] }
       ]},
-      { "title": "Equipo y cartera", "rows": [
-        { "label": "Members del equipo (incluye owner)", "values": ["2", "Ilimitados"] },
-        { "label": "Cartera de jugadores representados", "values": ["5 max", "Ilimitada"] },
-        { "label": "Slots de Pro Player otorgables", "values": ["—", "5"] }
+      { "title": "Team und Portfolio", "rows": [
+        { "label": "Teammitglieder (inkl. Owner)", "values": ["2", "Unbegrenzt"] },
+        { "label": "Portfolio vertretener Spieler", "values": ["max. 5", "Unbegrenzt"] },
+        { "label": "Übertragbare Pro-Player-Slots", "values": ["—", "5"] }
       ]},
-      { "title": "Multimedia y links", "rows": [
-        { "label": "Videos de catálogo (player_media)", "values": ["2", "Ilimitados"] },
-        { "label": "Redes sociales", "values": ["3", "Ilimitadas"] },
-        { "label": "Notas de prensa", "values": ["3", "Ilimitadas"] },
-        { "label": "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)", "values": ["Sin cap", "Sin cap"] }
+      { "title": "Multimedia und Links", "rows": [
+        { "label": "Katalogvideos (player_media)", "values": ["2", "Unbegrenzt"] },
+        { "label": "Soziale Netzwerke", "values": ["3", "Unbegrenzt"] },
+        { "label": "Pressemitteilungen", "values": ["3", "Unbegrenzt"] },
+        { "label": "Externe Profile (Transfermarkt, BeSoccer, Flashscore)", "values": ["Ohne Limit", "Ohne Limit"] }
       ]},
-      { "title": "Información profesional", "rows": [
-        { "label": "Datos básicos de la agencia", "values": [true, true] },
-        { "label": "Servicios y alcance operativo", "values": [true, true] },
-        { "label": "Valores de mercado de jugadores", "values": [false, true] },
-        { "label": "Palmarés / reconocimientos", "values": [false, true] }
+      { "title": "Professionelle Informationen", "rows": [
+        { "label": "Basisdaten der Agentur", "values": [true, true] },
+        { "label": "Dienstleistungen und operativer Umfang", "values": [true, true] },
+        { "label": "Marktwerte der Spieler", "values": [false, true] },
+        { "label": "Palmarès / Auszeichnungen", "values": [false, true] }
       ]},
-      { "title": "Validación social", "rows": [
-        { "label": "Reviews recibidas (con invitación)", "values": [false, true] },
-        { "label": "Contactos de referencia", "values": [false, true] }
+      { "title": "Soziale Validierung", "rows": [
+        { "label": "Erhaltene Bewertungen (mit Einladung)", "values": [false, true] },
+        { "label": "Referenzkontakte", "values": [false, true] }
       ]},
-      { "title": "Soporte", "rows": [
-        { "label": "Solicitudes de corrección por rubro / semana", "values": ["2", "5"] },
-        { "label": "Soporte humano prioritario", "values": [false, true] }
+      { "title": "Support", "rows": [
+        { "label": "Korrekturanfragen pro Bereich / Woche", "values": ["2", "5"] },
+        { "label": "Vorrangiger menschlicher Support", "values": [false, true] }
       ]},
       { "title": "SEO", "rows": [
-        { "label": "Meta tags básicos + OG mínimo", "values": [true, true] },
-        { "label": "Schema.org + sitemap dedicado + OG dinámico", "values": [false, true] }
+        { "label": "Basis-Meta-Tags + minimales OG", "values": [true, true] },
+        { "label": "Schema.org + dedizierte Sitemap + dynamisches OG", "values": [false, true] }
       ]}
     ]
   },
   "detailPanel": {
-    "header": { "suffix": "qué incluye", "planPrefix": "Plan", "scrollHint": "Hacé scroll para recorrer las vistas" },
-    "device": { "desktop": "Desktop · 1440×900", "tablet": "Tablet · 1024×1366", "mobile": "Mobile · 390×844", "placeholder": "Reemplazable por screenshot real" },
-    "footer": { "alsoIncludes": "También incluye", "questions": "Tengo dudas" },
+    "header": { "suffix": "was enthalten ist", "planPrefix": "Plan", "scrollHint": "Scrollen Sie, um durch die Ansichten zu navigieren" },
+    "device": { "desktop": "Desktop · 1440×900", "tablet": "Tablet · 1024×1366", "mobile": "Mobile · 390×844", "placeholder": "Durch echten Screenshot ersetzbar" },
+    "footer": { "alsoIncludes": "Ebenfalls enthalten", "questions": "Ich habe Fragen" },
     "freePlayer": {
-      "pitch": "Lo necesario para presentarte profesionalmente. URL pública, datos básicos, trayectoria y estadísticas por temporada — en cualquier dispositivo.",
-      "benefits": ["URL pública personalizable", "Trayectoria + estadísticas por temporada", "2 videos · 3 redes · 3 notas de prensa", "Compartilo por WhatsApp en un toque"],
+      "pitch": "Das Nötige, um sich professionell zu präsentieren. Öffentliche URL, Basisdaten, Laufbahn und Statistiken pro Saison — auf jedem Gerät.",
+      "benefits": ["Anpassbare öffentliche URL", "Laufbahn + Statistiken pro Saison", "2 Videos · 3 Netzwerke · 3 Pressemitteilungen", "Per WhatsApp mit einem Tippen teilen"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Perfil público", "title": "Tu identidad pública, en una URL", "description": "Datos clave, foto profesional y trayectoria a la vista. La presentación más limpia para clubes que recién te descubren.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/perfil/jose-talleres" },
-        { "eyebrow": "Vista 02 · Tablet", "title": "Cómo se ve en tablet", "description": "El perfil se adapta al formato vertical sin perder jerarquía. Pensado para presentaciones rápidas en reuniones presenciales.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "En el bolsillo de cada scout", "description": "Layout mobile-first para compartir por WhatsApp o redes. Lo importante arriba, todo accesible con una mano.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
+        { "eyebrow": "Ansicht 01 · Öffentliches Profil", "title": "Ihre öffentliche Identität in einer URL", "description": "Schlüsseldaten, professionelles Foto und Laufbahn auf einen Blick. Die sauberste Präsentation für Vereine, die Sie gerade entdecken.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/perfil/jose-talleres" },
+        { "eyebrow": "Ansicht 02 · Tablet", "title": "So sieht es auf dem Tablet aus", "description": "Das Profil passt sich dem Hochformat an, ohne die Hierarchie zu verlieren. Gedacht für schnelle Präsentationen bei Präsenzterminen.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
+        { "eyebrow": "Ansicht 03 · Mobile", "title": "In der Tasche jedes Scouts", "description": "Mobile-First-Layout zum Teilen über WhatsApp oder soziale Netzwerke. Das Wichtige oben, alles mit einer Hand erreichbar.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
       ]
     },
     "proPlayer": {
-      "pitch": "El plan que usa la mayoría: plantilla pro, valor de mercado, palmarés, scouting analítico y soporte humano. Pensado para impulsar tu próxima transferencia.",
-      "benefits": ["Plantilla Pro Portfolio con motions y assets", "Multimedia ilimitada y galería de 5 imágenes", "Valor de mercado y palmarés visibles", "Análisis de scouting (táctico, físico, mental, técnico)", "Reviews con invitación + contactos de referencia", "5 solicitudes de corrección/semana · soporte humano · SEO Pro"],
+      "pitch": "Der Plan, den die meisten nutzen: Pro-Vorlage, Marktwert, Palmarès, analytisches Scouting und menschlicher Support. Gedacht, um Ihren nächsten Transfer voranzutreiben.",
+      "benefits": ["Pro-Portfolio-Vorlage mit Motions und Assets", "Unbegrenzte Multimedia-Inhalte und Galerie mit 5 Bildern", "Marktwert und Palmarès sichtbar", "Scouting-Analyse (taktisch, physisch, mental, technisch)", "Bewertungen mit Einladung + Referenzkontakte", "5 Korrekturanfragen/Woche · menschlicher Support · SEO Pro"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Dashboard", "title": "Tus métricas reales, en vivo", "description": "Visitas, contactos y rating actualizados al minuto. Cuatro indicadores de impacto y una vista de actividad reciente.", "device": "desktop", "variant": "dashboard", "caption": "dashboard.ballershub.app/insights" },
-        { "eyebrow": "Vista 02 · Agenda", "title": "Coordiná directamente con clubes", "description": "Tu calendario sincronizado: partidos, entrenamientos y reuniones. Los clubes pueden coordinar visitas en tiempo real.", "device": "desktop", "variant": "dashboard", "caption": "agenda.ballershub.app · Mayo 2026" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "Notificaciones en el bolsillo", "description": "Tu actividad y nuevas oportunidades sincronizadas con tu móvil. Sabés cuándo alguien vuelve a tu perfil.", "device": "mobile", "variant": "dashboard", "caption": "iOS · App nativa próximamente" }
+        { "eyebrow": "Ansicht 01 · Dashboard", "title": "Ihre echten Kennzahlen, live", "description": "Aufrufe, Kontakte und Bewertung auf die Minute aktualisiert. Vier Wirkungsindikatoren und eine Ansicht der jüngsten Aktivität.", "device": "desktop", "variant": "dashboard", "caption": "dashboard.ballershub.app/insights" },
+        { "eyebrow": "Ansicht 02 · Kalender", "title": "Koordinieren Sie direkt mit Vereinen", "description": "Ihr synchronisierter Kalender: Spiele, Trainings und Meetings. Vereine können Besuche in Echtzeit koordinieren.", "device": "desktop", "variant": "dashboard", "caption": "agenda.ballershub.app · Mai 2026" },
+        { "eyebrow": "Ansicht 03 · Mobile", "title": "Benachrichtigungen in der Tasche", "description": "Ihre Aktivität und neue Chancen synchron mit Ihrem Mobilgerät. Sie wissen, wann jemand zu Ihrem Profil zurückkehrt.", "device": "mobile", "variant": "dashboard", "caption": "iOS · Native App in Kürze" }
       ]
     },
     "freeAgency": {
-      "pitch": "Presencia esencial para tu agencia. Hasta 2 members, cartera limitada y plantilla default — lo necesario para empezar a operar.",
-      "benefits": ["URL pública personalizable", "Hasta 2 members del equipo", "Cartera de hasta 5 jugadores", "2 videos · 3 redes · 3 notas de prensa"],
+      "pitch": "Grundlegende Präsenz für Ihre Agentur. Bis zu 2 Mitglieder, begrenztes Portfolio und Standard-Vorlage — das Nötige, um den Betrieb zu starten.",
+      "benefits": ["Anpassbare öffentliche URL", "Bis zu 2 Teammitglieder", "Portfolio von bis zu 5 Spielern", "2 Videos · 3 Netzwerke · 3 Pressemitteilungen"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Agencia", "title": "Tu agencia, presentada con identidad", "description": "Información de la agencia, equipo visible y cartera de hasta 5 representados. Plantilla default, lista en minutos.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/agency/norte-srl" },
-        { "eyebrow": "Vista 02 · Tablet", "title": "Trabajo presencial sin fricción", "description": "El perfil de agencia adaptado a tablet: ideal para presentar al staff técnico de un club o llevar a reuniones de cuerpo técnico.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "Tu agencia en el bolsillo", "description": "Para que clubes y jugadores libres encuentren tu información de contacto desde cualquier dispositivo.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
+        { "eyebrow": "Ansicht 01 · Agentur", "title": "Ihre Agentur, mit Identität präsentiert", "description": "Informationen zur Agentur, sichtbares Team und Portfolio von bis zu 5 Vertretenen. Standard-Vorlage, in Minuten fertig.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/agency/norte-srl" },
+        { "eyebrow": "Ansicht 02 · Tablet", "title": "Präsenzarbeit ohne Reibung", "description": "Das Agenturprofil an das Tablet angepasst: ideal, um es dem Trainerstab eines Vereins zu präsentieren oder zu Besprechungen des Funktionsteams mitzunehmen.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
+        { "eyebrow": "Ansicht 03 · Mobile", "title": "Ihre Agentur in der Tasche", "description": "Damit Vereine und vereinslose Spieler Ihre Kontaktinformationen von jedem Gerät aus finden.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
       ]
     },
     "proAgency": {
-      "pitch": "El stack completo para tu agencia: cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados — todo con plantilla pro.",
-      "benefits": ["Plantilla Pro Portfolio para agencias", "Members ilimitados con roles", "Cartera ilimitada de jugadores", "5 slots de Pro Player otorgables", "Multimedia y notas de prensa ilimitadas", "Reviews con invitación + contactos de referencia", "SEO Pro · soporte humano prioritario"],
+      "pitch": "Der komplette Stack für Ihre Agentur: unbegrenztes Portfolio, Team ohne Limits und 5 Pro-Player-Slots für Ihre Vertretenen — alles mit Pro-Vorlage.",
+      "benefits": ["Pro-Portfolio-Vorlage für Agenturen", "Unbegrenzte Mitglieder mit Rollen", "Unbegrenztes Portfolio an Spielern", "5 übertragbare Pro-Player-Slots", "Unbegrenzte Multimedia-Inhalte und Pressemitteilungen", "Bewertungen mit Einladung + Referenzkontakte", "SEO Pro · vorrangiger menschlicher Support"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Cartera", "title": "Cartera ilimitada con búsqueda", "description": "Filtrá tu cartera por edad, posición o estado contractual. Cada jugador con su perfil pro listo para compartir.", "device": "desktop", "variant": "search", "caption": "agency.ballershub.app/roster" },
-        { "eyebrow": "Vista 02 · Equipo", "title": "Coordiná con tu staff", "description": "Members ilimitados con roles diferenciados (representante principal, asistente, scout). Cada uno con permisos sobre la cartera.", "device": "desktop", "variant": "dashboard", "caption": "agency.ballershub.app/team" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "Tu agencia, móvil-first", "description": "Toda la cartera y notificaciones de actividad disponibles desde cualquier dispositivo del equipo.", "device": "mobile", "variant": "dashboard", "caption": "iOS · App nativa próximamente" }
+        { "eyebrow": "Ansicht 01 · Portfolio", "title": "Unbegrenztes Portfolio mit Suche", "description": "Filtern Sie Ihr Portfolio nach Alter, Position oder Vertragsstatus. Jeder Spieler mit seinem Pro-Profil bereit zum Teilen.", "device": "desktop", "variant": "search", "caption": "agency.ballershub.app/roster" },
+        { "eyebrow": "Ansicht 02 · Team", "title": "Koordinieren Sie mit Ihrem Stab", "description": "Unbegrenzte Mitglieder mit differenzierten Rollen (Hauptberater, Assistent, Scout). Jeder mit Berechtigungen für das Portfolio.", "device": "desktop", "variant": "dashboard", "caption": "agency.ballershub.app/team" },
+        { "eyebrow": "Ansicht 03 · Mobile", "title": "Ihre Agentur, Mobile-First", "description": "Das gesamte Portfolio und Aktivitätsbenachrichtigungen von jedem Gerät des Teams aus verfügbar.", "device": "mobile", "variant": "dashboard", "caption": "iOS · Native App in Kürze" }
       ]
     }
   }

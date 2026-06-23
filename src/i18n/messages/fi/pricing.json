@@ -1,264 +1,264 @@
 {
   "hero": {
-    "badge": "Planes & precios",
-    "title": "Elegí el plan que acelera tu carrera",
-    "description": "Dos formas de potenciar tu visibilidad en 'BallersHub. Empezá gratis y cuando estés listo, sumá Pro para desbloquear plantilla pro, métricas, reviews y mucho más."
+    "badge": "Tilaukset & hinnat",
+    "title": "Valitse tilaus, joka vauhdittaa uraasi",
+    "description": "Kaksi tapaa vahvistaa näkyvyyttäsi 'BallersHubissa. Aloita ilmaiseksi ja kun olet valmis, lisää Pro avataksesi pro-mallin, mittarit, arvostelut ja paljon muuta."
   },
   "toggles": {
-    "audienceLabel": "Soy",
-    "currencyLabel": "Moneda",
-    "player": "Jugador",
-    "agency": "Agencia"
+    "audienceLabel": "Olen",
+    "currencyLabel": "Valuutta",
+    "player": "Pelaaja",
+    "agency": "Agentuuri"
   },
   "valueGrid": {
-    "badge": "Incluido en todos los planes",
-    "title": "Todo lo que necesitás para profesionalizar tu juego",
-    "validationTitle": "Validación humana",
-    "validationDesc": "Cada perfil pasa por un control de identidad y trayectoria por nuestro equipo.",
-    "metricsTitle": "Métricas accionables",
-    "metricsDesc": "Visitas, contactos y reseñas medidas en tiempo real para entender tu impacto.",
-    "communityTitle": "Comunidad activa",
-    "communityDesc": "Clubes, agentes y staff técnico que ya usan 'BallersHub para descubrir talento.",
-    "setupTitle": "Setup inmediato",
-    "setupDesc": "Plantillas listas y carga guiada: tu primer perfil queda armado en minutos."
+    "badge": "Sisältyy kaikkiin tilauksiin",
+    "title": "Kaikki mitä tarvitset pelisi ammattimaistamiseen",
+    "validationTitle": "Ihmisvarmennus",
+    "validationDesc": "Jokainen profiili käy läpi tiimimme tekemän henkilöllisyyden ja urapolun tarkistuksen.",
+    "metricsTitle": "Toimintaan ohjaavat mittarit",
+    "metricsDesc": "Käynnit, yhteydenotot ja arvostelut mitataan reaaliajassa, jotta ymmärrät vaikutuksesi.",
+    "communityTitle": "Aktiivinen yhteisö",
+    "communityDesc": "Seurat, agentit ja valmennustiimit, jotka jo käyttävät 'BallersHubia lahjakkuuksien löytämiseen.",
+    "setupTitle": "Välitön käyttöönotto",
+    "setupDesc": "Valmiit mallit ja ohjattu syöttö: ensimmäinen profiilisi on valmis minuuteissa."
   },
   "faq": {
-    "badge": "Preguntas frecuentes",
-    "title": "Todo lo que necesitás saber",
-    "q1": "¿Puedo probar antes de pagar?",
-    "a1": "Sí. Todos los planes pagos incluyen 14 días de prueba sin compromiso y podés cancelar en cualquier momento desde tu panel.",
-    "q2": "¿Cómo funciona la validación de mi perfil?",
-    "a2": "Nuestro equipo verifica identidad, trayectoria y referencias antes de mostrar la insignia de perfil validado. El proceso normalmente toma 24–72 hs.",
-    "q3": "¿Puedo cambiar de plan más adelante?",
-    "a3": "Podés escalar o bajar de plan cuando quieras. Las diferencias se prorratean automáticamente en la próxima facturación.",
-    "q4": "¿Hay un plan para clubes con varios usuarios?",
-    "a4": "El plan Elite Scouting incluye accesos para staff. Si tu organización necesita configuraciones a medida, escribinos y armamos una propuesta."
+    "badge": "Usein kysytyt kysymykset",
+    "title": "Kaikki mitä sinun tarvitsee tietää",
+    "q1": "Voinko kokeilla ennen maksamista?",
+    "a1": "Kyllä. Kaikki maksulliset tilaukset sisältävät 14 päivän sitoumuksettoman kokeilun ja voit peruuttaa milloin tahansa hallintapaneelistasi.",
+    "q2": "Miten profiilini varmennus toimii?",
+    "a2": "Tiimimme tarkistaa henkilöllisyyden, urapolun ja suosittelijat ennen kuin varmennetun profiilin merkki näytetään. Prosessi kestää yleensä 24–72 t.",
+    "q3": "Voinko vaihtaa tilausta myöhemmin?",
+    "a3": "Voit korottaa tai laskea tilaustasi milloin haluat. Erotukset jaksotetaan automaattisesti seuraavaan laskutukseen.",
+    "q4": "Onko olemassa tilausta seuroille, joilla on useita käyttäjiä?",
+    "a4": "Elite Scouting -tilaus sisältää käyttöoikeudet henkilöstölle. Jos organisaatiosi tarvitsee räätälöityjä määrityksiä, ota yhteyttä, niin laadimme ehdotuksen."
   },
   "cta": {
-    "badge": "¿Necesitás algo a medida?",
-    "title": "Hablemos de tu proyecto",
-    "description": "Para clubes, federaciones y agencias armamos propuestas a medida con volumen de cuentas, integraciones y soporte dedicado.",
-    "signup": "Crear cuenta gratis",
-    "contact": "Hablar con ventas"
+    "badge": "Tarvitsetko jotain räätälöityä?",
+    "title": "Keskustellaan projektistasi",
+    "description": "Seuroille, liitoille ja agentuureille laadimme räätälöityjä ehdotuksia, joissa on tililiittymiä, integraatioita ja oma tuki.",
+    "signup": "Luo ilmainen tili",
+    "contact": "Keskustele myynnin kanssa"
   },
   "mocks": {
-    "desktop": "Desktop",
-    "verified": "Verificado",
+    "desktop": "Työpöytä",
+    "verified": "Varmennettu",
     "pro": "Pro",
-    "mockupDefault": "Mockup default"
+    "mockupDefault": "Oletusmalli"
   },
   "meta": {
-    "title": "Planes y precios",
-    "description": "Elegí el plan que potencia tu carrera o agencia. Free incluye perfil verificado y URL pública. Pro suma galería extendida, prensa, SEO avanzado y schema en JSON-LD.",
-    "ogTitle": "Planes y precios — 'BallersHub",
-    "ogDescription": "Free vs Pro para jugadores y agencias. Suscripción anual con trial de 7 días en Pro."
+    "title": "Tilaukset ja hinnat",
+    "description": "Valitse tilaus, joka vauhdittaa uraasi tai agentuuriasi. Free sisältää varmennetun profiilin ja julkisen URL-osoitteen. Pro lisää laajennetun gallerian, lehdistön, edistyneen SEO:n ja JSON-LD-skeeman.",
+    "ogTitle": "Tilaukset ja hinnat — 'BallersHub",
+    "ogDescription": "Free vs Pro pelaajille ja agentuureille. Vuositilaus ja 7 päivän kokeilu Pro:ssa."
   },
   "plans": {
-    "srTitle": "Planes disponibles",
-    "priceFree": "Gratis",
-    "forever": "Para siempre · sin tarjeta",
-    "perMonth": "/mes",
-    "billedAnnually": "Facturado anualmente · ",
-    "perYear": "/ año",
-    "viewDemo": "Ver demo",
-    "disclaimer": "Cobro anual · Cancelable sin cargo dentro de los 3 días posteriores al fin del trial",
+    "srTitle": "Saatavilla olevat tilaukset",
+    "priceFree": "Ilmainen",
+    "forever": "Ikuisesti · ilman korttia",
+    "perMonth": "/kk",
+    "billedAnnually": "Laskutetaan vuosittain · ",
+    "perYear": "/ vuosi",
+    "viewDemo": "Katso demo",
+    "disclaimer": "Vuosilaskutus · Peruttavissa maksutta 3 päivän kuluessa kokeilun päättymisestä",
     "freePlayer": {
       "name": "Free",
-      "tagline": "Empezá tu identidad",
-      "description": "Construí tu perfil esencial con identidad verificable. Lo necesario para que clubes y agentes te encuentren.",
-      "ctaLabel": "Empezar gratis",
+      "tagline": "Aloita identiteettisi",
+      "description": "Rakenna olennainen profiilisi varmennettavalla henkilöllisyydellä. Tarpeellinen, jotta seurat ja agentit löytävät sinut.",
+      "ctaLabel": "Aloita ilmaiseksi",
       "features": [
-        "Perfil profesional verificado",
-        "URL pública personalizable",
-        "Plantilla default",
-        "2 videos de catálogo · 3 redes · 3 notas de prensa",
-        "Trayectoria + estadísticas por temporada",
-        "2 solicitudes de corrección por rubro / semana",
-        "Plantilla Pro Portfolio (motions + assets)",
-        "Galería catálogo (5 imágenes)",
-        "Valor de mercado y palmarés",
-        "Análisis de scouting (táctico, físico, mental, técnico)",
-        "Reviews y contactos de referencia"
+        "Varmennettu ammattilaisprofiili",
+        "Mukautettava julkinen URL",
+        "Oletusmalli",
+        "2 katalogivideota · 3 verkostoa · 3 lehdistötiedotetta",
+        "Urapolku + kausikohtaiset tilastot",
+        "2 korjauspyyntöä osa-aluetta / viikko kohden",
+        "Pro Portfolio -malli (motiot + assetit)",
+        "Katalogigalleria (5 kuvaa)",
+        "Markkina-arvo ja palmares",
+        "Scouting-analyysi (taktinen, fyysinen, henkinen, tekninen)",
+        "Arvostelut ja suosittelijoiden yhteystiedot"
       ]
     },
     "proPlayer": {
       "name": "Pro",
-      "tagline": "Visibilidad real",
-      "description": "Plantilla pro, multimedia ilimitada y la información completa para impulsar tu próxima transferencia.",
-      "ctaLabel": "Probar 7 días gratis",
-      "badge": "Más elegido",
+      "tagline": "Todellinen näkyvyys",
+      "description": "Pro-malli, rajaton multimedia ja täydet tiedot vauhdittamaan seuraavaa siirtoasi.",
+      "ctaLabel": "Kokeile 7 päivää ilmaiseksi",
+      "badge": "Valituin",
       "features": [
-        "Todo lo del Free",
-        "Plantilla Pro Portfolio (motions + assets pro)",
-        "Galería catálogo de 5 imágenes",
-        "Videos · redes · notas de prensa ilimitados",
-        "Valor de mercado y palmarés visibles",
-        "Análisis de scouting (táctico, físico, mental, técnico)",
-        "Descripciones por etapa de carrera",
-        "Reviews con invitación + contactos de referencia",
-        "5 solicitudes de corrección por rubro / semana",
-        "Soporte humano prioritario · SEO Pro"
+        "Kaikki Free-tilauksesta",
+        "Pro Portfolio -malli (motiot + pro-assetit)",
+        "5 kuvan katalogigalleria",
+        "Rajattomasti videoita · verkostoja · lehdistötiedotteita",
+        "Markkina-arvo ja palmares näkyvissä",
+        "Scouting-analyysi (taktinen, fyysinen, henkinen, tekninen)",
+        "Kuvaukset uravaiheittain",
+        "Arvostelut kutsulla + suosittelijoiden yhteystiedot",
+        "5 korjauspyyntöä osa-aluetta / viikko kohden",
+        "Ensisijainen ihmistuki · SEO Pro"
       ]
     },
     "freeAgency": {
       "name": "Free",
-      "tagline": "Mostrá tu agencia",
-      "description": "Presencia esencial para tu agencia. Cartera limitada y plantilla default para empezar a operar.",
-      "ctaLabel": "Crear cuenta gratis",
+      "tagline": "Esittele agentuurisi",
+      "description": "Olennainen läsnäolo agentuurillesi. Rajoitettu salkku ja oletusmalli toiminnan aloittamiseksi.",
+      "ctaLabel": "Luo ilmainen tili",
       "features": [
-        "URL pública personalizable",
-        "Plantilla default",
-        "Hasta 2 members del equipo (incluye owner)",
-        "Cartera de hasta 5 jugadores representados",
-        "2 videos de catálogo · 3 redes · 3 notas de prensa",
-        "2 solicitudes de corrección por rubro / semana",
-        "Plantilla Pro Portfolio (versión agency)",
-        "Members ilimitados",
-        "5 slots de Pro otorgables a representados",
-        "Reviews y contactos de referencia"
+        "Mukautettava julkinen URL",
+        "Oletusmalli",
+        "Enintään 2 tiimin jäsentä (owner mukaan lukien)",
+        "Salkku enintään 5 edustetusta pelaajasta",
+        "2 katalogivideota · 3 verkostoa · 3 lehdistötiedotetta",
+        "2 korjauspyyntöä osa-aluetta / viikko kohden",
+        "Pro Portfolio -malli (agentuuriversio)",
+        "Rajattomasti jäseniä",
+        "5 Pro-paikkaa myönnettäväksi edustetuille",
+        "Arvostelut ja suosittelijoiden yhteystiedot"
       ]
     },
     "proAgency": {
       "name": "Pro",
-      "tagline": "Stack profesional",
-      "description": "Cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados. El stack completo de la agencia.",
-      "ctaLabel": "Probar 7 días gratis",
-      "badge": "Recomendado",
+      "tagline": "Ammattilaispakki",
+      "description": "Rajaton salkku, rajaton tiimi ja 5 Pro Player -paikkaa edustetuillesi. Agentuurin täydellinen pakki.",
+      "ctaLabel": "Kokeile 7 päivää ilmaiseksi",
+      "badge": "Suositeltu",
       "features": [
-        "Todo lo del Free Agency",
-        "Plantilla Pro Portfolio (versión agency)",
-        "Members del equipo ilimitados",
-        "Cartera ilimitada de jugadores representados",
-        "5 slots de Pro Player para tus representados",
-        "Galería catálogo de 5 imágenes",
-        "Reviews con invitación",
-        "Contactos de referencia",
-        "Soporte humano prioritario",
+        "Kaikki Free Agency -tilauksesta",
+        "Pro Portfolio -malli (agentuuriversio)",
+        "Rajattomasti tiimin jäseniä",
+        "Rajaton salkku edustettuja pelaajia",
+        "5 Pro Player -paikkaa edustetuillesi",
+        "5 kuvan katalogigalleria",
+        "Arvostelut kutsulla",
+        "Suosittelijoiden yhteystiedot",
+        "Ensisijainen ihmistuki",
         "SEO Pro"
       ]
     }
   },
   "comparison": {
-    "badge": "Comparativa detallada",
-    "title": "Todo lo que cada plan incluye",
-    "description": "Las funciones agrupadas por área. La columna de la derecha es la opción Pro recomendada para sacarle todo al producto.",
-    "feature": "Característica",
+    "badge": "Yksityiskohtainen vertailu",
+    "title": "Kaikki mitä kukin tilaus sisältää",
+    "description": "Ominaisuudet ryhmiteltynä osa-alueittain. Oikeanpuoleinen sarake on suositeltu Pro-vaihtoehto, jolla saat tuotteesta kaiken irti.",
+    "feature": "Ominaisuus",
     "free": "Free",
     "pro": "Pro",
     "top": "Top",
-    "included": "Incluido",
-    "notIncluded": "No incluido",
+    "included": "Sisältyy",
+    "notIncluded": "Ei sisälly",
     "player": [
-      { "title": "Identidad y perfil", "rows": [
-        { "label": "Perfil profesional verificado", "values": [true, true] },
-        { "label": "URL pública personalizable", "values": [true, true] },
-        { "label": "Plantilla del perfil", "values": ["Default", "Pro Portfolio"] },
-        { "label": "Galería catálogo (imágenes)", "values": ["—", "5"] },
+      { "title": "Identiteetti ja profiili", "rows": [
+        { "label": "Varmennettu ammattilaisprofiili", "values": [true, true] },
+        { "label": "Mukautettava julkinen URL", "values": [true, true] },
+        { "label": "Profiilin malli", "values": ["Oletus", "Pro Portfolio"] },
+        { "label": "Katalogigalleria (kuvat)", "values": ["—", "5"] },
         { "label": "Avatar", "values": ["1", "1"] }
       ]},
-      { "title": "Multimedia y links", "rows": [
-        { "label": "Videos de catálogo (player_media)", "values": ["2", "Ilimitados"] },
-        { "label": "Redes sociales", "values": ["3", "Ilimitadas"] },
-        { "label": "Notas de prensa", "values": ["3", "Ilimitadas"] },
-        { "label": "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)", "values": ["Sin cap", "Sin cap"] }
+      { "title": "Multimedia ja linkit", "rows": [
+        { "label": "Katalogivideot (player_media)", "values": ["2", "Rajattomasti"] },
+        { "label": "Sosiaaliset verkostot", "values": ["3", "Rajattomasti"] },
+        { "label": "Lehdistötiedotteet", "values": ["3", "Rajattomasti"] },
+        { "label": "Ulkoiset profiilit (Transfermarkt, BeSoccer, Flashscore)", "values": ["Ilman rajaa", "Ilman rajaa"] }
       ]},
-      { "title": "Información profesional", "rows": [
-        { "label": "Datos básicos (posición, club, edad)", "values": [true, true] },
-        { "label": "Trayectoria / clubes", "values": [true, true] },
-        { "label": "Estadísticas por temporada (PJ/G/A)", "values": [true, true] },
-        { "label": "Valor de mercado", "values": [false, true] },
-        { "label": "Palmarés / reconocimientos", "values": [false, true] },
-        { "label": "Análisis de scouting (táctico, físico, mental, técnico)", "values": [false, true] },
-        { "label": "Descripciones por etapa de carrera", "values": [false, true] }
+      { "title": "Ammatilliset tiedot", "rows": [
+        { "label": "Perustiedot (pelipaikka, seura, ikä)", "values": [true, true] },
+        { "label": "Urapolku / seurat", "values": [true, true] },
+        { "label": "Kausikohtaiset tilastot (O/M/S)", "values": [true, true] },
+        { "label": "Markkina-arvo", "values": [false, true] },
+        { "label": "Palmares / saavutukset", "values": [false, true] },
+        { "label": "Scouting-analyysi (taktinen, fyysinen, henkinen, tekninen)", "values": [false, true] },
+        { "label": "Kuvaukset uravaiheittain", "values": [false, true] }
       ]},
-      { "title": "Validación social", "rows": [
-        { "label": "Reviews recibidas (con invitación)", "values": [false, true] },
-        { "label": "Contactos de referencia", "values": [false, true] }
+      { "title": "Sosiaalinen varmennus", "rows": [
+        { "label": "Saadut arvostelut (kutsulla)", "values": [false, true] },
+        { "label": "Suosittelijoiden yhteystiedot", "values": [false, true] }
       ]},
-      { "title": "Soporte", "rows": [
-        { "label": "Solicitudes de corrección por rubro / semana", "values": ["2", "5"] },
-        { "label": "Soporte humano prioritario", "values": [false, true] }
+      { "title": "Tuki", "rows": [
+        { "label": "Korjauspyynnöt osa-aluetta / viikko kohden", "values": ["2", "5"] },
+        { "label": "Ensisijainen ihmistuki", "values": [false, true] }
       ]},
       { "title": "SEO", "rows": [
-        { "label": "Meta tags básicos + OG mínimo", "values": [true, true] },
-        { "label": "Schema.org + sitemap dedicado + OG dinámico", "values": [false, true] }
+        { "label": "Perus-metatagit + minimaalinen OG", "values": [true, true] },
+        { "label": "Schema.org + oma sivukartta + dynaaminen OG", "values": [false, true] }
       ]}
     ],
     "agency": [
-      { "title": "Identidad y perfil", "rows": [
-        { "label": "URL pública personalizable", "values": [true, true] },
-        { "label": "Plantilla del perfil", "values": ["Default", "Pro Portfolio (agency)"] },
-        { "label": "Galería catálogo (imágenes)", "values": ["—", "5"] }
+      { "title": "Identiteetti ja profiili", "rows": [
+        { "label": "Mukautettava julkinen URL", "values": [true, true] },
+        { "label": "Profiilin malli", "values": ["Oletus", "Pro Portfolio (agentuuri)"] },
+        { "label": "Katalogigalleria (kuvat)", "values": ["—", "5"] }
       ]},
-      { "title": "Equipo y cartera", "rows": [
-        { "label": "Members del equipo (incluye owner)", "values": ["2", "Ilimitados"] },
-        { "label": "Cartera de jugadores representados", "values": ["5 max", "Ilimitada"] },
-        { "label": "Slots de Pro Player otorgables", "values": ["—", "5"] }
+      { "title": "Tiimi ja salkku", "rows": [
+        { "label": "Tiimin jäsenet (owner mukaan lukien)", "values": ["2", "Rajattomasti"] },
+        { "label": "Edustettujen pelaajien salkku", "values": ["5 maks.", "Rajaton"] },
+        { "label": "Myönnettävät Pro Player -paikat", "values": ["—", "5"] }
       ]},
-      { "title": "Multimedia y links", "rows": [
-        { "label": "Videos de catálogo (player_media)", "values": ["2", "Ilimitados"] },
-        { "label": "Redes sociales", "values": ["3", "Ilimitadas"] },
-        { "label": "Notas de prensa", "values": ["3", "Ilimitadas"] },
-        { "label": "Perfiles externos (Transfermarkt, BeSoccer, Flashscore)", "values": ["Sin cap", "Sin cap"] }
+      { "title": "Multimedia ja linkit", "rows": [
+        { "label": "Katalogivideot (player_media)", "values": ["2", "Rajattomasti"] },
+        { "label": "Sosiaaliset verkostot", "values": ["3", "Rajattomasti"] },
+        { "label": "Lehdistötiedotteet", "values": ["3", "Rajattomasti"] },
+        { "label": "Ulkoiset profiilit (Transfermarkt, BeSoccer, Flashscore)", "values": ["Ilman rajaa", "Ilman rajaa"] }
       ]},
-      { "title": "Información profesional", "rows": [
-        { "label": "Datos básicos de la agencia", "values": [true, true] },
-        { "label": "Servicios y alcance operativo", "values": [true, true] },
-        { "label": "Valores de mercado de jugadores", "values": [false, true] },
-        { "label": "Palmarés / reconocimientos", "values": [false, true] }
+      { "title": "Ammatilliset tiedot", "rows": [
+        { "label": "Agentuurin perustiedot", "values": [true, true] },
+        { "label": "Palvelut ja toiminnan laajuus", "values": [true, true] },
+        { "label": "Pelaajien markkina-arvot", "values": [false, true] },
+        { "label": "Palmares / saavutukset", "values": [false, true] }
       ]},
-      { "title": "Validación social", "rows": [
-        { "label": "Reviews recibidas (con invitación)", "values": [false, true] },
-        { "label": "Contactos de referencia", "values": [false, true] }
+      { "title": "Sosiaalinen varmennus", "rows": [
+        { "label": "Saadut arvostelut (kutsulla)", "values": [false, true] },
+        { "label": "Suosittelijoiden yhteystiedot", "values": [false, true] }
       ]},
-      { "title": "Soporte", "rows": [
-        { "label": "Solicitudes de corrección por rubro / semana", "values": ["2", "5"] },
-        { "label": "Soporte humano prioritario", "values": [false, true] }
+      { "title": "Tuki", "rows": [
+        { "label": "Korjauspyynnöt osa-aluetta / viikko kohden", "values": ["2", "5"] },
+        { "label": "Ensisijainen ihmistuki", "values": [false, true] }
       ]},
       { "title": "SEO", "rows": [
-        { "label": "Meta tags básicos + OG mínimo", "values": [true, true] },
-        { "label": "Schema.org + sitemap dedicado + OG dinámico", "values": [false, true] }
+        { "label": "Perus-metatagit + minimaalinen OG", "values": [true, true] },
+        { "label": "Schema.org + oma sivukartta + dynaaminen OG", "values": [false, true] }
       ]}
     ]
   },
   "detailPanel": {
-    "header": { "suffix": "qué incluye", "planPrefix": "Plan", "scrollHint": "Hacé scroll para recorrer las vistas" },
-    "device": { "desktop": "Desktop · 1440×900", "tablet": "Tablet · 1024×1366", "mobile": "Mobile · 390×844", "placeholder": "Reemplazable por screenshot real" },
-    "footer": { "alsoIncludes": "También incluye", "questions": "Tengo dudas" },
+    "header": { "suffix": "mitä sisältää", "planPrefix": "Tilaus", "scrollHint": "Vieritä selataksesi näkymiä" },
+    "device": { "desktop": "Työpöytä · 1440×900", "tablet": "Tabletti · 1024×1366", "mobile": "Mobiili · 390×844", "placeholder": "Korvattavissa oikealla kuvakaappauksella" },
+    "footer": { "alsoIncludes": "Sisältää myös", "questions": "Minulla on kysyttävää" },
     "freePlayer": {
-      "pitch": "Lo necesario para presentarte profesionalmente. URL pública, datos básicos, trayectoria y estadísticas por temporada — en cualquier dispositivo.",
-      "benefits": ["URL pública personalizable", "Trayectoria + estadísticas por temporada", "2 videos · 3 redes · 3 notas de prensa", "Compartilo por WhatsApp en un toque"],
+      "pitch": "Tarpeellinen esittäytyäksesi ammattimaisesti. Julkinen URL, perustiedot, urapolku ja kausikohtaiset tilastot — millä tahansa laitteella.",
+      "benefits": ["Mukautettava julkinen URL", "Urapolku + kausikohtaiset tilastot", "2 videota · 3 verkostoa · 3 lehdistötiedotetta", "Jaa se WhatsAppissa yhdellä napautuksella"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Perfil público", "title": "Tu identidad pública, en una URL", "description": "Datos clave, foto profesional y trayectoria a la vista. La presentación más limpia para clubes que recién te descubren.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/perfil/jose-talleres" },
-        { "eyebrow": "Vista 02 · Tablet", "title": "Cómo se ve en tablet", "description": "El perfil se adapta al formato vertical sin perder jerarquía. Pensado para presentaciones rápidas en reuniones presenciales.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "En el bolsillo de cada scout", "description": "Layout mobile-first para compartir por WhatsApp o redes. Lo importante arriba, todo accesible con una mano.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
+        { "eyebrow": "Näkymä 01 · Julkinen profiili", "title": "Julkinen identiteettisi yhdessä URL-osoitteessa", "description": "Keskeiset tiedot, ammattimainen kuva ja urapolku näkyvillä. Selkein esittely seuroille, jotka juuri löytävät sinut.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/perfil/jose-talleres" },
+        { "eyebrow": "Näkymä 02 · Tabletti", "title": "Miltä se näyttää tabletilla", "description": "Profiili mukautuu pystymuotoon menettämättä hierarkiaa. Suunniteltu nopeisiin esittelyihin lähitapaamisissa.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
+        { "eyebrow": "Näkymä 03 · Mobiili", "title": "Jokaisen tarkkailijan taskussa", "description": "Mobiili ensin -asettelu jaettavaksi WhatsAppissa tai verkostoissa. Tärkein ylhäällä, kaikki saavutettavissa yhdellä kädellä.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
       ]
     },
     "proPlayer": {
-      "pitch": "El plan que usa la mayoría: plantilla pro, valor de mercado, palmarés, scouting analítico y soporte humano. Pensado para impulsar tu próxima transferencia.",
-      "benefits": ["Plantilla Pro Portfolio con motions y assets", "Multimedia ilimitada y galería de 5 imágenes", "Valor de mercado y palmarés visibles", "Análisis de scouting (táctico, físico, mental, técnico)", "Reviews con invitación + contactos de referencia", "5 solicitudes de corrección/semana · soporte humano · SEO Pro"],
+      "pitch": "Tilaus, jota useimmat käyttävät: pro-malli, markkina-arvo, palmares, analyyttinen scouting ja ihmistuki. Suunniteltu vauhdittamaan seuraavaa siirtoasi.",
+      "benefits": ["Pro Portfolio -malli motioilla ja asseteilla", "Rajaton multimedia ja 5 kuvan galleria", "Markkina-arvo ja palmares näkyvissä", "Scouting-analyysi (taktinen, fyysinen, henkinen, tekninen)", "Arvostelut kutsulla + suosittelijoiden yhteystiedot", "5 korjauspyyntöä/viikko · ihmistuki · SEO Pro"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Dashboard", "title": "Tus métricas reales, en vivo", "description": "Visitas, contactos y rating actualizados al minuto. Cuatro indicadores de impacto y una vista de actividad reciente.", "device": "desktop", "variant": "dashboard", "caption": "dashboard.ballershub.app/insights" },
-        { "eyebrow": "Vista 02 · Agenda", "title": "Coordiná directamente con clubes", "description": "Tu calendario sincronizado: partidos, entrenamientos y reuniones. Los clubes pueden coordinar visitas en tiempo real.", "device": "desktop", "variant": "dashboard", "caption": "agenda.ballershub.app · Mayo 2026" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "Notificaciones en el bolsillo", "description": "Tu actividad y nuevas oportunidades sincronizadas con tu móvil. Sabés cuándo alguien vuelve a tu perfil.", "device": "mobile", "variant": "dashboard", "caption": "iOS · App nativa próximamente" }
+        { "eyebrow": "Näkymä 01 · Hallintapaneeli", "title": "Todelliset mittarisi, reaaliajassa", "description": "Käynnit, yhteydenotot ja arvosana päivitettyinä minuutilleen. Neljä vaikutusindikaattoria ja näkymä viimeaikaiseen toimintaan.", "device": "desktop", "variant": "dashboard", "caption": "dashboard.ballershub.app/insights" },
+        { "eyebrow": "Näkymä 02 · Kalenteri", "title": "Sovi suoraan seurojen kanssa", "description": "Synkronoitu kalenterisi: ottelut, harjoitukset ja tapaamiset. Seurat voivat sopia tapaamisista reaaliajassa.", "device": "desktop", "variant": "dashboard", "caption": "agenda.ballershub.app · Toukokuu 2026" },
+        { "eyebrow": "Näkymä 03 · Mobiili", "title": "Ilmoitukset taskussa", "description": "Toimintasi ja uudet mahdollisuudet synkronoituna mobiilisi kanssa. Tiedät, kun joku palaa profiiliisi.", "device": "mobile", "variant": "dashboard", "caption": "iOS · Natiivisovellus pian" }
       ]
     },
     "freeAgency": {
-      "pitch": "Presencia esencial para tu agencia. Hasta 2 members, cartera limitada y plantilla default — lo necesario para empezar a operar.",
-      "benefits": ["URL pública personalizable", "Hasta 2 members del equipo", "Cartera de hasta 5 jugadores", "2 videos · 3 redes · 3 notas de prensa"],
+      "pitch": "Olennainen läsnäolo agentuurillesi. Enintään 2 jäsentä, rajoitettu salkku ja oletusmalli — tarpeellinen toiminnan aloittamiseksi.",
+      "benefits": ["Mukautettava julkinen URL", "Enintään 2 tiimin jäsentä", "Salkku enintään 5 pelaajasta", "2 videota · 3 verkostoa · 3 lehdistötiedotetta"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Agencia", "title": "Tu agencia, presentada con identidad", "description": "Información de la agencia, equipo visible y cartera de hasta 5 representados. Plantilla default, lista en minutos.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/agency/norte-srl" },
-        { "eyebrow": "Vista 02 · Tablet", "title": "Trabajo presencial sin fricción", "description": "El perfil de agencia adaptado a tablet: ideal para presentar al staff técnico de un club o llevar a reuniones de cuerpo técnico.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "Tu agencia en el bolsillo", "description": "Para que clubes y jugadores libres encuentren tu información de contacto desde cualquier dispositivo.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
+        { "eyebrow": "Näkymä 01 · Agentuuri", "title": "Agentuurisi, esiteltynä identiteetillä", "description": "Agentuurin tiedot, näkyvä tiimi ja salkku enintään 5 edustetusta. Oletusmalli, valmis minuuteissa.", "device": "desktop", "variant": "profile", "caption": "ballershub.app/agency/norte-srl" },
+        { "eyebrow": "Näkymä 02 · Tabletti", "title": "Lähityöskentely ilman kitkaa", "description": "Tablettiin mukautettu agentuuriprofiili: ihanteellinen esiteltäväksi seuran valmennustiimille tai mukaan otettavaksi valmennusryhmän tapaamisiin.", "device": "tablet", "variant": "profile", "caption": "iPad · 1024×1366" },
+        { "eyebrow": "Näkymä 03 · Mobiili", "title": "Agentuurisi taskussa", "description": "Jotta seurat ja vapaat pelaajat löytävät yhteystietosi miltä tahansa laitteelta.", "device": "mobile", "variant": "profile", "caption": "iPhone · 390×844" }
       ]
     },
     "proAgency": {
-      "pitch": "El stack completo para tu agencia: cartera ilimitada, equipo sin límites y 5 slots de Pro Player para tus representados — todo con plantilla pro.",
-      "benefits": ["Plantilla Pro Portfolio para agencias", "Members ilimitados con roles", "Cartera ilimitada de jugadores", "5 slots de Pro Player otorgables", "Multimedia y notas de prensa ilimitadas", "Reviews con invitación + contactos de referencia", "SEO Pro · soporte humano prioritario"],
+      "pitch": "Täydellinen pakki agentuurillesi: rajaton salkku, rajaton tiimi ja 5 Pro Player -paikkaa edustetuillesi — kaikki pro-mallilla.",
+      "benefits": ["Pro Portfolio -malli agentuureille", "Rajattomasti jäseniä rooleineen", "Rajaton salkku pelaajia", "5 myönnettävää Pro Player -paikkaa", "Rajaton multimedia ja lehdistötiedotteet", "Arvostelut kutsulla + suosittelijoiden yhteystiedot", "SEO Pro · ensisijainen ihmistuki"],
       "scenes": [
-        { "eyebrow": "Vista 01 · Cartera", "title": "Cartera ilimitada con búsqueda", "description": "Filtrá tu cartera por edad, posición o estado contractual. Cada jugador con su perfil pro listo para compartir.", "device": "desktop", "variant": "search", "caption": "agency.ballershub.app/roster" },
-        { "eyebrow": "Vista 02 · Equipo", "title": "Coordiná con tu staff", "description": "Members ilimitados con roles diferenciados (representante principal, asistente, scout). Cada uno con permisos sobre la cartera.", "device": "desktop", "variant": "dashboard", "caption": "agency.ballershub.app/team" },
-        { "eyebrow": "Vista 03 · Mobile", "title": "Tu agencia, móvil-first", "description": "Toda la cartera y notificaciones de actividad disponibles desde cualquier dispositivo del equipo.", "device": "mobile", "variant": "dashboard", "caption": "iOS · App nativa próximamente" }
+        { "eyebrow": "Näkymä 01 · Salkku", "title": "Rajaton salkku haulla", "description": "Suodata salkkuasi iän, pelipaikan tai sopimustilanteen mukaan. Jokainen pelaaja pro-profiilineen valmiina jaettavaksi.", "device": "desktop", "variant": "search", "caption": "agency.ballershub.app/roster" },
+        { "eyebrow": "Näkymä 02 · Tiimi", "title": "Sovi yhteen henkilöstösi kanssa", "description": "Rajattomasti jäseniä eriytetyin roolein (pääedustaja, avustaja, tarkkailija). Jokaisella oikeudet salkkuun.", "device": "desktop", "variant": "dashboard", "caption": "agency.ballershub.app/team" },
+        { "eyebrow": "Näkymä 03 · Mobiili", "title": "Agentuurisi, mobiili ensin", "description": "Koko salkku ja toiminnan ilmoitukset saatavilla miltä tahansa tiimin laitteelta.", "device": "mobile", "variant": "dashboard", "caption": "iOS · Natiivisovellus pian" }
       ]
     }
   }

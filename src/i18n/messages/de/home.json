@@ -1,307 +1,307 @@
 {
   "hero": {
-    "eyebrow": "Beta abierta",
-    "description": "Centralizá tu perfil profesional, sumá reseñas verificadas y conectate con clubes que buscan potenciar su plantel. Todo en un solo lugar.",
-    "descriptionShort": "Centralizá tu perfil profesional, sumá reseñas verificadas y conectate con clubes que buscan potenciar su plantel.",
-    "cta": "Crear mi perfil",
-    "howWeValidate": "Cómo validamos",
-    "scrollHint": "Descendé al mapa",
+    "eyebrow": "Offene Beta",
+    "description": "Bündeln Sie Ihr Profiprofil, sammeln Sie verifizierte Bewertungen und vernetzen Sie sich mit Vereinen, die ihren Kader verstärken wollen. Alles an einem Ort.",
+    "descriptionShort": "Bündeln Sie Ihr Profiprofil, sammeln Sie verifizierte Bewertungen und vernetzen Sie sich mit Vereinen, die ihren Kader verstärken wollen.",
+    "cta": "Mein Profil erstellen",
+    "howWeValidate": "Wie wir validieren",
+    "scrollHint": "Zur Karte scrollen",
     "counter": {
       "value": "+50",
-      "label": "jugadores registrados"
+      "label": "registrierte Spieler"
     },
     "stats": {
       "profiles": {
         "value": "+30",
-        "label": "Perfiles validados"
+        "label": "Validierte Profile"
       },
       "clubs": {
         "value": "+130",
-        "label": "Clubes activos"
+        "label": "Aktive Vereine"
       },
       "references": {
         "value": "4.8/5",
-        "label": "Referencias"
+        "label": "Referenzen"
       }
     },
     "videoWall": {
-      "eyebrow": "Red global de talento",
-      "line1": "Jugadores de todo el mundo,",
-      "line2": "en un solo ",
-      "accentWord": "hub",
-      "body": "Cada perfil está validado: identidad, trayectoria y referencias confirmadas por nuestro equipo.",
-      "cta": "Crear portfolio web"
+      "eyebrow": "Globales Talentnetzwerk",
+      "line1": "Spieler aus aller Welt,",
+      "line2": "in einem einzigen ",
+      "accentWord": "Hub",
+      "body": "Jedes Profil ist validiert: Identität, Karriere und Referenzen von unserem Team bestätigt.",
+      "cta": "Web-Portfolio erstellen"
     },
     "headlines": {
       "visibilidad": [
-        "El hub donde el",
-        "#TALENTO futbolístico",
-        "gana visibilidad real."
+        "Der Hub, in dem",
+        "#FUSSBALLTALENT",
+        "echte Sichtbarkeit gewinnt."
       ],
       "datos": [
-        "Tu carrera.",
-        "Tu #data.",
-        "Tu futuro."
+        "Ihre Karriere.",
+        "Ihre #Daten.",
+        "Ihre Zukunft."
       ],
       "scouting": [
-        "Donde el #scouting",
-        "encuentra su",
-        "próxima joya."
+        "Wo das #Scouting",
+        "sein nächstes",
+        "Juwel findet."
       ],
       "fronteras": [
-        "El talento no",
-        "tiene #fronteras.",
-        "Mostralo al mundo."
+        "Talent kennt keine",
+        "#Grenzen.",
+        "Zeigen Sie es der Welt."
       ]
     },
     "playerTag": {
-      "footLeft": "PI",
-      "footRight": "PD",
-      "ageSuffix": "{age}a"
+      "footLeft": "LF",
+      "footRight": "RF",
+      "ageSuffix": "{age}J"
     }
   },
   "dashJourney": {
-    "verifiedData": "Datos verificados",
-    "howWeValidate": "¿Cómo validamos?",
-    "skip": "Saltar",
+    "verifiedData": "Verifizierte Daten",
+    "howWeValidate": "Wie wir validieren?",
+    "skip": "Überspringen",
     "steps": {
       "product": {
-        "eyebrow": "El producto · 01",
-        "titleLine1": "Tu portfolio web",
-        "titleLine2": "automatizado.",
-        "description": "Plug and play: subís tus datos, los validamos y en segundos tenés tu portfolio profesional 100% automático, online e indexado en Google, listo para enviar a agentes, directivos y clubes.",
+        "eyebrow": "Das Produkt · 01",
+        "titleLine1": "Ihr Web-Portfolio",
+        "titleLine2": "automatisiert.",
+        "description": "Plug and Play: Sie laden Ihre Daten hoch, wir validieren sie und in Sekunden haben Sie Ihr professionelles Portfolio, 100 % automatisch, online und bei Google indexiert, bereit zum Versenden an Agenten, Verantwortliche und Vereine.",
         "tags": {
-          "indexedGoogle": "Indexado en Google",
-          "realResponsive": "Responsive real",
-          "readyInSeconds": "Listo en segundos"
+          "indexedGoogle": "Bei Google indexiert",
+          "realResponsive": "Echt responsiv",
+          "readyInSeconds": "In Sekunden bereit"
         }
       },
       "dashboard": {
-        "eyebrow": "El dashboard · 02",
-        "titleLine1": "Armá tu carrera,",
-        "titleLine2": "paso a paso.",
-        "description": "Cargá clubes, temporadas y estadísticas con formularios hechos para futbolistas. Elegí tu identidad visual y publicá. Sin diseñadores, sin fricción.",
+        "eyebrow": "Das Dashboard · 02",
+        "titleLine1": "Bauen Sie Ihre Karriere auf,",
+        "titleLine2": "Schritt für Schritt.",
+        "description": "Erfassen Sie Vereine, Saisons und Statistiken mit Formularen, die für Fußballer gemacht sind. Wählen Sie Ihre visuelle Identität und veröffentlichen Sie. Ohne Designer, ohne Reibung.",
         "tags": {
-          "career": "Trayectoria",
-          "stats": "Estadísticas",
-          "visualIdentity": "Identidad visual"
+          "career": "Karriere",
+          "stats": "Statistiken",
+          "visualIdentity": "Visuelle Identität"
         }
       },
       "agent": {
-        "eyebrow": "Cuentas de agente · 03",
-        "titleLine1": "¿Sos agente?",
-        "titleLine2": "Cargá tu roster.",
-        "description": "Una central para todos tus representados. Sumá tus licencias, colaboraciones y los clubes con los que trabajaste, y publicá tu página de agente profesional en un clic.",
+        "eyebrow": "Agentenkonten · 03",
+        "titleLine1": "Sind Sie Agent?",
+        "titleLine2": "Erfassen Sie Ihren Kader.",
+        "description": "Eine Zentrale für alle Ihre Klienten. Fügen Sie Ihre Lizenzen, Kooperationen und die Vereine hinzu, mit denen Sie gearbeitet haben, und veröffentlichen Sie Ihre professionelle Agentenseite mit einem Klick.",
         "tags": {
-          "licenses": "Licencias",
-          "collaborations": "Colaboraciones",
-          "publicPage": "Página pública"
+          "licenses": "Lizenzen",
+          "collaborations": "Kooperationen",
+          "publicPage": "Öffentliche Seite"
         }
       }
     },
     "guide": {
-      "product": "Producto",
+      "product": "Produkt",
       "dashboard": "Dashboard",
-      "agent": "Agente"
+      "agent": "Agent"
     },
     "mock": {
       "profile": {
-        "verifiedChip": "VERIFICADO",
-        "contactCta": "Contactar",
+        "verifiedChip": "VERIFIZIERT",
+        "contactCta": "Kontaktieren",
         "stats": {
-          "matches": "Partidos",
-          "goals": "Goles",
-          "height": "Altura"
+          "matches": "Spiele",
+          "goals": "Tore",
+          "height": "Größe"
         },
         "reelLabel": "Reel · 0:38"
       },
       "profilePhone": {
-        "role": "MCO · Mediocampista",
+        "role": "ZOM · Mittelfeldspieler",
         "statAbbrev": {
-          "matchesPlayed": "PJ",
-          "goals": "G",
+          "matchesPlayed": "Sp",
+          "goals": "T",
           "rating": "★"
         },
-        "contactCta": "Contactar a Lucas"
+        "contactCta": "Lucas kontaktieren"
       },
       "dashboard": {
         "sidebar": {
           "label": "Dashboard",
           "items": {
-            "profile": "Mi perfil",
-            "career": "Trayectoria",
-            "stats": "Estadísticas",
+            "profile": "Mein Profil",
+            "career": "Karriere",
+            "stats": "Statistiken",
             "media": "Multimedia",
-            "visualIdentity": "Identidad visual",
-            "reviews": "Reseñas"
+            "visualIdentity": "Visuelle Identität",
+            "reviews": "Bewertungen"
           }
         },
         "header": {
-          "title": "Trayectoria",
-          "subtitle": "Construí tu historia"
+          "title": "Karriere",
+          "subtitle": "Erzählen Sie Ihre Geschichte"
         },
-        "previewLabel": "Vista previa"
+        "previewLabel": "Vorschau"
       },
       "agent": {
         "sidebar": {
-          "label": "Agente",
+          "label": "Agent",
           "items": {
-            "roster": "Cartera",
-            "tracking": "Seguimiento",
+            "roster": "Kartei",
+            "tracking": "Tracking",
             "dossiers": "Dossiers",
-            "market": "Mercado",
-            "messages": "Mensajes"
+            "market": "Markt",
+            "messages": "Nachrichten"
           }
         },
         "header": {
-          "title": "Mi cartera",
-          "subtitle": "4 representados"
+          "title": "Meine Kartei",
+          "subtitle": "4 Klienten"
         },
         "kpis": {
-          "portfolioValue": "Valor cartera",
-          "trend90d": "Tendencia 90d",
-          "interestedClubs": "Clubes interesados"
+          "portfolioValue": "Kaderwert",
+          "trend90d": "Trend 90T",
+          "interestedClubs": "Interessierte Vereine"
         },
         "table": {
-          "player": "Jugador",
-          "club": "Club",
-          "value": "Valor",
-          "trend": "Tend."
+          "player": "Spieler",
+          "club": "Verein",
+          "value": "Wert",
+          "trend": "Trend"
         }
       },
       "page": {
-        "role": "DC · Delantero · 🇺🇾",
-        "officialRep": "REP. OFICIAL",
+        "role": "MS · Stürmer · 🇺🇾",
+        "officialRep": "OFF. VERTRETER",
         "statAbbrev": {
-          "goals": "G",
+          "goals": "T",
           "euros": "€",
-          "age": "a"
+          "age": "J"
         },
-        "requestDossier": "Solicitar dossier"
+        "requestDossier": "Dossier anfordern"
       }
     },
     "cards": {
       "brand": {
-        "title": "Colores de marca",
-        "subtitle": "Elegí una paleta preestablecida o definí los colores manualmente.",
+        "title": "Markenfarben",
+        "subtitle": "Wählen Sie eine vordefinierte Palette oder legen Sie die Farben manuell fest.",
         "presetLabel": "PRESET",
         "presets": {
-          "mono": "Monocromo",
+          "mono": "Monochrom",
           "cyberpunk": "Cyberpunk",
-          "electricBlue": "Azul Eléctrico",
-          "imperialGold": "Oro Imperial"
+          "electricBlue": "Elektrisches Blau",
+          "imperialGold": "Imperiales Gold"
         },
         "swatches": {
-          "background": "Background",
-          "primary": "Primario",
-          "secondary": "Secundario",
-          "accent": "Acento"
+          "background": "Hintergrund",
+          "primary": "Primär",
+          "secondary": "Sekundär",
+          "accent": "Akzent"
         }
       },
       "career": {
-        "ageGroupLabel": "Juveniles AFA · 2015–2017",
+        "ageGroupLabel": "AFA-Jugend · 2015–2017",
         "fields": {
-          "club": "Club",
-          "division": "División",
-          "from": "Desde (año)",
-          "to": "Hasta (año)"
+          "club": "Verein",
+          "division": "Liga",
+          "from": "Von (Jahr)",
+          "to": "Bis (Jahr)"
         },
         "selects": {
           "division": "Liga Pro"
         },
         "toggles": {
-          "current": "Es mi equipo actual",
-          "otherCategory": "Disputé otra categoría/liga"
+          "current": "Das ist mein aktueller Verein",
+          "otherCategory": "Ich habe in einer anderen Kategorie/Liga gespielt"
         },
-        "verifiedTeam": "Equipo verificado",
+        "verifiedTeam": "Verifizierter Verein",
         "actions": {
-          "cancel": "Cancelar",
-          "confirm": "Confirmar etapa",
-          "remove": "Eliminar",
-          "addStage": "Agregar etapa"
+          "cancel": "Abbrechen",
+          "confirm": "Etappe bestätigen",
+          "remove": "Entfernen",
+          "addStage": "Etappe hinzufügen"
         }
       },
       "stats": {
-        "title": "Estadísticas por temporada",
-        "subtitle": "Seguimiento agregado de tus números oficiales para compartir con clubes y representantes.",
+        "title": "Statistiken pro Saison",
+        "subtitle": "Aggregierte Übersicht Ihrer offiziellen Zahlen zum Teilen mit Vereinen und Beratern.",
         "headers": {
-          "season": "Temporada",
-          "competition": "Competencia",
-          "matches": "PJ",
-          "goals": "GOL",
-          "assists": "ASI"
+          "season": "Saison",
+          "competition": "Wettbewerb",
+          "matches": "Sp",
+          "goals": "TOR",
+          "assists": "VOR"
         },
         "competitionLabel": "Liga",
         "fields": {
-          "careerStage": "Etapa de trayectoria",
-          "season": "Temporada",
-          "team": "Equipo",
-          "matches": "PJ",
-          "starts": "Titular",
-          "goals": "Goles",
-          "assists": "Asist."
+          "careerStage": "Karriereetappe",
+          "season": "Saison",
+          "team": "Verein",
+          "matches": "Sp",
+          "starts": "Startelf",
+          "goals": "Tore",
+          "assists": "Vorl."
         },
         "selects": {
           "careerStage": "CA Independiente · 2018–2019"
         },
         "placeholders": {
-          "season": "Ej: 2023 / 2024",
-          "team": "Club"
+          "season": "Z. B.: 2023 / 2024",
+          "team": "Verein"
         },
-        "addSeason": "Agregar temporada"
+        "addSeason": "Saison hinzufügen"
       }
     }
   },
   "pricing": {
-    "eyebrow": "Planes & precios",
-    "titleLine1": "Elegí el plan que",
-    "titleHighlight": "acelera tu carrera",
-    "subtitle": "Empezá gratis y, cuando estés listo, sumá Pro. Para jugadores y agencias.",
-    "viewFaq": "Ver preguntas frecuentes"
+    "eyebrow": "Tarife & Preise",
+    "titleLine1": "Wählen Sie den Tarif, der",
+    "titleHighlight": "Ihre Karriere beschleunigt",
+    "subtitle": "Starten Sie kostenlos und holen Sie sich Pro dazu, wenn Sie bereit sind. Für Spieler und Agenturen.",
+    "viewFaq": "Häufige Fragen ansehen"
   },
   "features": {
-    "eyebrow": "Pensado para profesionales",
-    "title": "Construí un perfil listo para compartir",
-    "subtitle": "Herramientas diseñadas para jugadoras, jugadores y staff técnico que quieren profesionalizar su presencia digital.",
+    "eyebrow": "Für Profis gemacht",
+    "title": "Bauen Sie ein teilbereites Profil auf",
+    "subtitle": "Werkzeuge für Spielerinnen, Spieler und Trainerstab, die ihre digitale Präsenz professionalisieren wollen.",
     "items": {
       "verification": {
-        "title": "Verificación profesional",
-        "description": "Nuestro equipo valida identidad, contratos y antecedentes para generar confianza en cada perfil.",
-        "tag": "Confianza"
+        "title": "Professionelle Verifizierung",
+        "description": "Unser Team validiert Identität, Verträge und Hintergrund, um bei jedem Profil Vertrauen zu schaffen.",
+        "tag": "Vertrauen"
       },
       "schedule": {
-        "title": "Agenda deportiva integrada",
-        "description": "Cargá tus próximos partidos y presentaciones. Compartí agenda con clubes y representantes en tiempo real.",
-        "tag": "Visibilidad"
+        "title": "Integrierter Sportkalender",
+        "description": "Tragen Sie Ihre nächsten Spiele und Auftritte ein. Teilen Sie den Kalender in Echtzeit mit Vereinen und Beratern.",
+        "tag": "Sichtbarkeit"
       },
       "presentations": {
-        "title": "Presentaciones listas en minutos",
-        "description": "Plantillas inteligentes para enviar tu perfil a clubes con métricas, clips destacados y reseñas.",
-        "tag": "Escalá tu marca"
+        "title": "Präsentationen in Minuten fertig",
+        "description": "Intelligente Vorlagen, um Ihr Profil mit Kennzahlen, Highlight-Clips und Bewertungen an Vereine zu senden.",
+        "tag": "Skalieren Sie Ihre Marke"
       }
     }
   },
   "testimonials": {
-    "title": "Historias reales, impacto tangible",
-    "subtitle": "Una comunidad que crece con validación y acompañamiento constante.",
+    "title": "Echte Geschichten, spürbare Wirkung",
+    "subtitle": "Eine Community, die mit Validierung und ständiger Begleitung wächst.",
     "items": {
       "maria": {
         "name": "María López",
-        "role": "Extremo · Primera División Femenina",
-        "quote": "'BallersHub me permitió centralizar videos y referencias en minutos. Ahora cada contacto recibe información actualizada."
+        "role": "Flügelspielerin · Erste Damen-Division",
+        "quote": "BallersHub hat es mir ermöglicht, Videos und Referenzen in Minuten zu bündeln. Jetzt erhält jeder Kontakt aktuelle Informationen."
       },
       "sebastian": {
         "name": "Sebastián Duarte",
-        "role": "Coordinador de scouting · Club Andino",
-        "quote": "La plataforma nos da transparencia sobre la trayectoria de cada jugadora. Filtramos por posición y estado físico al instante."
+        "role": "Scouting-Koordinator · Club Andino",
+        "quote": "Die Plattform gibt uns Transparenz über die Laufbahn jeder Spielerin. Wir filtern in Sekundenschnelle nach Position und Fitnesszustand."
       }
     }
   },
   "cta": {
-    "eyebrow": "Próximo paso",
-    "titleLead": "Prepará tu próxima",
-    "titleHighlight": "transferencia",
-    "description": "Organiza tus datos, compartí tu trayectoria y mantené actualizadas tus referencias con 'BallersHub.",
-    "button": "Crear cuenta gratuita"
+    "eyebrow": "Nächster Schritt",
+    "titleLead": "Bereiten Sie Ihren nächsten",
+    "titleHighlight": "Transfer vor",
+    "description": "Organisieren Sie Ihre Daten, teilen Sie Ihre Laufbahn und halten Sie Ihre Referenzen mit BallersHub aktuell.",
+    "button": "Kostenloses Konto erstellen"
   }
 }

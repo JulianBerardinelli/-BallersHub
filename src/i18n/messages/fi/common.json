@@ -1,58 +1,58 @@
 {
   "nav": {
-    "players": "Jugadores",
-    "agencies": "Agencias",
-    "plans": "Planes",
-    "about": "Nosotros",
-    "howWeValidate": "¿Cómo validamos?",
-    "blog": "Blog"
+    "players": "Pelaajat",
+    "agencies": "Agentuurit",
+    "plans": "Tilaukset",
+    "about": "Tietoa meistä",
+    "howWeValidate": "Miten validoimme?",
+    "blog": "Blogi"
   },
   "auth": {
-    "signIn": "Iniciar sesión",
-    "signUp": "Registrarse"
+    "signIn": "Kirjaudu sisään",
+    "signUp": "Rekisteröidy"
   },
   "actions": {
-    "save": "Guardar",
-    "cancel": "Cancelar",
-    "edit": "Editar",
-    "delete": "Eliminar"
+    "save": "Tallenna",
+    "cancel": "Peruuta",
+    "edit": "Muokkaa",
+    "delete": "Poista"
   },
   "localeSwitcher": {
-    "label": "Cambiar idioma"
+    "label": "Vaihda kieltä"
   },
   "authButtons": {
-    "access": "Acceder",
-    "create": "Crear cuenta"
+    "access": "Kirjaudu",
+    "create": "Luo tili"
   },
-  "back": "Volver",
+  "back": "Takaisin",
   "userMenu": {
-    "openMenu": "Abrir menú de usuario",
-    "userActions": "Acciones de usuario",
-    "signedInAs": "Sesión iniciada como",
-    "defaultName": "Mi cuenta",
-    "viewPublicProfile": "Ver perfil público",
-    "agencyInReview": "Agencia en revisión",
-    "viewApplication": "Ver solicitud en revisión",
-    "continueApplication": "Continuar solicitud",
-    "applyPro": "Solicitar cuenta de profesional",
-    "dashboard": "Dashboard",
-    "viewAgencyPublic": "Ver perfil público de Agencia",
-    "agencySettings": "Configuración de Agencia",
-    "managerProfile": "Mi Perfil Manager",
-    "personalData": "Datos personales",
-    "footballData": "Datos futbolísticos",
-    "media": "Multimedia",
-    "template": "Plantilla",
-    "subscription": "Suscripción",
-    "settings": "Configuración general",
-    "language": "Idioma",
-    "signOut": "Cerrar sesión",
-    "signOutConfirm": "¿Estás seguro que deseas cerrar tu sesión en 'BallersHub?",
-    "signingOut": "Saliendo..."
+    "openMenu": "Avaa käyttäjävalikko",
+    "userActions": "Käyttäjän toiminnot",
+    "signedInAs": "Kirjautuneena nimellä",
+    "defaultName": "Oma tili",
+    "viewPublicProfile": "Näytä julkinen profiili",
+    "agencyInReview": "Agentuuri tarkistettavana",
+    "viewApplication": "Näytä tarkistettavana oleva hakemus",
+    "continueApplication": "Jatka hakemusta",
+    "applyPro": "Hae ammattilaistiliä",
+    "dashboard": "Hallintapaneeli",
+    "viewAgencyPublic": "Näytä agentuurin julkinen profiili",
+    "agencySettings": "Agentuurin asetukset",
+    "managerProfile": "Oma manageriprofiili",
+    "personalData": "Henkilötiedot",
+    "footballData": "Jalkapallotiedot",
+    "media": "Media",
+    "template": "Mallipohja",
+    "subscription": "Tilaus",
+    "settings": "Yleiset asetukset",
+    "language": "Kieli",
+    "signOut": "Kirjaudu ulos",
+    "signOutConfirm": "Haluatko varmasti kirjautua ulos BallersHubista?",
+    "signingOut": "Kirjaudutaan ulos..."
   },
   "org": {
-    "description": "Plataforma de portfolios profesionales para futbolistas y agencias de representación. Cada jugador y cada agencia obtiene un link único optimizado para SEO que centraliza trayectoria, estadísticas, datos físicos y media verificada.",
-    "appDescription": "Aplicación web para crear portfolios profesionales de futbolistas y agencias: link único, datos centralizados, SEO listo desde el primer día.",
-    "slogan": "Perfiles profesionales de futbolistas"
+    "description": "Ammattimainen portfolioalusta jalkapalloilijoille ja pelaaja-agentuureille. Jokainen pelaaja ja jokainen agentuuri saa ainutlaatuisen, hakukoneoptimoidun linkin, joka kokoaa yhteen uran, tilastot, fyysiset tiedot ja varmennetun median.",
+    "appDescription": "Verkkosovellus jalkapalloilijoiden ja agentuurien ammattimaisten portfolioiden luomiseen: ainutlaatuinen linkki, keskitetyt tiedot, SEO-valmis ensimmäisestä päivästä alkaen.",
+    "slogan": "Jalkapalloilijoiden ammattimaiset profiilit"
   }
 }

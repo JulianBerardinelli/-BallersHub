@@ -1,478 +1,478 @@
 {
   "home": {
     "header": {
-      "title": "Resumen general",
-      "description": "Visualizá el estado de tu perfil y los próximos pasos recomendados."
+      "title": "Yleiskatsaus",
+      "description": "Tarkastele profiilisi tilaa ja suositeltuja seuraavia vaiheita."
     },
     "profileStatusCard": {
-      "title": "Estado del perfil",
-      "description": "Controlá el progreso de tu perfil profesional y accedé rápidamente a las acciones clave."
+      "title": "Profiilin tila",
+      "description": "Seuraa ammattilaisprofiilisi edistymistä ja pääse nopeasti tärkeimpiin toimintoihin."
     },
     "progressCard": {
-      "title": "Progreso por secciones",
-      "description": "Identificá qué partes de tu perfil necesitan atención para llegar a la publicación."
+      "title": "Edistyminen osioittain",
+      "description": "Tunnista, mitkä profiilisi osat vaativat huomiota, jotta pääset julkaisuun."
     },
     "nextStepsCard": {
-      "title": "Próximos pasos",
-      "description": "Estas tareas te ayudarán a completar la información necesaria para publicar tu perfil.",
-      "empty": "¡Excelente! No tenés tareas pendientes. Seguiremos sumando recomendaciones a medida que incorporemos nuevas funcionalidades."
+      "title": "Seuraavat vaiheet",
+      "description": "Nämä tehtävät auttavat sinua täydentämään profiilisi julkaisuun tarvittavat tiedot.",
+      "empty": "Erinomaista! Sinulla ei ole avoimia tehtäviä. Lisäämme suosituksia sitä mukaa kun otamme käyttöön uusia ominaisuuksia."
     },
     "quickActionsCard": {
-      "title": "Atajos rápidos",
-      "description": "Accedé directamente a las secciones que vas a utilizar con mayor frecuencia.",
-      "goToSection": "Ir a la sección →"
+      "title": "Pikakuvakkeet",
+      "description": "Pääse suoraan osioihin, joita käytät useimmin.",
+      "goToSection": "Siirry osioon →"
     },
     "quickActions": {
       "multimedia": {
-        "title": "Gestionar multimedia",
-        "description": "Fotos, videos y novedades para potenciar tu perfil."
+        "title": "Hallitse mediasisältöä",
+        "description": "Kuvat, videot ja uutiset, joilla tehostat profiiliasi."
       },
       "subscription": {
-        "title": "Estado de la suscripción",
-        "description": "Revisá tu plan actual y próximos cobros."
+        "title": "Tilauksen tila",
+        "description": "Tarkista nykyinen tilauksesi ja seuraavat veloitukset."
       },
       "account": {
-        "title": "Preferencias de cuenta",
-        "description": "Actualizá correo, seguridad y notificaciones."
+        "title": "Tilin asetukset",
+        "description": "Päivitä sähköposti, suojaus ja ilmoitukset."
       }
     },
     "progress": {
       "personalData": {
-        "title": "Datos personales",
-        "description": "Información básica, contacto y biografía completa."
+        "title": "Henkilötiedot",
+        "description": "Perustiedot, yhteystiedot ja täydellinen elämäkerta."
       },
       "footballData": {
-        "title": "Datos futbolísticos",
-        "description": "Trayectoria deportiva, club actual y posiciones."
+        "title": "Jalkapallotiedot",
+        "description": "Urheilu-ura, nykyinen seura ja pelipaikat."
       },
       "multimedia": {
-        "title": "Multimedia",
-        "description": "Fotos e historias que enriquecen tu perfil público."
+        "title": "Mediasisältö",
+        "description": "Kuvat ja tarinat, jotka rikastuttavat julkista profiiliasi."
       }
     },
     "profileStatus": {
       "draft": {
-        "label": "Borrador",
-        "message": "Tu perfil está en construcción. Completá los pasos pendientes para enviarlo a revisión."
+        "label": "Luonnos",
+        "message": "Profiilisi on työn alla. Täydennä avoimet vaiheet lähettääksesi sen tarkistettavaksi."
       },
       "pendingReview": {
-        "label": "En revisión",
-        "message": "Nuestro equipo está validando la información enviada. Recibirás una notificación con el resultado."
+        "label": "Tarkistuksessa",
+        "message": "Tiimimme tarkistaa lähetetyt tiedot. Saat ilmoituksen tuloksesta."
       },
       "approved": {
-        "label": "Publicado",
-        "message": "Tu perfil está aprobado y listo para compartirse con clubes y reclutadores."
+        "label": "Julkaistu",
+        "message": "Profiilisi on hyväksytty ja valmis jaettavaksi seuroille ja kykyjenetsijöille."
       },
       "rejected": {
-        "label": "Rechazado",
-        "message": "Necesitamos ajustes en tu solicitud. Revisá los comentarios y volvé a enviarla."
+        "label": "Hylätty",
+        "message": "Tarvitsemme muutoksia hakemukseesi. Tarkista kommentit ja lähetä se uudelleen."
       },
       "missing": {
-        "label": "Sin perfil",
-        "message": "Creá tu solicitud para generar el perfil profesional y desbloquear las secciones de edición."
+        "label": "Ei profiilia",
+        "message": "Luo hakemuksesi, jotta voit muodostaa ammattilaisprofiilin ja avata muokkausosiot."
       }
     },
     "applicationStatus": {
       "pending": {
-        "label": "En revisión",
-        "message": "Recibimos tu solicitud y la estamos evaluando. Mientras tanto podrás seguir consultando el estado desde aquí."
+        "label": "Tarkistuksessa",
+        "message": "Olemme vastaanottaneet hakemuksesi ja arvioimme sitä. Sillä välin voit jatkaa tilan tarkastelua täältä."
       },
       "approved": {
-        "label": "Aprobada",
-        "message": "La solicitud fue aprobada. Ya podés completar y publicar tu perfil profesional."
+        "label": "Hyväksytty",
+        "message": "Hakemus hyväksyttiin. Voit nyt täydentää ja julkaista ammattilaisprofiilisi."
       },
       "rejected": {
-        "label": "Rechazada",
-        "message": "Tu solicitud fue rechazada. Podés realizar los ajustes necesarios y reenviarla cuando estés listo."
+        "label": "Hylätty",
+        "message": "Hakemuksesi hylättiin. Voit tehdä tarvittavat muutokset ja lähettää sen uudelleen, kun olet valmis."
       },
-      "unknownMessage": "Consultá con soporte para obtener más información sobre el estado de tu solicitud.",
-      "lastUpdated": "Última actualización: {date}"
+      "unknownMessage": "Ota yhteyttä tukeen saadaksesi lisätietoja hakemuksesi tilasta.",
+      "lastUpdated": "Viimeksi päivitetty: {date}"
     },
     "cta": {
-      "viewApplication": "Ver solicitud",
-      "reopenOnboarding": "Reabrir onboarding",
-      "configureProfile": "Configurar perfil",
-      "createApplication": "Crear solicitud",
-      "viewPublicProfile": "Ver perfil público",
-      "configurePublicUrl": "Configurar URL pública",
-      "completePendingData": "Completar datos pendientes"
+      "viewApplication": "Näytä hakemus",
+      "reopenOnboarding": "Avaa perehdytys uudelleen",
+      "configureProfile": "Määritä profiili",
+      "createApplication": "Luo hakemus",
+      "viewPublicProfile": "Näytä julkinen profiili",
+      "configurePublicUrl": "Määritä julkinen URL-osoite",
+      "completePendingData": "Täydennä avoimet tiedot"
     }
   },
   "settings": {
-    "nativeTitle": "Idioma nativo",
-    "nativeDescription": "El idioma en el que escribís tu perfil. Elegí en cuál trabajás más cómodo.",
-    "nativeHint": "Tu perfil público siempre mantiene una versión en español (es la URL principal). El asistente puede traducir desde tu idioma a los demás.",
-    "nativeSave": "Guardar idioma",
-    "subscriptionTitle": "Suscripción",
-    "subscriptionDescription": "Gestioná tu plan, descargas, métodos de pago y cancelaciones.",
-    "alreadySubscribed": "Ya tenés un plan {plan} activo. Si querés cambiar, podés gestionarlo desde acá o cancelar primero el actual.",
-    "canceledNotice": "Listo, tu suscripción quedó marcada para cancelación. Mantenés acceso hasta el final del período actual.",
-    "currentStatusTitle": "Estado actual",
-    "currentStatusDescription": "Información del plan que se encuentra activo en este momento.",
-    "fieldPlan": "Plan",
-    "compBadge": "Cortesía",
-    "amountPerYear": "{amount} / año",
-    "fieldStatus": "Estado",
-    "endsOn": "Termina el {date}",
-    "fieldTrialEnd": "Fin del período de prueba",
-    "fieldNextRenewal": "Próxima renovación",
-    "canceledOn": "Cancelado el {date}",
-    "refundWindow": "Tenés hasta el <strong>{date}</strong> para cancelar dentro del período de garantía de {days} días. Si cancelás dentro de la ventana, te devolvemos el cobro inicial.",
-    "subStatusTrialing": "Período de prueba",
-    "subStatusActive": "Activa",
-    "subStatusPastDue": "Pago pendiente",
-    "subStatusPaused": "Pausada",
-    "subStatusCanceled": "Cancelada",
-    "subStatusIncomplete": "Incompleta",
-    "subStatusInactive": "Sin suscripción",
-    "compAccountTitle": "Cuenta de cortesía",
-    "compAccountDescription": "Tu acceso Pro fue activado por el equipo de BallersHub — no hay cobros asociados.",
-    "compAccountBody": "Esta suscripción está gestionada directamente por el equipo de BallersHub. Si tenés dudas sobre tu vencimiento o querés extenderla, escribinos a <link>info@ballershub.co</link>.",
-    "subActionsTitle": "Acciones sobre la suscripción",
-    "subActionsStripeDescription": "Stripe gestiona el portal de facturación: actualizá tarjeta, descargá facturas o cancelá desde un único lugar.",
-    "subActionsMpDescription": "Mercado Pago no expone un portal autoservicio. Desde acá cancelás directamente — el acceso se cierra al instante.",
-    "yourPlanProAgency": "Tu plan Pro Agency",
-    "yourPlanProPlayer": "Tu plan Pro Player",
-    "planBenefitsDescription": "Beneficios incluidos en el plan.",
-    "proPlayerFeature1": "Plantillas premium y personalización avanzada",
-    "proPlayerFeature2": "Dominio personalizado y branding libre",
-    "proPlayerFeature3": "Secciones multimedia ilimitadas",
-    "proPlayerFeature4": "Prioridad en soporte y revisiones de perfil",
-    "proAgencyFeature1": "Panel multi-jugador con métricas comparadas",
-    "proAgencyFeature2": "Invitaciones ilimitadas y staff colaborador",
-    "proAgencyFeature3": "Branding de agencia en cada portfolio publicado",
-    "proAgencyFeature4": "Soporte prioritario para campañas y outreach",
-    "noPlanCta": "Todavía no tenés un plan activo. Probá Pro {days} días sin cargo.",
-    "viewPlans": "Ver planes",
-    "billingSupportTitle": "Soporte de facturación",
-    "billingSupportDescription": "¿Algún problema con un cobro o factura?",
-    "billingSupportBody": "Escribinos a <link>info@ballershub.co</link> y te respondemos el mismo día hábil.",
-    "accountTitle": "Configuración de la cuenta",
-    "accountDescription": "Gestioná tus credenciales, seguridad y preferencias generales del panel.",
-    "securityTitle": "Seguridad",
-    "securityDescription": "Planes para autenticar de forma segura y monitorear accesos.",
-    "twoFactorLabel": "Autenticación en dos pasos",
-    "twoFactorDescription": "Podrás habilitar códigos temporales o aplicaciones de autenticación para fortalecer la seguridad.",
-    "comingSoon": "Próximamente",
-    "federatedLoginLabel": "Accesos federados",
-    "federatedLoginDescription": "Configurar inicio de sesión con Google, Apple u otros proveedores.",
-    "onRoadmap": "En roadmap",
-    "notificationsTitle": "Notificaciones",
-    "notificationsDescription": "Definí cómo querés recibir alertas sobre tu perfil, solicitudes y suscripción.",
-    "notifProfileLabel": "Cambios en mi perfil",
-    "notifProfileDescription": "Alertas cuando un miembro del staff actualice mi información",
-    "notifApplicationsLabel": "Estado de solicitudes",
-    "notifApplicationsDescription": "Notificaciones sobre revisión de cuentas o nuevos requerimientos",
-    "notifBillingLabel": "Facturación y pagos",
-    "notifBillingDescription": "Avisos de próximas renovaciones o problemas con el cobro",
-    "notificationsFootnote": "Podrás seleccionar canales (email, WhatsApp, app) y frecuencia personalizada en próximas versiones.",
-    "activeSessionsTitle": "Sesiones activas",
-    "activeSessionsDescription": "Visualizá dispositivos con acceso para gestionar cierres remotos.",
-    "currentSessionLabel": "Sesión actual",
-    "currentSessionDescription": "Dispositivo actual (detalles disponibles próximamente)",
-    "sessionsIntegrationNote": "El detalle de dispositivos y la opción de cerrar sesiones se integrará con Supabase Auth Management.",
-    "suspiciousActivity": "Si detectás actividad sospechosa contactanos en <link>info@ballershub.co</link>."
+    "nativeTitle": "Äidinkieli",
+    "nativeDescription": "Kieli, jolla kirjoitat profiilisi. Valitse se, jolla työskentelet mukavimmin.",
+    "nativeHint": "Julkinen profiilisi säilyttää aina espanjankielisen version (se on pää-URL-osoite). Avustaja voi kääntää kielestäsi muille kielille.",
+    "nativeSave": "Tallenna kieli",
+    "subscriptionTitle": "Tilaus",
+    "subscriptionDescription": "Hallitse tilaustasi, latauksia, maksutapoja ja peruutuksia.",
+    "alreadySubscribed": "Sinulla on jo aktiivinen {plan}-tilaus. Jos haluat vaihtaa, voit hallita sitä täältä tai peruuttaa ensin nykyisen.",
+    "canceledNotice": "Valmista, tilauksesi on merkitty peruutettavaksi. Säilytät käyttöoikeuden nykyisen jakson loppuun asti.",
+    "currentStatusTitle": "Nykyinen tila",
+    "currentStatusDescription": "Tiedot tällä hetkellä aktiivisesta tilauksesta.",
+    "fieldPlan": "Tilaus",
+    "compBadge": "Veloituksetta",
+    "amountPerYear": "{amount} / vuosi",
+    "fieldStatus": "Tila",
+    "endsOn": "Päättyy {date}",
+    "fieldTrialEnd": "Kokeilujakson päättyminen",
+    "fieldNextRenewal": "Seuraava uusiminen",
+    "canceledOn": "Peruutettu {date}",
+    "refundWindow": "Sinulla on aikaa <strong>{date}</strong> asti peruuttaa {days} päivän takuujakson aikana. Jos peruutat aikaikkunan sisällä, palautamme ensimmäisen veloituksen.",
+    "subStatusTrialing": "Kokeilujakso",
+    "subStatusActive": "Aktiivinen",
+    "subStatusPastDue": "Maksu erääntynyt",
+    "subStatusPaused": "Keskeytetty",
+    "subStatusCanceled": "Peruutettu",
+    "subStatusIncomplete": "Keskeneräinen",
+    "subStatusInactive": "Ei tilausta",
+    "compAccountTitle": "Veloitukseton tili",
+    "compAccountDescription": "BallersHub-tiimi aktivoi Pro-käyttöoikeutesi — siihen ei liity veloituksia.",
+    "compAccountBody": "Tätä tilausta hallinnoi suoraan BallersHub-tiimi. Jos sinulla on kysyttävää eräpäivästäsi tai haluat jatkaa sitä, kirjoita meille osoitteeseen <link>info@ballershub.co</link>.",
+    "subActionsTitle": "Tilausta koskevat toiminnot",
+    "subActionsStripeDescription": "Stripe hallinnoi laskutusportaalia: päivitä kortti, lataa laskut tai peruuta yhdestä paikasta.",
+    "subActionsMpDescription": "Mercado Pago ei tarjoa itsepalveluportaalia. Täältä peruutat suoraan — käyttöoikeus suljetaan välittömästi.",
+    "yourPlanProAgency": "Pro Agency -tilauksesi",
+    "yourPlanProPlayer": "Pro Player -tilauksesi",
+    "planBenefitsDescription": "Tilaukseen sisältyvät edut.",
+    "proPlayerFeature1": "Premium-mallit ja edistynyt mukauttaminen",
+    "proPlayerFeature2": "Mukautettu verkkotunnus ja vapaa brändäys",
+    "proPlayerFeature3": "Rajattomat mediaosiot",
+    "proPlayerFeature4": "Etusija tuessa ja profiilin tarkistuksissa",
+    "proAgencyFeature1": "Usean pelaajan paneeli ja vertailevat mittarit",
+    "proAgencyFeature2": "Rajattomat kutsut ja yhteistyöhenkilöstö",
+    "proAgencyFeature3": "Toimiston brändäys jokaisessa julkaistussa portfoliossa",
+    "proAgencyFeature4": "Ensisijainen tuki kampanjoille ja yhteydenotoille",
+    "noPlanCta": "Sinulla ei ole vielä aktiivista tilausta. Kokeile Pro-tilausta {days} päivää veloituksetta.",
+    "viewPlans": "Näytä tilaukset",
+    "billingSupportTitle": "Laskutustuki",
+    "billingSupportDescription": "Ongelma veloituksen tai laskun kanssa?",
+    "billingSupportBody": "Kirjoita meille osoitteeseen <link>info@ballershub.co</link>, niin vastaamme saman arkipäivän aikana.",
+    "accountTitle": "Tilin asetukset",
+    "accountDescription": "Hallitse tunnuksiasi, suojausta ja paneelin yleisiä asetuksia.",
+    "securityTitle": "Suojaus",
+    "securityDescription": "Vaihtoehtoja turvalliseen tunnistautumiseen ja käyttöoikeuksien valvontaan.",
+    "twoFactorLabel": "Kaksivaiheinen tunnistautuminen",
+    "twoFactorDescription": "Voit ottaa käyttöön väliaikaisia koodeja tai tunnistautumissovelluksia parantaaksesi suojausta.",
+    "comingSoon": "Tulossa pian",
+    "federatedLoginLabel": "Liitetyt kirjautumiset",
+    "federatedLoginDescription": "Määritä kirjautuminen Googlella, Applella tai muilla palveluntarjoajilla.",
+    "onRoadmap": "Suunnitelmissa",
+    "notificationsTitle": "Ilmoitukset",
+    "notificationsDescription": "Määritä, miten haluat saada ilmoituksia profiilistasi, hakemuksistasi ja tilauksestasi.",
+    "notifProfileLabel": "Profiilini muutokset",
+    "notifProfileDescription": "Ilmoitukset, kun henkilöstön jäsen päivittää tietojani",
+    "notifApplicationsLabel": "Hakemusten tila",
+    "notifApplicationsDescription": "Ilmoitukset tilien tarkistuksista tai uusista vaatimuksista",
+    "notifBillingLabel": "Laskutus ja maksut",
+    "notifBillingDescription": "Ilmoitukset tulevista uusimisista tai veloitusongelmista",
+    "notificationsFootnote": "Voit valita kanavat (sähköposti, WhatsApp, sovellus) ja mukautetun tiheyden tulevissa versioissa.",
+    "activeSessionsTitle": "Aktiiviset istunnot",
+    "activeSessionsDescription": "Tarkastele laitteita, joilla on käyttöoikeus, hallitaksesi etäkirjautumisten katkaisua.",
+    "currentSessionLabel": "Nykyinen istunto",
+    "currentSessionDescription": "Nykyinen laite (tiedot saatavilla pian)",
+    "sessionsIntegrationNote": "Laitteiden tiedot ja istuntojen katkaisuvaihtoehto integroidaan Supabase Auth Managementin kanssa.",
+    "suspiciousActivity": "Jos havaitset epäilyttävää toimintaa, ota yhteyttä osoitteeseen <link>info@ballershub.co</link>."
   },
   "editProfile": {
-    "personalDataTitle": "Datos personales",
-    "personalDataNoProfileDescription": "Creá tu perfil para habilitar la edición de datos personales.",
-    "personalDataDescription": "Gestioná tu información básica y de contacto. Estos datos se utilizarán para tu perfil público y comunicaciones.",
-    "avatarIdentityTitle": "Avatar e identidad",
-    "avatarIdentityDescription": "Actualizá tu foto y datos principales para mantener tu perfil profesional coherente.",
-    "avatarCurrentAlt": "Avatar actual",
-    "avatarHelpText": "Utilizá una imagen en alta resolución, formato cuadrado. Las imágenes se utilizarán en tu CV automatizado y perfil público.",
-    "footballDataTitle": "Datos futbolísticos",
-    "footballDataNoProfileDescription": "Creá tu perfil para gestionar trayectoria, estadísticas y enlaces deportivos.",
-    "footballDataDescription": "Organizá toda tu información deportiva para construir un perfil completo y actualizado.",
-    "careerHistoryTitle": "Trayectoria",
-    "careerHistoryDescription": "Gestioná tu historial deportivo y enviá cambios al equipo de Ballers para su validación.",
-    "seasonStatsTitle": "Estadísticas por temporada",
-    "seasonStatsDescription": "Seguimiento agregado de tus números oficiales para compartir con clubes y representantes.",
-    "referencesLinksTitle": "Referencias y enlaces",
-    "referencesLinksDescription": "Conectá tu perfil con plataformas externas para validar tu experiencia.",
-    "honoursTitle": "Palmarés y reconocimientos",
-    "honoursDescriptionPro": "Documentá títulos, premios individuales y estadísticas destacadas.",
-    "honoursDescriptionFree": "Cargá títulos y premios. Para guardarlos en tu perfil necesitás Pro.",
-    "honoursChipChampionships": "Campeonatos",
-    "honoursChipIndividualAwards": "Premios individuales",
-    "honoursChipKeyStats": "Estadísticas clave",
-    "multimediaTitle": "Multimedia",
-    "multimediaNoProfileDescription": "Creá tu perfil para gestionar galerías, videos y notas de prensa.",
-    "multimediaDescription": "Centralizá imágenes, videos y artículos destacados para potenciar tu presencia digital."
+    "personalDataTitle": "Henkilötiedot",
+    "personalDataNoProfileDescription": "Luo profiilisi ottaaksesi henkilötietojen muokkauksen käyttöön.",
+    "personalDataDescription": "Hallitse perus- ja yhteystietojasi. Näitä tietoja käytetään julkisessa profiilissasi ja viestinnässä.",
+    "avatarIdentityTitle": "Avatar ja identiteetti",
+    "avatarIdentityDescription": "Päivitä kuvasi ja päätietosi pitääksesi ammattilaisprofiilisi yhtenäisenä.",
+    "avatarCurrentAlt": "Nykyinen avatar",
+    "avatarHelpText": "Käytä korkearesoluutioista, neliönmuotoista kuvaa. Kuvia käytetään automaattisesti luodussa CV:ssäsi ja julkisessa profiilissasi.",
+    "footballDataTitle": "Jalkapallotiedot",
+    "footballDataNoProfileDescription": "Luo profiilisi hallitaksesi uraa, tilastoja ja urheilulinkkejä.",
+    "footballDataDescription": "Järjestä kaikki urheilutietosi rakentaaksesi täydellisen ja ajantasaisen profiilin.",
+    "careerHistoryTitle": "Ura",
+    "careerHistoryDescription": "Hallitse urheiluhistoriaasi ja lähetä muutokset Ballers-tiimille vahvistettavaksi.",
+    "seasonStatsTitle": "Kausikohtaiset tilastot",
+    "seasonStatsDescription": "Koostettu seuranta virallisista numeroistasi jaettavaksi seurojen ja agenttien kanssa.",
+    "referencesLinksTitle": "Suosittelut ja linkit",
+    "referencesLinksDescription": "Yhdistä profiilisi ulkoisiin alustoihin vahvistaaksesi kokemuksesi.",
+    "honoursTitle": "Saavutukset ja palkinnot",
+    "honoursDescriptionPro": "Dokumentoi tittelit, henkilökohtaiset palkinnot ja merkittävät tilastot.",
+    "honoursDescriptionFree": "Lisää tittelit ja palkinnot. Tallentaaksesi ne profiiliisi tarvitset Pro-tilauksen.",
+    "honoursChipChampionships": "Mestaruudet",
+    "honoursChipIndividualAwards": "Henkilökohtaiset palkinnot",
+    "honoursChipKeyStats": "Keskeiset tilastot",
+    "multimediaTitle": "Mediasisältö",
+    "multimediaNoProfileDescription": "Luo profiilisi hallitaksesi gallerioita, videoita ja lehdistötiedotteita.",
+    "multimediaDescription": "Keskitä kuvat, videot ja merkittävät artikkelit tehostaaksesi digitaalista läsnäoloasi."
   },
   "nav": {
     "sections": {
-      "dashboard": "Panel",
-      "edit-profile": "Editar perfil",
-      "edit-template": "Editar plantilla",
-      "settings": "Configuración",
-      "agency": "Agencia",
-      "agency-template": "Editar plantilla",
-      "agency-management": "Gestión"
+      "dashboard": "Paneeli",
+      "edit-profile": "Muokkaa profiilia",
+      "edit-template": "Muokkaa mallia",
+      "settings": "Asetukset",
+      "agency": "Toimisto",
+      "agency-template": "Muokkaa mallia",
+      "agency-management": "Hallinta"
     },
     "player": {
       "home": {
-        "title": "Panel de control",
-        "description": "Resumen general y próximos pasos prioritarios."
+        "title": "Hallintapaneeli",
+        "description": "Yleiskatsaus ja ensisijaiset seuraavat vaiheet."
       },
       "personal-data": {
-        "title": "Datos personales",
-        "description": "Información básica, avatar y datos de contacto."
+        "title": "Henkilötiedot",
+        "description": "Perustiedot, avatar ja yhteystiedot."
       },
       "football-data": {
-        "title": "Datos futbolísticos",
-        "description": "Trayectoria, club actual y links destacados."
+        "title": "Jalkapallotiedot",
+        "description": "Ura, nykyinen seura ja merkittävät linkit."
       },
       "multimedia": {
-        "title": "Multimedia",
-        "description": "Fotos, videos y notas de prensa."
+        "title": "Mediasisältö",
+        "description": "Kuvat, videot ja lehdistötiedotteet."
       },
       "translations": {
-        "title": "Idiomas",
-        "description": "Publicá tu perfil en inglés, italiano y portugués (Pro)."
+        "title": "Kielet",
+        "description": "Julkaise profiilisi englanniksi, italiaksi ja portugaliksi (Pro)."
       },
       "template-styles": {
-        "title": "Estilos",
-        "description": "Seleccioná variantes visuales y colores."
+        "title": "Tyylit",
+        "description": "Valitse visuaaliset variaatiot ja värit."
       },
       "template-structure": {
-        "title": "Estructura",
-        "description": "Activa o desactiva bloques de contenido."
+        "title": "Rakenne",
+        "description": "Ota sisältölohkot käyttöön tai poista ne käytöstä."
       },
       "account": {
-        "title": "Cuenta",
-        "description": "Datos de acceso y preferencias generales."
+        "title": "Tili",
+        "description": "Kirjautumistiedot ja yleiset asetukset."
       },
       "subscription": {
-        "title": "Suscripción",
-        "description": "Estado del plan y acciones de facturación."
+        "title": "Tilaus",
+        "description": "Tilauksen tila ja laskutustoiminnot."
       },
       "logout": {
-        "title": "Cerrar sesión",
-        "description": "Salí del panel de manera segura."
+        "title": "Kirjaudu ulos",
+        "description": "Poistu paneelista turvallisesti."
       }
     },
     "manager": {
       "home": {
-        "title": "Panel de control",
-        "description": "Resumen general de tu agencia."
+        "title": "Hallintapaneeli",
+        "description": "Toimistosi yleiskatsaus."
       },
       "agency-profile": {
-        "title": "Datos principales",
-        "description": "Identidad, información general y contacto."
+        "title": "Päätiedot",
+        "description": "Identiteetti, yleiset tiedot ja yhteystiedot."
       },
       "agency-players": {
-        "title": "Mis Jugadores",
-        "description": "Cartera de futbolistas representados."
+        "title": "Pelaajani",
+        "description": "Edustettujen jalkapalloilijoiden salkku."
       },
       "agency-staff": {
-        "title": "Equipo Staff",
-        "description": "Invita colegas y gestiona permisos."
+        "title": "Henkilöstötiimi",
+        "description": "Kutsu kollegoita ja hallitse käyttöoikeuksia."
       },
       "agency-template-styles": {
-        "title": "Estilos",
-        "description": "Plantilla, paleta y tipografía del portfolio público."
+        "title": "Tyylit",
+        "description": "Julkisen portfolion malli, väripaletti ja typografia."
       },
       "agency-template-structure": {
-        "title": "Estructura",
-        "description": "Activa o desactiva bloques de contenido."
+        "title": "Rakenne",
+        "description": "Ota sisältölohkot käyttöön tai poista ne käytöstä."
       },
       "manager-profile": {
-        "title": "Mi perfil",
-        "description": "Tu ficha pública: bio y licencias."
+        "title": "Oma profiili",
+        "description": "Julkinen korttisi: bio ja lisenssit."
       },
       "account": {
-        "title": "Cuenta",
-        "description": "Datos de acceso y preferencias generales."
+        "title": "Tili",
+        "description": "Kirjautumistiedot ja yleiset asetukset."
       },
       "subscription": {
-        "title": "Suscripción",
-        "description": "Estado del plan y facturación."
+        "title": "Tilaus",
+        "description": "Tilauksen tila ja laskutus."
       },
       "logout": {
-        "title": "Cerrar sesión",
-        "description": "Salí del panel de manera segura."
+        "title": "Kirjaudu ulos",
+        "description": "Poistu paneelista turvallisesti."
       },
       "agency-services": {
-        "title": "Servicios",
-        "description": "Qué ofrece tu agencia."
+        "title": "Palvelut",
+        "description": "Mitä toimistosi tarjoaa."
       },
       "agency-reach": {
-        "title": "Alcance y operativa",
-        "description": "Países donde operás y su detalle."
+        "title": "Kattavuus ja toiminta",
+        "description": "Maat, joissa toimit, ja niiden tiedot."
       },
       "agency-collaborations": {
-        "title": "Clubes",
-        "description": "Relaciones y propuestas con clubes."
+        "title": "Seurat",
+        "description": "Suhteet ja ehdotukset seurojen kanssa."
       },
       "agency-multimedia": {
-        "title": "Multimedia",
-        "description": "Galería de fotos e imágenes."
+        "title": "Mediasisältö",
+        "description": "Kuva- ja kuvitusgalleria."
       },
       "agency-translations": {
-        "title": "Idiomas",
-        "description": "Publicá tu perfil en inglés, italiano y portugués (Pro)."
+        "title": "Kielet",
+        "description": "Julkaise profiilisi englanniksi, italiaksi ja portugaliksi (Pro)."
       }
     }
   },
   "sidebar": {
-    "signOutTitle": "Cerrar Sesión",
-    "signOutConfirm": "¿Estás seguro que deseas cerrar tu sesión en 'BallersHub?",
-    "cancel": "Cancelar",
-    "signingOut": "Saliendo...",
-    "signOut": "Cerrar sesión",
-    "mainMenu": "Menú principal",
-    "navigation": "Navegación"
+    "signOutTitle": "Kirjaudu ulos",
+    "signOutConfirm": "Haluatko varmasti kirjautua ulos BallersHubista?",
+    "cancel": "Peruuta",
+    "signingOut": "Kirjaudutaan ulos...",
+    "signOut": "Kirjaudu ulos",
+    "mainMenu": "Päävalikko",
+    "navigation": "Navigointi"
   },
   "shell": {
     "roleManager": "Manager",
-    "roleClient": "Cliente",
-    "headingManager": "Área de <hl>agencia</hl>",
-    "headingClient": "Área del <hl>cliente</hl>",
-    "subtitleManager": "Gestioná la representación de tus jugadores, permisos del staff y perfil institucional.",
-    "subtitleClient": "Gestioná tu perfil profesional, personalizá tu plantilla y administrá tu cuenta.",
-    "activeSession": "Sesión activa"
+    "roleClient": "Asiakas",
+    "headingManager": "<hl>Toimiston</hl> alue",
+    "headingClient": "<hl>Asiakkaan</hl> alue",
+    "subtitleManager": "Hallitse pelaajiesi edustusta, henkilöstön käyttöoikeuksia ja toimiston profiilia.",
+    "subtitleClient": "Hallitse ammattilaisprofiiliasi, mukauta malliasi ja hallinnoi tiliäsi.",
+    "activeSession": "Aktiivinen istunto"
   },
   "overview": {
     "progressList": {
-      "progressAriaLabel": "Progreso {title}",
-      "sectionComplete": "¡Todo listo! Seguimos actualizando tu perfil en esta sección.",
-      "openSection": "Abrir sección"
+      "progressAriaLabel": "Edistyminen {title}",
+      "sectionComplete": "Kaikki valmista! Jatkamme profiilisi päivittämistä tässä osiossa.",
+      "openSection": "Avaa osio"
     },
     "statusSummary": {
-      "visibilityPublic": "Perfil público",
-      "visibilityPrivate": "Perfil privado",
-      "visibilityOther": "Visibilidad: {visibility}",
-      "updatedAt": "Actualizado el {date}",
-      "publicUrlLabel": "URL pública:",
-      "applicationChip": "Solicitud: {label}",
-      "noApplicationYet": "Todavía no registramos una solicitud activa. Iniciá el proceso de onboarding para generar tu perfil profesional."
+      "visibilityPublic": "Julkinen profiili",
+      "visibilityPrivate": "Yksityinen profiili",
+      "visibilityOther": "Näkyvyys: {visibility}",
+      "updatedAt": "Päivitetty {date}",
+      "publicUrlLabel": "Julkinen URL-osoite:",
+      "applicationChip": "Hakemus: {label}",
+      "noApplicationYet": "Emme ole vielä rekisteröineet aktiivista hakemusta. Aloita perehdytysprosessi muodostaaksesi ammattilaisprofiilisi."
     },
     "applicationReview": {
-      "titlePlayer": "Tu solicitud de jugador",
-      "titleManager": "Tu solicitud de agencia",
-      "subtitlePending": "Estamos revisando los datos enviados. Recibirás un mail apenas tengamos novedades.",
-      "subtitleResolved": "Detalle del estado actual de tu solicitud.",
-      "applicationIdLabel": "ID de solicitud",
-      "copyId": "Copiar ID completo",
-      "copiedId": "Copiado",
-      "copyIdAriaLabel": "Copiar identificador de solicitud",
-      "rowSubmittedAt": "Fecha de envío",
-      "rowUpdatedAt": "Última actualización",
-      "rowPlanRequested": "Plan solicitado",
-      "rowFullName": "Nombre",
-      "rowPositions": "Posiciones",
-      "rowNationality": "Nacionalidad",
-      "rowCurrentClub": "Club declarado",
-      "rowResponsible": "Responsable",
-      "rowAgency": "Agencia",
-      "rowWebsite": "Sitio web",
-      "rowContactEmail": "Email de contacto",
-      "rowContactPhone": "Teléfono",
-      "notesTitle": "Notas enviadas",
-      "pendingNoticeLead": "Mientras revisamos tu solicitud no podés editar el perfil. El proceso normalmente toma",
-      "pendingNoticeDuration": "24 a 72 horas hábiles",
-      "pendingNoticeContact": "Si necesitás corregir un dato urgente, escribinos a",
-      "pendingNoticeIdRef": "citando el ID de arriba.",
-      "close": "Cerrar"
+      "titlePlayer": "Pelaajahakemuksesi",
+      "titleManager": "Toimistohakemuksesi",
+      "subtitlePending": "Tarkistamme lähetetyt tiedot. Saat sähköpostin heti, kun meillä on uutta kerrottavaa.",
+      "subtitleResolved": "Hakemuksesi nykyisen tilan tiedot.",
+      "applicationIdLabel": "Hakemuksen tunnus",
+      "copyId": "Kopioi koko tunnus",
+      "copiedId": "Kopioitu",
+      "copyIdAriaLabel": "Kopioi hakemuksen tunniste",
+      "rowSubmittedAt": "Lähetyspäivä",
+      "rowUpdatedAt": "Viimeksi päivitetty",
+      "rowPlanRequested": "Pyydetty tilaus",
+      "rowFullName": "Nimi",
+      "rowPositions": "Pelipaikat",
+      "rowNationality": "Kansallisuus",
+      "rowCurrentClub": "Ilmoitettu seura",
+      "rowResponsible": "Vastuuhenkilö",
+      "rowAgency": "Toimisto",
+      "rowWebsite": "Verkkosivusto",
+      "rowContactEmail": "Yhteyssähköposti",
+      "rowContactPhone": "Puhelin",
+      "notesTitle": "Lähetetyt huomautukset",
+      "pendingNoticeLead": "Hakemuksesi tarkistuksen aikana et voi muokata profiilia. Prosessi kestää yleensä",
+      "pendingNoticeDuration": "24–72 työtuntia",
+      "pendingNoticeContact": "Jos sinun on korjattava kiireellinen tieto, kirjoita meille osoitteeseen",
+      "pendingNoticeIdRef": "mainiten yllä olevan tunnuksen.",
+      "close": "Sulje"
     },
     "taskCallouts": {
-      "title": "Tareas pendientes en esta sección",
-      "pendingCount": "{count} pendiente(s)",
-      "viewDetail": "Ver detalle"
+      "title": "Avoimet tehtävät tässä osiossa",
+      "pendingCount": "{count} avoinna",
+      "viewDetail": "Näytä tiedot"
     }
   },
   "managerOverview": {
     "header": {
-      "title": "Resumen general de Agencia",
-      "description": "Visualizá el estado de tu empresa, tu cartera de jugadores y accesos rápidos."
+      "title": "Toimiston yleiskatsaus",
+      "description": "Tarkastele yrityksesi tilaa, pelaajasalkkuasi ja pikakuvakkeita."
     },
     "operationalStatus": {
-      "title": "Estado Operativo",
-      "description": "Controlá tu visibilidad pública y el estado de tu licencia institucional."
+      "title": "Toiminnallinen tila",
+      "description": "Seuraa julkista näkyvyyttäsi ja institutionaalisen lisenssisi tilaa."
     },
     "status": {
-      "pendingLabel": "En revisión",
-      "pendingMessage": "Tu solicitud para operar una agencia está siendo evaluada por administración.",
-      "approvedLabel": "Agencia Activa y Validada",
-      "approvedMessage": "Representas a {agencyName}. Mantén tu perfil actualizado para lograr mayor exposición con clubes y reclutadores.",
-      "agencyFallback": "tu Agencia",
-      "rejectedLabel": "Solicitud Rechazada",
-      "rejectedMessage": "Tu permiso operativo dentro del sistema fue rechazado. Contáctanos para más detalles."
+      "pendingLabel": "Tarkistuksessa",
+      "pendingMessage": "Hakemustasi toimiston toiminnasta arvioi hallinto.",
+      "approvedLabel": "Toimisto aktiivinen ja vahvistettu",
+      "approvedMessage": "Edustat {agencyName}. Pidä profiilisi ajan tasalla saadaksesi enemmän näkyvyyttä seuroille ja kykyjenetsijöille.",
+      "agencyFallback": "toimistosi",
+      "rejectedLabel": "Hakemus hylätty",
+      "rejectedMessage": "Toimintalupasi järjestelmässä hylättiin. Ota yhteyttä saadaksesi lisätietoja."
     },
     "cta": {
-      "viewApplication": "Ver solicitud",
-      "viewPublicAgency": "Ver perfil público de agencia",
-      "configurePublicUrl": "Configurar URL Pública"
+      "viewApplication": "Näytä hakemus",
+      "viewPublicAgency": "Näytä toimiston julkinen profiili",
+      "configurePublicUrl": "Määritä julkinen URL-osoite"
     },
     "directory": {
-      "playersTitle": "Directorio de Jugadores",
-      "playersDescription": "Tus jugadores representados activos.",
-      "playersBadge": "Jugadores Vinculados",
-      "playersCta": "Ver directorio completo →",
-      "staffTitle": "Equipo de Representación",
-      "staffDescription": "Mánagers pertenecientes a la institución.",
-      "staffBadge": "Agentes Activos",
-      "staffCta": "Gestionar Staff →"
+      "playersTitle": "Pelaajahakemisto",
+      "playersDescription": "Aktiiviset edustamasi pelaajat.",
+      "playersBadge": "Linkitetyt pelaajat",
+      "playersCta": "Näytä koko hakemisto →",
+      "staffTitle": "Edustustiimi",
+      "staffDescription": "Instituutioon kuuluvat managerit.",
+      "staffBadge": "Aktiiviset agentit",
+      "staffCta": "Hallitse henkilöstöä →"
     },
     "quickActions": {
-      "title": "Atajos rápidos",
-      "description": "Accedé directamente a las secciones operativas que vas a utilizar con mayor frecuencia.",
-      "goToSection": "Ir a la sección →",
+      "title": "Pikakuvakkeet",
+      "description": "Pääse suoraan toiminnallisiin osioihin, joita käytät useimmin.",
+      "goToSection": "Siirry osioon →",
       "agency": {
-        "title": "Editar Perfil de Agencia",
-        "description": "Modifica información pública, contacto y logo."
+        "title": "Muokkaa toimiston profiilia",
+        "description": "Muokkaa julkisia tietoja, yhteystietoja ja logoa."
       },
       "templateStyles": {
-        "title": "Plantilla del Portfolio",
-        "description": "Elegí Pro o Clásica, paleta de marca y tipografía."
+        "title": "Portfolion malli",
+        "description": "Valitse Pro tai Klassinen, brändin väripaletti ja typografia."
       },
       "players": {
-        "title": "Cartera de Jugadores",
-        "description": "Administra tu roster y asigna tareas pendientes."
+        "title": "Pelaajasalkku",
+        "description": "Hallinnoi kokoonpanoasi ja jaa avoimia tehtäviä."
       },
       "staff": {
-        "title": "Equipo Staff",
-        "description": "Invita colegas y visualiza miembros activos."
+        "title": "Henkilöstötiimi",
+        "description": "Kutsu kollegoita ja näytä aktiiviset jäsenet."
       }
     }
   },
   "paywall": {
     "subscriptionBanner": {
-      "trialingTitle": "Estás en tu trial Pro · te {daysCopy}.",
-      "trialingDaysSingular": "queda 1 día",
-      "trialingDaysPlural": "quedan {days} días",
-      "trialingBody": "Después del trial te cobramos automáticamente. Cancelable durante el trial sin cargo.",
-      "trialingCta": "Gestionar suscripción",
-      "cancelingSoonTitle": "Tu plan Pro está activo pero no se va a renovar.",
-      "cancelingSoonBodyWithDate": "El acceso Pro continúa hasta {date}.",
-      "cancelingSoonBodyNoDate": "El acceso Pro continúa hasta el fin del período actual.",
-      "cancelingSoonCta": "Reactivar",
-      "pastDueTitle": "Hubo un problema con tu pago.",
-      "pastDueBody": "Actualizá el método de pago para evitar perder el acceso Pro.",
-      "pastDueCta": "Actualizar pago",
-      "expiredTitle": "Tu plan Pro venció.",
-      "expiredBody": "Recuperá las plantillas y secciones premium con un nuevo ciclo Pro.",
-      "expiredCta": "Renovar Pro",
-      "compGrantWithDate": "Cuenta de cortesía Pro · vigente hasta {date}",
-      "compGrantNoDate": "Cuenta de cortesía Pro · sin vencimiento"
+      "trialingTitle": "Olet Pro-kokeilussasi · {daysCopy}.",
+      "trialingDaysSingular": "sinulla on jäljellä 1 päivä",
+      "trialingDaysPlural": "sinulla on jäljellä {days} päivää",
+      "trialingBody": "Kokeilun jälkeen veloitamme automaattisesti. Peruutettavissa kokeilun aikana veloituksetta.",
+      "trialingCta": "Hallitse tilausta",
+      "cancelingSoonTitle": "Pro-tilauksesi on aktiivinen, mutta sitä ei uusita.",
+      "cancelingSoonBodyWithDate": "Pro-käyttöoikeus jatkuu {date} asti.",
+      "cancelingSoonBodyNoDate": "Pro-käyttöoikeus jatkuu nykyisen jakson loppuun asti.",
+      "cancelingSoonCta": "Aktivoi uudelleen",
+      "pastDueTitle": "Maksussasi oli ongelma.",
+      "pastDueBody": "Päivitä maksutapa, jotta et menetä Pro-käyttöoikeutta.",
+      "pastDueCta": "Päivitä maksu",
+      "expiredTitle": "Pro-tilauksesi on vanhentunut.",
+      "expiredBody": "Palauta premium-mallit ja -osiot uudella Pro-jaksolla.",
+      "expiredCta": "Uusi Pro",
+      "compGrantWithDate": "Veloitukseton Pro-tili · voimassa {date} asti",
+      "compGrantNoDate": "Veloitukseton Pro-tili · ei eräpäivää"
     }
   },
   "invites": {
     "pendingModal": {
-      "title": "¡Tienes una invitación pendiente!",
-      "bodyLead": "Has sido invitado a formar parte del staff de la agencia <strong>{agencyName}</strong>.",
-      "bodyConsequence": "Al aceptar, tu cuenta cambiará a perfil de Manager y tendrás acceso a los jugadores representados por esta agencia.",
-      "decline": "Rechazar",
-      "accept": "Aceptar Invitación"
+      "title": "Sinulla on avoin kutsu!",
+      "bodyLead": "Sinut on kutsuttu osaksi toimiston <strong>{agencyName}</strong> henkilöstöä.",
+      "bodyConsequence": "Hyväksymällä tilisi vaihtuu Manager-profiiliksi ja saat pääsyn tämän toimiston edustamiin pelaajiin.",
+      "decline": "Hylkää",
+      "accept": "Hyväksy kutsu"
     },
     "playerPendingModal": {
-      "title": "¡Nuevas oportunidades!",
-      "bodyLead": "La agencia <strong>{agencyName}</strong> ha solicitado incluirte en su cartera de jugadores representados en BallersHub.",
-      "contractDuration": "Duración del vínculo registrada: {date}.",
-      "bodyConsequence": "Al aceptar esta invitación, tu perfil deportivo mostrará públicamente a esta agencia como tu representante oficial.",
-      "decline": "Rechazar",
-      "accept": "Vincular mi perfil"
+      "title": "Uusia mahdollisuuksia!",
+      "bodyLead": "Toimisto <strong>{agencyName}</strong> on pyytänyt sinua mukaan edustamiensa pelaajien salkkuun BallersHubissa.",
+      "contractDuration": "Rekisteröity sidoksen kesto: {date}.",
+      "bodyConsequence": "Hyväksymällä tämän kutsun urheiluprofiilisi näyttää tämän toimiston julkisesti virallisena edustajanasi.",
+      "decline": "Hylkää",
+      "accept": "Linkitä profiilini"
     }
   }
 }
