@@ -138,12 +138,79 @@ export default function CoachCareerTimelineModule({
         </>
       )}
 
+      {/* STATS-ONLY fallback — a coach with season stats but no career items
+          still shows the stats table (the pre-module Pro layout rendered stats
+          whenever data.stats.length > 0; without this the module mounts empty). */}
+      {sortedCareer.length === 0 && stats.length > 0 && (
+        <StatsOnlyBlock stats={stats} accent={accent} />
+      )}
+
       {/* GLOBAL HONOURS — coach palmarés (data.honours has no per-item link). */}
       {honours.length > 0 && (
         <div className="relative w-full px-5 pb-16 sm:px-8 lg:px-0 lg:max-w-[1240px] lg:mx-auto">
           <HonoursGrid honours={honours} accent={accent} onSelectHonour={setSelectedHonour} />
         </div>
       )}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------
+// Stats-only fallback (season stats but no career rows)
+// ------------------------------------------------------------
+
+function StatsOnlyBlock({ stats, accent }: { stats: CoachStatRow[]; accent: string }) {
+  const t = useTranslations("portfolio");
+  return (
+    <div className="relative w-full px-5 pb-16 pt-12 sm:px-8 lg:px-0 lg:max-w-[1240px] lg:mx-auto">
+      <BioAnimatedBackground />
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="relative z-10"
+      >
+        <h2 className="mb-2 text-[10px] font-black uppercase tracking-[0.4em] text-[var(--theme-accent)]">
+          {t("modules.career.eyebrow")}
+        </h2>
+        <h3 className="mb-6 font-bh-heading text-3xl font-black uppercase leading-none text-white">
+          {t("coach.statsTitle")}
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[440px] border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-white/10 text-left text-[11px] uppercase tracking-[0.06em] text-white/40">
+                <th className="py-2 pr-3 font-semibold">{t("coach.seasonLabel")}</th>
+                <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrMatches")}</th>
+                <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrWins")}</th>
+                <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrDraws")}</th>
+                <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrLosses")}</th>
+                <th className="px-2 py-2 text-center font-semibold">{t("coach.abbrWinRate")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.map((s) => (
+                <tr key={s.id} className="border-b border-white/[0.06]">
+                  <td className="py-2 pr-3">
+                    <span className="font-semibold text-white">{s.season}</span>
+                    {s.team && <span className="text-white/40"> · {s.team}</span>}
+                  </td>
+                  <td className="px-2 py-2 text-center tabular-nums text-white/70">{s.matches}</td>
+                  <td className="px-2 py-2 text-center tabular-nums text-white/70">{s.wins}</td>
+                  <td className="px-2 py-2 text-center tabular-nums text-white/70">{s.draws}</td>
+                  <td className="px-2 py-2 text-center tabular-nums text-white/70">{s.losses}</td>
+                  <td
+                    className="px-2 py-2 text-center font-semibold tabular-nums"
+                    style={{ color: accent }}
+                  >
+                    {pct(s.wins, s.matches)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </motion.div>
     </div>
   );
 }

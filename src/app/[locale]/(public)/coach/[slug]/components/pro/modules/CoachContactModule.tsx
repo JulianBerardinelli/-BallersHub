@@ -87,6 +87,8 @@ export default function CoachContactModule({
       playerName={coachName}
       channels={channels}
       unlocked={unlocked}
+      apiKind="coach"
+      profilePath={`/coach/${coachSlug}`}
     />
   );
 }

@@ -14,6 +14,9 @@ const bodySchema = z.object({
   // Locale of the portfolio page (sent by the client) → localizes the lead
   // welcome email. Leads have no account, so there's no preferred_locale.
   locale: z.enum(["es", "en", "it", "pt"]).optional(),
+  // Portfolio kind. Players and coaches can share a slug (different tables), so
+  // the form tells us which profile type it's on ("coach" from /coach/<slug>).
+  kind: z.enum(["player", "coach"]).optional(),
 });
 
 type Params = Promise<{ slug: string }>;
@@ -56,31 +59,42 @@ export async function POST(req: Request, { params }: { params: Params }) {
     return NextResponse.json({ error: "Ingresá un email válido." }, { status: 400 });
   }
 
-  // The contact module is shared by player AND coach portfolios (the coach
-  // page posts here with its own slug). Resolve a player first; fall back to a
-  // coach so coach leads also get logged + the unlock cookie set. `kind` then
-  // drives which lead table + which portfolio path the welcome email links to.
-  const player = await db.query.playerProfiles.findFirst({
-    where: (p, { and, eq }) =>
-      and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
-    columns: { id: true, fullName: true, slug: true },
-  });
-
-  let target:
-    | { kind: "player"; id: string; fullName: string; slug: string }
-    | { kind: "coach"; id: string; fullName: string; slug: string }
-    | null = player
-    ? { kind: "player", id: player.id, fullName: player.fullName, slug: player.slug }
-    : null;
-
-  if (!target) {
-    const coach = await db.query.coachProfiles.findFirst({
+  // The contact module is shared by player AND coach portfolios, which can share
+  // a slug (different tables). The form sends `kind` ("coach" from /coach/<slug>)
+  // so a coach lead is never mis-routed to a same-slug player. We resolve the
+  // declared kind first and only fall back to the other type as a safety net.
+  // `target.kind` then drives the lead table + the welcome email's portfolio path.
+  const findPlayer = () =>
+    db.query.playerProfiles.findFirst({
+      where: (p, { and, eq }) =>
+        and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
+      columns: { id: true, fullName: true, slug: true },
+    });
+  const findCoach = () =>
+    db.query.coachProfiles.findFirst({
       where: (c, { and, eq }) =>
         and(eq(c.slug, slug), eq(c.visibility, "public"), eq(c.status, "approved")),
       columns: { id: true, fullName: true, slug: true },
     });
-    if (coach) {
-      target = { kind: "coach", id: coach.id, fullName: coach.fullName, slug: coach.slug };
+
+  type Target =
+    | { kind: "player"; id: string; fullName: string; slug: string }
+    | { kind: "coach"; id: string; fullName: string; slug: string };
+  let target: Target | null = null;
+
+  if (parsed.data.kind === "coach") {
+    const coach = await findCoach();
+    if (coach) target = { kind: "coach", id: coach.id, fullName: coach.fullName, slug: coach.slug };
+    if (!target) {
+      const player = await findPlayer();
+      if (player) target = { kind: "player", id: player.id, fullName: player.fullName, slug: player.slug };
+    }
+  } else {
+    const player = await findPlayer();
+    if (player) target = { kind: "player", id: player.id, fullName: player.fullName, slug: player.slug };
+    if (!target) {
+      const coach = await findCoach();
+      if (coach) target = { kind: "coach", id: coach.id, fullName: coach.fullName, slug: coach.slug };
     }
   }
 
