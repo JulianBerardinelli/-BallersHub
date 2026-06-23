@@ -36,13 +36,22 @@ export default function ProPlayerHeader({
   player,
   hideOnMobile = false,
   localeSwitch,
+  hasNationalTeam = false,
 }: {
   player: any;
   hideOnMobile?: boolean;
   localeSwitch?: LocaleSwitch;
+  /** Si el jugador no tiene etapas de selección aprobadas, el item se oculta
+   *  (el módulo no renderiza, así que el link quedaría muerto). */
+  hasNationalTeam?: boolean;
 }) {
   const t = useTranslations("portfolio");
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  // Secciones visibles en el nav. "national-team" solo si hay datos aprobados.
+  const sections = PORTFOLIO_SECTIONS.filter(
+    (s) => s.id !== "national-team" || hasNationalTeam,
+  );
 
   const handleShare = async () => {
     try {
@@ -153,7 +162,7 @@ export default function ProPlayerHeader({
           )}
 
           {/* Section links: iconos en mobile, texto en desktop */}
-          {PORTFOLIO_SECTIONS.map((item) => {
+          {sections.map((item) => {
             const isActive = activeId === item.id;
             const Icon = item.Icon;
             const label = t(item.labelKey);
