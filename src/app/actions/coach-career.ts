@@ -244,20 +244,49 @@ export async function submitCoachCareerRevision(
   };
 
   if (parsed.data.items.length > 0) {
-    const itemRows = parsed.data.items.map((stage, index) => ({
-      request_id: requestId,
-      original_item_id: stage.originalId ?? null,
-      club: stage.club,
-      role_title: stage.roleTitle,
-      division: stage.division,
-      division_id: stage.divisionId ?? null,
-      secondary_division: stage.secondaryDivision ?? null,
-      secondary_division_id: stage.secondaryDivisionId ?? null,
-      start_year: stage.startYear,
-      end_year: stage.endYear,
-      team_id: stage.teamId ?? null,
-      order_index: index,
-    }));
+    const itemRows: Record<string, unknown>[] = [];
+    for (let index = 0; index < parsed.data.items.length; index++) {
+      const stage = parsed.data.items[index];
+      // Catalog team chosen → team_id. Team proposed (not in catalog) → persist
+      // the proposal so the admin resolves it into /teams on approval (mirrors
+      // the player revision flow). RLS allows the owner to insert for their own
+      // pending request.
+      let proposedTeamId: string | null = null;
+      const proposedName = (stage.proposedTeam?.name || "").trim() || stage.club.trim();
+      if (!stage.teamId && stage.proposedTeam && proposedName) {
+        const { data: pt, error: ptErr } = await supabase
+          .from("coach_career_revision_proposed_teams")
+          .insert({
+            request_id: requestId,
+            name: proposedName,
+            country_name: stage.proposedTeam.countryName ?? null,
+            country_code: stage.proposedTeam.countryCode ?? null,
+            transfermarkt_url: stage.proposedTeam.transfermarktUrl ?? null,
+          })
+          .select("id")
+          .single<{ id: string }>();
+        if (ptErr) {
+          await rollback();
+          return { success: false, message: ptErr.message };
+        }
+        proposedTeamId = pt.id;
+      }
+      itemRows.push({
+        request_id: requestId,
+        original_item_id: stage.originalId ?? null,
+        club: stage.club,
+        role_title: stage.roleTitle,
+        division: stage.division,
+        division_id: stage.divisionId ?? null,
+        secondary_division: stage.secondaryDivision ?? null,
+        secondary_division_id: stage.secondaryDivisionId ?? null,
+        start_year: stage.startYear,
+        end_year: stage.endYear,
+        team_id: stage.teamId ?? null,
+        proposed_team_id: proposedTeamId,
+        order_index: index,
+      });
+    }
     const { error: itemsError } = await supabase
       .from("coach_career_revision_items")
       .insert(itemRows);

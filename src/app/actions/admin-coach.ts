@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { ensureAdminActor } from "@/lib/admin/auth";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
+import { ensureUniqueTeamSlug, findExistingTeamIdByName, slugify } from "@/lib/admin/teams";
 import { revalidatePath } from "next/cache";
 import {
   recordAdminCoachEdit,
@@ -192,9 +193,54 @@ export async function adminReplaceCoachCareer(
 
   const { data: oldCareer } = await admin.from("coach_career_items").select("id").eq("coach_id", coachId);
   const oldCareerIds = (oldCareer ?? []).map((r) => r.id as string);
-  if (items.length > 0) {
+
+  // Resolve proposed teams → pending catalog teams (same as the revision
+  // approve) so an admin live edit also seeds /teams for completion. Deduped by
+  // name; existing teams reused.
+  const createdTeams = new Map<string, string>();
+  const resolved: Array<(typeof items)[number] & { resolvedTeamId: string | null }> = [];
+  for (const it of items) {
+    let teamId = it.teamId ?? null;
+    if (!teamId && it.proposedTeam) {
+      const displayName = (it.proposedTeam.name || it.club || "").trim();
+      if (displayName) {
+        const key = displayName.toLowerCase();
+        const cached = createdTeams.get(key);
+        if (cached) {
+          teamId = cached;
+        } else {
+          let existing = await findExistingTeamIdByName(displayName, admin);
+          if (!existing) {
+            const slug = await ensureUniqueTeamSlug(slugify(displayName), admin);
+            const ins = await admin
+              .from("teams")
+              .insert({
+                name: displayName,
+                slug,
+                country: it.proposedTeam.countryName ?? null,
+                country_code: it.proposedTeam.countryCode ?? null,
+                category: it.division ?? null,
+                transfermarkt_url: it.proposedTeam.transfermarktUrl ?? null,
+                status: "pending",
+                visibility: "public",
+                requested_by_user_id: gate.actor.actorId,
+              })
+              .select("id")
+              .single<{ id: string }>();
+            if (ins.error) return { success: false, message: `Equipo propuesto: ${ins.error.message}` };
+            existing = ins.data.id;
+          }
+          teamId = existing;
+          createdTeams.set(key, existing);
+        }
+      }
+    }
+    resolved.push({ ...it, resolvedTeamId: teamId });
+  }
+
+  if (resolved.length > 0) {
     const { error } = await admin.from("coach_career_items").insert(
-      items.map((it) => ({
+      resolved.map((it) => ({
         coach_id: coachId,
         club: it.club,
         role_title: it.roleTitle,
@@ -204,7 +250,7 @@ export async function adminReplaceCoachCareer(
         secondary_division_id: it.secondaryDivisionId ?? null,
         start_date: toStartDate(it.startYear),
         end_date: toEndDate(it.endYear),
-        team_id: it.teamId ?? null,
+        team_id: it.resolvedTeamId,
       })),
     );
     if (error) return { success: false, message: `Trayectoria: ${error.message}` };
