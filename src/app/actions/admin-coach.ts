@@ -550,7 +550,7 @@ export async function adminDeleteCoachLicense(
 // player Pro sections); the action itself just writes.
 
 const adminTranslationSchema = z.object({
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
   bio: optText(5000),
   careerObjectives: optText(5000),
   playingStyle: optText(5000),
