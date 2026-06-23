@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Button, Textarea } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
 import { updateCoachProfile, type CoachProfileInput } from "@/app/actions/coach-profile";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
 import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
+import AvatarUploader from "@/components/dashboard/AvatarUploader";
 import CoachImageUploader from "@/components/dashboard/coach/CoachImageUploader";
 
 const textareaClasses = { inputWrapper: "bg-bh-surface-2 border border-white/[0.08]" };
@@ -99,7 +101,30 @@ export default function CoachProfileEditor({
           <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
             Avatar
           </p>
-          <CoachImageUploader mode="avatar" currentUrl={initial.avatarUrl} uploadUrl={imageUploadUrl} />
+          <div className="flex items-center gap-4">
+            <div className="relative size-20 shrink-0 overflow-hidden rounded-full border border-white/[0.12] bg-bh-surface-2">
+              {initial.avatarUrl ? (
+                <Image
+                  src={initial.avatarUrl}
+                  alt="Avatar"
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center text-center text-[10px] text-bh-fg-4">
+                  Sin avatar
+                </div>
+              )}
+            </div>
+            <AvatarUploader
+              playerId=""
+              currentAvatarUrl={initial.avatarUrl}
+              uploadUrl={imageUploadUrl ?? "/api/coach/profile-image/upload"}
+              assetType="avatar"
+            />
+          </div>
         </div>
         <div className="border-t border-white/[0.06] pt-5">
           <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
