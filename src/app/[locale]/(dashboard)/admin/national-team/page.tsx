@@ -94,7 +94,7 @@ export default async function AdminNationalTeamPage() {
           en el portfolio del jugador; rechazá con una nota para que pueda corregir.
         </p>
       </div>
-      <NationalTeamReviewList items={items} />
+      <NationalTeamReviewList items={items} canModerate={up?.role === "admin"} />
     </main>
   );
 }
