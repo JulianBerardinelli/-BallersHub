@@ -1,0 +1,85 @@
+{
+  "header": {
+    "eyebrow": "Verifiziertes Vertrauen · 'BallersHub",
+    "titleLead": "Wie wir",
+    "titleHl": "validieren",
+    "intro": "Jede kritische Änderung an einem Profil durchläuft einen Validierungsablauf: menschliche Prüfung, Abgleich mit über 10 Sportquellen und Verifizierung mit künstlicher Intelligenz. Sehen Sie sich den Prozess Schritt für Schritt an.",
+    "introMobile": "Jede kritische Änderung an einem Profil durchläuft einen Validierungsablauf: menschliche Prüfung, Abgleich mit über 10 Sportquellen und Verifizierung mit künstlicher Intelligenz."
+  },
+  "stepLabel": "Schritt {tag} / 06",
+  "steps": [
+    { "title": "Anfrage", "sub": "Spieler / Agent" },
+    { "title": "Admin-Panel", "sub": "Prüfungswarteschlange" },
+    { "title": "+10 Quellen", "sub": "Quervergleich" },
+    { "title": "KI-Validierung", "sub": "Dreifache Verifizierung" },
+    { "title": "Entscheidung", "sub": "Genehmigen / Ablehnen" },
+    { "title": "Veröffentlicht", "sub": "Profil aktualisiert" }
+  ],
+  "captions": [
+    {
+      "title": "Der Spieler sendet eine <hl>Anfrage</hl>",
+      "body": "Über sein Dashboard fordert der Spieler oder sein Agent eine Änderung am Karriereverlauf, an den Statistiken oder an den Medien an. Nichts wird von allein veröffentlicht: Alles geht in die Prüfung.",
+      "mockHd": "Karrierestation hinzufügen · echte Komponente",
+      "mockSlot": "Demnächst: Aufzeichnung des echten Ablaufs „Station hinzufügen + Anfrage senden“."
+    },
+    {
+      "title": "Sie erreicht das <hl>Verwaltungs-Panel</hl>",
+      "body": "Die Anfrage gelangt in die Prüfungswarteschlange des Teams von 'BallersHub. Eine Administratorin oder ein Administrator übernimmt sie und öffnet die Akte des Spielers, um mit der Verifizierung zu beginnen.",
+      "mockHd": "Prüfungs-Panel · Admin",
+      "mockSlot": "Demnächst: Aufzeichnung des Prüfungs-Panels des Teams."
+    },
+    {
+      "title": "Abgleich mit <hl>+10 Quellen</hl>",
+      "body": "Der Ablauf öffnet sich und fragt die führenden Sportplattformen der Welt parallel ab. Nur was über mehrere anerkannte Quellen übereinstimmt, geht weiter.",
+      "statNum": "10/10",
+      "statLabel": "Quellen stimmen überein",
+      "note": "Transfermarkt · BeSoccer · Flashscore · Sofascore · +4"
+    },
+    {
+      "title": "Validierung mit <hl>KI-Agenten</hl>",
+      "body": "Der Ablauf wird an drei KI-Modelle weitergeleitet, die die Daten unabhängig voneinander abgleichen, Inkonsistenzen erkennen und ein Konfidenzniveau zurückgeben. Der Konsens bestärkt die Entscheidung.",
+      "statNum": "98%",
+      "statLabel": "Validierungskonsens",
+      "note": "Gemini 97% · Claude 98% · ChatGPT 96%"
+    },
+    {
+      "title": "Das Team <hl>genehmigt oder lehnt ab</hl>",
+      "body": "Mit dem Quellenabgleich und dem KI-Konsens trifft der Administrator die endgültige Entscheidung. Stimmt alles überein, wird sie genehmigt. Andernfalls kommt sie mit einer ausführlichen Rückmeldung zurück.",
+      "approveBtn": "Genehmigen",
+      "rejectBtn": "Ablehnen",
+      "approveStamp": "✓ Genehmigt",
+      "approveSub": "Die Daten stimmen mit Quellen und KI überein.",
+      "rejectStamp": "✕ Abgelehnt",
+      "rejectSub": "Kommt mit ausführlicher Rückmeldung zur Korrektur zurück."
+    },
+    {
+      "title": "Die Änderung wird <hl>veröffentlicht</hl>",
+      "body": "Die verifizierten Daten werden im öffentlichen Profil des Spielers veröffentlicht, bereit zum Teilen mit Vereinen und Scouts. Nachvollziehbar und mit echtem Beleg.",
+      "badge": "Veröffentlicht",
+      "note": "https://ballershub.co/ihr-name"
+    }
+  ],
+  "outro": {
+    "eyebrow": "Der vollständige Ablauf",
+    "titleLead": "Sechs Schritte.",
+    "titleHl": "Null unverifizierte Daten.",
+    "recap": [
+      { "title": "Anfrage", "desc": "Der Spieler oder Agent fordert eine Änderung an." },
+      { "title": "Admin-Panel", "desc": "Sie gelangt in die Prüfungswarteschlange des Teams." },
+      { "title": "+10 Quellen", "desc": "Quervergleich mit Top-Plattformen." },
+      { "title": "KI-Validierung", "desc": "Gemini, Claude und ChatGPT gleichen die Daten ab." },
+      { "title": "Entscheidung", "desc": "Sie wird genehmigt oder kommt mit Rückmeldung zurück." },
+      { "title": "Veröffentlicht", "desc": "Die verifizierten Daten gehen ins öffentliche Profil." }
+    ]
+  },
+  "cta": {
+    "titleLead": "Ihre Karriere. Ihre Daten.",
+    "titleHl": "Verifiziert.",
+    "body": "Erstellen Sie Ihr professionelles Profil und lassen Sie jeden Datenpunkt mit echtem Beleg sprechen.",
+    "primary": "Mein Profil erstellen →",
+    "secondary": "Spieler ansehen"
+  },
+  "ui": {
+    "scrollHint": "Scrollen Sie, um den Ablauf auszuführen"
+  }
+}

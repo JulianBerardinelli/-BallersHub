@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "Agentuureille ja pelaaja-agenteille",
+    "title": "Jalkapalloilijoiden edustustoimistot",
+    "subtitle": "Julkaise vahvistettujen pelaajiesi salkku, kasvata näkyvyyttä hakukoneissa ja esittele toimistosi ammattimaisella profiililla palvelussa {brand}.",
+    "ctaPrimary": "Lisää toimistosi",
+    "ctaSecondary": "Katso vahvistetut toimistot",
+    "verifiedCount": "{count, plural, one {# vahvistettu toimisto} other {# vahvistettua toimistoa}}"
+  },
+  "valueProps": {
+    "eyebrow": "Miksi {brand}",
+    "title": "Toimistosi ammattimainen näyteikkuna",
+    "subtitle": "Alusta, joka on suunniteltu auttamaan toimistoja esittelemään lahjakkuutensa ja kasvattamaan brändiään uskottavasti.",
+    "items": [
+      {
+        "title": "Vahvistettu virallinen salkku",
+        "description": "Tiimimme vahvistamat pelaajasi —henkilöllisyys, sopimus ja ura—. Salkku, johon seurat luottavat.",
+        "tag": "Luottamus"
+      },
+      {
+        "title": "Näkyvyys hakukoneissa",
+        "description": "Toimistosi ja jokainen pelaaja Googlea varten optimoiduilla sivuilla. Sinut löydetään, kun lahjakkuutta etsitään.",
+        "tag": "Tavoittavuus"
+      },
+      {
+        "title": "Ammattimainen profiili",
+        "description": "Logo, palvelut, toimipisteet ja yhteystiedot räätälöidyssä profiilissa. Esittele toimistosi sinä brändinä, mikä se on.",
+        "tag": "Brändi"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Hakemisto",
+    "title": "Vahvistetut toimistot",
+    "count": "{count, plural, one {# toimisto} other {# toimistoa}}",
+    "emptyTitle": "Toimistoja ei ole vielä julkaistu",
+    "emptyBody": "Palaa pian: vahvistetut toimistot ilmestyvät tähän heti, kun ne on hyväksytty.",
+    "cardLogoAlt": "{name}-logo",
+    "cardCta": "Katso pelaajasalkku"
+  },
+  "cta": {
+    "eyebrow": "Liity mukaan",
+    "title": "Edustatko pelaajia?",
+    "subtitle": "Luo toimistosi palveluun {brand}, lataa salkkusi ja ala saada näkyvyyttä seuroilta ja kykyjenetsijöiltä.",
+    "button": "Luo toimistotili"
+  }
+}

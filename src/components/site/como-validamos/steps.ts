@@ -19,20 +19,21 @@ export type Step = {
   /** Per-node accent — drives border glow, icon tint, port fill, beam colour. */
   color: string;
   icon: StepIconName;
-  /** Short label shown inside the node card. */
-  title: string;
-  sub: string;
   /** Which branch (if any) fans out at this node. */
   branch?: "sources" | "agents";
 };
 
+// NOTE: per-step `title`/`sub` text lives in the `comoValidamos` i18n namespace
+// (`steps[i].title` / `steps[i].sub`), read by index in both the desktop and
+// mobile components. Only the layout/animation data (color, icon, tag, branch)
+// stays here.
 export const STEPS: Step[] = [
-  { id: "solicitud", tag: "01", color: "#CCFF00", icon: "send", title: "Solicitud", sub: "Jugador / Agente" },
-  { id: "panel", tag: "02", color: "#E9E9E9", icon: "inbox", title: "Panel Admin", sub: "Cola de revisión" },
-  { id: "fuentes", tag: "03", color: "#00C2FF", icon: "globe", title: "+10 Fuentes", sub: "Contraste cruzado", branch: "sources" },
-  { id: "ia", tag: "04", color: "#00C2FF", icon: "cpu", title: "Validación IA", sub: "Triple verificación", branch: "agents" },
-  { id: "decision", tag: "05", color: "#22C55E", icon: "check", title: "Decisión", sub: "Aprobar / Rechazar" },
-  { id: "publicado", tag: "06", color: "#CCFF00", icon: "sun", title: "Publicado", sub: "Perfil actualizado" },
+  { id: "solicitud", tag: "01", color: "#CCFF00", icon: "send" },
+  { id: "panel", tag: "02", color: "#E9E9E9", icon: "inbox" },
+  { id: "fuentes", tag: "03", color: "#00C2FF", icon: "globe", branch: "sources" },
+  { id: "ia", tag: "04", color: "#00C2FF", icon: "cpu", branch: "agents" },
+  { id: "decision", tag: "05", color: "#22C55E", icon: "check" },
+  { id: "publicado", tag: "06", color: "#CCFF00", icon: "sun" },
 ];
 
 export type Source = {
@@ -74,15 +75,16 @@ export const AGENTS: Agent[] = [
   { name: "ChatGPT", conf: "96%", Icon: ChatGptIcon },
 ];
 
-export type RecapItem = { tag: string; color: string; icon: StepIconName; title: string; desc: string };
+// `title`/`desc` text lives in the `comoValidamos` namespace (`outro.recap[i]`).
+export type RecapItem = { tag: string; color: string; icon: StepIconName };
 
 export const RECAP: RecapItem[] = [
-  { tag: "01", color: "#CCFF00", icon: "send", title: "Solicitud", desc: "El jugador o agente pide un cambio." },
-  { tag: "02", color: "#E9E9E9", icon: "inbox", title: "Panel Admin", desc: "Entra a la cola de revisión del equipo." },
-  { tag: "03", color: "#00C2FF", icon: "globe", title: "+10 Fuentes", desc: "Contraste cruzado con plataformas top." },
-  { tag: "04", color: "#00C2FF", icon: "cpu", title: "Validación IA", desc: "Gemini, Claude y ChatGPT cruzan datos." },
-  { tag: "05", color: "#22C55E", icon: "check", title: "Decisión", desc: "Se aprueba o vuelve con feedback." },
-  { tag: "06", color: "#CCFF00", icon: "sun", title: "Publicado", desc: "El dato verificado va al perfil público." },
+  { tag: "01", color: "#CCFF00", icon: "send" },
+  { tag: "02", color: "#E9E9E9", icon: "inbox" },
+  { tag: "03", color: "#00C2FF", icon: "globe" },
+  { tag: "04", color: "#00C2FF", icon: "cpu" },
+  { tag: "05", color: "#22C55E", icon: "check" },
+  { tag: "06", color: "#CCFF00", icon: "sun" },
 ];
 
 // Engine tuning. `speed` → scroll length (higher = longer/slower); `anim` →

@@ -4,24 +4,26 @@
 // job the flat directory did, kept inside the marketing landing).
 
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 import type { DirectoryAgency } from "@/lib/agencies/directory";
 
-export function AgencyGrid({ agencies }: { agencies: DirectoryAgency[] }) {
+export async function AgencyGrid({ agencies }: { agencies: DirectoryAgency[] }) {
+  const t = await getTranslations("agenciesPage");
   return (
     <section id="agencias" className="scroll-mt-28 space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-            Directorio
+            {t("grid.eyebrow")}
           </span>
           <h2 className="font-bh-display text-2xl font-bold uppercase tracking-tight text-bh-fg-1 md:text-3xl">
-            Agencias verificadas
+            {t("grid.title")}
           </h2>
         </div>
         {agencies.length > 0 && (
           <span className="text-sm text-bh-fg-3">
-            {agencies.length} {agencies.length === 1 ? "agencia" : "agencias"}
+            {t("grid.count", { count: agencies.length })}
           </span>
         )}
       </header>
@@ -29,18 +31,21 @@ export function AgencyGrid({ agencies }: { agencies: DirectoryAgency[] }) {
       {agencies.length === 0 ? (
         <div className="rounded-bh-lg border border-dashed border-bh-fg-4 bg-bh-surface-1 p-10 text-center">
           <p className="font-bh-display text-2xl font-bold uppercase tracking-tight text-bh-fg-2">
-            Todavía no hay agencias publicadas
+            {t("grid.emptyTitle")}
           </p>
           <p className="mt-2 text-sm text-bh-fg-3">
-            Volvé pronto: las agencias verificadas aparecen acá apenas se
-            aprueban.
+            {t("grid.emptyBody")}
           </p>
         </div>
       ) : (
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {agencies.map((a) => (
             <li key={a.slug}>
-              <AgencyCard agency={a} />
+              <AgencyCard
+                agency={a}
+                logoAlt={t("grid.cardLogoAlt", { name: a.name })}
+                ctaLabel={t("grid.cardCta")}
+              />
             </li>
           ))}
         </ul>
@@ -49,7 +54,15 @@ export function AgencyGrid({ agencies }: { agencies: DirectoryAgency[] }) {
   );
 }
 
-function AgencyCard({ agency }: { agency: DirectoryAgency }) {
+function AgencyCard({
+  agency,
+  logoAlt,
+  ctaLabel,
+}: {
+  agency: DirectoryAgency;
+  logoAlt: string;
+  ctaLabel: string;
+}) {
   const location =
     agency.headquarters?.trim() ||
     agency.operativeCountries?.find((c) => c?.trim())?.trim() ||
@@ -66,7 +79,7 @@ function AgencyCard({ agency }: { agency: DirectoryAgency }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={agency.logoUrl}
-            alt={`Logo de ${agency.name}`}
+            alt={logoAlt}
             loading="lazy"
             className="h-14 w-14 shrink-0 rounded-bh-md border border-white/[0.08] bg-bh-black object-contain"
           />
@@ -92,7 +105,7 @@ function AgencyCard({ agency }: { agency: DirectoryAgency }) {
       )}
 
       <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-bh-fg-2 transition-colors group-hover:text-bh-lime">
-        Ver cartera de jugadores
+        {ctaLabel}
         <span aria-hidden>→</span>
       </span>
     </Link>

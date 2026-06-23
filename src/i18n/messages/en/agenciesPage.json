@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "For agencies and agents",
+    "title": "Football player representation agencies",
+    "subtitle": "Publish your roster of verified players, gain visibility in search engines and present your agency with a professional profile on {brand}.",
+    "ctaPrimary": "Add your agency",
+    "ctaSecondary": "View verified agencies",
+    "verifiedCount": "{count, plural, one {# verified agency} other {# verified agencies}}"
+  },
+  "valueProps": {
+    "eyebrow": "Why {brand}",
+    "title": "The professional showcase for your agency",
+    "subtitle": "A platform built for agencies to show off their talent and scale their brand with credibility.",
+    "items": [
+      {
+        "title": "Verified official roster",
+        "description": "Your players validated by our team —identity, contract and career history—. A roster clubs can trust.",
+        "tag": "Trust"
+      },
+      {
+        "title": "Search engine visibility",
+        "description": "Your agency and every player with pages optimized for Google. They find you when they're looking for talent.",
+        "tag": "Reach"
+      },
+      {
+        "title": "Professional profile",
+        "description": "Logo, services, locations and contact in a tailored profile. Present your agency as the brand it is.",
+        "tag": "Brand"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Directory",
+    "title": "Verified agencies",
+    "count": "{count, plural, one {# agency} other {# agencies}}",
+    "emptyTitle": "No agencies published yet",
+    "emptyBody": "Check back soon: verified agencies appear here as soon as they're approved.",
+    "cardLogoAlt": "{name} logo",
+    "cardCta": "View player roster"
+  },
+  "cta": {
+    "eyebrow": "Join in",
+    "title": "Do you represent players?",
+    "subtitle": "Create your agency on {brand}, upload your roster and start getting visibility from clubs and scouts.",
+    "button": "Create agency account"
+  }
+}
