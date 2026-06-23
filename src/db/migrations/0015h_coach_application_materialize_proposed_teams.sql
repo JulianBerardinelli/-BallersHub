@@ -21,7 +21,7 @@
 --
 -- Requires: la función ya existe (baseline 0015a). teams.requested_by_user_id.
 -- Aplicado en dev  (ciolizjshimyvyonlssq) via MCP apply_migration el 2026-06-22.
--- Aplicado en prod (erdvpcfjynkhcrqktozd): PENDIENTE de OK explícito del owner.
+-- Aplicado en prod (erdvpcfjynkhcrqktozd) via MCP apply_migration el 2026-06-22 (OK explícito del owner).
 -- Idempotente: sí (CREATE OR REPLACE FUNCTION; mismo signature).
 -- ===============================================================
 
