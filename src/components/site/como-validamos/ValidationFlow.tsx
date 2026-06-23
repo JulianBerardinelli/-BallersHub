@@ -1,7 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRef } from "react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Link } from "@/i18n/navigation";
 
@@ -15,6 +16,9 @@ import "./validation.css";
 // every state (.cv-active, .cv-done, .cv-is-active) reads var(--c).
 const cvar = (color: string): CSSProperties => ({ ["--c" as string]: color } as CSSProperties);
 
+// Rich-text chunk for highlighted title fragments (<hl>…</hl> → <span class="cv-hl">).
+const hl = (chunks: ReactNode) => <span className="cv-hl">{chunks}</span>;
+
 /**
  * ¿Cómo validamos? — the n8n-style validation workflow.
  *
@@ -23,6 +27,7 @@ const cvar = (color: string): CSSProperties => ({ ["--c" as string]: color } as 
  * useScrollEngine each animation frame (see that file for the why).
  */
 export default function ValidationFlow() {
+  const t = useTranslations("comoValidamos");
   const root = useRef<HTMLDivElement>(null);
   useScrollEngine(root, CFG);
 
@@ -45,16 +50,13 @@ export default function ValidationFlow() {
 
           {/* hero (fades out as the flow goes vertical) */}
           <div className="cv-hero-title">
-            <div className="cv-eyebrow">Confianza verificada · &apos;BallersHub</div>
+            <div className="cv-eyebrow">{t("header.eyebrow")}</div>
             <h1>
-              <span className="cv-q">¿</span>Cómo <span className="cv-hl">validamos</span>
+              <span className="cv-q">¿</span>
+              {t("header.titleLead")} <span className="cv-hl">{t("header.titleHl")}</span>
               <span className="cv-q">?</span>
             </h1>
-            <p>
-              Cada cambio crítico en un perfil corre por un flujo de validación: revisión humana,
-              contraste contra +10 fuentes deportivas y verificación con inteligencia artificial.
-              Mirá el proceso paso a paso.
-            </p>
+            <p>{t("header.intro")}</p>
           </div>
 
           {/* flow edges */}
@@ -93,8 +95,8 @@ export default function ValidationFlow() {
                   <StepIcon name={st.icon} />
                 </div>
                 <div className="cv-node-tx">
-                  <div className="cv-nt">{st.title}</div>
-                  <div className="cv-ns">{st.sub}</div>
+                  <div className="cv-nt">{t(`steps.${i}.title`)}</div>
+                  <div className="cv-ns">{t(`steps.${i}.sub`)}</div>
                 </div>
                 <div className="cv-node-tag">{st.tag}</div>
               </div>
@@ -146,121 +148,98 @@ export default function ValidationFlow() {
           <div className="cv-caps">
             <div className="cv-cap" data-i={0} style={cvar("#CCFF00")}>
               <div className="cv-cap-eyebrow">
-                <span className="cv-dot" />Paso 01 / 06
+                <span className="cv-dot" />
+                {t("stepLabel", { tag: "01" })}
               </div>
-              <h3>
-                El jugador envía una <span className="cv-hl">solicitud</span>
-              </h3>
-              <p>
-                Desde su panel, el jugador o su agente solicita un cambio en la trayectoria, las
-                estadísticas o el multimedia. Nada se publica solo: todo entra a revisión.
-              </p>
+              <h3>{t.rich("captions.0.title", { hl })}</h3>
+              <p>{t("captions.0.body")}</p>
               <div className="cv-cap-detail cv-mock-ui">
                 <div className="cv-mock-ui-hd">
-                  <span className="cv-mu-dot" />Agregar etapa de trayectoria · componente real
+                  <span className="cv-mu-dot" />
+                  {t("captions.0.mockHd")}
                 </div>
-                <div className="cv-mu-slot">
-                  Próximamente: grabación del flujo real “agregar etapa + enviar solicitud”.
-                </div>
+                <div className="cv-mu-slot">{t("captions.0.mockSlot")}</div>
               </div>
             </div>
 
             <div className="cv-cap" data-i={1} style={cvar("#E9E9E9")}>
               <div className="cv-cap-eyebrow">
-                <span className="cv-dot" />Paso 02 / 06
+                <span className="cv-dot" />
+                {t("stepLabel", { tag: "02" })}
               </div>
-              <h3>
-                Llega al <span className="cv-hl">Panel de Administración</span>
-              </h3>
-              <p>
-                La solicitud entra a la cola de revisión del equipo de &apos;BallersHub. Un
-                administrador la toma y abre el expediente del jugador para empezar a verificar.
-              </p>
+              <h3>{t.rich("captions.1.title", { hl })}</h3>
+              <p>{t("captions.1.body")}</p>
               <div className="cv-cap-detail cv-mock-ui">
                 <div className="cv-mock-ui-hd">
-                  <span className="cv-mu-dot" />Panel de revisión · Admin
+                  <span className="cv-mu-dot" />
+                  {t("captions.1.mockHd")}
                 </div>
-                <div className="cv-mu-slot">
-                  Próximamente: grabación del panel de revisión del equipo.
-                </div>
+                <div className="cv-mu-slot">{t("captions.1.mockSlot")}</div>
               </div>
             </div>
 
             <div className="cv-cap" data-i={2} style={cvar("#00C2FF")}>
               <div className="cv-cap-eyebrow">
-                <span className="cv-dot" />Paso 03 / 06
+                <span className="cv-dot" />
+                {t("stepLabel", { tag: "03" })}
               </div>
-              <h3>
-                Contraste en <span className="cv-hl">+10 fuentes</span>
-              </h3>
-              <p>
-                El flujo se abre y consulta las principales plataformas deportivas del mundo en
-                paralelo. Solo avanza lo que coincide en múltiples fuentes reconocidas.
-              </p>
+              <h3>{t.rich("captions.2.title", { hl })}</h3>
+              <p>{t("captions.2.body")}</p>
               <div className="cv-cap-detail cv-solid">
                 <div className="cv-cd-stat">
-                  <span className="cv-cd-num">10/10</span>
-                  <span className="cv-cd-lab">fuentes coinciden</span>
+                  <span className="cv-cd-num">{t("captions.2.statNum")}</span>
+                  <span className="cv-cd-lab">{t("captions.2.statLabel")}</span>
                 </div>
                 <div className="cv-cd-bar">
                   <i style={{ ["--w" as string]: "100%" } as CSSProperties} />
                 </div>
-                <div className="cv-cd-note">Transfermarkt · BeSoccer · Flashscore · Sofascore · +4</div>
+                <div className="cv-cd-note">{t("captions.2.note")}</div>
               </div>
             </div>
 
             <div className="cv-cap" data-i={3} style={cvar("#00C2FF")}>
               <div className="cv-cap-eyebrow">
-                <span className="cv-dot" />Paso 04 / 06
+                <span className="cv-dot" />
+                {t("stepLabel", { tag: "04" })}
               </div>
-              <h3>
-                Validación con <span className="cv-hl">agentes de IA</span>
-              </h3>
-              <p>
-                El flujo deriva a tres modelos de IA que cruzan los datos de forma independiente,
-                detectan inconsistencias y devuelven un nivel de confianza. El consenso refuerza la
-                decisión.
-              </p>
+              <h3>{t.rich("captions.3.title", { hl })}</h3>
+              <p>{t("captions.3.body")}</p>
               <div className="cv-cap-detail cv-solid">
                 <div className="cv-cd-stat">
-                  <span className="cv-cd-num">98%</span>
-                  <span className="cv-cd-lab">consenso de validación</span>
+                  <span className="cv-cd-num">{t("captions.3.statNum")}</span>
+                  <span className="cv-cd-lab">{t("captions.3.statLabel")}</span>
                 </div>
                 <div className="cv-cd-bar">
                   <i style={{ ["--w" as string]: "98%" } as CSSProperties} />
                 </div>
-                <div className="cv-cd-note">Gemini 97% · Claude 98% · ChatGPT 96%</div>
+                <div className="cv-cd-note">{t("captions.3.note")}</div>
               </div>
             </div>
 
             <div className="cv-cap" data-i={4} style={cvar("#22C55E")}>
               <div className="cv-cap-eyebrow">
-                <span className="cv-dot" />Paso 05 / 06
+                <span className="cv-dot" />
+                {t("stepLabel", { tag: "05" })}
               </div>
-              <h3>
-                El equipo <span className="cv-hl">aprueba o rechaza</span>
-              </h3>
-              <p>
-                Con el contraste de fuentes y el consenso de IA, el administrador toma la decisión
-                final. Si todo coincide, se aprueba. Si no, vuelve con una devolución detallada.
-              </p>
+              <h3>{t.rich("captions.4.title", { hl })}</h3>
+              <p>{t("captions.4.body")}</p>
               <div className="cv-cap-detail">
                 <div className="cv-decide-toggle">
                   <button type="button" data-mode="approve" className="cv-on-approve">
-                    Aprobar
+                    {t("captions.4.approveBtn")}
                   </button>
                   <button type="button" data-mode="reject">
-                    Rechazar
+                    {t("captions.4.rejectBtn")}
                   </button>
                 </div>
                 <div className="cv-verdict cv-approve">
                   <div data-approve>
-                    <span className="cv-v-stamp">✓ Aprobada</span>
-                    <span className="cv-v-sub">Los datos coinciden con fuentes e IA.</span>
+                    <span className="cv-v-stamp">{t("captions.4.approveStamp")}</span>
+                    <span className="cv-v-sub">{t("captions.4.approveSub")}</span>
                   </div>
                   <div data-reject style={{ display: "none" }}>
-                    <span className="cv-v-stamp cv-rej">✕ Rechazada</span>
-                    <span className="cv-v-sub">Vuelve con devolución detallada para corregir.</span>
+                    <span className="cv-v-stamp cv-rej">{t("captions.4.rejectStamp")}</span>
+                    <span className="cv-v-sub">{t("captions.4.rejectSub")}</span>
                   </div>
                 </div>
               </div>
@@ -268,22 +247,18 @@ export default function ValidationFlow() {
 
             <div className="cv-cap" data-i={5} style={cvar("#CCFF00")}>
               <div className="cv-cap-eyebrow">
-                <span className="cv-dot" />Paso 06 / 06
+                <span className="cv-dot" />
+                {t("stepLabel", { tag: "06" })}
               </div>
-              <h3>
-                El cambio se <span className="cv-hl">publica</span>
-              </h3>
-              <p>
-                El dato verificado se publica en el perfil público del jugador, listo para
-                compartirse con clubes y reclutadores. Trazable y con respaldo real.
-              </p>
+              <h3>{t.rich("captions.5.title", { hl })}</h3>
+              <p>{t("captions.5.body")}</p>
               <div className="cv-cap-detail cv-solid">
                 <div className="cv-cd-line">
                   <span className="cv-cd-av cv-lime">LM</span>
                   <span className="cv-cd-name">Lucas Martínez</span>
-                  <span className="cv-cd-badge cv-green">Publicado</span>
+                  <span className="cv-cd-badge cv-green">{t("captions.5.badge")}</span>
                 </div>
-                <div className="cv-cd-note">https://ballershub.co/tu-nombre</div>
+                <div className="cv-cd-note">{t("captions.5.note")}</div>
               </div>
             </div>
           </div>
@@ -299,7 +274,7 @@ export default function ValidationFlow() {
           {/* scroll hint */}
           <div className="cv-scroll-hint">
             <div className="cv-mouse" />
-            <div className="cv-t">Scroll para ejecutar el flujo</div>
+            <div className="cv-t">{t("ui.scrollHint")}</div>
           </div>
         </div>
       </section>
@@ -308,34 +283,35 @@ export default function ValidationFlow() {
       <section className="cv-outro">
         <div className="cv-outro-inner">
           <div className="cv-outro-head">
-            <div className="cv-eyebrow">El flujo completo</div>
+            <div className="cv-eyebrow">{t("outro.eyebrow")}</div>
             <h2>
-              Seis pasos. <span className="cv-hl">Cero datos sin verificar.</span>
+              {t("outro.titleLead")} <span className="cv-hl">{t("outro.titleHl")}</span>
             </h2>
           </div>
           <div className="cv-recap">
-            {RECAP.map((r) => (
+            {RECAP.map((r, i) => (
               <div key={r.tag} className="cv-recap-card" style={cvar(r.color)}>
                 <div className="cv-rn">{r.tag}</div>
                 <div className="cv-ri">
                   <StepIcon name={r.icon} />
                 </div>
-                <h4>{r.title}</h4>
-                <p>{r.desc}</p>
+                <h4>{t(`outro.recap.${i}.title`)}</h4>
+                <p>{t(`outro.recap.${i}.desc`)}</p>
               </div>
             ))}
           </div>
           <div className="cv-outro-cta">
             <h3>
-              Tu carrera. Tu data. <span style={{ color: "var(--accent)" }}>Verificada.</span>
+              {t("cta.titleLead")}{" "}
+              <span style={{ color: "var(--accent)" }}>{t("cta.titleHl")}</span>
             </h3>
-            <p>Creá tu perfil profesional y dejá que cada dato hable con respaldo real.</p>
+            <p>{t("cta.body")}</p>
             <div className="cv-row">
               <Link href="/auth/sign-up" className="cv-btn cv-btn-lime">
-                Crear mi perfil →
+                {t("cta.primary")}
               </Link>
               <Link href="/players" className="cv-btn cv-btn-ghost">
-                Ver jugadores
+                {t("cta.secondary")}
               </Link>
             </div>
           </div>

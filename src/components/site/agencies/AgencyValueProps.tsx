@@ -2,52 +2,44 @@
 // mirrors the home FeatureHighlights card style.
 
 import { ShieldCheck, TrendingUp, Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 const VALUES = [
   {
-    title: "Cartera oficial verificada",
-    description:
-      "Tus jugadores validados por nuestro equipo —identidad, contrato y trayectoria—. Una cartera en la que los clubes confían.",
     icon: ShieldCheck,
-    tag: "Confianza",
     accent: "lime" as const,
   },
   {
-    title: "Visibilidad en buscadores",
-    description:
-      "Tu agencia y cada jugador con páginas optimizadas para Google. Te encuentran cuando buscan talento.",
     icon: TrendingUp,
-    tag: "Alcance",
     accent: "blue" as const,
   },
   {
-    title: "Perfil profesional",
-    description:
-      "Logo, servicios, sedes y contacto en un perfil a medida. Presentá tu agencia como la marca que es.",
     icon: Sparkles,
-    tag: "Marca",
     accent: "lime" as const,
   },
 ];
 
-export function AgencyValueProps() {
+export async function AgencyValueProps() {
+  const t = await getTranslations("agenciesPage");
   return (
     <section className="space-y-10">
       <header className="max-w-2xl space-y-3">
         <span className="inline-flex items-center rounded-bh-pill border border-bh-fg-4 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-bh-fg-3">
-          Por qué {"'BallersHub"}
+          {t("valueProps.eyebrow", { brand: "'BallersHub" })}
         </span>
         <h2 className="font-bh-display text-3xl font-bold uppercase leading-[1.05] tracking-[-0.005em] text-bh-fg-1 md:text-4xl">
-          La vidriera profesional de tu agencia
+          {t("valueProps.title")}
         </h2>
         <p className="text-sm leading-[1.6] text-bh-fg-3">
-          Una plataforma pensada para que las agencias muestren su talento y
-          escalen su marca con credibilidad.
+          {t("valueProps.subtitle")}
         </p>
       </header>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {VALUES.map(({ title, description, icon: Icon, tag, accent }) => {
+        {VALUES.map(({ icon: Icon, accent }, i) => {
+          const title = t(`valueProps.items.${i}.title`);
+          const description = t(`valueProps.items.${i}.description`);
+          const tag = t(`valueProps.items.${i}.tag`);
           const iconWrap =
             accent === "lime"
               ? "bg-[rgba(204,255,0,0.08)] text-bh-lime border-[rgba(204,255,0,0.22)]"

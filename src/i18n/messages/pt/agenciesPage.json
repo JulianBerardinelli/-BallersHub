@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "Para agências e empresários",
+    "title": "Agências de representação de jogadores de futebol",
+    "subtitle": "Publique sua carteira de jogadores verificados, ganhe visibilidade nos buscadores e apresente sua agência com um perfil profissional no {brand}.",
+    "ctaPrimary": "Cadastre sua agência",
+    "ctaSecondary": "Ver agências verificadas",
+    "verifiedCount": "{count, plural, one {# agência verificada} other {# agências verificadas}}"
+  },
+  "valueProps": {
+    "eyebrow": "Por que o {brand}",
+    "title": "A vitrine profissional da sua agência",
+    "subtitle": "Uma plataforma pensada para que as agências mostrem seu talento e ampliem sua marca com credibilidade.",
+    "items": [
+      {
+        "title": "Carteira oficial verificada",
+        "description": "Seus jogadores validados pela nossa equipe —identidade, contrato e trajetória—. Uma carteira na qual os clubes confiam.",
+        "tag": "Confiança"
+      },
+      {
+        "title": "Visibilidade nos buscadores",
+        "description": "Sua agência e cada jogador com páginas otimizadas para o Google. Encontram você quando buscam talento.",
+        "tag": "Alcance"
+      },
+      {
+        "title": "Perfil profissional",
+        "description": "Logo, serviços, sedes e contato em um perfil sob medida. Apresente sua agência como a marca que ela é.",
+        "tag": "Marca"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Diretório",
+    "title": "Agências verificadas",
+    "count": "{count, plural, one {# agência} other {# agências}}",
+    "emptyTitle": "Ainda não há agências publicadas",
+    "emptyBody": "Volte em breve: as agências verificadas aparecem aqui assim que são aprovadas.",
+    "cardLogoAlt": "Logo de {name}",
+    "cardCta": "Ver carteira de jogadores"
+  },
+  "cta": {
+    "eyebrow": "Participe",
+    "title": "Você representa jogadores?",
+    "subtitle": "Crie sua agência no {brand}, carregue sua carteira e comece a receber visibilidade de clubes e olheiros.",
+    "button": "Criar conta de agência"
+  }
+}

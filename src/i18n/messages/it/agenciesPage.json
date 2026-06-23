@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "Per agenzie e procuratori",
+    "title": "Agenzie di procura per calciatori",
+    "subtitle": "Pubblica il tuo portafoglio di giocatori verificati, ottieni visibilità sui motori di ricerca e presenta la tua agenzia con un profilo professionale su {brand}.",
+    "ctaPrimary": "Aggiungi la tua agenzia",
+    "ctaSecondary": "Vedi agenzie verificate",
+    "verifiedCount": "{count, plural, one {# agenzia verificata} other {# agenzie verificate}}"
+  },
+  "valueProps": {
+    "eyebrow": "Perché {brand}",
+    "title": "La vetrina professionale della tua agenzia",
+    "subtitle": "Una piattaforma pensata per far sì che le agenzie mostrino il loro talento e facciano crescere il loro marchio con credibilità.",
+    "items": [
+      {
+        "title": "Portafoglio ufficiale verificato",
+        "description": "I tuoi giocatori validati dal nostro team —identità, contratto e carriera—. Un portafoglio di cui i club si fidano.",
+        "tag": "Fiducia"
+      },
+      {
+        "title": "Visibilità sui motori di ricerca",
+        "description": "La tua agenzia e ogni giocatore con pagine ottimizzate per Google. Ti trovano quando cercano talenti.",
+        "tag": "Portata"
+      },
+      {
+        "title": "Profilo professionale",
+        "description": "Logo, servizi, sedi e contatti in un profilo su misura. Presenta la tua agenzia per il marchio che è.",
+        "tag": "Marchio"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Directory",
+    "title": "Agenzie verificate",
+    "count": "{count, plural, one {# agenzia} other {# agenzie}}",
+    "emptyTitle": "Ancora nessuna agenzia pubblicata",
+    "emptyBody": "Torna presto: le agenzie verificate appaiono qui non appena vengono approvate.",
+    "cardLogoAlt": "Logo di {name}",
+    "cardCta": "Vedi il portafoglio giocatori"
+  },
+  "cta": {
+    "eyebrow": "Unisciti",
+    "title": "Rappresenti calciatori?",
+    "subtitle": "Crea la tua agenzia su {brand}, carica il tuo portafoglio e inizia a ricevere visibilità da club e scout.",
+    "button": "Crea un account agenzia"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "header": {
+    "eyebrow": "Vahvistettu luottamus · 'BallersHub",
+    "titleLead": "Miten",
+    "titleHl": "vahvistamme",
+    "intro": "Jokainen profiilin kriittinen muutos kulkee validointivirran läpi: ihmisen tarkistus, vertailu yli 10 urheilulähteeseen ja vahvistus tekoälyllä. Katso prosessi vaihe vaiheelta.",
+    "introMobile": "Jokainen profiilin kriittinen muutos kulkee validointivirran läpi: ihmisen tarkistus, vertailu yli 10 urheilulähteeseen ja vahvistus tekoälyllä."
+  },
+  "stepLabel": "Vaihe {tag} / 06",
+  "steps": [
+    { "title": "Pyyntö", "sub": "Pelaaja / Agentti" },
+    { "title": "Ylläpitopaneeli", "sub": "Tarkistusjono" },
+    { "title": "+10 Lähdettä", "sub": "Ristiintarkistus" },
+    { "title": "Tekoälyvalidointi", "sub": "Kolminkertainen vahvistus" },
+    { "title": "Päätös", "sub": "Hyväksy / Hylkää" },
+    { "title": "Julkaistu", "sub": "Profiili päivitetty" }
+  ],
+  "captions": [
+    {
+      "title": "Pelaaja lähettää <hl>pyynnön</hl>",
+      "body": "Pelaaja tai hänen agenttinsa pyytää hallintapaneelistaan muutosta urapolkuun, tilastoihin tai mediaan. Mitään ei julkaista itsestään: kaikki menee tarkistukseen.",
+      "mockHd": "Lisää uravaihe · todellinen komponentti",
+      "mockSlot": "Tulossa pian: tallenne todellisesta virrasta ”lisää vaihe + lähetä pyyntö”."
+    },
+    {
+      "title": "Se saapuu <hl>Hallintapaneeliin</hl>",
+      "body": "Pyyntö siirtyy 'BallersHubin tiimin tarkistusjonoon. Ylläpitäjä ottaa sen käsittelyyn ja avaa pelaajan tiedot aloittaakseen vahvistamisen.",
+      "mockHd": "Tarkistuspaneeli · Ylläpito",
+      "mockSlot": "Tulossa pian: tallenne tiimin tarkistuspaneelista."
+    },
+    {
+      "title": "Vertailu <hl>+10 lähteeseen</hl>",
+      "body": "Virta avautuu ja kysyy rinnakkain maailman johtavilta urheilualustoilta. Vain se, mikä täsmää useassa tunnustetussa lähteessä, etenee.",
+      "statNum": "10/10",
+      "statLabel": "lähdettä täsmää",
+      "note": "Transfermarkt · BeSoccer · Flashscore · Sofascore · +4"
+    },
+    {
+      "title": "Validointi <hl>tekoälyagenteilla</hl>",
+      "body": "Virta ohjautuu kolmelle tekoälymallille, jotka ristiintarkistavat tiedot itsenäisesti, havaitsevat epäjohdonmukaisuudet ja palauttavat luottamustason. Yksimielisyys vahvistaa päätöstä.",
+      "statNum": "98%",
+      "statLabel": "validoinnin yksimielisyys",
+      "note": "Gemini 97% · Claude 98% · ChatGPT 96%"
+    },
+    {
+      "title": "Tiimi <hl>hyväksyy tai hylkää</hl>",
+      "body": "Lähteiden vertailun ja tekoälyn yksimielisyyden perusteella ylläpitäjä tekee lopullisen päätöksen. Jos kaikki täsmää, se hyväksytään. Jos ei, se palautuu yksityiskohtaisen palautteen kanssa.",
+      "approveBtn": "Hyväksy",
+      "rejectBtn": "Hylkää",
+      "approveStamp": "✓ Hyväksytty",
+      "approveSub": "Tiedot täsmäävät lähteiden ja tekoälyn kanssa.",
+      "rejectStamp": "✕ Hylätty",
+      "rejectSub": "Palautuu yksityiskohtaisen palautteen kanssa korjattavaksi."
+    },
+    {
+      "title": "Muutos <hl>julkaistaan</hl>",
+      "body": "Vahvistettu tieto julkaistaan pelaajan julkisessa profiilissa, valmiina jaettavaksi seuroille ja kykyjenetsijöille. Jäljitettävä ja todellisella tuella varustettu.",
+      "badge": "Julkaistu",
+      "note": "https://ballershub.co/sinun-nimesi"
+    }
+  ],
+  "outro": {
+    "eyebrow": "Koko virta",
+    "titleLead": "Kuusi vaihetta.",
+    "titleHl": "Nolla vahvistamatonta tietoa.",
+    "recap": [
+      { "title": "Pyyntö", "desc": "Pelaaja tai agentti pyytää muutosta." },
+      { "title": "Ylläpitopaneeli", "desc": "Se siirtyy tiimin tarkistusjonoon." },
+      { "title": "+10 Lähdettä", "desc": "Ristiintarkistus parhaiden alustojen kanssa." },
+      { "title": "Tekoälyvalidointi", "desc": "Gemini, Claude ja ChatGPT ristiintarkistavat tiedot." },
+      { "title": "Päätös", "desc": "Se hyväksytään tai palautuu palautteen kanssa." },
+      { "title": "Julkaistu", "desc": "Vahvistettu tieto siirtyy julkiseen profiiliin." }
+    ]
+  },
+  "cta": {
+    "titleLead": "Sinun urasi. Sinun tietosi.",
+    "titleHl": "Vahvistettu.",
+    "body": "Luo ammattimainen profiilisi ja anna jokaisen tiedon puhua todellisella tuella.",
+    "primary": "Luo profiilini →",
+    "secondary": "Katso pelaajat"
+  },
+  "ui": {
+    "scrollHint": "Vieritä suorittaaksesi virran"
+  }
+}

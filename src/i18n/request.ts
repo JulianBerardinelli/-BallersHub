@@ -37,6 +37,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
       site: (await import(`./messages/${locale}/site.json`)).default,
       blog: (await import(`./messages/${locale}/blog.json`)).default,
       legal: (await import(`./messages/${locale}/legal.json`)).default,
+      agenciesPage: (await import(`./messages/${locale}/agenciesPage.json`)).default,
+      comoValidamos: (await import(`./messages/${locale}/comoValidamos.json`)).default,
     },
   };
 });

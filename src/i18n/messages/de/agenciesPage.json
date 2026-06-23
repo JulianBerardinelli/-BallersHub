@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "Für Agenturen und Spielerberater",
+    "title": "Spielerberatungsagenturen für Fußballer",
+    "subtitle": "Veröffentlichen Sie Ihr Portfolio verifizierter Spieler, gewinnen Sie Sichtbarkeit in Suchmaschinen und präsentieren Sie Ihre Agentur mit einem professionellen Profil auf {brand}.",
+    "ctaPrimary": "Agentur hinzufügen",
+    "ctaSecondary": "Verifizierte Agenturen ansehen",
+    "verifiedCount": "{count, plural, one {# verifizierte Agentur} other {# verifizierte Agenturen}}"
+  },
+  "valueProps": {
+    "eyebrow": "Warum {brand}",
+    "title": "Das professionelle Schaufenster Ihrer Agentur",
+    "subtitle": "Eine Plattform, die dafür gemacht ist, dass Agenturen ihr Talent zeigen und ihre Marke glaubwürdig ausbauen.",
+    "items": [
+      {
+        "title": "Verifiziertes offizielles Portfolio",
+        "description": "Ihre Spieler von unserem Team validiert —Identität, Vertrag und Werdegang—. Ein Portfolio, dem die Vereine vertrauen.",
+        "tag": "Vertrauen"
+      },
+      {
+        "title": "Sichtbarkeit in Suchmaschinen",
+        "description": "Ihre Agentur und jeder Spieler mit für Google optimierten Seiten. Man findet Sie, wenn Talent gesucht wird.",
+        "tag": "Reichweite"
+      },
+      {
+        "title": "Professionelles Profil",
+        "description": "Logo, Leistungen, Standorte und Kontakt in einem maßgeschneiderten Profil. Präsentieren Sie Ihre Agentur als die Marke, die sie ist.",
+        "tag": "Marke"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Verzeichnis",
+    "title": "Verifizierte Agenturen",
+    "count": "{count, plural, one {# Agentur} other {# Agenturen}}",
+    "emptyTitle": "Noch keine Agenturen veröffentlicht",
+    "emptyBody": "Schauen Sie bald wieder vorbei: Verifizierte Agenturen erscheinen hier, sobald sie freigegeben sind.",
+    "cardLogoAlt": "Logo von {name}",
+    "cardCta": "Spielerportfolio ansehen"
+  },
+  "cta": {
+    "eyebrow": "Machen Sie mit",
+    "title": "Vertreten Sie Spieler?",
+    "subtitle": "Erstellen Sie Ihre Agentur auf {brand}, laden Sie Ihr Portfolio hoch und gewinnen Sie Sichtbarkeit bei Vereinen und Scouts.",
+    "button": "Agenturkonto erstellen"
+  }
+}

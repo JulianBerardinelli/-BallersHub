@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "Pour les agences et les agents",
+    "title": "Agences de représentation de footballeurs",
+    "subtitle": "Publiez votre portefeuille de joueurs vérifiés, gagnez en visibilité sur les moteurs de recherche et présentez votre agence avec un profil professionnel sur {brand}.",
+    "ctaPrimary": "Ajoutez votre agence",
+    "ctaSecondary": "Voir les agences vérifiées",
+    "verifiedCount": "{count, plural, one {# agence vérifiée} other {# agences vérifiées}}"
+  },
+  "valueProps": {
+    "eyebrow": "Pourquoi {brand}",
+    "title": "La vitrine professionnelle de votre agence",
+    "subtitle": "Une plateforme conçue pour que les agences mettent en valeur leur talent et développent leur marque avec crédibilité.",
+    "items": [
+      {
+        "title": "Portefeuille officiel vérifié",
+        "description": "Vos joueurs validés par notre équipe —identité, contrat et parcours—. Un portefeuille en lequel les clubs ont confiance.",
+        "tag": "Confiance"
+      },
+      {
+        "title": "Visibilité sur les moteurs de recherche",
+        "description": "Votre agence et chaque joueur avec des pages optimisées pour Google. On vous trouve quand on recherche du talent.",
+        "tag": "Portée"
+      },
+      {
+        "title": "Profil professionnel",
+        "description": "Logo, services, sièges et contact dans un profil sur mesure. Présentez votre agence comme la marque qu'elle est.",
+        "tag": "Marque"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Annuaire",
+    "title": "Agences vérifiées",
+    "count": "{count, plural, one {# agence} other {# agences}}",
+    "emptyTitle": "Aucune agence publiée pour le moment",
+    "emptyBody": "Revenez bientôt : les agences vérifiées apparaissent ici dès qu'elles sont approuvées.",
+    "cardLogoAlt": "Logo de {name}",
+    "cardCta": "Voir le portefeuille de joueurs"
+  },
+  "cta": {
+    "eyebrow": "Rejoignez-nous",
+    "title": "Vous représentez des joueurs ?",
+    "subtitle": "Créez votre agence sur {brand}, importez votre portefeuille et commencez à gagner en visibilité auprès des clubs et des recruteurs.",
+    "button": "Créer un compte agence"
+  }
+}

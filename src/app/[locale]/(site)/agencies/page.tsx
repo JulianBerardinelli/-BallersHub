@@ -12,6 +12,9 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
+import { localizedAlternates } from "@/lib/seo/hreflang";
+import { OG_LOCALE } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 import { getApprovedAgencies } from "@/lib/agencies/directory";
 import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
 import { AgenciesHero } from "@/components/site/agencies/AgenciesHero";
@@ -26,19 +29,27 @@ export const revalidate = 3600;
 
 const PAGE_PATH = "/agencies";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations("site.agencies");
+  // Self-canonical per locale + hreflang cluster (must agree with the sitemap's
+  // sitemapLanguages("/agencies"), or search engines drop the cluster).
+  const alt = localizedAlternates(locale as Locale, PAGE_PATH);
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    alternates: { canonical: PAGE_PATH },
+    alternates: alt,
     openGraph: {
       title: t("ogTitle"),
       description: t("metaDescription"),
-      url: PAGE_PATH,
+      url: alt.canonical,
       type: "website",
       siteName: "'BallersHub",
-      locale: "es_AR",
+      locale: OG_LOCALE[locale as Locale] ?? "es_AR",
     },
   };
 }

@@ -1,0 +1,85 @@
+{
+  "header": {
+    "eyebrow": "Verified trust · 'BallersHub",
+    "titleLead": "How we",
+    "titleHl": "validate",
+    "intro": "Every critical change to a profile runs through a validation flow: human review, cross-checking against 10+ sports sources and verification with artificial intelligence. See the process step by step.",
+    "introMobile": "Every critical change to a profile runs through a validation flow: human review, cross-checking against 10+ sports sources and verification with artificial intelligence."
+  },
+  "stepLabel": "Step {tag} / 06",
+  "steps": [
+    { "title": "Request", "sub": "Player / Agent" },
+    { "title": "Admin Panel", "sub": "Review queue" },
+    { "title": "10+ Sources", "sub": "Cross-check" },
+    { "title": "AI Validation", "sub": "Triple verification" },
+    { "title": "Decision", "sub": "Approve / Reject" },
+    { "title": "Published", "sub": "Profile updated" }
+  ],
+  "captions": [
+    {
+      "title": "The player submits a <hl>request</hl>",
+      "body": "From their dashboard, the player or their agent requests a change to their career history, stats or media. Nothing goes live on its own: everything enters review.",
+      "mockHd": "Add career stage · real component",
+      "mockSlot": "Coming soon: recording of the real “add stage + submit request” flow."
+    },
+    {
+      "title": "It reaches the <hl>Admin Panel</hl>",
+      "body": "The request enters the 'BallersHub team's review queue. An administrator picks it up and opens the player's file to start verifying.",
+      "mockHd": "Review panel · Admin",
+      "mockSlot": "Coming soon: recording of the team's review panel."
+    },
+    {
+      "title": "Cross-checked across <hl>10+ sources</hl>",
+      "body": "The flow opens up and queries the world's leading sports platforms in parallel. Only what matches across multiple recognized sources moves forward.",
+      "statNum": "10/10",
+      "statLabel": "sources match",
+      "note": "Transfermarkt · BeSoccer · Flashscore · Sofascore · +4"
+    },
+    {
+      "title": "Validation with <hl>AI agents</hl>",
+      "body": "The flow branches out to three AI models that cross-check the data independently, detect inconsistencies and return a confidence level. Consensus reinforces the decision.",
+      "statNum": "98%",
+      "statLabel": "validation consensus",
+      "note": "Gemini 97% · Claude 98% · ChatGPT 96%"
+    },
+    {
+      "title": "The team <hl>approves or rejects</hl>",
+      "body": "With the source cross-check and the AI consensus, the administrator makes the final decision. If everything matches, it's approved. If not, it comes back with detailed feedback.",
+      "approveBtn": "Approve",
+      "rejectBtn": "Reject",
+      "approveStamp": "✓ Approved",
+      "approveSub": "The data matches sources and AI.",
+      "rejectStamp": "✕ Rejected",
+      "rejectSub": "Comes back with detailed feedback to fix."
+    },
+    {
+      "title": "The change is <hl>published</hl>",
+      "body": "The verified data is published on the player's public profile, ready to share with clubs and scouts. Traceable and backed by real evidence.",
+      "badge": "Published",
+      "note": "https://ballershub.co/your-name"
+    }
+  ],
+  "outro": {
+    "eyebrow": "The full flow",
+    "titleLead": "Six steps.",
+    "titleHl": "Zero unverified data.",
+    "recap": [
+      { "title": "Request", "desc": "The player or agent requests a change." },
+      { "title": "Admin Panel", "desc": "It enters the team's review queue." },
+      { "title": "10+ Sources", "desc": "Cross-checked against top platforms." },
+      { "title": "AI Validation", "desc": "Gemini, Claude and ChatGPT cross-check the data." },
+      { "title": "Decision", "desc": "It's approved or comes back with feedback." },
+      { "title": "Published", "desc": "The verified data goes to the public profile." }
+    ]
+  },
+  "cta": {
+    "titleLead": "Your career. Your data.",
+    "titleHl": "Verified.",
+    "body": "Create your professional profile and let every data point speak with real backing.",
+    "primary": "Create my profile →",
+    "secondary": "View players"
+  },
+  "ui": {
+    "scrollHint": "Scroll to run the flow"
+  }
+}

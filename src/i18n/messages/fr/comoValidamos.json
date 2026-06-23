@@ -1,0 +1,85 @@
+{
+  "header": {
+    "eyebrow": "Confiance vérifiée · 'BallersHub",
+    "titleLead": "Comment nous",
+    "titleHl": "validons",
+    "intro": "Chaque modification critique d'un profil passe par un flux de validation : revue humaine, recoupement avec plus de 10 sources sportives et vérification par intelligence artificielle. Découvrez le processus étape par étape.",
+    "introMobile": "Chaque modification critique d'un profil passe par un flux de validation : revue humaine, recoupement avec plus de 10 sources sportives et vérification par intelligence artificielle."
+  },
+  "stepLabel": "Étape {tag} / 06",
+  "steps": [
+    { "title": "Demande", "sub": "Joueur / Agent" },
+    { "title": "Panneau Admin", "sub": "File de revue" },
+    { "title": "+10 Sources", "sub": "Recoupement croisé" },
+    { "title": "Validation IA", "sub": "Triple vérification" },
+    { "title": "Décision", "sub": "Approuver / Refuser" },
+    { "title": "Publié", "sub": "Profil mis à jour" }
+  ],
+  "captions": [
+    {
+      "title": "Le joueur envoie une <hl>demande</hl>",
+      "body": "Depuis son tableau de bord, le joueur ou son agent demande une modification du parcours, des statistiques ou des médias. Rien n'est publié tout seul : tout passe en revue.",
+      "mockHd": "Ajouter une étape de parcours · composant réel",
+      "mockSlot": "Bientôt disponible : enregistrement du flux réel « ajouter une étape + envoyer la demande »."
+    },
+    {
+      "title": "Elle arrive au <hl>Panneau d'Administration</hl>",
+      "body": "La demande entre dans la file de revue de l'équipe de 'BallersHub. Un administrateur la prend en charge et ouvre le dossier du joueur pour commencer à vérifier.",
+      "mockHd": "Panneau de revue · Admin",
+      "mockSlot": "Bientôt disponible : enregistrement du panneau de revue de l'équipe."
+    },
+    {
+      "title": "Recoupement sur <hl>+10 sources</hl>",
+      "body": "Le flux s'ouvre et interroge en parallèle les principales plateformes sportives du monde. Seul ce qui concorde sur plusieurs sources reconnues avance.",
+      "statNum": "10/10",
+      "statLabel": "sources concordent",
+      "note": "Transfermarkt · BeSoccer · Flashscore · Sofascore · +4"
+    },
+    {
+      "title": "Validation avec des <hl>agents d'IA</hl>",
+      "body": "Le flux est transféré à trois modèles d'IA qui recoupent les données de manière indépendante, détectent les incohérences et renvoient un niveau de confiance. Le consensus renforce la décision.",
+      "statNum": "98%",
+      "statLabel": "consensus de validation",
+      "note": "Gemini 97% · Claude 98% · ChatGPT 96%"
+    },
+    {
+      "title": "L'équipe <hl>approuve ou refuse</hl>",
+      "body": "Avec le recoupement des sources et le consensus de l'IA, l'administrateur prend la décision finale. Si tout concorde, c'est approuvé. Sinon, cela revient avec un retour détaillé.",
+      "approveBtn": "Approuver",
+      "rejectBtn": "Refuser",
+      "approveStamp": "✓ Approuvée",
+      "approveSub": "Les données concordent avec les sources et l'IA.",
+      "rejectStamp": "✕ Refusée",
+      "rejectSub": "Revient avec un retour détaillé à corriger."
+    },
+    {
+      "title": "La modification est <hl>publiée</hl>",
+      "body": "La donnée vérifiée est publiée sur le profil public du joueur, prête à être partagée avec les clubs et les recruteurs. Traçable et avec un appui réel.",
+      "badge": "Publié",
+      "note": "https://ballershub.co/votre-nom"
+    }
+  ],
+  "outro": {
+    "eyebrow": "Le flux complet",
+    "titleLead": "Six étapes.",
+    "titleHl": "Zéro donnée non vérifiée.",
+    "recap": [
+      { "title": "Demande", "desc": "Le joueur ou l'agent demande une modification." },
+      { "title": "Panneau Admin", "desc": "Elle entre dans la file de revue de l'équipe." },
+      { "title": "+10 Sources", "desc": "Recoupement croisé avec les meilleures plateformes." },
+      { "title": "Validation IA", "desc": "Gemini, Claude et ChatGPT recoupent les données." },
+      { "title": "Décision", "desc": "Elle est approuvée ou revient avec un retour." },
+      { "title": "Publié", "desc": "La donnée vérifiée va au profil public." }
+    ]
+  },
+  "cta": {
+    "titleLead": "Votre carrière. Vos données.",
+    "titleHl": "Vérifiées.",
+    "body": "Créez votre profil professionnel et laissez chaque donnée parler avec un appui réel.",
+    "primary": "Créer mon profil →",
+    "secondary": "Voir les joueurs"
+  },
+  "ui": {
+    "scrollHint": "Faites défiler pour exécuter le flux"
+  }
+}
