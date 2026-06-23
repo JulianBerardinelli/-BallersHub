@@ -28,12 +28,18 @@ const HOME_LABEL: Record<Locale, string> = {
   en: "Home",
   it: "Home",
   pt: "Início",
+  de: "Startseite",
+  fr: "Accueil",
+  fi: "Etusivu",
 };
 const AGENCIES_LABEL: Record<Locale, string> = {
   es: "Agencias",
   en: "Agencies",
   it: "Agenzie",
   pt: "Agências",
+  de: "Agenturen",
+  fr: "Agences",
+  fi: "Agentuurit",
 };
 
 export type AgencyJsonLdData = {

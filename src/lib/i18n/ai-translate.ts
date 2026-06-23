@@ -24,7 +24,7 @@ const MODEL = process.env.AI_TRANSLATION_MODEL ?? "google/gemini-2.5-flash";
 // player authors in their preferred_locale and the assistant translates FROM
 // it into the rest, es included (model B1). es-AR stays the canonical /slug,
 // but it can itself be a TARGET when the player writes in another language.
-export type TranslateLocale = "es" | "en" | "it" | "pt";
+export type TranslateLocale = "es" | "en" | "it" | "pt" | "de" | "fr" | "fi";
 export type TranslationBlock = "bio" | "scouting" | "honour";
 
 const LOCALE_NAME: Record<TranslateLocale, string> = {
@@ -32,25 +32,28 @@ const LOCALE_NAME: Record<TranslateLocale, string> = {
   en: "English",
   it: "Italian (it-IT, football register)",
   pt: "Brazilian Portuguese (pt-BR)",
+  de: "German (de-DE, football register)",
+  fr: "French (fr-FR, football register)",
+  fi: "Finnish (fi-FI, football register)",
 };
 
 // Mirror of src/i18n/glossary.md (football + positions + rules). Embedded
 // rather than read from disk so it always bundles into the server function.
 const GLOSSARY = `
-Football terms — ES | EN | IT | PT-BR:
-Futbolista | Footballer | Calciatore | Futebolista
-Trayectoria | Career history | Carriera | Trajetória
-Objetivos de carrera | Career objectives | Obiettivi di carriera | Objetivos de carreira
-Análisis táctico | Tactical analysis | Analisi tattica | Análise tática
-Análisis físico | Physical analysis | Analisi fisica | Análise física
-Análisis mental | Mental analysis | Analisi mentale | Análise mental
-Análisis técnico | Technical analysis | Analisi tecnica | Análise técnica
-Pie hábil | Preferred foot | Piede preferito | Pé dominante
-Club actual | Current club | Squadra attuale | Clube atual
-Mercado de pases | Transfer market | Calciomercato | Mercado de transferências
-Selección | National team | Nazionale | Seleção
-Positions — Arquero/Portero | Goalkeeper | Portiere | Goleiro · Defensa central | Center back | Difensore centrale | Zagueiro · Lateral | Full back | Terzino | Lateral · Mediocampista central | Central midfielder | Centrocampista centrale | Meio-campo · Volante | Defensive midfielder | Mediano | Volante · Extremo | Winger | Esterno | Ponta · Delantero | Forward | Attaccante | Atacante · Centrodelantero | Striker | Centravanti | Centroavante
-Rules: pt = pt-BR (Brazil, e.g. "Goleiro" not "Guarda-redes"). it = it-IT (e.g. "Calciomercato", "Attaccante"). Never translate "BallersHub" or proper nouns (clubs, names).
+Football terms — ES | EN | IT | PT-BR | DE | FR | FI:
+Futbolista | Footballer | Calciatore | Futebolista | Fußballer | Footballeur | Jalkapalloilija
+Trayectoria | Career history | Carriera | Trajetória | Karriereverlauf | Parcours | Ura
+Objetivos de carrera | Career objectives | Obiettivi di carriera | Objetivos de carreira | Karriereziele | Objectifs de carrière | Uratavoitteet
+Análisis táctico | Tactical analysis | Analisi tattica | Análise tática | Taktische Analyse | Analyse tactique | Taktinen analyysi
+Análisis físico | Physical analysis | Analisi fisica | Análise física | Athletische Analyse | Analyse physique | Fyysinen analyysi
+Análisis mental | Mental analysis | Analisi mentale | Análise mental | Mentale Analyse | Analyse mentale | Henkinen analyysi
+Análisis técnico | Technical analysis | Analisi tecnica | Análise técnica | Technische Analyse | Analyse technique | Tekninen analyysi
+Pie hábil | Preferred foot | Piede preferito | Pé dominante | Starker Fuß | Pied fort | Vahvempi jalka
+Club actual | Current club | Squadra attuale | Clube atual | Aktueller Verein | Club actuel | Nykyinen seura
+Mercado de pases | Transfer market | Calciomercato | Mercado de transferências | Transfermarkt | Marché des transferts | Siirtomarkkinat
+Selección | National team | Nazionale | Seleção | Nationalmannschaft | Équipe nationale | Maajoukkue
+Positions — Arquero/Portero | Goalkeeper | Portiere | Goleiro | Torwart | Gardien de but | Maalivahti · Defensa central | Center back | Difensore centrale | Zagueiro | Innenverteidiger | Défenseur central | Keskuspuolustaja · Lateral | Full back | Terzino | Lateral | Außenverteidiger | Latéral | Laitapuolustaja · Mediocampista central | Central midfielder | Centrocampista centrale | Meio-campo | Zentraler Mittelfeldspieler | Milieu central | Keskuskenttäpelaaja · Volante | Defensive midfielder | Mediano | Volante | Defensiver Mittelfeldspieler | Milieu défensif | Puolustava keskikenttäpelaaja · Extremo | Winger | Esterno | Ponta | Flügelspieler | Ailier | Laitahyökkääjä · Delantero | Forward | Attaccante | Atacante | Stürmer | Attaquant | Hyökkääjä · Centrodelantero | Striker | Centravanti | Centroavante | Mittelstürmer | Avant-centre | Kärkihyökkääjä
+Rules: pt = pt-BR (Brazil, e.g. "Goleiro" not "Guarda-redes"). it = it-IT (e.g. "Calciomercato", "Attaccante"). de = de-DE (e.g. "Torwart", "Stürmer"). fr = fr-FR (e.g. "Gardien de but", "Attaquant"). fi = fi-FI (e.g. "Maalivahti", "Hyökkääjä"). Never translate "BallersHub" or proper nouns (clubs, names).
 `.trim();
 
 const bioBlockSchema = z.object({

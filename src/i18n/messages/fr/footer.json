@@ -1,0 +1,97 @@
+{
+  "headline": {
+    "anonymous": {
+      "eyebrow": "En direct · 130 clubs actifs",
+      "lead": "Publiez, validez et ",
+      "highlight": "jouez là où ça compte.",
+      "sub": "Plus de 30 profils validés. Avis de staffs techniques vérifiés. Votre prochain club est déjà à votre recherche."
+    },
+    "player": {
+      "eyebrow": "Votre carrière, en mouvement",
+      "lead": "Gardez votre profil ",
+      "highlight": "toujours à jour.",
+      "sub": "Publiez de nouvelles photos, ajustez vos données footballistiques et laissez les clubs vous trouver avec les bonnes informations."
+    },
+    "manager": {
+      "eyebrow": "Votre agence, sans friction",
+      "lead": "Gérez votre portefeuille ",
+      "highlight": "avec précision.",
+      "sub": "Ajoutez des joueurs, validez des profils et partagez l'effectif officiel de votre agence avec des clubs du monde entier."
+    },
+    "applicant": {
+      "eyebrow": "Votre demande est en cours",
+      "lead": "Vous êtes à un pas ",
+      "highlight": "de votre compte professionnel.",
+      "sub": "Pendant que nous examinons vos données, vous pouvez continuer à explorer des profils validés, des cas de réussite et les nouveautés du produit."
+    },
+    "member": {
+      "eyebrow": "Prêt quand vous le souhaitez",
+      "lead": "Transformez votre compte en ",
+      "highlight": "un profil professionnel.",
+      "sub": "Demandez votre compte joueur ou agence et commencez à opérer au sein de l'écosystème avec une vérification officielle."
+    }
+  },
+  "cta": {
+    "playerDashboard": "Aller à mon tableau de bord",
+    "playerViewProfile": "Voir mon profil public",
+    "playerEditProfile": "Modifier mon profil",
+    "managerManage": "Gérer l'agence",
+    "managerViewAgency": "Voir le profil de l'agence",
+    "managerSetup": "Configurer l'agence",
+    "applicantContinue": "Poursuivre ma demande",
+    "applicantStatus": "Voir l'état de la demande",
+    "applicantDashboard": "Aller au tableau de bord",
+    "memberRequest": "Demander un compte professionnel",
+    "memberDashboard": "Aller au tableau de bord",
+    "anonCreate": "Créer mon profil",
+    "anonAgency": "Je suis une agence"
+  },
+  "columns": {
+    "playersTitle": "Pour les joueurs",
+    "agenciesTitle": "Pour les agences",
+    "workTitle": "À propos de nous",
+    "createProfile": "Créer un profil",
+    "viewValidated": "Voir les profils validés",
+    "editCareer": "Modifier le parcours",
+    "proTemplates": "Modèles Pro",
+    "createAgency": "Créer une agence",
+    "viewAgencies": "Voir les agences",
+    "myRoster": "Mon portefeuille",
+    "officialVerification": "Vérification officielle",
+    "demo": "Démo",
+    "aboutUs": "À propos de nous"
+  },
+  "stats": {
+    "profiles": "Profils validés",
+    "clubs": "Clubs actifs",
+    "reviews": "Avis vérifiés",
+    "countries": "Pays"
+  },
+  "tagline": "L'écosystème numérique du football professionnel.",
+  "legal": {
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "cookies": "Cookies"
+  },
+  "credits": "Développé par",
+  "portfolio": {
+    "eyebrowPlayer": "Profil vérifié sur 'BallersHub",
+    "eyebrowAgency": "Agence vérifiée sur 'BallersHub",
+    "headlinePlayer": "Rejoignez l'écosystème de ",
+    "headlineAgency": "Connectez-vous avec ",
+    "subPlayer": "Parcours, données footballistiques et multimédia validés. Votre prochaine étape, sur une plateforme pensée pour les joueurs professionnels.",
+    "subAgency": "Découvrez le portefeuille de joueurs que cette agence représente et menez vos prochains mouvements sans friction.",
+    "eyebrowCoach": "Entraîneur vérifié sur 'BallersHub",
+    "headlineCoach": "Découvrez le travail de ",
+    "subCoach": "Parcours, méthodologie et références vérifiés. Le profil professionnel de l'entraîneur, sur une plateforme pensée pour le football.",
+    "ctaContact": "Demander un contact"
+  },
+  "newsletter": {
+    "eyebrow": "Newsletter Pro",
+    "copy": "Des insights de scouting, de nouvelles fonctionnalités et des cas de réussite. Une fois par mois, sans bruit.",
+    "button": "M'abonner",
+    "submitted": "C'est fait !",
+    "hint": "Pas de spam. Désabonnez-vous quand vous voulez.",
+    "ariaEmail": "Votre e-mail"
+  }
+}

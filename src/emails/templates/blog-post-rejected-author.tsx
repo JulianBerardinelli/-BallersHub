@@ -77,6 +77,39 @@ const COPY: Record<Locale, Copy> = {
     footer:
       'Depois de aplicar as mudanças, clique em "Enviar para revisão" no editor — volta para pending_review e avisamos quando aprovar.',
   },
+  de: {
+    preheader: (t) => `Redaktionelles Feedback zu "${t}".`,
+    eyebrow: "Redaktionelles Feedback",
+    heading: (n) => `Ein paar Anpassungen nötig, ${n}`,
+    intro:
+      "Wir haben deinen Artikel geprüft, und er braucht noch ein paar Änderungen vor der Veröffentlichung. Alles in Ordnung — der Entwurf bleibt deiner, du kannst ihn überarbeiten und erneut einreichen.",
+    feedbackLabel: "Feedback des Redakteurs:",
+    ctaEdit: "Bearbeiten und erneut einreichen",
+    footer:
+      'Sobald du die Änderungen umgesetzt hast, klicke im Editor auf "Zur Prüfung einreichen" — der Beitrag wechselt zurück zu pending_review, und wir benachrichtigen dich bei der Freigabe.',
+  },
+  fr: {
+    preheader: (t) => `Retour éditorial sur "${t}".`,
+    eyebrow: "Retour éditorial",
+    heading: (n) => `Quelques ajustements nécessaires, ${n}`,
+    intro:
+      "Nous avons relu ton article et il nécessite quelques modifications avant publication. Rien de grave — le brouillon reste le tien, tu peux le retravailler et le renvoyer.",
+    feedbackLabel: "Retour de l'éditeur :",
+    ctaEdit: "Modifier et renvoyer",
+    footer:
+      'Une fois les modifications appliquées, clique sur "Soumettre pour révision" dans l\'éditeur — l\'article repasse en pending_review et nous te prévenons dès son approbation.',
+  },
+  fi: {
+    preheader: (t) => `Toimituksellinen palaute artikkelista "${t}".`,
+    eyebrow: "Toimituksellinen palaute",
+    heading: (n) => `Muutamia muutoksia tarvitaan, ${n}`,
+    intro:
+      "Kävimme artikkelisi läpi, ja se kaipaa muutamia muutoksia ennen julkaisua. Mikään ei ole pielessä — luonnos on yhä sinun, voit muokata sitä ja lähettää uudelleen.",
+    feedbackLabel: "Toimittajan palaute:",
+    ctaEdit: "Muokkaa ja lähetä uudelleen",
+    footer:
+      'Kun olet tehnyt muutokset, klikkaa editorissa "Lähetä tarkistettavaksi" — artikkeli palaa tilaan pending_review ja ilmoitamme sinulle hyväksynnästä.',
+  },
 };
 
 /**

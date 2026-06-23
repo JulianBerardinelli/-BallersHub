@@ -29,7 +29,7 @@ export type LocaleFields = {
   analysisAuthor: string;
 };
 
-type EditableLocale = "en" | "it" | "pt";
+type EditableLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 type AnyLocale = "es" | EditableLocale;
 
 // Palmarés (honours). Base lives in es (football-data); en/it/pt are translated
@@ -52,13 +52,16 @@ type Block = "bio" | "scouting";
 // Which model powers the assistant — drives the brand glyph on the button.
 type AiProvider = "gemini" | "claude" | null;
 
-const BASE_ORDER: AnyLocale[] = ["es", "en", "it", "pt"];
+const BASE_ORDER: AnyLocale[] = ["es", "en", "it", "pt", "de", "fr", "fi"];
 
 const LOCALE_META: Record<AnyLocale, { label: string; flag: string }> = {
   es: { label: "Español", flag: "🇦🇷" },
   en: { label: "English", flag: "🇬🇧" },
   it: { label: "Italiano", flag: "🇮🇹" },
   pt: { label: "Português", flag: "🇧🇷" },
+  de: { label: "Deutsch", flag: "🇩🇪" },
+  fr: { label: "Français", flag: "🇫🇷" },
+  fi: { label: "Suomi", flag: "🇫🇮" },
 };
 
 const FIELD_KEYS: (keyof LocaleFields)[] = [
@@ -126,6 +129,9 @@ export default function TranslationsEditor({
     en: translations.en ?? emptyFields(),
     it: translations.it ?? emptyFields(),
     pt: translations.pt ?? emptyFields(),
+    de: translations.de ?? emptyFields(),
+    fr: translations.fr ?? emptyFields(),
+    fi: translations.fi ?? emptyFields(),
   });
   const [feedback, setFeedback] = useState<
     { type: "success" | "danger"; message: string } | null

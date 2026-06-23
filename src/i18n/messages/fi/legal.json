@@ -1,0 +1,349 @@
+{
+  "common": {
+    "eyebrow": "Lakiasiat",
+    "updatedLabel": "Viimeksi päivitetty",
+    "tocLabel": "Tällä sivulla",
+    "relatedLabel": "Aiheeseen liittyvät asiakirjat",
+    "contactTitle": "Onko sinulla kysyttävää?",
+    "contactBody": "Jos sinulla on kysyttävää tästä asiakirjasta tai haluat käyttää tietojasi koskevia oikeuksiasi, kirjoita meille ja autamme sinua.",
+    "contactCta": "Kirjoita osoitteeseen info@ballershub.co",
+    "nav": {
+      "terms": "Käyttöehdot",
+      "privacy": "Tietosuoja",
+      "cookies": "Evästeet"
+    }
+  },
+  "terms": {
+    "metaTitle": "Käyttöehdot",
+    "metaDescription": "BallersHubin käyttöä koskevat ehdot: tilit, Pro-tilaukset, profiilien vahvistus, sisältö ja vastuut.",
+    "ogTitle": "Käyttöehdot · 'BallersHub",
+    "title": "Käyttöehdot",
+    "updated": "17. kesäkuuta 2026",
+    "intro": "Nämä ehdot sääntelevät BallersHubin käyttöä. Lue ne huolellisesti: luomalla tilin tai käyttämällä alustaa hyväksyt kaiken seuraavan.",
+    "sections": [
+      {
+        "id": "servicio",
+        "title": "1. Mikä BallersHub on ja ehtojen hyväksyminen",
+        "blocks": [
+          { "type": "p", "text": "BallersHub on verkkoalusta, jonka avulla jalkapalloilijat, urheilijat ja pelaaja-agentuurit voivat luoda ammattimaisen verkkoportfolion omalla linkillä, johon he keskittävät uransa, tilastonsa, tietonsa ja multimediasisältönsä. Palvelu on saatavilla osoitteessa ballershub.co, ja sitä ylläpitää Julián Berardinelli Argentiinan tasavallassa (Haltija, me)." },
+          { "type": "p", "text": "Nämä käyttöehdot (Ehdot) sääntelevät alustan käyttöä ja siihen pääsyä. Luomalla tilin, täyttämällä profiilin tai käyttämällä mitä tahansa BallersHubin toimintoa hyväksyt nämä Ehdot ja tietosuojakäytäntömme. Jos et ole samaa mieltä, älä käytä alustaa." }
+        ]
+      },
+      {
+        "id": "elegibilidad",
+        "title": "2. Kuka voi käyttää alustaa",
+        "blocks": [
+          { "type": "p", "text": "Tilausten tekemiseen ja tilin hallinnointiin omaan lukuun sinun on oltava yli 18-vuotias ja sinulla on oltava oikeustoimikelpoisuus sitoutua." },
+          { "type": "p", "text": "BallersHub on suunnattu myös nuorisojalkapalloon. Alle 18-vuotiaiden henkilöiden profiileja saavat luoda ja hallinnoida vain heidän äitinsä, isänsä, laillinen huoltajansa tai heitä edustava agentuuri huoltajan luvalla. Alaikäisen profiilin luova tai hallinnoiva henkilö vakuuttaa, että hänellä on tämä lupa, hyväksyy nämä Ehdot hänen puolestaan ja on vastuussa tilin käytöstä ja julkaistusta sisällöstä." },
+          { "type": "p", "text": "Voimme milloin tahansa pyytää asiakirjoja, jotka todistavat iän, henkilöllisyyden tai vedotun edustuksen, ja keskeyttää profiilit, kun näitä tietoja ei voida vahvistaa." }
+        ]
+      },
+      {
+        "id": "cuentas",
+        "title": "3. Tilit ja rekisteröityminen",
+        "blocks": [
+          { "type": "p", "text": "Useimpien toimintojen käyttäminen edellyttää tilin rekisteröimistä voimassa olevalla sähköpostiosoitteella. Sitoudut antamaan totuudenmukaisia, täydellisiä ja ajantasaisia tietoja sekä pitämään ne sellaisina." },
+          { "type": "p", "text": "Olet vastuussa kirjautumistietojesi luottamuksellisuudesta ja kaikesta tililläsi tapahtuvasta toiminnasta. Ilmoita meille välittömästi kaikesta luvattomasta käytöstä." }
+        ]
+      },
+      {
+        "id": "planes",
+        "title": "4. Tilaukset, jäsenyydet ja maksut",
+        "blocks": [
+          { "type": "p", "text": "BallersHub tarjoaa maksuttoman tilauksen ja maksullisia tilauksia (Pro), joissa on lisätoimintoja. Kunkin tilauksen tiedot ja voimassa olevat hinnat näkyvät hinnoittelusivulla." },
+          { "type": "p", "text": "Pro-tilaukset ovat automaattisesti uusiutuvia jäsenyyksiä. Valuutastasi ja sijainnistasi riippuen maksu käsitellään Stripen (USD/EUR) tai Mercado Pagon (ARS) kautta. Tilaamalla valtuutat valitun tilauksen toistuvat veloitukset, kunnes peruutat sen. Maksupalveluntarjoajat ovat riippumattomia kolmansia osapuolia, ja maksutietojesi käsittelyä koskevat myös heidän omat ehtonsa ja käytäntönsä." },
+          { "type": "p", "text": "Hinnat voivat sisältää tai olla sisältämättä veroja lainkäyttöalueestasi riippuen. Voimme muuttaa hintoja ja tilauksia; muutokset koskevat myöhempiä laskutuskausia, ja ilmoitamme niistä sinulle tarvittaessa kohtuullisessa ajassa etukäteen." }
+        ]
+      },
+      {
+        "id": "bajas",
+        "title": "5. Peruutus, uusiminen ja hyvitykset",
+        "blocks": [
+          { "type": "p", "text": "Voit peruuttaa tilauksesi milloin tahansa tililtäsi. Peruutus pysäyttää tulevat uusimiset; säilytät pääsyn Pro-toimintoihin jo maksetun jakson loppuun asti." },
+          { "type": "p", "text": "Ellei sovellettava laki toisin määrää tai ellemme nimenomaisesti toisin ilmoita, kuluvan jakson maksuja ei hyvitetä. Kun sovellettava kuluttajansuojalainsäädäntö antaa peruutus- tai perääntymisoikeuden, voit käyttää sitä kyseisen lainsäädännön asettamin ehdoin ja määräajoin." }
+        ]
+      },
+      {
+        "id": "contenido",
+        "title": "6. Sisältösi ja käyttölisenssi",
+        "blocks": [
+          { "type": "p", "text": "Säilytät omistusoikeuden tietoihin, kuviin, videoihin ja muuhun sisältöön, jonka lataat profiiliisi (sisältösi). Jotta voimme näyttää portfoliosi ja ylläpitää palvelua, myönnät meille maailmanlaajuisen, ei-yksinomaisen ja maksuttoman lisenssin isännöidä, jäljentää, mukauttaa teknisesti, julkaista ja näyttää sisältöäsi alustalla ja sen markkinoinnissa." },
+          { "type": "p", "text": "Julkaisemalla sisältöä vakuutat, että sinulla on siihen tarvittavat oikeudet, että se on totuudenmukaista eikä loukkaa kolmansien osapuolten oikeuksia tai sovellettavia sääntöjä. Olet vastuussa julkaisemastasi sisällöstä." },
+          { "type": "p", "text": "Voimme poistaa tai poistaa julkaisusta sisältöä, joka rikkoo näitä Ehtoja, kolmansien osapuolten oikeuksia tai lakia tai joka vaarantaa alustan turvallisuuden tai maineen." }
+        ]
+      },
+      {
+        "id": "verificacion",
+        "title": "7. Profiilien vahvistus ja validointi",
+        "blocks": [
+          { "type": "p", "text": "BallersHub voi vahvistaa profiilien henkilöllisyyden ja tiedot ihmisen tekemän tarkistuksen, julkisiin urheilulähteisiin vertailun ja henkilöllisyyden vahvistusprosessien (KYC) avulla, jotka voivat edellyttää henkilöllisyystodistusta ja selfietä. Näiden tietojen käsittely kuvataan tietosuojakäytännössä." },
+          { "type": "p", "text": "Vahvistuksen tarkoituksena on luoda luottamusta tietojen totuudenmukaisuuteen, mutta se ei ole suositus, takuu eikä takaus puoleltamme minkään henkilön, agentuurin tai seuran osalta. Voimme myöntää, keskeyttää tai peruuttaa vahvistusmerkkejä kohtuullisen harkintamme mukaan." }
+        ]
+      },
+      {
+        "id": "conducta",
+        "title": "8. Hyväksyttävä käyttö",
+        "blocks": [
+          { "type": "p", "text": "Käyttäessäsi BallersHubia sitoudut olemaan:" },
+          { "type": "list", "items": [
+            "Esiintymättä toisena henkilönä tai agentuurina tai julkaisematta vääriä tai harhaanjohtavia tietoja.",
+            "Lataamatta laitonta, herjaavaa tai syrjivää sisältöä, joka loukkaa yksityisyyttä tai kolmansien osapuolten oikeuksia.",
+            "Käyttämättä alustaa alaikäisten häirintään, kiristämiseen tai vaarantamiseen.",
+            "Poimimatta tietoja automaattisesti (scraping), jälleenmyymättä pääsyä tai ylikuormittamatta infrastruktuuria.",
+            "Yrittämättä murtaa turvallisuutta, päästä toisten tileille tai kiertää teknisiä rajoituksia."
+          ] }
+        ]
+      },
+      {
+        "id": "propiedad",
+        "title": "9. BallersHubin immateriaalioikeudet",
+        "blocks": [
+          { "type": "p", "text": "BallersHub-tavaramerkki, ohjelmisto, suunnittelu, omat tekstit ja alustan muut osat kuuluvat Haltijalle tai sen lisenssinantajille ja ovat immateriaalioikeuksia koskevan lainsäädännön suojaamia. Et saa kopioida tai hyödyntää niitä ilman lupaa, lukuun ottamatta alustan normaalia käyttöä." }
+        ]
+      },
+      {
+        "id": "terceros",
+        "title": "10. Kolmansien osapuolten palvelut",
+        "blocks": [
+          { "type": "p", "text": "Alusta tukeutuu ulkoisiin palveluntarjoajiin (esimerkiksi isännöinti, maksupalveluntarjoajat, sähköpostien lähetys ja analytiikka) ja voi sisältää linkkejä kolmansien osapuolten sivustoille. Emme ole vastuussa näiden kolmansien osapuolten sisällöstä, käytännöistä tai saatavuudesta, joiden käyttöä koskevat heidän omat ehtonsa." }
+        ]
+      },
+      {
+        "id": "disponibilidad",
+        "title": "11. Saatavuus, muutokset ja beta-toiminnot",
+        "blocks": [
+          { "type": "p", "text": "Pyrimme pitämään palvelun saatavilla, mutta se tarjotaan sellaisenaan ja saatavuuden mukaan, ilman takuuta keskeytyksettömästä tai virheettömästä toiminnasta. Voimme muuttaa, keskeyttää tai lopettaa toimintoja." },
+          { "type": "p", "text": "Joitakin toimintoja voidaan tarjota beta- tai testivaiheessa, ja niihin voi kohdistua muutoksia tai rajoituksia." }
+        ]
+      },
+      {
+        "id": "responsabilidad",
+        "title": "12. Vastuunrajoitus",
+        "blocks": [
+          { "type": "p", "text": "Sovellettavan lain sallimassa enimmäismäärin emme ole vastuussa välillisistä vahingoista, satunnaisista vahingoista tai saamatta jääneestä voitosta, jotka johtuvat alustan käytöstä tai sen käytön mahdottomuudesta. Mikään näissä Ehdoissa ei rajoita vastuita, joita ei voida lain mukaan sulkea pois, erityisesti kuluttajia kohtaan." }
+        ]
+      },
+      {
+        "id": "indemnidad",
+        "title": "13. Vahingonkorvaus",
+        "blocks": [
+          { "type": "p", "text": "Sitoudut pitämään Haltijan vahingoittumattomana kolmansien osapuolten vaatimuksilta, jotka johtuvat sisällöstäsi, alustan käytöstäsi tai näiden Ehtojen tai lain rikkomisesta." }
+        ]
+      },
+      {
+        "id": "suspension",
+        "title": "14. Tilien keskeyttäminen ja poistaminen",
+        "blocks": [
+          { "type": "p", "text": "Voimme keskeyttää tai poistaa tilit, jotka rikkovat näitä Ehtoja, jotka julkaisevat vääriä tietoja, jotka vaarantavat muita henkilöitä tai jotka vaarantavat alustan turvallisuuden. Kun se on kohtuullista, ilmoitamme sinulle ja annamme sinulle mahdollisuuden korjata tilanne." }
+        ]
+      },
+      {
+        "id": "modificaciones",
+        "title": "15. Ehtojen muutokset",
+        "blocks": [
+          { "type": "p", "text": "Voimme päivittää näitä Ehtoja vastaamaan palvelun tai lainsäädännön muutoksia. Julkaisemme voimassa olevan version tällä sivulla päivityspäivämäärän kanssa, ja merkittävien muutosten kohdalla pyrimme ilmoittamaan sinulle. Palvelun jatkuva käyttö voimaantulon jälkeen merkitsee päivitettyjen Ehtojen hyväksymistä." }
+        ]
+      },
+      {
+        "id": "ley",
+        "title": "16. Sovellettava laki ja toimivalta",
+        "blocks": [
+          { "type": "p", "text": "Näihin Ehtoihin sovelletaan Argentiinan tasavallan lakeja. Riitatilanteissa sovelletaan Argentiinan tasavallan toimivaltaisten yleisten tuomioistuinten toimivaltaa, sanotun rajoittamatta oikeuksia, jotka kuluttajansuojalainsäädäntö myöntää käyttäjälle kotipaikkansa tuomioistuinten tai viranomaisten puoleen kääntymiseksi." }
+        ]
+      }
+    ]
+  },
+  "privacy": {
+    "metaTitle": "Tietosuojakäytäntö",
+    "metaDescription": "Miten BallersHub kerää, käyttää ja suojaa henkilötietojasi: profiilit, henkilöllisyyden vahvistus (KYC), maksut, evästeet ja oikeutesi.",
+    "ogTitle": "Tietosuojakäytäntö · 'BallersHub",
+    "title": "Tietosuojakäytäntö",
+    "updated": "17. kesäkuuta 2026",
+    "intro": "Luottamuksesi on osa tuotetta. Tässä selitämme sinulle selkeällä kielellä, mitä tietoja käsittelemme, mihin niitä käytämme ja mikä hallinta sinulla on niihin.",
+    "sections": [
+      {
+        "id": "intro",
+        "title": "1. Johdanto ja rekisterinpitäjä",
+        "blocks": [
+          { "type": "p", "text": "Tämä tietosuojakäytäntö selittää, miten BallersHub kerää, käyttää, jakaa ja suojaa alustaa (ballershub.co) käyttävien henkilöiden henkilötietoja. Se täydentää käyttöehtoja." },
+          { "type": "p", "text": "Rekisterinpitäjä on Julián Berardinelli Argentiinan tasavallassa. Kaikissa tietojasi tai tätä käytäntöä koskevissa kysymyksissä kirjoita meille osoitteeseen info@ballershub.co." }
+        ]
+      },
+      {
+        "id": "datos",
+        "title": "2. Mitä tietoja keräämme",
+        "blocks": [
+          { "type": "p", "text": "Sen mukaan, miten käytät alustaa, voimme käsitellä seuraavia tietoluokkia:" },
+          { "type": "list", "items": [
+            "Tilitiedot: sähköposti ja kieli. Salasanaa hallinnoi todennuspalveluntarjoajamme, emmekä tallenna sitä selkokielisenä.",
+            "Pelaajan profiilitiedot: nimi, syntymäaika, sukupuoli, kansalaisuus, pituus ja paino, pelipaikka, seura ja sopimustilanne, kielet, koulutus, tavoitteet sekä valokuva tai avatar.",
+            "Yhteystiedot: puhelin tai WhatsApp ja asuinkaupunki tai -maa (joidenkin näyttämisen tai piilottamisen voit valita).",
+            "Henkilöllisyyden vahvistusasiakirjat (KYC): henkilöllisyystodistus ja selfie sekä niiden tyyppi, numero ja maa, kun profiili on tarpeen vahvistaa.",
+            "Agentuurien ja edustajien tiedot: nimi, logo, yhteystiedot, toimintamaat, verkostot ja ammatilliset lisenssit.",
+            "Multimediasisältö: valokuvat, videot ja materiaali, jonka lataat portfolioosi.",
+            "Laskutus- ja maksutiedot: laskutusosoite ja verotunniste. Korttitiedot käsittelevät suoraan Stripe tai Mercado Pago; emme tallenna korttisi koko numeroa.",
+            "Käyttö- ja tekniset tiedot: selaustiedot, laite, suorituskykymittarit ja lokit, jotka kerätään evästeillä ja vastaavilla tekniikoilla (katso evästekäytäntö).",
+            "Viestintä- ja markkinointiasetukset: suostumuksesi vastaanottaa uutisia, tarjouksia tai toimintojen ilmoituksia, sekä vuorovaikutus sähköpostiemme kanssa.",
+            "Vierailijoiden tiedot (liidit): jos jätät sähköpostiosoitteesi pelaajan julkiseen portfolioon ottaaksesi häneen yhteyttä, käsittelemme tätä sähköpostiosoitetta yhteydenoton hoitamiseksi."
+          ] }
+        ]
+      },
+      {
+        "id": "finalidades",
+        "title": "3. Mihin käytämme tietojasi",
+        "blocks": [
+          { "type": "p", "text": "Käsittelemme tietojasi seuraaviin tarkoituksiin:" },
+          { "type": "list", "items": [
+            "Tilisi luominen ja ylläpito sekä portfoliosi julkaiseminen.",
+            "Profiilien henkilöllisyyden ja totuudenmukaisuuden vahvistaminen.",
+            "Tilausten, maksujen ja laskutuksen käsittely.",
+            "Palvelua koskevien viestien ja, jos suostut, markkinointiviestien lähettäminen sinulle.",
+            "Käytön mittaaminen, tuotteen ja kokemuksen parantaminen sekä petosten ja väärinkäytösten estäminen.",
+            "Lakisääteisten, kirjanpidollisten ja turvallisuusvelvoitteiden noudattaminen."
+          ] }
+        ]
+      },
+      {
+        "id": "bases",
+        "title": "4. Käsittelyn oikeusperusteet",
+        "blocks": [
+          { "type": "p", "text": "Käsittelemme tietojasi sopimuksen täytäntöönpanon (palvelun tarjoaminen sinulle), suostumuksesi (esimerkiksi markkinointiin tai henkilöllisyysasiakirjojen käsittelyyn), lakisääteisten velvoitteiden noudattamisen ja oikeutetun etumme perusteella käyttää ja parantaa alustaa turvallisesti. Voit peruuttaa suostumuksesi milloin tahansa, mikä ei vaikuta aiemman käsittelyn lainmukaisuuteen." }
+        ]
+      },
+      {
+        "id": "menores",
+        "title": "5. Alaikäiset",
+        "blocks": [
+          { "type": "p", "text": "BallersHub kattaa nuorisojalkapallon. Alle 18-vuotiaiden henkilöiden profiileja saavat luoda ja hallinnoida vain heidän äitinsä, isänsä, laillinen huoltajansa tai heitä edustava agentuuri huoltajan luvalla, jotka antavat suostumuksen alaikäisen tietojen käsittelyyn ja ovat vastuussa tilistä." },
+          { "type": "p", "text": "Emme kerää alaikäisten tietoja tietoisesti tämän kehyksen ulkopuolella. Jos uskot, että käsittelemme alaikäisen tietoja ilman asianmukaista lupaa, kirjoita meille osoitteeseen info@ballershub.co, niin poistamme ne." }
+        ]
+      },
+      {
+        "id": "encargados",
+        "title": "6. Kenen kanssa jaamme tietojasi",
+        "blocks": [
+          { "type": "p", "text": "Emme myy henkilötietojasi. Jaamme niitä palveluntarjoajien kanssa, jotka tarjoavat meille palveluja (henkilötietojen käsittelijät), vain siltä osin kuin se on tarpeen alustan ylläpitämiseksi:" },
+          { "type": "table",
+            "headers": ["Palveluntarjoaja", "Tarkoitus", "Sijainti"],
+            "rows": [
+              ["Supabase", "Todennus, tietokanta ja tiedostojen tallennus (mukaan lukien KYC-asiakirjat ja media)", "Yhdysvallat"],
+              ["Stripe", "Maksujen käsittely (USD/EUR)", "Yhdysvallat / EU"],
+              ["Mercado Pago", "Maksujen käsittely (ARS)", "Argentiina / Brasilia"],
+              ["Resend", "Tapahtuma- ja markkinointisähköpostien lähetys", "Yhdysvallat"],
+              ["Vercel", "Isännöinti, suorituskyvyn analytiikka ja tekoälyavusteinen käännös", "Yhdysvallat"],
+              ["Google", "Yleisöanalytiikka (Google Analytics) ja profiilien käännös (tekoälymalli)", "Yhdysvallat"]
+            ]
+          },
+          { "type": "p", "text": "Voimme myös luovuttaa tietoja, kun laki tai toimivaltaisen viranomaisen määräys sitä edellyttää tai oikeuksien, henkilöiden turvallisuuden tai alustan eheyden suojaamiseksi." }
+        ]
+      },
+      {
+        "id": "transferencias",
+        "title": "7. Kansainväliset siirrot",
+        "blocks": [
+          { "type": "p", "text": "Jotkin palveluntarjoajistamme käsittelevät tietoja Argentiinan ulkopuolella, pääasiassa Yhdysvalloissa. Kun näin tapahtuu, varmistamme, että olemassa on asianmukaisia sopimuksellisia ja teknisiä suojatoimia tietojesi suojaamiseksi sovellettavan lainsäädännön mukaisesti." }
+        ]
+      },
+      {
+        "id": "conservacion",
+        "title": "8. Kuinka kauan säilytämme tietoja",
+        "blocks": [
+          { "type": "p", "text": "Säilytämme tietojasi niin kauan kuin tilisi on aktiivinen ja kuvattujen tarkoitusten täyttämiseen tarvittavan ajan. Henkilöllisyyden vahvistusasiakirjat säilytetään vahvistuksen todistamiseen tarvittavan ajan; laskutustiedot vero- ja kirjanpitolainsäädännön edellyttämän ajan. Sen jälkeen poistamme tai anonymisoimme ne." }
+        ]
+      },
+      {
+        "id": "derechos",
+        "title": "9. Oikeutesi",
+        "blocks": [
+          { "type": "p", "text": "Voit pyytää tietojesi käyttöä, oikaisua, päivitystä ja poistamista sekä vastustaa tiettyjä käsittelyjä tai peruuttaa suostumuksesi. Käyttääksesi näitä oikeuksia kirjoita meille osoitteeseen info@ballershub.co; voimme pyytää sinua todistamaan henkilöllisyytesi." },
+          { "type": "p", "text": "Rekisteröidyllä on oikeus käyttää tarkastusoikeutta maksutta vähintään kuuden kuukauden välein, ellei oikeutettua etua osoiteta. AGENCIA DE ACCESO A LA INFORMACIÓN PÚBLICA, lain 25.326 valvontaelin, on toimivaltainen käsittelemään henkilötietojen suojaa koskevien sääntöjen noudattamatta jättämistä koskevat ilmoitukset ja valitukset." }
+        ]
+      },
+      {
+        "id": "seguridad",
+        "title": "10. Tietoturva",
+        "blocks": [
+          { "type": "p", "text": "Sovellamme teknisiä ja organisatorisia toimenpiteitä tietojesi suojaamiseksi, kuten salausta siirron aikana, pääsynvalvontaa, tietokantatason turvasääntöjä ja yksityistä tallennusta arkaluonteisille asiakirjoille. Mikään järjestelmä ei ole täysin erehtymätön, mutta pyrimme vähentämään riskejä ja vastaamaan poikkeamiin." }
+        ]
+      },
+      {
+        "id": "cookies",
+        "title": "11. Evästeet ja vastaavat tekniikat",
+        "blocks": [
+          { "type": "p", "text": "Käytämme evästeitä ja tallennustekniikoita, jotta alusta toimii, muistaa asetuksesi ja mittaa käyttöä. Saat tietää yksityiskohdat ja niiden hallinnan evästekäytännössämme." }
+        ]
+      },
+      {
+        "id": "cambios",
+        "title": "12. Tämän käytännön muutokset",
+        "blocks": [
+          { "type": "p", "text": "Voimme päivittää tätä tietosuojakäytäntöä vastaamaan palvelun tai lainsäädännön muutoksia. Julkaisemme voimassa olevan version tällä sivulla päivityspäivämäärän kanssa, ja merkittävien muutosten kohdalla pyrimme ilmoittamaan sinulle." }
+        ]
+      }
+    ]
+  },
+  "cookies": {
+    "metaTitle": "Evästekäytäntö",
+    "metaDescription": "Mitä evästeitä ja tallennustekniikoita BallersHub käyttää, mihin ne ovat tarkoitettuja ja miten niitä hallitaan.",
+    "ogTitle": "Evästekäytäntö · 'BallersHub",
+    "title": "Evästekäytäntö",
+    "updated": "17. kesäkuuta 2026",
+    "intro": "Tämä käytäntö selittää, mitä evästeitä ja tallennustekniikoita käytämme BallersHubissa ja miten voit hallita niitä.",
+    "sections": [
+      {
+        "id": "que-son",
+        "title": "1. Mitä evästeet ja vastaavat tekniikat ovat",
+        "blocks": [
+          { "type": "p", "text": "Evästeet ovat pieniä tiedostoja, jotka sivusto tallentaa selaimeesi. Yhdessä vastaavien tekniikoiden, kuten paikallisen tallennustilan (localStorage ja sessionStorage), kanssa ne mahdollistavat alustan toiminnan, asetustesi muistamisen ja sen ymmärtämisen, miten sitä käytetään. Tässä käytännössä käytämme sanaa evästeet viittaamaan niihin kaikkiin." }
+        ]
+      },
+      {
+        "id": "como-usamos",
+        "title": "2. Miten käytämme niitä",
+        "blocks": [
+          { "type": "p", "text": "Käytämme näitä tekniikoita pitääksemme istuntosi kirjautuneena, muistaaksemme kielesi ja muut asetuksesi sekä mitataksemme alustan käyttöä koostetussa muodossa sen parantamiseksi." }
+        ]
+      },
+      {
+        "id": "tipos",
+        "title": "3. Mitä evästeitä ja tallennustilaa käytämme",
+        "blocks": [
+          { "type": "p", "text": "Tärkeimmät käyttämämme tekniikat ovat:" },
+          { "type": "table",
+            "headers": ["Nimi", "Tyyppi", "Tarkoitus", "Kesto"],
+            "rows": [
+              ["sb-*-auth-token", "Välttämätön (Supabase)", "Pitää istuntosi kirjautuneena", "Istunto"],
+              ["NEXT_LOCALE", "Välttämätön", "Muistaa kielesi", "Pysyvä"],
+              ["_ga, _ga_*, _gid, _gat", "Analytiikka (Google Analytics 4)", "Mitata yleisöä ja käyttöä koostetussa muodossa (vain tuotannossa)", "Enintään 2 vuotta"],
+              ["PRICING_CONTEXT_CURRENCY", "Asetus (localStorage)", "Muistaa hinnoittelusivulla valitun valuutan", "Pysyvä"],
+              ["Käyttöliittymän tallennus", "Asetus (local- tai session storage)", "Muistaa käyttöliittymän vuorovaikutukset, kuten suljetut ilmoitukset tai sivun tilan", "Istunto tai pysyvä"]
+            ]
+          },
+          { "type": "p", "text": "Käyttämämme suorituskyvyn analytiikka (Vercel Analytics ja Speed Insights) ei käytä evästeitä." }
+        ]
+      },
+      {
+        "id": "terceros",
+        "title": "4. Kolmansien osapuolten evästeet",
+        "blocks": [
+          { "type": "p", "text": "Jotkin evästeet asettavat kolmannet osapuolet. Google Analytics käyttää omia evästeitään yleisön mittaamiseen; maksuprosessin aikana maksupalveluntarjoajat (Stripe tai Mercado Pago) voivat asettaa evästeitä, jotka ovat tarpeen tapahtuman suorittamiseksi turvallisesti. Näiden kolmansien osapuolten suorittamaa käsittelyä koskevat heidän omat käytäntönsä." }
+        ]
+      },
+      {
+        "id": "gestion",
+        "title": "5. Miten hallita tai poistaa evästeet käytöstä",
+        "blocks": [
+          { "type": "p", "text": "Voit hallita ja poistaa evästeitä selaimesi asetuksista. Jos estät välttämättömät evästeet, on mahdollista, että jotkin toiminnot (kuten kirjautuminen) lakkaavat toimimasta oikein." },
+          { "type": "p", "text": "Googlen analytiikkaa varten voit asentaa Google Analyticsin käytöstä poistavan lisäosan tai säätää evästeitä selaimestasi. Voit myös tyhjentää sivuston paikallisen tallennustilan selaimesi asetuksista." }
+        ]
+      },
+      {
+        "id": "cambios",
+        "title": "6. Tämän käytännön muutokset",
+        "blocks": [
+          { "type": "p", "text": "Voimme päivittää tätä evästekäytäntöä, kun lisäämme tai muutamme käyttämiämme tekniikoita. Julkaisemme voimassa olevan version tällä sivulla päivityspäivämäärän kanssa." }
+        ]
+      }
+    ]
+  }
+}

@@ -62,7 +62,13 @@ export default function AgencyReachModule({
           ? "it-IT"
           : locale === "en"
             ? "en"
-            : "es-AR",
+            : locale === "de"
+              ? "de-DE"
+              : locale === "fr"
+                ? "fr-FR"
+                : locale === "fi"
+                  ? "fi-FI"
+                  : "es-AR",
     ],
     { type: "region", fallback: "code" },
   );

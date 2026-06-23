@@ -1,0 +1,85 @@
+{
+  "common": {
+    "backToDashboard": "Zu meinem Dashboard",
+    "backToHome": "Zurück zur Startseite",
+    "backToPricing": "Zurück zu den Tarifen",
+    "processorMercadoPago": "Mercado Pago",
+    "processorStripe": "Stripe"
+  },
+  "meta": {
+    "checkoutTitle": "Checkout",
+    "checkoutDescription": "Schließen Sie Ihr Abonnement des Pro-Tarifs von BallersHub ab.",
+    "pendingTitle": "Zahlung in Bearbeitung",
+    "failureTitle": "Zahlung abgelehnt",
+    "receiptTitle": "Beleg",
+    "successTitle": "Zahlung bestätigt"
+  },
+  "plan": {
+    "canceledNotice": "Sie haben die Zahlung abgebrochen. Sie können es jederzeit erneut versuchen — Ihre Daten bleiben gespeichert.",
+    "processorNotReady": {
+      "mpTitle": "Mercado Pago ist in dieser Umgebung noch nicht eingerichtet.",
+      "stripeTitle": "Stripe ist in dieser Umgebung noch nicht eingerichtet.",
+      "body": "Wir stellen die Verbindung zu dieser Zahlungsmethode gerade fertig. In der Zwischenzeit können Sie es mit <altLink>{altLabel}</altLink> versuchen oder uns unter <supportEmail>info@ballershub.co</supportEmail> schreiben, damit wir Sie benachrichtigen, sobald sie bereit ist."
+    }
+  },
+  "processing": {
+    "title": "Ihre Zahlung wird verarbeitet",
+    "statusConfirming": "Bestätigung mit dem Zahlungsanbieter…",
+    "statusVerifying": "Überprüfung mit dem Zahlungsanbieter…",
+    "statusTakingLonger": "Das dauert etwas länger als üblich…",
+    "secureNote": "Ihre Zahlung wird sicher überprüft.",
+    "doNotCloseNote": "Schließen Sie dieses Fenster nicht. Wir leiten Sie zur Bestätigung weiter, sobald sie fertig ist."
+  },
+  "success": {
+    "title": "Geschafft! Ihr Tarif <shimmer>{plan}</shimmer> ist aktiv",
+    "defaultPlanName": "Pro",
+    "intro": "Wir haben Ihnen die Details per E-Mail geschickt. Die {trialDays}-tägige Testphase hat heute begonnen und Sie können innerhalb von 3 Tagen nach der ersten Abbuchung jederzeit kostenlos kündigen.",
+    "summary": {
+      "plan": "Tarif",
+      "billableTotal": "Abrechnungsbetrag",
+      "amountPerYear": "{amount} {currency} / Jahr",
+      "trialActiveUntil": "Testphase aktiv bis",
+      "processor": "Zahlungsanbieter",
+      "emailNote": "Falls Sie die Bestätigungs-E-Mail nicht innerhalb von 5 Minuten sehen, schreiben Sie uns an <supportEmail>info@ballershub.co</supportEmail>."
+    },
+    "processingFallback": "Wir verarbeiten Ihre Zahlung gerade fertig. Das kann ein paar Sekunden dauern.",
+    "viewReceipt": "Beleg ansehen",
+    "completeProfile": "Mein Profil vervollständigen",
+    "onboardingNote": "Ihr Abonnement ist aktiv. Um es zu nutzen, brauchen wir noch ein paar Angaben zu Ihnen — das dauert 2-3 Minuten."
+  },
+  "failure": {
+    "title": "Wir konnten Ihre Zahlung nicht verarbeiten",
+    "defaultBody": "Der Zahlungsanbieter hat den Vorgang abgelehnt. Es wurde nichts berechnet. Versuchen Sie es mit einer anderen Karte oder Zahlungsmethode — Ihre Daten bleiben gespeichert.",
+    "retry": "Zahlung erneut versuchen",
+    "reasons": {
+      "insufficientAmount": "Die Karte hat nicht genügend Deckung. Versuchen Sie es mit einer anderen Methode oder wenden Sie sich an Ihre Bank.",
+      "badFilledCard": "Die Kartendaten sind nicht korrekt. Überprüfen Sie die Kartennummer, das Ablaufdatum und den Sicherheitscode und versuchen Sie es erneut.",
+      "highRisk": "Der Zahlungsanbieter hat ein Risiko bei dem Vorgang erkannt. Versuchen Sie es mit einer anderen Karte oder wenden Sie sich an Ihre Bank, um die Abbuchung zu autorisieren."
+    }
+  },
+  "pending": {
+    "title": "Wir verarbeiten Ihre Zahlung",
+    "body": "Einige Zahlungsmethoden (Bargeld, Überweisung, Lastschrift in Argentinien) brauchen ein paar Minuten zur Bestätigung. Wir senden Ihnen eine E-Mail, sobald die Zahlung eingegangen ist — Sie müssen nichts weiter tun."
+  },
+  "receipt": {
+    "backToConfirmation": "Zurück zur Bestätigung",
+    "resendByEmail": "Per E-Mail erneut senden",
+    "downloadPdf": "PDF herunterladen",
+    "subscriptionReceipt": "Abonnementbeleg",
+    "number": "Nr. {number}",
+    "customer": "Kunde",
+    "billing": "Rechnungsdaten",
+    "noBillingData": "Keine gespeicherten Daten",
+    "concept": "Position",
+    "detail": "Details",
+    "total": "Gesamt",
+    "lineDescription": "Jahresabonnement · {trialDays} Tage kostenlose Testphase",
+    "trialActiveUntil": "Testphase aktiv bis {date}",
+    "currencyPerYear": "{currency} / Jahr",
+    "subtotal": "Zwischensumme",
+    "trialLine": "Testphase {trialDays} Tage",
+    "totalDueToday": "Heute fälliger Gesamtbetrag",
+    "processedBy": "Verarbeitet durch <strong>{processor}</strong>. Automatische Abbuchung am {date}.",
+    "supportLine": "Innerhalb von 3 Tagen nach der Abbuchung kostenlos kündbar. Support: <supportEmail>info@ballershub.co</supportEmail>."
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "search": {
+    "placeholder": "Spieler suchen...",
+    "aria": "Spieler suchen",
+    "placeholderFull": "Spieler, Agenturen, Agenten suchen...",
+    "placeholderMobile": "Spieler, Agenturen suchen…",
+    "ariaFull": "Spieler und Agenturen suchen",
+    "noResults": "Keine Ergebnisse gefunden.",
+    "prompt": "Tippen Sie, um Spieler, Agenturen, Agenten zu suchen…",
+    "hintNavigate": "navigieren",
+    "hintSelect": "auswählen",
+    "hintClose": "schließen",
+    "results": "Suchergebnisse",
+    "sectionPlayers": "Spieler",
+    "sectionAgencies": "Agenturen",
+    "sectionManagers": "Manager / Agenten",
+    "ariaManagers": "Manager",
+    "colPlayer": "Spieler",
+    "colClub": "Verein",
+    "colValue": "Wert",
+    "colReviews": "Bewertungen",
+    "colAgency": "Agentur",
+    "colHeadquarters": "Sitz",
+    "colCountries": "Länder",
+    "colServices": "Leistungen",
+    "colManager": "Manager / Agent",
+    "colContact": "Kontakt",
+    "roleAgency": "Agentur",
+    "roleManager": "Manager",
+    "requiresPro": "Erfordert Pro-Plan",
+    "reviewsProTitle": "Bewertungen sind in den Pro-Plänen verfügbar",
+    "ratingAria": "Bewertung",
+    "countCountries": "{count} Länder",
+    "countServices": "{count} Leistungen"
+  },
+  "nav": {
+    "players": "Spieler",
+    "agencies": "Agenturen",
+    "plans": "Tarife",
+    "about": "Über uns",
+    "howWeValidate": "Wie wir validieren?",
+    "blog": "Blog"
+  },
+  "auth": {
+    "signIn": "Anmelden",
+    "signUp": "Registrieren"
+  },
+  "actions": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen"
+  },
+  "localeSwitcher": {
+    "label": "Sprache ändern"
+  },
+  "authButtons": {
+    "access": "Anmelden",
+    "create": "Konto erstellen"
+  },
+  "back": "Zurück",
+  "userMenu": {
+    "openMenu": "Benutzermenü öffnen",
+    "userActions": "Benutzeraktionen",
+    "signedInAs": "Angemeldet als",
+    "defaultName": "Mein Konto",
+    "viewPublicProfile": "Öffentliches Profil ansehen",
+    "agencyInReview": "Agentur in Prüfung",
+    "viewApplication": "Antrag in Prüfung ansehen",
+    "continueApplication": "Antrag fortsetzen",
+    "applyPro": "Profi-Konto beantragen",
+    "dashboard": "Dashboard",
+    "viewAgencyPublic": "Öffentliches Agenturprofil ansehen",
+    "agencySettings": "Agentureinstellungen",
+    "managerProfile": "Mein Manager-Profil",
+    "personalData": "Persönliche Daten",
+    "footballData": "Fußballdaten",
+    "media": "Medien",
+    "template": "Vorlage",
+    "subscription": "Abonnement",
+    "settings": "Allgemeine Einstellungen",
+    "language": "Sprache",
+    "signOut": "Abmelden",
+    "signOutConfirm": "Sind Sie sicher, dass Sie sich bei BallersHub abmelden möchten?",
+    "signingOut": "Wird abgemeldet..."
+  },
+  "org": {
+    "description": "Plattform für professionelle Portfolios von Fußballspielern und Spielervermittlungsagenturen. Jeder Spieler und jede Agentur erhält einen einzigartigen, SEO-optimierten Link, der Werdegang, Statistiken, körperliche Daten und verifizierte Medien an einem Ort bündelt.",
+    "appDescription": "Web-Anwendung zur Erstellung professioneller Portfolios von Fußballspielern und Agenturen: einzigartiger Link, zentralisierte Daten, vom ersten Tag an SEO-fertig.",
+    "slogan": "Professionelle Profile von Fußballspielern"
+  }
+}

@@ -78,6 +78,39 @@ const COPY: Record<Locale, Copy> = {
     footer:
       "Se tiver dúvidas sobre esta revisão, responda este e-mail. Você pode continuar editando seu perfil no seu painel quando quiser.",
   },
+  de: {
+    preheader: "Ein Teammitglied hat Ihr Profil überprüft und Ihnen eine Notiz hinterlassen.",
+    eyebrow: "Überprüfung Ihres Profils",
+    heading: (n) => `Wir haben Ihr Profil überprüft, ${n}`,
+    intro: (section) =>
+      `Ein Teammitglied von 'BallersHub hat Ihren Abschnitt „${section}“ überprüft und Ihnen diese Notiz hinterlassen:`,
+    noteLabel: "Notiz vom Team",
+    cta: "Mein Profil ansehen",
+    footer:
+      "Wenn Sie Fragen zu dieser Überprüfung haben, antworten Sie einfach auf diese E-Mail. Sie können Ihr Profil jederzeit über Ihr Dashboard weiter bearbeiten.",
+  },
+  fr: {
+    preheader: "Un membre de l'équipe a examiné votre profil et vous a laissé une note.",
+    eyebrow: "Examen de votre profil",
+    heading: (n) => `Nous avons examiné votre profil, ${n}`,
+    intro: (section) =>
+      `Un membre de l'équipe 'BallersHub a examiné votre section « ${section} » et vous a laissé cette note :`,
+    noteLabel: "Note de l'équipe",
+    cta: "Voir mon profil",
+    footer:
+      "Si vous avez des questions sur cet examen, répondez simplement à cet e-mail. Vous pouvez continuer à modifier votre profil depuis votre tableau de bord à tout moment.",
+  },
+  fi: {
+    preheader: "Tiimin jäsen tarkisti profiilisi ja jätti sinulle viestin.",
+    eyebrow: "Profiilisi tarkistus",
+    heading: (n) => `Tarkistimme profiilisi, ${n}`,
+    intro: (section) =>
+      `'BallersHub-tiimin jäsen tarkisti osiosi ”${section}” ja jätti sinulle tämän viestin:`,
+    noteLabel: "Tiimin viesti",
+    cta: "Näytä profiilini",
+    footer:
+      "Jos sinulla on kysyttävää tästä tarkistuksesta, vastaa tähän sähköpostiin. Voit jatkaa profiilisi muokkaamista hallintapaneelistasi milloin tahansa.",
+  },
 };
 
 /**

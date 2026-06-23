@@ -1,0 +1,268 @@
+{
+  "kyc": {
+    "docLabel": "Document (recto ou PDF)",
+    "selfieLabel": "Selfie",
+    "uploadingDoc": "Téléversement du document...",
+    "uploadingSelfie": "Téléversement du selfie...",
+    "privacyNote": "Les fichiers sont stockés de manière privée et ne seront consultés que par l'équipe de vérification.",
+    "errorNoUser": "Aucun utilisateur connecté."
+  },
+  "start": {
+    "review": {
+      "badge": "En cours d'examen",
+      "title": "Demande",
+      "titleHighlight": "en cours d'examen",
+      "description": "Nous avons bien reçu vos informations et nous validons actuellement vos données. Vous pouvez suivre le statut depuis votre tableau de bord et nous vous préviendrons par e-mail dès que l'examen sera terminé.",
+      "viewPanel": "Voir le tableau de bord",
+      "viewApplication": "Voir la demande",
+      "backToDashboard": "Retour au tableau de bord"
+    },
+    "chooser": {
+      "badge": "Onboarding",
+      "title": "Choisissez votre",
+      "titleHighlight": "type de compte",
+      "subtitle": "Vous pourrez le modifier plus tard depuis le tableau de bord.",
+      "player": {
+        "title": "Je suis joueur/joueuse",
+        "description": "Construisez votre portfolio professionnel et connectez-vous avec des clubs."
+      },
+      "agency": {
+        "title": "Je suis manager / agence",
+        "description": "Gérez votre effectif, validez des profils et représentez des talents."
+      },
+      "staff": {
+        "title": "Je suis entraîneur / recruteur / dirigeant",
+        "comingSoon": "Bientôt disponible."
+      },
+      "coach": {
+        "title": "Je suis entraîneur / coach",
+        "description": "Présentez votre parcours, vos licences et dirigez votre prochain projet."
+      },
+      "later": "Je le ferai plus tard"
+    }
+  },
+  "acceptInvite": {
+    "metaTitle": "Accepter l'invitation",
+    "invalidLink": {
+      "title": "Lien invalide",
+      "description": "Cette invitation ne contient pas de jeton d'accès valide.",
+      "backHome": "Retour à l'accueil"
+    },
+    "notFound": {
+      "title": "Invitation introuvable",
+      "description": "Le lien a peut-être expiré ou l'invitation a été révoquée par l'agence.",
+      "goHome": "Aller sur 'BallersHub"
+    },
+    "processed": {
+      "title": "Invitation traitée",
+      "description": "Cette invitation a déjà été {status}.",
+      "statusAccepted": "acceptée",
+      "statusRejected": "refusée",
+      "goToPanel": "Aller à mon tableau de bord"
+    },
+    "wrongAccount": {
+      "title": "Compte incorrect",
+      "description": "Cette invitation est destinée à l'adresse e-mail <strong>{targetEmail}</strong>, mais vous êtes connecté en tant que <strong>{currentEmail}</strong>.",
+      "signOut": "Fermer la session actuelle"
+    },
+    "received": {
+      "title": "Invitation reçue",
+      "descriptionPlayer": "<strong>{agencyName}</strong> vous a envoyé une invitation officielle pour rejoindre la plateforme en tant que joueur représenté.",
+      "descriptionManager": "<strong>{agencyName}</strong> vous a envoyé une invitation officielle pour rejoindre la plateforme en tant que manager d'agence.",
+      "recipientLabel": "Destinataire",
+      "recipientNote": "Si vous n'êtes pas le propriétaire de cette adresse e-mail, veuillez ignorer cette invitation.",
+      "signInToAccept": "Se connecter pour accepter",
+      "noAccount": "Je n'ai pas encore de compte"
+    },
+    "defaultAgencyName": "Une agence"
+  },
+  "manager": {
+    "badge": "Manager · Étape {step} sur 3",
+    "title": "Inscription en tant que",
+    "titleHighlight": "manager",
+    "subtitle": "Nous vérifions votre identité et votre mandat de représentation afin de préserver l'intégrité de la plateforme.",
+    "step1": {
+      "fullName": "Votre nom complet *",
+      "contactEmail": "E-mail de contact *",
+      "phone": "Téléphone",
+      "agencyName": "Nom de l'agence *",
+      "agencyWebsite": "Site web de l'agence",
+      "verifiedLink": "Lien de validation (Transfermarkt, IG, etc.) *"
+    },
+    "step2": {
+      "title": "Certification officielle",
+      "subtitle": "Téléversez ou liez votre licence FIFA, FIGC, RFEF ou d'une autre association.",
+      "licenseType": "Type de licence",
+      "licenseTypeNone": "Aucune / Autre",
+      "licenseTypeRfef": "RFEF (Espagne)",
+      "licenseTypeFigc": "FIGC (Italie)",
+      "licenseTypeAfa": "AFA (Argentine)",
+      "licenseDoc": "Document de licence (PDF ou image)",
+      "licenseLoaded": "✓ Licence téléversée"
+    },
+    "step3": {
+      "title": "Vérification d'identité (KYC)",
+      "subtitle": "Pour protéger l'intégrité de la plateforme, nous devons vérifier votre identité.",
+      "idReady": "✓ Pièce d'identité prête",
+      "idMissing": "○ Pièce d'identité manquante",
+      "selfieReady": "✓ Selfie prêt",
+      "selfieMissing": "○ Selfie manquant",
+      "notes": "Notes supplémentaires (facultatif)"
+    },
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Envoyer la demande",
+    "submitting": "Envoi en cours...",
+    "errorNoUser": "Aucun utilisateur connecté",
+    "errorUploadLicense": "Erreur lors du téléversement de la licence",
+    "errorGeneric": "Une erreur est survenue"
+  },
+  "apply": {
+    "header": {
+      "badge": "Joueur · Étape {step} sur 3",
+      "title": "Inscription en tant que",
+      "titleHighlight": "joueur",
+      "step1Title": "Informations principales",
+      "step1Sub": "Vos informations personnelles",
+      "step2Title": "Données footballistiques",
+      "step2Sub": "Club et parcours",
+      "step3Title": "Vérification",
+      "step3Sub": "Documents (KYC)",
+      "stepNtTitle": "Sélection",
+      "stepNtSub": "Niveau sélection nationale"
+    },
+    "step1": {
+      "emailLabel": "E-mail du compte",
+      "emailDescription": "Il s'agit de votre e-mail de connexion",
+      "fullNameLabel": "Nom complet",
+      "fullNamePlaceholder": "Ex. : Lionel Messi",
+      "fullNameError": "Saisissez au moins 3 caractères.",
+      "nationalityError": "Sélectionnez au moins une nationalité.",
+      "birthDateLabel": "Date de naissance",
+      "birthDateError": "Sélectionnez votre date de naissance.",
+      "heightLabel": "Taille (cm)",
+      "heightPlaceholder": "ex. : 178",
+      "heightError": "Saisissez une taille valide (120–230 cm).",
+      "weightLabel": "Poids (kg)",
+      "weightPlaceholder": "ex. : 72",
+      "weightError": "Saisissez un poids valide (40–140 kg).",
+      "positionLabel": "Poste",
+      "positionError": "Choisissez au moins un sous-poste.",
+      "back": "Retour",
+      "continue": "Continuer",
+      "genderLabel": "Genre",
+      "genderDescription": "Définit la catégorie : football masculin ou féminin.",
+      "gender_male": "Homme",
+      "gender_female": "Femme",
+      "gender_unspecified": "Je préfère ne pas préciser"
+    },
+    "step2": {
+      "teamError": "Sélectionnez un club ou indiquez que vous êtes joueur libre.",
+      "externalProfiles": "Profils externes",
+      "optional": "(facultatif)",
+      "socialLabel": "Réseau social",
+      "socialPlaceholder": "https://www.instagram.com/votrenomdutilisateur",
+      "urlError": "Saisissez une URL valide (https://...).",
+      "back": "Retour",
+      "next": "Aller à la vérification"
+    },
+    "step3": {
+      "title": "Vérification d'identité",
+      "docUploaded": "Document téléversé",
+      "docPending": "Document en attente",
+      "selfieUploaded": "Selfie téléversé",
+      "selfiePending": "Selfie en attente",
+      "agree": "J'accepte les Conditions et la Politique de confidentialité",
+      "back": "Retour",
+      "submit": "Envoyer la demande",
+      "errorKycOrTerms": "Il manque le document/selfie ou l'acceptation des conditions.",
+      "errorNoSession": "Aucune session active.",
+      "errorUnexpected": "Erreur inattendue."
+    }
+  },
+  "coachApply": {
+    "header": {
+      "badge": "Entraîneur · Étape {step} sur 3",
+      "title": "Inscription en tant que",
+      "titleHighlight": "entraîneur",
+      "step1Title": "Informations principales",
+      "step1Sub": "Vos informations personnelles",
+      "step2Title": "Parcours et licences",
+      "step2Sub": "Clubs dirigés et diplômes",
+      "step3Title": "Vérification",
+      "step3Sub": "Documents (KYC)"
+    },
+    "step1": {
+      "emailLabel": "E-mail du compte",
+      "emailDescription": "Il s'agit de votre e-mail de connexion",
+      "fullNameLabel": "Nom complet",
+      "fullNamePlaceholder": "Ex. : Marcelo Bielsa",
+      "fullNameError": "Saisissez au moins 3 caractères.",
+      "nationalityError": "Sélectionnez au moins une nationalité.",
+      "birthDateLabel": "Date de naissance",
+      "birthDateError": "Sélectionnez votre date de naissance.",
+      "roleTitleLabel": "Fonction",
+      "roleTitlePlaceholder": "Ex. : Entraîneur principal",
+      "roleTitleError": "Indiquez votre fonction (ex. : Entraîneur principal).",
+      "back": "Retour",
+      "continue": "Continuer"
+    },
+    "step2": {
+      "title": "Parcours",
+      "subtitle": "Ajoutez les clubs que vous avez dirigés, votre fonction et la période.",
+      "teamError": "Sélectionnez un club ou indiquez que vous êtes sans club.",
+      "freeAgentLabel": "Actuellement sans club",
+      "careerTitle": "Clubs dirigés",
+      "careerSubtitle": "Ajoutez chaque expérience avec sa fonction et ses années.",
+      "clubLabel": "Club",
+      "clubPlaceholder": "Ex. : Athletic Club",
+      "roleTitleLabel": "Fonction",
+      "roleTitlePlaceholder": "Ex. : Entraîneur principal",
+      "divisionLabel": "Division",
+      "divisionPlaceholder": "Ex. : Première division",
+      "startYearLabel": "Année de début",
+      "endYearLabel": "Année de fin",
+      "yearPlaceholder": "Ex. : 2018",
+      "currentLabel": "Actuellement",
+      "addCareerItem": "Ajouter une expérience",
+      "removeCareerItem": "Retirer",
+      "careerEmpty": "Vous n'avez encore ajouté aucune expérience.",
+      "licensesTitle": "Licences déclarées",
+      "licensesSubtitle": "Indiquez vos diplômes d'entraîneur (UEFA Pro, AFA, etc.).",
+      "licenseTitle": "Licence",
+      "licenseTitlePlaceholder": "Ex. : UEFA Pro",
+      "licenseIssuer": "Organisme émetteur",
+      "licenseIssuerPlaceholder": "Ex. : AFA",
+      "licenseYear": "Année",
+      "licenseYearPlaceholder": "Ex. : 2015",
+      "addLicense": "Ajouter une licence",
+      "removeLicense": "Retirer",
+      "licensesEmpty": "Vous n'avez encore ajouté aucune licence.",
+      "externalProfiles": "Profils externes",
+      "optional": "(facultatif)",
+      "transfermarktLabel": "Profil Transfermarkt",
+      "transfermarktPlaceholder": "https://www.transfermarkt.com/...",
+      "externalLabel": "Autre profil ou site",
+      "externalPlaceholder": "https://...",
+      "urlError": "Saisissez une URL valide (https://...).",
+      "back": "Retour",
+      "next": "Aller à la vérification"
+    },
+    "step3": {
+      "title": "Vérification d'identité",
+      "docUploaded": "Document téléversé",
+      "docPending": "Document en attente",
+      "selfieUploaded": "Selfie téléversé",
+      "selfiePending": "Selfie en attente",
+      "notesLabel": "Notes supplémentaires (facultatif)",
+      "notesPlaceholder": "Indiquez-nous toute information pertinente sur votre parcours.",
+      "agree": "J'accepte les Conditions et la Politique de confidentialité",
+      "back": "Retour",
+      "submit": "Envoyer la demande",
+      "submitting": "Envoi en cours...",
+      "errorKycOrTerms": "Il manque le document/selfie ou l'acceptation des conditions.",
+      "errorNoSession": "Aucune session active.",
+      "errorUnexpected": "Erreur inattendue."
+    }
+  }
+}

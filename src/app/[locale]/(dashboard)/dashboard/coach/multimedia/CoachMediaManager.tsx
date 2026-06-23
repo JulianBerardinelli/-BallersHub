@@ -3,8 +3,9 @@
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button } from "@heroui/react";
+import { Button, Tabs, Tab } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
+import CoachImageUploader from "@/components/dashboard/coach/CoachImageUploader";
 import { deleteCoachMedia } from "@/app/actions/coach-media";
 
 export type CoachMediaItem = {
@@ -23,6 +24,8 @@ export default function CoachMediaManager({
   isPro = false,
   uploadUrl = "/api/coach/media/upload",
   deleteAction = deleteCoachMedia,
+  heroUrl = null,
+  imageUploadUrl,
 }: {
   items: CoachMediaItem[];
   isPro?: boolean;
@@ -30,6 +33,10 @@ export default function CoachMediaManager({
   uploadUrl?: string;
   /** Override the delete action (admin uses a service-role one). */
   deleteAction?: (id: string) => Promise<{ success: boolean; message?: string }>;
+  /** Pro asset (hero cutout) — rendered as the "ASSETS PRO" card, like players. */
+  heroUrl?: string | null;
+  /** Profile-image endpoint for the hero upload (admin overrides per coach). */
+  imageUploadUrl?: string;
 }) {
   const router = useRouter();
   const [busy, setBusy] = React.useState(false);
@@ -78,11 +85,35 @@ export default function CoachMediaManager({
 
   return (
     <div className="space-y-6">
-      <div className="space-y-1">
-        <h2 className="font-bh-display text-xl font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-          Multimedia
+      {/* ASSETS PRO (hero) — el asset Pro del DT, en Multimedia como players. */}
+      <section className="grid gap-5 rounded-bh-lg border border-bh-lime/20 bg-bh-surface-1 p-5">
+        <div className="space-y-1">
+          <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-lime">
+            Pro layout
+          </p>
+          <h2 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+            Asset Pro (hero)
+          </h2>
+          <p className="text-[13px] text-bh-fg-3">
+            Imagen recortada en <strong className="text-bh-fg-2">PNG (fondo transparente)</strong> que
+            protagoniza el hero de tu página en el layout Pro.
+          </p>
+        </div>
+        {isPro ? (
+          <CoachImageUploader mode="hero" currentUrl={heroUrl} uploadUrl={imageUploadUrl} />
+        ) : (
+          <p className="max-w-[460px] text-[12px] leading-[1.5] text-bh-fg-4">
+            Activá Pro para subir tu asset recortado y habilitar el hero del layout Pro.
+          </p>
+        )}
+      </section>
+
+      {/* TU CATÁLOGO — header + tabs Fotografías/Videos, espejo de players. */}
+      <div className="space-y-1 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+        <h2 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+          Tu catálogo
         </h2>
-        <p className="text-sm text-bh-fg-3">
+        <p className="text-[13px] text-bh-fg-3">
           Fotos y videos de tu trabajo. Cada archivo se publica recién cuando el equipo lo aprueba.
         </p>
         <p className="text-[12px] text-bh-fg-4">
@@ -96,20 +127,38 @@ export default function CoachMediaManager({
         <p className={`text-sm ${msg.ok ? "text-bh-success" : "text-bh-danger"}`}>{msg.text}</p>
       )}
 
-      <PhotoUploader busy={busy} onUpload={upload} atLimit={photosFull} limitLabel={photoLimit} />
-      <VideoUploader busy={busy} onUpload={upload} atLimit={videosFull} />
-
-      <MediaSection title={`Fotos · ${photoCounter}`} empty="Todavía no subiste fotos.">
-        {photos.map((item) => (
-          <MediaCard key={item.id} item={item} busy={busy} onDelete={() => onDelete(item.id)} />
-        ))}
-      </MediaSection>
-
-      <MediaSection title={`Videos · ${videoCounter}`} empty="Todavía no agregaste videos.">
-        {videos.map((item) => (
-          <MediaCard key={item.id} item={item} busy={busy} onDelete={() => onDelete(item.id)} />
-        ))}
-      </MediaSection>
+      <Tabs
+        aria-label="Catálogo multimedia"
+        variant="underlined"
+        classNames={{
+          tabList: "gap-6 w-full relative rounded-none p-0 border-b border-white/[0.06]",
+          cursor: "w-full bg-bh-lime",
+          tab: "max-w-fit px-0 h-12",
+          tabContent:
+            "text-bh-fg-3 group-data-[selected=true]:text-bh-fg-1 group-data-[selected=true]:font-semibold font-medium",
+        }}
+      >
+        <Tab key="photos" title={`Fotografías (${photoCounter})`}>
+          <div className="space-y-4 pt-4">
+            <PhotoUploader busy={busy} onUpload={upload} atLimit={photosFull} limitLabel={photoLimit} />
+            <MediaSection empty="Todavía no subiste fotos.">
+              {photos.map((item) => (
+                <MediaCard key={item.id} item={item} busy={busy} onDelete={() => onDelete(item.id)} />
+              ))}
+            </MediaSection>
+          </div>
+        </Tab>
+        <Tab key="videos" title={`Videos & Highlights (${videoCounter})`}>
+          <div className="space-y-4 pt-4">
+            <VideoUploader busy={busy} onUpload={upload} atLimit={videosFull} />
+            <MediaSection empty="Todavía no agregaste videos.">
+              {videos.map((item) => (
+                <MediaCard key={item.id} item={item} busy={busy} onDelete={() => onDelete(item.id)} />
+              ))}
+            </MediaSection>
+          </div>
+        </Tab>
+      </Tabs>
     </div>
   );
 }
@@ -252,20 +301,24 @@ function MediaSection({
   empty,
   children,
 }: {
-  title: string;
+  title?: string;
   empty: string;
   children: React.ReactNode;
 }) {
   const hasChildren = React.Children.count(children) > 0;
   return (
-    <section className="grid gap-3 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
-      <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-        {title}
-      </h3>
+    <section className="grid gap-3">
+      {title ? (
+        <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+          {title}
+        </h3>
+      ) : null}
       {hasChildren ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">{children}</div>
       ) : (
-        <p className="text-[12px] text-bh-fg-4">{empty}</p>
+        <p className="rounded-bh-lg border border-dashed border-white/[0.10] bg-bh-surface-1/40 p-8 text-center text-[12px] text-bh-fg-4">
+          {empty}
+        </p>
       )}
     </section>
   );

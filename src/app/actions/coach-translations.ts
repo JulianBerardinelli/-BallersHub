@@ -8,10 +8,37 @@ import { revalidatePath } from "next/cache";
 
 export type CoachTranslationActionResult = { success: boolean; message?: string };
 
-// es is the native locale (stored on coach_profiles); only en/it/pt are
-// overrides held in coach_profile_translations.
-const TRANSLATABLE_LOCALES = ["en", "it", "pt"] as const;
+// es is the native locale (stored on coach_profiles); the override locales are
+// held in coach_profile_translations.
+const TRANSLATABLE_LOCALES = ["en", "it", "pt", "de", "fr", "fi"] as const;
 type TranslatableLocale = (typeof TRANSLATABLE_LOCALES)[number];
+
+// Tier cap (decisión 2a): es + up to 3 overrides = 4 total. Mirrors the player
+// translation action (tierLimit=4). A brand-new locale only counts against the
+// cap; an already-published locale can always be re-saved, and deletes are
+// never gated.
+const TIER_LIMIT = 4;
+
+/**
+ * Locales the coach already publishes = es (always) + every distinct locale
+ * with a row in coach_profile_translations. Direct query (not
+ * getAvailableCoachLocales, which filters through the 4-value CONTENT_LOCALES
+ * and would silently drop de/fr/fi). Used only when ADDING a new locale.
+ */
+async function getPublishedCoachLocales(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>,
+  coachId: string,
+): Promise<string[]> {
+  const { data } = await supabase
+    .from("coach_profile_translations")
+    .select("locale")
+    .eq("coach_id", coachId);
+  const locales = new Set<string>(["es"]);
+  for (const row of data ?? []) {
+    if (row.locale) locales.add(row.locale as string);
+  }
+  return [...locales];
+}
 
 const fieldText = z
   .union([z.string().trim().max(5000, "Texto demasiado largo."), z.literal(""), z.null(), z.undefined()])
@@ -83,6 +110,14 @@ export async function saveCoachTranslation(
       .eq("locale", locale);
     if (error) return { success: false, message: error.message };
   } else {
+    // Tier-cap guard (decisión 2a): publishing a brand-new locale counts
+    // against TIER_LIMIT. Re-saving an already-published locale is allowed;
+    // the all-empty (unpublish/delete) branch above is never gated.
+    const available = await getPublishedCoachLocales(supabase, coach.id);
+    if (!available.includes(locale) && available.length >= TIER_LIMIT) {
+      return { success: false, message: "Tu plan permite hasta 3 idiomas además del español." };
+    }
+
     const { error } = await supabase.from("coach_profile_translations").upsert(
       {
         coach_id: coach.id,

@@ -151,6 +151,84 @@ const COPY: Record<Locale, Copy> = {
     ctaManage: "Gerenciar assinatura",
     help: "Alguma dúvida sobre a cobrança? Responda este e-mail e te ajudamos.",
   },
+  de: {
+    eyebrow: "Abonnement bestätigt",
+    heading: (n) => `Alles bereit, ${n}!`,
+    preheader: (n, p) => `${n}, Ihr ${p}-Tarif ist jetzt aktiv.`,
+    activated: (p) => (
+      <>
+        Ihr <strong>{p}</strong>-Tarif ist jetzt aktiv.
+      </>
+    ),
+    trialLine: (d, a) =>
+      `Ihre kostenlose Testphase läuft bis zum ${d}. Wenn Sie nicht vorher kündigen, buchen wir automatisch ${a} ab.`,
+    activeLine: (p, a) => `Ihr Jahresabonnement für ${p} ist jetzt für ${a} aktiv.`,
+    nextChargeLine: (d) => `Nächste Abbuchung: ${d}.`,
+    step1: {
+      title: "Nutzen Sie die nächsten Tage",
+      body: "In diesem Zeitraum haben Sie vollen Zugriff auf alle Pro-Funktionen. Laden Sie Material hoch, vervollständigen Sie Ihr Profil und machen Sie es bereit, um aufzufallen.",
+    },
+    step2: {
+      title: "Verwalten Sie Ihr Konto jederzeit",
+      badge: "Self-Service",
+      body: "Unter Einstellungen → Abonnement können Sie Ihren Status einsehen, Rechnungen herunterladen und bei Bedarf kündigen. Ohne Anrufe, ohne Papierkram.",
+    },
+    ctaDashboard: "Zu meinem Dashboard",
+    ctaManage: "Abonnement verwalten",
+    help: "Fragen zur Abrechnung? Antworten Sie einfach auf diese E-Mail, und wir helfen Ihnen.",
+  },
+  fr: {
+    eyebrow: "Abonnement confirmé",
+    heading: (n) => `Tout est prêt, ${n} !`,
+    preheader: (n, p) => `${n}, votre forfait ${p} est désormais actif.`,
+    activated: (p) => (
+      <>
+        Votre forfait <strong>{p}</strong> est désormais actif.
+      </>
+    ),
+    trialLine: (d, a) =>
+      `Votre essai gratuit court jusqu'au ${d}. Si vous n'annulez pas avant cette date, nous vous débiterons automatiquement de ${a}.`,
+    activeLine: (p, a) => `Votre abonnement annuel à ${p} est désormais actif pour ${a}.`,
+    nextChargeLine: (d) => `Prochain prélèvement : ${d}.`,
+    step1: {
+      title: "Profitez des prochains jours",
+      body: "Vous avez un accès complet à toutes les fonctionnalités Pro pendant cette période. Importez du contenu, complétez votre profil et préparez-le pour vous démarquer.",
+    },
+    step2: {
+      title: "Gérez votre compte quand vous le souhaitez",
+      badge: "Self-service",
+      body: "Dans Paramètres → Abonnement, vous pouvez consulter votre statut, télécharger vos factures et résilier si nécessaire. Sans appels, sans paperasse.",
+    },
+    ctaDashboard: "Accéder à mon tableau de bord",
+    ctaManage: "Gérer l'abonnement",
+    help: "Une question sur la facturation ? Répondez simplement à cet e-mail et nous vous aiderons.",
+  },
+  fi: {
+    eyebrow: "Tilaus vahvistettu",
+    heading: (n) => `Kaikki valmista, ${n}!`,
+    preheader: (n, p) => `${n}, ${p}-tilauksesi on nyt aktiivinen.`,
+    activated: (p) => (
+      <>
+        <strong>{p}</strong>-tilauksesi on nyt aktiivinen.
+      </>
+    ),
+    trialLine: (d, a) =>
+      `Maksuton kokeilujaksosi kestää ${d} asti. Jos et peruuta ennen sitä, veloitamme automaattisesti ${a}.`,
+    activeLine: (p, a) => `Vuositilauksesi ${p} on nyt aktiivinen hintaan ${a}.`,
+    nextChargeLine: (d) => `Seuraava veloitus: ${d}.`,
+    step1: {
+      title: "Hyödynnä tulevat päivät",
+      body: "Sinulla on täysi pääsy kaikkiin Pro-ominaisuuksiin tämän jakson ajan. Lataa materiaalia, täydennä profiilisi ja tee siitä valmis erottumaan.",
+    },
+    step2: {
+      title: "Hallinnoi tiliäsi milloin tahansa",
+      badge: "Itsepalvelu",
+      body: "Kohdasta Asetukset → Tilaus voit tarkistaa tilasi, ladata laskut ja peruuttaa tarvittaessa. Ei puheluita, ei paperitöitä.",
+    },
+    ctaDashboard: "Siirry hallintapaneeliini",
+    ctaManage: "Hallinnoi tilausta",
+    help: "Onko laskutuksesta kysyttävää? Vastaa tähän sähköpostiin, niin autamme.",
+  },
 };
 
 /**

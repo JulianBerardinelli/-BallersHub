@@ -1,0 +1,272 @@
+{
+  "hero": {
+    "eyebrow": "Qui nous sommes",
+    "titleLine1": "Là où les footballeurs",
+    "titleHighlight": "se font valoir",
+    "titleLine2": "et atteignent leurs objectifs.",
+    "description": "Nous centralisons le parcours, les statistiques, les données et les médias de chaque joueur et de chaque agence dans un portfolio web avec son propre lien, optimisé pour le SEO. Nous construisons la plateforme de référence mondiale — en commençant par l'Amérique latine et l'Espagne.",
+    "primaryCta": "Créer mon portfolio",
+    "secondaryCta": "Parler à l'équipe",
+    "imageAlt": "L'équipe BallersHub lors d'une journée de scouting"
+  },
+  "pillars": {
+    "mission": {
+      "title": "Mission",
+      "tag": "Notre objectif",
+      "description": "Transformer chaque footballeur — professionnel, semi-professionnel ou amateur — et chaque agence en un portfolio web professionnel : un lien unique où ils centralisent parcours, statistiques, données et médias pour se faire valoir et propulser leur carrière sur internet."
+    },
+    "vision": {
+      "title": "Vision",
+      "tag": "Où nous allons",
+      "description": "Être le site numéro un au niveau mondial où les footballeurs se présentent, montrent leurs données et atteignent leurs objectifs. La référence mondiale lorsqu'un club, un journaliste ou un recruteur cherche un talent — à tout niveau de compétition."
+    },
+    "objectives": {
+      "title": "Objectifs",
+      "tag": "Ce que nous voulons accomplir",
+      "description": "Commencer par l'Amérique latine et l'Espagne et nous étendre aux marchés mondiaux. Que tout footballeur ou toute agence puisse se faire valoir en ligne avec un portfolio évolutif, prêt pour le SEO, avec des avis vérifiés (prochaine bêta) et connecté à un futur réseau de scouting actif."
+    }
+  },
+  "audiencesHeader": {
+    "eyebrow": "Pour qui nous le construisons",
+    "titlePlain": "Conçu pour tout",
+    "titleHighlight": "l'écosystème du football",
+    "description": "Le produit est conçu pour que le joueur soit au centre, que les agences développent leur portefeuille et que l'écosystème (clubs, communauté et presse) découvre les talents avec des données réelles.",
+    "primaryGroupTitle": "Créent leur portfolio",
+    "secondaryGroupTitle": "Découvrent talents et contenus"
+  },
+  "audiences": {
+    "players": {
+      "title": "Joueurs et athlètes",
+      "subtitle": "Public principal — le protagoniste",
+      "description": "Vous êtes au centre de la plateforme. Professionnel, semi-professionnel ou amateur : vous montez votre portfolio en quelques minutes et commencez à vous faire valoir avec votre propre lien prêt à partager.",
+      "bullets": [
+        "Parcours, statistiques et données physiques centralisés",
+        "Galerie de médias (photos, clips, matchs)",
+        "Lien unique optimisé pour le SEO",
+        "Avis vérifiés (prochaine bêta)"
+      ],
+      "cta": "Créer mon portfolio"
+    },
+    "agencies": {
+      "title": "Agences et agents",
+      "subtitle": "Partenaire — développent leur portefeuille",
+      "description": "Présentez tout le portefeuille de joueurs que vous représentez avec un site professionnel, une identité propre et des données consolidées. Positionnez-vous sur internet comme une agence sérieuse.",
+      "bullets": [
+        "Portfolio d'agence à votre image",
+        "Portefeuille complet de vos représentés",
+        "Tableau de bord avec des métriques agrégées",
+        "Onboarding assisté pour vos joueurs"
+      ],
+      "cta": "Je suis une agence"
+    },
+    "clubs": {
+      "title": "Clubs professionnels",
+      "subtitle": "Cherchent un vrai talent",
+      "description": "Départements sportifs et staffs techniques qui filtrent les candidats par poste, âge, métriques et disponibilité — avec des données vérifiées, pas des rumeurs."
+    },
+    "fans": {
+      "title": "Communauté et supporters",
+      "subtitle": "Suivent les carrières de près",
+      "description": "Le football appartient aux gens. Des supporters qui veulent connaître la carrière complète de chaque joueur, son parcours et ses chiffres — sans filtres éditoriaux."
+    },
+    "journalists": {
+      "title": "Journalistes sportifs",
+      "subtitle": "Une couverture avec des données",
+      "description": "Une source fiable et toujours à jour pour les enquêtes, articles et reportages — avec stats, parcours et références vérifiables à portée de lien."
+    }
+  },
+  "values": {
+    "ownLink": {
+      "title": "Un lien propre pour se faire valoir",
+      "description": "Chaque joueur et chaque agence dispose de son URL unique. Partagez-la par WhatsApp, e-mail ou réseaux sociaux et ouvrez la porte aux clubs et aux agents."
+    },
+    "seo": {
+      "title": "Optimisé pour le SEO",
+      "description": "Conçu pour apparaître sur Google quand quelqu'un cherche votre nom, votre poste ou votre club. Votre portfolio travaille pour vous 24h/24, 7j/7."
+    },
+    "centralized": {
+      "title": "Toute votre carrière centralisée",
+      "description": "Parcours, statistiques, données physiques et médias (photos, clips, matchs) en un seul endroit — facile à maintenir, prêt à présenter."
+    },
+    "reviews": {
+      "title": "Avis vérifiés",
+      "description": "Des avis signés par des comptes vérifiés (staff technique, recruteurs, anciens coéquipiers) qui attestent de votre parcours. Prochaine bêta."
+    },
+    "agencies": {
+      "title": "Pensé pour les agences",
+      "description": "Ajoutez tout votre portefeuille de joueurs, montrez des données consolidées et positionnez l'identité de votre agence avec un site professionnel."
+    },
+    "scouting": {
+      "title": "Réseau de scouting (à venir)",
+      "description": "Une base de données vivante où clubs et recruteurs découvrent les talents par filtres réels : poste, âge, métriques et disponibilité."
+    }
+  },
+  "milestones": {
+    "start": {
+      "year": "Août 2025",
+      "title": "Le projet démarre",
+      "description": "Nous avons constaté le même problème chez les joueurs et les agences : des fiches en PDF, des liens cassés vers des vidéos YouTube, des réseaux informels. Aucun portfolio professionnel avec une identité propre. Nous avons décidé de construire la solution."
+    },
+    "prototype": {
+      "year": "Nov 2025",
+      "title": "Premier prototype du portfolio",
+      "description": "Nous avons monté la première version du produit : portfolio avec lien unique, saisie du parcours, données physiques et médias. Tests internes avec des joueurs et agences proches."
+    },
+    "beta": {
+      "year": "Mars 2026",
+      "title": "Bêta fermée · pilotes en Amérique latine + Espagne",
+      "description": "Nous avons validé le produit avec un groupe restreint de joueurs et d'agences pilotes en Amérique latine et en Espagne. Chaque portfolio naît optimisé pour le SEO et prêt à être partagé avec son propre lien."
+    },
+    "launch": {
+      "year": "Juin 2026",
+      "title": "Lancement officiel",
+      "description": "Ouverture publique pour les joueurs et les agences en Amérique latine et en Espagne. Accès libre au portfolio avec lien unique, données centralisées et positionnement sur internet dès le premier jour."
+    },
+    "next": {
+      "year": "Prochainement",
+      "title": "Avis vérifiés + réseau de scouting mondial",
+      "description": "Des avis signés par des comptes vérifiés (staff technique, recruteurs, anciens coéquipiers) et une base de données active où les clubs découvrent les talents par poste, âge et métriques. Le chemin pour devenir le site n°1 au niveau mondial."
+    }
+  },
+  "stats": {
+    "projectStart": {
+      "value": "Août 2025",
+      "label": "Début du projet",
+      "description": "8 mois de construction avec des joueurs et agences pilotes."
+    },
+    "launch": {
+      "value": "Juin 2026",
+      "label": "Lancement officiel",
+      "description": "Ouverture publique en Amérique latine et en Espagne avec le SEO dès le jour 1."
+    },
+    "seo": {
+      "value": "100%",
+      "label": "Optimisés pour le SEO",
+      "description": "Chaque portfolio naît prêt à apparaître sur Google."
+    },
+    "reviews": {
+      "value": "Bêta",
+      "label": "Avis vérifiés",
+      "description": "Des avis signés par des comptes vérifiés — prochainement."
+    }
+  },
+  "team": {
+    "julian": {
+      "role": "Co-fondateur & Développeur",
+      "bio": "Footballeur professionnel, concepteur et développeur de BallersHub. Il a vécu dans sa propre chair l'absence d'une plateforme sérieuse permettant à un joueur de se faire valoir professionnellement — alors il a décidé de la construire. Il combine terrain, code et produit pour que chaque portfolio donne le sentiment d'avoir été fait par quelqu'un qui comprend le sport de l'intérieur."
+    },
+    "validation": {
+      "name": "Federico et Felipe Sarra",
+      "role": "Joueurs · Produit",
+      "bio": "Footballeurs et créateurs avec un regard de l'intérieur. Ils valident les profils, testent la plateforme et maintiennent le standard du réseau. Ils apportent aussi des analyses de marché et des propositions d'amélioration concrètes pour que BallersHub continue de grandir depuis le football réel."
+    }
+  },
+  "partners": {
+    "techPartner": "Partenaire technologique",
+    "federation": "Fédération",
+    "alliedClub": "Club partenaire"
+  },
+  "cta": {
+    "eyebrow": "Rejoignez BallersHub",
+    "title": "Votre portfolio. Votre lien. Votre carrière.",
+    "description": "Centralisez votre parcours, montrez vos données et positionnez-vous sur internet. Pour les joueurs qui veulent se faire valoir professionnellement et pour les agences qui veulent développer leur identité.",
+    "primaryCta": "Créer mon portfolio",
+    "secondaryCta": "Je suis une agence"
+  },
+  "sections": {
+    "missionVision": {
+      "eyebrow": "Mission · Vision · Objectifs",
+      "titlePlain": "Trois piliers qui soutiennent",
+      "titleHighlight": "chaque décision",
+      "description": "Mission, vision et objectifs ne sont pas des phrases sur un mur : ce sont le filtre avec lequel nous décidons quoi construire, quoi prioriser et comment accompagner joueurs et agences."
+    },
+    "values": {
+      "eyebrow": "Ce qui nous rend différents",
+      "titlePlain": "Ce que vous trouverez dans",
+      "titleHighlight": "votre portfolio",
+      "description": "Ce n'est pas une énième fiche de joueur en PDF. C'est une plateforme conçue pour que votre carrière ou votre agence se fassent valoir professionnellement sur internet — avec une identité propre, des données centralisées et une vraie connexion avec l'écosystème."
+    },
+    "impact": {
+      "eyebrow": "État du projet",
+      "titlePlain": "En route vers le",
+      "titleHighlight": "lancement",
+      "description": "Nous avons construit en silence pendant 8 mois avec des joueurs et agences pilotes. En juin 2026, nous ouvrons la plateforme pour l'Amérique latine et l'Espagne."
+    },
+    "story": {
+      "eyebrow": "Notre histoire",
+      "titlePlain": "D'une idée sur le terrain à un réseau",
+      "titleHighlight": "en expansion",
+      "description": "Chaque étape est marquée par des retours réels de la communauté. Nous itérons vite, nous écoutons d'abord et nous construisons sur le long terme."
+    },
+    "team": {
+      "eyebrow": "L'équipe",
+      "titlePlain": "De vraies personnes derrière",
+      "titleHighlight": "chaque validation",
+      "slogan": "De Joueurs, pour Joueurs.",
+      "description": "Nous ne sommes pas une équipe de bureau qui regarde le football de l'extérieur. Nous sommes des joueurs en activité, d'anciens joueurs et des analystes qui comprenons ce dont un footballeur a besoin pour se faire valoir — parce que nous l'avons vécu dans notre propre chair."
+    },
+    "partners": {
+      "eyebrow": "Partenaires et alliés",
+      "titlePlain": "Font confiance à"
+    }
+  },
+  "heroExtra": {
+    "betaBadge": "Bêta · Lancement Juin 2026",
+    "humanBadge": "Validés par des humains",
+    "photoSlot": "Photo de l'équipe",
+    "figureStartValue": "Août 2025",
+    "figureStartLabel": "Démarrage du projet",
+    "figureLaunchValue": "Juin 2026",
+    "figureLaunchLabel": "Lancement officiel"
+  },
+  "meta": {
+    "title": "À propos",
+    "description": "Découvrez l'équipe, la mission, la vision et les valeurs derrière BallersHub : le hub où le talent footballistique gagne une visibilité réelle et vérifiée."
+  },
+  "sections": {
+    "missionVision": {
+      "eyebrow": "Mission · Vision · Objectifs",
+      "titlePlain": "Trois piliers qui soutiennent",
+      "titleHighlight": "chaque décision",
+      "description": "Mission, vision et objectifs ne sont pas des phrases sur un mur : ce sont le filtre avec lequel nous décidons quoi construire, quoi prioriser et comment accompagner joueurs et agences."
+    },
+    "values": {
+      "eyebrow": "Ce qui nous rend différents",
+      "titlePlain": "Ce que vous trouverez dans",
+      "titleHighlight": "votre portfolio",
+      "description": "Ce n'est pas une énième fiche de joueur en PDF. C'est une plateforme conçue pour que votre carrière ou votre agence se fassent valoir professionnellement sur internet — avec une identité propre, des données centralisées et une vraie connexion avec l'écosystème."
+    },
+    "impact": {
+      "eyebrow": "État du projet",
+      "titlePlain": "En route vers le",
+      "titleHighlight": "lancement",
+      "description": "Nous avons construit en silence pendant 8 mois avec des joueurs et agences pilotes. En juin 2026, nous ouvrons la plateforme pour l'Amérique latine et l'Espagne."
+    },
+    "story": {
+      "eyebrow": "Notre histoire",
+      "titlePlain": "D'une idée sur le terrain à un réseau",
+      "titleHighlight": "en expansion",
+      "description": "Chaque étape est marquée par des retours réels de la communauté. Nous itérons vite, nous écoutons d'abord et nous construisons sur le long terme."
+    },
+    "team": {
+      "eyebrow": "L'équipe",
+      "titlePlain": "De vraies personnes derrière",
+      "titleHighlight": "chaque validation",
+      "slogan": "« De Joueurs, pour Joueurs. »",
+      "description": "Nous ne sommes pas une équipe de bureau qui regarde le football de l'extérieur. Nous sommes des joueurs en activité, d'anciens joueurs et des analystes qui comprenons ce dont un footballeur a besoin pour se faire valoir — parce que nous l'avons vécu dans notre propre chair."
+    },
+    "partners": {
+      "eyebrow": "Partenaires et alliés",
+      "titlePlain": "Font confiance à"
+    }
+  },
+  "heroExtra": {
+    "betaBadge": "Bêta · Lancement Juin 2026",
+    "humanBadge": "Validés par des humains",
+    "photoBadge": "Photo de l'équipe",
+    "figureStartValue": "Août 2025",
+    "figureStartLabel": "Démarrage du projet",
+    "figureLaunchValue": "Juin 2026",
+    "figureLaunchLabel": "Lancement officiel"
+  }
+}

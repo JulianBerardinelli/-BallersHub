@@ -14,9 +14,9 @@ export default async function CoachMultimediaPage() {
 
   const { data: profile } = await supabase
     .from("coach_profiles")
-    .select("id, full_name")
+    .select("id, full_name, hero_url")
     .eq("user_id", user.id)
-    .maybeSingle<{ id: string; full_name: string }>();
+    .maybeSingle<{ id: string; full_name: string; hero_url: string | null }>();
 
   if (!profile) {
     return (
@@ -69,5 +69,5 @@ export default async function CoachMultimediaPage() {
       : null,
   ).isPro;
 
-  return <CoachMediaManager items={items} isPro={isPro} />;
+  return <CoachMediaManager items={items} isPro={isPro} heroUrl={profile.hero_url} />;
 }

@@ -1,0 +1,85 @@
+{
+  "common": {
+    "backToDashboard": "Siirry hallintapaneeliini",
+    "backToHome": "Takaisin etusivulle",
+    "backToPricing": "Takaisin tilauksiin",
+    "processorMercadoPago": "Mercado Pago",
+    "processorStripe": "Stripe"
+  },
+  "meta": {
+    "checkoutTitle": "Kassa",
+    "checkoutDescription": "Viimeistele BallersHubin Pro-tilauksesi.",
+    "pendingTitle": "Maksu käsittelyssä",
+    "failureTitle": "Maksu hylätty",
+    "receiptTitle": "Kuitti",
+    "successTitle": "Maksu vahvistettu"
+  },
+  "plan": {
+    "canceledNotice": "Peruutit maksun. Voit yrittää uudelleen milloin tahansa — tietosi pysyvät tallessa.",
+    "processorNotReady": {
+      "mpTitle": "Mercado Pago ei ole vielä määritetty tässä ympäristössä.",
+      "stripeTitle": "Stripe ei ole vielä määritetty tässä ympäristössä.",
+      "body": "Viimeistelemme yhteyttä tähän maksutapaan. Sillä välin voit kokeilla maksutapaa <altLink>{altLabel}</altLink> tai kirjoittaa meille osoitteeseen <supportEmail>info@ballershub.co</supportEmail>, niin ilmoitamme sinulle, kun se on valmis."
+    }
+  },
+  "processing": {
+    "title": "Käsittelemme maksuasi",
+    "statusConfirming": "Vahvistetaan maksunvälittäjän kanssa…",
+    "statusVerifying": "Tarkistetaan maksunvälittäjän kanssa…",
+    "statusTakingLonger": "Tämä kestää hieman tavallista kauemmin…",
+    "secureNote": "Maksusi tarkistetaan turvallisesti.",
+    "doNotCloseNote": "Älä sulje tätä ikkunaa. Ohjaamme sinut vahvistukseen heti, kun se on valmis."
+  },
+  "success": {
+    "title": "Valmista! <shimmer>{plan}</shimmer>-tilauksesi on aktiivinen",
+    "defaultPlanName": "Pro",
+    "intro": "Lähetimme tiedot sähköpostiisi. {trialDays} päivän kokeilujakso alkoi tänään, ja voit perua sen maksutta milloin tahansa 3 päivän kuluessa ensimmäisestä veloituksesta.",
+    "summary": {
+      "plan": "Tilaus",
+      "billableTotal": "Laskutettava kokonaissumma",
+      "amountPerYear": "{amount} {currency} / vuosi",
+      "trialActiveUntil": "Kokeilu aktiivinen",
+      "processor": "Maksunvälittäjä",
+      "emailNote": "Jos et näe vahvistussähköpostia 5 minuutin kuluessa, kirjoita meille osoitteeseen <supportEmail>info@ballershub.co</supportEmail>."
+    },
+    "processingFallback": "Viimeistelemme maksusi käsittelyä. Tämä voi kestää muutaman sekunnin.",
+    "viewReceipt": "Näytä kuitti",
+    "completeProfile": "Täydennä profiilini",
+    "onboardingNote": "Tilauksesi on aktiivinen. Sen käyttöä varten tarvitsemme vielä muutaman tiedon sinusta — siihen menee 2–3 minuuttia."
+  },
+  "failure": {
+    "title": "Emme voineet käsitellä maksuasi",
+    "defaultBody": "Maksunvälittäjä hylkäsi tapahtuman. Emme veloittaneet sinulta mitään. Kokeile toisella kortilla tai maksutavalla — tietosi pysyvät tallessa.",
+    "retry": "Yritä maksua uudelleen",
+    "reasons": {
+      "insufficientAmount": "Kortilla ei ole riittävää katetta. Kokeile toista maksutapaa tai ota yhteyttä pankkiisi.",
+      "badFilledCard": "Kortin tiedot eivät ole oikein. Tarkista numero, viimeinen voimassaolopäivä ja turvakoodi ja yritä uudelleen.",
+      "highRisk": "Maksunvälittäjä havaitsi tapahtumassa riskin. Kokeile toisella kortilla tai ota yhteyttä pankkiisi veloituksen hyväksymiseksi."
+    }
+  },
+  "pending": {
+    "title": "Käsittelemme maksuasi",
+    "body": "Jotkin maksutavat (käteinen, tilisiirto, veloitus Argentiinassa) kestävät muutaman minuutin vahvistua. Lähetämme sinulle sähköpostin heti, kun maksu on kirjautunut — sinun ei tarvitse tehdä muuta."
+  },
+  "receipt": {
+    "backToConfirmation": "Takaisin vahvistukseen",
+    "resendByEmail": "Lähetä uudelleen sähköpostitse",
+    "downloadPdf": "Lataa PDF",
+    "subscriptionReceipt": "Tilauskuitti",
+    "number": "Nro {number}",
+    "customer": "Asiakas",
+    "billing": "Laskutus",
+    "noBillingData": "Ei tallennettuja tietoja",
+    "concept": "Erittely",
+    "detail": "Tiedot",
+    "total": "Yhteensä",
+    "lineDescription": "Vuositilaus · {trialDays} päivän maksuton kokeilu",
+    "trialActiveUntil": "Kokeilu aktiivinen {date} asti",
+    "currencyPerYear": "{currency} / vuosi",
+    "subtotal": "Välisumma",
+    "trialLine": "Kokeilu {trialDays} päivää",
+    "totalDueToday": "Maksettava tänään yhteensä",
+    "processedBy": "Käsitellyt <strong>{processor}</strong>. Automaattinen veloitus {date}.",
+    "supportLine": "Peruttavissa maksutta 3 päivän kuluessa veloituksesta. Tuki: <supportEmail>info@ballershub.co</supportEmail>."
+  }
+}

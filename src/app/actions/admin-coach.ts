@@ -7,6 +7,7 @@
 import { z } from "zod";
 import { ensureAdminActor } from "@/lib/admin/auth";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
+import { ensureUniqueTeamSlug, findExistingTeamIdByName, slugify } from "@/lib/admin/teams";
 import { revalidatePath } from "next/cache";
 import {
   recordAdminCoachEdit,
@@ -117,6 +118,23 @@ const yearField = z
   })
   .nullable();
 
+const optUuid = z
+  .union([z.string().uuid(), z.literal(""), z.null(), z.undefined()])
+  .transform((v) => (v ? v : null))
+  .nullable();
+
+// Proposed-team payload (team not yet in the catalog). Accepted for shape
+// parity with the owner submit; live materialization stores the club text.
+const proposedTeamSchema = z
+  .object({
+    name: z.string().trim().max(160).optional().nullable(),
+    countryCode: z.string().trim().max(2).optional().nullable(),
+    countryName: z.string().trim().max(120).optional().nullable(),
+    transfermarktUrl: z.string().trim().max(500).optional().nullable(),
+  })
+  .nullable()
+  .optional();
+
 const careerSchema = z.object({
   coachId: z.string().uuid(),
   items: z
@@ -125,8 +143,13 @@ const careerSchema = z.object({
         club: z.string().trim().min(1, "Club requerido."),
         roleTitle: optText(120),
         division: optText(120),
+        divisionId: optUuid,
+        secondaryDivision: optText(120),
+        secondaryDivisionId: optUuid,
         startYear: yearField,
         endYear: yearField,
+        teamId: optUuid,
+        proposedTeam: proposedTeamSchema,
       }),
     )
     .max(60),
@@ -170,15 +193,64 @@ export async function adminReplaceCoachCareer(
 
   const { data: oldCareer } = await admin.from("coach_career_items").select("id").eq("coach_id", coachId);
   const oldCareerIds = (oldCareer ?? []).map((r) => r.id as string);
-  if (items.length > 0) {
+
+  // Resolve proposed teams → pending catalog teams (same as the revision
+  // approve) so an admin live edit also seeds /teams for completion. Deduped by
+  // name; existing teams reused.
+  const createdTeams = new Map<string, string>();
+  const resolved: Array<(typeof items)[number] & { resolvedTeamId: string | null }> = [];
+  for (const it of items) {
+    let teamId = it.teamId ?? null;
+    if (!teamId && it.proposedTeam) {
+      const displayName = (it.proposedTeam.name || it.club || "").trim();
+      if (displayName) {
+        const key = displayName.toLowerCase();
+        const cached = createdTeams.get(key);
+        if (cached) {
+          teamId = cached;
+        } else {
+          let existing = await findExistingTeamIdByName(displayName, admin);
+          if (!existing) {
+            const slug = await ensureUniqueTeamSlug(slugify(displayName), admin);
+            const ins = await admin
+              .from("teams")
+              .insert({
+                name: displayName,
+                slug,
+                country: it.proposedTeam.countryName ?? null,
+                country_code: it.proposedTeam.countryCode ?? null,
+                category: it.division ?? null,
+                transfermarkt_url: it.proposedTeam.transfermarktUrl ?? null,
+                status: "pending",
+                visibility: "public",
+                requested_by_user_id: gate.actor.actorId,
+              })
+              .select("id")
+              .single<{ id: string }>();
+            if (ins.error) return { success: false, message: `Equipo propuesto: ${ins.error.message}` };
+            existing = ins.data.id;
+          }
+          teamId = existing;
+          createdTeams.set(key, existing);
+        }
+      }
+    }
+    resolved.push({ ...it, resolvedTeamId: teamId });
+  }
+
+  if (resolved.length > 0) {
     const { error } = await admin.from("coach_career_items").insert(
-      items.map((it) => ({
+      resolved.map((it) => ({
         coach_id: coachId,
         club: it.club,
         role_title: it.roleTitle,
         division: it.division,
+        division_id: it.divisionId ?? null,
+        secondary_division: it.secondaryDivision ?? null,
+        secondary_division_id: it.secondaryDivisionId ?? null,
         start_date: toStartDate(it.startYear),
         end_date: toEndDate(it.endYear),
+        team_id: it.resolvedTeamId,
       })),
     );
     if (error) return { success: false, message: `Trayectoria: ${error.message}` };
@@ -365,8 +437,13 @@ export async function adminSubmitCoachCareerLive(
       club: s.club,
       roleTitle: s.roleTitle,
       division: s.division,
+      divisionId: s.divisionId ?? null,
+      secondaryDivision: s.secondaryDivision ?? null,
+      secondaryDivisionId: s.secondaryDivisionId ?? null,
       startYear: s.startYear,
       endYear: s.endYear,
+      teamId: s.teamId ?? null,
+      proposedTeam: s.proposedTeam ?? null,
     })),
     stats: (input.stats ?? []).map((s) => ({
       season: s.season,
@@ -550,7 +627,7 @@ export async function adminDeleteCoachLicense(
 // player Pro sections); the action itself just writes.
 
 const adminTranslationSchema = z.object({
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
   bio: optText(5000),
   careerObjectives: optText(5000),
   playingStyle: optText(5000),
@@ -617,7 +694,7 @@ export async function adminSaveCoachTranslation(
 
 export async function adminDeleteCoachTranslation(
   coachId: string,
-  locale: "en" | "it" | "pt",
+  locale: "en" | "it" | "pt" | "de" | "fr" | "fi",
 ): Promise<CoachTranslationActionResult> {
   const gate = await ensureAdminActor();
   if (!gate.ok) return { success: false, message: gate.error };

@@ -130,6 +130,78 @@ const COPY: Record<Locale, { approved: Variant; rejected: Variant }> = {
         "Se tiver dúvidas sobre esta revisão, responda este e-mail. Você pode editar e reenviar sua experiência no seu painel.",
     },
   },
+  de: {
+    approved: {
+      preheader: "Wir haben deine Nationalmannschaftserfahrung freigegeben. Sie ist jetzt in deinem Profil sichtbar.",
+      eyebrow: "Nationalmannschaft",
+      heading: (n) => `Deine Nationalmannschaft ist freigegeben, ${n}! 🏅`,
+      intro:
+        "Wir haben deine Nationalmannschaftserfahrung geprüft und freigegeben. Sie ist jetzt auf deinem 'BallersHub-Profil veröffentlicht.",
+      noteLabel: "Anmerkung des Teams",
+      cta: "Meinen Bereich ansehen",
+      footer:
+        "Du kannst jederzeit weitere Erfahrungen oder Fotos in deinem Dashboard hinzufügen. Jede Änderung durchläuft eine kurze Prüfung.",
+    },
+    rejected: {
+      preheader: "Wir haben deine Nationalmannschaftserfahrung geprüft und brauchen einige Anpassungen.",
+      eyebrow: "Nationalmannschaft",
+      heading: (n) => `Wir haben deine Nationalmannschaft geprüft, ${n}`,
+      intro:
+        "Wir haben deine Nationalmannschaftserfahrung geprüft und konnten sie vorerst nicht veröffentlichen. Sieh dir die Anmerkungen an und reiche sie erneut ein, wenn sie bereit ist.",
+      noteLabel: "Anmerkung des Teams",
+      cta: "Meinen Bereich prüfen",
+      footer:
+        "Bei Fragen zu dieser Prüfung antworte einfach auf diese E-Mail. Du kannst deine Erfahrung in deinem Dashboard bearbeiten und erneut einreichen.",
+    },
+  },
+  fr: {
+    approved: {
+      preheader: "Nous avons approuvé ton expérience en sélection nationale. Elle est maintenant visible sur ton profil.",
+      eyebrow: "Sélection nationale",
+      heading: (n) => `Ta Sélection nationale est approuvée, ${n} ! 🏅`,
+      intro:
+        "Nous avons examiné ton expérience en sélection nationale et l'avons approuvée. Elle est maintenant publiée sur ton profil 'BallersHub.",
+      noteLabel: "Note de l'équipe",
+      cta: "Voir ma section",
+      footer:
+        "Tu peux ajouter d'autres expériences ou photos depuis ton tableau de bord à tout moment. Chaque modification passe par une vérification rapide.",
+    },
+    rejected: {
+      preheader: "Nous avons examiné ton expérience en sélection nationale et quelques ajustements sont nécessaires.",
+      eyebrow: "Sélection nationale",
+      heading: (n) => `Nous avons examiné ta Sélection nationale, ${n}`,
+      intro:
+        "Nous avons examiné ton expérience en sélection nationale et n'avons pas pu la publier pour le moment. Consulte les remarques et renvoie-la quand elle sera prête.",
+      noteLabel: "Note de l'équipe",
+      cta: "Revoir ma section",
+      footer:
+        "Si tu as des questions sur cette vérification, réponds simplement à cet e-mail. Tu peux modifier et renvoyer ton expérience depuis ton tableau de bord.",
+    },
+  },
+  fi: {
+    approved: {
+      preheader: "Hyväksyimme maajoukkuekokemuksesi. Se näkyy nyt profiilissasi.",
+      eyebrow: "Maajoukkue",
+      heading: (n) => `Maajoukkuekokemuksesi on hyväksytty, ${n}! 🏅`,
+      intro:
+        "Tarkistimme maajoukkuekokemuksesi ja hyväksyimme sen. Se on nyt julkaistu 'BallersHub-profiilissasi.",
+      noteLabel: "Tiimin huomautus",
+      cta: "Näytä osioni",
+      footer:
+        "Voit lisätä lisää kokemuksia tai kuvia hallintapaneelistasi milloin tahansa. Jokainen muutos käy läpi nopean tarkistuksen.",
+    },
+    rejected: {
+      preheader: "Tarkistimme maajoukkuekokemuksesi ja tarvitsemme muutamia muutoksia.",
+      eyebrow: "Maajoukkue",
+      heading: (n) => `Tarkistimme maajoukkuekokemuksesi, ${n}`,
+      intro:
+        "Tarkistimme maajoukkuekokemuksesi emmekä voineet julkaista sitä toistaiseksi. Katso huomautukset ja lähetä se uudelleen, kun se on valmis.",
+      noteLabel: "Tiimin huomautus",
+      cta: "Tarkista osioni",
+      footer:
+        "Jos sinulla on kysyttävää tästä tarkistuksesta, vastaa tähän sähköpostiin. Voit muokata ja lähettää kokemuksesi uudelleen hallintapaneelistasi.",
+    },
+  },
 };
 
 /**

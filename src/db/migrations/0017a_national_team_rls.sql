@@ -1,12 +1,12 @@
 -- ===============================================================
--- 0016a_national_team_rls.sql
+-- 0017a_national_team_rls.sql
 --
 -- Manual complementario (NO tracked by Drizzle — sin entry en
 -- meta/_journal.json). Aplica: ENABLE RLS + policies + GRANTs para las
 -- tablas `national_team_stints` y `national_team_media` creadas en
--- 0016_late_betty_brant.sql.
+-- 0017_demonic_changeling.sql.
 --
--- Requires: 0016_late_betty_brant.sql aplicado PRIMERO (crea las tablas).
+-- Requires: 0017_demonic_changeling.sql aplicado PRIMERO (crea las tablas).
 -- Aplicar en supabase-dev primero (ciolizjshimyvyonlssq); en prod
 -- (erdvpcfjynkhcrqktozd) SOLO con autorización explícita del owner.
 -- Idempotente: sí (ENABLE RLS no-op si ya activo; DROP POLICY IF EXISTS

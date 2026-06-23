@@ -1,0 +1,85 @@
+{
+  "common": {
+    "backToDashboard": "Aller à mon tableau de bord",
+    "backToHome": "Retour à l'accueil",
+    "backToPricing": "Retour aux offres",
+    "processorMercadoPago": "Mercado Pago",
+    "processorStripe": "Stripe"
+  },
+  "meta": {
+    "checkoutTitle": "Paiement",
+    "checkoutDescription": "Finalisez votre abonnement à l'offre Pro de BallersHub.",
+    "pendingTitle": "Paiement en cours",
+    "failureTitle": "Paiement refusé",
+    "receiptTitle": "Reçu",
+    "successTitle": "Paiement confirmé"
+  },
+  "plan": {
+    "canceledNotice": "Vous avez annulé le paiement. Vous pouvez réessayer quand vous le souhaitez — vos données restent enregistrées.",
+    "processorNotReady": {
+      "mpTitle": "Mercado Pago n'est pas encore configuré dans cet environnement.",
+      "stripeTitle": "Stripe n'est pas encore configuré dans cet environnement.",
+      "body": "Nous finalisons la connexion à ce moyen de paiement. En attendant, vous pouvez essayer avec <altLink>{altLabel}</altLink>, ou nous écrire à <supportEmail>info@ballershub.co</supportEmail> pour que nous vous prévenions dès qu'il sera disponible."
+    }
+  },
+  "processing": {
+    "title": "Traitement de votre paiement",
+    "statusConfirming": "Confirmation auprès du processeur de paiement…",
+    "statusVerifying": "Vérification auprès du processeur de paiement…",
+    "statusTakingLonger": "Cela prend un peu plus de temps que d'habitude…",
+    "secureNote": "Votre paiement est vérifié de manière sécurisée.",
+    "doNotCloseNote": "Ne fermez pas cette fenêtre. Nous vous redirigeons vers la confirmation dès que ce sera prêt."
+  },
+  "success": {
+    "title": "C'est fait ! Votre offre <shimmer>{plan}</shimmer> est active",
+    "defaultPlanName": "Pro",
+    "intro": "Nous vous avons envoyé le détail par e-mail. La période d'essai de {trialDays} jours a commencé aujourd'hui et vous pouvez résilier sans frais à tout moment dans les 3 jours suivant le premier prélèvement.",
+    "summary": {
+      "plan": "Offre",
+      "billableTotal": "Total facturable",
+      "amountPerYear": "{amount} {currency} / an",
+      "trialActiveUntil": "Essai actif jusqu'au",
+      "processor": "Processeur de paiement",
+      "emailNote": "Si vous ne voyez pas l'e-mail de confirmation dans les 5 minutes, écrivez-nous à <supportEmail>info@ballershub.co</supportEmail>."
+    },
+    "processingFallback": "Nous finalisons le traitement de votre paiement. Cela peut prendre quelques secondes.",
+    "viewReceipt": "Voir le reçu",
+    "completeProfile": "Compléter mon profil",
+    "onboardingNote": "Votre abonnement est actif. Pour l'utiliser, nous avons besoin de quelques informations supplémentaires sur vous — cela prend 2 à 3 minutes."
+  },
+  "failure": {
+    "title": "Nous n'avons pas pu traiter votre paiement",
+    "defaultBody": "Le processeur de paiement a refusé l'opération. Rien ne vous a été facturé. Essayez avec une autre carte ou un autre moyen de paiement — vos données restent enregistrées.",
+    "retry": "Réessayer le paiement",
+    "reasons": {
+      "insufficientAmount": "La carte ne dispose pas de fonds suffisants. Essayez avec un autre moyen de paiement ou contactez votre banque.",
+      "badFilledCard": "Les informations de la carte sont incorrectes. Vérifiez le numéro, la date d'expiration et le code de sécurité, puis réessayez.",
+      "highRisk": "Le processeur de paiement a détecté un risque sur l'opération. Essayez avec une autre carte ou contactez votre banque pour autoriser le prélèvement."
+    }
+  },
+  "pending": {
+    "title": "Nous traitons votre paiement",
+    "body": "Certains moyens de paiement (espèces, virement, débit en Argentine) prennent quelques minutes à être confirmés. Nous vous enverrons un e-mail dès que le paiement sera crédité — vous n'avez rien d'autre à faire."
+  },
+  "receipt": {
+    "backToConfirmation": "Retour à la confirmation",
+    "resendByEmail": "Renvoyer par e-mail",
+    "downloadPdf": "Télécharger le PDF",
+    "subscriptionReceipt": "Reçu d'abonnement",
+    "number": "N° {number}",
+    "customer": "Client",
+    "billing": "Facturation",
+    "noBillingData": "Aucune donnée enregistrée",
+    "concept": "Désignation",
+    "detail": "Détail",
+    "total": "Total",
+    "lineDescription": "Abonnement annuel · {trialDays} jours d'essai gratuit",
+    "trialActiveUntil": "Essai actif jusqu'au {date}",
+    "currencyPerYear": "{currency} / an",
+    "subtotal": "Sous-total",
+    "trialLine": "Essai {trialDays} jours",
+    "totalDueToday": "Total à payer aujourd'hui",
+    "processedBy": "Traité par <strong>{processor}</strong>. Prélèvement automatique le {date}.",
+    "supportLine": "Résiliable sans frais dans les 3 jours suivant le prélèvement. Pour toute assistance : <supportEmail>info@ballershub.co</supportEmail>."
+  }
+}

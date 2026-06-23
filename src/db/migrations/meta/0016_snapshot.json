@@ -1,5 +1,5 @@
 {
-  "id": "9d33fc7b-96f8-449b-9355-55295644adcc",
+  "id": "3b71c942-653a-4f56-8c19-0f6b13809ef9",
   "prevId": "7d4a0c3e-88bf-405e-b2a8-c22720362d2b",
   "version": "7",
   "dialect": "postgresql",
@@ -1560,7 +1560,7 @@
       "checkConstraints": {
         "blog_posts_locale_check": {
           "name": "blog_posts_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -5025,7 +5025,7 @@
       "checkConstraints": {
         "coach_ai_translation_events_locale_check": {
           "name": "coach_ai_translation_events_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         },
         "coach_ai_translation_events_kind_check": {
           "name": "coach_ai_translation_events_kind_check",
@@ -5106,7 +5106,7 @@
       "checkConstraints": {
         "coach_honour_translations_locale_check": {
           "name": "coach_honour_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -5195,7 +5195,7 @@
       "checkConstraints": {
         "coach_profile_translations_locale_check": {
           "name": "coach_profile_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -5644,7 +5644,7 @@
       "checkConstraints": {
         "user_profiles_preferred_locale_check": {
           "name": "user_profiles_preferred_locale_check",
-          "value": "preferred_locale IN ('es','en','it','pt')"
+          "value": "preferred_locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -7698,332 +7698,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.national_team_media": {
-      "name": "national_team_media",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "player_id": {
-          "name": "player_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "url": {
-          "name": "url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "alt_text": {
-          "name": "alt_text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "position": {
-          "name": "position",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "is_approved": {
-          "name": "is_approved",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "is_flagged": {
-          "name": "is_flagged",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "reviewed_by": {
-          "name": "reviewed_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "national_team_media_player_idx": {
-          "name": "national_team_media_player_idx",
-          "columns": [
-            {
-              "expression": "player_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "national_team_media_player_id_player_profiles_id_fk": {
-          "name": "national_team_media_player_id_player_profiles_id_fk",
-          "tableFrom": "national_team_media",
-          "tableTo": "player_profiles",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.national_team_stints": {
-      "name": "national_team_stints",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "player_id": {
-          "name": "player_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "team_id": {
-          "name": "team_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "proposed_team_name": {
-          "name": "proposed_team_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "country_code": {
-          "name": "country_code",
-          "type": "char(2)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "age_category": {
-          "name": "age_category",
-          "type": "national_team_age_category",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "participation": {
-          "name": "participation",
-          "type": "national_team_participation",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'called_up'"
-        },
-        "highlights": {
-          "name": "highlights",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "start_year": {
-          "name": "start_year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "end_year": {
-          "name": "end_year",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "caps": {
-          "name": "caps",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "goals": {
-          "name": "goals",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "assists": {
-          "name": "assists",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "minutes": {
-          "name": "minutes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reference_url": {
-          "name": "reference_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "order_index": {
-          "name": "order_index",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "status": {
-          "name": "status",
-          "type": "player_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'pending_review'"
-        },
-        "submitted_by_user_id": {
-          "name": "submitted_by_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reviewed_by_user_id": {
-          "name": "reviewed_by_user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "reviewed_at": {
-          "name": "reviewed_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resolution_note": {
-          "name": "resolution_note",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "national_team_stints_player_idx": {
-          "name": "national_team_stints_player_idx",
-          "columns": [
-            {
-              "expression": "player_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "national_team_stints_status_idx": {
-          "name": "national_team_stints_status_idx",
-          "columns": [
-            {
-              "expression": "status",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "national_team_stints_player_id_player_profiles_id_fk": {
-          "name": "national_team_stints_player_id_player_profiles_id_fk",
-          "tableFrom": "national_team_stints",
-          "tableTo": "player_profiles",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "national_team_stints_team_id_teams_id_fk": {
-          "name": "national_team_stints_team_id_teams_id_fk",
-          "tableFrom": "national_team_stints",
-          "tableTo": "teams",
-          "columnsFrom": [
-            "team_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "public.portfolio_contact_clicks": {
       "name": "portfolio_contact_clicks",
       "schema": "",
@@ -9403,7 +9077,7 @@
       "checkConstraints": {
         "agency_country_profile_translations_locale_check": {
           "name": "agency_country_profile_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -9474,7 +9148,7 @@
       "checkConstraints": {
         "agency_media_translations_locale_check": {
           "name": "agency_media_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -9551,7 +9225,7 @@
       "checkConstraints": {
         "agency_profile_translations_locale_check": {
           "name": "agency_profile_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -9655,7 +9329,7 @@
       "checkConstraints": {
         "ai_translation_events_locale_check": {
           "name": "ai_translation_events_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         },
         "ai_translation_events_kind_check": {
           "name": "ai_translation_events_kind_check",
@@ -9736,7 +9410,7 @@
       "checkConstraints": {
         "player_honour_translations_locale_check": {
           "name": "player_honour_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -9843,7 +9517,7 @@
       "checkConstraints": {
         "player_profile_translations_locale_check": {
           "name": "player_profile_translations_locale_check",
-          "value": "locale IN ('es','en','it','pt')"
+          "value": "locale IN ('es','en','it','pt','de','fr','fi')"
         }
       },
       "isRLSEnabled": false
@@ -10147,33 +9821,6 @@
       "values": [
         "public",
         "private"
-      ]
-    },
-    "public.national_team_age_category": {
-      "name": "national_team_age_category",
-      "schema": "public",
-      "values": [
-        "sub15",
-        "sub16",
-        "sub17",
-        "sub18",
-        "sub19",
-        "sub20",
-        "sub21",
-        "sub23",
-        "olympic",
-        "senior",
-        "other"
-      ]
-    },
-    "public.national_team_participation": {
-      "name": "national_team_participation",
-      "schema": "public",
-      "values": [
-        "called_up",
-        "played",
-        "sparring",
-        "training_camp"
       ]
     }
   },

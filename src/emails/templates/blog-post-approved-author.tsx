@@ -85,6 +85,42 @@ const COPY: Record<Locale, Copy> = {
     footer:
       "Obrigado por adicionar conteúdo editorial ao ecossistema. Os posts com mais links para perfis reais são os que têm melhor desempenho — se quiser escrever outro, abra /blog/write no seu painel.",
   },
+  de: {
+    preheader: (t) => `Wir haben "${t}" veröffentlicht.`,
+    eyebrow: "Dein Artikel ist veröffentlicht",
+    heading: (n) => `Du bist online, ${n}!`,
+    intro: "Wir haben deinen Beitrag freigegeben und er ist jetzt im 'BallersHub-Blog online.",
+    ctaView: "Meinen veröffentlichten Artikel ansehen",
+    hubIntro:
+      "Wir haben den Beitrag außerdem zu deiner Autorenseite hinzugefügt. Du kannst deinen Hub mit Klubs und Agenturen teilen:",
+    ctaHub: "Meine Autorenseite ansehen",
+    footer:
+      "Danke, dass du redaktionelle Inhalte zum Ökosystem beiträgst. Beiträge mit mehr Links zu echten Profilen schneiden am besten ab — wenn du einen weiteren schreiben möchtest, öffne /blog/write in deinem Dashboard.",
+  },
+  fr: {
+    preheader: (t) => `Nous avons publié "${t}".`,
+    eyebrow: "Ton article est publié",
+    heading: (n) => `Tu es en ligne, ${n} !`,
+    intro: "Nous avons approuvé ton article et il est désormais en ligne sur le blog 'BallersHub.",
+    ctaView: "Voir mon article publié",
+    hubIntro:
+      "Nous avons aussi ajouté l'article à ta page auteur. Tu peux partager ton hub avec des clubs et des agences :",
+    ctaHub: "Voir ma page auteur",
+    footer:
+      "Merci d'enrichir l'écosystème avec du contenu éditorial. Les articles avec le plus de liens vers de vrais profils sont les plus performants — si tu veux en écrire un autre, ouvre /blog/write depuis ton tableau de bord.",
+  },
+  fi: {
+    preheader: (t) => `Julkaisimme artikkelin "${t}".`,
+    eyebrow: "Artikkelisi on julkaistu",
+    heading: (n) => `Olet linjoilla, ${n}!`,
+    intro: "Hyväksyimme artikkelisi, ja se on nyt julkaistu 'BallersHubin blogissa.",
+    ctaView: "Katso julkaistu artikkelini",
+    hubIntro:
+      "Lisäsimme artikkelin myös kirjoittajasivullesi. Voit jakaa hubisi seurojen ja agentuurien kanssa:",
+    ctaHub: "Katso kirjoittajasivuni",
+    footer:
+      "Kiitos, että tuot toimituksellista sisältöä ekosysteemiin. Artikkelit, joissa on eniten linkkejä oikeisiin profiileihin, menestyvät parhaiten — jos haluat kirjoittaa toisen, avaa /blog/write hallintapaneelistasi.",
+  },
 };
 
 /**

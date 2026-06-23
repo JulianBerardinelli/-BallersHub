@@ -1,0 +1,67 @@
+{
+  "label": {
+    "current": "Aktueller Verein",
+    "club": "Verein"
+  },
+  "freeAgent": "Vereinsloser Spieler",
+  "placeholder": {
+    "search": "Geben Sie den Namen Ihres Vereins ein",
+    "searchTeam": "Tippen Sie, um ein Team zu suchen",
+    "disabledFree": "Deaktiviert wegen vereinslosem Spieler"
+  },
+  "hint": {
+    "signpost": "Sie finden Ihren Verein nicht? Sie können ihn hinzufügen."
+  },
+  "option": {
+    "add": "„{name}“ hinzufügen",
+    "addHint": "Nicht in der Liste · wir prüfen es"
+  },
+  "badge": {
+    "new": "Neu"
+  },
+  "modal": {
+    "title": "Ihren Verein hinzufügen",
+    "intro": "Wir haben ihn nicht in unserer Datenbank gefunden. Füllen Sie diese Angaben aus, und wir prüfen ihn, um ihn in Ihrem Profil zu hinterlegen.",
+    "country": "Land des Vereins",
+    "countryRequired": "Wählen Sie ein Land",
+    "tm": "Transfermarkt (optional)",
+    "tmInvalid": "Ungültige URL (https://...)",
+    "cancel": "Abbrechen",
+    "save": "Verein hinzufügen"
+  },
+  "chip": {
+    "selected": "Ausgewählt: {name}",
+    "added": "Hinzugefügt: {name} · Prüfung ausstehend",
+    "free": "Vereinsloser Spieler"
+  },
+  "details": {
+    "edit": "Vereinsdetails bearbeiten"
+  },
+  "dashboardPicker": {
+    "currentTeamLabel": "Aktuelles Team",
+    "currentTeamDescription": "Suchen Sie Ihr Team nach Namen. Falls es nicht existiert, können Sie es vorschlagen.",
+    "currentTeamPlaceholder": "Z. B.: Boca Juniors",
+    "countryLabel": "Land (Name oder ISO-2)",
+    "countryDescription": "Z. B.: Argentinien oder AR",
+    "countryPlaceholder": "Argentinien / AR",
+    "resultsTitle": "Ergebnisse",
+    "noResults": "Wir haben keine Teams mit „{q}“ gefunden.",
+    "chooseTeam": "Auswählen",
+    "proposeNew": "Neues Team vorschlagen: „{q}“",
+    "proposeHelp": "Das Team ist nicht in unserer Datenbank. Mit Ihrer Anfrage erstellen und prüfen wir es.",
+    "freeAgentCta": "Ich bin vereinsloser Spieler (ohne Team)",
+    "chipSelected": "Ausgewählt: {name}",
+    "chipProposed": "Vorgeschlagenes Team: {name}",
+    "chipFree": "Vereinsloser Spieler"
+  },
+  "createModal": {
+    "title": "Neues Team: „{name}“",
+    "countryLabel": "Land des Vereins",
+    "countryRequired": "Wählen Sie ein Land",
+    "tmLabel": "Transfermarkt (optional)",
+    "tmPlaceholder": "https://www.transfermarkt.com/...",
+    "tmInvalid": "Ungültige URL (https://...)",
+    "cancel": "Abbrechen",
+    "save": "Speichern"
+  }
+}

@@ -303,7 +303,7 @@ Implementación: entrada `nationalTeam` en `feature-gates.ts` (fotos/stats con `
 **Increment 1 — Capa de datos + plan gating ✅ (aplicado a DEV `ciolizjshimyvyonlssq`, verificado; PROD pendiente de OK del owner)**
 - `src/db/schema/nationalTeams.ts` — enums `national_team_age_category`, `national_team_participation`; tablas `national_team_stints`, `national_team_media`. Status-on-row vía `playerStatusEnum`. Fotos keyed por jugador (cap 4 total).
 - `src/db/schema/index.ts` + `relations.ts` — export + relations.
-- `src/db/migrations/0016_late_betty_brant.sql` (Drizzle, journaled) + `0016a_national_team_rls.sql` (RLS + GRANTs, complementario).
+- `src/db/migrations/0017_demonic_changeling.sql` (Drizzle, journaled) + `0017a_national_team_rls.sql` (RLS + GRANTs, complementario).
 - `src/lib/dashboard/feature-gates.ts` — gate `nationalTeam` (soft-save, Pro-only).
 - `src/lib/dashboard/national-team.ts` — `NT_PHOTO_CAP=4`, labels de categorías/participación, chips de highlights.
 - Verificación dev: 2 tablas, 2 enums, 4 policies, RLS activo. `typecheck` limpio (2 errores preexistentes ajenos: `@next/third-parties`).
@@ -343,7 +343,7 @@ Implementación: entrada `nationalTeam` en `feature-gates.ts` (fotos/stats con `
 
 **✅ TODOS LOS INCREMENTS COMPLETOS (1–6 + 4).** Flujo completo: onboarding (captura, todos los planes) **o** dashboard (Pro soft-save) → moderación admin → render público Pro (antes de Trayectoria).
 
-**DB:** `0016` + `0016a` aplicadas a **dev Y prod** (verificadas: 2 tablas, 2 enums, 4 policies, RLS activo) + row registrado en `drizzle.__drizzle_migrations` en ambos (db:migrate no las re-aplica). ✅
+**DB:** `0017` + `0017a` aplicadas a **dev Y prod** (verificadas: 2 tablas, 2 enums, 4 policies, RLS activo) + row registrado en `drizzle.__drizzle_migrations` en ambos (db:migrate no las re-aplica). ✅
 
 **Pendiente:** commit + PR (branch `claude/upbeat-moser-cccd31`).
 

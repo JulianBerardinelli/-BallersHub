@@ -22,6 +22,8 @@ export default function AvatarUploader({
   playerId,
   currentAvatarUrl,
   uploadAction,
+  uploadUrl,
+  assetType = "avatarUrl",
 }: {
   playerId: string;
   currentAvatarUrl?: string | null;
@@ -32,6 +34,14 @@ export default function AvatarUploader({
   uploadAction?: (
     formData: FormData,
   ) => Promise<{ success: true; url: string } | { success: false; error: string }>;
+  /**
+   * Route-POST path: other verticals (coach) reuse this exact uploader by
+   * pointing it at their own AVIF endpoint instead of a server action. Takes
+   * precedence over the player client-side flow + uploadAction.
+   */
+  uploadUrl?: string;
+  /** assetType field sent to uploadUrl/uploadAction (coach endpoint: "avatar"). */
+  assetType?: string;
 }) {
   const t = useTranslations("dashEditProfile");
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +75,19 @@ export default function AvatarUploader({
     setBusy(true);
 
     try {
+      // Route-POST path (coach reuses this uploader with its own endpoint).
+      if (uploadUrl) {
+        const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("assetType", assetType);
+        const res = await fetch(uploadUrl, { method: "POST", body: fd });
+        const json = (await res.json()) as { url?: string; error?: string };
+        if (!res.ok || !json.url) throw new Error(json.error ?? t("avatar.uploadError"));
+        if (typeof window !== "undefined") window.location.reload();
+        return;
+      }
+
       // Admin CRUD path: route another player's avatar upload through the
       // injected service-role action instead of the RLS-bound client.
       if (uploadAction) {
