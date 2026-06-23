@@ -16,6 +16,7 @@ import PortfolioFooter from "@/components/layout/footer/PortfolioFooter";
 import ProfileBioModule from "./modules/ProfileBioModule";
 import TacticsModule from "./modules/TacticsModule";
 import CareerTimelineModule from "./modules/CareerTimelineModule";
+import NationalTeamModule from "./modules/NationalTeamModule";
 import MediaGalleryModule from "./modules/MediaGalleryModule";
 import ProfilePressNotesModule from "./modules/ProfilePressNotesModule";
 import ContactPortfolioModule from "./modules/ContactPortfolioModule";
@@ -245,6 +246,10 @@ export default async function LayoutResolver({ data }: { data: PublicProfileData
               </div>
             }>
               <TacticsModule playerId={player.id} />
+            </Suspense>
+
+            <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.nationalTeam")}</div>}>
+              <NationalTeamModule playerId={player.id} />
             </Suspense>
 
             <Suspense fallback={<div className="min-h-[800px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.career")}</div>}>

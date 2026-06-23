@@ -23,7 +23,8 @@
     "press": "Press",
     "gallery": "Gallery",
     "philosophy": "Philosophy",
-    "licenses": "Licenses"
+    "licenses": "Licenses",
+    "nationalTeam": "National Team"
   },
   "a11y": {
     "backTo": "Back to",
@@ -252,6 +253,31 @@
       "openTitleInYouTube": "Open {title} on YouTube",
       "openHighlightInYouTube": "Open highlight on YouTube",
       "closeVideo": "Close video"
+    },
+    "nationalTeam": {
+      "title": "National Team",
+      "subtitle": "International career",
+      "noStats": "No stats",
+      "current": "Present",
+      "ageCategory": {
+        "sub15": "U-15",
+        "sub16": "U-16",
+        "sub17": "U-17",
+        "sub18": "U-18",
+        "sub19": "U-19",
+        "sub20": "U-20",
+        "sub21": "U-21",
+        "sub23": "U-23",
+        "olympic": "Olympic",
+        "senior": "Senior",
+        "other": "Other"
+      },
+      "participation": {
+        "called_up": "Called up",
+        "played": "Played",
+        "sparring": "Sparring",
+        "training_camp": "Training camp"
+      }
     }
   },
   "pro": {
@@ -380,7 +406,8 @@
     "bio": "Loading bio...",
     "tactics": "Loading tactics...",
     "career": "Loading career...",
-    "media": "Loading media..."
+    "media": "Loading media...",
+    "nationalTeam": "Loading national team…"
   },
   "coach": {
     "since": "Coaching since {year}",

@@ -10,6 +10,7 @@ import {
   Target,
   TrendingUp,
   Newspaper,
+  Flag,
   Image as ImageIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -25,6 +26,7 @@ type SectionItem = { id: string; labelKey: string; Icon: LucideIcon };
 const PORTFOLIO_SECTIONS: SectionItem[] = [
   { id: "biography",       labelKey: "nav.bio",     Icon: User2 },
   { id: "tactics",         labelKey: "nav.tactics", Icon: Target },
+  { id: "national-team",   labelKey: "nav.nationalTeam", Icon: Flag },
   { id: "career-timeline", labelKey: "nav.career",  Icon: TrendingUp },
   { id: "press",           labelKey: "nav.press",   Icon: Newspaper },
   { id: "gallery",         labelKey: "nav.gallery", Icon: ImageIcon },

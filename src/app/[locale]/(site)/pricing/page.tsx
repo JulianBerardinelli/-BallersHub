@@ -5,28 +5,35 @@ import { getTranslations } from "next-intl/server";
 import {
   PricingCTA,
   PricingComparisonTable,
-  PricingFAQ,
   PricingHero,
   PricingPlans,
   PricingProvider,
   PricingToggles,
-  PricingValueGrid,
 } from "@/components/site/pricing";
 import { OfferJsonLd } from "@/lib/seo/offerJsonLd";
+import { localizedAlternates } from "@/lib/seo/hreflang";
+import { OG_LOCALE } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations("pricing");
+  // Self-canonical per locale + hreflang (agrees with sitemapLanguages("/pricing")).
+  const alt = localizedAlternates(locale as Locale, "/pricing");
   return {
     title: t("meta.title"),
     description: t("meta.description"),
-    // canonical only for now; hreflang alternates land once the F3 helper
-    // (localizedAlternates) is in main and the plan core is localized too.
-    alternates: { canonical: "/pricing" },
+    alternates: alt,
     openGraph: {
       title: t("meta.ogTitle"),
       description: t("meta.ogDescription"),
-      url: "/pricing",
+      url: alt.canonical,
       type: "website",
+      locale: OG_LOCALE[locale as Locale] ?? "es_AR",
     },
   };
 }
@@ -56,8 +63,6 @@ export default async function PricingPage({
           <PricingPlans />
         </div>
         <PricingComparisonTable />
-        <PricingValueGrid />
-        <PricingFAQ />
         <PricingCTA />
       </div>
     </PricingProvider>

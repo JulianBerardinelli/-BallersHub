@@ -38,10 +38,13 @@ type PageProps = {
   }>;
 };
 
-export const metadata = {
-  title: "Suscripción",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata() {
+  const t = await getTranslations("dashboard");
+  return {
+    title: t("settings.subscriptionTitle"),
+    robots: { index: false, follow: false },
+  };
+}
 
 const STATUS_CONFIG: Record<
   string,

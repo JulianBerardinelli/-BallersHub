@@ -24,6 +24,9 @@ import { getTranslations } from "next-intl/server";
 import { getScoutingPlayers } from "@/lib/scouting/data";
 import { ScoutingExperience } from "@/components/scouting/ScoutingExperience";
 import { DirectoryJsonLd, type DirectoryItem } from "@/lib/seo/directoryJsonLd";
+import { localizedAlternates } from "@/lib/seo/hreflang";
+import { OG_LOCALE } from "@/i18n/config";
+import type { Locale } from "@/i18n/routing";
 
 // Hourly ISR — same cadence as the sitemap and the profile pages. New approved
 // profiles surface within the hour; a profile edit busts this path immediately
@@ -32,18 +35,26 @@ export const revalidate = 3600;
 
 const PAGE_PATH = "/players";
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
   const t = await getTranslations("scouting");
+  // Self-canonical per locale + hreflang (agrees with sitemapLanguages("/players")).
+  const alt = localizedAlternates(locale as Locale, PAGE_PATH);
   return {
     title: t("meta.title"),
     description: t("meta.description"),
-    alternates: { canonical: PAGE_PATH },
+    alternates: alt,
     openGraph: {
       title: t("meta.ogTitle"),
       description: t("meta.description"),
-      url: PAGE_PATH,
+      url: alt.canonical,
       type: "website",
       siteName: "'BallersHub",
+      locale: OG_LOCALE[locale as Locale] ?? "es_AR",
     },
   };
 }

@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "homeTitle": "'BallersHub — Perfiles profesionales de futbolistas",
+    "homeDescription": "'BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias."
+  },
   "agencies": {
     "pageName": "Agencias",
     "metaTitle": "Agencias de representación",

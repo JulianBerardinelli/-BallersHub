@@ -16,12 +16,15 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 
-const ORDER: Locale[] = ["es", "en", "it", "pt"];
+const ORDER: Locale[] = ["es", "en", "it", "pt", "de", "fr", "fi"];
 const META: Record<Locale, { label: string; flag: string }> = {
   es: { label: "Español", flag: "🇦🇷" },
   en: { label: "English", flag: "🇬🇧" },
   it: { label: "Italiano", flag: "🇮🇹" },
   pt: { label: "Português", flag: "🇧🇷" },
+  de: { label: "Deutsch", flag: "🇩🇪" },
+  fr: { label: "Français", flag: "🇫🇷" },
+  fi: { label: "Suomi", flag: "🇫🇮" },
 };
 
 export default function PortfolioLocaleSwitcher({

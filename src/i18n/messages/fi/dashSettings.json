@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Kirjautumistiedot",
+    "cardDescription": "Päivitä kirjautumistietosi tai tarkista tilisi perustiedot.",
+    "editAria": "Muokkaa kirjautumistietoja",
+    "cancelEditAria": "Peruuta muokkaus",
+    "emailLabel": "Sähköpostiosoite",
+    "emailPlaceholder": "sinun@email.com",
+    "emailConfirmationSent": "Lähetimme sähköpostiisi vahvistuslinkin muutoksen vahvistamiseksi.",
+    "updateEmail": "Päivitä sähköposti",
+    "updatingEmail": "Päivitetään...",
+    "newPasswordLabel": "Uusi salasana",
+    "newPasswordPlaceholder": "Vähintään 6 merkkiä",
+    "passwordTooShort": "Salasanassa on oltava vähintään 6 merkkiä.",
+    "passwordUpdated": "Salasana päivitetty onnistuneesti.",
+    "updatePassword": "Päivitä salasana",
+    "updatingPassword": "Päivitetään...",
+    "showPassword": "Näytä salasana",
+    "hidePassword": "Piilota salasana",
+    "passwordLabel": "Salasana",
+    "roleLabel": "Tilin rooli",
+    "roleDescription": "Vaikuttaa siihen, minkä tyyppiseen profiiliin sinulla on pääsy.",
+    "roleManager": "Agentuuri / Edustaja",
+    "roleAdmin": "Ylläpitäjä",
+    "roleMember": "Pelaaja / Jäsen",
+    "createdAtLabel": "Tili luotu"
+  },
+  "subscription": {
+    "stripePortalTitle": "Stripe-portaali",
+    "stripePortalDescription": "Päivitä kortti, lataa laskuja tai peruuta tilaus.",
+    "openPortal": "Avaa portaali",
+    "stripePortalRequestFailed": "Stripe-portaalipyyntö epäonnistui",
+    "cancelScheduledNotice": "Tilauksesi on merkitty peruutettavaksi jakson lopussa. Jos muutat mielesi, voit perua tämän portaalin kautta.",
+    "cancelTitle": "Peruuta tilaus",
+    "cancelDescription": "Mercado Pago katkaisee pääsyn välittömästi peruutuksen yhteydessä. Maksetusta jaksosta ei makseta osittaista hyvitystä.",
+    "cancel": "Peruuta",
+    "back": "Takaisin",
+    "confirmCancel": "Vahvista peruutus",
+    "cancelRequestFailed": "Peruutuspyyntö epäonnistui"
+  },
+  "common": {
+    "invalidLocale": "Virheellinen kieli.",
+    "mustSignIn": "Sinun on kirjauduttava sisään.",
+    "localeSaveFailed": "Kieltä ei voitu tallentaa.",
+    "localeUpdated": "Äidinkieli päivitetty.",
+    "unknownError": "Tuntematon virhe."
+  }
+}

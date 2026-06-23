@@ -14,8 +14,8 @@ export type PositionTactics = {
   strengths: string[];
 };
 
-// en/it/pt only — es comes from POSITIONS_MAP. Codes mirror POSITIONS_MAP.
-const TACTICS_I18N: Record<"en" | "it" | "pt", Record<string, PositionTactics>> = {
+// en/it/pt/de/fr/fi only — es comes from POSITIONS_MAP. Codes mirror POSITIONS_MAP.
+const TACTICS_I18N: Record<"en" | "it" | "pt" | "de" | "fr" | "fi", Record<string, PositionTactics>> = {
   en: {
     POR: { label: "Goalkeeper", area: "Own six-yard box", strengths: ["Reflexes", "Aerial ability", "Long distribution"] },
     DFC: { label: "Center back", area: "Central defense", strengths: ["Anticipation", "Interception", "Aerial ability"] },
@@ -60,6 +60,51 @@ const TACTICS_I18N: Record<"en" | "it" | "pt", Record<string, PositionTactics>> 
     ED: { label: "Ponta direita", area: "Corredor direito alto", strengths: ["Malícia", "Velocidade", "Corte para dentro"] },
     DEL: { label: "Centroavante", area: "Área adversária", strengths: ["Finalização", "Jogo aéreo", "Posicionamento"] },
     SD: { label: "Segundo atacante", area: "Entrada da área", strengths: ["Tabelas", "Movimentação", "Condução rápida"] },
+  },
+  de: {
+    POR: { label: "Torwart", area: "Eigener Fünfmeterraum", strengths: ["Reflexe", "Kopfballstärke", "Langer Abschlag"] },
+    DFC: { label: "Innenverteidiger", area: "Innenverteidigung", strengths: ["Antizipation", "Zweikampf", "Kopfballstärke"] },
+    LI: { label: "Linksverteidiger", area: "Linke Außenbahn", strengths: ["Vorstöße", "Ausdauer", "Flanken"] },
+    LD: { label: "Rechtsverteidiger", area: "Rechte Außenbahn", strengths: ["Schnelligkeit", "Manndeckung", "Hinterlaufen"] },
+    MCD: { label: "Defensives Mittelfeld", area: "Zentrale Absicherung", strengths: ["Balleroberung", "Kurzpassspiel", "Stellungsspiel"] },
+    MC: { label: "Zentrales Mittelfeld", area: "Mittelfeld", strengths: ["Spielaufbau", "Übersicht", "Laufbereitschaft"] },
+    MI: { label: "Linkes zentrales Mittelfeld", area: "Linkes Mittelfeld", strengths: ["Dribbling", "Steilpässe", "Kombinationsspiel"] },
+    MD: { label: "Rechtes zentrales Mittelfeld", area: "Rechtes Mittelfeld", strengths: ["Ballführung", "Flanken", "Einrücken in den Strafraum"] },
+    MCO: { label: "Offensives Mittelfeld", area: "Zentrales letztes Drittel", strengths: ["Kreativität", "Schlüsselpass", "Distanzschuss"] },
+    EI: { label: "Linksaußen", area: "Linker offensiver Halbraum", strengths: ["Durchbruch", "1 gegen 1", "Flanken in den Strafraum"] },
+    ED: { label: "Rechtsaußen", area: "Rechter offensiver Halbraum", strengths: ["Spielwitz", "Schnelligkeit", "Einrücken nach innen"] },
+    DEL: { label: "Mittelstürmer", area: "Gegnerischer Strafraum", strengths: ["Abschluss", "Kopfballstärke", "Stellungsspiel"] },
+    SD: { label: "Hängende Spitze", area: "Strafraumgrenze", strengths: ["Kombinationsspiel", "Freilaufen", "Schnelle Ballführung"] },
+  },
+  fr: {
+    POR: { label: "Gardien de but", area: "Surface de but", strengths: ["Réflexes", "Jeu aérien", "Relance longue"] },
+    DFC: { label: "Défenseur central", area: "Défense centrale", strengths: ["Anticipation", "Interception", "Jeu aérien"] },
+    LI: { label: "Arrière gauche", area: "Couloir gauche", strengths: ["Montées offensives", "Endurance", "Centres"] },
+    LD: { label: "Arrière droit", area: "Couloir droit", strengths: ["Vitesse", "Marquage", "Dédoublement"] },
+    MCD: { label: "Milieu défensif", area: "Zone de récupération centrale", strengths: ["Récupération", "Passe courte", "Placement"] },
+    MC: { label: "Milieu central", area: "Milieu de terrain", strengths: ["Distribution", "Vision", "Volume de jeu"] },
+    MI: { label: "Milieu relayeur gauche", area: "Milieu gauche", strengths: ["Dribble", "Passes en profondeur", "Jeu en combinaison"] },
+    MD: { label: "Milieu relayeur droit", area: "Milieu droit", strengths: ["Conduite de balle", "Centres", "Appels dans la surface"] },
+    MCO: { label: "Milieu offensif", area: "Dernier tiers central", strengths: ["Créativité", "Dernière passe", "Frappe lointaine"] },
+    EI: { label: "Ailier gauche", area: "Couloir gauche haut", strengths: ["Débordement", "1 contre 1", "Centres dans la surface"] },
+    ED: { label: "Ailier droit", area: "Couloir droit haut", strengths: ["Malice", "Vitesse", "Repiquage axial"] },
+    DEL: { label: "Avant-centre", area: "Surface adverse", strengths: ["Finition", "Jeu aérien", "Placement"] },
+    SD: { label: "Second attaquant", area: "Entrée de la surface", strengths: ["Jeu en combinaison", "Démarquage", "Conduite rapide"] },
+  },
+  fi: {
+    POR: { label: "Maalivahti", area: "Oma pieni alue", strengths: ["Refleksit", "Ilmapeli", "Pitkä syöttö"] },
+    DFC: { label: "Keskuspuolustaja", area: "Keskuspuolustus", strengths: ["Ennakointi", "Katkot", "Ilmapeli"] },
+    LI: { label: "Vasen laitapuolustaja", area: "Vasen laita", strengths: ["Hyökkäysnousut", "Kestävyys", "Keskitykset"] },
+    LD: { label: "Oikea laitapuolustaja", area: "Oikea laita", strengths: ["Nopeus", "Vartiointi", "Ylikierto"] },
+    MCD: { label: "Puolustava keskikenttäpelaaja", area: "Keskustan tukialue", strengths: ["Pallonriisto", "Lyhyt syöttö", "Asemoituminen"] },
+    MC: { label: "Keskikenttäpelaaja", area: "Keskikenttä", strengths: ["Pelin rakentaminen", "Pelinäkemys", "Juoksumäärä"] },
+    MI: { label: "Vasen keskikenttäpelaaja", area: "Vasen keskikenttä", strengths: ["Kuljetus", "Läpisyötöt", "Yhdistelypeli"] },
+    MD: { label: "Oikea keskikenttäpelaaja", area: "Oikea keskikenttä", strengths: ["Pallonkuljetus", "Keskitykset", "Saapuminen alueelle"] },
+    MCO: { label: "Hyökkäävä keskikenttäpelaaja", area: "Keskustan viimeinen kolmannes", strengths: ["Luovuus", "Ratkaiseva syöttö", "Kaukolaukaus"] },
+    EI: { label: "Vasen laitahyökkääjä", area: "Vasen ylälaita", strengths: ["Läpimurto", "1 vastaan 1", "Keskitykset alueelle"] },
+    ED: { label: "Oikea laitahyökkääjä", area: "Oikea ylälaita", strengths: ["Oveluus", "Nopeus", "Sisäänkääntyminen"] },
+    DEL: { label: "Keskushyökkääjä", area: "Vastustajan alue", strengths: ["Viimeistely", "Ilmapeli", "Asemoituminen"] },
+    SD: { label: "Tukihyökkääjä", area: "Alueen reuna", strengths: ["Yhdistelypeli", "Vapaaksi irtaantuminen", "Nopea kuljetus"] },
   },
 };
 

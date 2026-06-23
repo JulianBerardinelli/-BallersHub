@@ -1,0 +1,170 @@
+{
+  "meta": {
+    "title": "Blog",
+    "description": "Artikel über die Spielerkarriere, den Agenturbetrieb und den argentinischen Fußballmarkt. Geschrieben von Spielern, Scouts und Journalisten aus dem Netzwerk von 'BallersHub.",
+    "ogTitle": "Blog · 'BallersHub",
+    "ogDescription": "Spielerkarriere, Agenturbetrieb, Branche AR. Datenbasierte Analysen mit Links zu echten Portfolios.",
+    "twitterDescription": "Spielerkarriere, Agenturbetrieb, Branche AR. Vom Netzwerk von 'BallersHub.",
+    "h1": "Blog von 'BallersHub — Spielerkarriere, Agenturbetrieb und Fußballmarkt",
+    "notFoundTitle": "Artikel nicht gefunden",
+    "writeTitle": "Neuer Artikel",
+    "editTitle": "Artikel bearbeiten",
+    "draftsTitle": "Meine Entwürfe"
+  },
+  "listing": {
+    "contributorDrafts": "Meine Entwürfe",
+    "contributorWrite": "Artikel schreiben",
+    "emptyTitle": "Bald lesen Sie die ersten Beiträge",
+    "emptyBody": "Wir kuratieren gerade redaktionelle Inhalte. Schauen Sie in ein paar Tagen wieder vorbei.",
+    "categoryAll": "Alle",
+    "searchPlaceholder": "Beiträge suchen…",
+    "searchAriaLabel": "Beiträge suchen",
+    "headingDefault": "Neueste Beiträge",
+    "headingCount": "{count, plural, one {# Beitrag} other {# Beiträge}}",
+    "noResultsQuery": "Wir haben keine Artikel zu „{query}“ gefunden.",
+    "noResultsCategory": "In dieser Kategorie gibt es noch keine Beiträge.",
+    "adSponsor": "Sponsor",
+    "closingTitle": "Warten Sie nicht länger darauf, entdeckt zu werden",
+    "closingBody": "Erstellen Sie Ihr professionelles Portfolio in wenigen Minuten: Statistiken, Highlights und verifizierte Referenzen, bereit zum Teilen über einen einzigen Link.",
+    "closingCtaPrimary": "Mein Profil kostenlos erstellen",
+    "closingCtaSecondary": "Tarife ansehen"
+  },
+  "featured": {
+    "badge": "★ Empfohlen",
+    "readingMin": "{n, plural, one {1 Min. Lesezeit} other {# Min. Lesezeit}}"
+  },
+  "card": {
+    "readingMin": "{n, plural, one {1 Min.} other {# Min.}}"
+  },
+  "post": {
+    "breadcrumbBlog": "Blog",
+    "readingMin": "{n, plural, one {1 Min. Lesezeit} other {# Min. Lesezeit}}",
+    "relatedHeading": "Weiterlesen",
+    "relatedSeeAll": "Alle ansehen →"
+  },
+  "toc": {
+    "heading": "In diesem Beitrag"
+  },
+  "authorBio": {
+    "writtenBy": "Geschrieben von"
+  },
+  "cta": {
+    "title": "Warten Sie nicht länger darauf, entdeckt zu werden",
+    "body": "Erstellen Sie Ihr professionelles Portfolio in wenigen Minuten: Statistiken, Highlights und verifizierte Referenzen, bereit zum Teilen über einen einzigen Link.",
+    "primary": "Mein Profil kostenlos erstellen",
+    "secondary": "Beispiele ansehen"
+  },
+  "comments": {
+    "heading": "Kommentare",
+    "soonBadge": "Demnächst",
+    "soonBody": "Wir bereiten die Kommentare vor, damit Sie zu jedem Beitrag Ihre Sicht beitragen können. Teilen Sie ihn in der Zwischenzeit und verfolgen Sie die Diskussion in unseren sozialen Netzwerken."
+  },
+  "author": {
+    "notFoundTitle": "Autor nicht gefunden",
+    "metaTitleSuffix": "— Autor bei 'BallersHub",
+    "fallbackDescription": "Von {name} im Blog von 'BallersHub veröffentlichte Artikel.",
+    "breadcrumbHome": "Startseite",
+    "breadcrumbBlog": "Blog",
+    "badge": "Gastautor",
+    "linksSiteFallback": "Website",
+    "postsHeading": "Artikel von {firstName}",
+    "postsHeadingEmpty": "Noch keine Artikel veröffentlicht",
+    "emptyBody": "Dieser Autor hat noch keine Artikel veröffentlicht. Schauen Sie in ein paar Tagen wieder vorbei."
+  },
+  "editor": {
+    "createBadge": "Artikel schreiben",
+    "createHeading": "Neuer Entwurf",
+    "createIntro": "Füllen Sie die Felder aus und senden Sie den Beitrag zur Prüfung, sobald er fertig ist. Sie können Zwischenentwürfe speichern, ohne sie zu senden.",
+    "editBadge": "Entwurf bearbeiten",
+    "editFallbackTitle": "Ohne Titel",
+    "loadingEditor": "Editor wird geladen…",
+    "placeholder": "Beginnen Sie, Ihren Artikel zu schreiben…",
+    "linkPrompt": "Link-URL:",
+    "imageUploadError": "Das Bild konnte nicht hochgeladen werden.",
+    "imageUploadErrorRetry": "Das Bild konnte nicht hochgeladen werden. Versuchen Sie es erneut.",
+    "toolbar": {
+      "bold": "Fett (⌘B)",
+      "italic": "Kursiv (⌘I)",
+      "h2": "Überschrift 2",
+      "h3": "Überschrift 3",
+      "bulletList": "Aufzählungsliste",
+      "orderedList": "Nummerierte Liste",
+      "quote": "Zitat",
+      "link": "Link (⌘K)",
+      "image": "Bild einfügen",
+      "imageUploading": "Bild wird hochgeladen…",
+      "undo": "Rückgängig (⌘Z)",
+      "redo": "Wiederholen (⌘⇧Z)"
+    }
+  },
+  "drafts": {
+    "heading": "Meine Artikel",
+    "intro": "Ihre Entwürfe, Beiträge in Prüfung, veröffentlichte und abgelehnte Beiträge.",
+    "ctaWrite": "Artikel schreiben",
+    "emptyTitle": "Sie haben noch nichts geschrieben",
+    "emptyBody": "Ihr erster Artikel wartet auf Sie. Klicken Sie oben auf \"Artikel schreiben\", um zu beginnen.",
+    "fallbackTitle": "Ohne Titel",
+    "actionViewPublished": "Veröffentlicht ansehen",
+    "actionEditRejected": "Bearbeiten und erneut senden",
+    "actionEdit": "Bearbeiten"
+  },
+  "form": {
+    "rejectionHeading": "Feedback vom Admin",
+    "fields": {
+      "titleLabel": "Titel",
+      "titleHint": "Max. 120 Zeichen. Denken Sie keyword-reich.",
+      "titlePlaceholder": "Z. B.: AFA-Transfermarkt 2026: die gefragtesten vertragslosen Spieler",
+      "descriptionLabel": "Kurzbeschreibung",
+      "descriptionHint": "Erscheint bei Google und beim Teilen in sozialen Netzwerken. Max. 158 Zeichen.",
+      "descriptionPlaceholder": "Klare Zusammenfassung dessen, was gelesen wird.",
+      "descriptionCounter": "{count} / 158",
+      "localeLabel": "Sprache",
+      "localeHint": "In welcher Sprache Sie diesen Beitrag schreiben. Kann später nicht geändert werden.",
+      "localeEs": "Español (default)",
+      "localeEn": "English",
+      "localeIt": "Italiano",
+      "localePt": "Português (Brasil)",
+      "clusterLabel": "Cluster",
+      "clusterHint": "Thema des Beitrags.",
+      "tagsLabel": "Tags",
+      "tagsHint": "3-8 Tags durch Komma getrennt. Jeweils mind. 2 Zeichen.",
+      "tagsPlaceholder": "scouting, portfolio, primera-nacional",
+      "heroLabel": "Hauptbild (Hero)",
+      "heroHint": "1200×630 ideal. JPG/PNG/WebP/AVIF, max. 5MB. Wird in unseren Speicher hochgeladen und automatisch in AVIF transkodiert.",
+      "heroPreviewAlt": "Vorschau des Hero-Bilds",
+      "heroChange": "Ändern",
+      "heroChangeUploading": "Wird hochgeladen…",
+      "heroRemove": "Entfernen",
+      "heroUploading": "Bild wird hochgeladen…",
+      "heroUploadCta": "Hauptbild hochladen",
+      "heroUploadFormats": "JPG / PNG / WebP / AVIF · max. 5MB",
+      "heroUploadError": "Das Bild konnte nicht hochgeladen werden.",
+      "heroUploadErrorRetry": "Das Bild konnte nicht hochgeladen werden. Versuchen Sie es erneut.",
+      "contentLabel": "Inhalt",
+      "contentHint": "≥1500 Wörter. Mindestens 3 H2-Abschnitte. Mind. 3 echte Portfolios von /[slug] verlinken.",
+      "contentPlaceholder": "Beginnen Sie mit einer Einleitung von 2-3 Absätzen, die den Leser fesselt…"
+    },
+    "actions": {
+      "save": "Entwurf speichern",
+      "saving": "Wird gespeichert…",
+      "submit": "Zur Prüfung senden",
+      "submitting": "Wird gesendet…"
+    },
+    "feedback": {
+      "draftCreated": "Entwurf erstellt.",
+      "draftSaved": "Entwurf gespeichert.",
+      "submitted": "Zur Prüfung gesendet. Wir benachrichtigen Sie, sobald der Admin ihn genehmigt."
+    }
+  },
+  "clusters": {
+    "career_guidance": "Spielerkarriere",
+    "agency_ops": "Agenturbetrieb",
+    "industry_ar": "Branche AR"
+  },
+  "status": {
+    "draft": "Entwurf",
+    "pending_review": "Prüfung ausstehend",
+    "published": "Veröffentlicht",
+    "rejected": "Abgelehnt"
+  }
+}

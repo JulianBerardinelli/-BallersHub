@@ -39,14 +39,14 @@ const saveSchema = z.object({
   playerId: z.string().uuid(),
   // es too: the adaptive editor lets a Pro whose native language ISN'T es
   // edit/generate the canonical Spanish here. es writes to player_profiles;
-  // en/it/pt write to player_profile_translations.
-  locale: z.enum(["es", "en", "it", "pt"]),
+  // en/it/pt/de/fr/fi write to player_profile_translations.
+  locale: z.enum(["es", "en", "it", "pt", "de", "fr", "fi"]),
   fields: fieldsSchema,
 });
 
 const deleteSchema = z.object({
   playerId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
 });
 
 export type TranslationFields = z.infer<typeof fieldsSchema>;
@@ -296,7 +296,7 @@ export type DraftResult =
 const draftSchema = z.object({
   playerId: z.string().uuid(),
   // TARGET locale — es included (translating, e.g., pt → es).
-  locale: z.enum(["es", "en", "it", "pt"]),
+  locale: z.enum(["es", "en", "it", "pt", "de", "fr", "fi"]),
   block: z.enum(["bio", "scouting"]),
   force: z.boolean().optional(),
 });
@@ -487,14 +487,14 @@ const honourSaveSchema = z.object({
   playerId: z.string().uuid(),
   honourId: z.string().uuid(),
   // es is the base (player_honours), edited in football-data — never here.
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
   fields: honourFieldsSchema,
 });
 
 const honourDeleteSchema = z.object({
   playerId: z.string().uuid(),
   honourId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
 });
 
 export type HonourTranslationFields = z.infer<typeof honourFieldsSchema>;
@@ -597,7 +597,7 @@ export async function deleteHonourTranslation(input: {
 const honourDraftSchema = z.object({
   playerId: z.string().uuid(),
   honourId: z.string().uuid(),
-  locale: z.enum(["en", "it", "pt"]),
+  locale: z.enum(["en", "it", "pt", "de", "fr", "fi"]),
   force: z.boolean().optional(),
 });
 

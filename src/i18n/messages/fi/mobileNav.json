@@ -1,0 +1,113 @@
+{
+  "drawer": {
+    "open": "Avaa valikko",
+    "close": "Sulje valikko",
+    "title": "Valikko",
+    "navLabel": "Sivuston navigointi"
+  },
+  "tabs": {
+    "home": "Etusivu",
+    "network": "Verkosto",
+    "plans": "Tilaukset",
+    "access": "Kirjaudu",
+    "account": "Tili",
+    "panel": "Hallintapaneeli",
+    "profile": "Profiili",
+    "template": "Malli",
+    "settings": "Asetukset",
+    "agency": "Agentuuri",
+    "management": "Hallinta"
+  },
+  "sectionsCount": "{count, plural, one {# osio} other {# osiota}}",
+  "access": {
+    "title": "Kirjaudu",
+    "login": "Kirjaudu sisään",
+    "loginDesc": "Siirry pelaajan hallintapaneeliin",
+    "signup": "Luo profiilini",
+    "signupDesc": "Ilmainen · valmis 3 minuutissa"
+  },
+  "account": {
+    "title": "Tilisi",
+    "goPanel": "Siirry hallintapaneeliini",
+    "goPanelDesc": "Muokkaa profiiliasi ja mediaasi",
+    "viewProfile": "Näytä julkinen profiilini",
+    "viewProfileFallback": "Julkinen sivusi",
+    "share": "Jaa linkkini",
+    "shareDesc": "Kopioi tai lähetä portfoliosi",
+    "signOut": "Kirjaudu ulos",
+    "signOutDesc": "Poistu tililtäsi",
+    "linkCopied": "Linkki kopioitu",
+    "shareText": "Katso profiilini 'BallersHubissa"
+  },
+  "profile": {
+    "title": "Muokkaa profiilia",
+    "personalData": "Henkilötiedot",
+    "personalDataDesc": "Perustiedot, avatar ja yhteystiedot",
+    "footballData": "Jalkapallotiedot",
+    "footballDataDesc": "Ura, nykyinen seura ja linkit",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Valokuvat, videot ja lehtijutut",
+    "languages": "Kielet",
+    "languagesDesc": "Julkaise profiilisi kielillä EN · IT · PT"
+  },
+  "template": {
+    "title": "Muokkaa mallia",
+    "styles": "Tyylit",
+    "stylesDesc": "Visuaaliset variaatiot ja värit",
+    "structure": "Rakenne",
+    "structureDesc": "Ota lohkot käyttöön tai pois käytöstä"
+  },
+  "settings": {
+    "title": "Asetukset",
+    "account": "Tili",
+    "accountDesc": "Kirjautumistiedot ja asetukset",
+    "subscription": "Tilaus",
+    "subscriptionDesc": "Tilauksen tila ja laskutus",
+    "signOut": "Kirjaudu ulos",
+    "signOutDesc": "Poistu hallintapaneelista turvallisesti"
+  },
+  "coach": {
+    "profileData": "Profiilin tiedot",
+    "profileDataDesc": "Bio, tehtävä, peli-ideat ja kokoonpanot",
+    "career": "Ura",
+    "careerDesc": "Valmennetut seurat ja tilastot",
+    "licenses": "Lisenssit",
+    "licensesDesc": "Tutkinnot ja sertifikaatit",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Valokuvat ja videot työstäsi",
+    "languages": "Kielet",
+    "languagesDesc": "Julkaise sivusi kielillä EN · IT · PT"
+  },
+  "pro": "PRO",
+  "agency": {
+    "title": "Agentuurin profiili",
+    "profile": "Perustiedot",
+    "profileDesc": "Identiteetti, tiedot ja yhteystiedot",
+    "services": "Palvelut",
+    "servicesDesc": "Mitä agentuurisi tarjoaa",
+    "reach": "Kattavuus",
+    "reachDesc": "Maat, joissa toimit",
+    "collaborations": "Seurat",
+    "collaborationsDesc": "Suhteet seuroihin",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Kuvagalleria",
+    "languages": "Kielet",
+    "languagesDesc": "Julkaise kielillä EN · IT · PT"
+  },
+  "management": {
+    "title": "Hallinta",
+    "managerProfile": "Profiilini",
+    "managerProfileDesc": "Biosi ja lisenssisi",
+    "players": "Pelaajani",
+    "playersDesc": "Edustettujen pelaajien salkku",
+    "staff": "Henkilöstö",
+    "staffDesc": "Kollegat ja käyttöoikeudet"
+  },
+  "agencyTemplate": {
+    "title": "Muokkaa mallia",
+    "styles": "Tyylit",
+    "stylesDesc": "Visuaaliset variaatiot ja värit",
+    "structure": "Rakenne",
+    "structureDesc": "Ota lohkot käyttöön tai pois käytöstä"
+  }
+}

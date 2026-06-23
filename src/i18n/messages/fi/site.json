@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "homeTitle": "'BallersHub — Jalkapalloilijoiden ammattimaiset profiilit",
+    "homeDescription": "'BallersHub kokoaa jokaisen jalkapalloilijan ammattimaisen profiilin: ura, tilastot, virallinen galleria, videot ja yhteystiedot. Pelaajien ja agentuurien vahvistetut profiilit."
+  },
+  "agencies": {
+    "pageName": "Agentuurit",
+    "metaTitle": "Pelaaja-agentuurit",
+    "metaDescription": "Hakemisto vahvistetuista jalkapalloilijoiden pelaaja-agentuureista 'BallersHubissa. Pääset käsiksi jokaisen agentuurin viralliseen pelaajaportfolioon.",
+    "ogTitle": "Pelaaja-agentuurit · 'BallersHub"
+  },
+  "comoValidamos": {
+    "metaTitle": "Miten vahvistamme tiedot?",
+    "metaDescription": "'BallersHubin vahvistusprosessi: jokainen profiilin kriittinen muutos käy läpi ihmisen tekemän tarkistuksen, vertailun yli 10 urheilutietolähteeseen (Transfermarkt, Sofascore, FBref…) ja tekoälyagenttien (Gemini, Claude, ChatGPT) suorittaman varmistuksen ennen julkaisua.",
+    "ogTitle": "Miten vahvistamme tiedot? · 'BallersHub"
+  },
+  "search": {
+    "title": "Tulokset",
+    "searched": "Haitsit: ”{q}”",
+    "prompt": "Anna hakusana."
+  },
+  "unsubscribe": {
+    "metaTitle": "Peruuta tilaus",
+    "metaDescription": "Peruuta 'BallersHubin viestien tilaus.",
+    "success": {
+      "title": "Tilaus peruutettu",
+      "intro": "Valmis. Emme lähetä sinulle enää markkinointisähköposteja osoitteeseen ",
+      "fallback": "Saat edelleen transaktiosähköposteja (salasanan palautus, vahvistukset jne.), koska ne ovat välttämättömiä alustan käyttämiseksi.",
+      "back": "Takaisin etusivulle"
+    },
+    "error": {
+      "title": "Virheellinen linkki",
+      "defaultMessage": "Peruutuslinkki ei ole kelvollinen tai se on vanhentunut.",
+      "contact": "Jos haluat peruuttaa tilauksen, kirjoita meille osoitteeseen <email>info@ballershub.co</email>, niin hoidamme sen."
+    },
+    "noToken": {
+      "title": "Peruuta tilaus",
+      "description": "Peruuta avaamalla viimeisin lähettämämme sähköposti ja napsauttamalla alareunassa olevaa ”peruuta tilaus täältä” -linkkiä. Linkki sisältää yksilöllisen, osoitteellesi allekirjoitetun tunnisteen.",
+      "contact": "Jos et löydä sähköpostia, kirjoita meille osoitteeseen <email>info@ballershub.co</email>."
+    }
+  }
+}

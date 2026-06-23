@@ -113,6 +113,20 @@
       "when": 1781799458539,
       "tag": "0015_spotty_blindfold",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1782236371869,
+      "tag": "0016_lowly_forge",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1782245483397,
+      "tag": "0017_demonic_changeling",
+      "breakpoints": true
     }
   ]
 }

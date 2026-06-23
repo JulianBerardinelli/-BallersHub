@@ -154,6 +154,9 @@ const LEAD_SUBJECT: Record<Locale, (player: string) => string> = {
   en: (p) => `Access unlocked: ${p}'s contact`,
   it: (p) => `Accesso sbloccato: contatto di ${p}`,
   pt: (p) => `Acesso desbloqueado: contato de ${p}`,
+  de: (p) => `Zugang freigeschaltet: Kontakt von ${p}`,
+  fr: (p) => `Accès débloqué : contact de ${p}`,
+  fi: (p) => `Yhteystiedot avattu: ${p}`,
 };
 
 // ============================================================================
@@ -255,6 +258,9 @@ const DISCONNECT_SUBJECT: Record<Locale, (player: string) => string> = {
   en: (p) => `Representation ended: ${p}`,
   it: (p) => `Rappresentanza terminata: ${p}`,
   pt: (p) => `Representação encerrada: ${p}`,
+  de: (p) => `Vertretung beendet: ${p}`,
+  fr: (p) => `Représentation terminée : ${p}`,
+  fi: (p) => `Edustus päättynyt: ${p}`,
 };
 
 // ============================================================================
@@ -305,6 +311,9 @@ const SUBSCRIPTION_SUBJECT: Record<Locale, (plan: string) => string> = {
   en: (p) => `Your ${p} plan is active`,
   it: (p) => `Il tuo piano ${p} è attivo`,
   pt: (p) => `Seu plano ${p} está ativo`,
+  de: (p) => `Ihr ${p}-Tarif ist aktiv`,
+  fr: (p) => `Votre forfait ${p} est actif`,
+  fi: (p) => `${p}-tilauksesi on aktiivinen`,
 };
 
 export async function sendCompGrantWelcomeEmail(opts: {
@@ -368,6 +377,18 @@ const COMP_GRANT_SUBJECT: Record<
     v === "extend"
       ? `Estendemos sua conta cortesia ${p}`
       : `Sua conta cortesia ${p} está ativa`,
+  de: (p, v) =>
+    v === "extend"
+      ? `Wir haben Ihr kostenloses ${p}-Konto verlängert`
+      : `Ihr kostenloses ${p}-Konto ist aktiv`,
+  fr: (p, v) =>
+    v === "extend"
+      ? `Nous avons prolongé votre compte offert ${p}`
+      : `Votre compte offert ${p} est actif`,
+  fi: (p, v) =>
+    v === "extend"
+      ? `Jatkoimme maksutonta ${p}-tiliäsi`
+      : `Maksuton ${p}-tilisi on aktiivinen`,
 };
 
 export async function sendPaymentFailedEmail(opts: {
@@ -502,6 +523,9 @@ const BLOG_APPROVED_SUBJECT: Record<Locale, (title: string) => string> = {
   en: (t) => `We published your article: ${t}`,
   it: (t) => `Abbiamo pubblicato il tuo articolo: ${t}`,
   pt: (t) => `Publicamos seu artigo: ${t}`,
+  de: (t) => `Wir haben deinen Artikel veröffentlicht: ${t}`,
+  fr: (t) => `Nous avons publié ton article : ${t}`,
+  fi: (t) => `Julkaisimme artikkelisi: ${t}`,
 };
 
 // ============================================================================
@@ -513,6 +537,9 @@ const ADMIN_CORRECTED_SUBJECT: Record<Locale, string> = {
   en: "We updated your profile on 'BallersHub",
   it: "Abbiamo aggiornato il tuo profilo su 'BallersHub",
   pt: "Atualizamos seu perfil na 'BallersHub",
+  de: "Wir haben dein Profil auf 'BallersHub aktualisiert",
+  fr: "Nous avons mis à jour ton profil sur 'BallersHub",
+  fi: "Päivitimme profiilisi 'BallersHubissa",
 };
 
 /**
@@ -588,6 +615,80 @@ export async function sendAdminCoachProfileCorrectedEmail(opts: {
     });
   } catch (error) {
     console.error("[resend] sendAdminCoachProfileCorrectedEmail:", error);
+  }
+}
+
+// ============================================================================
+// Selección Nacional — admin moderó una etapa (aprobó / rechazó)
+// ============================================================================
+
+const NATIONAL_TEAM_REVIEWED_SUBJECT: Record<Locale, { approved: string; rejected: string }> = {
+  es: {
+    approved: "Aprobamos tu Selección Nacional en 'BallersHub",
+    rejected: "Revisamos tu Selección Nacional en 'BallersHub",
+  },
+  en: {
+    approved: "Your National Team is approved on 'BallersHub",
+    rejected: "We reviewed your National Team on 'BallersHub",
+  },
+  it: {
+    approved: "La tua Nazionale è approvata su 'BallersHub",
+    rejected: "Abbiamo revisionato la tua Nazionale su 'BallersHub",
+  },
+  pt: {
+    approved: "Sua Seleção Nacional foi aprovada na 'BallersHub",
+    rejected: "Revisamos sua Seleção Nacional na 'BallersHub",
+  },
+  de: {
+    approved: "Deine Nationalmannschaft ist auf 'BallersHub freigegeben",
+    rejected: "Wir haben deine Nationalmannschaft auf 'BallersHub geprüft",
+  },
+  fr: {
+    approved: "Ta Sélection nationale est approuvée sur 'BallersHub",
+    rejected: "Nous avons examiné ta Sélection nationale sur 'BallersHub",
+  },
+  fi: {
+    approved: "Maajoukkuekokemuksesi on hyväksytty 'BallersHubissa",
+    rejected: "Tarkistimme maajoukkuekokemuksesi 'BallersHubissa",
+  },
+};
+
+/**
+ * Notifica al jugador el resultado de la moderación de su bloque "Selección
+ * Nacional" (aprobado/rechazado), con la nota opcional del admin. La resolución
+ * del email del jugador (auth.users) la hace el caller vía service-role. Falla
+ * en silencio — la moderación ya escribió en vivo, el email no debe romperla.
+ */
+export async function sendNationalTeamReviewedEmail(opts: {
+  email: string;
+  playerName: string;
+  result: "approved" | "rejected";
+  note?: string | null;
+}) {
+  if (!resend) {
+    console.log("[Resend Mock] National team reviewed →", opts.email, opts.result);
+    return;
+  }
+  try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
+    const dashboardEditUrl = `${siteUrl.replace(/\/+$/, "")}/dashboard/edit-profile/national-team`;
+    const html = await renderTemplate("national_team_reviewed", {
+      playerName: opts.playerName,
+      result: opts.result,
+      note: opts.note ?? null,
+      dashboardUrl: dashboardEditUrl,
+      recipientEmail: opts.email,
+      locale,
+    });
+    const subjectByResult = NATIONAL_TEAM_REVIEWED_SUBJECT[locale] ?? NATIONAL_TEAM_REVIEWED_SUBJECT.es;
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject: subjectByResult[opts.result],
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendNationalTeamReviewedEmail:", error);
   }
 }
 

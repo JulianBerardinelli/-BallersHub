@@ -1,0 +1,97 @@
+{
+  "headline": {
+    "anonymous": {
+      "eyebrow": "Live · 130 aktive Vereine",
+      "lead": "Hochladen, validieren und ",
+      "highlight": "dort spielen, wo es zählt.",
+      "sub": "Mehr als 30 validierte Profile. Verifizierte Bewertungen von Trainerteams. Ihr nächster Verein sucht bereits nach Ihnen."
+    },
+    "player": {
+      "eyebrow": "Ihre Karriere in Bewegung",
+      "lead": "Halten Sie Ihr Profil ",
+      "highlight": "stets aktuell.",
+      "sub": "Laden Sie neue Fotos hoch, passen Sie Ihre fußballerischen Daten an und lassen Sie sich von Vereinen mit den richtigen Informationen finden."
+    },
+    "manager": {
+      "eyebrow": "Ihre Agentur, ganz ohne Reibung",
+      "lead": "Verwalten Sie Ihr Portfolio ",
+      "highlight": "mit Präzision.",
+      "sub": "Fügen Sie Spieler hinzu, validieren Sie Profile und teilen Sie den offiziellen Kader Ihrer Agentur mit Vereinen weltweit."
+    },
+    "applicant": {
+      "eyebrow": "Ihr Antrag ist in Bearbeitung",
+      "lead": "Sie sind nur einen Schritt ",
+      "highlight": "von Ihrem Profi-Konto entfernt.",
+      "sub": "Während wir Ihre Daten prüfen, können Sie weiterhin validierte Profile, Erfolgsgeschichten und Produktneuigkeiten entdecken."
+    },
+    "member": {
+      "eyebrow": "Bereit, wann immer Sie wollen",
+      "lead": "Verwandeln Sie Ihr Konto in ",
+      "highlight": "ein professionelles Profil.",
+      "sub": "Beantragen Sie Ihr Spieler- oder Agenturkonto und beginnen Sie, mit offizieller Verifizierung im Ökosystem zu agieren."
+    }
+  },
+  "cta": {
+    "playerDashboard": "Zu meinem Dashboard",
+    "playerViewProfile": "Mein öffentliches Profil ansehen",
+    "playerEditProfile": "Mein Profil bearbeiten",
+    "managerManage": "Agentur verwalten",
+    "managerViewAgency": "Agenturprofil ansehen",
+    "managerSetup": "Agentur einrichten",
+    "applicantContinue": "Meinen Antrag fortsetzen",
+    "applicantStatus": "Antragsstatus ansehen",
+    "applicantDashboard": "Zum Dashboard",
+    "memberRequest": "Profi-Konto beantragen",
+    "memberDashboard": "Zum Dashboard",
+    "anonCreate": "Mein Profil erstellen",
+    "anonAgency": "Ich bin eine Agentur"
+  },
+  "columns": {
+    "playersTitle": "Für Spieler",
+    "agenciesTitle": "Für Agenturen",
+    "workTitle": "Über uns",
+    "createProfile": "Profil erstellen",
+    "viewValidated": "Validierte Profile ansehen",
+    "editCareer": "Laufbahn bearbeiten",
+    "proTemplates": "Pro-Vorlagen",
+    "createAgency": "Agentur erstellen",
+    "viewAgencies": "Agenturen ansehen",
+    "myRoster": "Mein Portfolio",
+    "officialVerification": "Offizielle Verifizierung",
+    "demo": "Demo",
+    "aboutUs": "Über uns"
+  },
+  "stats": {
+    "profiles": "Validierte Profile",
+    "clubs": "Aktive Vereine",
+    "reviews": "Verifizierte Bewertungen",
+    "countries": "Länder"
+  },
+  "tagline": "Das digitale Ökosystem des Profifußballs.",
+  "legal": {
+    "terms": "AGB",
+    "privacy": "Datenschutz",
+    "cookies": "Cookies"
+  },
+  "credits": "Entwickelt von",
+  "portfolio": {
+    "eyebrowPlayer": "Verifiziertes Profil auf 'BallersHub",
+    "eyebrowAgency": "Verifizierte Agentur auf 'BallersHub",
+    "headlinePlayer": "Werden Sie Teil des Ökosystems von ",
+    "headlineAgency": "Vernetzen Sie sich mit ",
+    "subPlayer": "Validierte Laufbahn, fußballerische Daten und Multimedia. Ihr nächster Schritt auf einer Plattform, die für Profifußballer gemacht ist.",
+    "subAgency": "Entdecken Sie das Spielerportfolio dieser Agentur und gestalten Sie Ihre nächsten Schritte ganz ohne Reibung.",
+    "eyebrowCoach": "Verifizierter Trainer auf 'BallersHub",
+    "headlineCoach": "Lernen Sie die Arbeit kennen von ",
+    "subCoach": "Validierte Laufbahn, Methodik und Qualifikationen. Das professionelle Trainerprofil auf einer Plattform, die für den Fußball gemacht ist.",
+    "ctaContact": "Kontakt anfragen"
+  },
+  "newsletter": {
+    "eyebrow": "Pro-Newsletter",
+    "copy": "Scouting-Insights, neue Funktionen und Erfolgsgeschichten. Einmal im Monat, ganz ohne Lärm.",
+    "button": "Abonnieren",
+    "submitted": "Fertig!",
+    "hint": "Kein Spam. Sie können jederzeit kündigen.",
+    "ariaEmail": "Ihre E-Mail"
+  }
+}

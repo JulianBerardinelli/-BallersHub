@@ -23,6 +23,7 @@ import { BlogCard } from "@/components/blog/BlogCard";
 import { toCardVM } from "@/lib/blog/view";
 import type { HydratedAuthor } from "@/lib/blog/authors";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
+import type { Locale } from "@/i18n/routing";
 
 export const revalidate = 3600;
 
@@ -104,7 +105,7 @@ export default async function AuthorHubPage({ params }: { params: Params }) {
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-12 md:py-16">
-      <ProfilePageJsonLd author={authorForSchema} portfolioSlug={portfolioSlug} />
+      <ProfilePageJsonLd author={authorForSchema} portfolioSlug={portfolioSlug} locale={locale as Locale} />
 
       <nav
         aria-label="Breadcrumbs"

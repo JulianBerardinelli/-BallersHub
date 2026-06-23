@@ -1,0 +1,113 @@
+{
+  "drawer": {
+    "open": "Menü öffnen",
+    "close": "Menü schließen",
+    "title": "Menü",
+    "navLabel": "Seitennavigation"
+  },
+  "tabs": {
+    "home": "Start",
+    "network": "Netzwerk",
+    "plans": "Tarife",
+    "access": "Anmelden",
+    "account": "Konto",
+    "panel": "Dashboard",
+    "profile": "Profil",
+    "template": "Vorlage",
+    "settings": "Einstellungen",
+    "agency": "Agentur",
+    "management": "Verwaltung"
+  },
+  "sectionsCount": "{count, plural, one {# Abschnitt} other {# Abschnitte}}",
+  "access": {
+    "title": "Anmelden",
+    "login": "Einloggen",
+    "loginDesc": "Zu Ihrem Spieler-Dashboard",
+    "signup": "Mein Profil erstellen",
+    "signupDesc": "Kostenlos · in 3 Minuten fertig"
+  },
+  "account": {
+    "title": "Ihr Konto",
+    "goPanel": "Zu meinem Dashboard",
+    "goPanelDesc": "Profil und Medien bearbeiten",
+    "viewProfile": "Mein öffentliches Profil ansehen",
+    "viewProfileFallback": "Ihre öffentliche Seite",
+    "share": "Meinen Link teilen",
+    "shareDesc": "Portfolio kopieren oder senden",
+    "signOut": "Abmelden",
+    "signOutDesc": "Aus Ihrem Konto ausloggen",
+    "linkCopied": "Link kopiert",
+    "shareText": "Sehen Sie sich mein Profil auf 'BallersHub an"
+  },
+  "profile": {
+    "title": "Profil bearbeiten",
+    "personalData": "Persönliche Daten",
+    "personalDataDesc": "Basisdaten, Avatar und Kontakt",
+    "footballData": "Fußballdaten",
+    "footballDataDesc": "Laufbahn, aktueller Verein und Links",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Fotos, Videos und Pressestimmen",
+    "languages": "Sprachen",
+    "languagesDesc": "Veröffentlichen Sie Ihr Profil auf EN · IT · PT"
+  },
+  "template": {
+    "title": "Vorlage bearbeiten",
+    "styles": "Stile",
+    "stylesDesc": "Visuelle Varianten und Farben",
+    "structure": "Struktur",
+    "structureDesc": "Blöcke aktivieren oder deaktivieren"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "account": "Konto",
+    "accountDesc": "Zugangsdaten und Präferenzen",
+    "subscription": "Abonnement",
+    "subscriptionDesc": "Tarifstatus und Abrechnung",
+    "signOut": "Abmelden",
+    "signOutDesc": "Dashboard sicher verlassen"
+  },
+  "coach": {
+    "profileData": "Profildaten",
+    "profileDataDesc": "Bio, Position, Spielideen und Formationen",
+    "career": "Laufbahn",
+    "careerDesc": "Trainierte Vereine und Statistiken",
+    "licenses": "Lizenzen",
+    "licensesDesc": "Qualifikationen und Zertifizierungen",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Fotos und Videos Ihrer Arbeit",
+    "languages": "Sprachen",
+    "languagesDesc": "Veröffentlichen Sie Ihre Seite auf EN · IT · PT"
+  },
+  "pro": "PRO",
+  "agency": {
+    "title": "Agenturprofil",
+    "profile": "Stammdaten",
+    "profileDesc": "Identität, Infos und Kontakt",
+    "services": "Leistungen",
+    "servicesDesc": "Was Ihre Agentur anbietet",
+    "reach": "Reichweite",
+    "reachDesc": "Länder, in denen Sie tätig sind",
+    "collaborations": "Vereine",
+    "collaborationsDesc": "Beziehungen zu Vereinen",
+    "multimedia": "Multimedia",
+    "multimediaDesc": "Bildergalerie",
+    "languages": "Sprachen",
+    "languagesDesc": "Veröffentlichen Sie auf EN · IT · PT"
+  },
+  "management": {
+    "title": "Verwaltung",
+    "managerProfile": "Mein Profil",
+    "managerProfileDesc": "Ihre Bio und Lizenzen",
+    "players": "Meine Spieler",
+    "playersDesc": "Portfolio der vertretenen Spieler",
+    "staff": "Team",
+    "staffDesc": "Kollegen und Berechtigungen"
+  },
+  "agencyTemplate": {
+    "title": "Vorlage bearbeiten",
+    "styles": "Stile",
+    "stylesDesc": "Visuelle Varianten und Farben",
+    "structure": "Struktur",
+    "structureDesc": "Blöcke aktivieren oder deaktivieren"
+  }
+}

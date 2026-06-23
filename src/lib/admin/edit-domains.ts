@@ -7,6 +7,7 @@
 export const ADMIN_EDIT_DOMAINS = [
   "datos",
   "trayectoria",
+  "seleccion",
   "estadisticas",
   "palmares",
   "scouting",
@@ -22,6 +23,7 @@ export type AdminEditDomain = (typeof ADMIN_EDIT_DOMAINS)[number];
 export const ADMIN_EDIT_DOMAIN_LABELS: Record<AdminEditDomain, string> = {
   datos: "datos de perfil",
   trayectoria: "trayectoria",
+  seleccion: "Selección Nacional",
   estadisticas: "estadísticas",
   palmares: "palmarés",
   scouting: "reporte de scouting",
@@ -35,6 +37,7 @@ export const ADMIN_EDIT_DOMAIN_LABELS: Record<AdminEditDomain, string> = {
 export const ADMIN_EDIT_DOMAIN_NOTICE: Record<AdminEditDomain, string> = {
   datos: "Corregimos tus datos de perfil luego de una revisión.",
   trayectoria: "Editamos una etapa de tu trayectoria luego de una revisión.",
+  seleccion: "Revisamos tu Selección Nacional luego de una revisión.",
   estadisticas: "Corregimos tus estadísticas luego de una revisión.",
   palmares: "Corregimos tu palmarés luego de una revisión.",
   scouting: "Actualizamos tu reporte de scouting luego de una revisión.",
@@ -48,6 +51,7 @@ export const ADMIN_EDIT_DOMAIN_NOTICE: Record<AdminEditDomain, string> = {
 export const ADMIN_EDIT_DOMAIN_HREFS: Record<AdminEditDomain, string> = {
   datos: "/dashboard/edit-profile/personal-data",
   trayectoria: "/dashboard/edit-profile/football-data",
+  seleccion: "/dashboard/edit-profile/national-team",
   estadisticas: "/dashboard/edit-profile/football-data",
   palmares: "/dashboard/edit-profile/football-data",
   scouting: "/dashboard/edit-profile/football-data",

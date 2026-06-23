@@ -7,6 +7,7 @@ import type { AdminEditDomain } from "./edit-domains";
 export const ADMIN_EDIT_SECTIONS: { key: AdminEditDomain; label: string }[] = [
   { key: "datos", label: "Datos" },
   { key: "trayectoria", label: "Trayectoria" },
+  { key: "seleccion", label: "Selección Nacional" },
   { key: "estadisticas", label: "Estadísticas" },
   { key: "palmares", label: "Palmarés" },
   { key: "scouting", label: "Scouting" },

@@ -4,13 +4,13 @@ import type { Metadata, Viewport } from "next";
 import { Barlow, Barlow_Condensed, DM_Mono, DM_Sans, Geist, Geist_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { setRequestLocale } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Providers } from "@/app/providers";
 import { routing } from "@/i18n/routing";
-import { HTML_LANG } from "@/i18n/config";
+import { HTML_LANG, OG_LOCALE } from "@/i18n/config";
 import { zuume } from "@/lib/fonts";
 import { getSiteBaseUrlObject } from "@/lib/seo/baseUrl";
 import { OrganizationJsonLd } from "@/lib/seo/organizationJsonLd";
@@ -45,54 +45,65 @@ const dmMono = DM_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: getSiteBaseUrlObject(),
-  title: {
-    default: "'BallersHub — Perfiles profesionales de futbolistas",
-    template: "%s · 'BallersHub",
-  },
-  description:
-    "'BallersHub centraliza el perfil profesional de cada futbolista: trayectoria, estadísticas, galería oficial, videos y contacto. Perfiles verificados de jugadores y agencias.",
-  applicationName: "'BallersHub",
-  keywords: [
-    "futbolistas",
-    "perfil de jugador",
-    "scouting",
-    "agencias de representación",
-    "portfolio de futbolista",
-    // Brand: real form has the leading apostrophe. We also ship the
-    // unapostrophed and space-separated variants so queries like
-    // "ballershub" or "ballers hub" (the natural way someone types it
-    // when they don't remember the punctuation) still match. The
-    // domain ballershub.co reinforces the unapostrophed match.
-    "'BallersHub",
-    "BallersHub",
-    "Ballers Hub",
-  ],
-  authors: [{ name: "'BallersHub" }],
-  creator: "'BallersHub",
-  publisher: "'BallersHub",
-  openGraph: {
-    siteName: "'BallersHub",
-    type: "website",
-    locale: "es_AR",
-  },
-  twitter: { card: "summary_large_image", site: "@ballershub_" },
-  // Default robots policy — public-by-default. Pages that must not be
-  // indexed (checkout, dashboard, admin) override this in their own
-  // `generateMetadata` with `robots: { index: false, follow: false }`.
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations("site");
+  // og:locale per page locale (config.ts is the single source of truth).
+  // Falls back to es_AR for any unknown segment (the route 404s anyway).
+  const ogLocale =
+    (hasLocale(routing.locales, locale) && OG_LOCALE[locale]) || "es_AR";
+  return {
+    metadataBase: getSiteBaseUrlObject(),
+    title: {
+      default: t("meta.homeTitle"),
+      template: "%s · 'BallersHub",
+    },
+    description: t("meta.homeDescription"),
+    applicationName: "'BallersHub",
+    keywords: [
+      "futbolistas",
+      "perfil de jugador",
+      "scouting",
+      "agencias de representación",
+      "portfolio de futbolista",
+      // Brand: real form has the leading apostrophe. We also ship the
+      // unapostrophed and space-separated variants so queries like
+      // "ballershub" or "ballers hub" (the natural way someone types it
+      // when they don't remember the punctuation) still match. The
+      // domain ballershub.co reinforces the unapostrophed match.
+      "'BallersHub",
+      "BallersHub",
+      "Ballers Hub",
+    ],
+    authors: [{ name: "'BallersHub" }],
+    creator: "'BallersHub",
+    publisher: "'BallersHub",
+    openGraph: {
+      siteName: "'BallersHub",
+      type: "website",
+      locale: ogLocale,
+    },
+    twitter: { card: "summary_large_image", site: "@ballershub_" },
+    // Default robots policy — public-by-default. Pages that must not be
+    // indexed (checkout, dashboard, admin) override this in their own
+    // `generateMetadata` with `robots: { index: false, follow: false }`.
+    robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+        "max-video-preview": -1,
+      },
     },
-  },
-};
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0a",

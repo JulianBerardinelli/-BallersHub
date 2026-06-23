@@ -28,4 +28,6 @@ export const profileNotification = {
 export const adminNotification = {
   profileCorrected: ((context, id?) => ({ template: "admin.profileCorrected", context, id })) satisfies Builder<"admin.profileCorrected">,
   coachProfileCorrected: ((context, id?) => ({ template: "admin.coachProfileCorrected", context, id })) satisfies Builder<"admin.coachProfileCorrected">,
+  nationalTeamApproved: ((context, id?) => ({ template: "admin.nationalTeamApproved", context, id })) satisfies Builder<"admin.nationalTeamApproved">,
+  nationalTeamRejected: ((context, id?) => ({ template: "admin.nationalTeamRejected", context, id })) satisfies Builder<"admin.nationalTeamRejected">,
 };

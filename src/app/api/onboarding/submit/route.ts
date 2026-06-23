@@ -66,13 +66,27 @@ const Unauth = () => J(401, { error: "unauthorized" });
 
 export async function POST(req: Request) {
   // 1) Body
-  let body: { step1: Step1; step2: Step2; kyc: { idDocKey: string; selfieKey: string } };
+  type NationalTeamItem = {
+    countryCode?: string | null;
+    countryName?: string | null;
+    ageCategory?: string;
+    participation?: string;
+    startYear?: number | null;
+    endYear?: number | null;
+    description?: string | null;
+  };
+  let body: {
+    step1: Step1;
+    step2: Step2;
+    nationalTeam?: NationalTeamItem[];
+    kyc: { idDocKey: string; selfieKey: string };
+  };
   try {
     body = await req.json();
   } catch {
     return Bad("invalid_json");
   }
-  const { step1, step2, kyc } = body;
+  const { step1, step2, nationalTeam, kyc } = body;
   if (!kyc?.idDocKey || !kyc?.selfieKey) return Bad("missing_kyc");
 
   // 2) Auth por header Bearer (sin cookies)
@@ -137,6 +151,35 @@ export async function POST(req: Request) {
 
   const external_profile_url = step2?.besoccer ?? step2?.social ?? null;
 
+  // Sanitizar etapas de selección nacional (se materializan a
+  // national_team_stints como `pending_review` al aprobar la aplicación).
+  const NT_ALLOWED_CAT = new Set([
+    "sub15", "sub16", "sub17", "sub18", "sub19", "sub20",
+    "sub21", "sub23", "olympic", "senior", "other",
+  ]);
+  const NT_ALLOWED_PART = new Set(["called_up", "played", "sparring", "training_camp"]);
+  const national_team = (Array.isArray(nationalTeam) ? nationalTeam : [])
+    .filter(
+      (s) =>
+        s &&
+        typeof s.countryCode === "string" &&
+        typeof s.ageCategory === "string" &&
+        NT_ALLOWED_CAT.has(s.ageCategory),
+    )
+    .slice(0, 12)
+    .map((s) => ({
+      countryCode: String(s.countryCode).toUpperCase().slice(0, 2),
+      countryName: typeof s.countryName === "string" ? s.countryName.slice(0, 120) : null,
+      ageCategory: s.ageCategory,
+      participation:
+        typeof s.participation === "string" && NT_ALLOWED_PART.has(s.participation)
+          ? s.participation
+          : "called_up",
+      startYear: typeof s.startYear === "number" && Number.isFinite(s.startYear) ? s.startYear : null,
+      endYear: typeof s.endYear === "number" && Number.isFinite(s.endYear) ? s.endYear : null,
+      description: typeof s.description === "string" ? s.description.slice(0, 600) : null,
+    }));
+
   const notes = JSON.stringify({
     career_draft: step2?.career ?? [],
     birth_date: step1?.birthDate ?? null,
@@ -144,6 +187,7 @@ export async function POST(req: Request) {
     weight_kg: step1?.weightKg ?? null,
     nationality_codes: nationalityCodes,
     social_url: step2?.social ?? null,
+    national_team,
     ui_version: "onboarding_v2",
   });
 

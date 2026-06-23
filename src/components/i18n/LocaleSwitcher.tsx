@@ -8,7 +8,7 @@ import { LOCALE_LABEL } from "@/i18n/config";
 import { LocaleFlag } from "./LocaleFlag";
 
 // Short codes shown in the trigger (the full names live in the menu).
-const SHORT: Record<Locale, string> = { es: "ES", en: "EN", it: "IT", pt: "PT" };
+const SHORT: Record<Locale, string> = { es: "ES", en: "EN", it: "IT", pt: "PT", de: "DE", fr: "FR", fi: "FI" };
 
 /**
  * Locale switcher for the site chrome.

@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "homeTitle": "'BallersHub — Profili professionali di calciatori",
+    "homeDescription": "'BallersHub centralizza il profilo professionale di ogni calciatore: carriera, statistiche, galleria ufficiale, video e contatti. Profili verificati di giocatori e agenzie."
+  },
   "agencies": {
     "pageName": "Agenzie",
     "metaTitle": "Agenzie di procura per calciatori",

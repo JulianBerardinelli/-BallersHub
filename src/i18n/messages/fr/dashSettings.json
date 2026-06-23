@@ -1,0 +1,48 @@
+{
+  "account": {
+    "cardTitle": "Informations de connexion",
+    "cardDescription": "Mettez à jour vos identifiants ou consultez les informations de base de votre compte.",
+    "editAria": "Modifier les informations de connexion",
+    "cancelEditAria": "Annuler la modification",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "votre@email.com",
+    "emailConfirmationSent": "Nous vous avons envoyé un lien de confirmation par e-mail pour valider la modification.",
+    "updateEmail": "Mettre à jour l'e-mail",
+    "updatingEmail": "Mise à jour...",
+    "newPasswordLabel": "Nouveau mot de passe",
+    "newPasswordPlaceholder": "6 caractères minimum",
+    "passwordTooShort": "Le mot de passe doit comporter au moins 6 caractères.",
+    "passwordUpdated": "Mot de passe mis à jour avec succès.",
+    "updatePassword": "Mettre à jour le mot de passe",
+    "updatingPassword": "Mise à jour...",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "passwordLabel": "Mot de passe",
+    "roleLabel": "Rôle du compte",
+    "roleDescription": "Détermine le type de profil auquel vous avez accès.",
+    "roleManager": "Agence / Représentant",
+    "roleAdmin": "Administrateur",
+    "roleMember": "Joueur / Membre",
+    "createdAtLabel": "Création du compte"
+  },
+  "subscription": {
+    "stripePortalTitle": "Portail Stripe",
+    "stripePortalDescription": "Mettez à jour votre carte, téléchargez vos factures ou résiliez l'abonnement.",
+    "openPortal": "Ouvrir le portail",
+    "stripePortalRequestFailed": "Échec de la demande au portail Stripe",
+    "cancelScheduledNotice": "Votre abonnement est programmé pour être résilié à la fin de la période. Si vous changez d'avis, vous pouvez l'annuler depuis le portail.",
+    "cancelTitle": "Résilier l'abonnement",
+    "cancelDescription": "Mercado Pago coupe l'accès immédiatement lors de la résiliation. Aucun remboursement partiel de la période payée n'est prévu.",
+    "cancel": "Résilier",
+    "back": "Retour",
+    "confirmCancel": "Confirmer la résiliation",
+    "cancelRequestFailed": "Échec de la demande de résiliation"
+  },
+  "common": {
+    "invalidLocale": "Langue invalide.",
+    "mustSignIn": "Vous devez vous connecter.",
+    "localeSaveFailed": "Impossible d'enregistrer la langue.",
+    "localeUpdated": "Langue maternelle mise à jour.",
+    "unknownError": "Erreur inconnue."
+  }
+}

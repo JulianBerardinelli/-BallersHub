@@ -11,7 +11,7 @@ import type { BlogPost, BlogStatus } from "@/db/schema";
 
 // Locales the blog supports (mirror src/i18n/routing.ts; we accept them here
 // at the boundary so callers can pass the URL `locale` string verbatim).
-const BLOG_LOCALES = ["es", "en", "it", "pt"] as const;
+const BLOG_LOCALES = ["es", "en", "it", "pt", "de", "fr", "fi"] as const;
 type BlogLocale = (typeof BLOG_LOCALES)[number];
 function asBlogLocale(v: string): BlogLocale {
   return (BLOG_LOCALES as readonly string[]).includes(v)

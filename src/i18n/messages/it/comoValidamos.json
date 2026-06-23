@@ -1,0 +1,85 @@
+{
+  "header": {
+    "eyebrow": "Fiducia verificata · 'BallersHub",
+    "titleLead": "Come",
+    "titleHl": "validiamo",
+    "intro": "Ogni modifica critica a un profilo passa attraverso un flusso di validazione: revisione umana, confronto con oltre 10 fonti sportive e verifica con l'intelligenza artificiale. Guarda il processo passo dopo passo.",
+    "introMobile": "Ogni modifica critica a un profilo passa attraverso un flusso di validazione: revisione umana, confronto con oltre 10 fonti sportive e verifica con l'intelligenza artificiale."
+  },
+  "stepLabel": "Passo {tag} / 06",
+  "steps": [
+    { "title": "Richiesta", "sub": "Giocatore / Agente" },
+    { "title": "Pannello Admin", "sub": "Coda di revisione" },
+    { "title": "+10 Fonti", "sub": "Confronto incrociato" },
+    { "title": "Validazione IA", "sub": "Tripla verifica" },
+    { "title": "Decisione", "sub": "Approva / Rifiuta" },
+    { "title": "Pubblicato", "sub": "Profilo aggiornato" }
+  ],
+  "captions": [
+    {
+      "title": "Il giocatore invia una <hl>richiesta</hl>",
+      "body": "Dal suo pannello, il giocatore o il suo agente richiede una modifica al percorso di carriera, alle statistiche o ai contenuti multimediali. Niente viene pubblicato da solo: tutto entra in revisione.",
+      "mockHd": "Aggiungi tappa di carriera · componente reale",
+      "mockSlot": "Prossimamente: registrazione del flusso reale “aggiungi tappa + invia richiesta”."
+    },
+    {
+      "title": "Arriva al <hl>Pannello di Amministrazione</hl>",
+      "body": "La richiesta entra nella coda di revisione del team di 'BallersHub. Un amministratore la prende in carico e apre il fascicolo del giocatore per iniziare a verificare.",
+      "mockHd": "Pannello di revisione · Admin",
+      "mockSlot": "Prossimamente: registrazione del pannello di revisione del team."
+    },
+    {
+      "title": "Confronto su <hl>+10 fonti</hl>",
+      "body": "Il flusso si apre e interroga in parallelo le principali piattaforme sportive del mondo. Avanza solo ciò che coincide su più fonti riconosciute.",
+      "statNum": "10/10",
+      "statLabel": "fonti coincidono",
+      "note": "Transfermarkt · BeSoccer · Flashscore · Sofascore · +4"
+    },
+    {
+      "title": "Validazione con <hl>agenti IA</hl>",
+      "body": "Il flusso viene inoltrato a tre modelli di IA che incrociano i dati in modo indipendente, rilevano incongruenze e restituiscono un livello di affidabilità. Il consenso rafforza la decisione.",
+      "statNum": "98%",
+      "statLabel": "consenso di validazione",
+      "note": "Gemini 97% · Claude 98% · ChatGPT 96%"
+    },
+    {
+      "title": "Il team <hl>approva o rifiuta</hl>",
+      "body": "Con il confronto delle fonti e il consenso dell'IA, l'amministratore prende la decisione finale. Se tutto coincide, viene approvata. In caso contrario, torna indietro con un riscontro dettagliato.",
+      "approveBtn": "Approva",
+      "rejectBtn": "Rifiuta",
+      "approveStamp": "✓ Approvata",
+      "approveSub": "I dati coincidono con fonti e IA.",
+      "rejectStamp": "✕ Rifiutata",
+      "rejectSub": "Torna indietro con un riscontro dettagliato da correggere."
+    },
+    {
+      "title": "La modifica viene <hl>pubblicata</hl>",
+      "body": "Il dato verificato viene pubblicato sul profilo pubblico del giocatore, pronto per essere condiviso con club e osservatori. Tracciabile e con supporto reale.",
+      "badge": "Pubblicato",
+      "note": "https://ballershub.co/il-tuo-nome"
+    }
+  ],
+  "outro": {
+    "eyebrow": "Il flusso completo",
+    "titleLead": "Sei passi.",
+    "titleHl": "Zero dati non verificati.",
+    "recap": [
+      { "title": "Richiesta", "desc": "Il giocatore o l'agente chiede una modifica." },
+      { "title": "Pannello Admin", "desc": "Entra nella coda di revisione del team." },
+      { "title": "+10 Fonti", "desc": "Confronto incrociato con le migliori piattaforme." },
+      { "title": "Validazione IA", "desc": "Gemini, Claude e ChatGPT incrociano i dati." },
+      { "title": "Decisione", "desc": "Viene approvata o torna indietro con un riscontro." },
+      { "title": "Pubblicato", "desc": "Il dato verificato va al profilo pubblico." }
+    ]
+  },
+  "cta": {
+    "titleLead": "La tua carriera. I tuoi dati.",
+    "titleHl": "Verificati.",
+    "body": "Crea il tuo profilo professionale e lascia che ogni dato parli con un supporto reale.",
+    "primary": "Crea il mio profilo →",
+    "secondary": "Vedi i giocatori"
+  },
+  "ui": {
+    "scrollHint": "Scorri per eseguire il flusso"
+  }
+}

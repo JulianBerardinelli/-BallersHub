@@ -38,6 +38,11 @@ import {
   parseMarketValue,
 } from "@/app/[locale]/(dashboard)/dashboard/edit-profile/football-data/normalize";
 import {
+  upsertNationalTeamStintSchema,
+  deleteNationalTeamStintSchema,
+  type UpsertNationalTeamStintInput,
+} from "@/app/[locale]/(dashboard)/dashboard/edit-profile/national-team/schemas";
+import {
   fetchCountryLookup,
   parseBirthDate,
   parseResidence,
@@ -621,6 +626,136 @@ export async function adminSubmitCareerLive(
   });
 
   return { success: true };
+}
+
+// ---------------------------------------------------------------------------
+// Selección Nacional — direct LIVE edit of national_team_stints
+// ---------------------------------------------------------------------------
+
+/**
+ * upsert/delete injected into NationalTeamManager (adminMode) so the admin's
+ * edits write LIVE to national_team_stints, bypassing the review queue. Unlike
+ * the player flow (every save → pending_review), an admin save lands as
+ * `approved` (the admin is the moderator) and stamps the review fields.
+ */
+export async function adminUpsertNationalTeamStint(
+  input: UpsertNationalTeamStintInput,
+): Promise<{ success: true; id?: string } | { success: false; message: string }> {
+  const parsed = upsertNationalTeamStintSchema.safeParse(input);
+  if (!parsed.success) {
+    const first = parsed.error.issues[0]?.message;
+    return { success: false, message: first ?? "Revisá los datos de la etapa." };
+  }
+  const auth = await ensureAdminActor();
+  if (!auth.ok) return { success: false, message: auth.error };
+  const admin = auth.actor.adminClient;
+
+  const { playerId, stint } = parsed.data;
+  const target = await loadTargetPlayer(admin, playerId);
+  if (!target) return { success: false, message: "No encontramos el perfil indicado." };
+
+  const fields = {
+    team_id: stint.teamId,
+    proposed_team_name: stint.proposedTeamName,
+    country_code: stint.countryCode,
+    age_category: stint.ageCategory,
+    participation: stint.participation,
+    highlights: stint.highlights && stint.highlights.length > 0 ? stint.highlights : null,
+    start_year: stint.startYear,
+    end_year: stint.endYear,
+    description: stint.description,
+    caps: stint.caps,
+    goals: stint.goals,
+    assists: stint.assists,
+    minutes: stint.minutes,
+    reference_url: stint.referenceUrl,
+  };
+
+  const nowIso = new Date().toISOString();
+  let stintId = stint.id;
+
+  if (stint.id) {
+    const { error } = await admin
+      .from("national_team_stints")
+      .update({
+        ...fields,
+        status: "approved",
+        reviewed_by_user_id: auth.actor.actorId,
+        reviewed_at: nowIso,
+        resolution_note: null,
+        updated_at: nowIso,
+      })
+      .eq("id", stint.id)
+      .eq("player_id", playerId);
+    if (error) return { success: false, message: error.message };
+  } else {
+    const { data: maxRow } = await admin
+      .from("national_team_stints")
+      .select("order_index")
+      .eq("player_id", playerId)
+      .order("order_index", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ order_index: number }>();
+    const nextOrder = (maxRow?.order_index ?? -1) + 1;
+
+    const { data: inserted, error } = await admin
+      .from("national_team_stints")
+      .insert({
+        player_id: playerId,
+        ...fields,
+        order_index: nextOrder,
+        status: "approved",
+        submitted_by_user_id: target.userId,
+        reviewed_by_user_id: auth.actor.actorId,
+        reviewed_at: nowIso,
+      })
+      .select("id")
+      .maybeSingle<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    stintId = inserted?.id;
+  }
+
+  await recordAdminPlayerEdit({
+    actor: auth.actor,
+    playerId: target.id,
+    targetUserId: target.userId,
+    domain: "seleccion",
+    changedFields: ["Selección Nacional"],
+  });
+
+  return { success: true, id: stintId };
+}
+
+export async function adminDeleteNationalTeamStint(input: {
+  playerId: string;
+  id: string;
+}): Promise<{ success: true; id?: string } | { success: false; message: string }> {
+  const parsed = deleteNationalTeamStintSchema.safeParse(input);
+  if (!parsed.success) return { success: false, message: "Datos inválidos." };
+  const auth = await ensureAdminActor();
+  if (!auth.ok) return { success: false, message: auth.error };
+  const admin = auth.actor.adminClient;
+
+  const { playerId, id } = parsed.data;
+  const target = await loadTargetPlayer(admin, playerId);
+  if (!target) return { success: false, message: "No encontramos el perfil indicado." };
+
+  const { error } = await admin
+    .from("national_team_stints")
+    .delete()
+    .eq("id", id)
+    .eq("player_id", playerId);
+  if (error) return { success: false, message: error.message };
+
+  await recordAdminPlayerEdit({
+    actor: auth.actor,
+    playerId: target.id,
+    targetUserId: target.userId,
+    domain: "seleccion",
+    changedFields: ["Etapa de selección eliminada"],
+  });
+
+  return { success: true, id };
 }
 
 // ---------------------------------------------------------------------------

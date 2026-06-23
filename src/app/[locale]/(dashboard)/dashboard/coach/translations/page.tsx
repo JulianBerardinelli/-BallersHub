@@ -10,7 +10,7 @@ import CoachTranslationsEditor, {
 
 export const dynamic = "force-dynamic";
 
-const LOCALES: CoachTranslatableLocale[] = ["en", "it", "pt"];
+const LOCALES: CoachTranslatableLocale[] = ["en", "it", "pt", "de", "fr", "fi"];
 
 export default async function CoachTranslationsPage() {
   const supabase = await createSupabaseServerRSC();
@@ -88,6 +88,9 @@ export default async function CoachTranslationsPage() {
     en: empty(),
     it: empty(),
     pt: empty(),
+    de: empty(),
+    fr: empty(),
+    fi: empty(),
   };
   for (const r of rows ?? []) {
     const loc = r.locale as CoachTranslatableLocale;

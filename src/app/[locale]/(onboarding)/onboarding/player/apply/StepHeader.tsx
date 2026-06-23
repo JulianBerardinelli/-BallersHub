@@ -7,8 +7,8 @@ export default function StepHeader({
   activeStep,
   maxStepUnlocked,
 }: {
-  activeStep: 1 | 2 | 3;
-  maxStepUnlocked: 1 | 2 | 3;
+  activeStep: 1 | 2 | 3 | 4;
+  maxStepUnlocked: 1 | 2 | 3 | 4;
 }) {
   const t = useTranslations("onboarding");
   return (
@@ -22,15 +22,16 @@ export default function StepHeader({
         </h1>
       </div>
 
-      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { n: 1, title: t("apply.header.step1Title"), sub: t("apply.header.step1Sub") },
           { n: 2, title: t("apply.header.step2Title"), sub: t("apply.header.step2Sub") },
-          { n: 3, title: t("apply.header.step3Title"), sub: t("apply.header.step3Sub") },
+          { n: 3, title: t("apply.header.stepNtTitle"), sub: t("apply.header.stepNtSub") },
+          { n: 4, title: t("apply.header.step3Title"), sub: t("apply.header.step3Sub") },
         ].map((s) => {
-          const isActive = activeStep === (s.n as 1 | 2 | 3);
-          const isLocked = maxStepUnlocked < (s.n as 1 | 2 | 3);
-          const isDone = (s.n as 1 | 2 | 3) < activeStep;
+          const isActive = activeStep === (s.n as 1 | 2 | 3 | 4);
+          const isLocked = maxStepUnlocked < (s.n as 1 | 2 | 3 | 4);
+          const isDone = (s.n as 1 | 2 | 3 | 4) < activeStep;
           return (
             <li
               key={s.n}

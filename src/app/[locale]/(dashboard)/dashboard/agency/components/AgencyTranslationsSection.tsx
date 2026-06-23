@@ -13,13 +13,16 @@ import {
   type AgencyTranslationFields,
 } from "@/app/actions/agency-translations";
 
-type TargetLocale = "en" | "it" | "pt";
+type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 type Fields = { description: string; tagline: string };
 
 const LOCALES: { code: TargetLocale; label: string; flag: string }[] = [
   { code: "en", label: "English", flag: "🇬🇧" },
   { code: "it", label: "Italiano", flag: "🇮🇹" },
   { code: "pt", label: "Português", flag: "🇧🇷" },
+  { code: "de", label: "Deutsch", flag: "🇩🇪" },
+  { code: "fr", label: "Français", flag: "🇫🇷" },
+  { code: "fi", label: "Suomi", flag: "🇫🇮" },
 ];
 
 export default function AgencyTranslationsSection({
@@ -49,9 +52,26 @@ export default function AgencyTranslationsSection({
       description: translations.pt?.description ?? "",
       tagline: translations.pt?.tagline ?? "",
     },
+    de: {
+      description: translations.de?.description ?? "",
+      tagline: translations.de?.tagline ?? "",
+    },
+    fr: {
+      description: translations.fr?.description ?? "",
+      tagline: translations.fr?.tagline ?? "",
+    },
+    fi: {
+      description: translations.fi?.description ?? "",
+      tagline: translations.fi?.tagline ?? "",
+    },
   }));
   const [savedLocales, setSavedLocales] = useState<Set<TargetLocale>>(
-    () => new Set((["en", "it", "pt"] as TargetLocale[]).filter((l) => translations[l])),
+    () =>
+      new Set(
+        (["en", "it", "pt", "de", "fr", "fi"] as TargetLocale[]).filter(
+          (l) => translations[l],
+        ),
+      ),
   );
   const [feedback, setFeedback] = useState<
     { type: "success" | "danger"; message: string } | null

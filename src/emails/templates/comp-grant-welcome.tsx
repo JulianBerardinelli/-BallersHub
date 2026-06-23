@@ -149,6 +149,84 @@ const COPY: Record<Locale, Copy> = {
     ctaManage: "Ver minha assinatura",
     help: "Dúvidas ou problemas? Responda este e-mail e te ajudamos.",
   },
+  de: {
+    eyebrow: "Kostenloses Konto",
+    heading: (n, v) =>
+      v === "extend" ? `Wir haben Ihren Zugang verlängert, ${n}` : `Wir haben Ihren Zugang aktiviert, ${n}`,
+    preheader: (n, p) => `${n}, Ihr Zugang zu ${p} ist jetzt aktiv.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `Das 'BallersHub-Team hat Ihr kostenloses ${p}-Konto verlängert.`
+        : `Das 'BallersHub-Team hat ein kostenloses ${p}-Konto für Sie eingerichtet — ohne Kosten.`,
+    expiryLine: (d) =>
+      d
+        ? `Ihr Zugang ist gültig bis zum ${d}.`
+        : "Ihr Zugang ist dauerhaft — ohne Ablaufdatum.",
+    step1: {
+      title: "Ihnen stehen alle Pro-Funktionen zur Verfügung",
+      body: "Pro-Athlete-Layout, Bewertungen, Titel, Marktwert, analytisches Scouting, Katalog-Galerie und mehr. Nutzen Sie sie, um Ihr Profil hervorzuheben.",
+    },
+    step2: {
+      title: "Keine Karte und keine Abrechnung erforderlich",
+      badge: "Ohne Kosten",
+      body: "Dieses Konto wird direkt vom 'BallersHub-Team verwaltet. Ihnen werden keine Beträge berechnet, und Sie müssen keine Zahlungsmethode hinterlegen.",
+    },
+    ctaDashboard: "Zu meinem Dashboard",
+    ctaManage: "Mein Abonnement ansehen",
+    help: "Fragen oder Probleme? Antworten Sie auf diese E-Mail, und wir helfen Ihnen.",
+  },
+  fr: {
+    eyebrow: "Compte offert",
+    heading: (n, v) =>
+      v === "extend" ? `Nous avons prolongé votre accès, ${n}` : `Nous avons activé votre accès, ${n}`,
+    preheader: (n, p) => `${n}, votre accès à ${p} est désormais actif.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `L'équipe 'BallersHub a prolongé votre compte offert ${p}.`
+        : `L'équipe 'BallersHub vous a activé un compte offert ${p} — sans frais.`,
+    expiryLine: (d) =>
+      d
+        ? `Votre accès est valable jusqu'au ${d}.`
+        : "Votre accès est permanent — sans date d'expiration.",
+    step1: {
+      title: "Vous disposez de toutes les fonctionnalités Pro",
+      body: "Mise en page Pro Athlete, évaluations, palmarès, valeur marchande, recrutement analytique, galerie catalogue et plus encore. Profitez-en pour mettre en valeur votre profil.",
+    },
+    step2: {
+      title: "Aucune carte ni facturation",
+      badge: "Sans frais",
+      body: "Ce compte est géré directement par l'équipe 'BallersHub. Vous ne serez pas débité et n'avez pas besoin d'enregistrer de moyen de paiement.",
+    },
+    ctaDashboard: "Accéder à mon tableau de bord",
+    ctaManage: "Voir mon abonnement",
+    help: "Des questions ou des problèmes ? Répondez à cet e-mail et nous vous aiderons.",
+  },
+  fi: {
+    eyebrow: "Maksuton tili",
+    heading: (n, v) =>
+      v === "extend" ? `Jatkoimme käyttöoikeuttasi, ${n}` : `Aktivoimme käyttöoikeutesi, ${n}`,
+    preheader: (n, p) => `${n}, käyttöoikeutesi kohteeseen ${p} on nyt aktiivinen.`,
+    intro: (p, v) =>
+      v === "extend"
+        ? `'BallersHub-tiimi jatkoi maksutonta ${p}-tiliäsi.`
+        : `'BallersHub-tiimi aktivoi sinulle maksuttoman ${p}-tilin — veloituksetta.`,
+    expiryLine: (d) =>
+      d
+        ? `Käyttöoikeutesi on voimassa ${d} asti.`
+        : "Käyttöoikeutesi on pysyvä — ilman päättymispäivää.",
+    step1: {
+      title: "Käytössäsi ovat kaikki Pro-ominaisuudet",
+      body: "Pro Athlete -asettelu, arvostelut, saavutukset, markkina-arvo, analyyttinen skouttaus, katalogigalleria ja paljon muuta. Hyödynnä niitä erottaaksesi profiilisi.",
+    },
+    step2: {
+      title: "Ei korttia eikä laskutusta",
+      badge: "Veloituksetta",
+      body: "Tätä tiliä hallinnoi suoraan 'BallersHub-tiimi. Sinua ei veloiteta, eikä sinun tarvitse rekisteröidä maksutapaa.",
+    },
+    ctaDashboard: "Siirry hallintapaneeliini",
+    ctaManage: "Näytä tilaukseni",
+    help: "Kysymyksiä tai ongelmia? Vastaa tähän sähköpostiin, niin autamme.",
+  },
 };
 
 /**

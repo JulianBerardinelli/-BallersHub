@@ -7,6 +7,8 @@
 // them when /blog/authors/[slug] ships.
 
 import { toCanonicalUrl, getSiteBaseUrl } from "./baseUrl";
+import type { Locale } from "@/i18n/routing";
+import { HTML_LANG } from "@/i18n/config";
 
 export type ArticleJsonLdInput = {
   slug: string;
@@ -32,7 +34,13 @@ function toIso(d: Date | string | null): string | null {
   return d.toISOString();
 }
 
-export function ArticleJsonLd({ article }: { article: ArticleJsonLdInput }) {
+export function ArticleJsonLd({
+  article,
+  locale,
+}: {
+  article: ArticleJsonLdInput;
+  locale: Locale;
+}) {
   const base = getSiteBaseUrl();
   const articleUrl = toCanonicalUrl(`/blog/${article.slug}`);
   const authorUrl = toCanonicalUrl(`/blog/authors/${article.author.slug}`);
@@ -60,7 +68,7 @@ export function ArticleJsonLd({ article }: { article: ArticleJsonLdInput }) {
     headline: article.title,
     description: article.description,
     url: articleUrl,
-    inLanguage: "es-AR",
+    inLanguage: HTML_LANG[locale],
     ...(article.heroImageUrl && { image: article.heroImageUrl }),
     ...(datePublished && { datePublished }),
     ...(dateModified && { dateModified }),

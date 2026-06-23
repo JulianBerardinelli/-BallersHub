@@ -1,0 +1,67 @@
+{
+  "label": {
+    "current": "Nykyinen seura",
+    "club": "Seura"
+  },
+  "freeAgent": "Vapaa pelaaja",
+  "placeholder": {
+    "search": "Kirjoita seurasi nimi",
+    "searchTeam": "Kirjoita hakeaksesi joukkuetta",
+    "disabledFree": "Poistettu käytöstä vapaan pelaajan vuoksi"
+  },
+  "hint": {
+    "signpost": "Etkö löydä seuraasi? Voit lisätä sen."
+  },
+  "option": {
+    "add": "Lisää ”{name}”",
+    "addHint": "Ei listalla · vahvistamme sen"
+  },
+  "badge": {
+    "new": "Uusi"
+  },
+  "modal": {
+    "title": "Lisää seurasi",
+    "intro": "Emme löytäneet sitä tietokannastamme. Täytä nämä tiedot, niin vahvistamme sen ja tallennamme sen profiiliisi.",
+    "country": "Seuran maa",
+    "countryRequired": "Valitse maa",
+    "tm": "Transfermarkt (valinnainen)",
+    "tmInvalid": "Virheellinen URL (https://...)",
+    "cancel": "Peruuta",
+    "save": "Lisää seura"
+  },
+  "chip": {
+    "selected": "Valittu: {name}",
+    "added": "Lisätty: {name} · vahvistusta odottamassa",
+    "free": "Vapaa pelaaja"
+  },
+  "details": {
+    "edit": "Muokkaa seuran tietoja"
+  },
+  "dashboardPicker": {
+    "currentTeamLabel": "Nykyinen joukkue",
+    "currentTeamDescription": "Hae joukkuettasi nimellä. Jos sitä ei ole, voit ehdottaa sitä.",
+    "currentTeamPlaceholder": "Esim.: Boca Juniors",
+    "countryLabel": "Maa (nimi tai ISO-2)",
+    "countryDescription": "Esim.: Argentiina tai AR",
+    "countryPlaceholder": "Argentiina / AR",
+    "resultsTitle": "Tulokset",
+    "noResults": "Emme löytäneet joukkueita haulla ”{q}”.",
+    "chooseTeam": "Valitse",
+    "proposeNew": "Ehdota uutta joukkuetta: ”{q}”",
+    "proposeHelp": "Joukkue ei ole tietokannassamme. Pyyntösi perusteella luomme ja vahvistamme sen.",
+    "freeAgentCta": "Olen vapaa pelaaja (ilman joukkuetta)",
+    "chipSelected": "Valittu: {name}",
+    "chipProposed": "Ehdotettu joukkue: {name}",
+    "chipFree": "Vapaa pelaaja"
+  },
+  "createModal": {
+    "title": "Uusi joukkue: ”{name}”",
+    "countryLabel": "Seuran maa",
+    "countryRequired": "Valitse maa",
+    "tmLabel": "Transfermarkt (valinnainen)",
+    "tmPlaceholder": "https://www.transfermarkt.com/...",
+    "tmInvalid": "Virheellinen URL (https://...)",
+    "cancel": "Peruuta",
+    "save": "Tallenna"
+  }
+}

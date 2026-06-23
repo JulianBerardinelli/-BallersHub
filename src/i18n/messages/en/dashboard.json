@@ -250,6 +250,10 @@
       "logout": {
         "title": "Sign out",
         "description": "Leave the panel securely."
+      },
+      "national-team": {
+        "title": "National Team",
+        "description": "Your national team experience (categories, stats and photos)."
       }
     },
     "manager": {

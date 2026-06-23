@@ -137,6 +137,81 @@ const COPY: Record<Locale, Copy> = {
     cta: "Completar meu perfil",
     help: "Se precisar de ajuda para completar alguma seção, responda este e-mail e te orientamos.",
   },
+  de: {
+    eyebrow: "Ein Schritt vor der Veröffentlichung",
+    heading: (n) => `${n}, es fehlt nur noch wenig`,
+    intro: (m) =>
+      typeof m === "number" && m > 0
+        ? `Ihnen ${m === 1 ? "fehlt noch" : "fehlen noch"} ${m} ${m === 1 ? "Abschnitt" : "Abschnitte"}, um Ihr Profil zu veröffentlichen.`
+        : "Es fehlt nur noch wenig, um Ihr professionelles Profil zu veröffentlichen.",
+    valueProp:
+      "Vollständige Profile erhalten bis zu 5× mehr Besuche von Scouts und Agenturen — und wenn jemand nach Position oder Liga sucht, erscheinen unvollständige nicht in den Ergebnissen. Das ist der Unterschied zwischen sichtbar sein oder nicht.",
+    step1: {
+      title: "Persönliche Daten und Kontakt",
+      body: "Foto, Nationalität und Basisdaten. Dauert 2 Minuten.",
+    },
+    step2: {
+      title: "Fußballerische Daten",
+      badge: "Wichtig",
+      body: "Positionen, aktueller Verein, Laufbahn. Das ist das Erste, worauf ein Scout schaut.",
+    },
+    step3: {
+      title: "Medien hochladen",
+      body: "Hochauflösende Fotos und ein Highlight-Video. Ihr Pro-Portfolio erwacht mit Material zum Leben.",
+    },
+    cta: "Mein Profil vervollständigen",
+    help: "Wenn Sie Hilfe beim Vervollständigen eines Abschnitts brauchen, antworten Sie auf diese E-Mail, und wir helfen Ihnen.",
+  },
+  fr: {
+    eyebrow: "À une étape de la publication",
+    heading: (n) => `${n}, vous y êtes presque`,
+    intro: (m) =>
+      typeof m === "number" && m > 0
+        ? `Il vous ${m === 1 ? "reste" : "reste"} ${m} ${m === 1 ? "section" : "sections"} à compléter pour publier votre profil.`
+        : "Il ne reste qu'une étape pour publier votre profil professionnel.",
+    valueProp:
+      "Les profils complets reçoivent jusqu'à 5× plus de visites de recruteurs et d'agences — et lorsqu'on recherche par poste ou par championnat, les profils incomplets n'apparaissent pas dans les résultats. C'est la différence entre être visible ou non.",
+    step1: {
+      title: "Informations personnelles et contact",
+      body: "Photo, nationalité et informations de base. Cela prend 2 minutes.",
+    },
+    step2: {
+      title: "Données footballistiques",
+      badge: "Important",
+      body: "Postes, club actuel, parcours. C'est la première chose qu'un recruteur regarde.",
+    },
+    step3: {
+      title: "Ajoutez des médias",
+      body: "Photos en haute résolution et vidéo de temps forts. Votre portfolio Pro prend vie avec du contenu.",
+    },
+    cta: "Compléter mon profil",
+    help: "Si vous avez besoin d'aide pour compléter une section, répondez à cet e-mail et nous vous guiderons.",
+  },
+  fi: {
+    eyebrow: "Askeleen päässä julkaisusta",
+    heading: (n) => `${n}, olet melkein valmis`,
+    intro: (m) =>
+      typeof m === "number" && m > 0
+        ? `Sinulla on ${m} ${m === 1 ? "osio" : "osiota"} täydennettävänä, ennen kuin voit julkaista profiilisi.`
+        : "Olet askeleen päässä ammattimaisen profiilisi julkaisemisesta.",
+    valueProp:
+      "Täydelliset profiilit saavat jopa 5× enemmän käyntejä partiolaisilta ja agentuureilta — ja kun joku hakee pelipaikan tai sarjan mukaan, keskeneräiset eivät näy tuloksissa. Se ratkaisee, oletko näkyvissä vai et.",
+    step1: {
+      title: "Henkilötiedot ja yhteystiedot",
+      body: "Kuva, kansalaisuus ja perustiedot. Vie 2 minuuttia.",
+    },
+    step2: {
+      title: "Jalkapallotiedot",
+      badge: "Tärkeää",
+      body: "Pelipaikat, nykyinen seura, ura. Se on ensimmäinen asia, jota partiolainen katsoo.",
+    },
+    step3: {
+      title: "Lataa mediaa",
+      body: "Korkearesoluutioisia kuvia ja koostevideo. Pro-portfoliosi herää eloon materiaalin myötä.",
+    },
+    cta: "Täydennä profiilini",
+    help: "Jos tarvitset apua jonkin osion täydentämisessä, vastaa tähän sähköpostiin, niin opastamme sinua.",
+  },
 };
 
 /**

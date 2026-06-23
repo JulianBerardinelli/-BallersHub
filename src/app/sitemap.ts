@@ -69,24 +69,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
+      // Home chrome (hero/dashJourney/pricing/features/cta) fully translated
+      // in all locales → emit hreflang alternates.
+      alternates: { languages: sitemapLanguages("/") },
     },
     {
       url: `${base}/players`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,
+      // Chrome fully translated (scouting ns) in all locales → emit hreflang.
+      alternates: { languages: sitemapLanguages("/players") },
     },
     {
       url: `${base}/agencies`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,
+      // Marketing body localized (agenciesPage ns) in all locales → emit hreflang.
+      alternates: { languages: sitemapLanguages("/agencies") },
     },
     {
       url: `${base}/pricing`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
+      // Fully translated in all locales → emit hreflang.
+      alternates: { languages: sitemapLanguages("/pricing") },
     },
     {
       url: `${base}/about`,

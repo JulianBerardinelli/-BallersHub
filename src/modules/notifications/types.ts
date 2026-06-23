@@ -15,7 +15,9 @@ export type NotificationTemplateKey =
   | "announcement.general"
   | "profile.updated"
   | "admin.profileCorrected"
-  | "admin.coachProfileCorrected";
+  | "admin.coachProfileCorrected"
+  | "admin.nationalTeamApproved"
+  | "admin.nationalTeamRejected";
 
 export type TemplateContextMap = {
   "onboarding.submitted": BaseContext;
@@ -48,6 +50,16 @@ export type TemplateContextMap = {
   "admin.coachProfileCorrected": BaseContext & {
     sectionLabel: string;
     note: string;
+    detailsHref?: string;
+  };
+  // Admin moderated a player's "Selección Nacional" stint (approve/reject from
+  // the /admin/national-team queue). The note is the optional resolution note.
+  "admin.nationalTeamApproved": BaseContext & {
+    note?: string;
+    detailsHref?: string;
+  };
+  "admin.nationalTeamRejected": BaseContext & {
+    note?: string;
     detailsHref?: string;
   };
 };

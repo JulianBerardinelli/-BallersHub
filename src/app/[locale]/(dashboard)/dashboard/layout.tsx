@@ -46,6 +46,8 @@ import { bootstrapTutorialState } from "@/lib/tutorial/bootstrap";
 import { DashboardDock } from "@/components/layout/mobile-nav";
 import CoachDashboardShell from "./CoachDashboardShell";
 
+const NATIONAL_TEAM_DASHBOARD_HREF = "/dashboard/edit-profile/national-team";
+
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
   const supabase = await createSupabaseServerRSC();
   const {
@@ -108,6 +110,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
     metrics,
     dashboardState,
     adminEdits,
+    nationalTeamReviews,
   } = layoutData;
 
   const normalizedProfile = profile
@@ -195,6 +198,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
             : null
         }
         adminEdits={adminEdits}
+        nationalTeamReviews={nationalTeamReviews}
       />
       <div className="mx-auto w-full max-w-[1200px] px-6 py-7 max-lg:pb-32">
         {/* Header — full-width, scrolls naturally */}
@@ -576,6 +580,32 @@ async function loadDashboardLayoutData(
     };
   });
 
+  // "Selección Nacional" moderation results → on-login toast. Same indexed
+  // query shape as adminEdits; the two NT kinds map to approved/rejected toasts.
+  const nationalTeamRows = await db.query.notifications.findMany({
+    where: (n, { and, eq, isNull, inArray }) =>
+      and(
+        eq(n.recipientUserId, user.id),
+        inArray(n.kind, ["admin.nationalTeamApproved", "admin.nationalTeamRejected"]),
+        isNull(n.readAt),
+      ),
+    orderBy: (n, { desc }) => desc(n.createdAt),
+    limit: 10,
+  });
+
+  const nationalTeamReviews = nationalTeamRows.map((n) => {
+    const payload = (n.payload ?? {}) as { note?: unknown };
+    const note = typeof payload.note === "string" && payload.note.trim() ? payload.note.trim() : null;
+    return {
+      id: n.id,
+      result: (n.kind === "admin.nationalTeamApproved" ? "approved" : "rejected") as
+        | "approved"
+        | "rejected",
+      note,
+      detailsHref: NATIONAL_TEAM_DASHBOARD_HREF,
+    };
+  });
+
   return {
     up,
     managerApp,
@@ -589,6 +619,7 @@ async function loadDashboardLayoutData(
     metrics,
     dashboardState,
     adminEdits,
+    nationalTeamReviews,
   };
 }
 

@@ -131,6 +131,16 @@ export const FEATURE_GATES = {
       body: "Cargá títulos y premios individuales. Para guardarlos en tu perfil necesitás Pro.",
     },
   },
+  nationalTeam: {
+    id: "nationalTeam",
+    audience: "player",
+    behavior: "soft-save",
+    utmCampaign: "national-team",
+    copy: {
+      title: "Trayectoria en Selección Nacional",
+      body: "Mostrá tu paso por la selección (categorías, estadísticas y fotos). Para cargarlo y publicarlo en tu perfil necesitás Pro.",
+    },
+  },
 
   // -------------------------------------------------------------------
   // Multimedia + external links (both audiences, caps from pricing-matrix §B)

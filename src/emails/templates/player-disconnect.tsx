@@ -87,6 +87,51 @@ const COPY: Record<Locale, Copy> = {
     footer:
       "Se você acha que isso é um erro, entre em contato com seu jogador diretamente. As desvinculações são ações do titular do perfil e não são gerenciadas pela 'BallersHub.",
   },
+  de: {
+    eyebrow: "Benachrichtigung · Vertretung beendet",
+    heading: "Eine Änderung in Ihrem Kader",
+    preheader: (p, a) => `${p} hat die Vertretung mit ${a} beendet.`,
+    body: (p, a) => (
+      <>
+        Der Spieler <strong>{p}</strong> hat seine Verbindung mit der Agentur{" "}
+        <strong>{a}</strong> auf &apos;BallersHub beendet.
+      </>
+    ),
+    applied: (a) =>
+      `Die Änderung ist bereits wirksam: Das öffentliche Portfolio des Spielers zeigt ${a} nicht mehr als Vertretung an, und er erscheint nicht mehr in Ihrem Kaderverzeichnis.`,
+    footer:
+      "Wenn Sie der Meinung sind, dass dies ein Fehler ist, wenden Sie sich direkt an Ihren Spieler. Trennungen sind Aktionen des Profilinhabers und werden nicht von 'BallersHub verwaltet.",
+  },
+  fr: {
+    eyebrow: "Notification · Représentation terminée",
+    heading: "Un changement dans votre effectif",
+    preheader: (p, a) => `${p} a mis fin à la représentation avec ${a}.`,
+    body: (p, a) => (
+      <>
+        Le joueur <strong>{p}</strong> a mis fin à son lien avec l&apos;agence{" "}
+        <strong>{a}</strong> sur &apos;BallersHub.
+      </>
+    ),
+    applied: (a) =>
+      `Le changement est déjà appliqué : le portfolio public du joueur n'affiche plus ${a} comme représentant, et il n'apparaît plus dans votre annuaire d'effectif.`,
+    footer:
+      "Si vous pensez qu'il s'agit d'une erreur, contactez directement votre joueur. Les déconnexions sont des actions du titulaire du profil et ne sont pas gérées par 'BallersHub.",
+  },
+  fi: {
+    eyebrow: "Ilmoitus · Edustus päättynyt",
+    heading: "Muutos kokoonpanossasi",
+    preheader: (p, a) => `${p} päätti edustuksen agentuurin ${a} kanssa.`,
+    body: (p, a) => (
+      <>
+        Pelaaja <strong>{p}</strong> on päättänyt sidoksensa agentuuriin{" "}
+        <strong>{a}</strong> &apos;BallersHubissa.
+      </>
+    ),
+    applied: (a) =>
+      `Muutos on jo voimassa: pelaajan julkinen portfolio ei enää näytä agentuuria ${a} edustajana, eikä hän enää näy kokoonpanohakemistossasi.`,
+    footer:
+      "Jos uskot tämän olevan virhe, ota suoraan yhteyttä pelaajaasi. Edustuksen purkaminen on profiilin omistajan toimi, eikä sitä hallinnoi 'BallersHub.",
+  },
 };
 
 /**

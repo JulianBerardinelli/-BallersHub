@@ -1,0 +1,272 @@
+{
+  "hero": {
+    "eyebrow": "Keitä me olemme",
+    "titleLine1": "Missä jalkapalloilijat",
+    "titleHighlight": "tuovat itsensä esiin",
+    "titleLine2": "ja saavuttavat tavoitteensa.",
+    "description": "Kokoamme jokaisen pelaajan ja agentuurin uran, tilastot, tiedot ja mediat yhteen verkkoportfolioon, jolla on oma linkki ja joka on optimoitu hakukoneita varten. Rakennamme maailman johtavaa alustaa — aloittaen Latinalaisesta Amerikasta ja Espanjasta.",
+    "primaryCta": "Luo portfolioni",
+    "secondaryCta": "Keskustele tiimin kanssa",
+    "imageAlt": "BallersHub-tiimi scouting-päivän aikana"
+  },
+  "pillars": {
+    "mission": {
+      "title": "Missio",
+      "tag": "Keskittymisemme",
+      "description": "Muuttaa jokainen jalkapalloilija — ammattilainen, puoliammattilainen tai harrastelija — ja jokainen agentuuri ammattimaiseksi verkkoportfolioksi: yhdeksi linkiksi, johon he kokoavat uran, tilastot, tiedot ja mediat tuodakseen itsensä esiin ja edistääkseen uraansa verkossa."
+    },
+    "vision": {
+      "title": "Visio",
+      "tag": "Minne olemme menossa",
+      "description": "Olla maailman ykkössivusto, jolla jalkapalloilijat esittäytyvät, näyttävät tietonsa ja saavuttavat tavoitteensa. Maailmanlaajuinen viitepiste, kun seura, toimittaja tai scout etsii lahjakkuutta — millä tahansa kilpailutasolla."
+    },
+    "objectives": {
+      "title": "Tavoitteet",
+      "tag": "Mitä haluamme saavuttaa",
+      "description": "Aloittaa Latinalaisesta Amerikasta ja Espanjasta ja skaalautua maailmanlaajuisille markkinoille. Että jokainen jalkapalloilija tai agentuuri voi tuoda itsensä esiin verkossa skaalautuvalla, SEO-valmiilla portfoliolla, jossa on todennetut arvostelut (tuleva beta) ja joka on yhdistetty tulevaan aktiiviseen scouting-verkostoon."
+    }
+  },
+  "audiencesHeader": {
+    "eyebrow": "Kenelle rakennamme sen",
+    "titlePlain": "Rakennettu koko",
+    "titleHighlight": "jalkapallon ekosysteemille",
+    "description": "Tuote on suunniteltu niin, että pelaaja on keskiössä, agentuurit skaalaavat salkkuaan ja ekosysteemi (seurat, yhteisö ja media) löytää lahjakkuuksia todellisen datan avulla.",
+    "primaryGroupTitle": "Luovat portfolionsa",
+    "secondaryGroupTitle": "Löytävät lahjakkuuksia ja sisältöä"
+  },
+  "audiences": {
+    "players": {
+      "title": "Pelaajat ja urheilijat",
+      "subtitle": "Pääyleisö — päähenkilö",
+      "description": "Olet alustan keskiössä. Ammattilainen, puoliammattilainen tai harrastelija: kokoat portfoliosi minuuteissa ja alat tuoda itseäsi esiin omalla, jakovalmiilla linkillä.",
+      "bullets": [
+        "Ura, tilastot ja fyysiset tiedot keskitettyinä",
+        "Mediagalleria (kuvat, klipit, ottelut)",
+        "Yksi hakukoneoptimoitu linkki",
+        "Todennetut arvostelut (tuleva beta)"
+      ],
+      "cta": "Luo portfolioni"
+    },
+    "agencies": {
+      "title": "Agentuurit ja edustajat",
+      "subtitle": "Kumppani — skaalaavat salkkuaan",
+      "description": "Esittele koko edustamiesi pelaajien salkku ammattimaisella sivustolla, omalla identiteetillä ja yhtenäistetyllä datalla. Asemoi itsesi verkossa vakavasti otettavana agentuurina.",
+      "bullets": [
+        "Agentuurin portfolio omalla brändilläsi",
+        "Edustettavien täydellinen salkku",
+        "Hallintapaneeli koostetuilla mittareilla",
+        "Avustettu käyttöönotto pelaajillesi"
+      ],
+      "cta": "Olen agentuuri"
+    },
+    "clubs": {
+      "title": "Ammattilaisseurat",
+      "subtitle": "Etsivät todellista lahjakkuutta",
+      "description": "Urheiluosastot ja valmennusryhmät, jotka suodattavat ehdokkaita pelipaikan, iän, mittareiden ja saatavuuden mukaan — todennetulla datalla, ei huhuilla."
+    },
+    "fans": {
+      "title": "Yhteisö ja fanit",
+      "subtitle": "Seuraavat uria läheltä",
+      "description": "Jalkapallo kuuluu ihmisille. Kannattajat, jotka haluavat tutustua jokaisen pelaajan koko uraan, hänen taustaansa ja lukuihinsa — ilman toimituksellisia suodattimia."
+    },
+    "journalists": {
+      "title": "Urheilutoimittajat",
+      "subtitle": "Datalla varustettu uutisointi",
+      "description": "Luotettava ja aina ajantasainen lähde tutkimuksiin, juttuihin ja uutisointiin — tilastot, ura ja todennettavat lähteet linkin päässä."
+    }
+  },
+  "values": {
+    "ownLink": {
+      "title": "Oma linkki itsensä esiin tuomiseen",
+      "description": "Jokaisella pelaajalla ja agentuurilla on oma URL-osoitteensa. Jaa se WhatsAppissa, sähköpostitse tai sosiaalisessa mediassa ja avaa ovi seuroille ja edustajille."
+    },
+    "seo": {
+      "title": "Hakukoneoptimoitu",
+      "description": "Rakennettu näkymään Googlessa, kun joku hakee nimeäsi, pelipaikkaasi tai seuraasi. Portfoliosi tekee työtä puolestasi vuorokauden ympäri."
+    },
+    "centralized": {
+      "title": "Koko urasi keskitettynä",
+      "description": "Ura, tilastot, fyysiset tiedot ja mediat (kuvat, klipit, ottelut) yhdessä paikassa — helppo ylläpitää, valmis esiteltäväksi."
+    },
+    "reviews": {
+      "title": "Todennetut arvostelut",
+      "description": "Todennettujen tilien (valmennusryhmä, scoutit, entiset joukkuetoverit) allekirjoittamat arviot, jotka tukevat uraasi. Tuleva beta."
+    },
+    "agencies": {
+      "title": "Suunniteltu agentuureille",
+      "description": "Lisää koko pelaajasalkkusi, näytä yhtenäistetty data ja asemoi agentuurisi identiteetti ammattimaisella sivustolla."
+    },
+    "scouting": {
+      "title": "Scouting-verkosto (tulossa)",
+      "description": "Elävä tietokanta, jossa seurat ja scoutit löytävät lahjakkuuksia todellisilla suodattimilla: pelipaikka, ikä, mittarit ja saatavuus."
+    }
+  },
+  "milestones": {
+    "start": {
+      "year": "Elo 2025",
+      "title": "Projekti käynnistyy",
+      "description": "Havaitsimme saman ongelman pelaajilla ja agentuureilla: PDF-kortteja, rikkinäisiä linkkejä YouTube-videoihin, epävirallisia verkostoja. Ei ainuttakaan ammattimaista portfoliota omalla identiteetillä. Päätimme rakentaa ratkaisun."
+    },
+    "prototype": {
+      "year": "Marras 2025",
+      "title": "Portfolion ensimmäinen prototyyppi",
+      "description": "Kokosimme tuotteen ensimmäisen version: portfolio omalla linkillä, uran, fyysisten tietojen ja median syöttö. Sisäisiä testejä läheisten pelaajien ja agentuurien kanssa."
+    },
+    "beta": {
+      "year": "Maalis 2026",
+      "title": "Suljettu beta · pilotit Latinalaisessa Amerikassa + Espanjassa",
+      "description": "Validoimme tuotteen rajatulla joukolla pilottipelaajia ja -agentuureja Latinalaisessa Amerikassa ja Espanjassa. Jokainen portfolio syntyy hakukoneoptimoituna ja valmiina jaettavaksi omalla linkillään."
+    },
+    "launch": {
+      "year": "Kesä 2026",
+      "title": "Virallinen julkaisu",
+      "description": "Julkinen avaus pelaajille ja agentuureille Latinalaisessa Amerikassa ja Espanjassa. Vapaa pääsy portfolioon omalla linkillä, keskitetyllä datalla ja verkkonäkyvyydellä ensimmäisestä päivästä lähtien."
+    },
+    "next": {
+      "year": "Tulossa",
+      "title": "Todennetut arvostelut + maailmanlaajuinen scouting-verkosto",
+      "description": "Todennettujen tilien (valmennusryhmä, scoutit, entiset joukkuetoverit) allekirjoittamat arviot ja aktiivinen tietokanta, jossa seurat löytävät lahjakkuuksia pelipaikan, iän ja mittareiden mukaan. Polku kohti maailman ykkössivustoa."
+    }
+  },
+  "stats": {
+    "projectStart": {
+      "value": "Elo 2025",
+      "label": "Projektin alku",
+      "description": "8 kuukautta rakentamista pilottipelaajien ja -agentuurien kanssa."
+    },
+    "launch": {
+      "value": "Kesä 2026",
+      "label": "Virallinen julkaisu",
+      "description": "Julkinen avaus Latinalaisessa Amerikassa ja Espanjassa, SEO mukana päivästä 1."
+    },
+    "seo": {
+      "value": "100%",
+      "label": "Hakukoneoptimoituja",
+      "description": "Jokainen portfolio syntyy valmiina näkymään Googlessa."
+    },
+    "reviews": {
+      "value": "Beta",
+      "label": "Todennetut arvostelut",
+      "description": "Todennettujen tilien allekirjoittamat arviot — pian."
+    }
+  },
+  "team": {
+    "julian": {
+      "role": "Co-Founder & Kehittäjä",
+      "bio": "Ammattilaisjalkapalloilija, BallersHubin ideoija ja kehittäjä. Hän koki omakohtaisesti sen, ettei ollut vakavasti otettavaa alustaa, jolla pelaaja voisi tuoda itsensä esiin ammattimaisesti — joten hän päätti rakentaa sellaisen. Hän yhdistää kentän, koodin ja tuotteen niin, että jokainen portfolio tuntuu jonkun tekemältä, joka ymmärtää lajin sisältä päin."
+    },
+    "validation": {
+      "name": "Federico ja Felipe Sarra",
+      "role": "Pelaajat · Tuote",
+      "bio": "Jalkapalloilijoita ja tekijöitä sisäpiirin silmällä. He validoivat profiileja, testaavat alustaa ja ylläpitävät verkoston tasoa. He tuovat myös markkina-analyysiä ja konkreettisia parannusehdotuksia, jotta BallersHub kasvaa edelleen todellisesta jalkapallosta käsin."
+    }
+  },
+  "partners": {
+    "techPartner": "Teknologiakumppani",
+    "federation": "Liitto",
+    "alliedClub": "Kumppaniseura"
+  },
+  "cta": {
+    "eyebrow": "Liity BallersHubiin",
+    "title": "Sinun portfoliosi. Sinun linkkisi. Sinun urasi.",
+    "description": "Keskitä urasi, näytä tietosi ja asemoi itsesi verkossa. Pelaajille, jotka haluavat tuoda itsensä esiin ammattimaisesti, ja agentuureille, jotka haluavat skaalata identiteettiään.",
+    "primaryCta": "Luo portfolioni",
+    "secondaryCta": "Olen agentuuri"
+  },
+  "sections": {
+    "missionVision": {
+      "eyebrow": "Missio · Visio · Tavoitteet",
+      "titlePlain": "Kolme pilaria, jotka kannattelevat",
+      "titleHighlight": "jokaista päätöstä",
+      "description": "Missio, visio ja tavoitteet eivät ole lauseita seinällä: ne ovat suodatin, jolla päätämme mitä rakennamme, mitä priorisoimme ja miten tuemme pelaajia ja agentuureja."
+    },
+    "values": {
+      "eyebrow": "Mikä tekee meistä erilaisen",
+      "titlePlain": "Mitä löydät",
+      "titleHighlight": "portfoliostasi",
+      "description": "Tämä ei ole vain yksi pelaajakortti PDF-muodossa. Se on alusta, joka on suunniteltu niin, että urasi tai agentuurisi tuovat itsensä esiin ammattimaisesti verkossa — omalla identiteetillä, keskitetyllä datalla ja todellisella yhteydellä ekosysteemiin."
+    },
+    "impact": {
+      "eyebrow": "Projektin tila",
+      "titlePlain": "Matkalla kohti",
+      "titleHighlight": "julkaisua",
+      "description": "Rakensimme hiljaisuudessa 8 kuukauden ajan pilottipelaajien ja -agentuurien kanssa. Kesäkuussa 2026 avaamme alustan Latinalaiselle Amerikalle ja Espanjalle."
+    },
+    "story": {
+      "eyebrow": "Tarinamme",
+      "titlePlain": "Kentän ideasta verkostoksi",
+      "titleHighlight": "joka laajenee",
+      "description": "Jokainen virstanpylväs on yhteisön todellisen palautteen muovaama. Iteroimme nopeasti, kuuntelemme ensin ja rakennamme pitkällä tähtäimellä."
+    },
+    "team": {
+      "eyebrow": "Tiimi",
+      "titlePlain": "Todelliset ihmiset jokaisen",
+      "titleHighlight": "validoinnin takana",
+      "slogan": "Pelaajilta, pelaajille.",
+      "description": "Emme ole toimistotiimi, joka katsoo jalkapalloa ulkopuolelta. Olemme aktiivisia pelaajia, entisiä pelaajia ja analyytikoita, jotka ymmärrämme mitä jalkapalloilija tarvitsee tuodakseen itsensä esiin — koska olemme kokeneet sen omakohtaisesti."
+    },
+    "partners": {
+      "eyebrow": "Kumppanit ja liittolaiset",
+      "titlePlain": "Luottavat meihin"
+    }
+  },
+  "heroExtra": {
+    "betaBadge": "Beta · Julkaisu Kesä 2026",
+    "humanBadge": "Ihmisten validoima",
+    "photoSlot": "Tiimin valokuva",
+    "figureStartValue": "Elo 2025",
+    "figureStartLabel": "Projektin käynnistys",
+    "figureLaunchValue": "Kesä 2026",
+    "figureLaunchLabel": "Virallinen julkaisu"
+  },
+  "meta": {
+    "title": "Tietoa meistä",
+    "description": "Tutustu tiimiin, missioon, visioon ja arvoihin BallersHubin takana: hub, jossa jalkapallolahjakkuus saa todellista ja todennettua näkyvyyttä."
+  },
+  "sections": {
+    "missionVision": {
+      "eyebrow": "Missio · Visio · Tavoitteet",
+      "titlePlain": "Kolme pilaria, jotka kannattelevat",
+      "titleHighlight": "jokaista päätöstä",
+      "description": "Missio, visio ja tavoitteet eivät ole lauseita seinällä: ne ovat suodatin, jolla päätämme mitä rakennamme, mitä priorisoimme ja miten tuemme pelaajia ja agentuureja."
+    },
+    "values": {
+      "eyebrow": "Mikä tekee meistä erilaisen",
+      "titlePlain": "Mitä löydät",
+      "titleHighlight": "portfoliostasi",
+      "description": "Tämä ei ole vain yksi pelaajakortti PDF-muodossa. Se on alusta, joka on suunniteltu niin, että urasi tai agentuurisi tuovat itsensä esiin ammattimaisesti verkossa — omalla identiteetillä, keskitetyllä datalla ja todellisella yhteydellä ekosysteemiin."
+    },
+    "impact": {
+      "eyebrow": "Projektin tila",
+      "titlePlain": "Matkalla kohti",
+      "titleHighlight": "julkaisua",
+      "description": "Rakensimme hiljaisuudessa 8 kuukauden ajan pilottipelaajien ja -agentuurien kanssa. Kesäkuussa 2026 avaamme alustan Latinalaiselle Amerikalle ja Espanjalle."
+    },
+    "story": {
+      "eyebrow": "Tarinamme",
+      "titlePlain": "Kentän ideasta verkostoksi",
+      "titleHighlight": "joka laajenee",
+      "description": "Jokainen virstanpylväs on yhteisön todellisen palautteen muovaama. Iteroimme nopeasti, kuuntelemme ensin ja rakennamme pitkällä tähtäimellä."
+    },
+    "team": {
+      "eyebrow": "Tiimi",
+      "titlePlain": "Todelliset ihmiset jokaisen",
+      "titleHighlight": "validoinnin takana",
+      "slogan": "”Pelaajilta, pelaajille.”",
+      "description": "Emme ole toimistotiimi, joka katsoo jalkapalloa ulkopuolelta. Olemme aktiivisia pelaajia, entisiä pelaajia ja analyytikoita, jotka ymmärrämme mitä jalkapalloilija tarvitsee tuodakseen itsensä esiin — koska olemme kokeneet sen omakohtaisesti."
+    },
+    "partners": {
+      "eyebrow": "Kumppanit ja liittolaiset",
+      "titlePlain": "Luottavat meihin"
+    }
+  },
+  "heroExtra": {
+    "betaBadge": "Beta · Julkaisu Kesä 2026",
+    "humanBadge": "Ihmisten validoima",
+    "photoBadge": "Tiimin valokuva",
+    "figureStartValue": "Elo 2025",
+    "figureStartLabel": "Projektin käynnistys",
+    "figureLaunchValue": "Kesä 2026",
+    "figureLaunchLabel": "Virallinen julkaisu"
+  }
+}

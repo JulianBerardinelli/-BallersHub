@@ -23,7 +23,8 @@
     "press": "Stampa",
     "gallery": "Galleria",
     "philosophy": "Filosofia",
-    "licenses": "Licenze"
+    "licenses": "Licenze",
+    "nationalTeam": "Nazionale"
   },
   "a11y": {
     "backTo": "Torna a",
@@ -252,6 +253,31 @@
       "openTitleInYouTube": "Apri {title} su YouTube",
       "openHighlightInYouTube": "Apri l'highlight su YouTube",
       "closeVideo": "Chiudi video"
+    },
+    "nationalTeam": {
+      "title": "Nazionale",
+      "subtitle": "Carriera internazionale",
+      "noStats": "Nessuna statistica",
+      "current": "Attuale",
+      "ageCategory": {
+        "sub15": "Under 15",
+        "sub16": "Under 16",
+        "sub17": "Under 17",
+        "sub18": "Under 18",
+        "sub19": "Under 19",
+        "sub20": "Under 20",
+        "sub21": "Under 21",
+        "sub23": "Under 23",
+        "olympic": "Olimpica",
+        "senior": "Maggiore",
+        "other": "Altra"
+      },
+      "participation": {
+        "called_up": "Convocato/a",
+        "played": "Ha giocato",
+        "sparring": "Sparring",
+        "training_camp": "Ritiro"
+      }
     }
   },
   "pro": {
@@ -380,7 +406,8 @@
     "bio": "Caricamento biografia...",
     "tactics": "Caricamento tattica...",
     "career": "Caricamento carriera...",
-    "media": "Caricamento contenuti..."
+    "media": "Caricamento contenuti...",
+    "nationalTeam": "Caricamento nazionale…"
   },
   "coach": {
     "since": "Allena dal {year}",

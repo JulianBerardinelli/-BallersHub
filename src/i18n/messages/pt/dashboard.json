@@ -250,6 +250,10 @@
       "logout": {
         "title": "Sair",
         "description": "Saia do painel com segurança."
+      },
+      "national-team": {
+        "title": "Seleção Nacional",
+        "description": "Sua passagem pela seleção (categorias, estatísticas e fotos)."
       }
     },
     "manager": {

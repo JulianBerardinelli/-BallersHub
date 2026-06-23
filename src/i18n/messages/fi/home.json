@@ -1,0 +1,307 @@
+{
+  "hero": {
+    "eyebrow": "Avoin beta",
+    "description": "Kokoa ammattilaisprofiilisi yhteen, kerää vahvistettuja arvioita ja luo yhteyksiä seuroihin, jotka haluavat vahvistaa joukkuettaan. Kaikki yhdessä paikassa.",
+    "descriptionShort": "Kokoa ammattilaisprofiilisi yhteen, kerää vahvistettuja arvioita ja luo yhteyksiä seuroihin, jotka haluavat vahvistaa joukkuettaan.",
+    "cta": "Luo profiilini",
+    "howWeValidate": "Miten vahvistamme",
+    "scrollHint": "Vieritä kartalle",
+    "counter": {
+      "value": "+50",
+      "label": "rekisteröitynyttä pelaajaa"
+    },
+    "stats": {
+      "profiles": {
+        "value": "+30",
+        "label": "Vahvistettua profiilia"
+      },
+      "clubs": {
+        "value": "+130",
+        "label": "Aktiivista seuraa"
+      },
+      "references": {
+        "value": "4.8/5",
+        "label": "Suosituksia"
+      }
+    },
+    "videoWall": {
+      "eyebrow": "Maailmanlaajuinen lahjakkuusverkosto",
+      "line1": "Pelaajia ympäri maailmaa,",
+      "line2": "yhdessä ",
+      "accentWord": "hubissa",
+      "body": "Jokainen profiili on vahvistettu: tiimimme on varmistanut henkilöllisyyden, uran ja suositukset.",
+      "cta": "Luo verkkoportfolio"
+    },
+    "headlines": {
+      "visibilidad": [
+        "Hubi, jossa",
+        "jalkapallon #LAHJAKKUUS",
+        "saa todellista näkyvyyttä."
+      ],
+      "datos": [
+        "Sinun urasi.",
+        "Sinun #datasi.",
+        "Sinun tulevaisuutesi."
+      ],
+      "scouting": [
+        "Missä #scouting",
+        "löytää seuraavan",
+        "helmensä."
+      ],
+      "fronteras": [
+        "Lahjakkuudella ei ole",
+        "#rajoja.",
+        "Näytä se maailmalle."
+      ]
+    },
+    "playerTag": {
+      "footLeft": "VJ",
+      "footRight": "OJ",
+      "ageSuffix": "{age}v"
+    }
+  },
+  "dashJourney": {
+    "verifiedData": "Vahvistetut tiedot",
+    "howWeValidate": "Miten vahvistamme?",
+    "skip": "Ohita",
+    "steps": {
+      "product": {
+        "eyebrow": "Tuote · 01",
+        "titleLine1": "Verkkoportfoliosi",
+        "titleLine2": "automatisoituna.",
+        "description": "Plug and play: lataat tietosi, me vahvistamme ne ja sekunneissa sinulla on ammattimainen portfolio, 100 % automaattinen, verkossa ja Googleen indeksoitu, valmiina lähetettäväksi agenteille, johtajille ja seuroille.",
+        "tags": {
+          "indexedGoogle": "Indeksoitu Googleen",
+          "realResponsive": "Aidosti responsiivinen",
+          "readyInSeconds": "Valmis sekunneissa"
+        }
+      },
+      "dashboard": {
+        "eyebrow": "Hallintapaneeli · 02",
+        "titleLine1": "Rakenna urasi,",
+        "titleLine2": "askel askeleelta.",
+        "description": "Lisää seurat, kaudet ja tilastot jalkapalloilijoille suunnitelluilla lomakkeilla. Valitse visuaalinen identiteettisi ja julkaise. Ilman suunnittelijoita, ilman kitkaa.",
+        "tags": {
+          "career": "Ura",
+          "stats": "Tilastot",
+          "visualIdentity": "Visuaalinen identiteetti"
+        }
+      },
+      "agent": {
+        "eyebrow": "Agenttitilit · 03",
+        "titleLine1": "Oletko agentti?",
+        "titleLine2": "Lisää pelaajalistasi.",
+        "description": "Keskus kaikille edustamillesi pelaajille. Lisää lisenssisi, yhteistyösi ja seurat, joiden kanssa olet työskennellyt, ja julkaise ammattimainen agenttisivusi yhdellä klikkauksella.",
+        "tags": {
+          "licenses": "Lisenssit",
+          "collaborations": "Yhteistyöt",
+          "publicPage": "Julkinen sivu"
+        }
+      }
+    },
+    "guide": {
+      "product": "Tuote",
+      "dashboard": "Hallintapaneeli",
+      "agent": "Agentti"
+    },
+    "mock": {
+      "profile": {
+        "verifiedChip": "VAHVISTETTU",
+        "contactCta": "Ota yhteyttä",
+        "stats": {
+          "matches": "Ottelut",
+          "goals": "Maalit",
+          "height": "Pituus"
+        },
+        "reelLabel": "Reel · 0:38"
+      },
+      "profilePhone": {
+        "role": "HK · Keskikenttäpelaaja",
+        "statAbbrev": {
+          "matchesPlayed": "O",
+          "goals": "M",
+          "rating": "★"
+        },
+        "contactCta": "Ota yhteyttä Lucasiin"
+      },
+      "dashboard": {
+        "sidebar": {
+          "label": "Hallintapaneeli",
+          "items": {
+            "profile": "Profiilini",
+            "career": "Ura",
+            "stats": "Tilastot",
+            "media": "Media",
+            "visualIdentity": "Visuaalinen identiteetti",
+            "reviews": "Arviot"
+          }
+        },
+        "header": {
+          "title": "Ura",
+          "subtitle": "Rakenna tarinasi"
+        },
+        "previewLabel": "Esikatselu"
+      },
+      "agent": {
+        "sidebar": {
+          "label": "Agentti",
+          "items": {
+            "roster": "Salkku",
+            "tracking": "Seuranta",
+            "dossiers": "Dossiers",
+            "market": "Markkina",
+            "messages": "Viestit"
+          }
+        },
+        "header": {
+          "title": "Salkkuni",
+          "subtitle": "4 edustettavaa"
+        },
+        "kpis": {
+          "portfolioValue": "Salkun arvo",
+          "trend90d": "Trendi 90 pv",
+          "interestedClubs": "Kiinnostuneet seurat"
+        },
+        "table": {
+          "player": "Pelaaja",
+          "club": "Seura",
+          "value": "Arvo",
+          "trend": "Trendi"
+        }
+      },
+      "page": {
+        "role": "HH · Hyökkääjä · 🇺🇾",
+        "officialRep": "VIRALL. EDUSTAJA",
+        "statAbbrev": {
+          "goals": "M",
+          "euros": "€",
+          "age": "v"
+        },
+        "requestDossier": "Pyydä dossier"
+      }
+    },
+    "cards": {
+      "brand": {
+        "title": "Brändivärit",
+        "subtitle": "Valitse valmis paletti tai määritä värit manuaalisesti.",
+        "presetLabel": "ESIASETUS",
+        "presets": {
+          "mono": "Yksivärinen",
+          "cyberpunk": "Cyberpunk",
+          "electricBlue": "Sähkönsininen",
+          "imperialGold": "Keisarillinen kulta"
+        },
+        "swatches": {
+          "background": "Tausta",
+          "primary": "Ensisijainen",
+          "secondary": "Toissijainen",
+          "accent": "Korostus"
+        }
+      },
+      "career": {
+        "ageGroupLabel": "AFA-juniorit · 2015–2017",
+        "fields": {
+          "club": "Seura",
+          "division": "Sarja",
+          "from": "Alkaen (vuosi)",
+          "to": "Asti (vuosi)"
+        },
+        "selects": {
+          "division": "Liga Pro"
+        },
+        "toggles": {
+          "current": "Tämä on nykyinen seurani",
+          "otherCategory": "Pelasin toisessa luokassa/sarjassa"
+        },
+        "verifiedTeam": "Vahvistettu joukkue",
+        "actions": {
+          "cancel": "Peruuta",
+          "confirm": "Vahvista vaihe",
+          "remove": "Poista",
+          "addStage": "Lisää vaihe"
+        }
+      },
+      "stats": {
+        "title": "Tilastot kausittain",
+        "subtitle": "Koottu yhteenveto virallisista luvuistasi jaettavaksi seurojen ja agenttien kanssa.",
+        "headers": {
+          "season": "Kausi",
+          "competition": "Sarja",
+          "matches": "O",
+          "goals": "M",
+          "assists": "S"
+        },
+        "competitionLabel": "Sarja",
+        "fields": {
+          "careerStage": "Uravaihe",
+          "season": "Kausi",
+          "team": "Joukkue",
+          "matches": "O",
+          "starts": "Avauskokoonpano",
+          "goals": "Maalit",
+          "assists": "Syötöt"
+        },
+        "selects": {
+          "careerStage": "CA Independiente · 2018–2019"
+        },
+        "placeholders": {
+          "season": "Esim. 2023 / 2024",
+          "team": "Seura"
+        },
+        "addSeason": "Lisää kausi"
+      }
+    }
+  },
+  "pricing": {
+    "eyebrow": "Paketit & hinnat",
+    "titleLine1": "Valitse paketti, joka",
+    "titleHighlight": "vauhdittaa uraasi",
+    "subtitle": "Aloita ilmaiseksi ja kun olet valmis, lisää Pro. Pelaajille ja agentuureille.",
+    "viewFaq": "Katso usein kysytyt kysymykset"
+  },
+  "features": {
+    "eyebrow": "Suunniteltu ammattilaisille",
+    "title": "Rakenna jakamiseen valmis profiili",
+    "subtitle": "Työkaluja pelaajille ja valmennushenkilöstölle, jotka haluavat ammattimaistaa digitaalisen läsnäolonsa.",
+    "items": {
+      "verification": {
+        "title": "Ammattimainen vahvistus",
+        "description": "Tiimimme vahvistaa henkilöllisyyden, sopimukset ja taustan luodakseen luottamusta jokaiseen profiiliin.",
+        "tag": "Luottamus"
+      },
+      "schedule": {
+        "title": "Integroitu urheilukalenteri",
+        "description": "Lisää tulevat ottelusi ja esiintymisesi. Jaa kalenteri seurojen ja agenttien kanssa reaaliajassa.",
+        "tag": "Näkyvyys"
+      },
+      "presentations": {
+        "title": "Esittelyt valmiina minuuteissa",
+        "description": "Älykkäät mallit profiilisi lähettämiseen seuroille mittareineen, kohokohtaklippeineen ja arvioineen.",
+        "tag": "Skaalaa brändisi"
+      }
+    }
+  },
+  "testimonials": {
+    "title": "Aitoja tarinoita, konkreettista vaikutusta",
+    "subtitle": "Yhteisö, joka kasvaa vahvistuksen ja jatkuvan tuen myötä.",
+    "items": {
+      "maria": {
+        "name": "María López",
+        "role": "Laitahyökkääjä · Naisten pääsarja",
+        "quote": "BallersHub antoi minun koota videot ja suositukset yhteen minuuteissa. Nyt jokainen kontakti saa ajantasaiset tiedot."
+      },
+      "sebastian": {
+        "name": "Sebastián Duarte",
+        "role": "Scouting-koordinaattori · Club Andino",
+        "quote": "Alusta antaa meille läpinäkyvyyttä jokaisen pelaajan uraan. Suodatamme pelipaikan ja fyysisen kunnon mukaan välittömästi."
+      }
+    }
+  },
+  "cta": {
+    "eyebrow": "Seuraava askel",
+    "titleLead": "Valmistele seuraava",
+    "titleHighlight": "siirtosi",
+    "description": "Järjestä tietosi, jaa urasi ja pidä suosituksesi ajan tasalla BallersHubin avulla.",
+    "button": "Luo ilmainen tili"
+  }
+}

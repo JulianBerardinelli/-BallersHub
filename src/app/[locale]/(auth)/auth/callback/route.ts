@@ -11,9 +11,18 @@ export const dynamic = "force-dynamic";
 // NEXT_LOCALE cookie (an explicit LocaleSwitcher pick) → URL locale prefix
 // (/pt/auth/callback → "pt"; es has no prefix) → es. Only seeded on first
 // sign-in; never overrides a later Settings choice. es stays canonical.
-function detectSignupLocale(req: Request): "es" | "en" | "it" | "pt" {
-  const isExtra = (v: string | undefined): v is "en" | "it" | "pt" =>
-    v === "en" || v === "it" || v === "pt";
+function detectSignupLocale(
+  req: Request,
+): "es" | "en" | "it" | "pt" | "de" | "fr" | "fi" {
+  const isExtra = (
+    v: string | undefined,
+  ): v is "en" | "it" | "pt" | "de" | "fr" | "fi" =>
+    v === "en" ||
+    v === "it" ||
+    v === "pt" ||
+    v === "de" ||
+    v === "fr" ||
+    v === "fi";
   const cookie = req.headers.get("cookie") ?? "";
   const cookieLocale = cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/)?.[1];
   if (isExtra(cookieLocale)) return cookieLocale;
