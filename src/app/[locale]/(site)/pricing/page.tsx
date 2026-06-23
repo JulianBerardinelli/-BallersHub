@@ -5,12 +5,10 @@ import { getTranslations } from "next-intl/server";
 import {
   PricingCTA,
   PricingComparisonTable,
-  PricingFAQ,
   PricingHero,
   PricingPlans,
   PricingProvider,
   PricingToggles,
-  PricingValueGrid,
 } from "@/components/site/pricing";
 import { OfferJsonLd } from "@/lib/seo/offerJsonLd";
 
@@ -56,8 +54,6 @@ export default async function PricingPage({
           <PricingPlans />
         </div>
         <PricingComparisonTable />
-        <PricingValueGrid />
-        <PricingFAQ />
         <PricingCTA />
       </div>
     </PricingProvider>
