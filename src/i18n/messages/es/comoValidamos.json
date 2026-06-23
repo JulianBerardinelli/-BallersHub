@@ -1,0 +1,85 @@
+{
+  "header": {
+    "eyebrow": "Confianza verificada · 'BallersHub",
+    "titleLead": "Cómo",
+    "titleHl": "validamos",
+    "intro": "Cada cambio crítico en un perfil corre por un flujo de validación: revisión humana, contraste contra +10 fuentes deportivas y verificación con inteligencia artificial. Mirá el proceso paso a paso.",
+    "introMobile": "Cada cambio crítico en un perfil corre por un flujo de validación: revisión humana, contraste contra +10 fuentes deportivas y verificación con inteligencia artificial."
+  },
+  "stepLabel": "Paso {tag} / 06",
+  "steps": [
+    { "title": "Solicitud", "sub": "Jugador / Agente" },
+    { "title": "Panel Admin", "sub": "Cola de revisión" },
+    { "title": "+10 Fuentes", "sub": "Contraste cruzado" },
+    { "title": "Validación IA", "sub": "Triple verificación" },
+    { "title": "Decisión", "sub": "Aprobar / Rechazar" },
+    { "title": "Publicado", "sub": "Perfil actualizado" }
+  ],
+  "captions": [
+    {
+      "title": "El jugador envía una <hl>solicitud</hl>",
+      "body": "Desde su panel, el jugador o su agente solicita un cambio en la trayectoria, las estadísticas o el multimedia. Nada se publica solo: todo entra a revisión.",
+      "mockHd": "Agregar etapa de trayectoria · componente real",
+      "mockSlot": "Próximamente: grabación del flujo real “agregar etapa + enviar solicitud”."
+    },
+    {
+      "title": "Llega al <hl>Panel de Administración</hl>",
+      "body": "La solicitud entra a la cola de revisión del equipo de 'BallersHub. Un administrador la toma y abre el expediente del jugador para empezar a verificar.",
+      "mockHd": "Panel de revisión · Admin",
+      "mockSlot": "Próximamente: grabación del panel de revisión del equipo."
+    },
+    {
+      "title": "Contraste en <hl>+10 fuentes</hl>",
+      "body": "El flujo se abre y consulta las principales plataformas deportivas del mundo en paralelo. Solo avanza lo que coincide en múltiples fuentes reconocidas.",
+      "statNum": "10/10",
+      "statLabel": "fuentes coinciden",
+      "note": "Transfermarkt · BeSoccer · Flashscore · Sofascore · +4"
+    },
+    {
+      "title": "Validación con <hl>agentes de IA</hl>",
+      "body": "El flujo deriva a tres modelos de IA que cruzan los datos de forma independiente, detectan inconsistencias y devuelven un nivel de confianza. El consenso refuerza la decisión.",
+      "statNum": "98%",
+      "statLabel": "consenso de validación",
+      "note": "Gemini 97% · Claude 98% · ChatGPT 96%"
+    },
+    {
+      "title": "El equipo <hl>aprueba o rechaza</hl>",
+      "body": "Con el contraste de fuentes y el consenso de IA, el administrador toma la decisión final. Si todo coincide, se aprueba. Si no, vuelve con una devolución detallada.",
+      "approveBtn": "Aprobar",
+      "rejectBtn": "Rechazar",
+      "approveStamp": "✓ Aprobada",
+      "approveSub": "Los datos coinciden con fuentes e IA.",
+      "rejectStamp": "✕ Rechazada",
+      "rejectSub": "Vuelve con devolución detallada para corregir."
+    },
+    {
+      "title": "El cambio se <hl>publica</hl>",
+      "body": "El dato verificado se publica en el perfil público del jugador, listo para compartirse con clubes y reclutadores. Trazable y con respaldo real.",
+      "badge": "Publicado",
+      "note": "https://ballershub.co/tu-nombre"
+    }
+  ],
+  "outro": {
+    "eyebrow": "El flujo completo",
+    "titleLead": "Seis pasos.",
+    "titleHl": "Cero datos sin verificar.",
+    "recap": [
+      { "title": "Solicitud", "desc": "El jugador o agente pide un cambio." },
+      { "title": "Panel Admin", "desc": "Entra a la cola de revisión del equipo." },
+      { "title": "+10 Fuentes", "desc": "Contraste cruzado con plataformas top." },
+      { "title": "Validación IA", "desc": "Gemini, Claude y ChatGPT cruzan datos." },
+      { "title": "Decisión", "desc": "Se aprueba o vuelve con feedback." },
+      { "title": "Publicado", "desc": "El dato verificado va al perfil público." }
+    ]
+  },
+  "cta": {
+    "titleLead": "Tu carrera. Tu data.",
+    "titleHl": "Verificada.",
+    "body": "Creá tu perfil profesional y dejá que cada dato hable con respaldo real.",
+    "primary": "Crear mi perfil →",
+    "secondary": "Ver jugadores"
+  },
+  "ui": {
+    "scrollHint": "Scroll para ejecutar el flujo"
+  }
+}

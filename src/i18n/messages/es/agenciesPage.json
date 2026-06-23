@@ -1,0 +1,47 @@
+{
+  "hero": {
+    "eyebrow": "Para agencias y representantes",
+    "title": "Agencias de representación de futbolistas",
+    "subtitle": "Publicá tu cartera de jugadores verificados, ganá visibilidad en buscadores y presentá tu agencia con un perfil profesional en {brand}.",
+    "ctaPrimary": "Sumá tu agencia",
+    "ctaSecondary": "Ver agencias verificadas",
+    "verifiedCount": "{count, plural, one {# agencia verificada} other {# agencias verificadas}}"
+  },
+  "valueProps": {
+    "eyebrow": "Por qué {brand}",
+    "title": "La vidriera profesional de tu agencia",
+    "subtitle": "Una plataforma pensada para que las agencias muestren su talento y escalen su marca con credibilidad.",
+    "items": [
+      {
+        "title": "Cartera oficial verificada",
+        "description": "Tus jugadores validados por nuestro equipo —identidad, contrato y trayectoria—. Una cartera en la que los clubes confían.",
+        "tag": "Confianza"
+      },
+      {
+        "title": "Visibilidad en buscadores",
+        "description": "Tu agencia y cada jugador con páginas optimizadas para Google. Te encuentran cuando buscan talento.",
+        "tag": "Alcance"
+      },
+      {
+        "title": "Perfil profesional",
+        "description": "Logo, servicios, sedes y contacto en un perfil a medida. Presentá tu agencia como la marca que es.",
+        "tag": "Marca"
+      }
+    ]
+  },
+  "grid": {
+    "eyebrow": "Directorio",
+    "title": "Agencias verificadas",
+    "count": "{count, plural, one {# agencia} other {# agencias}}",
+    "emptyTitle": "Todavía no hay agencias publicadas",
+    "emptyBody": "Volvé pronto: las agencias verificadas aparecen acá apenas se aprueban.",
+    "cardLogoAlt": "Logo de {name}",
+    "cardCta": "Ver cartera de jugadores"
+  },
+  "cta": {
+    "eyebrow": "Sumate",
+    "title": "¿Representás jugadores?",
+    "subtitle": "Creá tu agencia en {brand}, cargá tu cartera y empezá a recibir visibilidad de clubes y scouts.",
+    "button": "Crear cuenta de agencia"
+  }
+}

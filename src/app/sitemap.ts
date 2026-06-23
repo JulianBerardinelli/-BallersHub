@@ -86,10 +86,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.8,
-      // NOTE: no hreflang yet — the /agencies marketing BODY
-      // (src/components/site/agencies/*) is still hardcoded es in every
-      // non-es locale (pre-existing gap, not de/fr/fi-specific). Add
-      // `sitemapLanguages("/agencies")` once those components are localized.
+      // Marketing body localized (agenciesPage ns) in all locales → emit hreflang.
+      alternates: { languages: sitemapLanguages("/agencies") },
     },
     {
       url: `${base}/pricing`,
