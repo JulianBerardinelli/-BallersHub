@@ -16,7 +16,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { auditLogs, profileChangeLogs } from "@/db/schema";
 import { createNotification } from "@/lib/notifications/server";
-import { sendAdminProfileCorrectedEmail } from "@/lib/resend";
+import { sendAdminProfileCorrectedEmail, sendNationalTeamReviewedEmail } from "@/lib/resend";
 import { revalidatePlayerPublicProfileById } from "@/lib/seo/revalidate";
 import type { AdminActor } from "@/lib/admin/auth";
 import type { AdminEditDomain } from "@/lib/admin/edit-domains";
@@ -146,5 +146,48 @@ export async function sendAdminReviewNotification(args: {
     }
   } catch (err) {
     console.warn("[admin-notify] correction email failed (non-fatal):", errMsg(err));
+  }
+}
+
+/** Approve/reject of a "Selección Nacional" stint from the admin queue: in-app
+ * notification + email carrying the optional resolution note. Both steps are
+ * non-fatal — the moderation row write already succeeded. */
+export async function sendNationalTeamReviewedNotification(args: {
+  actor: AdminActor;
+  /** auth user id of the player who owns the stint. */
+  recipientUserId: string;
+  playerName: string;
+  result: "approved" | "rejected";
+  /** stint id — recorded as the notification subject. */
+  stintId: string;
+  note: string | null;
+}): Promise<void> {
+  const { actor, recipientUserId, playerName, result, stintId, note } = args;
+  const kind =
+    result === "approved" ? "admin.nationalTeamApproved" : "admin.nationalTeamRejected";
+
+  // 1. persistent in-app notification → on-login toast.
+  try {
+    await createNotification({
+      recipientUserId,
+      kind,
+      payload: { note: note ?? null },
+      subjectTable: "national_team_stints",
+      subjectId: stintId,
+      actorUserId: actor.actorId,
+    });
+  } catch (err) {
+    console.warn("[admin-notify] national-team notification write failed (non-fatal):", errMsg(err));
+  }
+
+  // 2. result email with the note — resolve the recipient email via auth.users.
+  try {
+    const { data } = await actor.adminClient.auth.admin.getUserById(recipientUserId);
+    const email = data?.user?.email ?? null;
+    if (email) {
+      await sendNationalTeamReviewedEmail({ email, playerName, result, note });
+    }
+  } catch (err) {
+    console.warn("[admin-notify] national-team email failed (non-fatal):", errMsg(err));
   }
 }

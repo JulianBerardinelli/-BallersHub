@@ -23,7 +23,8 @@
     "press": "Lehdistö",
     "gallery": "Galleria",
     "philosophy": "Filosofia",
-    "licenses": "Lisenssit"
+    "licenses": "Lisenssit",
+    "nationalTeam": "Maajoukkue"
   },
   "a11y": {
     "backTo": "Takaisin",
@@ -252,6 +253,31 @@
       "openTitleInYouTube": "Avaa {title} YouTubessa",
       "openHighlightInYouTube": "Avaa highlight YouTubessa",
       "closeVideo": "Sulje video"
+    },
+    "nationalTeam": {
+      "title": "Maajoukkue",
+      "subtitle": "Kansainvälinen ura",
+      "noStats": "Ei tilastoja",
+      "current": "Nykyinen",
+      "ageCategory": {
+        "sub15": "U-15",
+        "sub16": "U-16",
+        "sub17": "U-17",
+        "sub18": "U-18",
+        "sub19": "U-19",
+        "sub20": "U-20",
+        "sub21": "U-21",
+        "sub23": "U-23",
+        "olympic": "Olympia",
+        "senior": "A-maajoukkue",
+        "other": "Muu"
+      },
+      "participation": {
+        "called_up": "Kutsuttu",
+        "played": "Pelasi",
+        "sparring": "Sparraus",
+        "training_camp": "Harjoitusleiri"
+      }
     }
   },
   "pro": {
@@ -380,7 +406,8 @@
     "bio": "Ladataan elämäkertaa...",
     "tactics": "Ladataan taktiikkaa...",
     "career": "Ladataan uraa...",
-    "media": "Ladataan multimediaa..."
+    "media": "Ladataan multimediaa...",
+    "nationalTeam": "Ladataan maajoukkuetta…"
   },
   "coach": {
     "since": "Valmentaa vuodesta {year}",

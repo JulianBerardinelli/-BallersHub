@@ -48,18 +48,27 @@ type CoachAdminEditSnapshot = {
   detailsHref?: string | null;
 };
 
+type NationalTeamReviewSnapshot = {
+  /** notifications.id — the stable per-device dedupe key. */
+  id: string;
+  result: "approved" | "rejected";
+  note?: string | null;
+  detailsHref?: string | null;
+};
+
 type Props = {
   userName?: string | null;
   onboarding?: OnboardingSnapshot | null;
   latestReview?: ReviewSnapshot | null;
   adminEdits?: AdminEditSnapshot[] | null;
   coachAdminEdits?: CoachAdminEditSnapshot[] | null;
+  nationalTeamReviews?: NationalTeamReviewSnapshot[] | null;
 };
 
 const DASHBOARD_FALLBACK = "/dashboard";
 const REVIEW_DETAILS_FALLBACK = "/dashboard/edit-profile/football-data";
 
-export function NotificationBootstrap({ userName, onboarding, latestReview, adminEdits, coachAdminEdits }: Props) {
+export function NotificationBootstrap({ userName, onboarding, latestReview, adminEdits, coachAdminEdits, nationalTeamReviews }: Props) {
   const { enqueue } = useNotificationContext();
 
   useEffect(() => {
@@ -210,6 +219,37 @@ export function NotificationBootstrap({ userName, onboarding, latestReview, admi
       );
     }
   }, [enqueue, coachAdminEdits, userName]);
+
+  // "Selección Nacional" moderation results (approve/reject from the admin
+  // queue). One toast per unread notification row, deduped per device by id.
+  useEffect(() => {
+    if (!nationalTeamReviews || nationalTeamReviews.length === 0) {
+      return;
+    }
+
+    for (const review of nationalTeamReviews) {
+      const eventId = `admin.nationalTeam:${review.id}`;
+      if (!ensureEventRecorded(eventId)) {
+        continue;
+      }
+
+      const builder =
+        review.result === "approved"
+          ? adminNotification.nationalTeamApproved
+          : adminNotification.nationalTeamRejected;
+
+      enqueue(
+        builder(
+          {
+            userName: userName ?? undefined,
+            note: review.note ?? undefined,
+            detailsHref: review.detailsHref ?? undefined,
+          },
+          eventId,
+        ),
+      );
+    }
+  }, [enqueue, nationalTeamReviews, userName]);
 
   return null;
 }

@@ -216,6 +216,58 @@ export async function POST(req: Request, ctx: { params: Params }) {
     );
   }
 
+  // 6.6) Materializar etapas de Selección Nacional capturadas en onboarding
+  //      (app.notes.national_team). Se crean como `pending_review` para que
+  //      pasen por la cola /admin/national-team — el control de verificación es
+  //      el mismo sin importar la vía de carga (onboarding o dashboard).
+  //      No-fatal: la aplicación ya quedó aprobada igual.
+  try {
+    type NtNote = {
+      countryCode?: unknown;
+      countryName?: unknown;
+      ageCategory?: unknown;
+      participation?: unknown;
+      startYear?: unknown;
+      endYear?: unknown;
+      description?: unknown;
+    };
+    const parsedNotes =
+      typeof app.notes === "string" ? JSON.parse(app.notes) : app.notes;
+    const ntItems: NtNote[] = Array.isArray(parsedNotes?.national_team)
+      ? parsedNotes.national_team
+      : [];
+    const NT_CAT = new Set([
+      "sub15", "sub16", "sub17", "sub18", "sub19", "sub20",
+      "sub21", "sub23", "olympic", "senior", "other",
+    ]);
+    const NT_PART = new Set(["called_up", "played", "sparring", "training_camp"]);
+    const ntRows = ntItems
+      .filter((s) => typeof s.ageCategory === "string" && NT_CAT.has(s.ageCategory))
+      .map((s, i) => ({
+        player_id: newProfileId,
+        country_code:
+          typeof s.countryCode === "string" ? s.countryCode.toUpperCase().slice(0, 2) : null,
+        proposed_team_name: typeof s.countryName === "string" ? s.countryName : null,
+        age_category: s.ageCategory as string,
+        participation:
+          typeof s.participation === "string" && NT_PART.has(s.participation)
+            ? (s.participation as string)
+            : "called_up",
+        start_year: typeof s.startYear === "number" ? s.startYear : null,
+        end_year: typeof s.endYear === "number" ? s.endYear : null,
+        description: typeof s.description === "string" ? s.description : null,
+        order_index: i,
+        status: "pending_review",
+        submitted_by_user_id: app.user_id,
+      }));
+    if (ntRows.length > 0) {
+      const { error: ntErr } = await admin.from("national_team_stints").insert(ntRows);
+      if (ntErr) console.error("national_team materialize:", ntErr.message);
+    }
+  } catch (err) {
+    console.error("national_team materialize parse error:", err);
+  }
+
   // 7) marcar solicitud aprobada
   const { error: e4 } = await admin
     .from("player_applications")

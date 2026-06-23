@@ -172,4 +172,29 @@ export const notificationTemplates: {
       detailsHref ? { label: "Ver mi perfil", href: detailsHref } : undefined,
     expandable: true,
   },
+  "admin.nationalTeamApproved": {
+    key: "admin.nationalTeamApproved",
+    category: "review",
+    tone: "success",
+    headline: ({ userName }) =>
+      `${displayName(userName)}aprobamos tu Selección Nacional 🏅`,
+    body: ({ note }) =>
+      note || "Tu experiencia en la selección ya está publicada en tu perfil.",
+    cta: ({ detailsHref }) =>
+      detailsHref ? { label: "Ver mi sección", href: detailsHref } : undefined,
+    expandable: true,
+  },
+  "admin.nationalTeamRejected": {
+    key: "admin.nationalTeamRejected",
+    category: "review",
+    tone: "warning",
+    headline: ({ userName }) =>
+      `${displayName(userName)}revisamos tu Selección Nacional ⚠️`,
+    body: ({ note }) =>
+      note ||
+      "Revisamos tu experiencia en la selección y necesitamos algunos ajustes antes de publicarla.",
+    cta: ({ detailsHref }) =>
+      detailsHref ? { label: "Revisar mi sección", href: detailsHref } : undefined,
+    expandable: true,
+  },
 };

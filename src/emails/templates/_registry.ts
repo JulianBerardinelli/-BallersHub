@@ -36,6 +36,9 @@ import ReEngagementEmail, { type ReEngagementProps } from "./re-engagement";
 import AdminProfileCorrectedEmail, {
   type AdminProfileCorrectedProps,
 } from "./admin-profile-corrected";
+import NationalTeamReviewedEmail, {
+  type NationalTeamReviewedProps,
+} from "./national-team-reviewed";
 
 /**
  * Template registry — every email shipped from 'BallersHub goes through here.
@@ -73,7 +76,8 @@ export type TemplateKey =
   | "blog_post_rejected_author"
   | "launch_announcement"
   | "re_engagement"
-  | "admin_profile_corrected";
+  | "admin_profile_corrected"
+  | "national_team_reviewed";
 
 export type TemplateCategory = "marketing" | "transactional";
 
@@ -95,6 +99,7 @@ export type TemplatePropsMap = {
   launch_announcement: LaunchAnnouncementProps;
   re_engagement: ReEngagementProps;
   admin_profile_corrected: AdminProfileCorrectedProps;
+  national_team_reviewed: NationalTeamReviewedProps;
 };
 
 const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactElement } = {
@@ -115,6 +120,7 @@ const components: { [K in TemplateKey]: (props: TemplatePropsMap[K]) => ReactEle
   launch_announcement: (props) => LaunchAnnouncementEmail(props),
   re_engagement: (props) => ReEngagementEmail(props),
   admin_profile_corrected: (props) => AdminProfileCorrectedEmail(props),
+  national_team_reviewed: (props) => NationalTeamReviewedEmail(props),
 };
 
 /** Render a registered template to its final HTML string. */
@@ -247,5 +253,12 @@ export const TEMPLATE_DESCRIPTORS: Array<{
     label: "Corrección de perfil por staff",
     description:
       "Disparado cuando un admin edita/corrige data del jugador desde el CRUD admin (datos, trayectoria, stats, palmarés, scouting, valor, multimedia). Comunica qué sección se corrigió + link al editor.",
+  },
+  {
+    key: "national_team_reviewed",
+    category: "transactional",
+    label: "Selección Nacional — moderación",
+    description:
+      "Disparado cuando un admin aprueba o rechaza una etapa de Selección Nacional desde la cola de moderación. Comunica el resultado + la nota opcional + link al editor del bloque.",
   },
 ];

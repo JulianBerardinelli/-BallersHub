@@ -250,6 +250,10 @@
       "logout": {
         "title": "Kirjaudu ulos",
         "description": "Poistu paneelista turvallisesti."
+      },
+      "national-team": {
+        "title": "Maajoukkue",
+        "description": "Maajoukkuekokemuksesi (kategoriat, tilastot ja kuvat)."
       }
     },
     "manager": {

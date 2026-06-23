@@ -127,7 +127,9 @@
       "step2Title": "Datos futbolísticos",
       "step2Sub": "Club y trayectoria",
       "step3Title": "Verificación",
-      "step3Sub": "Documentos (KYC)"
+      "step3Sub": "Documentos (KYC)",
+      "stepNtTitle": "Selección",
+      "stepNtSub": "Nivel selección nacional"
     },
     "step1": {
       "emailLabel": "Email de la cuenta",

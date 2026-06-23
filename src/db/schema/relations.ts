@@ -345,3 +345,26 @@ export const coachStatsRevisionItemsRelations = relations(
     }),
   }),
 );
+
+// ==========================================
+// NATIONAL TEAM (selección nacional)
+// ==========================================
+import { nationalTeamStints, nationalTeamMedia } from "./nationalTeams";
+
+export const nationalTeamStintsRelations = relations(nationalTeamStints, ({ one }) => ({
+  player: one(playerProfiles, {
+    fields: [nationalTeamStints.playerId],
+    references: [playerProfiles.id],
+  }),
+  team: one(teams, {
+    fields: [nationalTeamStints.teamId],
+    references: [teams.id],
+  }),
+}));
+
+export const nationalTeamMediaRelations = relations(nationalTeamMedia, ({ one }) => ({
+  player: one(playerProfiles, {
+    fields: [nationalTeamMedia.playerId],
+    references: [playerProfiles.id],
+  }),
+}));

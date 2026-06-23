@@ -127,7 +127,9 @@
       "step2Title": "Jalkapallotiedot",
       "step2Sub": "Seura ja ura",
       "step3Title": "Vahvistus",
-      "step3Sub": "Asiakirjat (KYC)"
+      "step3Sub": "Asiakirjat (KYC)",
+      "stepNtTitle": "Maajoukkue",
+      "stepNtSub": "Maajoukkuetaso"
     },
     "step1": {
       "emailLabel": "Tilin sähköposti",
