@@ -585,6 +585,68 @@ export async function sendAdminCoachProfileCorrectedEmail(opts: {
   }
 }
 
+// ============================================================================
+// Selección Nacional — admin moderó una etapa (aprobó / rechazó)
+// ============================================================================
+
+const NATIONAL_TEAM_REVIEWED_SUBJECT: Record<Locale, { approved: string; rejected: string }> = {
+  es: {
+    approved: "Aprobamos tu Selección Nacional en 'BallersHub",
+    rejected: "Revisamos tu Selección Nacional en 'BallersHub",
+  },
+  en: {
+    approved: "Your National Team is approved on 'BallersHub",
+    rejected: "We reviewed your National Team on 'BallersHub",
+  },
+  it: {
+    approved: "La tua Nazionale è approvata su 'BallersHub",
+    rejected: "Abbiamo revisionato la tua Nazionale su 'BallersHub",
+  },
+  pt: {
+    approved: "Sua Seleção Nacional foi aprovada na 'BallersHub",
+    rejected: "Revisamos sua Seleção Nacional na 'BallersHub",
+  },
+};
+
+/**
+ * Notifica al jugador el resultado de la moderación de su bloque "Selección
+ * Nacional" (aprobado/rechazado), con la nota opcional del admin. La resolución
+ * del email del jugador (auth.users) la hace el caller vía service-role. Falla
+ * en silencio — la moderación ya escribió en vivo, el email no debe romperla.
+ */
+export async function sendNationalTeamReviewedEmail(opts: {
+  email: string;
+  playerName: string;
+  result: "approved" | "rejected";
+  note?: string | null;
+}) {
+  if (!resend) {
+    console.log("[Resend Mock] National team reviewed →", opts.email, opts.result);
+    return;
+  }
+  try {
+    const locale = await resolvePreferredLocale({ email: opts.email });
+    const dashboardEditUrl = `${siteUrl.replace(/\/+$/, "")}/dashboard/edit-profile/national-team`;
+    const html = await renderTemplate("national_team_reviewed", {
+      playerName: opts.playerName,
+      result: opts.result,
+      note: opts.note ?? null,
+      dashboardUrl: dashboardEditUrl,
+      recipientEmail: opts.email,
+      locale,
+    });
+    const subjectByResult = NATIONAL_TEAM_REVIEWED_SUBJECT[locale] ?? NATIONAL_TEAM_REVIEWED_SUBJECT.es;
+    await resend.emails.send({
+      from: senderFrom,
+      to: [opts.email],
+      subject: subjectByResult[opts.result],
+      html,
+    });
+  } catch (error) {
+    console.error("[resend] sendNationalTeamReviewedEmail:", error);
+  }
+}
+
 /**
  * Notifica al autor cuando su post es rechazado con feedback. El editor
  * URL apunta a /blog/write/[id] donde puede iterar (el post queda en

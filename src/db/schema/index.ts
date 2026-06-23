@@ -25,6 +25,7 @@ export * from "./profileChangeLogs";
 export * from "./relations";
 export * from "./profilePublishing";
 export * from "./careerRevisions";
+export * from "./nationalTeams";
 export * from "./divisions";
 export * from "./portfolioLeads";
 export * from "./marketing";

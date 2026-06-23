@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase/client";
 import { onboardingNotification, useNotificationContext } from "@/modules/notifications";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import type { NationalTeamApplyItem } from "./Step2bNationalTeam";
 
 // Tipos mínimos esperados desde Step1/Step2
 export type Step1Data = {
@@ -62,11 +63,13 @@ export type Step2Data = {
 export default function Step3Verify({
   step1,
   step2,
+  nationalTeam = [],
   onBack,
   onSent,
 }: {
   step1: Step1Data;
   step2: Step2Data;
+  nationalTeam?: NationalTeamApplyItem[];
   onBack: () => void;
   onSent: (applicationId: string) => void;
 }) {
@@ -104,7 +107,7 @@ export default function Step3Verify({
       }
 
       // 2) armo el payload
-      const payload = { step1, step2, kyc: { idDocKey, selfieKey } };
+      const payload = { step1, step2, nationalTeam, kyc: { idDocKey, selfieKey } };
 
       // 3) POST al endpoint (sólo Bearer, sin cookies)
       const res = await fetch("/api/onboarding/submit", {

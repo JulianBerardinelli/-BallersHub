@@ -31,6 +31,7 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
     { count: coachCareerRevCount },
     { count: coachMediaCount },
     { count: coachLicenseCount },
+    { count: nationalTeamCount },
   ] = await Promise.all([
     supabase
       .from("player_applications")
@@ -80,6 +81,10 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
       .from("coach_licenses")
       .select("id", { count: "exact", head: true })
       .eq("status", "pending"),
+    supabase
+      .from("national_team_stints")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending_review"),
   ]);
 
   let careerRevisionsCount = 0;
@@ -110,6 +115,7 @@ async function fetchAdminCounters(): Promise<AdminCounters> {
     "/admin/coach-career-revisions": coachCareerRevCount ?? 0,
     "/admin/coach-media": coachMediaCount ?? 0,
     "/admin/coach-licenses": coachLicenseCount ?? 0,
+    "/admin/national-team": nationalTeamCount ?? 0,
   };
 }
 

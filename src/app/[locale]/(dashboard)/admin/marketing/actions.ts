@@ -307,6 +307,14 @@ function buildSampleProps(
         dashboardUrl: `${siteUrl}/dashboard/edit-profile/football-data`,
         ...overrides,
       };
+    case "national_team_reviewed":
+      return {
+        playerName: "Lautaro Sample",
+        result: "approved",
+        note: "Verificamos tu convocatoria a la Sub-20 con la nota de la federación. ¡Aprobada!",
+        dashboardUrl: `${siteUrl}/dashboard/edit-profile/national-team`,
+        ...overrides,
+      };
     default: {
       const _exhaustive: never = key;
       return _exhaustive;

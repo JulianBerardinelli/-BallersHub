@@ -34,6 +34,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { href: "/admin/revisions", label: "Revisiones de trayectoria", roles: ["admin", "analyst"] },
       { href: "/admin/stats-revisions", label: "Revisiones de estadísticas", roles: ["admin", "analyst"] },
+      { href: "/admin/national-team", label: "Selección Nacional", roles: ["admin", "analyst"] },
       { href: "/admin/media-moderation", label: "Moderación multimedia", roles: ["admin", "moderator"] },
     ],
   },

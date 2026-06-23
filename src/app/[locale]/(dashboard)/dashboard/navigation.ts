@@ -66,6 +66,13 @@ const PLAYER_NAVIGATION: ClientDashboardNavSection[] = [
       },
       {
         kind: "link",
+        id: "national-team",
+        title: "Selección Nacional",
+        href: "/dashboard/edit-profile/national-team",
+        description: "Tu paso por la selección (categorías, estadísticas y fotos).",
+      },
+      {
+        kind: "link",
         id: "multimedia",
         title: "Multimedia",
         href: "/dashboard/edit-profile/multimedia",
