@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { and, eq, desc } from "drizzle-orm";
+import { and, eq, asc, desc, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   coachProfiles,
   coachCareerItems,
   coachStatsSeasons,
   coachMedia,
+  coachArticles,
   coachHonours,
   coachLicenses,
   coachLinks,
+  coachPersonalDetails,
   agencyProfiles,
 } from "@/db/schema";
 import {
@@ -33,6 +35,8 @@ import {
   type CoachMediaRow,
   type CoachHonourRow,
   type CoachLicenseRow,
+  type CoachArticleRow,
+  type CoachPersonalDetailsData,
 } from "./components/CoachPortfolio";
 import CoachFreeLayout from "./components/free/CoachFreeLayout";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
@@ -206,8 +210,18 @@ export default async function CoachPublicPage({
     translation,
   );
 
-  const [careerRows, statRows, mediaRows, honourRows, licenseRows, linkRows, proIds, agency] =
-    await Promise.all([
+  const [
+    careerRows,
+    statRows,
+    mediaRows,
+    articleRows,
+    honourRows,
+    licenseRows,
+    linkRows,
+    personalRow,
+    proIds,
+    agency,
+  ] = await Promise.all([
       db
         .select()
         .from(coachCareerItems)
@@ -223,6 +237,13 @@ export default async function CoachPublicPage({
         .from(coachMedia)
         .where(and(eq(coachMedia.coachId, coach.id), eq(coachMedia.status, "approved")))
         .orderBy(desc(coachMedia.createdAt)),
+      // Press notes (coach_articles). Owner's manual order first (position asc),
+      // most-recent publishedAt as the tiebreaker for legacy rows at position 0.
+      db
+        .select()
+        .from(coachArticles)
+        .where(eq(coachArticles.coachId, coach.id))
+        .orderBy(asc(coachArticles.position), desc(coachArticles.publishedAt)),
       db
         .select()
         .from(coachHonours)
@@ -234,6 +255,11 @@ export default async function CoachPublicPage({
         .where(and(eq(coachLicenses.coachId, coach.id), eq(coachLicenses.status, "approved")))
         .orderBy(coachLicenses.position),
       db.select().from(coachLinks).where(eq(coachLinks.coachId, coach.id)),
+      db
+        .select()
+        .from(coachPersonalDetails)
+        .where(eq(coachPersonalDetails.coachId, coach.id))
+        .limit(1),
       resolveProUserIds([coach.userId]),
       coach.agencyId
         ? db
@@ -304,6 +330,30 @@ export default async function CoachPublicPage({
 
   const links = linkRows.map((l) => ({ label: l.label, url: l.url, kind: l.kind }));
 
+  // Press notes for the Pro layout (rendered only when there are articles).
+  const articles: CoachArticleRow[] = articleRows.map((a) => ({
+    id: a.id,
+    title: a.title,
+    url: a.url,
+    imageUrl: a.imageUrl,
+    publisher: a.publisher,
+    publishedAt: a.publishedAt,
+    position: a.position,
+  }));
+
+  // Personal details (drives the Pro contact module's WhatsApp + show toggle).
+  const personalDetails: CoachPersonalDetailsData | null = personalRow[0]
+    ? {
+        whatsapp: personalRow[0].whatsapp,
+        showContactSection: personalRow[0].showContactSection,
+        languages: personalRow[0].languages,
+        education: personalRow[0].education,
+        residenceCity: personalRow[0].residenceCity,
+        residenceCountry: personalRow[0].residenceCountry,
+        residenceCountryCode: personalRow[0].residenceCountryCode,
+      }
+    : null;
+
   const data: CoachPortfolioData = {
     fullName: coach.fullName,
     roleTitle: coach.roleTitle,
@@ -354,6 +404,19 @@ export default async function CoachPublicPage({
   // Pro coaches get the premium scrolljacking layout (a copy of the player Pro
   // portfolio, adapted). Free coaches keep the sober editorial dossier.
   if (isPro) {
+    // Resolve the coach owner's auth email (same mechanism as the player
+    // ContactPortfolioModule). The Drizzle connection uses the direct Postgres
+    // URL, which has access to the auth schema. Only queried on the Pro path.
+    let ownerEmail: string | null = null;
+    try {
+      const rows = await db.execute<{ email: string | null }>(
+        sql`select email from auth.users where id = ${coach.userId} limit 1`,
+      );
+      ownerEmail = rows.rows[0]?.email ?? null;
+    } catch {
+      ownerEmail = null;
+    }
+
     const proData: CoachProData = {
       fullName: coach.fullName,
       roleTitle: coach.roleTitle,
@@ -374,6 +437,10 @@ export default async function CoachPublicPage({
       licenses,
       media,
       links,
+      articles,
+      personalDetails,
+      ownerEmail,
+      slug: coach.slug,
       themePrimaryColor: coach.themePrimaryColor,
       themeAccentColor: coach.themeAccentColor,
       themeBackgroundColor: coach.themeBackgroundColor,

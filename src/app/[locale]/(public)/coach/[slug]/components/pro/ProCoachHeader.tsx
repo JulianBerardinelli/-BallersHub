@@ -16,6 +16,7 @@ import {
   Target,
   Trophy,
   Image as ImageIcon,
+  Newspaper,
   Mail,
   type LucideIcon,
 } from "lucide-react";
@@ -27,13 +28,20 @@ import HeaderLocaleSwitcher from "@/components/i18n/HeaderLocaleSwitcher";
 type LocaleSwitch = { available: string[]; current: string; basePath: string };
 type SectionItem = { id: string; labelKey: string; Icon: LucideIcon };
 
-// id → DOM anchor on the page; labelKey reuses existing coach.* titles.
+// id → DOM anchor on the page; labelKey reuses existing portfolio titles
+// (coach.* where one exists, modules.* for the reused player components).
+// Order mirrors CoachProContent's render order. `tactics` is the rich tactical
+// block (methodology + ideas de juego + formations + videos); `gallery` is the
+// photo grid; `press` only ever scrolls to a node when the coach has articles
+// (the section is conditionally rendered) — the scroll-spy simply skips a
+// missing id, so listing it here is safe.
 const COACH_SECTIONS: SectionItem[] = [
   { id: "biography", labelKey: "coach.bioTitle", Icon: User2 },
   { id: "career", labelKey: "coach.careerTitle", Icon: TrendingUp },
-  { id: "methodology", labelKey: "coach.methodologyTitle", Icon: Target },
+  { id: "tactics", labelKey: "coach.methodologyTitle", Icon: Target },
+  { id: "gallery", labelKey: "modules.gallery.title", Icon: ImageIcon },
+  { id: "press", labelKey: "modules.press.title", Icon: Newspaper },
   { id: "honours", labelKey: "coach.honoursTitle", Icon: Trophy },
-  { id: "media", labelKey: "coach.mediaTitle", Icon: ImageIcon },
   { id: "contact", labelKey: "coach.contactTitle", Icon: Mail },
 ];
 

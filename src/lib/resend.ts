@@ -109,6 +109,11 @@ export async function sendLeadWelcomeEmail(opts: {
   email: string;
   playerName: string;
   playerSlug: string;
+  /**
+   * Path segment between the locale prefix and the slug. Player portfolios
+   * live at `/<slug>` (no prefix); coach portfolios at `/coach/<slug>`.
+   */
+  pathPrefix?: string;
   /** Locale of the portfolio page the lead was on (threaded by the route). */
   locale?: Locale;
 }) {
@@ -121,7 +126,8 @@ export async function sendLeadWelcomeEmail(opts: {
     const base = siteUrl.replace(/\/+$/, "");
     // Send the lead back to the locale they were browsing in.
     const prefix = locale === "es" ? "" : `/${locale}`;
-    const slugPath = `${prefix}/${encodeURIComponent(opts.playerSlug)}`;
+    const segment = opts.pathPrefix ? `/${opts.pathPrefix}` : "";
+    const slugPath = `${prefix}${segment}/${encodeURIComponent(opts.playerSlug)}`;
     const portfolioUrl = `${base}${slugPath}`;
     const signUpUrl = `${base}${prefix}/auth/sign-up?redirect=${encodeURIComponent(slugPath)}`;
     const html = await renderTemplate("lead_welcome", {

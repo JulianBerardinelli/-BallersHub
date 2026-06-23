@@ -21,10 +21,13 @@ import type {
   CoachLicenseRow,
   CoachMediaRow,
   CoachLinkRow,
+  CoachArticleRow,
+  CoachPersonalDetailsData,
 } from "../CoachPortfolio";
 
 export type CoachProData = {
   fullName: string;
+  slug: string;
   roleTitle: string | null;
   avatarUrl: string;
   heroUrl: string | null;
@@ -43,6 +46,12 @@ export type CoachProData = {
   licenses: CoachLicenseRow[];
   media: CoachMediaRow[];
   links: CoachLinkRow[];
+  // Press notes (coach_articles). Rendered only when length > 0.
+  articles: CoachArticleRow[];
+  // coach_personal_details (drives the Pro contact module). NULL when absent.
+  personalDetails: CoachPersonalDetailsData | null;
+  // Coach owner's auth email (resolved server-side). NULL when unavailable.
+  ownerEmail: string | null;
   localeSwitch?: { available: string[]; current: string; basePath: string };
   // Pro-layout theme (chosen by the coach). NULL → brand defaults.
   themePrimaryColor: string | null;
