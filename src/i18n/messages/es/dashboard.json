@@ -250,6 +250,10 @@
       "logout": {
         "title": "Cerrar sesión",
         "description": "Salí del panel de manera segura."
+      },
+      "national-team": {
+        "title": "Selección Nacional",
+        "description": "Tu paso por la selección (categorías, estadísticas y fotos)."
       }
     },
     "manager": {

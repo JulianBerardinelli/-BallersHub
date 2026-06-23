@@ -133,8 +133,11 @@ export type NewNationalTeamStint = InferInsertModel<typeof nationalTeamStints>;
 // son hasta 4 fotos generales del paso por la(s) selección(es), no por
 // convocatoria. Viven en el bucket `player-media` (path national-team/…) pero
 // en tabla aparte para no contar contra el cap de 5 de la galería normal.
-// `is_approved` arranca en FALSE (a diferencia de player_media que es reactivo)
-// porque son parte de una credencial sensible y el admin las valida.
+// El endpoint de upload las inserta `is_approved=true` (REACTIVO, como
+// player_media): el módulo público solo renderiza el bloque cuando hay etapas
+// aprobadas, así que las fotos aparecen junto a una "medalla" ya verificada. El
+// control de la credencial vive en la ETAPA; `is_flagged` permite ocultar una
+// foto puntual. (La DEFAULT de la columna es false; el upload la setea true.)
 export const nationalTeamMedia = pgTable(
   "national_team_media",
   {

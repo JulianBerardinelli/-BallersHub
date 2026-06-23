@@ -250,6 +250,10 @@
       "logout": {
         "title": "Esci",
         "description": "Esci dal pannello in modo sicuro."
+      },
+      "national-team": {
+        "title": "Nazionale",
+        "description": "La tua esperienza in nazionale (categorie, statistiche e foto)."
       }
     },
     "manager": {

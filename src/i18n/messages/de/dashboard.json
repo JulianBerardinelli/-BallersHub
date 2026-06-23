@@ -250,6 +250,10 @@
       "logout": {
         "title": "Abmelden",
         "description": "Verlassen Sie das Panel auf sichere Weise."
+      },
+      "national-team": {
+        "title": "Nationalmannschaft",
+        "description": "Deine Nationalmannschaftserfahrung (Kategorien, Statistiken, Fotos)."
       }
     },
     "manager": {

@@ -250,6 +250,10 @@
       "logout": {
         "title": "Se déconnecter",
         "description": "Quittez le panneau en toute sécurité."
+      },
+      "national-team": {
+        "title": "Sélection nationale",
+        "description": "Ton parcours en sélection (catégories, statistiques et photos)."
       }
     },
     "manager": {

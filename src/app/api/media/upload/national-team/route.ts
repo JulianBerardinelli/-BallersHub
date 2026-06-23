@@ -9,9 +9,11 @@ import { NT_PHOTO_CAP } from "@/lib/dashboard/national-team";
 // jugador, no por etapa) — por eso NO cuenta contra el PRO_PHOTO_CAP (5) de la
 // galería normal. Mismo bucket `player-media`, path national-team/{user}/…
 //
-// Las fotos nacen `is_approved=false`: el dueño las ve en su dashboard (RLS
-// owner-read) pero no son públicas hasta que el admin las valida — es parte de
-// una credencial sensible.
+// Las fotos son REACTIVAS (`is_approved=true`), igual que la galería normal
+// (player_media): se muestran junto al bloque cuando hay etapas aprobadas (el
+// módulo público no renderiza nada si no hay etapas approved). El control de
+// verificación de la "medalla" vive en la ETAPA (status moderado + reference_url),
+// no en cada foto; la moderación de una foto puntual es vía `is_flagged`.
 
 const ACCEPTED_IMAGE_MIME = new Set([
   "image/avif",
@@ -148,7 +150,7 @@ export async function POST(req: Request) {
         url: publicUrl,
         alt_text: altText,
         position: nextPosition,
-        is_approved: false, // moderado: el admin valida antes de publicar
+        is_approved: true, // reactivo (como la galería); visible junto al bloque ya aprobado
         is_flagged: false,
       })
       .select()
