@@ -22,6 +22,7 @@ export default function CareerEditor({
   showCurrentToggle = true,
   onRequestCurrentChange,
   readOnly = false,
+  showRole = false,
 }: {
   items: CareerItemInput[];
   onChange: (rows: CareerItemInput[]) => void;
@@ -30,6 +31,8 @@ export default function CareerEditor({
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (row: CareerItemInput, selected: boolean) => boolean;
   readOnly?: boolean;
+  /** Coach-only: surface the per-stage "Cargo" (role) field. */
+  showRole?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
   const [skipped, setSkipped] = React.useState(false);
@@ -44,6 +47,7 @@ export default function CareerEditor({
       {
         id: crypto.randomUUID(),
         club: "",
+        role_title: null,
         division: null,
         secondary_division: null,
         secondary_division_id: null,
@@ -69,8 +73,16 @@ export default function CareerEditor({
   }
 
   function overlapMsg(row: CareerItemInput): string | null {
+    // A fully-undated stage (no start AND no end) has no temporal range, so it
+    // can't meaningfully overlap. Legacy coach rows allowed this; the row editor
+    // requires a year to confirm, so players never produce one. Without this, a
+    // legacy null/null row (= -∞/+∞) would overlap every other stage and block
+    // confirming anything.
+    const isUndated = (r: CareerItemInput) => r.start_year == null && r.end_year == null;
+    if (isUndated(row)) return null;
     const others = items.filter((r) => r.id !== row.id && r.confirmed);
     for (const o of others) {
+      if (isUndated(o)) continue;
       if (rangesOverlap(row.start_year ?? null, row.end_year ?? null, o.start_year ?? null, o.end_year ?? null)) {
         return t("careerEditor.overlap", {
           club: o.club,
@@ -162,6 +174,7 @@ export default function CareerEditor({
             {row.confirmed || readOnly ? (
               <CareerRowRead
                 club={row.club}
+                roleTitle={row.role_title ?? null}
                 division={row.division}
                 secondaryDivision={row.secondary_division ?? null}
                 start_year={row.start_year}
@@ -196,6 +209,7 @@ export default function CareerEditor({
                 }}
                 overlapError={overlapMsg(row)}
                 showCurrentToggle={showCurrentToggle && !readOnly}
+                showRole={showRole}
                 onRequestCurrentChange={(selected) =>
                   onRequestCurrentChange ? onRequestCurrentChange(row, selected) : true
                 }

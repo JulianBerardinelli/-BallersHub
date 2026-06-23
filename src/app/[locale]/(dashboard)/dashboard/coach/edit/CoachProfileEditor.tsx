@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { Button, Textarea } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
 import { updateCoachProfile, type CoachProfileInput } from "@/app/actions/coach-profile";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
 import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
-import CoachImageUploader from "@/components/dashboard/coach/CoachImageUploader";
+import AvatarUploader from "@/components/dashboard/AvatarUploader";
 
 const textareaClasses = { inputWrapper: "bg-bh-surface-2 border border-white/[0.08]" };
 
@@ -99,23 +100,33 @@ export default function CoachProfileEditor({
           <p className="mb-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
             Avatar
           </p>
-          <CoachImageUploader mode="avatar" currentUrl={initial.avatarUrl} uploadUrl={imageUploadUrl} />
-        </div>
-        <div className="border-t border-white/[0.06] pt-5">
-          <p className="mb-2 flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.1em] text-bh-fg-4">
-            Asset Pro (hero)
-            <span className="rounded-bh-pill border border-bh-lime/40 bg-bh-lime/10 px-1.5 py-0.5 text-[9px] font-bold tracking-[0.08em] text-bh-lime">
-              Pro
-            </span>
+          <div className="flex items-center gap-4">
+            <div className="relative size-20 shrink-0 overflow-hidden rounded-full border border-white/[0.12] bg-bh-surface-2">
+              {initial.avatarUrl ? (
+                <Image
+                  src={initial.avatarUrl}
+                  alt="Avatar"
+                  fill
+                  sizes="80px"
+                  className="object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex size-full items-center justify-center text-center text-[10px] text-bh-fg-4">
+                  Sin avatar
+                </div>
+              )}
+            </div>
+            <AvatarUploader
+              playerId=""
+              currentAvatarUrl={initial.avatarUrl}
+              uploadUrl={imageUploadUrl ?? "/api/coach/profile-image/upload"}
+              assetType="avatar"
+            />
+          </div>
+          <p className="mt-2 text-[11px] text-bh-fg-4">
+            El asset Pro (hero) se gestiona ahora desde <strong className="text-bh-fg-3">Multimedia</strong>.
           </p>
-          {access.isPro ? (
-            <CoachImageUploader mode="hero" currentUrl={initial.heroUrl} uploadUrl={imageUploadUrl} />
-          ) : (
-            <p className="max-w-[420px] text-[12px] leading-[1.5] text-bh-fg-4">
-              El asset Pro es la imagen recortada que protagoniza el hero de tu página en el layout
-              Pro. Activá Pro para subirlo.
-            </p>
-          )}
         </div>
       </div>
 

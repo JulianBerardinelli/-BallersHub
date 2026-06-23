@@ -4,35 +4,18 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
+import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEditor";
 import {
   submitCoachCareerRevision,
   cancelCoachCareerRevision,
 } from "@/app/actions/coach-career";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
+import type { CoachEditorStage, CoachEditorStat } from "@/lib/coach/career-data";
 
-export type CoachCareerStage = {
-  id: string;
-  originalId: string | null;
-  club: string;
-  roleTitle: string;
-  division: string;
-  startYear: number | null;
-  endYear: number | null;
-};
-
-export type CoachSeasonStat = {
-  id: string;
-  originalStatId: string | null;
-  season: string;
-  competition: string;
-  team: string;
-  matches: number;
-  wins: number;
-  draws: number;
-  losses: number;
-  goalsFor: number;
-  goalsAgainst: number;
-};
+// Rich stage/stat shapes are owned by the shared loader so the dashboard + admin
+// pages feed identical data into this reused editor.
+export type CoachCareerStage = CoachEditorStage;
+export type CoachSeasonStat = CoachEditorStat;
 
 export type CoachCareerRequestSnapshot = {
   id: string;
@@ -45,15 +28,60 @@ export type CoachCareerRequestSnapshot = {
   pendingStatCount: number;
 };
 
-const newStage = (): CoachCareerStage => ({
-  id: crypto.randomUUID(),
-  originalId: null,
-  club: "",
-  roleTitle: "",
-  division: "",
-  startYear: null,
-  endYear: null,
-});
+type AugmentedCareerItem = CareerItemInput & { originalId?: string | null };
+
+// coach stage → the shared CareerEditor's controlled row. An open-ended stage
+// (no end year) is the "current" club; existing rows load confirmed (collapsed).
+function toEditorItem(stage: CoachEditorStage): AugmentedCareerItem {
+  // "Current" = an ongoing stage (real start, no end). A fully-undated legacy
+  // row (no start AND no end) is NOT current — keep it a plain manual stage so
+  // it doesn't lock the end field nor seed current_club from a dateless row.
+  const isCurrent = stage.endYear === null && stage.startYear !== null;
+  return {
+    id: stage.id,
+    originalId: stage.originalId,
+    club: stage.team?.name ?? stage.club ?? "",
+    role_title: stage.roleTitle ?? null,
+    division: stage.division ?? null,
+    division_id: stage.divisionId ?? null,
+    secondary_division: stage.secondaryDivision ?? null,
+    secondary_division_id: stage.secondaryDivisionId ?? null,
+    secondary_division_meta: null,
+    start_year: stage.startYear,
+    end_year: stage.endYear,
+    team_id: stage.team?.id ?? null,
+    team_meta: stage.team
+      ? { slug: null, country_code: stage.team.countryCode, crest_url: stage.team.crestUrl }
+      : null,
+    proposed: null,
+    confirmed: true,
+    lockEnd: isCurrent,
+    source: isCurrent ? "current" : "manual",
+  };
+}
+
+function mapItemToPayload(item: AugmentedCareerItem) {
+  return {
+    originalId: item.originalId ?? null,
+    club: item.club,
+    roleTitle: item.role_title ?? null,
+    division: item.division ?? null,
+    divisionId: item.division_id ?? null,
+    secondaryDivision: item.secondary_division ?? null,
+    secondaryDivisionId: item.secondary_division_id ?? null,
+    startYear: item.start_year ?? null,
+    endYear: item.end_year ?? null,
+    teamId: item.team_id ?? null,
+    proposedTeam: item.proposed
+      ? {
+          name: item.club,
+          countryCode: item.proposed.country?.code ?? null,
+          countryName: item.proposed.country?.name ?? null,
+          transfermarktUrl: item.proposed.tmUrl ?? null,
+        }
+      : null,
+  };
+}
 
 const newStat = (): CoachSeasonStat => ({
   id: crypto.randomUUID(),
@@ -68,11 +96,6 @@ const newStat = (): CoachSeasonStat => ({
   goalsFor: 0,
   goalsAgainst: 0,
 });
-
-const numFromInput = (v: string): number => {
-  const n = Number(v);
-  return Number.isFinite(n) && n >= 0 ? Math.trunc(n) : 0;
-};
 
 export default function CoachCareerManager({
   coachId,
@@ -98,15 +121,12 @@ export default function CoachCareerManager({
   const { enqueue } = useNotificationContext();
   const isLocked = !liveMode && latestRequest?.status === "pending";
 
-  const [items, setItems] = React.useState<CoachCareerStage[]>(career);
+  const [items, setItems] = React.useState<AugmentedCareerItem[]>(() => career.map(toEditorItem));
   const [seasons, setSeasons] = React.useState<CoachSeasonStat[]>(stats);
   const [note, setNote] = React.useState("");
   const [saving, setSaving] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
 
-  function patchStage(id: string, patch: Partial<CoachCareerStage>) {
-    setItems((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
-  }
   function patchStat(id: string, patch: Partial<CoachSeasonStat>) {
     setSeasons((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
   }
@@ -115,24 +135,28 @@ export default function CoachCareerManager({
     setSaving(true);
     setMsg(null);
     try {
-      const cleanItems = items.filter((s) => s.club.trim().length > 0);
+      // Block submit while a stage is still open (unconfirmed) with content.
+      const openDraft = items.find(
+        (i) => !i.confirmed && (i.club.trim().length > 0 || i.start_year != null),
+      );
+      if (openDraft) {
+        setMsg({ ok: false, text: "Confirmá las etapas abiertas antes de guardar." });
+        setSaving(false);
+        return;
+      }
+
+      const cleanItems = items.filter((i) => i.confirmed && i.club.trim().length > 0);
       const cleanSeasons = seasons.filter((s) => s.season.trim().length > 0);
       if (cleanItems.length === 0 && cleanSeasons.length === 0) {
         setMsg({ ok: false, text: "Agregá al menos una etapa o una temporada." });
         setSaving(false);
         return;
       }
+
       const res = await submitAction({
         coachId,
         note: note || null,
-        items: cleanItems.map((s) => ({
-          originalId: s.originalId,
-          club: s.club,
-          roleTitle: s.roleTitle || null,
-          division: s.division || null,
-          startYear: s.startYear,
-          endYear: s.endYear,
-        })),
+        items: cleanItems.map(mapItemToPayload),
         stats: cleanSeasons.map((s) => ({
           originalStatId: s.originalStatId,
           season: s.season,
@@ -190,7 +214,10 @@ export default function CoachCareerManager({
           Trayectoria y estadísticas
         </h2>
         <p className="text-sm text-bh-fg-3">
-          {coachName} · los cambios se publican tras la revisión del equipo.
+          {coachName} ·{" "}
+          {liveMode
+            ? "edición directa: los cambios se publican al instante."
+            : "los cambios se publican tras la revisión del equipo."}
         </p>
       </div>
 
@@ -233,99 +260,14 @@ export default function CoachCareerManager({
         </Banner>
       )}
 
-      {/* ───────── Career stages ───────── */}
-      <section className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
-        <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-          Clubes dirigidos
-        </h3>
-        {items.length === 0 ? (
-          <p className="text-[12px] text-bh-fg-4">Todavía no cargaste etapas de tu trayectoria.</p>
-        ) : (
-          <div className="grid gap-4">
-            {items.map((stage) => (
-              <div
-                key={stage.id}
-                className="grid gap-3 rounded-bh-md border border-white/[0.06] bg-transparent p-4"
-              >
-                <div className="flex justify-end">
-                  <Button
-                    size="sm"
-                    variant="flat"
-                    isDisabled={isLocked}
-                    onPress={() => setItems((prev) => prev.filter((s) => s.id !== stage.id))}
-                    className="h-7 rounded-bh-md border border-white/[0.08] bg-transparent px-3 text-[12px] text-bh-fg-3 hover:border-bh-danger hover:text-bh-danger"
-                  >
-                    Quitar
-                  </Button>
-                </div>
-                <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
-                  <FormField
-                    id={`stage-club-${stage.id}`}
-                    isRequired
-                    disabled={isLocked}
-                    label="Club"
-                    placeholder="Ej: Club Atlético River Plate"
-                    value={stage.club}
-                    onChange={(e) => patchStage(stage.id, { club: e.target.value })}
-                  />
-                  <FormField
-                    id={`stage-role-${stage.id}`}
-                    disabled={isLocked}
-                    label="Cargo"
-                    placeholder="Ej: Director Técnico"
-                    value={stage.roleTitle}
-                    onChange={(e) => patchStage(stage.id, { roleTitle: e.target.value })}
-                  />
-                </div>
-                <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-3">
-                  <FormField
-                    id={`stage-division-${stage.id}`}
-                    disabled={isLocked}
-                    label="División / categoría"
-                    placeholder="Ej: Primera División"
-                    value={stage.division}
-                    onChange={(e) => patchStage(stage.id, { division: e.target.value })}
-                  />
-                  <FormField
-                    id={`stage-start-${stage.id}`}
-                    type="number"
-                    disabled={isLocked}
-                    label="Año inicio"
-                    placeholder="2019"
-                    value={stage.startYear != null ? String(stage.startYear) : ""}
-                    onChange={(e) =>
-                      patchStage(stage.id, {
-                        startYear: e.target.value ? numFromInput(e.target.value) : null,
-                      })
-                    }
-                  />
-                  <FormField
-                    id={`stage-end-${stage.id}`}
-                    type="number"
-                    disabled={isLocked}
-                    label="Año fin"
-                    placeholder="2022"
-                    value={stage.endYear != null ? String(stage.endYear) : ""}
-                    onChange={(e) =>
-                      patchStage(stage.id, {
-                        endYear: e.target.value ? numFromInput(e.target.value) : null,
-                      })
-                    }
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        <Button
-          variant="flat"
-          isDisabled={isLocked}
-          onPress={() => setItems((prev) => [...prev, newStage()])}
-          className="w-full rounded-bh-md border border-dashed border-white/[0.12] bg-transparent py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-white/[0.24] hover:text-bh-fg-1"
-        >
-          + Agregar etapa
-        </Button>
-      </section>
+      {/* ───────── Career stages (shared rich editor) ───────── */}
+      <CareerEditor
+        items={items}
+        onChange={(rows) => setItems(rows as AugmentedCareerItem[])}
+        optional={false}
+        showRole
+        readOnly={isLocked}
+      />
 
       {/* ───────── Season stats ───────── */}
       <section className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
@@ -386,48 +328,12 @@ export default function CoachCareerManager({
                   />
                 </div>
                 <div className="grid auto-rows-fr gap-3 grid-cols-3 sm:grid-cols-6">
-                  <NumField
-                    id={`stat-matches-${stat.id}`}
-                    label="PJ"
-                    disabled={isLocked}
-                    value={stat.matches}
-                    onChange={(n) => patchStat(stat.id, { matches: n })}
-                  />
-                  <NumField
-                    id={`stat-wins-${stat.id}`}
-                    label="PG"
-                    disabled={isLocked}
-                    value={stat.wins}
-                    onChange={(n) => patchStat(stat.id, { wins: n })}
-                  />
-                  <NumField
-                    id={`stat-draws-${stat.id}`}
-                    label="PE"
-                    disabled={isLocked}
-                    value={stat.draws}
-                    onChange={(n) => patchStat(stat.id, { draws: n })}
-                  />
-                  <NumField
-                    id={`stat-losses-${stat.id}`}
-                    label="PP"
-                    disabled={isLocked}
-                    value={stat.losses}
-                    onChange={(n) => patchStat(stat.id, { losses: n })}
-                  />
-                  <NumField
-                    id={`stat-gf-${stat.id}`}
-                    label="GF"
-                    disabled={isLocked}
-                    value={stat.goalsFor}
-                    onChange={(n) => patchStat(stat.id, { goalsFor: n })}
-                  />
-                  <NumField
-                    id={`stat-ga-${stat.id}`}
-                    label="GC"
-                    disabled={isLocked}
-                    value={stat.goalsAgainst}
-                    onChange={(n) => patchStat(stat.id, { goalsAgainst: n })}
-                  />
+                  <NumField id={`stat-matches-${stat.id}`} label="PJ" disabled={isLocked} value={stat.matches} onChange={(n) => patchStat(stat.id, { matches: n })} />
+                  <NumField id={`stat-wins-${stat.id}`} label="PG" disabled={isLocked} value={stat.wins} onChange={(n) => patchStat(stat.id, { wins: n })} />
+                  <NumField id={`stat-draws-${stat.id}`} label="PE" disabled={isLocked} value={stat.draws} onChange={(n) => patchStat(stat.id, { draws: n })} />
+                  <NumField id={`stat-losses-${stat.id}`} label="PP" disabled={isLocked} value={stat.losses} onChange={(n) => patchStat(stat.id, { losses: n })} />
+                  <NumField id={`stat-gf-${stat.id}`} label="GF" disabled={isLocked} value={stat.goalsFor} onChange={(n) => patchStat(stat.id, { goalsFor: n })} />
+                  <NumField id={`stat-ga-${stat.id}`} label="GC" disabled={isLocked} value={stat.goalsAgainst} onChange={(n) => patchStat(stat.id, { goalsAgainst: n })} />
                 </div>
               </div>
             ))}

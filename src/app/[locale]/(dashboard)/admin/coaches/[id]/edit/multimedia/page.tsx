@@ -31,9 +31,9 @@ export default async function AdminCoachMediaPage({
   const admin = createSupabaseAdmin();
   const { data: coach } = await admin
     .from("coach_profiles")
-    .select("id, user_id, full_name")
+    .select("id, user_id, full_name, hero_url")
     .eq("id", id)
-    .maybeSingle<{ id: string; user_id: string; full_name: string }>();
+    .maybeSingle<{ id: string; user_id: string; full_name: string; hero_url: string | null }>();
   if (!coach) notFound();
 
   const proIds = await resolveProUserIds([coach.user_id]);
@@ -66,6 +66,8 @@ export default async function AdminCoachMediaPage({
       isPro={isPro}
       uploadUrl={`/api/admin/coaches/${id}/media/upload`}
       deleteAction={adminDeleteCoachMedia}
+      heroUrl={coach.hero_url}
+      imageUploadUrl={`/api/admin/coaches/${id}/profile-image/upload`}
     />
   );
 }

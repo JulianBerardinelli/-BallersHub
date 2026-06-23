@@ -36,6 +36,9 @@ export type TeamLite = {
 export type RowDraft = {
   id: string;
   club: string;
+  // Cargo en esa etapa (DT principal, asistente, etc.). Coach-only — el editor
+  // lo muestra solo con `showRole`; el flujo de players lo ignora.
+  role_title?: string | null;
   division?: string | null;
   division_id?: string | null;
   division_meta?: { crest_url?: string | null } | null;
@@ -65,6 +68,7 @@ export default function CareerRowEditor({
   overlapError,
   showCurrentToggle = true,
   onRequestCurrentChange,
+  showRole = false,
 }: {
   value: RowDraft;
   onPatch: (patch: Partial<RowDraft>) => void;
@@ -74,6 +78,8 @@ export default function CareerRowEditor({
   overlapError?: string | null;
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (selected: boolean) => boolean | void;
+  /** Coach-only: render the "Cargo" (role) field above the team/division grid. */
+  showRole?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
 
@@ -374,20 +380,29 @@ export default function CareerRowEditor({
   }, [secondaryDivQ, divs, selectedDivKey, selectedSecondaryDivKey]);
 
   return (
-    <div
-      className={`grid grid-cols-1 items-end gap-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4 ${
-        secondaryEnabled ? "lg:grid-cols-6" : "lg:grid-cols-5"
-      }`}
-    >
-      <div className="lg:col-span-2">
-        <TeamCombobox
-          variant="field"
-          label={t("career.rowEditor.clubLabel")}
-          value={teamValue}
-          seedText={value.club}
-          onChange={handleTeamChange}
+    <div className="space-y-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4">
+      {showRole ? (
+        <FormField
+          label="Cargo"
+          placeholder="Ej: Director Técnico"
+          value={value.role_title ?? ""}
+          onChange={(e) => onPatch({ role_title: e.target.value })}
         />
-      </div>
+      ) : null}
+      <div
+        className={`grid grid-cols-1 items-end gap-3 ${
+          secondaryEnabled ? "lg:grid-cols-6" : "lg:grid-cols-5"
+        }`}
+      >
+        <div className="lg:col-span-2">
+          <TeamCombobox
+            variant="field"
+            label={t("career.rowEditor.clubLabel")}
+            value={teamValue}
+            seedText={value.club}
+            onChange={handleTeamChange}
+          />
+        </div>
 
       <Autocomplete
           label={t("career.rowEditor.divisionLabel")}
@@ -649,6 +664,7 @@ export default function CareerRowEditor({
             )}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
