@@ -62,7 +62,7 @@ export default async function NationalTeamModule({ playerId }: { playerId: strin
     };
   });
 
-  const photos = media.map((m) => ({ id: m.id, url: m.url, altText: m.altText }));
+  const photos = media.map((m) => ({ id: m.id, url: m.url, title: m.title, altText: m.altText }));
 
   // Localized enum labels (category / participation) — resolved server-side from
   // the portfolio namespace so the client module renders in the viewer's locale

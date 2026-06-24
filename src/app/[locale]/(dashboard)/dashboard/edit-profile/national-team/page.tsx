@@ -60,7 +60,7 @@ export default async function NationalTeamPage() {
   const planAccess = resolvePlanAccess(dashboardState.subscription);
   const isPro = planAccess.isPro;
 
-  const [{ data: rawStints }, { data: rawMedia }, { data: rawCountries }] = await Promise.all([
+  const [{ data: rawStints }, { data: rawMedia }] = await Promise.all([
     supabase
       .from("national_team_stints")
       .select("*")
@@ -73,7 +73,6 @@ export default async function NationalTeamPage() {
       .eq("player_id", profile.id)
       .order("position", { ascending: true })
       .order("created_at", { ascending: true }),
-    supabase.from("countries").select("code, name_es, name_en").order("name_es", { nullsFirst: false }),
   ]);
 
   const stints: NationalTeamStintView[] = (rawStints ?? []).map((r) => ({
@@ -99,6 +98,7 @@ export default async function NationalTeamPage() {
   const media: NationalTeamPhotoView[] = (rawMedia ?? []).map((r) => ({
     id: r.id,
     url: r.url,
+    title: r.title ?? null,
     altText: r.alt_text ?? null,
     position: r.position ?? 0,
     isApproved: r.is_approved,
@@ -106,10 +106,6 @@ export default async function NationalTeamPage() {
     reviewedBy: r.reviewed_by ?? null,
     createdAt: r.created_at ?? null,
   }));
-
-  const countries = (rawCountries ?? [])
-    .map((c) => ({ code: c.code as string, name: (c.name_es ?? c.name_en) as string }))
-    .filter((c) => c.code && c.name);
 
   return (
     <div className="space-y-6">
@@ -136,14 +132,13 @@ export default async function NationalTeamPage() {
           playerId={profile.id}
           isPro={isPro}
           stints={stints}
-          countries={countries}
         />
       </SectionCard>
 
       {isPro ? (
         <SectionCard
           title="Fotos con la selección"
-          description="Hasta 4 fotos generales de tu paso por la selección. Las revisamos antes de mostrarlas en tu perfil."
+          description="Hasta 4 fotos generales de tu paso por la selección. Se muestran en tu perfil junto al bloque, una vez aprobado."
         >
           <NationalTeamPhotoManager playerId={profile.id} media={media} />
         </SectionCard>

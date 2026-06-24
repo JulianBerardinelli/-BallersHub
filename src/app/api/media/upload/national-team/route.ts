@@ -56,6 +56,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
+    const rawTitle = formData.get("title") as string | null;
     const rawAltText = formData.get("altText") as string | null;
 
     if (!file) {
@@ -148,6 +149,7 @@ export async function POST(req: Request) {
       .insert({
         player_id: profile.id,
         url: publicUrl,
+        title: rawTitle && rawTitle.trim().length > 0 ? rawTitle.trim() : null,
         alt_text: altText,
         position: nextPosition,
         is_approved: true, // reactivo (como la galería); visible junto al bloque ya aprobado

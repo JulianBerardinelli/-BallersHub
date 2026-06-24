@@ -1,0 +1,1 @@
+ALTER TABLE "national_team_media" ADD COLUMN "title" text;
