@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe2, Languages, Save, Trash2 } from "lucide-react";
+import { Check, Globe2, Languages, Lock, Save, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -37,6 +37,8 @@ export default function AgencyCountryProfileTranslationsSection({
   agencyId,
   countryProfiles,
   translations,
+  publishedLocales,
+  localeLimit,
 }: {
   agencyId: string;
   countryProfiles: AgencyCountryProfileItem[];
@@ -44,9 +46,24 @@ export default function AgencyCountryProfileTranslationsSection({
     string,
     Partial<Record<TargetLocale, CountryTranslationFields>>
   >;
+  /** Locales already published in agency_profile_translations (server snapshot)
+   *  + the plan cap. Lock the same over-cap locales as the main section. */
+  publishedLocales: TargetLocale[];
+  localeLimit: number;
 }) {
   const t = useTranslations("dashAgency");
-  const [active, setActive] = useState<TargetLocale>("en");
+
+  // Cap driven by agency_profile_translations rows (the set the server counts).
+  // Country narratives live in their own table but share that cap, so lock the
+  // over-cap locales up front instead of only failing on save.
+  const publishedSet = new Set(publishedLocales);
+  const maxNonEs = Math.max(0, localeLimit - 1);
+  const capReached = publishedSet.size >= maxNonEs;
+  const isLocked = (code: TargetLocale) => !publishedSet.has(code) && capReached;
+
+  const [active, setActive] = useState<TargetLocale>(
+    () => LOCALES.find((l) => publishedSet.has(l.code))?.code ?? "en",
+  );
 
   const [saved, setSaved] = useState<
     Record<string, Partial<Record<TargetLocale, CountryTranslationFields>>>
@@ -105,10 +122,36 @@ export default function AgencyCountryProfileTranslationsSection({
       }
       description={t("countryTranslations.description")}
     >
+      {capReached ? (
+        <div className="mb-4 flex items-start gap-2 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-3 py-2.5 text-[12px] leading-[1.5] text-bh-fg-2">
+          <Lock className="mt-0.5 size-3.5 shrink-0 text-bh-blue" aria-hidden />
+          <span>
+            <span className="font-semibold text-bh-fg-1">
+              {t("translationsSection.limitBannerTitle", { max: maxNonEs })}
+            </span>{" "}
+            {t("translationsSection.limitBannerHint")}
+          </span>
+        </div>
+      ) : null}
       <div className="mb-5 flex flex-wrap gap-2">
         {LOCALES.map((l) => {
           const isActive = l.code === active;
           const anySaved = countryProfiles.some((c) => saved[c.id]?.[l.code]);
+          if (isLocked(l.code)) {
+            return (
+              <button
+                key={l.code}
+                type="button"
+                disabled
+                title={t("translationsSection.lockedHint")}
+                className="inline-flex cursor-not-allowed items-center gap-2 rounded-bh-md border border-dashed border-white/[0.08] bg-bh-surface-1 px-3.5 py-2 text-[13px] font-semibold text-bh-fg-4 opacity-55"
+              >
+                <span aria-hidden>{l.flag}</span>
+                {l.label}
+                <Lock className="size-3.5 text-bh-fg-4" aria-hidden />
+              </button>
+            );
+          }
           return (
             <button
               key={l.code}

@@ -13,6 +13,7 @@ import {
   getAgencyMediaTranslationsAllLocales,
   getAgencyCountryProfileTranslationsAllLocales,
 } from "@/lib/i18n/profile-content";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import { requireManagerAgency } from "../_lib/require-manager-agency";
 import AgencyRestricted from "../_lib/AgencyRestricted";
 import { normalizeAgencyServices } from "../_lib/normalize-services";
@@ -175,6 +176,22 @@ export default async function AgencyTranslationsPage() {
 
   const normalizedServices = normalizeAgencyServices((agency.services ?? []) as unknown[]);
 
+  // Effective language cap for this agency — 4 by default (es + 3), lifted for
+  // the unlimited allowlist. Drives the over-cap lock across all four sections.
+  const localeLimit = translationLocaleLimit({
+    slug: agency.slug ?? null,
+    email: user.email ?? null,
+  });
+
+  // Locales the agency ALREADY publishes = every non-es row in
+  // agency_profile_translations (exactly what the server's getPublishedAgencyLocales
+  // counts). Authoritative snapshot at load — passed to the secondary sections
+  // (services/media/country) so they lock the same over-cap locales as the main
+  // one, instead of only failing on save.
+  const publishedLocales = Object.keys(agencyTranslations) as Array<
+    "en" | "it" | "pt" | "de" | "fr" | "fi"
+  >;
+
   return (
     <div className="space-y-6">
       {header}
@@ -186,6 +203,7 @@ export default async function AgencyTranslationsPage() {
           tagline: agency.tagline ?? "",
         }}
         translations={agencyTranslations}
+        localeLimit={localeLimit}
       />
 
       <AgencyServicesTranslationsSection
@@ -195,6 +213,8 @@ export default async function AgencyTranslationsPage() {
           description: s.description,
         }))}
         translations={agencyServicesTranslations}
+        publishedLocales={publishedLocales}
+        localeLimit={localeLimit}
       />
 
       <AgencyMediaTranslationsSection
@@ -206,6 +226,8 @@ export default async function AgencyTranslationsPage() {
           altText: m.altText,
         }))}
         translations={mediaTranslationsForEditor}
+        publishedLocales={publishedLocales}
+        localeLimit={localeLimit}
       />
 
       <AgencyCountryProfileTranslationsSection
@@ -216,6 +238,8 @@ export default async function AgencyTranslationsPage() {
           description: c.description,
         }))}
         translations={countryTranslationsForEditor}
+        publishedLocales={publishedLocales}
+        localeLimit={localeLimit}
       />
     </div>
   );

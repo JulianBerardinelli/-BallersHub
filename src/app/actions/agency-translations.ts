@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { revalidateAgencyPublicProfile } from "@/lib/seo/revalidate";
 import { CONTENT_LOCALES } from "@/lib/i18n/profile-content";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 // Generic per-user subscription → PlanAccess loader (named for its first use in
 // coaches; the subscription is keyed by user_id, role-agnostic).
 import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
@@ -15,13 +16,14 @@ import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
 
 // Translatable (non-es) locales. es is the canonical base, edited elsewhere.
 // 6 overrides → 7 total content locales, but a single plan can only PUBLISH a
-// capped subset (see TIER_LIMIT below).
+// capped subset (see translationLocaleLimit).
 const TRANSLATABLE_LOCALES = ["en", "it", "pt", "de", "fr", "fi"] as const;
 
 // Tier cap (decisión 2a): es + up to 3 overrides = 4 total. Mirrors the player
-// translation action (tierLimit=4). A brand-new locale only counts against the
-// cap; an already-published locale can always be re-saved.
-const TIER_LIMIT = 4;
+// translation action. The effective cap is resolved per-profile via
+// translationLocaleLimit (the unlimited allowlist lifts it). A brand-new locale
+// only counts against the cap; an already-published locale can always be
+// re-saved.
 
 /**
  * Locales the agency already publishes = es (always) + every distinct locale
@@ -51,12 +53,13 @@ async function getPublishedAgencyLocales(
  * (es never reaches here — it's the base; an already-available locale passes.)
  */
 async function enforceLocaleTier(
-  supabase: Owned["supabase"],
+  owned: Owned,
   agencyId: string,
   locale: string,
 ): Promise<string | null> {
-  const available = await getPublishedAgencyLocales(supabase, agencyId);
-  if (!available.includes(locale) && available.length >= TIER_LIMIT) {
+  const available = await getPublishedAgencyLocales(owned.supabase, agencyId);
+  const limit = translationLocaleLimit({ slug: owned.slug, email: owned.email });
+  if (!available.includes(locale) && available.length >= limit) {
     return "Tu plan permite hasta 3 idiomas además del español.";
   }
   return null;
@@ -86,6 +89,7 @@ export type AgencyTranslationResult =
 type Owned = {
   supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>;
   slug: string | null;
+  email: string | null;
 };
 
 /**
@@ -125,7 +129,10 @@ async function ensureProAgencyStaff(
     .eq("id", agencyId)
     .maybeSingle<{ slug: string | null }>();
 
-  return { owned: { supabase, slug: ag?.slug ?? null }, error: null };
+  return {
+    owned: { supabase, slug: ag?.slug ?? null, email: user.email ?? null },
+    error: null,
+  };
 }
 
 function revalidateAllLocales(slug: string | null) {
@@ -152,7 +159,7 @@ export async function saveAgencyTranslation(input: {
   if (!owned) return { success: false, message: error ?? "No autorizado." };
 
   // Tier-cap guard (decisión 2a): only a NEW locale counts against TIER_LIMIT.
-  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  const tierError = await enforceLocaleTier(owned, agencyId, locale);
   if (tierError) return { success: false, message: tierError };
 
   const norm = (v: string | undefined) => {
@@ -263,7 +270,7 @@ export async function saveServicesTranslation(input: {
   // Tier-cap guard (decisión 2a): publishing services in a brand-new locale
   // also creates an agency_profile_translations row, so it counts against the
   // limit just like the description/tagline save path.
-  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  const tierError = await enforceLocaleTier(owned, agencyId, locale);
   if (tierError) return { success: false, message: tierError };
 
   // Read the existing description+tagline so the upsert never clobbers them.
@@ -387,7 +394,7 @@ export async function saveAgencyMediaTranslation(input: {
 
   // Tier-cap guard (decisión 2a): don't let media content open a new locale
   // beyond the plan limit.
-  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  const tierError = await enforceLocaleTier(owned, agencyId, locale);
   if (tierError) return { success: false, message: tierError };
 
   const norm = (v: string | undefined) => {
@@ -507,7 +514,7 @@ export async function saveAgencyCountryProfileTranslation(input: {
 
   // Tier-cap guard (decisión 2a): don't let a country profile open a new locale
   // beyond the plan limit.
-  const tierError = await enforceLocaleTier(owned.supabase, agencyId, locale);
+  const tierError = await enforceLocaleTier(owned, agencyId, locale);
   if (tierError) return { success: false, message: tierError };
 
   const norm = (v: string | undefined) => {

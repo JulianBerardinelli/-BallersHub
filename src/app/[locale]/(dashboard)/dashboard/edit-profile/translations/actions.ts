@@ -13,6 +13,7 @@ import {
   CONTENT_LOCALES,
   getAvailablePlayerLocales,
 } from "@/lib/i18n/profile-content";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import {
   translateBlock,
   type TranslationBlock,
@@ -69,6 +70,7 @@ type OwnedPlayer = {
   supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>;
   userId: string;
   slug: string | null;
+  email: string | null;
 };
 
 /** Auth + ownership + Pro gate. Returns an error string on any failure. */
@@ -138,7 +140,10 @@ async function ensureProOwner(
     };
   }
 
-  return { owned: { supabase, userId: user.id, slug: profile.slug }, error: null };
+  return {
+    owned: { supabase, userId: user.id, slug: profile.slug, email: user.email ?? null },
+    error: null,
+  };
 }
 
 /** Revalidate every locale URL of the cluster — adding/removing a locale
@@ -206,9 +211,10 @@ export async function savePlayerTranslation(input: {
 
   // en/it/pt → player_profile_translations.
   // Tier-limit guard (HANDOFF §6): Pro = native + up to 3 (4 total),
-  // Free = 1. A brand-new locale only counts against the cap.
+  // Free = 1; the unlimited allowlist (owner + team) gets every locale. A
+  // brand-new locale only counts against the cap.
   const available = await getAvailablePlayerLocales(playerId);
-  const tierLimit = 4; // owner is Pro here; Free is rejected above
+  const tierLimit = translationLocaleLimit({ slug: owned.slug, email: owned.email });
   if (!available.includes(locale as never) && available.length >= tierLimit) {
     return { success: false, message: "Alcanzaste el límite de idiomas de tu plan." };
   }
@@ -364,6 +370,23 @@ export async function generateTranslationDraft(input: {
       success: false,
       message:
         "El español es tu base: se edita en Football data, no se traduce acá.",
+    };
+  }
+
+  // Locale-cap guard BEFORE the model runs: if this locale isn't published yet
+  // and the plan's language cap is already full, refuse here so the Pro doesn't
+  // spend AI credits drafting a language they could never save (the original
+  // bug — the cap only fired at save). The unlimited allowlist lifts the cap.
+  const availableForDraft = await getAvailablePlayerLocales(playerId);
+  const draftTierLimit = translationLocaleLimit({ slug: owned.slug, email: owned.email });
+  if (
+    !availableForDraft.includes(locale as never) &&
+    availableForDraft.length >= draftTierLimit
+  ) {
+    return {
+      success: false,
+      message:
+        "Ya alcanzaste el máximo de idiomas de tu plan. Quitá uno activo para traducir a otro.",
     };
   }
 
@@ -614,6 +637,21 @@ export async function generateHonourTranslationDraft(input: {
   const { owned, error } = await ensureProOwner(playerId);
   if (!owned) return { success: false, message: error ?? "No autorizado." };
   const { supabase } = owned;
+
+  // Same locale-cap guard as the profile draft: don't spend AI credits
+  // translating a palmarés into a language the plan can't publish.
+  const availableForHonour = await getAvailablePlayerLocales(playerId);
+  const honourTierLimit = translationLocaleLimit({ slug: owned.slug, email: owned.email });
+  if (
+    !availableForHonour.includes(locale as never) &&
+    availableForHonour.length >= honourTierLimit
+  ) {
+    return {
+      success: false,
+      message:
+        "Ya alcanzaste el máximo de idiomas de tu plan. Quitá uno activo para traducir a otro.",
+    };
+  }
 
   // Source = the honour's REAL es fields (honours are written in es in
   // football-data; the translation goes es → target). Never trust the client.

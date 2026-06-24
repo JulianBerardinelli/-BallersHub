@@ -330,7 +330,10 @@
     "taglineLabel": "Iskulause",
     "removeLanguage": "Poista kieli",
     "saveLocale": "Tallenna {locale}",
-    "esPrefix": "ES: {value}"
+    "esPrefix": "ES: {value}",
+    "limitBannerTitle": "Olet saavuttanut {max} kielen rajan.",
+    "limitBannerHint": "Aktivoidaksesi toisen kielen poista jokin nykyisistä kohdasta ”Poista kieli”.",
+    "lockedHint": "Poista aktiivinen kieli kääntääksesi tälle kielelle."
   },
   "servicesTranslations": {
     "title": "Palvelut — käännökset",

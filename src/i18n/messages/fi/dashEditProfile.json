@@ -574,7 +574,11 @@
     "honourTitleLabel": "Saavutuksen otsikko",
     "honourCompetitionLabel": "Sarja",
     "honourDescriptionLabel": "Kuvaus",
-    "esPrefix": "ES: {value}"
+    "esPrefix": "ES: {value}",
+    "chipLimit": "raja",
+    "limitBannerTitle": "Olet saavuttanut {max} kielen rajan.",
+    "limitBannerHint": "Aktivoidaksesi toisen kielen poista jokin nykyisistä sen välilehdeltä kohdasta ”Poista kieli”.",
+    "lockedHint": "Poista aktiivinen kieli kääntääksesi tälle kielelle."
   },
   "templateStyles": {
     "pageTitle": "Julkisen CV:n tyylit",

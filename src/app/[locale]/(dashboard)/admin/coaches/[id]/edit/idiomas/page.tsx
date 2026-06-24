@@ -110,6 +110,9 @@ export default async function AdminCoachTranslationsPage({
       coachName={coach.full_name as string}
       source={source}
       translations={translations}
+      // Admin edits bypass the plan cap (adminSaveCoachTranslation never gates on
+      // tier), so don't lock any locale here — 7 = every content locale.
+      localeLimit={7}
       saveAction={adminSaveCoachTranslation.bind(null, id)}
       deleteAction={adminDeleteCoachTranslation.bind(null, id)}
     />

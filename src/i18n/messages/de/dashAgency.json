@@ -330,7 +330,10 @@
     "taglineLabel": "Tagline",
     "removeLanguage": "Sprache entfernen",
     "saveLocale": "{locale} speichern",
-    "esPrefix": "ES: {value}"
+    "esPrefix": "ES: {value}",
+    "limitBannerTitle": "Du hast das Limit von {max} Sprachen erreicht.",
+    "limitBannerHint": "Um eine weitere Sprache zu aktivieren, entferne eine der aktuellen mit „Sprache entfernen“.",
+    "lockedHint": "Entferne eine aktive Sprache, um in diese zu übersetzen."
   },
   "servicesTranslations": {
     "title": "Dienstleistungen — Übersetzungen",

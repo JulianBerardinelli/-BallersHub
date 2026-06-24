@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
 import { buildUpgradeUrl } from "@/lib/dashboard/plan-access";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import CoachTranslationsEditor, {
   type CoachLocaleFields,
   type CoachTranslatableLocale,
@@ -109,6 +110,7 @@ export default async function CoachTranslationsPage() {
       coachName={profile.full_name}
       source={source}
       translations={translations}
+      localeLimit={translationLocaleLimit({ email: user.email })}
     />
   );
 }
