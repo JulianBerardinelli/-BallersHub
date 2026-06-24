@@ -13,15 +13,12 @@ export default async function AdminNationalTeamPage({
   const { id } = await params;
   const admin = createSupabaseAdmin();
 
-  const [{ data: rawStints }, { data: rawCountries }] = await Promise.all([
-    admin
-      .from("national_team_stints")
-      .select("*")
-      .eq("player_id", id)
-      .order("order_index", { ascending: true })
-      .order("start_year", { ascending: false, nullsFirst: false }),
-    admin.from("countries").select("code, name_es, name_en").order("name_es", { nullsFirst: false }),
-  ]);
+  const { data: rawStints } = await admin
+    .from("national_team_stints")
+    .select("*")
+    .eq("player_id", id)
+    .order("order_index", { ascending: true })
+    .order("start_year", { ascending: false, nullsFirst: false });
 
   const stints: NationalTeamStintView[] = (rawStints ?? []).map((r) => ({
     id: r.id,
@@ -43,10 +40,6 @@ export default async function AdminNationalTeamPage({
     resolutionNote: r.resolution_note ?? null,
   }));
 
-  const countries = (rawCountries ?? [])
-    .map((c) => ({ code: c.code as string, name: (c.name_es ?? c.name_en) as string }))
-    .filter((c) => c.code && c.name);
-
   return (
     <SectionCard
       title="Selección Nacional"
@@ -58,7 +51,6 @@ export default async function AdminNationalTeamPage({
         isPro
         adminMode
         stints={stints}
-        countries={countries}
         upsertAction={adminUpsertNationalTeamStint}
         deleteAction={adminDeleteNationalTeamStint}
       />

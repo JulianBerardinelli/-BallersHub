@@ -1,5 +1,5 @@
 import { and, asc, eq, inArray } from "drizzle-orm";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 
 import { db } from "@/lib/db";
 import { nationalTeamStints, nationalTeamMedia, teams } from "@/db/schema";
@@ -42,12 +42,29 @@ export default async function NationalTeamModule({ playerId }: { playerId: strin
 
   const t = await getTranslations("portfolio");
 
+  // Nombre de país en el locale del visitante para etapas con country_code pero
+  // sin proposed_team_name (catalogadas/backfill) — evita "Selección " sin nombre.
+  const locale = await getLocale();
+  const regionNames =
+    "DisplayNames" in Intl
+      ? new Intl.DisplayNames([locale], { type: "region", fallback: "code" })
+      : null;
+  const countryName = (code: string | null): string | null => {
+    if (!code) return null;
+    try {
+      return regionNames?.of(code) ?? code;
+    } catch {
+      return code;
+    }
+  };
+
   const shaped = stints.map((s) => {
     const team = s.teamId ? mappedTeams.find((x) => x.id === s.teamId) ?? null : null;
+    const countryCode = s.countryCode ?? team?.countryCode ?? null;
     return {
       id: s.id,
-      countryCode: s.countryCode ?? team?.countryCode ?? null,
-      teamName: team?.name ?? s.proposedTeamName ?? null,
+      countryCode,
+      teamName: team?.name ?? s.proposedTeamName ?? countryName(countryCode),
       crestUrl: team?.crestUrl ?? null,
       ageCategory: s.ageCategory,
       participation: s.participation,
@@ -62,7 +79,7 @@ export default async function NationalTeamModule({ playerId }: { playerId: strin
     };
   });
 
-  const photos = media.map((m) => ({ id: m.id, url: m.url, altText: m.altText }));
+  const photos = media.map((m) => ({ id: m.id, url: m.url, title: m.title, altText: m.altText }));
 
   // Localized enum labels (category / participation) — resolved server-side from
   // the portfolio namespace so the client module renders in the viewer's locale

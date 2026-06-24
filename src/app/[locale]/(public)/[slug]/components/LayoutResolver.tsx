@@ -1,5 +1,8 @@
 import { CSSProperties, Suspense } from "react";
 import { getTranslations } from "next-intl/server";
+import { and, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { nationalTeamStints } from "@/db/schema";
 import ProAthleteLayout from "./ProAthleteLayout";
 import FreeLayout, {
   type FreeLayoutCareerRow,
@@ -100,6 +103,8 @@ export type PublicProfileData = {
     title: string | null;
     provider: string | null;
   } | null;
+  /** ≥1 etapa de selección APROBADA → muestra el item "Selección" en el nav Pro. */
+  hasNationalTeam?: boolean;
 };
 
 export default async function LayoutResolver({ data }: { data: PublicProfileData }) {
@@ -193,6 +198,19 @@ export default async function LayoutResolver({ data }: { data: PublicProfileData
 
   const t = await getTranslations("portfolio");
 
+  // ¿El jugador tiene al menos una etapa de selección APROBADA? Mismo criterio
+  // que NationalTeamModule (que renderiza la sección). Determina si el header
+  // Pro muestra el item "Selección" en el nav — si no, no debe aparecer un link
+  // a una sección inexistente (bug: aparecía siempre, también en mobile).
+  const ntApproved = await db
+    .select({ id: nationalTeamStints.id })
+    .from(nationalTeamStints)
+    .where(
+      and(eq(nationalTeamStints.playerId, player.id), eq(nationalTeamStints.status, "approved")),
+    )
+    .limit(1);
+  const hasNationalTeam = ntApproved.length > 0;
+
   return (
     <SmoothScrollProvider>
       {/*
@@ -205,7 +223,7 @@ export default async function LayoutResolver({ data }: { data: PublicProfileData
       */}
       <div style={customStyles} className="min-h-screen w-full relative overflow-x-clip font-body pb-20 selection:bg-[var(--color-accent)] selection:text-black">
         <div className="relative z-10 w-full">
-          <ProAthleteLayout data={data}>
+          <ProAthleteLayout data={{ ...data, hasNationalTeam }}>
             {/*
               Streaming Async Server Components:
               These block load independently from the Hero, heavily improving TTFB

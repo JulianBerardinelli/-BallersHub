@@ -146,6 +146,7 @@ export const nationalTeamMedia = pgTable(
       .notNull()
       .references(() => playerProfiles.id, { onDelete: "cascade" }),
     url: text("url").notNull(),
+    title: text("title"), // título opcional que el jugador le pone a la foto
     altText: text("alt_text"),
     position: integer("position").notNull().default(0), // 0..3
     isApproved: boolean("is_approved").notNull().default(false),

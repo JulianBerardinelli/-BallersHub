@@ -23,7 +23,7 @@ type Stint = {
   minutes: number | null;
 };
 
-type Photo = { id: string; url: string; altText: string | null };
+type Photo = { id: string; url: string; title: string | null; altText: string | null };
 
 export default function ProfileNationalTeamModule({
   stints,
@@ -122,14 +122,20 @@ export default function ProfileNationalTeamModule({
       {photos.length > 0 ? (
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {photos.map((p) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={p.id}
-              src={p.url}
-              alt={p.altText ?? "Selección Nacional"}
-              loading="lazy"
-              className="aspect-square w-full rounded-xl object-cover"
-            />
+            <figure key={p.id} className="relative overflow-hidden rounded-xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={p.url}
+                alt={p.title ?? p.altText ?? "Selección Nacional"}
+                loading="lazy"
+                className="aspect-square w-full object-cover"
+              />
+              {p.title ? (
+                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-2 py-1.5 text-[11px] font-medium leading-tight text-white">
+                  {p.title}
+                </figcaption>
+              ) : null}
+            </figure>
           ))}
         </div>
       ) : null}

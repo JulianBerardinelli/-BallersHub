@@ -60,7 +60,6 @@ export default function PlayerApplyFlow({
 
       {activeStep === 3 && s1 && (
         <Step2bNationalTeam
-          step1={s1}
           defaultValue={s2b}
           onBack={() => setActiveStep(2)}
           onNext={(data) => {

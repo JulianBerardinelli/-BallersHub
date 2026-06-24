@@ -14,7 +14,7 @@ import type {
   NationalTeamAgeCategory,
   NationalTeamParticipation,
 } from "@/db/schema/nationalTeams";
-import type { Step1Data } from "./Step3Verify";
+import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
 
 // Lo que viaja al submit (se guarda en player_applications.notes.national_team
 // y se materializa a national_team_stints como `pending_review` al aprobar).
@@ -30,10 +30,13 @@ export type NationalTeamApplyItem = {
 
 const fieldClass =
   "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-bh-lime/50 focus:outline-none";
+// `color-scheme: dark` evita que las opciones del select nativo salgan
+// blanco-sobre-blanco en SOs/navegadores en modo claro.
+const selectClass = `${fieldClass} [color-scheme:dark]`;
 const labelClass = "mb-1 block text-xs font-medium text-white/70";
 
 type Draft = {
-  countryCode: string;
+  country: CountryPick | null;
   ageCategory: NationalTeamAgeCategory | "";
   participation: NationalTeamParticipation;
   startYear: string;
@@ -42,7 +45,7 @@ type Draft = {
 };
 
 const EMPTY_DRAFT: Draft = {
-  countryCode: "",
+  country: null,
   ageCategory: "",
   participation: "called_up",
   startYear: "",
@@ -51,17 +54,14 @@ const EMPTY_DRAFT: Draft = {
 };
 
 export default function Step2bNationalTeam({
-  step1,
   defaultValue,
   onBack,
   onNext,
 }: {
-  step1: Step1Data;
   defaultValue?: NationalTeamApplyItem[];
   onBack: () => void;
   onNext: (data: NationalTeamApplyItem[]) => void;
 }) {
-  const countries = step1.nationalities ?? [];
   const [played, setPlayed] = React.useState<"yes" | "no" | null>(
     defaultValue && defaultValue.length > 0 ? "yes" : null,
   );
@@ -69,11 +69,9 @@ export default function Step2bNationalTeam({
   const [draft, setDraft] = React.useState<Draft>({ ...EMPTY_DRAFT });
   const [error, setError] = React.useState<string | null>(null);
 
-  const countryName = (code: string) => countries.find((c) => c.code === code)?.name ?? code;
-
   const addItem = () => {
     setError(null);
-    if (!draft.countryCode) {
+    if (!draft.country) {
       setError("Elegí el país de la selección.");
       return;
     }
@@ -82,8 +80,8 @@ export default function Step2bNationalTeam({
       return;
     }
     const item: NationalTeamApplyItem = {
-      countryCode: draft.countryCode,
-      countryName: countryName(draft.countryCode),
+      countryCode: draft.country.code,
+      countryName: draft.country.name,
       ageCategory: draft.ageCategory as NationalTeamAgeCategory,
       participation: draft.participation,
       startYear: draft.startYear ? Number(draft.startYear) : null,
@@ -189,24 +187,17 @@ export default function Step2bNationalTeam({
             {/* Sub-form para agregar */}
             <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.02] p-3 sm:grid-cols-2">
               <div>
-                <label className={labelClass}>País *</label>
-                <select
-                  className={fieldClass}
-                  value={draft.countryCode}
-                  onChange={(e) => setDraft({ ...draft, countryCode: e.target.value })}
-                >
-                  <option value="">Elegí…</option>
-                  {countries.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <CountrySinglePicker
+                  label="País *"
+                  placeholder="Escribí para buscar…"
+                  value={draft.country}
+                  onChange={(c) => setDraft({ ...draft, country: c })}
+                />
               </div>
               <div>
                 <label className={labelClass}>Categoría *</label>
                 <select
-                  className={fieldClass}
+                  className={selectClass}
                   value={draft.ageCategory}
                   onChange={(e) =>
                     setDraft({ ...draft, ageCategory: e.target.value as NationalTeamAgeCategory })
@@ -223,7 +214,7 @@ export default function Step2bNationalTeam({
               <div>
                 <label className={labelClass}>Participación</label>
                 <select
-                  className={fieldClass}
+                  className={selectClass}
                   value={draft.participation}
                   onChange={(e) =>
                     setDraft({
