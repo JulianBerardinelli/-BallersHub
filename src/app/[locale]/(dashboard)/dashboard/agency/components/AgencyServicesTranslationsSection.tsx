@@ -12,6 +12,7 @@ import {
   deleteServicesTranslation,
   type AgencyServicesTranslationItem,
 } from "@/app/actions/agency-translations";
+import { useAgencyLocaleCap } from "./AgencyLocaleCapContext";
 
 type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
@@ -55,31 +56,21 @@ export default function AgencyServicesTranslationsSection({
   agencyId,
   services: base,
   translations,
-  publishedLocales,
-  localeLimit,
 }: {
   agencyId: string;
   services: ServiceBaseItem[];
   translations: Partial<Record<TargetLocale, ServiceOverrideItem[]>>;
-  /** Locales already published in agency_profile_translations (server snapshot)
-   *  + the plan cap. Lock the same over-cap locales as the main section. */
-  publishedLocales: TargetLocale[];
-  localeLimit: number;
 }) {
   const t = useTranslations("dashAgency");
 
-  // Language cap is driven by agency_profile_translations rows (publishedLocales
-  // snapshot), the exact set the server counts. Once full, un-published locales
-  // lock up front instead of only failing on save.
-  const publishedSet = new Set(publishedLocales);
-  const maxNonEs = Math.max(0, localeLimit - 1);
-  const capReached = publishedSet.size >= maxNonEs;
-  const isLocked = (code: TargetLocale) => !publishedSet.has(code) && capReached;
+  // Shared cap (see AgencyLocaleCapContext). Services is a WRITER: saving creates
+  // an agency_profile_translations row, so it notifies the cap on save. Deleting
+  // services only nulls the column (the row survives), so it does NOT free a slot.
+  const { capReached, maxNonEs, isLocked, firstPublished, markPublished } =
+    useAgencyLocaleCap();
 
   // Open on a published locale so a capped agency never lands on a locked tab.
-  const [active, setActive] = useState<TargetLocale>(
-    () => LOCALES.find((l) => publishedSet.has(l.code))?.code ?? "en",
-  );
+  const [active, setActive] = useState<TargetLocale>(() => firstPublished ?? "en");
 
   // All drafts live here so a save/locale-switch never wipes another locale.
   const [drafts, setDrafts] = useState<Record<TargetLocale, ServiceOverrideItem[]>>(
@@ -134,7 +125,10 @@ export default function AgencyServicesTranslationsSection({
         type: res.success ? "success" : "danger",
         message: res.success ? t("servicesTranslations.successSaved") : res.message,
       });
-      if (res.success) setSavedLocales((s) => new Set(s).add(locale));
+      if (res.success) {
+        setSavedLocales((s) => new Set(s).add(locale));
+        markPublished(locale); // services save creates the row → counts against cap
+      }
     });
   }
 

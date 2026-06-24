@@ -22,10 +22,11 @@ export default async function CoachTranslationsPage() {
 
   const { data: profile } = await supabase
     .from("coach_profiles")
-    .select("id, full_name, bio, career_objectives, playing_style, methodology_analysis, analysis_author")
+    .select("id, slug, full_name, bio, career_objectives, playing_style, methodology_analysis, analysis_author")
     .eq("user_id", user.id)
     .maybeSingle<{
       id: string;
+      slug: string | null;
       full_name: string;
       bio: string | null;
       career_objectives: string | null;
@@ -110,7 +111,7 @@ export default async function CoachTranslationsPage() {
       coachName={profile.full_name}
       source={source}
       translations={translations}
-      localeLimit={translationLocaleLimit({ email: user.email })}
+      localeLimit={translationLocaleLimit({ slug: profile.slug, email: user.email })}
     />
   );
 }

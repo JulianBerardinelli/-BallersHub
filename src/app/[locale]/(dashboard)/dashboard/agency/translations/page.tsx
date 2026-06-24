@@ -17,6 +17,7 @@ import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import { requireManagerAgency } from "../_lib/require-manager-agency";
 import AgencyRestricted from "../_lib/AgencyRestricted";
 import { normalizeAgencyServices } from "../_lib/normalize-services";
+import { AgencyLocaleCapProvider } from "../components/AgencyLocaleCapContext";
 import AgencyTranslationsSection from "../components/AgencyTranslationsSection";
 import AgencyServicesTranslationsSection from "../components/AgencyServicesTranslationsSection";
 import AgencyMediaTranslationsSection from "../components/AgencyMediaTranslationsSection";
@@ -185,9 +186,9 @@ export default async function AgencyTranslationsPage() {
 
   // Locales the agency ALREADY publishes = every non-es row in
   // agency_profile_translations (exactly what the server's getPublishedAgencyLocales
-  // counts). Authoritative snapshot at load — passed to the secondary sections
-  // (services/media/country) so they lock the same over-cap locales as the main
-  // one, instead of only failing on save.
+  // counts). Authoritative snapshot at load — seeds the shared cap context so all
+  // four sections lock the same over-cap locales AND stay in sync as languages
+  // are added/removed during the session (no stale snapshot per section).
   const publishedLocales = Object.keys(agencyTranslations) as Array<
     "en" | "it" | "pt" | "de" | "fr" | "fi"
   >;
@@ -196,51 +197,49 @@ export default async function AgencyTranslationsPage() {
     <div className="space-y-6">
       {header}
 
-      <AgencyTranslationsSection
-        agencyId={agency.id}
-        base={{
-          description: agency.description ?? "",
-          tagline: agency.tagline ?? "",
-        }}
-        translations={agencyTranslations}
+      <AgencyLocaleCapProvider
+        initialPublishedLocales={publishedLocales}
         localeLimit={localeLimit}
-      />
+      >
+        <AgencyTranslationsSection
+          agencyId={agency.id}
+          base={{
+            description: agency.description ?? "",
+            tagline: agency.tagline ?? "",
+          }}
+          translations={agencyTranslations}
+        />
 
-      <AgencyServicesTranslationsSection
-        agencyId={agency.id}
-        services={normalizedServices.map((s) => ({
-          title: s.title,
-          description: s.description,
-        }))}
-        translations={agencyServicesTranslations}
-        publishedLocales={publishedLocales}
-        localeLimit={localeLimit}
-      />
+        <AgencyServicesTranslationsSection
+          agencyId={agency.id}
+          services={normalizedServices.map((s) => ({
+            title: s.title,
+            description: s.description,
+          }))}
+          translations={agencyServicesTranslations}
+        />
 
-      <AgencyMediaTranslationsSection
-        agencyId={agency.id}
-        mediaItems={media.map((m) => ({
-          id: m.id,
-          url: m.url,
-          title: m.title,
-          altText: m.altText,
-        }))}
-        translations={mediaTranslationsForEditor}
-        publishedLocales={publishedLocales}
-        localeLimit={localeLimit}
-      />
+        <AgencyMediaTranslationsSection
+          agencyId={agency.id}
+          mediaItems={media.map((m) => ({
+            id: m.id,
+            url: m.url,
+            title: m.title,
+            altText: m.altText,
+          }))}
+          translations={mediaTranslationsForEditor}
+        />
 
-      <AgencyCountryProfileTranslationsSection
-        agencyId={agency.id}
-        countryProfiles={countryProfiles.map((c) => ({
-          id: c.id,
-          countryCode: c.countryCode,
-          description: c.description,
-        }))}
-        translations={countryTranslationsForEditor}
-        publishedLocales={publishedLocales}
-        localeLimit={localeLimit}
-      />
+        <AgencyCountryProfileTranslationsSection
+          agencyId={agency.id}
+          countryProfiles={countryProfiles.map((c) => ({
+            id: c.id,
+            countryCode: c.countryCode,
+            description: c.description,
+          }))}
+          translations={countryTranslationsForEditor}
+        />
+      </AgencyLocaleCapProvider>
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   saveAgencyMediaTranslation,
   deleteAgencyMediaTranslation,
 } from "@/app/actions/agency-translations";
+import { useAgencyLocaleCap } from "./AgencyLocaleCapContext";
 
 type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
@@ -39,30 +40,19 @@ export default function AgencyMediaTranslationsSection({
   agencyId,
   mediaItems,
   translations,
-  publishedLocales,
-  localeLimit,
 }: {
   agencyId: string;
   mediaItems: AgencyMediaItem[];
   translations: Record<string, Partial<Record<TargetLocale, MediaTranslationFields>>>;
-  /** Locales already published in agency_profile_translations (server snapshot)
-   *  + the plan cap. Lock the same over-cap locales as the main section. */
-  publishedLocales: TargetLocale[];
-  localeLimit: number;
 }) {
   const t = useTranslations("dashAgency");
 
-  // Cap driven by agency_profile_translations rows (the set the server counts).
-  // Media lives in its own table but is gated by that same cap, so lock the
-  // over-cap locales up front instead of only failing on save.
-  const publishedSet = new Set(publishedLocales);
-  const maxNonEs = Math.max(0, localeLimit - 1);
-  const capReached = publishedSet.size >= maxNonEs;
-  const isLocked = (code: TargetLocale) => !publishedSet.has(code) && capReached;
+  // Shared cap (see AgencyLocaleCapContext). Media lives in its own table but is
+  // gated by the same agency_profile_translations cap, so it READS the shared
+  // state (no writes — a media translation never creates that row).
+  const { capReached, maxNonEs, isLocked, firstPublished } = useAgencyLocaleCap();
 
-  const [active, setActive] = useState<TargetLocale>(
-    () => LOCALES.find((l) => publishedSet.has(l.code))?.code ?? "en",
-  );
+  const [active, setActive] = useState<TargetLocale>(() => firstPublished ?? "en");
 
   // Saved-state lives here so a save survives switching the active locale tab
   // (same lesson as the honours editor: parent owns the truth, not the row).

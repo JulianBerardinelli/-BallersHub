@@ -12,6 +12,7 @@ import {
   deleteAgencyTranslation,
   type AgencyTranslationFields,
 } from "@/app/actions/agency-translations";
+import { useAgencyLocaleCap } from "./AgencyLocaleCapContext";
 
 type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 type Fields = { description: string; tagline: string };
@@ -25,27 +26,24 @@ const LOCALES: { code: TargetLocale; label: string; flag: string }[] = [
   { code: "fi", label: "Suomi", flag: "🇫🇮" },
 ];
 
-const TARGET_LOCALES: TargetLocale[] = ["en", "it", "pt", "de", "fr", "fi"];
-
 export default function AgencyTranslationsSection({
   agencyId,
   base,
   translations,
-  localeLimit,
 }: {
   agencyId: string;
   base: { description: string; tagline: string };
   translations: Partial<Record<TargetLocale, { description: string | null; tagline: string | null }>>;
-  /** Max PUBLISHED locales (es included) — 4 by default, more for the unlimited
-   *  allowlist. Once full, un-published locales lock up front. */
-  localeLimit: number;
 }) {
   const t = useTranslations("dashAgency");
+  // Cap is shared across the four agency sections (see AgencyLocaleCapContext)
+  // so the live swap stays in sync. This section is a WRITER: saving/deleting
+  // creates/drops the agency_profile_translations row, so it notifies the cap.
+  const { capReached, maxNonEs, isLocked, firstPublished, markPublished, markUnpublished } =
+    useAgencyLocaleCap();
   // Open on a language that's already published when there is one, so a capped
   // agency never lands on a locked (un-selectable) tab.
-  const [active, setActive] = useState<TargetLocale>(
-    () => TARGET_LOCALES.find((l) => translations[l]) ?? "en",
-  );
+  const [active, setActive] = useState<TargetLocale>(() => firstPublished ?? "en");
 
   // All per-locale drafts live here (no remount on locale switch), so edits and
   // saves survive switching tabs.
@@ -104,7 +102,10 @@ export default function AgencyTranslationsSection({
         fields: drafts[locale] as AgencyTranslationFields,
       });
       setFeedback({ type: res.success ? "success" : "danger", message: res.message });
-      if (res.success) setSavedLocales((s) => new Set(s).add(locale));
+      if (res.success) {
+        setSavedLocales((s) => new Set(s).add(locale));
+        markPublished(locale); // this locale now has a row → counts against cap
+      }
     });
   }
 
@@ -119,20 +120,13 @@ export default function AgencyTranslationsSection({
           next.delete(locale);
           return next;
         });
+        markUnpublished(locale); // row deleted → frees a slot across all sections
         setDrafts((prev) => ({ ...prev, [locale]: { description: "", tagline: "" } }));
       }
     });
   }
 
   const published = savedLocales.has(active);
-
-  // Language cap (es + up to localeLimit-1 overrides). savedLocales holds the
-  // published non-es locales. Once full, un-published locales lock up front so a
-  // save can't be wasted (the limit used to only fire at save). Removing a
-  // language frees a slot.
-  const maxNonEs = Math.max(0, localeLimit - 1);
-  const capReached = savedLocales.size >= maxNonEs;
-  const isLocked = (code: TargetLocale) => !savedLocales.has(code) && capReached;
 
   return (
     <SectionCard

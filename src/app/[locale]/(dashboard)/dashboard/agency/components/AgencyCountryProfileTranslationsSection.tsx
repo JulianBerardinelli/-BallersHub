@@ -11,6 +11,7 @@ import {
   saveAgencyCountryProfileTranslation,
   deleteAgencyCountryProfileTranslation,
 } from "@/app/actions/agency-translations";
+import { useAgencyLocaleCap } from "./AgencyLocaleCapContext";
 
 type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
@@ -37,8 +38,6 @@ export default function AgencyCountryProfileTranslationsSection({
   agencyId,
   countryProfiles,
   translations,
-  publishedLocales,
-  localeLimit,
 }: {
   agencyId: string;
   countryProfiles: AgencyCountryProfileItem[];
@@ -46,24 +45,15 @@ export default function AgencyCountryProfileTranslationsSection({
     string,
     Partial<Record<TargetLocale, CountryTranslationFields>>
   >;
-  /** Locales already published in agency_profile_translations (server snapshot)
-   *  + the plan cap. Lock the same over-cap locales as the main section. */
-  publishedLocales: TargetLocale[];
-  localeLimit: number;
 }) {
   const t = useTranslations("dashAgency");
 
-  // Cap driven by agency_profile_translations rows (the set the server counts).
-  // Country narratives live in their own table but share that cap, so lock the
-  // over-cap locales up front instead of only failing on save.
-  const publishedSet = new Set(publishedLocales);
-  const maxNonEs = Math.max(0, localeLimit - 1);
-  const capReached = publishedSet.size >= maxNonEs;
-  const isLocked = (code: TargetLocale) => !publishedSet.has(code) && capReached;
+  // Shared cap (see AgencyLocaleCapContext). Country narratives live in their own
+  // table but share the agency_profile_translations cap, so they READ the shared
+  // state (no writes — a country translation never creates that row).
+  const { capReached, maxNonEs, isLocked, firstPublished } = useAgencyLocaleCap();
 
-  const [active, setActive] = useState<TargetLocale>(
-    () => LOCALES.find((l) => publishedSet.has(l.code))?.code ?? "en",
-  );
+  const [active, setActive] = useState<TargetLocale>(() => firstPublished ?? "en");
 
   const [saved, setSaved] = useState<
     Record<string, Partial<Record<TargetLocale, CountryTranslationFields>>>
