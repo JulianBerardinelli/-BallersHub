@@ -99,6 +99,25 @@ const STATUS_META: Record<
   rejected: { label: "Rechazada", cls: "bg-red-500/15 text-red-300", Icon: AlertTriangle },
 };
 
+// Resuelve un ISO-2 a nombre de país (ES) en el cliente, sin DB ni el dataset
+// pesado de country-state-city — mismo enfoque que CountrySinglePicker. Para
+// etapas con `country_code` pero sin `proposed_team_name` (catalogadas/backfill)
+// preserva el nombre localizado en vez de usar/guardar el código crudo (regresión
+// al quitar el lookup de `countries`). `fallback: "code"` devuelve el código si
+// no hay nombre, así nunca queda vacío.
+const REGION_NAMES_ES =
+  typeof Intl !== "undefined" && "DisplayNames" in Intl
+    ? new Intl.DisplayNames(["es"], { type: "region", fallback: "code" })
+    : null;
+function countryNameFromCode(code: string | null): string | null {
+  if (!code) return null;
+  try {
+    return REGION_NAMES_ES?.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export default function NationalTeamManager({
   playerId,
   isPro,
@@ -135,7 +154,10 @@ export default function NationalTeamManager({
     setDraft({
       id: s.id,
       country: s.countryCode
-        ? { code: s.countryCode, name: s.proposedTeamName ?? s.countryCode }
+        ? {
+            code: s.countryCode,
+            name: s.proposedTeamName ?? countryNameFromCode(s.countryCode) ?? s.countryCode,
+          }
         : null,
       ageCategory: s.ageCategory,
       participation: s.participation,
@@ -272,7 +294,7 @@ export default function NationalTeamManager({
                   <div className="flex items-center gap-2">
                     {s.countryCode ? <CountryFlag code={s.countryCode} size={18} /> : null}
                     <span className="font-semibold text-white">
-                      Selección {s.proposedTeamName ?? "Selección"}
+                      Selección {s.proposedTeamName ?? countryNameFromCode(s.countryCode) ?? "Selección"}
                     </span>
                     <span className="rounded-full bg-bh-lime/10 px-2 py-0.5 text-[11px] font-medium text-bh-lime">
                       {NT_AGE_CATEGORY_LABELS[s.ageCategory]}
