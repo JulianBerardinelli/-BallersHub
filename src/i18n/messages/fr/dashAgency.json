@@ -330,7 +330,10 @@
     "taglineLabel": "Accroche",
     "removeLanguage": "Retirer la langue",
     "saveLocale": "Enregistrer {locale}",
-    "esPrefix": "ES : {value}"
+    "esPrefix": "ES : {value}",
+    "limitBannerTitle": "Vous avez atteint la limite de {max} langues.",
+    "limitBannerHint": "Pour activer une autre langue, supprimez l’une des langues actuelles avec « Supprimer la langue ».",
+    "lockedHint": "Supprimez une langue active pour traduire dans celle-ci."
   },
   "servicesTranslations": {
     "title": "Services — traductions",

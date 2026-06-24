@@ -574,7 +574,11 @@
     "honourTitleLabel": "Titel des Erfolgs",
     "honourCompetitionLabel": "Wettbewerb",
     "honourDescriptionLabel": "Beschreibung",
-    "esPrefix": "ES: {value}"
+    "esPrefix": "ES: {value}",
+    "chipLimit": "Limit",
+    "limitBannerTitle": "Du hast das Limit von {max} Sprachen erreicht.",
+    "limitBannerHint": "Um eine weitere Sprache zu aktivieren, entferne eine der aktuellen über ihren Tab mit „Sprache entfernen“.",
+    "lockedHint": "Entferne eine aktive Sprache, um in diese zu übersetzen."
   },
   "templateStyles": {
     "pageTitle": "Stile des öffentlichen Lebenslaufs",

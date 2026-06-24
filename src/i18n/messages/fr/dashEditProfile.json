@@ -574,7 +574,11 @@
     "honourTitleLabel": "Titre du succès",
     "honourCompetitionLabel": "Compétition",
     "honourDescriptionLabel": "Description",
-    "esPrefix": "ES : {value}"
+    "esPrefix": "ES : {value}",
+    "chipLimit": "limite",
+    "limitBannerTitle": "Vous avez atteint la limite de {max} langues.",
+    "limitBannerHint": "Pour activer une autre langue, supprimez l’une des langues actuelles depuis son onglet avec « Supprimer la langue ».",
+    "lockedHint": "Supprimez une langue active pour traduire dans celle-ci."
   },
   "templateStyles": {
     "pageTitle": "Styles du CV public",

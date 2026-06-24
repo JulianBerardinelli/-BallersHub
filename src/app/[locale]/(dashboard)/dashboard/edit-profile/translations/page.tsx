@@ -17,6 +17,7 @@ import {
   type ContentLocale,
   type PlayerLocalizedFields,
 } from "@/lib/i18n/profile-content";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 
 import TranslationsEditor, {
   type LocaleFields,
@@ -212,6 +213,7 @@ export default async function TranslationsPage() {
         baseEs={baseEs}
         translations={translations}
         initialAvailable={available}
+        localeLimit={translationLocaleLimit({ slug: player.slug, email: user.email })}
         aiProvider={deriveAiProvider(process.env.AI_TRANSLATION_MODEL)}
         honours={honours}
       />

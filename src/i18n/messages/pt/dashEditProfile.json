@@ -574,7 +574,11 @@
     "honourTitleLabel": "Título da conquista",
     "honourCompetitionLabel": "Competição",
     "honourDescriptionLabel": "Descrição",
-    "esPrefix": "ES: {value}"
+    "esPrefix": "ES: {value}",
+    "chipLimit": "limite",
+    "limitBannerTitle": "Você atingiu o limite de {max} idiomas.",
+    "limitBannerHint": "Para ativar outro idioma, remova um dos atuais na aba dele com «Remover idioma».",
+    "lockedHint": "Remova um idioma ativo para traduzir para este."
   },
   "templateStyles": {
     "pageTitle": "Estilos do CV público",

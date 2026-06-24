@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe2, Languages, Save, Trash2 } from "lucide-react";
+import { Check, Globe2, Languages, Lock, Save, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -11,6 +11,7 @@ import {
   saveAgencyCountryProfileTranslation,
   deleteAgencyCountryProfileTranslation,
 } from "@/app/actions/agency-translations";
+import { useAgencyLocaleCap } from "./AgencyLocaleCapContext";
 
 type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
@@ -46,7 +47,13 @@ export default function AgencyCountryProfileTranslationsSection({
   >;
 }) {
   const t = useTranslations("dashAgency");
-  const [active, setActive] = useState<TargetLocale>("en");
+
+  // Shared cap (see AgencyLocaleCapContext). Country narratives live in their own
+  // table but share the agency_profile_translations cap, so they READ the shared
+  // state (no writes — a country translation never creates that row).
+  const { capReached, maxNonEs, isLocked, firstPublished } = useAgencyLocaleCap();
+
+  const [active, setActive] = useState<TargetLocale>(() => firstPublished ?? "en");
 
   const [saved, setSaved] = useState<
     Record<string, Partial<Record<TargetLocale, CountryTranslationFields>>>
@@ -105,10 +112,36 @@ export default function AgencyCountryProfileTranslationsSection({
       }
       description={t("countryTranslations.description")}
     >
+      {capReached ? (
+        <div className="mb-4 flex items-start gap-2 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-3 py-2.5 text-[12px] leading-[1.5] text-bh-fg-2">
+          <Lock className="mt-0.5 size-3.5 shrink-0 text-bh-blue" aria-hidden />
+          <span>
+            <span className="font-semibold text-bh-fg-1">
+              {t("translationsSection.limitBannerTitle", { max: maxNonEs })}
+            </span>{" "}
+            {t("translationsSection.limitBannerHint")}
+          </span>
+        </div>
+      ) : null}
       <div className="mb-5 flex flex-wrap gap-2">
         {LOCALES.map((l) => {
           const isActive = l.code === active;
           const anySaved = countryProfiles.some((c) => saved[c.id]?.[l.code]);
+          if (isLocked(l.code)) {
+            return (
+              <button
+                key={l.code}
+                type="button"
+                disabled
+                title={t("translationsSection.lockedHint")}
+                className="inline-flex cursor-not-allowed items-center gap-2 rounded-bh-md border border-dashed border-white/[0.08] bg-bh-surface-1 px-3.5 py-2 text-[13px] font-semibold text-bh-fg-4 opacity-55"
+              >
+                <span aria-hidden>{l.flag}</span>
+                {l.label}
+                <Lock className="size-3.5 text-bh-fg-4" aria-hidden />
+              </button>
+            );
+          }
           return (
             <button
               key={l.code}

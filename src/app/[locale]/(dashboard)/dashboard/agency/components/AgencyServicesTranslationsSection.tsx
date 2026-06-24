@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Languages, Save, Trash2 } from "lucide-react";
+import { Check, Languages, Lock, Save, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -12,6 +12,7 @@ import {
   deleteServicesTranslation,
   type AgencyServicesTranslationItem,
 } from "@/app/actions/agency-translations";
+import { useAgencyLocaleCap } from "./AgencyLocaleCapContext";
 
 type TargetLocale = "en" | "it" | "pt" | "de" | "fr" | "fi";
 
@@ -61,7 +62,15 @@ export default function AgencyServicesTranslationsSection({
   translations: Partial<Record<TargetLocale, ServiceOverrideItem[]>>;
 }) {
   const t = useTranslations("dashAgency");
-  const [active, setActive] = useState<TargetLocale>("en");
+
+  // Shared cap (see AgencyLocaleCapContext). Services is a WRITER: saving creates
+  // an agency_profile_translations row, so it notifies the cap on save. Deleting
+  // services only nulls the column (the row survives), so it does NOT free a slot.
+  const { capReached, maxNonEs, isLocked, firstPublished, markPublished } =
+    useAgencyLocaleCap();
+
+  // Open on a published locale so a capped agency never lands on a locked tab.
+  const [active, setActive] = useState<TargetLocale>(() => firstPublished ?? "en");
 
   // All drafts live here so a save/locale-switch never wipes another locale.
   const [drafts, setDrafts] = useState<Record<TargetLocale, ServiceOverrideItem[]>>(
@@ -116,7 +125,10 @@ export default function AgencyServicesTranslationsSection({
         type: res.success ? "success" : "danger",
         message: res.success ? t("servicesTranslations.successSaved") : res.message,
       });
-      if (res.success) setSavedLocales((s) => new Set(s).add(locale));
+      if (res.success) {
+        setSavedLocales((s) => new Set(s).add(locale));
+        markPublished(locale); // services save creates the row → counts against cap
+      }
     });
   }
 
@@ -167,10 +179,36 @@ export default function AgencyServicesTranslationsSection({
       }
       description={t("servicesTranslations.description")}
     >
+      {capReached ? (
+        <div className="mb-4 flex items-start gap-2 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-3 py-2.5 text-[12px] leading-[1.5] text-bh-fg-2">
+          <Lock className="mt-0.5 size-3.5 shrink-0 text-bh-blue" aria-hidden />
+          <span>
+            <span className="font-semibold text-bh-fg-1">
+              {t("translationsSection.limitBannerTitle", { max: maxNonEs })}
+            </span>{" "}
+            {t("translationsSection.limitBannerHint")}
+          </span>
+        </div>
+      ) : null}
       <div className="mb-5 flex flex-wrap gap-2">
         {LOCALES.map((l) => {
           const isActive = l.code === active;
           const isSaved = savedLocales.has(l.code);
+          if (isLocked(l.code)) {
+            return (
+              <button
+                key={l.code}
+                type="button"
+                disabled
+                title={t("translationsSection.lockedHint")}
+                className="inline-flex cursor-not-allowed items-center gap-2 rounded-bh-md border border-dashed border-white/[0.08] bg-bh-surface-1 px-3.5 py-2 text-[13px] font-semibold text-bh-fg-4 opacity-55"
+              >
+                <span aria-hidden>{l.flag}</span>
+                {l.label}
+                <Lock className="size-3.5 text-bh-fg-4" aria-hidden />
+              </button>
+            );
+          }
           return (
             <button
               key={l.code}

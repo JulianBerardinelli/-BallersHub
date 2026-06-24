@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
 import { buildUpgradeUrl } from "@/lib/dashboard/plan-access";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import CoachTranslationsEditor, {
   type CoachLocaleFields,
   type CoachTranslatableLocale,
@@ -21,10 +22,11 @@ export default async function CoachTranslationsPage() {
 
   const { data: profile } = await supabase
     .from("coach_profiles")
-    .select("id, full_name, bio, career_objectives, playing_style, methodology_analysis, analysis_author")
+    .select("id, slug, full_name, bio, career_objectives, playing_style, methodology_analysis, analysis_author")
     .eq("user_id", user.id)
     .maybeSingle<{
       id: string;
+      slug: string | null;
       full_name: string;
       bio: string | null;
       career_objectives: string | null;
@@ -109,6 +111,7 @@ export default async function CoachTranslationsPage() {
       coachName={profile.full_name}
       source={source}
       translations={translations}
+      localeLimit={translationLocaleLimit({ slug: profile.slug, email: user.email })}
     />
   );
 }

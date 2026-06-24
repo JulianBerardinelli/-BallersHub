@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@heroui/react";
+import { Lock } from "lucide-react";
 import FormField from "@/components/dashboard/client/FormField";
 import {
   saveCoachTranslation,
@@ -45,28 +46,47 @@ const isEmptyFields = (f: CoachLocaleFields) =>
   !f.methodologyAnalysis.trim() &&
   !f.analysisAuthor.trim();
 
+const LOCALE_KEYS = Object.keys(LOCALE_LABELS) as CoachTranslatableLocale[];
+
 export default function CoachTranslationsEditor({
   coachName,
   source,
   translations,
+  localeLimit,
   saveAction = saveCoachTranslation,
   deleteAction = deleteCoachTranslation,
 }: {
   coachName: string;
   source: CoachLocaleFields;
   translations: Record<CoachTranslatableLocale, CoachLocaleFields>;
+  /** Max PUBLISHED locales (es included) — 4 by default, more for the unlimited
+   *  allowlist. Once full, un-published locales lock so a save can't be wasted. */
+  localeLimit: number;
   /** Save action — defaults to the owner's. Admin injects a service-role one. */
   saveAction?: (input: CoachTranslationInput) => Promise<CoachTranslationActionResult>;
   deleteAction?: (locale: CoachTranslatableLocale) => Promise<CoachTranslationActionResult>;
 }) {
   const router = useRouter();
-  const [active, setActive] = React.useState<CoachTranslatableLocale>("en");
+  // Open on a language that's already published when there is one, so a capped
+  // coach never lands on a locked (un-selectable) tab.
+  const [active, setActive] = React.useState<CoachTranslatableLocale>(
+    () => LOCALE_KEYS.find((l) => !isEmptyFields(translations[l])) ?? "en",
+  );
   const [drafts, setDrafts] =
     React.useState<Record<CoachTranslatableLocale, CoachLocaleFields>>(translations);
   const [saving, setSaving] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
 
   const current = drafts[active];
+
+  // Language cap (es + up to localeLimit-1 overrides). Row-with-content =
+  // published. When full, un-published locales are locked up front — the limit
+  // used to only fire at save. Despublishing one frees a slot.
+  const publishedCount = LOCALE_KEYS.filter((l) => !isEmptyFields(drafts[l])).length;
+  const maxNonEs = Math.max(0, localeLimit - 1);
+  const capReached = publishedCount >= maxNonEs;
+  const isLocked = (loc: CoachTranslatableLocale) =>
+    isEmptyFields(drafts[loc]) && capReached;
 
   function patch(key: keyof CoachLocaleFields, value: string) {
     setDrafts((prev) => ({ ...prev, [active]: { ...prev[active], [key]: value } }));
@@ -124,10 +144,37 @@ export default function CoachTranslationsEditor({
         </p>
       </div>
 
-      <div className="flex gap-2">
-        {(Object.keys(LOCALE_LABELS) as CoachTranslatableLocale[]).map((loc) => {
+      {capReached ? (
+        <div className="flex items-start gap-2 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-3 py-2.5 text-[12px] leading-[1.5] text-bh-fg-2">
+          <Lock className="mt-0.5 size-3.5 shrink-0 text-bh-blue" aria-hidden />
+          <span>
+            <span className="font-semibold text-bh-fg-1">
+              Llegaste al máximo de {maxNonEs} idiomas.
+            </span>{" "}
+            Para activar otro, despublicá uno de los actuales con «Despublicar idioma».
+          </span>
+        </div>
+      ) : null}
+
+      <div className="flex flex-wrap gap-2">
+        {LOCALE_KEYS.map((loc) => {
           const published = !isEmptyFields(drafts[loc]);
           const isActive = loc === active;
+          const locked = isLocked(loc);
+          if (locked) {
+            return (
+              <button
+                key={loc}
+                type="button"
+                disabled
+                title="Despublicá un idioma activo para traducir a este."
+                className="inline-flex cursor-not-allowed items-center gap-2 rounded-bh-md border border-dashed border-white/[0.08] bg-transparent px-4 py-2 text-[13px] font-medium text-bh-fg-4 opacity-55"
+              >
+                {LOCALE_LABELS[loc]}
+                <Lock className="size-3 text-bh-fg-4" aria-hidden />
+              </button>
+            );
+          }
           return (
             <button
               key={loc}

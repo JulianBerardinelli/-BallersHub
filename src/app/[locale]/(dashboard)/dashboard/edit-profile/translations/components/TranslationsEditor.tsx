@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button, Chip } from "@heroui/react";
-import { Check, Globe, RefreshCw, Save, Sparkles, Trash2, Trophy } from "lucide-react";
+import { Check, Globe, Lock, RefreshCw, Save, Sparkles, Trash2, Trophy } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import SectionCard from "@/components/dashboard/client/SectionCard";
@@ -103,11 +103,14 @@ function filled(v: string | string[] | undefined): boolean {
   return Array.isArray(v) ? v.length > 0 : (v ?? "").trim().length > 0;
 }
 
+const EDITABLE_ORDER: EditableLocale[] = ["en", "it", "pt", "de", "fr", "fi"];
+
 export default function TranslationsEditor({
   playerId,
   baseEs,
   translations,
   initialAvailable,
+  localeLimit,
   aiProvider,
   honours,
 }: {
@@ -115,15 +118,32 @@ export default function TranslationsEditor({
   baseEs: LocaleFields;
   translations: Partial<Record<EditableLocale, LocaleFields>>;
   initialAvailable: string[];
+  /** Max PUBLISHED locales (es included) for this profile — 4 by default, more
+   *  for the unlimited allowlist. Drives the over-cap lock. */
+  localeLimit: number;
   aiProvider: AiProvider;
   honours: EditorHonour[];
 }) {
   const t = useTranslations("dashEditProfile");
   // es is the canonical base: the 8 fields are written in es in Football data
   // and the honours come from there too. This editor ONLY translates into
-  // en/it/pt — you can't edit/stand on es here (it's the source).
-  const [active, setActive] = useState<EditableLocale>("en");
+  // en/it/pt — you can't edit/stand on es here (it's the source). Land on a
+  // language that's already published when there is one, so a capped profile
+  // never opens on a locked (un-selectable) locale.
+  const [active, setActive] = useState<EditableLocale>(
+    () => EDITABLE_ORDER.find((l) => initialAvailable.includes(l)) ?? "en",
+  );
   const [available, setAvailable] = useState<string[]>(initialAvailable);
+
+  // Language cap (HANDOFF §6): es + up to `localeLimit - 1` overrides. Once the
+  // cap is full, every not-yet-published locale is LOCKED in the UI — disabled
+  // up front so the Pro can't fill it / spend AI credits only to be rejected on
+  // save (the bug this fixes). Removing an active language frees a slot.
+  const maxNonEs = Math.max(0, localeLimit - 1);
+  const publishedNonEsCount = available.filter((l) => l !== "es").length;
+  const capReached = publishedNonEsCount >= maxNonEs;
+  const isLockedLocale = (code: EditableLocale) =>
+    !available.includes(code) && capReached;
   const [drafts, setDrafts] = useState<Record<AnyLocale, LocaleFields>>({
     es: baseEs,
     en: translations.en ?? emptyFields(),
@@ -241,12 +261,24 @@ export default function TranslationsEditor({
         title={t("translationsEditor.overviewTitle")}
         description={t("translationsEditor.overviewDescription")}
       >
+        {capReached ? (
+          <div className="mb-3 flex items-start gap-2 rounded-bh-md border border-bh-blue/30 bg-bh-blue/[0.06] px-3 py-2.5 text-[12px] leading-[1.5] text-bh-fg-2">
+            <Lock className="mt-0.5 size-3.5 shrink-0 text-bh-blue" aria-hidden />
+            <span>
+              <span className="font-semibold text-bh-fg-1">
+                {t("translationsEditor.limitBannerTitle", { max: maxNonEs })}
+              </span>{" "}
+              {t("translationsEditor.limitBannerHint")}
+            </span>
+          </div>
+        ) : null}
         <div className="grid gap-2">
           {BASE_ORDER.map((code) => {
             const meta = LOCALE_META[code];
             const pct = localeCompleteness(code);
             const isEs = code === "es";
             const published = available.includes(code);
+            const locked = !isEs && isLockedLocale(code as EditableLocale);
             const accent =
               pct === 100 ? "bg-bh-lime" : pct > 0 ? "bg-bh-blue" : "bg-white/15";
 
@@ -287,6 +319,15 @@ export default function TranslationsEditor({
                   >
                     {t("translationsEditor.chipPublished")}
                   </Chip>
+                ) : locked ? (
+                  <Chip
+                    size="sm"
+                    variant="flat"
+                    startContent={<Lock className="size-3" />}
+                    className="shrink-0 bg-white/[0.06] text-bh-fg-4"
+                  >
+                    {t("translationsEditor.chipLimit")}
+                  </Chip>
                 ) : (
                   <Chip size="sm" variant="flat" className="shrink-0 bg-white/[0.06] text-bh-fg-4">
                     {t("translationsEditor.chipUnpublished")}
@@ -302,6 +343,21 @@ export default function TranslationsEditor({
                   key={code}
                   className="flex items-center gap-3 rounded-bh-md border border-dashed border-white/[0.1] bg-bh-surface-1/50 px-3 py-2.5"
                   title={t("translationsEditor.esEditedInFootballData")}
+                >
+                  {inner}
+                </div>
+              );
+            }
+
+            // Over-cap locale: not selectable. Disabled + tooltip pointing at
+            // the swap ("quitá un idioma activo") so credits are never spent.
+            if (locked) {
+              return (
+                <div
+                  key={code}
+                  aria-disabled
+                  title={t("translationsEditor.lockedHint")}
+                  className="flex cursor-not-allowed items-center gap-3 rounded-bh-md border border-dashed border-white/[0.08] bg-bh-surface-1/40 px-3 py-2.5 opacity-55"
                 >
                   {inner}
                 </div>

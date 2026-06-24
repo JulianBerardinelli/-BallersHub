@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
+import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 import { revalidatePath } from "next/cache";
 
@@ -14,10 +15,10 @@ const TRANSLATABLE_LOCALES = ["en", "it", "pt", "de", "fr", "fi"] as const;
 type TranslatableLocale = (typeof TRANSLATABLE_LOCALES)[number];
 
 // Tier cap (decisión 2a): es + up to 3 overrides = 4 total. Mirrors the player
-// translation action (tierLimit=4). A brand-new locale only counts against the
-// cap; an already-published locale can always be re-saved, and deletes are
-// never gated.
-const TIER_LIMIT = 4;
+// translation action. The effective cap is resolved per-profile via
+// translationLocaleLimit (the unlimited allowlist lifts it). A brand-new locale
+// only counts against the cap; an already-published locale can always be
+// re-saved, and deletes are never gated.
 
 /**
  * Locales the coach already publishes = es (always) + every distinct locale
@@ -61,7 +62,7 @@ async function resolveProCoach() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "No autenticado." as const, supabase: null, coach: null };
+  if (!user) return { error: "No autenticado." as const, supabase: null, coach: null, email: null };
 
   const access = await loadCoachPlanAccess(supabase, user.id);
   if (!access.isPro) {
@@ -69,6 +70,7 @@ async function resolveProCoach() {
       error: "Las traducciones están disponibles en el plan Pro.",
       supabase: null,
       coach: null,
+      email: null,
     };
   }
 
@@ -77,9 +79,9 @@ async function resolveProCoach() {
     .select("id, slug")
     .eq("user_id", user.id)
     .maybeSingle<{ id: string; slug: string | null }>();
-  if (error) return { error: error.message, supabase: null, coach: null };
-  if (!coach) return { error: "No tenés un perfil de entrenador.", supabase: null, coach: null };
-  return { error: null, supabase, coach };
+  if (error) return { error: error.message, supabase: null, coach: null, email: null };
+  if (!coach) return { error: "No tenés un perfil de entrenador.", supabase: null, coach: null, email: null };
+  return { error: null, supabase, coach, email: user.email ?? null };
 }
 
 export async function saveCoachTranslation(
@@ -93,7 +95,7 @@ export async function saveCoachTranslation(
   if (ctx.error || !ctx.supabase || !ctx.coach) {
     return { success: false, message: ctx.error ?? "No autorizado." };
   }
-  const { supabase, coach } = ctx;
+  const { supabase, coach, email } = ctx;
   const { locale, bio, careerObjectives, playingStyle, methodologyAnalysis, analysisAuthor } =
     parsed.data;
 
@@ -114,7 +116,8 @@ export async function saveCoachTranslation(
     // against TIER_LIMIT. Re-saving an already-published locale is allowed;
     // the all-empty (unpublish/delete) branch above is never gated.
     const available = await getPublishedCoachLocales(supabase, coach.id);
-    if (!available.includes(locale) && available.length >= TIER_LIMIT) {
+    const limit = translationLocaleLimit({ slug: coach.slug, email });
+    if (!available.includes(locale) && available.length >= limit) {
       return { success: false, message: "Tu plan permite hasta 3 idiomas además del español." };
     }
 
