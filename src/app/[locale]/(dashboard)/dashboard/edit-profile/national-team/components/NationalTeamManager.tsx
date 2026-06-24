@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertTriangle, CheckCircle2, ChevronDown, Clock, Pencil, Plus, Trash2, X } from "lucide-react";
 
 import CountryFlag from "@/components/common/CountryFlag";
+import CountrySinglePicker, { type CountryPick } from "@/components/common/CountrySinglePicker";
 import UpgradeModal, { useUpgradeModal } from "@/components/dashboard/plan/UpgradeModal";
 import { bhButtonClass } from "@/components/ui/BhButton";
 import {
@@ -47,11 +48,9 @@ export type NationalTeamStintView = {
   resolutionNote: string | null;
 };
 
-type CountryOption = { code: string; name: string };
-
 type DraftState = {
   id?: string;
-  countryCode: string;
+  country: CountryPick | null;
   ageCategory: NationalTeamAgeCategory | "";
   participation: NationalTeamParticipation;
   startYear: string;
@@ -66,7 +65,7 @@ type DraftState = {
 };
 
 const EMPTY_DRAFT: DraftState = {
-  countryCode: "",
+  country: null,
   ageCategory: "",
   participation: "called_up",
   startYear: "",
@@ -82,6 +81,10 @@ const EMPTY_DRAFT: DraftState = {
 
 const fieldClass =
   "w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:border-bh-lime/50 focus:outline-none";
+// Selects nativos: `color-scheme: dark` fuerza el menú desplegable en oscuro.
+// Sin esto, en SOs/navegadores en modo claro las opciones salían
+// blanco-sobre-blanco (ilegibles). Reportado por un admin tester.
+const selectClass = `${fieldClass} [color-scheme:dark]`;
 const labelClass = "mb-1 block text-xs font-medium text-white/70";
 
 type StatusMsg = { type: "error" | "success"; message: string } | null;
@@ -100,7 +103,6 @@ export default function NationalTeamManager({
   playerId,
   isPro,
   stints,
-  countries,
   adminMode = false,
   upsertAction = upsertNationalTeamStint,
   deleteAction = deleteNationalTeamStint,
@@ -108,7 +110,6 @@ export default function NationalTeamManager({
   playerId: string;
   isPro: boolean;
   stints: NationalTeamStintView[];
-  countries: CountryOption[];
   /** Admin CRUD: bypass the Pro soft-save gate; saves write live (approved). */
   adminMode?: boolean;
   upsertAction?: UpsertStintAction;
@@ -122,9 +123,6 @@ export default function NationalTeamManager({
   const [status, setStatus] = useState<StatusMsg>(null);
   const [customHighlight, setCustomHighlight] = useState("");
 
-  const countryName = (code: string | null, fallback: string | null) =>
-    (code ? countries.find((c) => c.code === code)?.name : null) ?? fallback ?? "Selección";
-
   const openAdd = () => {
     setStatus(null);
     setShowStats(false);
@@ -136,7 +134,9 @@ export default function NationalTeamManager({
     setShowStats(Boolean(s.caps || s.goals || s.assists || s.minutes));
     setDraft({
       id: s.id,
-      countryCode: s.countryCode ?? "",
+      country: s.countryCode
+        ? { code: s.countryCode, name: s.proposedTeamName ?? s.countryCode }
+        : null,
       ageCategory: s.ageCategory,
       participation: s.participation,
       startYear: s.startYear?.toString() ?? "",
@@ -173,7 +173,7 @@ export default function NationalTeamManager({
 
   const handleSave = () => {
     if (!draft) return;
-    if (!draft.countryCode) {
+    if (!draft.country) {
       setStatus({ type: "error", message: "Elegí el país de la selección." });
       return;
     }
@@ -189,12 +189,11 @@ export default function NationalTeamManager({
       return;
     }
 
-    const country = countries.find((c) => c.code === draft.countryCode);
     const stint = {
       id: draft.id,
       teamId: null,
-      proposedTeamName: country?.name ?? null,
-      countryCode: draft.countryCode,
+      proposedTeamName: draft.country.name,
+      countryCode: draft.country.code,
       ageCategory: draft.ageCategory as NationalTeamAgeCategory,
       participation: draft.participation,
       highlights: draft.highlights,
@@ -273,7 +272,7 @@ export default function NationalTeamManager({
                   <div className="flex items-center gap-2">
                     {s.countryCode ? <CountryFlag code={s.countryCode} size={18} /> : null}
                     <span className="font-semibold text-white">
-                      Selección {countryName(s.countryCode, s.proposedTeamName)}
+                      Selección {s.proposedTeamName ?? "Selección"}
                     </span>
                     <span className="rounded-full bg-bh-lime/10 px-2 py-0.5 text-[11px] font-medium text-bh-lime">
                       {NT_AGE_CATEGORY_LABELS[s.ageCategory]}
@@ -344,24 +343,17 @@ export default function NationalTeamManager({
         <div className="space-y-4 rounded-xl border border-bh-lime/20 bg-white/[0.02] p-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className={labelClass}>País de la selección *</label>
-              <select
-                className={fieldClass}
-                value={draft.countryCode}
-                onChange={(e) => setDraft({ ...draft, countryCode: e.target.value })}
-              >
-                <option value="">Elegí un país…</option>
-                {countries.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <CountrySinglePicker
+                label="País de la selección *"
+                placeholder="Escribí para buscar…"
+                value={draft.country}
+                onChange={(c) => setDraft({ ...draft, country: c })}
+              />
             </div>
             <div>
               <label className={labelClass}>Categoría *</label>
               <select
-                className={fieldClass}
+                className={selectClass}
                 value={draft.ageCategory}
                 onChange={(e) =>
                   setDraft({ ...draft, ageCategory: e.target.value as NationalTeamAgeCategory })
@@ -378,7 +370,7 @@ export default function NationalTeamManager({
             <div>
               <label className={labelClass}>Tipo de participación</label>
               <select
-                className={fieldClass}
+                className={selectClass}
                 value={draft.participation}
                 onChange={(e) =>
                   setDraft({ ...draft, participation: e.target.value as NationalTeamParticipation })

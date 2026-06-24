@@ -54,7 +54,7 @@ export const NT_AGE_CATEGORY_ORDER: readonly NationalTeamAgeCategory[] = [
 /** Etiquetas ES de los tipos de participación. */
 export const NT_PARTICIPATION_LABELS: Record<NationalTeamParticipation, string> = {
   called_up: "Convocado/a",
-  played: "Jugó",
+  played: "Jugó partidos",
   sparring: "Sparring",
   training_camp: "Concentración",
 };
