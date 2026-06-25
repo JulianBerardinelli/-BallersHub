@@ -2,11 +2,16 @@
 import { pgTable, uuid, text, timestamp, boolean, date, integer } from "drizzle-orm/pg-core";
 import { mediaTypeEnum, reviewStatusEnum } from "./enums";
 import { coachProfiles } from "./coaches";
+import { coachMethodologyRubros } from "./coachMethodology";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const coachMedia = pgTable("coach_media", {
   id: uuid("id").defaultRandom().primaryKey(),
   coachId: uuid("coach_id").notNull().references(() => coachProfiles.id, { onDelete: "cascade" }),
+  // Cuando está seteado, este doc es un adjunto (PDF/PPT/PPTX) de un rubro de
+  // metodología, no un item de galería. NULL = media/galería normal. Solo aplica
+  // a filas con type='doc'. Ver docs/staff/PLAN.md §5.2.
+  rubroId: uuid("rubro_id").references(() => coachMethodologyRubros.id, { onDelete: "cascade" }),
   type: mediaTypeEnum("type").notNull(),
   url: text("url").notNull(),
   title: text("title"),

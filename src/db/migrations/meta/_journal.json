@@ -134,6 +134,13 @@
       "when": 1782335252850,
       "tag": "0018_swift_baron_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1782340521972,
+      "tag": "0019_chilly_cannonball",
+      "breakpoints": true
     }
   ]
 }
