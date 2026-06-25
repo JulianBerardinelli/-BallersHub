@@ -10,9 +10,12 @@ import {
   removeMethodologyDoc,
   type MethodologyActionResult,
   type MethodologyRubroInput,
-  FREE_RUBRO_CAP,
 } from "@/app/actions/coach-methodology";
-import type { MethodologyRubroForEditor, MethodologyDocForEditor } from "@/lib/coach/methodology-data";
+import {
+  FREE_RUBRO_CAP,
+  type MethodologyRubroForEditor,
+  type MethodologyDocForEditor,
+} from "@/lib/coach/methodology-data";
 import { METHODOLOGY_ICONS, METHODOLOGY_ICON_KEYS } from "@/lib/staff/methodology-icons";
 
 type DocDraft = MethodologyDocForEditor;

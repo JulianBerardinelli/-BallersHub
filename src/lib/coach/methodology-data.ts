@@ -4,6 +4,11 @@
 // El render público usa su propia query (sólo status='approved') en page.tsx.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+// Cap del plan Free (rubros de texto). Vive acá (no en el archivo "use server"
+// de actions) porque un módulo "use server" sólo puede exportar funciones async;
+// este const lo consumen tanto la action como el editor (client).
+export const FREE_RUBRO_CAP = 2;
+
 export type MethodologyDocMime = "pdf" | "ppt" | "pptx" | "file";
 
 export type MethodologyDocForEditor = {

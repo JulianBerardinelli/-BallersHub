@@ -26,6 +26,7 @@ export default async function CoachMediaModerationPage() {
     .from("coach_media")
     .select("id, type, url, title, season_year, provider, created_at, coach:coach_profiles ( full_name, slug )")
     .eq("status", "pending")
+    .neq("type", "doc")
     .order("created_at", { ascending: true });
 
   const items: PendingCoachMedia[] = (rows ?? []).map((row) => {

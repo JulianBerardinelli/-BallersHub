@@ -13,6 +13,7 @@ import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { loadCoachPlanAccess } from "@/lib/dashboard/coach-plan";
 import { isMethodologyIconKey } from "@/lib/staff/methodology-icons";
+import { FREE_RUBRO_CAP } from "@/lib/coach/methodology-data";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 import { revalidatePath } from "next/cache";
 
@@ -21,8 +22,6 @@ export type MethodologyActionResult = {
   message?: string;
   id?: string;
 };
-
-export const FREE_RUBRO_CAP = 2;
 
 const rubroSchema = z.object({
   id: z.string().uuid().optional(),
