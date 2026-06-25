@@ -551,11 +551,26 @@ export default function ProfileNationalTeamModule({
     [stints],
   );
 
-  // Selección principal + banderas distintas (puede tener dual nacionalidad).
+  // Convocatoria "máxima" alcanzada: la etapa con la categoría más alta
+  // (desempate por año más reciente). El nombre y la bandera del header se
+  // derivan de ESA etapa para no atribuir la categoría a otra selección (caso
+  // doble nacionalidad: Argentina Sub-20 + Italia Mayor ≠ "Argentina (Mayor)").
+  const peakStint = useMemo(() => {
+    if (stints.length === 0) return null;
+    let best = stints[0];
+    for (const s of stints) {
+      const diff = NT_CATEGORY_RANK[s.ageCategory] - NT_CATEGORY_RANK[best.ageCategory];
+      if (diff > 0 || (diff === 0 && (s.startYear ?? 0) > (best.startYear ?? 0))) best = s;
+    }
+    return best;
+  }, [stints]);
+
+  // Banderas distintas (puede tener doble nacionalidad), liderando con la de la
+  // etapa máxima para que la bandera principal coincida con el nombre mostrado.
   const distinctCountries = useMemo(() => {
     const seen = new Set<string>();
     const out: string[] = [];
-    for (const s of stints) {
+    for (const s of peakStint ? [peakStint, ...stints] : stints) {
       const c = s.countryCode;
       if (c && !seen.has(c)) {
         seen.add(c);
@@ -563,19 +578,10 @@ export default function ProfileNationalTeamModule({
       }
     }
     return out;
-  }, [stints]);
-  const primaryName = stints[0]?.teamName ?? labels.title;
+  }, [stints, peakStint]);
 
-  // Convocatoria "máxima" alcanzada (categoría más alta; desempate por año más reciente).
-  const topCategory = useMemo(() => {
-    if (stints.length === 0) return null;
-    let best = stints[0];
-    for (const s of stints) {
-      const diff = NT_CATEGORY_RANK[s.ageCategory] - NT_CATEGORY_RANK[best.ageCategory];
-      if (diff > 0 || (diff === 0 && (s.startYear ?? 0) > (best.startYear ?? 0))) best = s;
-    }
-    return labels.ageCategory[best.ageCategory];
-  }, [stints, labels]);
+  const primaryName = peakStint?.teamName ?? stints[0]?.teamName ?? labels.title;
+  const topCategory = peakStint ? labels.ageCategory[peakStint.ageCategory] : null;
 
   const useAnimated = isDesktop && sorted.length > ANIMATE_THRESHOLD;
 
