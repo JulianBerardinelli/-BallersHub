@@ -18,7 +18,15 @@ Decisión clave del protocolo: el RENAME `coach_*`→`staff_*` es destructivo (r
 - Migraciones: `0019_chilly_cannonball.sql` (Drizzle, aditiva) + `0019a_staff_methodology_rls.sql` (RLS pre-moderada) + `0019b_coach_media_bucket_ppt.sql` (bucket ppt/pptx + 25MB).
 - **Aplicado a dev + prod** vía MCP (apply_migration 0019/0019a + execute_sql 0019b) + hash de 0019 registrado en `drizzle.__drizzle_migrations` en ambos. Smoke test OK en los dos (enum 13, tabla+RLS 4 policies, columnas, bucket 25MB). dev `coach_profiles`=0; **prod backfill aplicado**: rivero→`fitness_coach`, dante→`tactical_analyst`, emiliano→`head_coach`+`{tactical_analyst}`.
 
-**Pendiente:** layer de código (helpers de rol, fork `isHeadCoachLayout`, onboarding multi-rol, módulo Metodología + editor, rebrand `/staff` + "Cuerpo Técnico"). El rename físico `coach_*`→`staff_*` sigue diferido (two-step).
+**Layer de código (Fase 1) — en progreso:**
+- ✅ `src/lib/staff/roles.ts` — taxonomía canónica de los 13 roles + grouping + `isHeadCoachLayout()` + validadores (commit `560a912`). Typecheck del proyecto: 0 errores.
+- ⏳ Onboarding multi-rol (picker primary + 2 secundarios + `roles[]` por etapa) → `Step1Identity.tsx` + `CoachApplyFlow` + `api/onboarding/coach/submit`.
+- ⏳ Portfolio: display del `primary_role` + fork `isHeadCoachLayout` (Free + Pro).
+- ⏳ Módulo Metodología (editor dashboard CRUD rubros + upload PDF/PPT, gating Free ≤2 / Pro) + render público.
+- ⏳ i18n namespace `staff` (labels de roles en los 7 locales).
+- ⏳ Rebrand `/staff` + "Cuerpo Técnico" (rutas + redirects + i18n).
+
+El rename físico `coach_*`→`staff_*` sigue diferido (two-step).
 
 ---
 
