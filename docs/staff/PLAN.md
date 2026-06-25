@@ -21,7 +21,7 @@ Decisión clave del protocolo: el RENAME `coach_*`→`staff_*` es destructivo (r
 **Layer de código (Fase 1) — en progreso:**
 - ✅ `src/lib/staff/roles.ts` — taxonomía canónica de los 13 roles + grouping + `isHeadCoachLayout()` + validadores (commit `560a912`). Typecheck del proyecto: 0 errores.
 - ⏳ Onboarding multi-rol (picker primary + 2 secundarios + `roles[]` por etapa) → `Step1Identity.tsx` + `CoachApplyFlow` + `api/onboarding/coach/submit`.
-- ⏳ Portfolio: display del `primary_role` + fork `isHeadCoachLayout` (Free + Pro).
+- ✅ Portfolio: display del rol estructurado (`primary_role` + secundarios) + fork `isHeadCoachLayout` (Free + Pro), commit `b6dae9f`. null → comportamiento viejo (hasta onboarding). Typecheck 0 errores.
 - ⏳ Módulo Metodología (editor dashboard CRUD rubros + upload PDF/PPT, gating Free ≤2 / Pro) + render público.
 - ⏳ i18n namespace `staff` (labels de roles en los 7 locales).
 - ⏳ Rebrand `/staff` + "Cuerpo Técnico" (rutas + redirects + i18n).
