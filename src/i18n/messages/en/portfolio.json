@@ -277,7 +277,9 @@
         "played": "Played",
         "sparring": "Sparring",
         "training_camp": "Training camp"
-      }
+      },
+      "callups": "Call-ups",
+      "scrollHint": "Hover to pause · scroll to explore"
     }
   },
   "pro": {

@@ -267,7 +267,7 @@ export default async function LayoutResolver({ data }: { data: PublicProfileData
             </Suspense>
 
             <Suspense fallback={<div className="min-h-[400px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.nationalTeam")}</div>}>
-              <NationalTeamModule playerId={player.id} />
+              <NationalTeamModule playerId={player.id} playerName={player.fullName} />
             </Suspense>
 
             <Suspense fallback={<div className="min-h-[800px] flex items-center justify-center text-white/30 animate-pulse">{t("loading.career")}</div>}>

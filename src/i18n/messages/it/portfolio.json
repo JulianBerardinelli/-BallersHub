@@ -277,7 +277,9 @@
         "played": "Ha giocato",
         "sparring": "Sparring",
         "training_camp": "Ritiro"
-      }
+      },
+      "callups": "Convocazioni",
+      "scrollHint": "Passa il mouse per mettere in pausa · scorri per esplorare"
     }
   },
   "pro": {

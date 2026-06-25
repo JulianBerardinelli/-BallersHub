@@ -277,7 +277,9 @@
         "played": "Jugó partidos",
         "sparring": "Sparring",
         "training_camp": "Concentración"
-      }
+      },
+      "callups": "Convocatorias",
+      "scrollHint": "Pasá el cursor para pausar · scrolleá para recorrer"
     }
   },
   "pro": {
