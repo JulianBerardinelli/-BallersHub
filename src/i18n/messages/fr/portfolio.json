@@ -278,8 +278,16 @@
         "sparring": "Sparring",
         "training_camp": "Stage"
       },
+      "stats": {
+        "caps": "Sél.",
+        "goals": "Buts",
+        "assists": "Passes",
+        "minutes": "Min"
+      },
       "callups": "Convocations",
-      "scrollHint": "Survolez pour mettre en pause · faites défiler pour explorer"
+      "scrollHint": "Survolez pour mettre en pause · faites défiler pour explorer",
+      "navPrev": "Sélection précédente",
+      "navNext": "Sélection suivante"
     }
   },
   "pro": {

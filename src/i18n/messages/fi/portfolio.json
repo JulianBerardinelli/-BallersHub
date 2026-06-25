@@ -278,8 +278,16 @@
         "sparring": "Sparraus",
         "training_camp": "Harjoitusleiri"
       },
+      "stats": {
+        "caps": "Ott.",
+        "goals": "Maalit",
+        "assists": "Syötöt",
+        "minutes": "Min"
+      },
       "callups": "Kutsut",
-      "scrollHint": "Pysäytä osoittamalla · selaa tutkiaksesi"
+      "scrollHint": "Pysäytä osoittamalla · selaa tutkiaksesi",
+      "navPrev": "Edellinen kutsu",
+      "navNext": "Seuraava kutsu"
     }
   },
   "pro": {

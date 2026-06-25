@@ -278,8 +278,16 @@
         "sparring": "Sparring",
         "training_camp": "Training camp"
       },
+      "stats": {
+        "caps": "Caps",
+        "goals": "Goals",
+        "assists": "Assists",
+        "minutes": "Min"
+      },
       "callups": "Call-ups",
-      "scrollHint": "Hover to pause · scroll to explore"
+      "scrollHint": "Hover to pause · scroll to explore",
+      "navPrev": "Previous call-up",
+      "navNext": "Next call-up"
     }
   },
   "pro": {

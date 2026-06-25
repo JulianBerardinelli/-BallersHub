@@ -278,8 +278,16 @@
         "sparring": "Sparring",
         "training_camp": "Concentração"
       },
+      "stats": {
+        "caps": "Jogos",
+        "goals": "Gols",
+        "assists": "Assist.",
+        "minutes": "Min"
+      },
       "callups": "Convocações",
-      "scrollHint": "Passe o cursor para pausar · role para explorar"
+      "scrollHint": "Passe o cursor para pausar · role para explorar",
+      "navPrev": "Convocação anterior",
+      "navNext": "Próxima convocação"
     }
   },
   "pro": {

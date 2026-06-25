@@ -278,8 +278,16 @@
         "sparring": "Sparring",
         "training_camp": "Trainingslager"
       },
+      "stats": {
+        "caps": "Sp.",
+        "goals": "Tore",
+        "assists": "Vorl.",
+        "minutes": "Min"
+      },
       "callups": "Nominierungen",
-      "scrollHint": "Zum Pausieren überfahren · zum Erkunden scrollen"
+      "scrollHint": "Zum Pausieren überfahren · zum Erkunden scrollen",
+      "navPrev": "Vorherige Nominierung",
+      "navNext": "Nächste Nominierung"
     }
   },
   "pro": {
