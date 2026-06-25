@@ -27,7 +27,8 @@ Decisión clave del protocolo: el RENAME `coach_*`→`staff_*` es destructivo (r
 - ✅ Rebrand público `/coach/[slug]` → `/staff/[slug]` (commit `f3f0c54`): `git mv` de la ruta + **redirect 301** en `next.config` (regex de locale, no pisa `/dashboard/coach/*`) + todas las refs de URL (canonical/hreflang/sitemap/llms/JSON-LD/locale-switcher/"ver perfil") + label del chooser de onboarding → "Cuerpo Técnico" (7 locales). Rutas internas `/dashboard/coach/*` + tablas `coach_*` NO renombradas (invisible al público).
 - ✅ `next build` (turbopack) **verde** (exit 0 + BUILD_ID, 638 páginas) tras `npm ci` en el worktree — verificó route move/use-server/i18n/módulo. Fix: 2 `<a href="/checkout/pro-coach">` → `<Link>` (regla `no-html-link-for-pages`). (Los errores de DB en static-gen son por env dummy, fallback graceful.)
 - ✅ Copy sweep DT→"Cuerpo Técnico"/"Staff": fallback público del portfolio + nav admin (sección "Cuerpo Técnico", labels "... Staff"). Footer queda en i18n (razonable).
-- ⏳ (opcional) i18n del editor de metodología (dashboard, hoy es-only); JSON-LD jobTitle podría usar el rol estructurado.
+- ✅ **Traducción por-perfil de los rubros de Metodología** (commit `b01dc9f`): el CONTENIDO (title/body) se traduce desde Idiomas (Pro, nativa+3) — tabla `coach_methodology_rubro_translations` (0021+0021a, dev+prod) + merge público + sección en `CoachTranslationsEditor`. (El CHROME del editor sigue es-only, consistente con todo el dashboard coach.)
+- ⏳ (opcional) JSON-LD jobTitle podría usar el rol estructurado; i18n del chrome del dashboard (todos los editores, no solo metodología) si se decide.
 
 El rename físico `coach_*`→`staff_*` sigue diferido (two-step).
 
