@@ -40,6 +40,22 @@ export type CoachLicenseRow = {
 
 export type CoachLinkRow = { label: string | null; url: string; kind: string };
 
+// Módulo Metodología (universal, todos los oficios). Sólo se pasan rubros
+// approved; los docs sólo en Pro (Free los descarta). Ver docs/staff/PLAN.md §5.
+export type CoachMethodologyDocRow = {
+  id: string;
+  url: string;
+  title: string | null;
+  mime: "pdf" | "ppt" | "pptx" | "file";
+};
+export type CoachMethodologyRubroRow = {
+  id: string;
+  title: string;
+  icon: string | null;
+  body: string | null;
+  docs: CoachMethodologyDocRow[];
+};
+
 export type CoachStatRow = {
   id: string;
   season: string;

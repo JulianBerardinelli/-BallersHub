@@ -325,6 +325,13 @@ export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
       },
       {
         kind: "link",
+        id: "coach-methodology",
+        title: "Metodología",
+        href: "/dashboard/coach/methodology",
+        description: "Tu metodología de trabajo en rubros (+ archivos PDF/PPT en Pro).",
+      },
+      {
+        kind: "link",
         id: "coach-translations",
         title: "Idiomas",
         href: "/dashboard/coach/translations",
