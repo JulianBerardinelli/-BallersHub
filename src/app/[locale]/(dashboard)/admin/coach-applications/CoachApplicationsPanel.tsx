@@ -2,11 +2,13 @@
 
 import * as React from "react";
 import { Button, Textarea, Chip } from "@heroui/react";
+import { staffRolesSummary, staffRoleLabel, isStaffRole, type StaffRoleType } from "@/lib/staff/roles";
 
 type Proposal = {
   id: string;
   club: string | null;
   role_title: string | null;
+  roles: string[] | null;
   division: string | null;
   start_year: number | null;
   end_year: number | null;
@@ -20,6 +22,8 @@ export type CoachApp = {
   user_id: string;
   full_name: string | null;
   role_title: string | null;
+  primary_role: string | null;
+  secondary_roles: string[] | null;
   nationality: string[] | null;
   birth_date: string | null;
   current_club: string | null;
@@ -131,10 +135,18 @@ export default function CoachApplicationsPanel({ initialItems }: { initialItems:
                     {app.full_name || "(sin nombre)"}
                   </h2>
                   <p className="text-sm text-bh-fg-3">
-                    {app.role_title || "DT"}
+                    {staffRolesSummary(
+                      app.primary_role as StaffRoleType | null,
+                      app.secondary_roles as StaffRoleType[] | null,
+                    ) ||
+                      app.role_title ||
+                      "DT"}
                     {app.current_club ? ` · ${app.current_club}` : ""}
                     {app.proposed_team_name && !app.current_club ? ` · ${app.proposed_team_name} (propuesto)` : ""}
                   </p>
+                  {app.primary_role && app.role_title && (
+                    <p className="text-xs text-bh-fg-4">Cargo declarado: {app.role_title}</p>
+                  )}
                   <p className="mt-1 text-xs text-bh-fg-4">
                     {(app.nationality ?? []).join(", ")}
                     {app.birth_date ? ` · ${app.birth_date}` : ""}
@@ -174,7 +186,12 @@ export default function CoachApplicationsPanel({ initialItems }: { initialItems:
                     {(app.coach_career_item_proposals ?? []).map((p) => (
                       <li key={p.id} className="flex flex-wrap gap-x-2">
                         <span className="font-medium text-bh-fg-1">{p.club}</span>
-                        {p.role_title && <span className="text-bh-fg-3">· {p.role_title}</span>}
+                        {(p.roles ?? []).length > 0 && (
+                          <span className="text-bh-fg-3">
+                            · {(p.roles ?? []).filter(isStaffRole).map((r) => staffRoleLabel(r)).join(", ")}
+                          </span>
+                        )}
+                        {p.role_title && <span className="text-bh-fg-4">· {p.role_title}</span>}
                         {p.division && <span className="text-bh-fg-4">· {p.division}</span>}
                         {fmtYears(p) && <span className="text-bh-fg-4">· {fmtYears(p)}</span>}
                       </li>

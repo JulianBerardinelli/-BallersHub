@@ -2,16 +2,25 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Form, Button } from "@heroui/react";
+import { Form, Button, Select, SelectItem } from "@heroui/react";
 import TeamPickerCombo, { type TeamPickerValue } from "@/components/teams/TeamPickerCombo";
 import FormField from "@/components/dashboard/client/FormField";
+import { bhSelectClassNames } from "@/lib/ui/heroui-brand";
+import {
+  STAFF_ROLES,
+  STAFF_ROLE_LABELS_ES,
+  MAX_STAGE_ROLES,
+  isStaffRole,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
 
-// Una etapa de la trayectoria del DT: club + CARGO (role_title) + división +
-// años. Deliberadamente SIN posiciones (eso es de jugador).
+// Una etapa de la trayectoria del DT: club + roles estructurados (hasta 3) +
+// CARGO libre opcional + división + años. Deliberadamente SIN posiciones (jugador).
 export type CoachCareerStage = {
   id: string;
   club: string;
   roleTitle: string;
+  roles: StaffRoleType[];
   division: string | null;
   startYear: number | null;
   endYear: number | null;
@@ -39,6 +48,7 @@ const newStage = (): CoachCareerStage => ({
   id: crypto.randomUUID(),
   club: "",
   roleTitle: "",
+  roles: [],
   division: null,
   startYear: null,
   endYear: null,
@@ -193,14 +203,35 @@ export default function Step2Career({
                       value={stage.club}
                       onChange={(e) => patchStage(stage.id, { club: e.target.value })}
                     />
-                    <FormField
-                      id={`stage-role-${stage.id}`}
-                      label={t("coachApply.step2.roleTitleLabel")}
-                      placeholder={t("coachApply.step2.roleTitlePlaceholder")}
-                      value={stage.roleTitle}
-                      onChange={(e) => patchStage(stage.id, { roleTitle: e.target.value })}
-                    />
+                    <Select
+                      aria-label="Roles en esta etapa"
+                      label="Roles en esta etapa (hasta 3)"
+                      labelPlacement="outside"
+                      variant="flat"
+                      selectionMode="multiple"
+                      placeholder="Ej Entrenador, Analista, Scout"
+                      selectedKeys={stage.roles}
+                      onSelectionChange={(keys) => {
+                        const arr = Array.from(keys)
+                          .filter(isStaffRole)
+                          .slice(0, MAX_STAGE_ROLES);
+                        patchStage(stage.id, { roles: arr });
+                      }}
+                      classNames={bhSelectClassNames}
+                    >
+                      {STAFF_ROLES.map((r) => (
+                        <SelectItem key={r}>{STAFF_ROLE_LABELS_ES[r]}</SelectItem>
+                      ))}
+                    </Select>
                   </div>
+                  {/* Cargo libre opcional (caption), ej "DT principal". */}
+                  <FormField
+                    id={`stage-role-${stage.id}`}
+                    label={t("coachApply.step2.roleTitleLabel")}
+                    placeholder={t("coachApply.step2.roleTitlePlaceholder")}
+                    value={stage.roleTitle}
+                    onChange={(e) => patchStage(stage.id, { roleTitle: e.target.value })}
+                  />
                   <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-3">
                     <FormField
                       id={`stage-division-${stage.id}`}

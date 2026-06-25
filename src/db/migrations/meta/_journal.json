@@ -141,6 +141,13 @@
       "when": 1782340521972,
       "tag": "0019_chilly_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1782420687557,
+      "tag": "0020_lumpy_wither",
+      "breakpoints": true
     }
   ]
 }

@@ -2,19 +2,36 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { DatePicker, Button } from "@heroui/react";
+import { DatePicker, Button, Select, SelectItem, SelectSection } from "@heroui/react";
 import CountryMultiPicker, { type CountryPick } from "@/components/common/CountryMultiPicker";
 import FormField from "@/components/dashboard/client/FormField";
-import { bhDatePickerClassNames } from "@/lib/ui/heroui-brand";
+import { bhDatePickerClassNames, bhSelectClassNames } from "@/lib/ui/heroui-brand";
+import {
+  STAFF_ROLES,
+  STAFF_ROLE_GROUPS,
+  STAFF_ROLE_LABELS_ES,
+  MAX_SECONDARY_ROLES,
+  isStaffRole,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
 
 const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
 type AnyDateValue = any;
+
+// Labels es de los grupos del picker (el namespace i18n `staff` llega luego).
+const GROUP_LABELS: Record<string, string> = {
+  cuerpo_tecnico: "Cuerpo Técnico",
+  especialistas: "Especialistas",
+};
 
 export type Step1Data = {
   fullName: string;
   nationalities: CountryPick[];
   birthDate: AnyDateValue | null;
   roleTitle: string;
+  // Roles estructurados (staff): 1 principal (req) + hasta 2 secundarios.
+  primaryRole: StaffRoleType | null;
+  secondaryRoles: StaffRoleType[];
 };
 
 export default function Step1Identity({
@@ -35,6 +52,12 @@ export default function Step1Identity({
   const [nats, setNats] = React.useState<CountryPick[]>(defaultValue?.nationalities ?? []);
   const [birthDate, setBirthDate] = React.useState<AnyDateValue | null>(defaultValue?.birthDate ?? null);
   const [roleTitle, setRoleTitle] = React.useState<string>(defaultValue?.roleTitle ?? "");
+  const [primaryRole, setPrimaryRole] = React.useState<StaffRoleType | null>(
+    defaultValue?.primaryRole ?? null,
+  );
+  const [secondaryRoles, setSecondaryRoles] = React.useState<StaffRoleType[]>(
+    defaultValue?.secondaryRoles ?? [],
+  );
 
   // touched para mostrar errores solo cuando corresponde
   const [touched, setTouched] = React.useState<Record<string, boolean>>({});
@@ -43,17 +66,17 @@ export default function Step1Identity({
   const nameInvalid = !!touched.fullName && !minChars(fullName);
   const natInvalid = !!touched.nationalities && nats.length < 1;
   const dobInvalid = !!touched.birthDate && !birthDate;
-  const roleInvalid = !!touched.roleTitle && !minChars(roleTitle, 2);
+  const primaryRoleInvalid = !!touched.primaryRole && !primaryRole;
 
   const stepValid =
-    minChars(fullName) && nats.length >= 1 && !!birthDate && minChars(roleTitle, 2);
+    minChars(fullName) && nats.length >= 1 && !!birthDate && !!primaryRole;
 
   function handleNext() {
     setTouched({
       fullName: true,
       nationalities: true,
       birthDate: true,
-      roleTitle: true,
+      primaryRole: true,
     });
     if (!stepValid) return;
     onNext({
@@ -61,6 +84,8 @@ export default function Step1Identity({
       nationalities: nats,
       birthDate,
       roleTitle: roleTitle.trim(),
+      primaryRole,
+      secondaryRoles,
     });
   }
 
@@ -118,18 +143,67 @@ export default function Step1Identity({
           />
         </div>
 
-        {/* cargo (role_title) — texto libre, ej "Director Técnico" */}
+        {/* Roles del staff: principal (req) + hasta 2 secundarios. Labels es
+            nativas — el namespace i18n `staff` llega en un incremento posterior. */}
+        <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
+          <Select
+            isRequired
+            label="Rol principal"
+            labelPlacement="outside"
+            variant="flat"
+            placeholder="Elegí tu oficio principal"
+            selectedKeys={primaryRole ? [primaryRole] : []}
+            onSelectionChange={(keys) => {
+              const next = Array.from(keys)[0];
+              const role = isStaffRole(next) ? next : null;
+              setPrimaryRole(role);
+              setSecondaryRoles((prev) => prev.filter((r) => r !== role));
+              setTouched((p) => ({ ...p, primaryRole: true }));
+            }}
+            isInvalid={primaryRoleInvalid}
+            errorMessage="Elegí tu rol principal"
+            classNames={bhSelectClassNames}
+          >
+            {STAFF_ROLE_GROUPS.map((g) => (
+              <SelectSection key={g.id} title={GROUP_LABELS[g.id]}>
+                {g.roles.map((r) => (
+                  <SelectItem key={r}>{STAFF_ROLE_LABELS_ES[r]}</SelectItem>
+                ))}
+              </SelectSection>
+            ))}
+          </Select>
+
+          <Select
+            label="Roles secundarios (opcional, hasta 2)"
+            labelPlacement="outside"
+            variant="flat"
+            selectionMode="multiple"
+            placeholder="Otros oficios que ejercés"
+            selectedKeys={secondaryRoles}
+            disabledKeys={primaryRole ? [primaryRole] : []}
+            onSelectionChange={(keys) => {
+              const arr = Array.from(keys)
+                .filter(isStaffRole)
+                .filter((r) => r !== primaryRole)
+                .slice(0, MAX_SECONDARY_ROLES);
+              setSecondaryRoles(arr);
+            }}
+            classNames={bhSelectClassNames}
+          >
+            {STAFF_ROLES.map((r) => (
+              <SelectItem key={r}>{STAFF_ROLE_LABELS_ES[r]}</SelectItem>
+            ))}
+          </Select>
+        </div>
+
+        {/* Título específico (opcional) — ex cargo libre, va a role_title. */}
         <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
           <FormField
             id="bh-role-title"
-            isRequired
             label={t("coachApply.step1.roleTitleLabel")}
             placeholder={t("coachApply.step1.roleTitlePlaceholder")}
             value={roleTitle}
             onChange={(e) => setRoleTitle(e.target.value)}
-            onBlur={() => setTouched((prev) => ({ ...prev, roleTitle: true }))}
-            isInvalid={roleInvalid}
-            errorMessage={t("coachApply.step1.roleTitleError")}
           />
         </div>
       </div>

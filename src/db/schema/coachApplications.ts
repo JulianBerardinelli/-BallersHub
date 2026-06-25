@@ -1,6 +1,6 @@
 // coach_applications
 import { pgTable, uuid, text, timestamp, boolean, char, date, jsonb } from "drizzle-orm/pg-core";
-import { planEnum } from "./enums";
+import { planEnum, staffRoleTypeEnum } from "./enums";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -12,6 +12,10 @@ export const coachApplications = pgTable("coach_applications", {
   birthDate: date("birth_date"),
   nationality: text("nationality").array(),
   roleTitle: text("role_title"),
+  // Roles estructurados elegidos en el onboarding (se materializan a
+  // coach_profiles.primary_role/secondary_roles al aprobar). Ver docs/staff/PLAN.md.
+  primaryRole: staffRoleTypeEnum("primary_role"),
+  secondaryRoles: staffRoleTypeEnum("secondary_roles").array(),
   currentClub: text("current_club"),
   transfermarktUrl: text("transfermarkt_url"),
   externalProfileUrl: text("external_profile_url"),
