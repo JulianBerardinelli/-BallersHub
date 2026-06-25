@@ -93,7 +93,7 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
 
   const firstName = data.fullName.split(" ")[0] || "";
   const lastName = data.fullName.split(" ").slice(1).join(" ") || data.fullName;
-  const role = data.roleDisplay?.trim() || data.roleTitle?.trim() || "Director Técnico";
+  const role = data.roleDisplay?.trim() || data.roleTitle?.trim() || "Cuerpo Técnico";
   const codes = (data.nationalityCodes ?? []).slice(0, 3);
 
   const nameVariants = {

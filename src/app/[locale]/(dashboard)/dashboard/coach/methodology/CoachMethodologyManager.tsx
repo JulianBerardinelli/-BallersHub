@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
 import {
@@ -126,9 +127,9 @@ export default function CoachMethodologyManager({
       {atCap && (
         <p className="-mt-3 text-[12px] text-bh-fg-4">
           Llegaste al límite Free de {FREE_RUBRO_CAP} rubros.{" "}
-          <a href="/checkout/pro-coach?currency=ARS" className="text-bh-lime hover:underline">
+          <Link href="/checkout/pro-coach?currency=ARS" className="text-bh-lime hover:underline">
             Activá Pro
-          </a>{" "}
+          </Link>{" "}
           para sumar más y adjuntar archivos.
         </p>
       )}
@@ -340,9 +341,9 @@ function RubroCard({
         ) : (
           <p className="text-[11px] text-bh-fg-4">
             Los archivos son una función Pro.{" "}
-            <a href="/checkout/pro-coach?currency=ARS" className="text-bh-lime hover:underline">
+            <Link href="/checkout/pro-coach?currency=ARS" className="text-bh-lime hover:underline">
               Activá Pro
-            </a>
+            </Link>
             .
           </p>
         )}

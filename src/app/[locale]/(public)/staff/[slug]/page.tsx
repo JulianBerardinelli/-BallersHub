@@ -57,7 +57,7 @@ type RouteParams = { locale: string; slug: string };
 const yearOf = (d: string | null) => (d ? Number(String(d).slice(0, 4)) || null : null);
 
 function roleLabel(roleTitle: string | null): string {
-  return roleTitle?.trim() || "Director Técnico";
+  return roleTitle?.trim() || "Cuerpo Técnico";
 }
 
 function buildDescription(opts: {

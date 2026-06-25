@@ -105,7 +105,7 @@ export default function CoachApplicationsPanel({ initialItems }: { initialItems:
     <div className="mx-auto max-w-5xl space-y-8 p-6">
       <header>
         <h1 className="font-bh-display text-2xl font-bold uppercase tracking-[-0.01em] text-bh-fg-1">
-          Solicitudes de DTs
+          Solicitudes de Staff
         </h1>
         <p className="mt-1 text-sm text-bh-fg-3">
           {pending.length} pendiente{pending.length === 1 ? "" : "s"} de revisión.

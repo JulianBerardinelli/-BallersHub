@@ -200,7 +200,7 @@ export default async function CoachPortfolio({ data }: { data: CoachPortfolioDat
             {lastName && <span className="block text-bh-lime">{lastName}</span>}
           </h1>
           <p className="mt-2 text-sm font-medium text-bh-fg-2">
-            {data.roleTitle || "Director Técnico"}
+            {data.roleTitle || "Cuerpo Técnico"}
             {data.currentClub ? ` · ${data.currentClub}` : ""}
           </p>
           <p className="mt-1 text-xs text-bh-fg-4">
