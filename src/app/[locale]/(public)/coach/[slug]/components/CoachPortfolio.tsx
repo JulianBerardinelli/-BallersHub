@@ -12,6 +12,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import CoachLicenseList from "./CoachLicenseList";
+import type { StaffRoleType } from "@/lib/staff/roles";
 
 export type CoachCareerRow = {
   id: string;
@@ -137,6 +138,15 @@ export type CoachPortfolioData = {
   media: CoachMediaRow[];
   links: CoachLinkRow[];
   isPro: boolean;
+  // Roles estructurados del staff. `roleDisplay` es el label combinado
+  // (principal · secundarios) ya resuelto en el server (es nativo).
+  primaryRole: StaffRoleType | null;
+  secondaryRoles: StaffRoleType[] | null;
+  roleDisplay: string | null;
+  // false SÓLO cuando el rol principal es un oficio NO-DT conocido → oculta
+  // ideas de juego / formaciones. null (perfil sin rol estructurado todavía) →
+  // true, para no romper coaches legacy/nuevos. Ver src/lib/staff/roles.ts.
+  showTactical: boolean;
 };
 
 function years(r: { startYear: number | null; endYear: number | null }, present: string) {

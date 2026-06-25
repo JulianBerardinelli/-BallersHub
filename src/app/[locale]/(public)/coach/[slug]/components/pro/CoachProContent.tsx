@@ -33,7 +33,7 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
         bio={data.bio}
         accent={accent}
         fullName={data.fullName}
-        roleTitle={data.roleTitle}
+        roleTitle={data.roleDisplay ?? data.roleTitle}
         avatarUrl={data.avatarUrl}
         nationalityCodes={data.nationalityCodes}
         currentClub={data.currentClub}
@@ -45,13 +45,16 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
 
       <CoachCareerTimelineModule career={data.career} stats={data.stats} accent={accent} />
 
-      <CoachTacticsModule
-        methodologyAnalysis={data.methodologyAnalysis}
-        playingStyle={data.playingStyle}
-        preferredFormations={data.preferredFormations}
-        videos={videos}
-        accent={accent}
-      />
+      {/* Ideas de juego / metodología táctica: sólo DT (o perfiles sin rol aún). */}
+      {data.showTactical && (
+        <CoachTacticsModule
+          methodologyAnalysis={data.methodologyAnalysis}
+          playingStyle={data.playingStyle}
+          preferredFormations={data.preferredFormations}
+          videos={videos}
+          accent={accent}
+        />
+      )}
 
       <CoachMediaGalleryModule photos={photos} coachName={data.fullName} />
 

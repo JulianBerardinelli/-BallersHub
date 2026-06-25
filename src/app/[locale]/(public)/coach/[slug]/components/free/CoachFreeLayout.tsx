@@ -114,8 +114,9 @@ async function Hero({
   const age = computeAge(data.birthDate);
   const birthFmt = formatBirthDate(data.birthDate);
   const expYears = data.coachingSince ? Math.max(0, yearNow - data.coachingSince) : null;
-  const scheme = data.preferredFormations?.[0] ?? null;
-  const role = data.roleTitle?.trim() || t("coach.free.roleFallback");
+  // Esquema = idea de juego (sólo DT). Para oficios no-DT no aplica.
+  const scheme = data.showTactical ? (data.preferredFormations?.[0] ?? null) : null;
+  const role = data.roleDisplay?.trim() || data.roleTitle?.trim() || t("coach.free.roleFallback");
 
   return (
     <section className="px-5 pb-6 pt-28 md:px-10 md:pb-0 md:pt-32">
@@ -221,8 +222,9 @@ async function BioFicha({
   const t = await getTranslations("portfolio");
   const hasFicha =
     nationalities.length > 0 ||
-    (data.preferredFormations?.length ?? 0) > 0 ||
+    (data.showTactical && (data.preferredFormations?.length ?? 0) > 0) ||
     !!data.coachingSince ||
+    !!data.roleDisplay ||
     !!data.roleTitle;
 
   return (
@@ -244,7 +246,7 @@ async function BioFicha({
                 {data.bio?.trim() ? data.bio : t("coach.free.bioEmpty")}
               </p>
             </div>
-            {data.playingStyle?.trim() && (
+            {data.showTactical && data.playingStyle?.trim() && (
               <div>
                 <Eyebrow className="mb-2.5 block">{t("coach.playingStyleTitle")}</Eyebrow>
                 <p className="m-0 whitespace-pre-line font-body text-sm leading-[1.7] text-bh-fg-2 md:text-base">
@@ -257,15 +259,15 @@ async function BioFicha({
             <div>
               <Eyebrow className="mb-2.5 block">{t("coach.free.identityEyebrow")}</Eyebrow>
               <div className="rounded-xl border border-white/[0.10] bg-bh-surface-1">
-                {data.roleTitle?.trim() ? (
-                  <DataRow label={t("coach.free.identityRole")}>{data.roleTitle}</DataRow>
+                {data.roleDisplay?.trim() ? (
+                  <DataRow label={t("coach.free.identityRole")}>{data.roleDisplay}</DataRow>
                 ) : null}
                 {data.coachingSince ? (
                   <DataRow label={t("coach.free.identityExperience")}>
                     {t("coach.since", { year: data.coachingSince })}
                   </DataRow>
                 ) : null}
-                {data.preferredFormations?.length ? (
+                {data.showTactical && data.preferredFormations?.length ? (
                   <DataRow label={t("coach.formationsTitle")} multiline>
                     <span className="inline-flex flex-wrap gap-1.5">
                       {data.preferredFormations.map((f) => (

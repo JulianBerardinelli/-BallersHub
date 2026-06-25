@@ -27,6 +27,7 @@ import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
+import { isHeadCoachLayout, staffRolesSummary } from "@/lib/staff/roles";
 import {
   computeCoachRecord,
   type CoachPortfolioData,
@@ -93,6 +94,8 @@ export async function generateMetadata({
       userId: coachProfiles.userId,
       fullName: coachProfiles.fullName,
       roleTitle: coachProfiles.roleTitle,
+      primaryRole: coachProfiles.primaryRole,
+      secondaryRoles: coachProfiles.secondaryRoles,
       currentClub: coachProfiles.currentClub,
       bio: coachProfiles.bio,
       avatarUrl: coachProfiles.avatarUrl,
@@ -127,9 +130,11 @@ export async function generateMetadata({
   const { canonical, languages } = conditionalAlternates(locale, `/coach/${slug}`, available);
   const noindex = !thisLocaleExists || softNoindex;
 
+  const roleForTitle =
+    staffRolesSummary(coach.primaryRole, coach.secondaryRoles) || roleLabel(coach.roleTitle);
   const title = [
     coach.fullName,
-    roleLabel(coach.roleTitle),
+    roleForTitle,
     coach.currentClub,
   ]
     .filter(Boolean)
@@ -354,6 +359,13 @@ export default async function CoachPublicPage({
       }
     : null;
 
+  // Roles estructurados (staff) + fork de layout. primary_role null →
+  // showTactical=true (no rompe coaches sin rol todavía); oculta las secciones
+  // DT (ideas de juego / formaciones) sólo en oficios NO-DT conocidos.
+  const showTactical = coach.primaryRole == null || isHeadCoachLayout(coach.primaryRole);
+  const roleDisplay =
+    staffRolesSummary(coach.primaryRole, coach.secondaryRoles) || coach.roleTitle?.trim() || null;
+
   const data: CoachPortfolioData = {
     fullName: coach.fullName,
     roleTitle: coach.roleTitle,
@@ -374,6 +386,10 @@ export default async function CoachPublicPage({
     media,
     links,
     isPro,
+    primaryRole: coach.primaryRole,
+    secondaryRoles: coach.secondaryRoles,
+    roleDisplay,
+    showTactical,
   };
 
   const plan = isPro ? "pro" : "free";
@@ -420,6 +436,10 @@ export default async function CoachPublicPage({
     const proData: CoachProData = {
       fullName: coach.fullName,
       roleTitle: coach.roleTitle,
+      primaryRole: coach.primaryRole,
+      secondaryRoles: coach.secondaryRoles,
+      roleDisplay,
+      showTactical,
       avatarUrl: coach.avatarUrl,
       heroUrl: coach.heroUrl,
       nationality: coach.nationality,
