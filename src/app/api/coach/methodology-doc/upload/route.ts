@@ -70,7 +70,10 @@ export async function POST(req: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `methodology/${coach.id}/${rubroId}/${crypto.randomUUID()}.${ext}`;
+    // El segmento 2 del path DEBE ser auth.uid() — la storage RLS de coach-media
+    // (0015a) exige (foldername)[1] o [2] = auth.uid(); coach.id ≠ user.id haría
+    // que storage rechace el upload. Mismo patrón que licenses/${user.id}, gallery/${user.id}.
+    const fileName = `methodology/${user.id}/${rubroId}/${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("coach-media")
       .upload(fileName, buffer, { contentType: mimeType, cacheControl: "31536000", upsert: false });
