@@ -27,6 +27,7 @@ import CoachFreeHeader from "./CoachFreeHeader";
 import CoachProSlot from "./CoachProSlot";
 import CoachLicenseList from "../CoachLicenseList";
 import type { CoachPortfolioData } from "../CoachPortfolio";
+import { methodologyIcon } from "@/lib/staff/methodology-icons";
 import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import { Instagram } from "@/components/icons/InstagramIcon";
 import { LinkedIn } from "@/components/icons/LinkedInIcon";
@@ -77,6 +78,8 @@ export default async function CoachFreeLayout({
         {video && <VideoFeature url={video.url} title={video.title} firstName={firstName} />}
 
         {data.career.length > 0 && <Career data={data} />}
+
+        {data.methodology.length > 0 && <Methodology data={data} />}
 
         {/* Owner: 🔒 portfolio Pro · visitante: 📣 invitación */}
         <CoachProSlot ownerUserId={ownerUserId} side="right" />
@@ -559,6 +562,47 @@ function TotalCell({
       </div>
       <CountBar delay={delay} duration={1400} />
     </div>
+  );
+}
+
+// ---------------------------------------------------------------
+// Metodología (universal — todos los oficios). Free: ≤2 rubros, sin archivos.
+// ---------------------------------------------------------------
+
+function Methodology({ data }: { data: CoachPortfolioData }) {
+  return (
+    <section id="methodology" className="border-t border-white/[0.10] px-5 py-8 md:px-10 md:py-14">
+      <div className={SECTION_INNER}>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-[200px_1fr] md:gap-10">
+          <div>
+            <Eyebrow tone="accent">Metodología</Eyebrow>
+            <h2 className="mt-2 font-bh-display text-3xl font-black uppercase leading-[0.95] text-bh-fg-1 md:text-[44px]">
+              Mi forma
+              <br />
+              de trabajo
+            </h2>
+          </div>
+          <div className="space-y-6">
+            {data.methodology.map((r) => {
+              const Icon = methodologyIcon(r.icon);
+              return (
+                <div key={r.id}>
+                  <div className="mb-1.5 flex items-center gap-2">
+                    {Icon && <Icon className="h-4 w-4 text-bh-lime" aria-hidden />}
+                    <h3 className="font-bh-display text-lg font-bold text-bh-fg-1">{r.title}</h3>
+                  </div>
+                  {r.body && (
+                    <p className="m-0 whitespace-pre-line font-body text-sm leading-[1.7] text-bh-fg-2 md:text-base">
+                      {r.body}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
 

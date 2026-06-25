@@ -23,6 +23,7 @@ import type {
   CoachLinkRow,
   CoachArticleRow,
   CoachPersonalDetailsData,
+  CoachMethodologyRubroRow,
 } from "../CoachPortfolio";
 import type { StaffRoleType } from "@/lib/staff/roles";
 
@@ -37,6 +38,8 @@ export type CoachProData = {
   // false sólo para oficios NO-DT conocidos → oculta el módulo de tácticas
   // (ideas de juego). null/legacy → true. Ver src/lib/staff/roles.ts.
   showTactical: boolean;
+  // Rubros de metodología approved (universal) + sus adjuntos (Pro).
+  methodology: CoachMethodologyRubroRow[];
   avatarUrl: string;
   heroUrl: string | null;
   nationality: string[] | null;

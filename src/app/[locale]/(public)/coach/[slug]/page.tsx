@@ -12,8 +12,10 @@ import {
   coachLicenses,
   coachLinks,
   coachPersonalDetails,
+  coachMethodologyRubros,
   agencyProfiles,
 } from "@/db/schema";
+import { docMimeFromUrl } from "@/lib/coach/methodology-data";
 import {
   getAvailableCoachLocales,
   getCoachTranslation,
@@ -38,6 +40,8 @@ import {
   type CoachLicenseRow,
   type CoachArticleRow,
   type CoachPersonalDetailsData,
+  type CoachMethodologyRubroRow,
+  type CoachMethodologyDocRow,
 } from "./components/CoachPortfolio";
 import CoachFreeLayout from "./components/free/CoachFreeLayout";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
@@ -226,6 +230,7 @@ export default async function CoachPublicPage({
     personalRow,
     proIds,
     agency,
+    rubroRows,
   ] = await Promise.all([
       db
         .select()
@@ -273,6 +278,21 @@ export default async function CoachPublicPage({
             .where(eq(agencyProfiles.id, coach.agencyId))
             .limit(1)
         : Promise.resolve([] as { name: string; slug: string }[]),
+      db
+        .select({
+          id: coachMethodologyRubros.id,
+          title: coachMethodologyRubros.title,
+          icon: coachMethodologyRubros.icon,
+          body: coachMethodologyRubros.body,
+        })
+        .from(coachMethodologyRubros)
+        .where(
+          and(
+            eq(coachMethodologyRubros.coachId, coach.id),
+            eq(coachMethodologyRubros.status, "approved"),
+          ),
+        )
+        .orderBy(asc(coachMethodologyRubros.position)),
     ]);
 
   const isPro = proIds.has(coach.userId);
@@ -366,6 +386,27 @@ export default async function CoachPublicPage({
   const roleDisplay =
     staffRolesSummary(coach.primaryRole, coach.secondaryRoles) || coach.roleTitle?.trim() || null;
 
+  // Metodología (universal). Docs salen de mediaRows (approved, type='doc' + rubro_id).
+  const methodologyDocsByRubro = new Map<string, CoachMethodologyDocRow[]>();
+  for (const m of mediaRows) {
+    if (m.type === "doc" && m.rubroId) {
+      const list = methodologyDocsByRubro.get(m.rubroId) ?? [];
+      list.push({ id: m.id, url: m.url, title: m.title, mime: docMimeFromUrl(m.url) });
+      methodologyDocsByRubro.set(m.rubroId, list);
+    }
+  }
+  const methodologyAll: CoachMethodologyRubroRow[] = rubroRows.map((r) => ({
+    id: r.id,
+    title: r.title,
+    icon: r.icon,
+    body: r.body,
+    docs: methodologyDocsByRubro.get(r.id) ?? [],
+  }));
+  // D7: Free hasta 2 rubros, sin archivos. Pro: todo.
+  const methodologyFree: CoachMethodologyRubroRow[] = methodologyAll
+    .slice(0, 2)
+    .map((r) => ({ ...r, docs: [] }));
+
   const data: CoachPortfolioData = {
     fullName: coach.fullName,
     roleTitle: coach.roleTitle,
@@ -390,6 +431,7 @@ export default async function CoachPublicPage({
     secondaryRoles: coach.secondaryRoles,
     roleDisplay,
     showTactical,
+    methodology: methodologyFree,
   };
 
   const plan = isPro ? "pro" : "free";
@@ -440,6 +482,7 @@ export default async function CoachPublicPage({
       secondaryRoles: coach.secondaryRoles,
       roleDisplay,
       showTactical,
+      methodology: methodologyAll,
       avatarUrl: coach.avatarUrl,
       heroUrl: coach.heroUrl,
       nationality: coach.nationality,

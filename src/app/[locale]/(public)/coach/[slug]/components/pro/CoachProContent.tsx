@@ -17,6 +17,7 @@
 import type { CoachProData } from "./ProCoachLayout";
 import CoachBioModule from "./modules/CoachBioModule";
 import CoachCareerTimelineModule from "./modules/CoachCareerTimelineModule";
+import StaffMethodologyModule from "./modules/StaffMethodologyModule";
 import CoachTacticsModule from "./modules/CoachTacticsModule";
 import CoachMediaGalleryModule from "./modules/CoachMediaGalleryModule";
 import CoachPressNotesModule from "./modules/CoachPressNotesModule";
@@ -44,6 +45,9 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
       />
 
       <CoachCareerTimelineModule career={data.career} stats={data.stats} accent={accent} />
+
+      {/* Metodología — universal (todos los oficios). No-op si no hay rubros. */}
+      <StaffMethodologyModule rubros={data.methodology} accent={accent} />
 
       {/* Ideas de juego / metodología táctica: sólo DT (o perfiles sin rol aún). */}
       {data.showTactical && (

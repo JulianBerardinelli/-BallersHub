@@ -163,6 +163,8 @@ export type CoachPortfolioData = {
   // ideas de juego / formaciones. null (perfil sin rol estructurado todavía) →
   // true, para no romper coaches legacy/nuevos. Ver src/lib/staff/roles.ts.
   showTactical: boolean;
+  // Rubros de metodología approved (universal). Free recibe ≤2 sin docs.
+  methodology: CoachMethodologyRubroRow[];
 };
 
 function years(r: { startYear: number | null; endYear: number | null }, present: string) {
