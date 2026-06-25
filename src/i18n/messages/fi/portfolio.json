@@ -277,7 +277,9 @@
         "played": "Pelasi",
         "sparring": "Sparraus",
         "training_camp": "Harjoitusleiri"
-      }
+      },
+      "callups": "Kutsut",
+      "scrollHint": "Pysäytä osoittamalla · selaa tutkiaksesi"
     }
   },
   "pro": {

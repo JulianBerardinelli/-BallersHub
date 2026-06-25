@@ -277,7 +277,9 @@
         "played": "Gespielt",
         "sparring": "Sparring",
         "training_camp": "Trainingslager"
-      }
+      },
+      "callups": "Nominierungen",
+      "scrollHint": "Zum Pausieren überfahren · zum Erkunden scrollen"
     }
   },
   "pro": {

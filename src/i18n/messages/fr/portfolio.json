@@ -277,7 +277,9 @@
         "played": "A joué",
         "sparring": "Sparring",
         "training_camp": "Stage"
-      }
+      },
+      "callups": "Convocations",
+      "scrollHint": "Survolez pour mettre en pause · faites défiler pour explorer"
     }
   },
   "pro": {

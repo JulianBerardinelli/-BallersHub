@@ -16,7 +16,13 @@ import ProfileNationalTeamModule from "./ProfileNationalTeamModule";
 // Módulo Pro "Selección Nacional". Async server component (mismo patrón que
 // CareerTimelineModule). Solo muestra etapas APROBADAS + fotos APROBADAS.
 // Si el jugador no tiene etapas aprobadas, no renderiza nada.
-export default async function NationalTeamModule({ playerId }: { playerId: string }) {
+export default async function NationalTeamModule({
+  playerId,
+  playerName,
+}: {
+  playerId: string;
+  playerName: string;
+}) {
   const [stints, media] = await Promise.all([
     db
       .select()
@@ -96,10 +102,13 @@ export default async function NationalTeamModule({ playerId }: { playerId: strin
       <ProfileNationalTeamModule
         stints={shaped}
         photos={photos}
+        playerName={playerName}
         labels={{
           title: t("modules.nationalTeam.title"),
           subtitle: t("modules.nationalTeam.subtitle"),
           current: t("modules.nationalTeam.current"),
+          callups: t("modules.nationalTeam.callups"),
+          scrollHint: t("modules.nationalTeam.scrollHint"),
           ageCategory: ageCategoryLabels,
           participation: participationLabels,
         }}
