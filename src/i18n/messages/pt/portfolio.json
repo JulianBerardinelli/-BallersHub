@@ -277,7 +277,9 @@
         "played": "Jogou",
         "sparring": "Sparring",
         "training_camp": "Concentração"
-      }
+      },
+      "callups": "Convocações",
+      "scrollHint": "Passe o cursor para pausar · role para explorar"
     }
   },
   "pro": {
