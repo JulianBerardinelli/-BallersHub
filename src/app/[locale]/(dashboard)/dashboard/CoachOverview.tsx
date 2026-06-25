@@ -72,7 +72,7 @@ export default function CoachOverview({
             <p className="mt-1 font-bh-mono text-[12px] text-bh-fg-3">/coach/{profile.slug}</p>
           </div>
           <Link
-            href={`/coach/${profile.slug}`}
+            href={`/staff/${profile.slug}`}
             target="_blank"
             rel="noreferrer"
             className="inline-flex shrink-0 items-center justify-center rounded-bh-pill bg-bh-lime px-4 py-2 text-[13px] font-semibold text-bh-black hover:bg-[#d8ff26]"

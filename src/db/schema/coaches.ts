@@ -1,7 +1,7 @@
 // coach_profiles
 import { pgTable, uuid, text, timestamp, integer, date, char } from "drizzle-orm/pg-core";
 import { agencyProfiles } from "./agencies";
-import { playerStatusEnum, visibilityEnum, planEnum } from "./enums";
+import { playerStatusEnum, visibilityEnum, planEnum, staffRoleTypeEnum } from "./enums";
 import { teams } from "./teams";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
@@ -14,7 +14,15 @@ export const coachProfiles = pgTable("coach_profiles", {
   nationality: text("nationality").array(),
   nationalityCodes: char("nationality_codes", { length: 2 }).array(),
   // 👇 cargo del cuerpo técnico: "Director Técnico" / "Asistente" / etc.
+  // LEGACY texto libre — fuente de verdad pasa a primary_role/secondary_roles.
   roleTitle: text("role_title"),
+  // 👇 roles estructurados del staff (taxonomía de 13 oficios). `primary_role`
+  // gobierna el fork de layout (head-coach → DT). NULL transitorio hasta backfill
+  // (3 filas en prod, ver docs/staff/PLAN.md §7). Máx 2 secundarios (validado en action).
+  primaryRole: staffRoleTypeEnum("primary_role"),
+  secondaryRoles: staffRoleTypeEnum("secondary_roles").array(),
+  // Sabor libre opcional para el front, ej "DT principal de la cantera".
+  roleTitleCustom: text("role_title_custom"),
   coachingSince: integer("coaching_since"), // año de inicio
   currentClub: text("current_club"), // legado (texto libre)
   // 👇 team relacional opcional

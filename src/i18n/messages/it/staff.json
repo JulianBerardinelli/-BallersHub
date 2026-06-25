@@ -1,0 +1,25 @@
+{
+  "roles": {
+    "head_coach": "Allenatore",
+    "assistant_head_coach": "Vice Allenatore",
+    "assistant_coach": "Allenatore in Seconda",
+    "fitness_coach": "Preparatore Atletico",
+    "rehab_physio": "Riabilitatore / Fisioterapista",
+    "goalkeeping_coach": "Allenatore dei Portieri",
+    "set_piece_coach": "Allenatore Palle Inattive",
+    "tactical_analyst": "Analista Tattico",
+    "data_analyst": "Analista Dati",
+    "scouting": "Scouting",
+    "sporting_director": "Direttore Sportivo",
+    "academy_coordinator": "Coordinatore Settore Giovanile",
+    "methodology_director": "Direttore Metodologico"
+  },
+  "groups": {
+    "cuerpo_tecnico": "Staff Tecnico",
+    "especialistas": "Specialisti"
+  },
+  "methodology": {
+    "eyebrow": "Metodologia",
+    "freeHeading": "Il mio metodo di lavoro"
+  }
+}

@@ -134,6 +134,27 @@
       "when": 1782335252850,
       "tag": "0018_swift_baron_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1782340521972,
+      "tag": "0019_chilly_cannonball",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1782420687557,
+      "tag": "0020_lumpy_wither",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1782428785129,
+      "tag": "0021_worried_wonder_man",
+      "breakpoints": true
     }
   ]
 }

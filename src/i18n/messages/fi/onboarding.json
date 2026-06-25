@@ -31,11 +31,11 @@
         "description": "Hallinnoi kokoonpanoasi, vahvista profiileja ja edusta lahjakkuuksia."
       },
       "staff": {
-        "title": "Olen valmentaja / skautti / johtaja",
+        "title": "Valmennustiimi / skautti / johtaja",
         "comingSoon": "Tulossa pian."
       },
       "coach": {
-        "title": "Olen valmentaja",
+        "title": "Valmennustiimi",
         "description": "Esittele uraasi, lisenssejäsi ja johda seuraavaa projektiasi."
       },
       "later": "Teen sen myöhemmin"

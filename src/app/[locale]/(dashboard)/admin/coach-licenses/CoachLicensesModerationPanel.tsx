@@ -86,7 +86,7 @@ export default function CoachLicensesModerationPanel({
                       <>
                         {" · "}
                         <Link
-                          href={`/coach/${l.slug}`}
+                          href={`/staff/${l.slug}`}
                           target="_blank"
                           className="font-bh-mono hover:text-bh-lime"
                         >

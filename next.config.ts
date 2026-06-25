@@ -2,6 +2,18 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
+  // Rebrand del portfolio público de la vertical staff: /coach/[slug] → /staff/[slug].
+  // El regex de locale evita pisar /dashboard/coach/* (rutas internas no movidas).
+  async redirects() {
+    return [
+      { source: "/coach/:slug", destination: "/staff/:slug", permanent: true },
+      {
+        source: "/:locale(en|it|pt|de|fr|fi)/coach/:slug",
+        destination: "/:locale/staff/:slug",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       // Match any Supabase project hostname (prod main + dev branches).

@@ -23,7 +23,7 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Onboarding",
     items: [
       { href: "/admin/applications", label: "Solicitudes de Jugadores", roles: ["admin"] },
-      { href: "/admin/coach-applications", label: "Solicitudes de DTs", roles: ["admin"] },
+      { href: "/admin/coach-applications", label: "Solicitudes de Staff", roles: ["admin"] },
       { href: "/admin/manager-applications", label: "Verificación Managers", roles: ["admin"] },
       { href: "/admin/career", label: "Trayectorias pendientes", roles: ["admin", "analyst"] },
       { href: "/admin/agency-team-proposals", label: "Equipos de Agencias", roles: ["admin", "analyst"] },
@@ -39,12 +39,13 @@ const NAV_SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Entrenadores",
+    title: "Cuerpo Técnico",
     items: [
-      { href: "/admin/coaches", label: "Directorio de DTs", roles: ["admin"] },
-      { href: "/admin/coach-career-revisions", label: "Trayectorias DTs", roles: ["admin", "analyst"] },
-      { href: "/admin/coach-media", label: "Multimedia DTs", roles: ["admin", "moderator"] },
-      { href: "/admin/coach-licenses", label: "Licencias DTs", roles: ["admin", "moderator"] },
+      { href: "/admin/coaches", label: "Directorio de Staff", roles: ["admin"] },
+      { href: "/admin/coach-career-revisions", label: "Trayectorias Staff", roles: ["admin", "analyst"] },
+      { href: "/admin/coach-media", label: "Multimedia Staff", roles: ["admin", "moderator"] },
+      { href: "/admin/coach-licenses", label: "Licencias Staff", roles: ["admin", "moderator"] },
+      { href: "/admin/coach-methodology", label: "Metodología Staff", roles: ["admin", "moderator"] },
     ],
   },
   {

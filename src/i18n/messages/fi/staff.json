@@ -1,0 +1,25 @@
+{
+  "roles": {
+    "head_coach": "Päävalmentaja",
+    "assistant_head_coach": "Apulaisvalmentaja",
+    "assistant_coach": "Apuvalmentaja",
+    "fitness_coach": "Fysiikkavalmentaja",
+    "rehab_physio": "Kuntoutus / Fysioterapeutti",
+    "goalkeeping_coach": "Maalivahtivalmentaja",
+    "set_piece_coach": "Erikoistilannevalmentaja",
+    "tactical_analyst": "Taktiikka-analyytikko",
+    "data_analyst": "Data-analyytikko",
+    "scouting": "Skouttaus",
+    "sporting_director": "Urheilujohtaja",
+    "academy_coordinator": "Junioripäällikkö",
+    "methodology_director": "Metodologiajohtaja"
+  },
+  "groups": {
+    "cuerpo_tecnico": "Valmennustiimi",
+    "especialistas": "Erikoisasiantuntijat"
+  },
+  "methodology": {
+    "eyebrow": "Metodologia",
+    "freeHeading": "Työtapani"
+  }
+}

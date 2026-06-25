@@ -4,6 +4,7 @@ import { coachProfiles } from "./coaches";
 import { coachApplications } from "./coachApplications";
 import { teams } from "./teams";
 import { divisions } from "./divisions";
+import { staffRoleTypeEnum } from "./enums";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const coachCareerItems = pgTable("coach_career_items", {
@@ -12,7 +13,10 @@ export const coachCareerItems = pgTable("coach_career_items", {
   teamId: uuid("team_id").references(() => teams.id, { onDelete: "set null" }), // 👈 FK
   club: text("club").notNull(),                // nombre libre legacy (mantener por ahora)
   // Cargo del DT en esa etapa, ej "DT principal", "Asistente técnico".
+  // LEGACY texto libre (la gente ya mete varios roles con "/"); `roles[]` es la verdad estructurada.
   roleTitle: text("role_title"),
+  // Roles estructurados ocupados en esta etapa (máx 3, validado en action).
+  roles: staffRoleTypeEnum("roles").array(),
   division: text("division"),
   divisionId: uuid("division_id").references(() => divisions.id, { onDelete: "set null" }),
   // Categoría/liga adicional opcional para etapas que en el mismo club
@@ -36,6 +40,8 @@ export const coachCareerItemProposals = pgTable("coach_career_item_proposals", {
   club: text("club").notNull(),
   // Cargo del DT en esa etapa (espejo de coach_career_items.role_title).
   roleTitle: text("role_title"),
+  // Roles estructurados propuestos para esta etapa (espejo de coach_career_items.roles).
+  roles: staffRoleTypeEnum("roles").array(),
   division: text("division"),
   divisionId: uuid("division_id").references(() => divisions.id, { onDelete: "set null" }),
   secondaryDivisionId: uuid("secondary_division_id").references(() => divisions.id, { onDelete: "set null" }), // categoría/liga adicional opcional

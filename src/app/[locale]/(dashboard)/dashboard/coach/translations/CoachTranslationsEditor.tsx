@@ -8,7 +8,9 @@ import FormField from "@/components/dashboard/client/FormField";
 import {
   saveCoachTranslation,
   deleteCoachTranslation,
+  saveCoachRubroTranslations,
   type CoachTranslationInput,
+  type CoachRubroTranslationsInput,
   type CoachTranslationActionResult,
 } from "@/app/actions/coach-translations";
 
@@ -21,6 +23,16 @@ export type CoachLocaleFields = {
   methodologyAnalysis: string;
   analysisAuthor: string;
 };
+
+// Rubro de metodología para traducir: fuente es (title/body) + traducciones
+// existentes por locale. Las claves de `translations` son locales (en/it/...).
+export type RubroForTranslation = {
+  id: string;
+  title: string;
+  body: string;
+  translations: Record<string, { title: string; body: string }>;
+};
+type RubroDraft = { title: string; body: string };
 
 const LOCALE_LABELS: Record<CoachTranslatableLocale, string> = {
   en: "Inglés",
@@ -52,19 +64,24 @@ export default function CoachTranslationsEditor({
   coachName,
   source,
   translations,
+  rubros = [],
   localeLimit,
   saveAction = saveCoachTranslation,
   deleteAction = deleteCoachTranslation,
+  saveRubrosAction = saveCoachRubroTranslations,
 }: {
   coachName: string;
   source: CoachLocaleFields;
   translations: Record<CoachTranslatableLocale, CoachLocaleFields>;
+  /** Rubros de metodología a traducir (contenido multi-fila). */
+  rubros?: RubroForTranslation[];
   /** Max PUBLISHED locales (es included) — 4 by default, more for the unlimited
    *  allowlist. Once full, un-published locales lock so a save can't be wasted. */
   localeLimit: number;
   /** Save action — defaults to the owner's. Admin injects a service-role one. */
   saveAction?: (input: CoachTranslationInput) => Promise<CoachTranslationActionResult>;
   deleteAction?: (locale: CoachTranslatableLocale) => Promise<CoachTranslationActionResult>;
+  saveRubrosAction?: (input: CoachRubroTranslationsInput) => Promise<CoachTranslationActionResult>;
 }) {
   const router = useRouter();
   // Open on a language that's already published when there is one, so a capped
@@ -74,6 +91,16 @@ export default function CoachTranslationsEditor({
   );
   const [drafts, setDrafts] =
     React.useState<Record<CoachTranslatableLocale, CoachLocaleFields>>(translations);
+  const [rubroDrafts, setRubroDrafts] = React.useState<
+    Record<CoachTranslatableLocale, Record<string, RubroDraft>>
+  >(() => {
+    const out = {} as Record<CoachTranslatableLocale, Record<string, RubroDraft>>;
+    for (const loc of LOCALE_KEYS) {
+      out[loc] = {};
+      for (const r of rubros) out[loc][r.id] = r.translations[loc] ?? { title: "", body: "" };
+    }
+    return out;
+  });
   const [saving, setSaving] = React.useState(false);
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
 
@@ -92,10 +119,38 @@ export default function CoachTranslationsEditor({
     setDrafts((prev) => ({ ...prev, [active]: { ...prev[active], [key]: value } }));
   }
 
+  function patchRubro(rubroId: string, key: keyof RubroDraft, value: string) {
+    setRubroDrafts((prev) => ({
+      ...prev,
+      [active]: {
+        ...prev[active],
+        [rubroId]: { ...(prev[active][rubroId] ?? { title: "", body: "" }), [key]: value },
+      },
+    }));
+  }
+
+  async function persistRubros(): Promise<CoachTranslationActionResult> {
+    if (rubros.length === 0) return { success: true };
+    const items = rubros.map((r) => ({
+      rubroId: r.id,
+      title: rubroDrafts[active][r.id]?.title?.trim() || null,
+      body: rubroDrafts[active][r.id]?.body?.trim() || null,
+    }));
+    return saveRubrosAction({ locale: active, items });
+  }
+
   async function onSave() {
     setSaving(true);
     setMsg(null);
     const res = await saveAction({ locale: active, ...current });
+    if (res.success) {
+      const rres = await persistRubros();
+      if (!rres.success) {
+        setSaving(false);
+        setMsg({ ok: false, text: rres.message ?? "No se pudieron guardar los rubros." });
+        return;
+      }
+    }
     setSaving(false);
     if (res.success) {
       setMsg({
@@ -126,6 +181,17 @@ export default function CoachTranslationsEditor({
           analysisAuthor: "",
         },
       }));
+      // Despublicar también borra las traducciones de rubros de ese locale.
+      if (rubros.length > 0) {
+        setRubroDrafts((prev) => ({
+          ...prev,
+          [active]: Object.fromEntries(rubros.map((r) => [r.id, { title: "", body: "" }])),
+        }));
+        await saveRubrosAction({
+          locale: active,
+          items: rubros.map((r) => ({ rubroId: r.id, title: null, body: null })),
+        });
+      }
       setMsg({ ok: true, text: `Se despublicó la versión en ${LOCALE_LABELS[active].toLowerCase()}.` });
       router.refresh();
     } else {
@@ -216,6 +282,42 @@ export default function CoachTranslationsEditor({
           </div>
         ))}
       </div>
+
+      {rubros.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="font-bh-display text-sm font-bold uppercase tracking-[0.08em] text-bh-fg-3">
+            Metodología · rubros
+          </h3>
+          {rubros.map((r) => (
+            <div
+              key={r.id}
+              className="grid gap-3 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-4"
+            >
+              {(r.title || r.body) && (
+                <p className="rounded-bh-sm border border-white/[0.06] bg-bh-surface-2 px-3 py-2 text-[11px] leading-[1.5] text-bh-fg-4">
+                  <span className="font-semibold uppercase tracking-[0.08em] text-bh-fg-3">ES · </span>
+                  {r.title}
+                  {r.body ? ` — ${r.body}` : ""}
+                </p>
+              )}
+              <FormField
+                id={`rubro-tr-${active}-${r.id}-title`}
+                label="Título del rubro"
+                value={rubroDrafts[active][r.id]?.title ?? ""}
+                onValueChange={(v) => patchRubro(r.id, "title", v)}
+              />
+              <FormField
+                id={`rubro-tr-${active}-${r.id}-body`}
+                as="textarea"
+                rows={3}
+                label="Descripción"
+                value={rubroDrafts[active][r.id]?.body ?? ""}
+                onValueChange={(v) => patchRubro(r.id, "body", v)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       {msg && (
         <p className={`text-sm ${msg.ok ? "text-bh-success" : "text-bh-danger"}`}>{msg.text}</p>

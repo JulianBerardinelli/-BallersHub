@@ -91,7 +91,7 @@ export default function CoachMediaModerationPanel({ items }: { items: PendingCoa
                 <p className="text-[13px] font-semibold text-bh-fg-1">{m.coachName}</p>
                 {m.slug && (
                   <Link
-                    href={`/coach/${m.slug}`}
+                    href={`/staff/${m.slug}`}
                     target="_blank"
                     className="font-bh-mono text-[11px] text-bh-fg-4 hover:text-bh-lime"
                   >

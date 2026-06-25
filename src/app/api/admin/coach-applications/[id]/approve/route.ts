@@ -131,6 +131,9 @@ export async function POST(req: Request, ctx: { params: Params }) {
       birth_date: overrides.birth_date ?? app.birth_date ?? fallbackBirth ?? null,
       transfermarkt_url: overrides.transfermarkt_url ?? app.transfermarkt_url ?? null,
       nationality_codes: nationalityCodes,
+      // Roles estructurados elegidos en el onboarding (el RPC sólo setea role_title).
+      primary_role: app.primary_role ?? null,
+      secondary_roles: app.secondary_roles ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", coachId);

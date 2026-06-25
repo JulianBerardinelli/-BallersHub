@@ -17,6 +17,7 @@
 import type { CoachProData } from "./ProCoachLayout";
 import CoachBioModule from "./modules/CoachBioModule";
 import CoachCareerTimelineModule from "./modules/CoachCareerTimelineModule";
+import StaffMethodologyModule from "./modules/StaffMethodologyModule";
 import CoachTacticsModule from "./modules/CoachTacticsModule";
 import CoachMediaGalleryModule from "./modules/CoachMediaGalleryModule";
 import CoachPressNotesModule from "./modules/CoachPressNotesModule";
@@ -33,7 +34,7 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
         bio={data.bio}
         accent={accent}
         fullName={data.fullName}
-        roleTitle={data.roleTitle}
+        roleTitle={data.roleDisplay ?? data.roleTitle}
         avatarUrl={data.avatarUrl}
         nationalityCodes={data.nationalityCodes}
         currentClub={data.currentClub}
@@ -45,13 +46,19 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
 
       <CoachCareerTimelineModule career={data.career} stats={data.stats} accent={accent} />
 
-      <CoachTacticsModule
-        methodologyAnalysis={data.methodologyAnalysis}
-        playingStyle={data.playingStyle}
-        preferredFormations={data.preferredFormations}
-        videos={videos}
-        accent={accent}
-      />
+      {/* Metodología — universal (todos los oficios). No-op si no hay rubros. */}
+      <StaffMethodologyModule rubros={data.methodology} accent={accent} />
+
+      {/* Ideas de juego / metodología táctica: sólo DT (o perfiles sin rol aún). */}
+      {data.showTactical && (
+        <CoachTacticsModule
+          methodologyAnalysis={data.methodologyAnalysis}
+          playingStyle={data.playingStyle}
+          preferredFormations={data.preferredFormations}
+          videos={videos}
+          accent={accent}
+        />
+      )}
 
       <CoachMediaGalleryModule photos={photos} coachName={data.fullName} />
 

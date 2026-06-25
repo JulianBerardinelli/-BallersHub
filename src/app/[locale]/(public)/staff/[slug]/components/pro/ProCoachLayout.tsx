@@ -23,12 +23,23 @@ import type {
   CoachLinkRow,
   CoachArticleRow,
   CoachPersonalDetailsData,
+  CoachMethodologyRubroRow,
 } from "../CoachPortfolio";
+import type { StaffRoleType } from "@/lib/staff/roles";
 
 export type CoachProData = {
   fullName: string;
   slug: string;
   roleTitle: string | null;
+  // Roles estructurados del staff (label combinado ya resuelto en el server).
+  primaryRole: StaffRoleType | null;
+  secondaryRoles: StaffRoleType[] | null;
+  roleDisplay: string | null;
+  // false sólo para oficios NO-DT conocidos → oculta el módulo de tácticas
+  // (ideas de juego). null/legacy → true. Ver src/lib/staff/roles.ts.
+  showTactical: boolean;
+  // Rubros de metodología approved (universal) + sus adjuntos (Pro).
+  methodology: CoachMethodologyRubroRow[];
   avatarUrl: string;
   heroUrl: string | null;
   nationality: string[] | null;
@@ -82,7 +93,7 @@ export default function ProCoachLayout({ data }: { data: CoachProData }) {
 
   const firstName = data.fullName.split(" ")[0] || "";
   const lastName = data.fullName.split(" ").slice(1).join(" ") || data.fullName;
-  const role = data.roleTitle?.trim() || "Director Técnico";
+  const role = data.roleDisplay?.trim() || data.roleTitle?.trim() || "Cuerpo Técnico";
   const codes = (data.nationalityCodes ?? []).slice(0, 3);
 
   const nameVariants = {

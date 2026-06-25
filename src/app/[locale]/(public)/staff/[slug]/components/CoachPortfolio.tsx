@@ -12,6 +12,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import CoachLicenseList from "./CoachLicenseList";
+import type { StaffRoleType } from "@/lib/staff/roles";
 
 export type CoachCareerRow = {
   id: string;
@@ -38,6 +39,22 @@ export type CoachLicenseRow = {
 };
 
 export type CoachLinkRow = { label: string | null; url: string; kind: string };
+
+// Módulo Metodología (universal, todos los oficios). Sólo se pasan rubros
+// approved; los docs sólo en Pro (Free los descarta). Ver docs/staff/PLAN.md §5.
+export type CoachMethodologyDocRow = {
+  id: string;
+  url: string;
+  title: string | null;
+  mime: "pdf" | "ppt" | "pptx" | "file";
+};
+export type CoachMethodologyRubroRow = {
+  id: string;
+  title: string;
+  icon: string | null;
+  body: string | null;
+  docs: CoachMethodologyDocRow[];
+};
 
 export type CoachStatRow = {
   id: string;
@@ -137,6 +154,17 @@ export type CoachPortfolioData = {
   media: CoachMediaRow[];
   links: CoachLinkRow[];
   isPro: boolean;
+  // Roles estructurados del staff. `roleDisplay` es el label combinado
+  // (principal · secundarios) ya resuelto en el server (es nativo).
+  primaryRole: StaffRoleType | null;
+  secondaryRoles: StaffRoleType[] | null;
+  roleDisplay: string | null;
+  // false SÓLO cuando el rol principal es un oficio NO-DT conocido → oculta
+  // ideas de juego / formaciones. null (perfil sin rol estructurado todavía) →
+  // true, para no romper coaches legacy/nuevos. Ver src/lib/staff/roles.ts.
+  showTactical: boolean;
+  // Rubros de metodología approved (universal). Free recibe ≤2 sin docs.
+  methodology: CoachMethodologyRubroRow[];
 };
 
 function years(r: { startYear: number | null; endYear: number | null }, present: string) {
@@ -172,7 +200,7 @@ export default async function CoachPortfolio({ data }: { data: CoachPortfolioDat
             {lastName && <span className="block text-bh-lime">{lastName}</span>}
           </h1>
           <p className="mt-2 text-sm font-medium text-bh-fg-2">
-            {data.roleTitle || "Director Técnico"}
+            {data.roleTitle || "Cuerpo Técnico"}
             {data.currentClub ? ` · ${data.currentClub}` : ""}
           </p>
           <p className="mt-1 text-xs text-bh-fg-4">

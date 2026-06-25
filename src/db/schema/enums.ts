@@ -15,6 +15,29 @@ export const playerStatusEnum = pgEnum("player_status", ["draft","pending_review
 // case zero-friction; women explicitly pick `female` during onboarding.
 export const genderEnum = pgEnum("gender", ["male","female","unspecified"]);
 
+// Staff role taxonomy (the 13 "oficios" del cuerpo técnico). Distinct from the
+// auth `role` enum (member/player/coach/...) — that's the permissions axis; this
+// is the job-title axis for the staff vertical. `head_coach`/`assistant_head_coach`/
+// `assistant_coach` are the head-coach group that unlocks the DT layout (Ideas de
+// Juego); the rest get the universal layout. Used by `coach_profiles.primary_role`
+// + `secondary_roles[]` and `coach_career_items.roles[]`. See docs/staff/PLAN.md §3.
+export const staffRoleTypeEnum = pgEnum("staff_role_type", [
+  "head_coach",
+  "assistant_head_coach",
+  "assistant_coach",
+  "fitness_coach",
+  "rehab_physio",
+  "goalkeeping_coach",
+  "set_piece_coach",
+  "tactical_analyst",
+  "data_analyst",
+  "scouting",
+  "sporting_director",
+  "academy_coordinator",
+  "methodology_director",
+]);
+export type StaffRoleType = (typeof staffRoleTypeEnum.enumValues)[number];
+
 export const teamStatusEnum = pgEnum("team_status", ["pending","approved","rejected"]);
 export const divisionStatusEnum = pgEnum("division_status", ["pending","approved","rejected"]);
 export const teamKindEnum = pgEnum("team_kind", ["club","national","academy","amateur"]);

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import CoachApplicationsPanel from "./CoachApplicationsPanel";
 
 export const metadata = {
-  title: "Solicitudes de DTs (Pendientes) - Ballers Hub",
+  title: "Solicitudes de Staff (Pendientes) - Ballers Hub",
 };
 
 export const dynamic = "force-dynamic";

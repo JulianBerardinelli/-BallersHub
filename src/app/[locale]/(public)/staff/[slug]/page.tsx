@@ -12,13 +12,16 @@ import {
   coachLicenses,
   coachLinks,
   coachPersonalDetails,
+  coachMethodologyRubros,
   agencyProfiles,
 } from "@/db/schema";
+import { docMimeFromUrl } from "@/lib/coach/methodology-data";
 import {
   getAvailableCoachLocales,
   getCoachTranslation,
   mergeCoachContent,
   getCoachHonourTranslations,
+  getCoachMethodologyRubroTranslations,
   type ContentLocale,
 } from "@/lib/i18n/profile-content";
 import { resolveProUserIds, FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
@@ -27,6 +30,8 @@ import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
+import { isHeadCoachLayout, staffRolesSummary } from "@/lib/staff/roles";
+import { getTranslations } from "next-intl/server";
 import {
   computeCoachRecord,
   type CoachPortfolioData,
@@ -37,6 +42,8 @@ import {
   type CoachLicenseRow,
   type CoachArticleRow,
   type CoachPersonalDetailsData,
+  type CoachMethodologyRubroRow,
+  type CoachMethodologyDocRow,
 } from "./components/CoachPortfolio";
 import CoachFreeLayout from "./components/free/CoachFreeLayout";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
@@ -51,7 +58,7 @@ type RouteParams = { locale: string; slug: string };
 const yearOf = (d: string | null) => (d ? Number(String(d).slice(0, 4)) || null : null);
 
 function roleLabel(roleTitle: string | null): string {
-  return roleTitle?.trim() || "Director Técnico";
+  return roleTitle?.trim() || "Cuerpo Técnico";
 }
 
 function buildDescription(opts: {
@@ -93,6 +100,8 @@ export async function generateMetadata({
       userId: coachProfiles.userId,
       fullName: coachProfiles.fullName,
       roleTitle: coachProfiles.roleTitle,
+      primaryRole: coachProfiles.primaryRole,
+      secondaryRoles: coachProfiles.secondaryRoles,
       currentClub: coachProfiles.currentClub,
       bio: coachProfiles.bio,
       avatarUrl: coachProfiles.avatarUrl,
@@ -124,12 +133,19 @@ export async function generateMetadata({
     softNoindex = !proIds.has(coach.userId);
   }
 
-  const { canonical, languages } = conditionalAlternates(locale, `/coach/${slug}`, available);
+  const { canonical, languages } = conditionalAlternates(locale, `/staff/${slug}`, available);
   const noindex = !thisLocaleExists || softNoindex;
 
+  const tStaffMeta = await getTranslations({ locale, namespace: "staff" });
+  const roleForTitle =
+    staffRolesSummary(
+      coach.primaryRole,
+      coach.secondaryRoles,
+      tStaffMeta as unknown as (key: string) => string,
+    ) || roleLabel(coach.roleTitle);
   const title = [
     coach.fullName,
-    roleLabel(coach.roleTitle),
+    roleForTitle,
     coach.currentClub,
   ]
     .filter(Boolean)
@@ -195,7 +211,7 @@ export default async function CoachPublicPage({
   // (never serve fallback-ES under a foreign prefix). ES always exists.
   const available = await getAvailableCoachLocales(coach.id);
   if (locale !== "es" && !available.includes(locale as ContentLocale)) {
-    redirect(`/coach/${slug}`);
+    redirect(`/staff/${slug}`);
   }
 
   const translation = await getCoachTranslation(coach.id, locale);
@@ -221,6 +237,7 @@ export default async function CoachPublicPage({
     personalRow,
     proIds,
     agency,
+    rubroRows,
   ] = await Promise.all([
       db
         .select()
@@ -268,6 +285,21 @@ export default async function CoachPublicPage({
             .where(eq(agencyProfiles.id, coach.agencyId))
             .limit(1)
         : Promise.resolve([] as { name: string; slug: string }[]),
+      db
+        .select({
+          id: coachMethodologyRubros.id,
+          title: coachMethodologyRubros.title,
+          icon: coachMethodologyRubros.icon,
+          body: coachMethodologyRubros.body,
+        })
+        .from(coachMethodologyRubros)
+        .where(
+          and(
+            eq(coachMethodologyRubros.coachId, coach.id),
+            eq(coachMethodologyRubros.status, "approved"),
+          ),
+        )
+        .orderBy(asc(coachMethodologyRubros.position)),
     ]);
 
   const isPro = proIds.has(coach.userId);
@@ -354,6 +386,49 @@ export default async function CoachPublicPage({
       }
     : null;
 
+  // Roles estructurados (staff) + fork de layout. primary_role null →
+  // showTactical=true (no rompe coaches sin rol todavía); oculta las secciones
+  // DT (ideas de juego / formaciones) sólo en oficios NO-DT conocidos.
+  const showTactical = coach.primaryRole == null || isHeadCoachLayout(coach.primaryRole);
+  const tStaffRoles = await getTranslations({ locale, namespace: "staff" });
+  const roleDisplay =
+    staffRolesSummary(
+      coach.primaryRole,
+      coach.secondaryRoles,
+      tStaffRoles as unknown as (key: string) => string,
+    ) ||
+    coach.roleTitle?.trim() ||
+    null;
+
+  // Metodología (universal). Docs salen de mediaRows (approved, type='doc' + rubro_id).
+  const methodologyDocsByRubro = new Map<string, CoachMethodologyDocRow[]>();
+  for (const m of mediaRows) {
+    if (m.type === "doc" && m.rubroId) {
+      const list = methodologyDocsByRubro.get(m.rubroId) ?? [];
+      list.push({ id: m.id, url: m.url, title: m.title, mime: docMimeFromUrl(m.url) });
+      methodologyDocsByRubro.set(m.rubroId, list);
+    }
+  }
+  // Traducciones por-perfil de los rubros (es fallback). Mismo modelo que honours.
+  const rubroTr = await getCoachMethodologyRubroTranslations(
+    rubroRows.map((r) => r.id),
+    locale,
+  );
+  const methodologyAll: CoachMethodologyRubroRow[] = rubroRows.map((r) => {
+    const tr = rubroTr.get(r.id);
+    return {
+      id: r.id,
+      title: tr?.title?.trim() ? tr.title : r.title,
+      icon: r.icon,
+      body: tr?.body?.trim() ? tr.body : r.body,
+      docs: methodologyDocsByRubro.get(r.id) ?? [],
+    };
+  });
+  // D7: Free hasta 2 rubros, sin archivos. Pro: todo.
+  const methodologyFree: CoachMethodologyRubroRow[] = methodologyAll
+    .slice(0, 2)
+    .map((r) => ({ ...r, docs: [] }));
+
   const data: CoachPortfolioData = {
     fullName: coach.fullName,
     roleTitle: coach.roleTitle,
@@ -374,6 +449,11 @@ export default async function CoachPublicPage({
     media,
     links,
     isPro,
+    primaryRole: coach.primaryRole,
+    secondaryRoles: coach.secondaryRoles,
+    roleDisplay,
+    showTactical,
+    methodology: methodologyFree,
   };
 
   const plan = isPro ? "pro" : "free";
@@ -420,6 +500,11 @@ export default async function CoachPublicPage({
     const proData: CoachProData = {
       fullName: coach.fullName,
       roleTitle: coach.roleTitle,
+      primaryRole: coach.primaryRole,
+      secondaryRoles: coach.secondaryRoles,
+      roleDisplay,
+      showTactical,
+      methodology: methodologyAll,
       avatarUrl: coach.avatarUrl,
       heroUrl: coach.heroUrl,
       nationality: coach.nationality,
@@ -446,7 +531,7 @@ export default async function CoachPublicPage({
       themeBackgroundColor: coach.themeBackgroundColor,
       localeSwitch:
         available.length > 1
-          ? { available, current: locale, basePath: `/coach/${slug}` }
+          ? { available, current: locale, basePath: `/staff/${slug}` }
           : undefined,
     };
     const themeBg = coach.themeBackgroundColor || "#050505";
@@ -479,7 +564,7 @@ export default async function CoachPublicPage({
     <>
       <CoachJsonLd coach={jsonLd} plan={plan} locale={locale} />
       {available.length > 1 && (
-        <PortfolioLocaleSwitcher basePath={`/coach/${slug}`} available={available} current={locale} />
+        <PortfolioLocaleSwitcher basePath={`/staff/${slug}`} available={available} current={locale} />
       )}
       <CoachFreeLayout data={data} ownerUserId={coach.userId} />
     </>

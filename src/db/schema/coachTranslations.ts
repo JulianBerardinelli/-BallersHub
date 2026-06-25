@@ -30,6 +30,7 @@ import {
 import { sql } from "drizzle-orm";
 import { coachProfiles } from "./coaches";
 import { coachHonours } from "./coachPublishing";
+import { coachMethodologyRubros } from "./coachMethodology";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 // Allowed locales — kept as a text CHECK (not a pgEnum) so adding a locale
@@ -102,6 +103,43 @@ export type CoachHonourTranslation = InferSelectModel<
 >;
 export type NewCoachHonourTranslation = InferInsertModel<
   typeof coachHonourTranslations
+>;
+
+// -------------------- coach_methodology_rubro_translations --------------------
+//
+// Overrides per-locale de los rubros de Metodología (contenido multi-fila, como
+// honours). La fila base vive en coach_methodology_rubros; sólo title + body son
+// traducibles (icon/position/status son locale-agnósticos). Existencia de fila
+// (rubro, locale) = ese rubro está localizado en ese idioma; falta → fallback es.
+// RLS + GRANTs en el SQL complementario (igual que coach_honour_translations).
+
+export const coachMethodologyRubroTranslations = pgTable(
+  "coach_methodology_rubro_translations",
+  {
+    rubroId: uuid("rubro_id")
+      .notNull()
+      .references(() => coachMethodologyRubros.id, { onDelete: "cascade" }),
+    locale: text("locale").notNull(),
+    title: text("title"),
+    body: text("body"),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (t) => ({
+    pk: primaryKey({ columns: [t.rubroId, t.locale] }),
+    localeCheck: check(
+      "coach_methodology_rubro_translations_locale_check",
+      LOCALE_CHECK,
+    ),
+  }),
+);
+
+export type CoachMethodologyRubroTranslation = InferSelectModel<
+  typeof coachMethodologyRubroTranslations
+>;
+export type NewCoachMethodologyRubroTranslation = InferInsertModel<
+  typeof coachMethodologyRubroTranslations
 >;
 
 // -------------------- coach_ai_translation_events --------------------

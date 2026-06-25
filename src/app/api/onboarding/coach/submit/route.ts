@@ -1,6 +1,7 @@
 // app/api/onboarding/coach/submit/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { normalizeStaffRoleSelection, normalizeStageRoles } from "@/lib/staff/roles";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,6 +13,9 @@ type Step1 = {
   birthDate: unknown | null;
   // Cargo principal del DT: "Director Técnico" / "Asistente" / "Coordinador" ...
   roleTitle: string | null;
+  // Roles estructurados (staff): 1 principal + hasta 2 secundarios (enum staff_role_type).
+  primaryRole?: string | null;
+  secondaryRoles?: string[] | null;
 };
 
 type LicenseInput = {
@@ -44,6 +48,8 @@ type CareerItemInput = {
   // Cargo del DT en esa etapa, ej "DT principal", "Asistente técnico".
   // camelCase: es el shape que emite el wizard (Step2Career.CoachCareerStage).
   roleTitle?: string | null;
+  // Hasta 3 roles estructurados ocupados en esta etapa.
+  roles?: string[] | null;
   division?: string | null;
   division_id?: string | null;
   secondary_division?: string | null;
@@ -115,6 +121,13 @@ export async function POST(req: Request) {
   const nationalityNames = (step1.nationalities ?? []).map((n) => n.name);
   const nationalityCodes = (step1.nationalities ?? []).map((n) => n.code);
 
+  // Roles estructurados del staff (1 principal + hasta 2 secundarios, validados
+  // contra el enum). null si el wizard no mandó un principal válido (legacy).
+  const roleSel = normalizeStaffRoleSelection({
+    primaryRole: step1.primaryRole,
+    secondaryRoles: step1.secondaryRoles,
+  });
+
   const isFree = !!step2?.freeAgent || step2?.team?.mode === "free";
 
   let current_team_id: string | null = null;
@@ -176,6 +189,8 @@ export async function POST(req: Request) {
     birth_date: formattedBirthDate,
     nationality: nationalityNames as string[],
     role_title: step1.roleTitle ?? null,
+    primary_role: roleSel?.primaryRole ?? null,
+    secondary_roles: roleSel && roleSel.secondaryRoles.length ? roleSel.secondaryRoles : null,
     current_club,
     transfermarkt_url: step2?.transfermarkt ?? null,
     external_profile_url,
@@ -215,10 +230,13 @@ export async function POST(req: Request) {
           ? c.secondary_division_id
           : null;
 
+      const stageRoles = normalizeStageRoles(c.roles);
+
       return {
         application_id: appId,
         club: c.club,
         role_title: c.roleTitle ?? null,
+        roles: stageRoles.length ? stageRoles : null,
         division: c.division ?? null,
         division_id: realDivisionId,
         secondary_division_id: realSecondaryDivisionId,

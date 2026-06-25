@@ -25,6 +25,7 @@ import { coachProfiles } from "@/db/schema/coaches";
 import {
   coachProfileTranslations,
   coachHonourTranslations,
+  coachMethodologyRubroTranslations,
   type CoachProfileTranslation,
 } from "@/db/schema/coachTranslations";
 
@@ -664,6 +665,36 @@ export async function getCoachHonourTranslations(
         competition: r.competition,
         description: r.description,
       });
+    }
+    return map;
+  } catch {
+    return new Map();
+  }
+}
+
+export type MethodologyRubroLocalizedFields = { title: string | null; body: string | null };
+
+/** Per-locale overrides for a set of methodology rubros (es fallback, defensive). */
+export async function getCoachMethodologyRubroTranslations(
+  rubroIds: string[],
+  locale: string,
+): Promise<Map<string, MethodologyRubroLocalizedFields>> {
+  if (locale === "es" || !isContentLocale(locale) || rubroIds.length === 0) {
+    return new Map();
+  }
+  try {
+    const rows = await db
+      .select()
+      .from(coachMethodologyRubroTranslations)
+      .where(
+        and(
+          inArray(coachMethodologyRubroTranslations.rubroId, rubroIds),
+          eq(coachMethodologyRubroTranslations.locale, locale),
+        ),
+      );
+    const map = new Map<string, MethodologyRubroLocalizedFields>();
+    for (const r of rows) {
+      map.set(r.rubroId, { title: r.title, body: r.body });
     }
     return map;
   } catch {

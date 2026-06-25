@@ -116,7 +116,7 @@ export default function CoachDashboardShell({
                   </p>
                   <p className="font-bh-mono text-[11px] text-bh-fg-4">
                     {profile?.slug ? (
-                      <Link href={`/coach/${profile.slug}`} className="hover:text-bh-lime">
+                      <Link href={`/staff/${profile.slug}`} className="hover:text-bh-lime">
                         /coach/{profile.slug}
                       </Link>
                     ) : (
