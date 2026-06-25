@@ -109,8 +109,16 @@ export default async function NationalTeamModule({
           current: t("modules.nationalTeam.current"),
           callups: t("modules.nationalTeam.callups"),
           scrollHint: t("modules.nationalTeam.scrollHint"),
+          navPrev: t("modules.nationalTeam.navPrev"),
+          navNext: t("modules.nationalTeam.navNext"),
           ageCategory: ageCategoryLabels,
           participation: participationLabels,
+          stats: {
+            caps: t("modules.nationalTeam.stats.caps"),
+            goals: t("modules.nationalTeam.stats.goals"),
+            assists: t("modules.nationalTeam.stats.assists"),
+            minutes: t("modules.nationalTeam.stats.minutes"),
+          },
         }}
       />
     </div>

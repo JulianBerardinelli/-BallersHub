@@ -278,8 +278,16 @@
         "sparring": "Sparring",
         "training_camp": "Ritiro"
       },
+      "stats": {
+        "caps": "Pres.",
+        "goals": "Gol",
+        "assists": "Assist",
+        "minutes": "Min"
+      },
       "callups": "Convocazioni",
-      "scrollHint": "Passa il mouse per mettere in pausa · scorri per esplorare"
+      "scrollHint": "Passa il mouse per mettere in pausa · scorri per esplorare",
+      "navPrev": "Convocazione precedente",
+      "navNext": "Convocazione successiva"
     }
   },
   "pro": {

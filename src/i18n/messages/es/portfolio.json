@@ -278,8 +278,16 @@
         "sparring": "Sparring",
         "training_camp": "Concentración"
       },
+      "stats": {
+        "caps": "PJ",
+        "goals": "Goles",
+        "assists": "Asist.",
+        "minutes": "Min"
+      },
       "callups": "Convocatorias",
-      "scrollHint": "Pasá el cursor para pausar · scrolleá para recorrer"
+      "scrollHint": "Pasá el cursor para pausar · scrolleá para recorrer",
+      "navPrev": "Convocatoria anterior",
+      "navNext": "Convocatoria siguiente"
     }
   },
   "pro": {
