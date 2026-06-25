@@ -1,0 +1,25 @@
+{
+  "roles": {
+    "head_coach": "Entraîneur",
+    "assistant_head_coach": "Entraîneur adjoint",
+    "assistant_coach": "Entraîneur assistant",
+    "fitness_coach": "Préparateur physique",
+    "rehab_physio": "Réathlétisation / Physio",
+    "goalkeeping_coach": "Entraîneur des gardiens",
+    "set_piece_coach": "Entraîneur des coups de pied arrêtés",
+    "tactical_analyst": "Analyste tactique",
+    "data_analyst": "Analyste de données",
+    "scouting": "Scouting",
+    "sporting_director": "Directeur sportif",
+    "academy_coordinator": "Coordinateur du centre de formation",
+    "methodology_director": "Directeur de la méthodologie"
+  },
+  "groups": {
+    "cuerpo_tecnico": "Staff technique",
+    "especialistas": "Spécialistes"
+  },
+  "methodology": {
+    "eyebrow": "Méthodologie",
+    "freeHeading": "Ma méthode de travail"
+  }
+}

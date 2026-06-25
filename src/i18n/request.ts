@@ -25,6 +25,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
       pricing: (await import(`./messages/${locale}/pricing.json`)).default,
       teamPicker: (await import(`./messages/${locale}/teamPicker.json`)).default,
       portfolio: (await import(`./messages/${locale}/portfolio.json`)).default,
+      staff: (await import(`./messages/${locale}/staff.json`)).default,
       dashboard: (await import(`./messages/${locale}/dashboard.json`)).default,
       dashSettings: (await import(`./messages/${locale}/dashSettings.json`)).default,
       dashEditProfile: (await import(`./messages/${locale}/dashEditProfile.json`)).default,

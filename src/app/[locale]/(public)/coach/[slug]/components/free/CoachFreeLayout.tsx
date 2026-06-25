@@ -569,17 +569,16 @@ function TotalCell({
 // Metodología (universal — todos los oficios). Free: ≤2 rubros, sin archivos.
 // ---------------------------------------------------------------
 
-function Methodology({ data }: { data: CoachPortfolioData }) {
+async function Methodology({ data }: { data: CoachPortfolioData }) {
+  const t = await getTranslations("staff");
   return (
     <section id="methodology" className="border-t border-white/[0.10] px-5 py-8 md:px-10 md:py-14">
       <div className={SECTION_INNER}>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-[200px_1fr] md:gap-10">
           <div>
-            <Eyebrow tone="accent">Metodología</Eyebrow>
+            <Eyebrow tone="accent">{t("methodology.eyebrow")}</Eyebrow>
             <h2 className="mt-2 font-bh-display text-3xl font-black uppercase leading-[0.95] text-bh-fg-1 md:text-[44px]">
-              Mi forma
-              <br />
-              de trabajo
+              {t("methodology.freeHeading")}
             </h2>
           </div>
           <div className="space-y-6">

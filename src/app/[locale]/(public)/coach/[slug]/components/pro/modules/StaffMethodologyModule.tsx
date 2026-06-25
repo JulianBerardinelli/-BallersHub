@@ -3,6 +3,7 @@
 // Módulo Metodología (UNIVERSAL — todos los oficios). NO referencia el fork DT
 // (isHeadCoachLayout) a propósito: renderiza siempre que haya rubros approved.
 // Free recibe ≤2 rubros sin docs; Pro recibe todos + adjuntos. Ver docs/staff/PLAN.md §5.
+import { useTranslations } from "next-intl";
 import { Section, Reveal } from "./_shared";
 import { methodologyIcon } from "@/lib/staff/methodology-icons";
 import type { CoachMethodologyRubroRow, CoachMethodologyDocRow } from "../../CoachPortfolio";
@@ -14,9 +15,10 @@ export default function StaffMethodologyModule({
   rubros: CoachMethodologyRubroRow[];
   accent: string;
 }) {
+  const t = useTranslations("staff");
   if (!rubros.length) return null;
   return (
-    <Section id="methodology" title="Metodología" accent={accent}>
+    <Section id="methodology" title={t("methodology.eyebrow")} accent={accent}>
       <div className="grid gap-10 md:gap-14">
         {rubros.map((r) => {
           const Icon = methodologyIcon(r.icon);

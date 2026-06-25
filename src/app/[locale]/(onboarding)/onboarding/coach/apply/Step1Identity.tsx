@@ -9,7 +9,6 @@ import { bhDatePickerClassNames, bhSelectClassNames } from "@/lib/ui/heroui-bran
 import {
   STAFF_ROLES,
   STAFF_ROLE_GROUPS,
-  STAFF_ROLE_LABELS_ES,
   MAX_SECONDARY_ROLES,
   isStaffRole,
   type StaffRoleType,
@@ -17,12 +16,6 @@ import {
 
 const minChars = (v: string, n = 3) => (v?.trim()?.length ?? 0) >= n;
 type AnyDateValue = any;
-
-// Labels es de los grupos del picker (el namespace i18n `staff` llega luego).
-const GROUP_LABELS: Record<string, string> = {
-  cuerpo_tecnico: "Cuerpo Técnico",
-  especialistas: "Especialistas",
-};
 
 export type Step1Data = {
   fullName: string;
@@ -46,6 +39,8 @@ export default function Step1Identity({
   onBack?: () => void;
 }) {
   const t = useTranslations("onboarding");
+  const tStaff = useTranslations("staff");
+  const tRole = tStaff as unknown as (key: string) => string;
 
   // estado
   const [fullName, setFullName] = React.useState(defaultValue?.fullName ?? "");
@@ -165,9 +160,9 @@ export default function Step1Identity({
             classNames={bhSelectClassNames}
           >
             {STAFF_ROLE_GROUPS.map((g) => (
-              <SelectSection key={g.id} title={GROUP_LABELS[g.id]}>
+              <SelectSection key={g.id} title={tRole(`groups.${g.id}`)}>
                 {g.roles.map((r) => (
-                  <SelectItem key={r}>{STAFF_ROLE_LABELS_ES[r]}</SelectItem>
+                  <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
                 ))}
               </SelectSection>
             ))}
@@ -191,7 +186,7 @@ export default function Step1Identity({
             classNames={bhSelectClassNames}
           >
             {STAFF_ROLES.map((r) => (
-              <SelectItem key={r}>{STAFF_ROLE_LABELS_ES[r]}</SelectItem>
+              <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
             ))}
           </Select>
         </div>

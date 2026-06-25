@@ -30,6 +30,7 @@ import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
 import { isHeadCoachLayout, staffRolesSummary } from "@/lib/staff/roles";
+import { getTranslations } from "next-intl/server";
 import {
   computeCoachRecord,
   type CoachPortfolioData,
@@ -134,8 +135,13 @@ export async function generateMetadata({
   const { canonical, languages } = conditionalAlternates(locale, `/coach/${slug}`, available);
   const noindex = !thisLocaleExists || softNoindex;
 
+  const tStaffMeta = await getTranslations({ locale, namespace: "staff" });
   const roleForTitle =
-    staffRolesSummary(coach.primaryRole, coach.secondaryRoles) || roleLabel(coach.roleTitle);
+    staffRolesSummary(
+      coach.primaryRole,
+      coach.secondaryRoles,
+      tStaffMeta as unknown as (key: string) => string,
+    ) || roleLabel(coach.roleTitle);
   const title = [
     coach.fullName,
     roleForTitle,
@@ -383,8 +389,15 @@ export default async function CoachPublicPage({
   // showTactical=true (no rompe coaches sin rol todavía); oculta las secciones
   // DT (ideas de juego / formaciones) sólo en oficios NO-DT conocidos.
   const showTactical = coach.primaryRole == null || isHeadCoachLayout(coach.primaryRole);
+  const tStaffRoles = await getTranslations({ locale, namespace: "staff" });
   const roleDisplay =
-    staffRolesSummary(coach.primaryRole, coach.secondaryRoles) || coach.roleTitle?.trim() || null;
+    staffRolesSummary(
+      coach.primaryRole,
+      coach.secondaryRoles,
+      tStaffRoles as unknown as (key: string) => string,
+    ) ||
+    coach.roleTitle?.trim() ||
+    null;
 
   // Metodología (universal). Docs salen de mediaRows (approved, type='doc' + rubro_id).
   const methodologyDocsByRubro = new Map<string, CoachMethodologyDocRow[]>();

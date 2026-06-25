@@ -8,7 +8,6 @@ import FormField from "@/components/dashboard/client/FormField";
 import { bhSelectClassNames } from "@/lib/ui/heroui-brand";
 import {
   STAFF_ROLES,
-  STAFF_ROLE_LABELS_ES,
   MAX_STAGE_ROLES,
   isStaffRole,
   type StaffRoleType,
@@ -72,6 +71,7 @@ export default function Step2Career({
   onNext: (data: Step2Data) => void;
 }) {
   const t = useTranslations("onboarding");
+  const tRole = useTranslations("staff") as unknown as (key: string) => string;
 
   const [freeAgent, setFreeAgent] = React.useState<boolean>(!!defaultValue?.freeAgent);
   const [team, setTeam] = React.useState<TeamPickerValue>(defaultValue?.team ?? null);
@@ -220,7 +220,7 @@ export default function Step2Career({
                       classNames={bhSelectClassNames}
                     >
                       {STAFF_ROLES.map((r) => (
-                        <SelectItem key={r}>{STAFF_ROLE_LABELS_ES[r]}</SelectItem>
+                        <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
                       ))}
                     </Select>
                   </div>
