@@ -101,7 +101,7 @@ export async function GET() {
       ? coaches
           .map(
             (c) =>
-              `- [${c.fullName}](${base}/coach/${c.slug}): ${c.roleTitle || "Director Técnico"}${
+              `- [${c.fullName}](${base}/staff/${c.slug}): ${c.roleTitle || "Director Técnico"}${
                 c.currentClub ? ` de ${c.currentClub}` : ""
               }`,
           )

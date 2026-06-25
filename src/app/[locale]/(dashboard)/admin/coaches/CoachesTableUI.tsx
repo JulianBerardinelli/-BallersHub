@@ -71,7 +71,7 @@ const RowOptions = React.memo(function RowOptions({
       </PopoverTrigger>
       <PopoverContent className="min-w-[210px] p-1">
         <div className="flex w-full flex-col">
-          <Link href={`/coach/${a.slug}`} target="_blank" className={ROW_MENU_ITEM_CLASS}>
+          <Link href={`/staff/${a.slug}`} target="_blank" className={ROW_MENU_ITEM_CLASS}>
             Ver perfil público
           </Link>
           <div className="my-1 h-px bg-white/[0.08]" />

@@ -54,7 +54,7 @@ export default function AdminCoachHeader({ name, slug, avatarUrl, status, isPro 
         </span>
         {slug ? (
           <Link
-            href={`/coach/${slug}`}
+            href={`/staff/${slug}`}
             target="_blank"
             className="inline-flex items-center gap-1.5 rounded-bh-md border border-white/[0.12] px-2.5 py-1 text-[11px] font-semibold text-bh-fg-2 transition-colors hover:bg-white/[0.06] hover:text-bh-fg-1"
           >

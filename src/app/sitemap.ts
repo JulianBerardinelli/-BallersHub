@@ -201,14 +201,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     coachEntries = coaches.map((c) => {
       const locs = coachLocales.get(c.slug);
       return {
-        url: `${base}/coach/${c.slug}`,
+        url: `${base}/staff/${c.slug}`,
         lastModified: c.updatedAt,
         changeFrequency: "weekly" as const,
         priority: c.isPro ? 0.9 : 0.6,
         ...(locs && locs.length > 0
           ? {
               alternates: {
-                languages: conditionalSitemapLanguages(`/coach/${c.slug}`, [
+                languages: conditionalSitemapLanguages(`/staff/${c.slug}`, [
                   "es",
                   ...locs,
                 ]),

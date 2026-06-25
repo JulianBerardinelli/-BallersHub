@@ -87,7 +87,7 @@ export function revalidateAgencyPublicProfile(slug: string | null | undefined): 
  */
 export function revalidateCoachPublicProfile(slug: string | null | undefined): void {
   if (!slug || slug.length === 0) return;
-  revalidatePath(`/coach/${slug}`);
+  revalidatePath(`/staff/${slug}`);
   revalidatePath("/coaches");
   revalidatePath("/sitemap.xml");
   revalidatePath("/llms.txt");

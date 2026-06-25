@@ -51,7 +51,7 @@ export default function CoachModerationHistory({
                 {e.secondary && <span className="text-bh-fg-4"> · {e.secondary}</span>}
                 {e.slug && (
                   <Link
-                    href={`/coach/${e.slug}`}
+                    href={`/staff/${e.slug}`}
                     target="_blank"
                     className="ml-2 font-bh-mono text-[11px] text-bh-fg-4 hover:text-bh-lime"
                   >

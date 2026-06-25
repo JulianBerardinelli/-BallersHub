@@ -296,7 +296,7 @@ export default function CoachApplicationsPanel({ initialItems }: { initialItems:
                   )}
                   {app.status === "approved" && app.slug && (
                     <a
-                      href={`/coach/${app.slug}`}
+                      href={`/staff/${app.slug}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs font-medium text-bh-lime hover:underline"

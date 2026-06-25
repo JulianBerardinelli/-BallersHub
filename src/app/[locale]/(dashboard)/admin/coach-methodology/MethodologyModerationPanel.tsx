@@ -71,7 +71,7 @@ export default function MethodologyModerationPanel({ items }: { items: PendingRu
                   <>
                     {" · "}
                     <a
-                      href={`/coach/${rubro.slug}`}
+                      href={`/staff/${rubro.slug}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-bh-lime hover:underline"

@@ -31,11 +31,11 @@
         "description": "Gestisci la tua rosa, valida i profili e rappresenta i talenti."
       },
       "staff": {
-        "title": "Sono un Allenatore / Scout / Dirigente",
+        "title": "Staff Tecnico / Scout / Dirigente",
         "comingSoon": "Prossimamente."
       },
       "coach": {
-        "title": "Sono un Allenatore",
+        "title": "Staff Tecnico",
         "description": "Mostra la tua carriera, le tue licenze e guida il tuo prossimo progetto."
       },
       "later": "Lo farò più tardi"

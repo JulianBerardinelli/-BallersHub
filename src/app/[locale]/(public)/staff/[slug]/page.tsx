@@ -132,7 +132,7 @@ export async function generateMetadata({
     softNoindex = !proIds.has(coach.userId);
   }
 
-  const { canonical, languages } = conditionalAlternates(locale, `/coach/${slug}`, available);
+  const { canonical, languages } = conditionalAlternates(locale, `/staff/${slug}`, available);
   const noindex = !thisLocaleExists || softNoindex;
 
   const tStaffMeta = await getTranslations({ locale, namespace: "staff" });
@@ -210,7 +210,7 @@ export default async function CoachPublicPage({
   // (never serve fallback-ES under a foreign prefix). ES always exists.
   const available = await getAvailableCoachLocales(coach.id);
   if (locale !== "es" && !available.includes(locale as ContentLocale)) {
-    redirect(`/coach/${slug}`);
+    redirect(`/staff/${slug}`);
   }
 
   const translation = await getCoachTranslation(coach.id, locale);
@@ -522,7 +522,7 @@ export default async function CoachPublicPage({
       themeBackgroundColor: coach.themeBackgroundColor,
       localeSwitch:
         available.length > 1
-          ? { available, current: locale, basePath: `/coach/${slug}` }
+          ? { available, current: locale, basePath: `/staff/${slug}` }
           : undefined,
     };
     const themeBg = coach.themeBackgroundColor || "#050505";
@@ -555,7 +555,7 @@ export default async function CoachPublicPage({
     <>
       <CoachJsonLd coach={jsonLd} plan={plan} locale={locale} />
       {available.length > 1 && (
-        <PortfolioLocaleSwitcher basePath={`/coach/${slug}`} available={available} current={locale} />
+        <PortfolioLocaleSwitcher basePath={`/staff/${slug}`} available={available} current={locale} />
       )}
       <CoachFreeLayout data={data} ownerUserId={coach.userId} />
     </>

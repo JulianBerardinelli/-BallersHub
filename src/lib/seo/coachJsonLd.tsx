@@ -104,7 +104,7 @@ function buildCredentials(licenses: CoachLicense[] | null | undefined) {
 
 export function CoachJsonLd({ coach, plan, locale }: Props) {
   const isPro = plan === "pro" || plan === "pro_plus";
-  const localePath = locale === "es" ? `/coach/${coach.slug}` : `/${locale}/coach/${coach.slug}`;
+  const localePath = locale === "es" ? `/staff/${coach.slug}` : `/${locale}/staff/${coach.slug}`;
   const canonical = toCanonicalUrl(localePath);
   const base = getSiteBaseUrl();
   const lang = HTML_LANG[locale];

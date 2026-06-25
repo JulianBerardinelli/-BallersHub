@@ -103,7 +103,7 @@ export default function CoachCareerRevisionsPanel({
                 </p>
                 {req.slug && (
                   <Link
-                    href={`/coach/${req.slug}`}
+                    href={`/staff/${req.slug}`}
                     target="_blank"
                     className="font-bh-mono text-[11px] text-bh-fg-4 hover:text-bh-lime"
                   >
