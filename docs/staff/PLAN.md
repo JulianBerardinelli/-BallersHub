@@ -22,8 +22,8 @@ Decisión clave del protocolo: el RENAME `coach_*`→`staff_*` es destructivo (r
 - ✅ `src/lib/staff/roles.ts` — taxonomía canónica de los 13 roles + grouping + `isHeadCoachLayout()` + validadores (commit `560a912`). Typecheck del proyecto: 0 errores.
 - ✅ Onboarding multi-rol (incremento 2): Step1 pickers (rol principal req + hasta 2 secundarios, agrupados Cuerpo Técnico/Especialistas) + Step2 multi-select de hasta 3 roles por etapa + submit + approve/materialize (RPC `0020a`) + display en cola admin. Migración `0020` (coach_applications role cols) + `0020a` (RPC roles) en **dev+prod**. role_title pasó a "título específico" opcional. Typecheck 0.
 - ✅ Portfolio: display del rol estructurado (`primary_role` + secundarios) + fork `isHeadCoachLayout` (Free + Pro), commit `b6dae9f`. null → comportamiento viejo (hasta onboarding). Typecheck 0 errores.
-- ⏳ Módulo Metodología (editor dashboard CRUD rubros + upload PDF/PPT, gating Free ≤2 / Pro) + render público.
-- ⏳ i18n namespace `staff` (labels de roles en los 7 locales).
+- ✅ Módulo Metodología (incremento 3, commits `519d308`/`358ce78`/`a6386b6`): universal (todos los oficios, NO usa el fork DT), pre-moderado. Editor `/dashboard/coach/methodology` (rubros título+ícono+body+adjuntos, estados, cap Free 2) + actions + ruta upload PDF/PPT (Pro-gate, 25MB) + render público Free(≤2, sin docs)/Pro(todo+docs) + cola admin `/admin/coach-methodology` (approve/reject, docs en cascada) + counter/badge. `coach_media type='doc'` excluido de la cola Multimedia. Typecheck 0. ⚠️ `next build` no corrido en el worktree (sin deps full); auditado el rule "use server" a mano (FREE_RUBRO_CAP movido a methodology-data).
+- ⏳ i18n namespace `staff` (labels de roles + UI metodología en los 7 locales; hoy es-only).
 - ⏳ Rebrand `/staff` + "Cuerpo Técnico" (rutas + redirects + i18n).
 
 El rename físico `coach_*`→`staff_*` sigue diferido (two-step).
