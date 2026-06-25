@@ -21,6 +21,7 @@ import {
   getCoachTranslation,
   mergeCoachContent,
   getCoachHonourTranslations,
+  getCoachMethodologyRubroTranslations,
   type ContentLocale,
 } from "@/lib/i18n/profile-content";
 import { resolveProUserIds, FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
@@ -408,13 +409,21 @@ export default async function CoachPublicPage({
       methodologyDocsByRubro.set(m.rubroId, list);
     }
   }
-  const methodologyAll: CoachMethodologyRubroRow[] = rubroRows.map((r) => ({
-    id: r.id,
-    title: r.title,
-    icon: r.icon,
-    body: r.body,
-    docs: methodologyDocsByRubro.get(r.id) ?? [],
-  }));
+  // Traducciones por-perfil de los rubros (es fallback). Mismo modelo que honours.
+  const rubroTr = await getCoachMethodologyRubroTranslations(
+    rubroRows.map((r) => r.id),
+    locale,
+  );
+  const methodologyAll: CoachMethodologyRubroRow[] = rubroRows.map((r) => {
+    const tr = rubroTr.get(r.id);
+    return {
+      id: r.id,
+      title: tr?.title?.trim() ? tr.title : r.title,
+      icon: r.icon,
+      body: tr?.body?.trim() ? tr.body : r.body,
+      docs: methodologyDocsByRubro.get(r.id) ?? [],
+    };
+  });
   // D7: Free hasta 2 rubros, sin archivos. Pro: todo.
   const methodologyFree: CoachMethodologyRubroRow[] = methodologyAll
     .slice(0, 2)

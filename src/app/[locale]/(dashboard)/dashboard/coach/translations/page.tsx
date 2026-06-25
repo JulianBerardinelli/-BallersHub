@@ -7,6 +7,7 @@ import { translationLocaleLimit } from "@/lib/i18n/translation-limits";
 import CoachTranslationsEditor, {
   type CoachLocaleFields,
   type CoachTranslatableLocale,
+  type RubroForTranslation,
 } from "./CoachTranslationsEditor";
 
 export const dynamic = "force-dynamic";
@@ -106,11 +107,42 @@ export default async function CoachTranslationsPage() {
     };
   }
 
+  // Rubros de metodología + sus traducciones (contenido multi-fila).
+  const { data: rubroRows } = await supabase
+    .from("coach_methodology_rubros")
+    .select("id, title, body")
+    .eq("coach_id", profile.id)
+    .order("position", { ascending: true });
+  const rubroIds = (rubroRows ?? []).map((r) => r.id as string);
+  const { data: rubroTrRows } = rubroIds.length
+    ? await supabase
+        .from("coach_methodology_rubro_translations")
+        .select("rubro_id, locale, title, body")
+        .in("rubro_id", rubroIds)
+    : { data: [] as Array<{ rubro_id: string; locale: string; title: string | null; body: string | null }> };
+  const rubroTrMap = new Map<string, Record<string, { title: string; body: string }>>();
+  for (const t of rubroTrRows ?? []) {
+    const row = t as { rubro_id: string; locale: string; title: string | null; body: string | null };
+    const m = rubroTrMap.get(row.rubro_id) ?? {};
+    m[row.locale] = { title: row.title ?? "", body: row.body ?? "" };
+    rubroTrMap.set(row.rubro_id, m);
+  }
+  const rubros: RubroForTranslation[] = (rubroRows ?? []).map((r) => {
+    const row = r as { id: string; title: string | null; body: string | null };
+    return {
+      id: row.id,
+      title: row.title ?? "",
+      body: row.body ?? "",
+      translations: rubroTrMap.get(row.id) ?? {},
+    };
+  });
+
   return (
     <CoachTranslationsEditor
       coachName={profile.full_name}
       source={source}
       translations={translations}
+      rubros={rubros}
       localeLimit={translationLocaleLimit({ slug: profile.slug, email: user.email })}
     />
   );

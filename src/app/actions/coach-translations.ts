@@ -142,6 +142,82 @@ export async function saveCoachTranslation(
   return { success: true };
 }
 
+// Traducciones de los RUBROS de metodología (contenido multi-fila, tabla
+// coach_methodology_rubro_translations). Se guardan junto con el locale del
+// perfil; cada rubro vacío (title+body) en ese locale borra su fila.
+const rubroTrSchema = z.object({
+  locale: z.enum(TRANSLATABLE_LOCALES),
+  items: z
+    .array(
+      z.object({
+        rubroId: z.string().uuid(),
+        title: fieldText,
+        body: fieldText,
+      }),
+    )
+    .max(50),
+});
+export type CoachRubroTranslationsInput = z.infer<typeof rubroTrSchema>;
+
+export async function saveCoachRubroTranslations(
+  input: CoachRubroTranslationsInput,
+): Promise<CoachTranslationActionResult> {
+  const parsed = rubroTrSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const ctx = await resolveProCoach();
+  if (ctx.error || !ctx.supabase || !ctx.coach) {
+    return { success: false, message: ctx.error ?? "No autorizado." };
+  }
+  const { supabase, coach } = ctx;
+  const { locale, items } = parsed.data;
+  if (items.length === 0) return { success: true };
+
+  // Sólo rubros del propio coach (RLS también lo exige; esto evita ruido).
+  const ids = items.map((i) => i.rubroId);
+  const { data: own } = await supabase
+    .from("coach_methodology_rubros")
+    .select("id")
+    .eq("coach_id", coach.id)
+    .in("id", ids);
+  const ownSet = new Set((own ?? []).map((r) => (r as { id: string }).id));
+
+  const toUpsert: Array<Record<string, unknown>> = [];
+  const toDelete: string[] = [];
+  for (const it of items) {
+    if (!ownSet.has(it.rubroId)) continue;
+    if (!it.title && !it.body) toDelete.push(it.rubroId);
+    else
+      toUpsert.push({
+        rubro_id: it.rubroId,
+        locale,
+        title: it.title,
+        body: it.body,
+        updated_at: new Date().toISOString(),
+      });
+  }
+
+  if (toDelete.length) {
+    const { error } = await supabase
+      .from("coach_methodology_rubro_translations")
+      .delete()
+      .eq("locale", locale)
+      .in("rubro_id", toDelete);
+    if (error) return { success: false, message: error.message };
+  }
+  if (toUpsert.length) {
+    const { error } = await supabase
+      .from("coach_methodology_rubro_translations")
+      .upsert(toUpsert, { onConflict: "rubro_id,locale" });
+    if (error) return { success: false, message: error.message };
+  }
+
+  revalidateCoachPublicProfile(coach.slug);
+  revalidatePath("/dashboard/coach/translations");
+  return { success: true };
+}
+
 export async function deleteCoachTranslation(
   locale: TranslatableLocale,
 ): Promise<CoachTranslationActionResult> {
