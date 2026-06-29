@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "League not linked to catalog — use the dropdown or it will be stored as plain text.",
       "cancel": "Cancel",
       "confirmStage": "Confirm stage",
-      "remove": "Delete"
+      "remove": "Delete",
+      "rolesLabel": "Roles in this stage (up to 3)",
+      "rolesPlaceholder": "E.g. Head Coach, Analyst, Scout"
     },
     "rowRead": {
       "chipProposed": "Proposed",

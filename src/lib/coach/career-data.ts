@@ -5,6 +5,7 @@
 // the session client (dashboard, RLS) or the service-role admin client (admin).
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { StaffRoleType } from "@/lib/staff/roles";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyClient = SupabaseClient<any, any, any>;
@@ -14,6 +15,8 @@ export type CoachEditorStage = {
   originalId: string | null;
   club: string;
   roleTitle: string | null;
+  // Roles estructurados ocupados en esta etapa (máx 3). Coach/staff-only.
+  roles: StaffRoleType[];
   division: string | null;
   divisionId: string | null;
   secondaryDivision: string | null;
@@ -46,6 +49,7 @@ type CareerRow = {
   id: string;
   club: string | null;
   role_title: string | null;
+  roles: StaffRoleType[] | null;
   division: string | null;
   division_id: string | null;
   secondary_division: string | null;
@@ -89,7 +93,7 @@ export async function loadCoachCareerForEditor(
     client
       .from("coach_career_items")
       .select(
-        "id, club, role_title, division, division_id, secondary_division, secondary_division_id, start_date, end_date, team_id",
+        "id, club, role_title, roles, division, division_id, secondary_division, secondary_division_id, start_date, end_date, team_id",
       )
       .eq("coach_id", coachId)
       .order("start_date", { ascending: false, nullsFirst: false })
@@ -124,6 +128,7 @@ export async function loadCoachCareerForEditor(
       originalId: r.id,
       club: r.club ?? "",
       roleTitle: r.role_title ?? null,
+      roles: Array.isArray(r.roles) ? r.roles : [],
       division: r.division ?? null,
       divisionId: r.division_id ?? null,
       secondaryDivision: r.secondary_division ?? null,

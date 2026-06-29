@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "Liga sin enlazar al catálogo — usá el desplegable o se cargará como texto suelto.",
       "cancel": "Cancelar",
       "confirmStage": "Confirmar etapa",
-      "remove": "Eliminar"
+      "remove": "Eliminar",
+      "rolesLabel": "Roles en esta etapa (hasta 3)",
+      "rolesPlaceholder": "Ej: Entrenador, Analista, Scout"
     },
     "rowRead": {
       "chipProposed": "Propuesto",

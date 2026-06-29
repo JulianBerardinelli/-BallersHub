@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "Lega non collegata al catalogo — usa il menu a tendina o verrà salvata come testo libero.",
       "cancel": "Annulla",
       "confirmStage": "Conferma tappa",
-      "remove": "Elimina"
+      "remove": "Elimina",
+      "rolesLabel": "Ruoli in questa tappa (fino a 3)",
+      "rolesPlaceholder": "Es: Allenatore, Analista, Osservatore"
     },
     "rowRead": {
       "chipProposed": "Proposto",

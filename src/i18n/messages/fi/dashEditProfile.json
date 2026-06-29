@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "Sarjaa ei ole linkitetty katalogiin — käytä pudotusvalikkoa tai se tallennetaan vapaana tekstinä.",
       "cancel": "Peruuta",
       "confirmStage": "Vahvista vaihe",
-      "remove": "Poista"
+      "remove": "Poista",
+      "rolesLabel": "Roolit tässä vaiheessa (enint. 3)",
+      "rolesPlaceholder": "Esim. Päävalmentaja, Analyytikko, Skoutti"
     },
     "rowRead": {
       "chipProposed": "Ehdotettu",
