@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
+import { isStaffRole, type StaffRoleType } from "@/lib/staff/roles";
 import CoachCareerRevisionsPanel, {
   type CoachRevisionRequest,
   type DiffStage,
@@ -21,9 +22,13 @@ const yearOf = (d: unknown): number | null => {
 type RawStage = Record<string, unknown>;
 type RawStat = Record<string, unknown>;
 
+const snapRoles = (raw: unknown): StaffRoleType[] =>
+  (Array.isArray(raw) ? raw : []).filter(isStaffRole);
+
 const snapStage = (r: RawStage): DiffStage => ({
   club: (r.club as string) ?? "",
   roleTitle: (r.role_title as string | null) ?? null,
+  roles: snapRoles(r.roles),
   division: (r.division as string | null) ?? null,
   startYear: yearOf(r.start_date) ?? (r.start_year as number | null) ?? null,
   endYear: yearOf(r.end_date) ?? (r.end_year as number | null) ?? null,
@@ -60,7 +65,7 @@ export default async function CoachCareerRevisionsPage() {
     .select(
       `id, status, submitted_at, change_summary, current_snapshot,
        coach:coach_profiles ( full_name, slug ),
-       items:coach_career_revision_items ( club, role_title, division, start_year, end_year, order_index ),
+       items:coach_career_revision_items ( club, role_title, roles, division, start_year, end_year, order_index ),
        stats:coach_stats_revision_items ( season, competition, team, matches, wins, draws, losses, goals_for, goals_against, order_index )`,
     )
     .eq("status", "pending")
