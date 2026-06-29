@@ -8,6 +8,7 @@ import { z } from "zod";
 import { ensureAdminActor } from "@/lib/admin/auth";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 import { ensureUniqueTeamSlug, findExistingTeamIdByName, slugify } from "@/lib/admin/teams";
+import { STAFF_ROLES, MAX_STAGE_ROLES } from "@/lib/staff/roles";
 import { revalidatePath } from "next/cache";
 import {
   recordAdminCoachEdit,
@@ -39,6 +40,20 @@ const optText = (max: number) =>
     .union([z.string().trim().max(max), z.literal(""), z.null(), z.undefined()])
     .transform((v) => (v && v.trim() ? v.trim() : null))
     .nullable();
+
+// Roles estructurados de la etapa (enum staff_role_type). Filtra inválidos,
+// deduplica y recorta a MAX_STAGE_ROLES (3). Ausencia → [].
+const stageRolesField = z
+  .union([z.array(z.string()), z.null(), z.undefined()])
+  .transform((value) => {
+    const raw = Array.isArray(value) ? value : [];
+    const out: string[] = [];
+    for (const r of raw) {
+      if ((STAFF_ROLES as readonly string[]).includes(r) && !out.includes(r)) out.push(r);
+      if (out.length >= MAX_STAGE_ROLES) break;
+    }
+    return out;
+  });
 
 const schema = z.object({
   coachId: z.string().uuid(),
@@ -142,6 +157,7 @@ const careerSchema = z.object({
       z.object({
         club: z.string().trim().min(1, "Club requerido."),
         roleTitle: optText(120),
+        roles: stageRolesField,
         division: optText(120),
         divisionId: optUuid,
         secondaryDivision: optText(120),
@@ -244,6 +260,7 @@ export async function adminReplaceCoachCareer(
         coach_id: coachId,
         club: it.club,
         role_title: it.roleTitle,
+        roles: it.roles && it.roles.length > 0 ? it.roles : null,
         division: it.division,
         division_id: it.divisionId ?? null,
         secondary_division: it.secondaryDivision ?? null,
@@ -436,6 +453,7 @@ export async function adminSubmitCoachCareerLive(
     items: (input.items ?? []).map((s) => ({
       club: s.club,
       roleTitle: s.roleTitle,
+      roles: s.roles ?? [],
       division: s.division,
       divisionId: s.divisionId ?? null,
       secondaryDivision: s.secondaryDivision ?? null,
