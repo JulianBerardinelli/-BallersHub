@@ -3,6 +3,7 @@ import { coachProfiles } from "./coaches";
 import { teams } from "./teams";
 import { divisions } from "./divisions";
 import { coachCareerItems } from "./coachCareer";
+import { staffRoleTypeEnum } from "./enums";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const coachCareerRevisionRequests = pgTable("coach_career_revision_requests", {
@@ -45,6 +46,9 @@ export const coachCareerRevisionItems = pgTable("coach_career_revision_items", {
   originalItemId: uuid("original_item_id").references(() => coachCareerItems.id, { onDelete: "set null" }),
   club: text("club").notNull(),
   roleTitle: text("role_title"), // cargo del DT en esa etapa (DT, asistente, etc.)
+  // Roles estructurados propuestos para esta etapa (máx 3, validado en action).
+  // Espejo de coach_career_items.roles; el approve los materializa en la tabla viva.
+  roles: staffRoleTypeEnum("roles").array(),
   division: text("division"),
   divisionId: uuid("division_id").references(() => divisions.id, { onDelete: "set null" }),
   secondaryDivision: text("secondary_division"), // texto libre de la segunda categoría/liga
