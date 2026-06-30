@@ -10,7 +10,7 @@ import Image from "next/image";
  */
 const NEXT_OPTIMIZED_HOST_SUFFIXES = [".supabase.co"];
 
-function sanitizeCrestUrl(input: string): string {
+export function sanitizeCrestUrl(input: string): string {
   const trimmed = input.trim();
   // Algunos crests llegan desde admin con un `//` adicional en el path
   // (ej. "https://tmssl.akamaized.net//images/logo/..."), lo cual hace
@@ -27,7 +27,7 @@ function sanitizeCrestUrl(input: string): string {
   }
 }
 
-function shouldOptimize(url: string): boolean {
+export function shouldOptimize(url: string): boolean {
   if (url.endsWith(".svg")) return false;
   if (url.startsWith("/")) return true; // local public/
   try {

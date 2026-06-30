@@ -4,6 +4,7 @@
 
 import Image from "next/image";
 import type { ReactNode } from "react";
+import { sanitizeCrestUrl, shouldOptimize } from "@/components/teams/TeamCrest";
 
 // ---------------------------------------------------------------
 // Flag — uses the `flag-icons` CSS package (already imported globally
@@ -80,12 +81,18 @@ export function Crest({
   rounded?: boolean;
 }) {
   if (url && /^https?:\/\//i.test(url)) {
+    // Los crests de teams pueden venir de hosts externos (Transfermarkt en
+    // akamai, BeSoccer, etc.) que NO están en next.config remotePatterns
+    // (sólo *.supabase.co). Pasarlos por el optimizer da 400 y rompe la
+    // página → `unoptimized` para esos hosts (misma lógica que TeamCrest).
+    const safe = sanitizeCrestUrl(url);
     return (
       <Image
-        src={url}
+        src={safe}
         alt=""
         width={size}
         height={size}
+        unoptimized={!shouldOptimize(safe)}
         className={rounded ? "rounded-full" : ""}
         style={{
           width: size,
