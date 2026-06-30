@@ -56,6 +56,7 @@ export default function CoachProContent({ data, accent }: { data: CoachProData; 
           playingStyle={data.playingStyle}
           preferredFormations={data.preferredFormations}
           videos={videos}
+          gameIdeas={data.gameIdeas}
           modelUrl={data.modelUrl1}
           accent={accent}
         />

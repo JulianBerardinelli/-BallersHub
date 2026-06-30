@@ -23,7 +23,9 @@ import {
   type StaffRoleType,
 } from "@/lib/staff/roles";
 import { isMethodologyIconKey } from "@/lib/staff/methodology-icons";
+import { pitchBoardSchema, EMPTY_PITCH_BOARD } from "@/lib/coach/game-ideas";
 import type { CoachProfileInput } from "./coach-profile";
+import type { GameIdeaInput, GameIdeaActionResult } from "./coach-game-ideas";
 import type {
   CoachCareerRevisionSubmissionInput,
   CoachCareerActionResult,
@@ -949,6 +951,152 @@ export async function adminRemoveMethodologyDoc(
     .maybeSingle<{ slug: string | null }>();
   if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
   revalidatePath(`/admin/coaches/${coachId}/edit/metodologia`);
+  return { success: true };
+}
+
+// ─────────────────────────── ideas de juego (admin, live) ───────────────────────────
+// Mirrors upsertGameIdea/deleteGameIdea, service-role + target coachId. El admin
+// ES el moderador → escribe APPROVED directo, sin cap (admin puede curar) ni
+// gate Pro. El pitch_board se valida con el mismo pitchBoardSchema.
+
+const adminGameIdeaSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z
+    .union([z.string().trim().max(80), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null)),
+  formation: z
+    .union([z.string().trim().max(20), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null)),
+  blurb: z
+    .union([z.string().trim().max(2000), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null)),
+  link: z
+    .union([z.string().trim().max(500), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+    .refine((v) => v === null || /^https?:\/\//i.test(v), {
+      message: "El enlace debe empezar con http:// o https://.",
+    }),
+  pitchBoard: pitchBoardSchema,
+});
+
+export async function adminUpsertGameIdea(
+  coachId: string,
+  input: GameIdeaInput,
+): Promise<GameIdeaActionResult> {
+  const parsed = adminGameIdeaSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const d = parsed.data;
+  const board = d.pitchBoard ?? EMPTY_PITCH_BOARD;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const reviewed = {
+    status: "approved" as const,
+    reviewed_by_user_id: gate.actor.actorId,
+    reviewed_at: new Date().toISOString(),
+    rejection_reason: null,
+  };
+
+  let ideaId = d.id ?? null;
+  if (d.id) {
+    const { data, error } = await admin
+      .from("coach_game_ideas")
+      .update({
+        title: d.title,
+        formation: d.formation,
+        blurb: d.blurb,
+        link: d.link,
+        pitch_board: board,
+        ...reviewed,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", d.id)
+      .eq("coach_id", coachId)
+      .select("id")
+      .maybeSingle<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    if (!data) return { success: false, message: "No se encontró la idea." };
+    ideaId = data.id;
+  } else {
+    const { data: maxRow } = await admin
+      .from("coach_game_ideas")
+      .select("position")
+      .eq("coach_id", coachId)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ position: number }>();
+    const nextPosition = (maxRow?.position ?? -1) + 1;
+    const { data, error } = await admin
+      .from("coach_game_ideas")
+      .insert({
+        coach_id: coachId,
+        title: d.title,
+        formation: d.formation,
+        blurb: d.blurb,
+        link: d.link,
+        pitch_board: board,
+        position: nextPosition,
+        ...reviewed,
+      })
+      .select("id")
+      .single<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    ideaId = data.id;
+  }
+
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/ideas-juego`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "ideas-juego",
+    changedFields: [d.title ?? "Idea de juego"],
+  });
+  return { success: true, id: ideaId ?? undefined };
+}
+
+export async function adminDeleteGameIdea(
+  coachId: string,
+  id: string,
+): Promise<GameIdeaActionResult> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const { error } = await admin
+    .from("coach_game_ideas")
+    .delete()
+    .eq("id", id)
+    .eq("coach_id", coachId);
+  if (error) return { success: false, message: error.message };
+
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/ideas-juego`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "ideas-juego",
+    changedFields: ["Idea de juego eliminada"],
+  });
   return { success: true };
 }
 

@@ -332,6 +332,13 @@ export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
       },
       {
         kind: "link",
+        id: "coach-game-ideas",
+        title: "Ideas de Juego",
+        href: "/dashboard/coach/game-ideas",
+        description: "Pizarra táctica con tus jugadas (Pro, sólo Cuerpo Técnico).",
+      },
+      {
+        kind: "link",
         id: "coach-personal-data",
         title: "Datos personales",
         href: "/dashboard/coach/personal-data",

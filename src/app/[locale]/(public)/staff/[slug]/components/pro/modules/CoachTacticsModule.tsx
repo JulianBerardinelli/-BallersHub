@@ -33,13 +33,17 @@ import {
   getYouTubeThumbnail,
   type PortfolioVideo,
 } from "@/components/portfolio/video";
-import type { CoachMediaRow } from "../../CoachPortfolio";
+import PitchBoard from "@/components/coach/pitch/PitchBoard";
+import { pitchBoardHasContent } from "@/lib/coach/game-ideas";
+import type { CoachMediaRow, CoachGameIdeaRow } from "../../CoachPortfolio";
 
 export type CoachTacticsModuleProps = {
   methodologyAnalysis: string | null;
   playingStyle: string | null;
   preferredFormations: string[] | null;
   videos: CoachMediaRow[];
+  // Ideas de Juego approved (pizarras). Se renderizan tras el scroll-jack.
+  gameIdeas?: CoachGameIdeaRow[];
   // 2º asset Pro (cutout transparente) que decora el scroll-jack. NULL → no se
   // renderiza (espejo del modelUrl1 de players en su Tactics module).
   modelUrl?: string | null;
@@ -63,6 +67,7 @@ export default function CoachTacticsModule({
   playingStyle,
   preferredFormations,
   videos,
+  gameIdeas,
   modelUrl,
   accent,
 }: CoachTacticsModuleProps) {
@@ -76,9 +81,11 @@ export default function CoachTacticsModule({
     url: v.url,
     title: v.title,
   }));
+  // Sólo ideas con un tablero dibujado (las vacías no aportan).
+  const boards = (gameIdeas ?? []).filter((g) => pitchBoardHasContent(g.board));
 
   const hasScrollJack = !!methodology || !!ideas || formations.length > 0;
-  const hasAnything = hasScrollJack || videoList.length > 0;
+  const hasAnything = hasScrollJack || videoList.length > 0 || boards.length > 0;
   if (!hasAnything) return null;
 
   return (
@@ -96,9 +103,18 @@ export default function CoachTacticsModule({
         />
       )}
 
+      {/* Ideas de Juego — pizarras tácticas approved. */}
+      {boards.length > 0 && (
+        <div id="tactics-boards" className={hasScrollJack ? "mt-20 md:mt-32" : ""}>
+          <Section id="tactics-boards-inner" title={t("coach.gameIdeasTitle")} accent={accent}>
+            <GameIdeasGrid ideas={boards} accent={accent} />
+          </Section>
+        </div>
+      )}
+
       {/* Video grid — coach_media type=video, full agnostic treatment. */}
       {videoList.length > 0 && (
-        <div id="tactics-videos" className={hasScrollJack ? "mt-20 md:mt-32" : ""}>
+        <div id="tactics-videos" className={hasScrollJack || boards.length > 0 ? "mt-20 md:mt-32" : ""}>
           <Section id="tactics-videos-inner" title={t("coach.mediaTitle")} accent={accent}>
             <VideoGrid videos={videoList} accent={accent} />
           </Section>
@@ -395,6 +411,68 @@ function ScrambleTitle({
 // ════════════════════════════════════════════════════════════════════════════
 //  FORMATION DIAGRAM — mini-pitch with animated nodes per line
 // ════════════════════════════════════════════════════════════════════════════
+// ── Ideas de Juego — grid de pizarras tácticas ──────────────────────────────
+function GameIdeasGrid({ ideas, accent }: { ideas: CoachGameIdeaRow[]; accent: string }) {
+  const t = useTranslations("portfolio");
+  return (
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {ideas.map((idea, i) => (
+        <motion.div
+          key={idea.id}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: Math.min(i * 0.06, 0.3), ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-black/30 p-4"
+        >
+          <div className="flex items-center justify-between gap-2">
+            <h4 className="font-bh-display text-base font-black uppercase leading-tight text-white">
+              {idea.title?.trim() || t("coach.gameIdeaFallback")}
+            </h4>
+            {idea.formation?.trim() && (
+              <span
+                className="shrink-0 rounded-sm px-2 py-0.5 font-bh-mono text-[10px] font-black tabular-nums"
+                style={{ backgroundColor: `${accent}1a`, color: accent }}
+              >
+                {idea.formation}
+              </span>
+            )}
+          </div>
+
+          <div
+            style={
+              {
+                ["--pitch-own" as string]: accent,
+              } as React.CSSProperties
+            }
+          >
+            <PitchBoard board={idea.board} tokenSize={22} />
+          </div>
+
+          {idea.blurb?.trim() && (
+            <p className="whitespace-pre-line text-[13px] leading-relaxed text-white/70">{idea.blurb}</p>
+          )}
+
+          {idea.link?.trim() && (
+            <a
+              href={idea.link}
+              target="_blank"
+              rel="noreferrer nofollow"
+              className="inline-flex w-fit items-center gap-1.5 text-[12px] font-semibold uppercase tracking-widest transition-opacity hover:opacity-80"
+              style={{ color: accent }}
+            >
+              {t("coach.gameIdeaWatch")}
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7-7 7M21 12H3" />
+              </svg>
+            </a>
+          )}
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
 function FormationDiagram({
   formation,
   accent,
