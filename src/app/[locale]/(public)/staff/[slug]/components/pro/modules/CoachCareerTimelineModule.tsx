@@ -404,6 +404,19 @@ function DesktopNodesTimeline({
                             </span>
                           )}
                         </div>
+                        {nodeData.roleLabels.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5 mt-2">
+                            {nodeData.roleLabels.map((label, ri) => (
+                              <span
+                                key={`${nodeData.id}-role-${ri}`}
+                                className="rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest"
+                                style={{ borderColor: `${accent}55`, color: accent, backgroundColor: `${accent}14` }}
+                              >
+                                {label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -577,7 +590,7 @@ function StatCell({
 
 function MobileTimelineCard({ nodeData, accent }: { nodeData: StageData; accent: string }) {
   const t = useTranslations("portfolio");
-  const { club, division, roleTitle, isCurrent, totals, winPct, hasStats } = nodeData;
+  const { club, division, roleTitle, roleLabels, isCurrent, totals, winPct, hasStats } = nodeData;
   const C = 94.24; // 2πr, r=15
 
   return (
@@ -612,6 +625,19 @@ function MobileTimelineCard({ nodeData, accent }: { nodeData: StageData; accent:
           <span className="inline-flex items-center text-white/40 font-bold uppercase tracking-widest text-[10px] before:content-['·'] before:mr-1.5 before:text-white/30">
             {division}
           </span>
+        )}
+        {roleLabels.length > 0 && (
+          <div className="flex w-full flex-wrap items-center gap-1.5 mt-1">
+            {roleLabels.map((label, ri) => (
+              <span
+                key={`${nodeData.id}-mrole-${ri}`}
+                className="rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest"
+                style={{ borderColor: `${accent}55`, color: accent, backgroundColor: `${accent}14` }}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
         )}
       </div>
 

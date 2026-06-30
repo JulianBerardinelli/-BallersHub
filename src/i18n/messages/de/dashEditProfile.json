@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "Liga nicht mit dem Katalog verknüpft — verwenden Sie das Dropdown, sonst wird sie als loser Text gespeichert.",
       "cancel": "Abbrechen",
       "confirmStage": "Station bestätigen",
-      "remove": "Löschen"
+      "remove": "Löschen",
+      "rolesLabel": "Rollen in dieser Etappe (bis zu 3)",
+      "rolesPlaceholder": "z. B. Cheftrainer, Analyst, Scout"
     },
     "rowRead": {
       "chipProposed": "Vorgeschlagen",

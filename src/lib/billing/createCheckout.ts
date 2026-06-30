@@ -311,15 +311,25 @@ async function createMpCheckout(args: {
       `preapproval_plan_id=${encodeURIComponent(preApprovalPlanId)}` +
       `&external_reference=${encodeURIComponent(args.internalSessionId)}`;
 
-    // Store the plan id (prefixed) as a placeholder for processorSessionId
-    // — the actual preapproval id arrives via webhook and `onPreApproval`
-    // upserts the subscriptions row keyed by external_reference. Until
-    // that happens, the /processing page resolves via external_reference.
+    // Leave processorSessionId NULL until the real preapproval id is known
+    // (it arrives via the `onPreApproval` webhook, or is resolved by
+    // reconcile through MP's `preapproval/search?external_reference`).
+    //
+    // We must NOT write a constant placeholder here. `processor_session_id`
+    // is covered by the partial UNIQUE index
+    //   (processor, processor_session_id) WHERE processor_session_id IS NOT NULL
+    // and `preApprovalPlanId` is the SAME value for every buyer of a given
+    // plan — so a `plan:<id>` placeholder collides on the 2nd+ buyer with
+    // "duplicate key value violates unique constraint
+    // checkout_sessions_processor_session_idx", failing this UPDATE and
+    // blocking the redirect to Mercado Pago. NULLs are exempt from the
+    // partial index, so they never collide. The /processing page and
+    // reconcile both resolve the session via external_reference (= our id).
     await db
       .update(checkoutSessions)
       .set({
         status: "redirected",
-        processorSessionId: `plan:${preApprovalPlanId}`,
+        processorSessionId: null,
         processorSessionUrl: initPoint,
       })
       .where(eqId(args.internalSessionId));

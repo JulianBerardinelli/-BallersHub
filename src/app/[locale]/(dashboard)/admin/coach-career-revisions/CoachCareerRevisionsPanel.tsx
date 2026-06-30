@@ -3,11 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button, Textarea } from "@heroui/react";
+import { isStaffRole, staffRoleLabel, type StaffRoleType } from "@/lib/staff/roles";
 
 export type DiffStage = {
   club: string;
   roleTitle: string | null;
+  roles: StaffRoleType[];
   division: string | null;
   startYear: number | null;
   endYear: number | null;
@@ -35,8 +38,15 @@ export type CoachRevisionRequest = {
   after: { career: DiffStage[]; stats: DiffStat[] };
 };
 
-const stageLine = (s: DiffStage) =>
-  `${s.club} — ${s.roleTitle || "DT"} · ${s.division || "—"} · ${s.startYear ?? "?"}–${s.endYear ?? "actual"}`;
+// Resuelve los roles[] estructurados a labels localizados (es fallback) para el
+// diff. `t` es el translator del namespace `staff`.
+const stageLine = (s: DiffStage, t?: (key: string) => string) => {
+  const roleChips = (s.roles ?? [])
+    .filter(isStaffRole)
+    .map((r) => staffRoleLabel(r, t));
+  const rolesStr = roleChips.length > 0 ? ` [${roleChips.join(", ")}]` : "";
+  return `${s.club} — ${s.roleTitle || "DT"}${rolesStr} · ${s.division || "—"} · ${s.startYear ?? "?"}–${s.endYear ?? "actual"}`;
+};
 
 const statLine = (s: DiffStat) =>
   `${s.season} · ${s.team || "—"}${s.competition ? ` (${s.competition})` : ""} · PJ ${s.matches} · ${s.wins}G/${s.draws}E/${s.losses}P · GF ${s.goalsFor}/GC ${s.goalsAgainst}`;
@@ -47,6 +57,7 @@ export default function CoachCareerRevisionsPanel({
   requests: CoachRevisionRequest[];
 }) {
   const router = useRouter();
+  const tStaffRoles = useTranslations("staff") as unknown as (key: string) => string;
   const [items, setItems] = React.useState(requests);
   const [notes, setNotes] = React.useState<Record<string, string>>({});
   const [busy, setBusy] = React.useState<string | null>(null);
@@ -127,8 +138,8 @@ export default function CoachCareerRevisionsPanel({
 
             <DiffBlock
               title="Trayectoria"
-              before={req.before.career.map(stageLine)}
-              after={req.after.career.map(stageLine)}
+              before={req.before.career.map((s) => stageLine(s, tStaffRoles))}
+              after={req.after.career.map((s) => stageLine(s, tStaffRoles))}
             />
             <DiffBlock
               title="Estadísticas por temporada"

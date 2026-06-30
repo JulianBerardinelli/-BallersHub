@@ -42,6 +42,7 @@ function toEditorItem(stage: CoachEditorStage): AugmentedCareerItem {
     originalId: stage.originalId,
     club: stage.team?.name ?? stage.club ?? "",
     role_title: stage.roleTitle ?? null,
+    roles: stage.roles ?? [],
     division: stage.division ?? null,
     division_id: stage.divisionId ?? null,
     secondary_division: stage.secondaryDivision ?? null,
@@ -65,6 +66,7 @@ function mapItemToPayload(item: AugmentedCareerItem) {
     originalId: item.originalId ?? null,
     club: item.club,
     roleTitle: item.role_title ?? null,
+    roles: item.roles ?? [],
     division: item.division ?? null,
     divisionId: item.division_id ?? null,
     secondaryDivision: item.secondary_division ?? null,
@@ -266,6 +268,7 @@ export default function CoachCareerManager({
         onChange={(rows) => setItems(rows as AugmentedCareerItem[])}
         optional={false}
         showRole
+        showRoles
         readOnly={isLocked}
       />
 

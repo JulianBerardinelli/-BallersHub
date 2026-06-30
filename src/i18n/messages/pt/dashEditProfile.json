@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "Liga não vinculada ao catálogo — use o menu suspenso ou ficará salva como texto livre.",
       "cancel": "Cancelar",
       "confirmStage": "Confirmar etapa",
-      "remove": "Excluir"
+      "remove": "Excluir",
+      "rolesLabel": "Funções nesta etapa (até 3)",
+      "rolesPlaceholder": "Ex: Treinador, Analista, Observador"
     },
     "rowRead": {
       "chipProposed": "Proposto",

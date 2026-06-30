@@ -32,8 +32,10 @@ import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
 import {
   isHeadCoachLayout,
+  isStaffRole,
   staffRoleLabel,
   staffRolesSummary,
+  type StaffRoleType,
 } from "@/lib/staff/roles";
 import { getTranslations } from "next-intl/server";
 import {
@@ -314,14 +316,32 @@ export default async function CoachPublicPage({
     locale,
   );
 
-  const career: CoachCareerRow[] = careerRows.map((c) => ({
-    id: c.id,
-    club: c.club,
-    roleTitle: c.roleTitle,
-    division: c.division,
-    startYear: yearOf(c.startDate),
-    endYear: yearOf(c.endDate),
-  }));
+  // Translator de roles (namespace `staff`) para localizar los chips de
+  // `roles[]` por etapa. Mismo namespace que el roleDisplay del perfil.
+  const tStaffRolesForCareer = await getTranslations({ locale, namespace: "staff" });
+  const localizeRoles = (raw: unknown): { roles: StaffRoleType[]; roleLabels: string[] } => {
+    const roles = (Array.isArray(raw) ? raw : []).filter(isStaffRole);
+    return {
+      roles,
+      roleLabels: roles.map((r) =>
+        staffRoleLabel(r, tStaffRolesForCareer as unknown as (key: string) => string),
+      ),
+    };
+  };
+
+  const career: CoachCareerRow[] = careerRows.map((c) => {
+    const { roles, roleLabels } = localizeRoles((c as { roles?: unknown }).roles);
+    return {
+      id: c.id,
+      club: c.club,
+      roleTitle: c.roleTitle,
+      roles,
+      roleLabels,
+      division: c.division,
+      startYear: yearOf(c.startDate),
+      endYear: yearOf(c.endDate),
+    };
+  });
 
   const stats: CoachStatRow[] = statRows.map((s) => ({
     id: s.id,
