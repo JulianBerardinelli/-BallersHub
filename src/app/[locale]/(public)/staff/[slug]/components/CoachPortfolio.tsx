@@ -49,6 +49,12 @@ export type CoachHonourRow = {
   title: string;
   competition: string | null;
   season: string | null;
+  // P1.2 — logros por etapa con video. `careerLabel` ya viene resuelto en el
+  // server (club de la etapa); NULL si el logro no está vinculado a una etapa.
+  description: string | null;
+  careerItemId: string | null;
+  careerLabel: string | null;
+  videoUrl: string | null;
 };
 
 export type CoachLicenseRow = {

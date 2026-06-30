@@ -1,6 +1,7 @@
-import { pgTable, uuid, text, boolean, jsonb, timestamp, date, char, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, boolean, jsonb, timestamp, date, char, integer, uniqueIndex } from "drizzle-orm/pg-core";
 import { coachProfiles } from "./coaches";
 import { coachCareerItems } from "./coachCareer";
+import { reviewStatusEnum } from "./enums";
 import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
 
 export const coachThemeSettings = pgTable("coach_theme_settings", {
@@ -63,7 +64,19 @@ export const coachHonours = pgTable("coach_honours", {
   season: text("season"),
   awardedOn: date("awarded_on"),
   description: text("description"),
+  // Logro asociado a una etapa de la trayectoria (P1.2). El render lo agrupa
+  // bajo su etapa; NULL → logro "global" (sin etapa concreta).
   careerItemId: uuid("career_item_id").references(() => coachCareerItems.id, { onDelete: "set null" }),
+  // Clip del logro (YouTube/Vimeo). Embebido como los videos de multimedia.
+  videoUrl: text("video_url"),
+  // Orden manual dentro de su etapa / del grid global.
+  position: integer("position").notNull().default(0),
+  // Pre-moderación (P1.2): nace 'pending', el público sólo ve 'approved'.
+  // Hasta P1.2 la tabla no se editaba (0 filas) → default seguro.
+  status: reviewStatusEnum("status").default("pending").notNull(),
+  reviewedByUserId: uuid("reviewed_by_user_id"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  rejectionReason: text("rejection_reason"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

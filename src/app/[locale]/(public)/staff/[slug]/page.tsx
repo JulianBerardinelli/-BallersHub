@@ -289,8 +289,8 @@ export default async function CoachPublicPage({
       db
         .select()
         .from(coachHonours)
-        .where(eq(coachHonours.coachId, coach.id))
-        .orderBy(desc(coachHonours.awardedOn)),
+        .where(and(eq(coachHonours.coachId, coach.id), eq(coachHonours.status, "approved")))
+        .orderBy(asc(coachHonours.position), desc(coachHonours.awardedOn)),
       db
         .select()
         .from(coachLicenses)
@@ -411,13 +411,20 @@ export default async function CoachPublicPage({
       title: m.title,
     }));
 
+  // Map etapa → club para resolver el `careerLabel` de cada logro vinculado.
+  const careerClubById = new Map(career.map((c) => [c.id, c.club]));
   const honours: CoachHonourRow[] = honourRows.map((h) => {
     const tr = honourTr.get(h.id);
+    const careerItemId = (h as { careerItemId: string | null }).careerItemId ?? null;
     return {
       id: h.id,
       title: (tr?.title ?? h.title) || h.title,
       competition: tr?.competition ?? h.competition,
       season: h.season,
+      description: (tr?.description ?? h.description) || null,
+      careerItemId,
+      careerLabel: careerItemId ? (careerClubById.get(careerItemId) ?? null) : null,
+      videoUrl: (h as { videoUrl: string | null }).videoUrl ?? null,
     };
   });
 

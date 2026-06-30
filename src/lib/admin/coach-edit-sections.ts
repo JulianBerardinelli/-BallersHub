@@ -16,6 +16,7 @@ export const COACH_ADMIN_EDIT_DOMAINS = [
   "multimedia",
   "metodologia",
   "ideas-juego",
+  "logros",
   "idiomas",
 ] as const;
 
@@ -31,6 +32,7 @@ export const COACH_ADMIN_EDIT_SECTIONS: { key: CoachAdminEditDomain; label: stri
   { key: "multimedia", label: "Multimedia" },
   { key: "metodologia", label: "Metodología" },
   { key: "ideas-juego", label: "Ideas de Juego" },
+  { key: "logros", label: "Logros" },
   { key: "enlaces", label: "Enlaces" },
   { key: "idiomas", label: "Idiomas" },
 ];
@@ -49,6 +51,7 @@ export const COACH_ADMIN_EDIT_DOMAIN_LABELS: Record<CoachAdminEditDomain, string
   multimedia: "multimedia",
   metodologia: "metodología",
   "ideas-juego": "ideas de juego",
+  logros: "logros",
   idiomas: "traducciones",
 };
 
@@ -62,6 +65,7 @@ export const COACH_ADMIN_EDIT_DOMAIN_HREFS: Record<CoachAdminEditDomain, string>
   multimedia: "/dashboard/coach/multimedia",
   metodologia: "/dashboard/coach/methodology",
   "ideas-juego": "/dashboard/coach/game-ideas",
+  logros: "/dashboard/coach/honours",
   idiomas: "/dashboard/coach/translations",
 };
 
