@@ -169,6 +169,13 @@
       "when": 1782784900793,
       "tag": "0023_aromatic_rocket_racer",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1782841347391,
+      "tag": "0024_small_jocasta",
+      "breakpoints": true
     }
   ]
 }

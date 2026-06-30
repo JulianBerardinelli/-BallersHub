@@ -318,6 +318,13 @@ export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
       },
       {
         kind: "link",
+        id: "coach-honours",
+        title: "Logros",
+        href: "/dashboard/coach/honours",
+        description: "Títulos y logros por etapa, con video opcional.",
+      },
+      {
+        kind: "link",
         id: "coach-multimedia",
         title: "Multimedia",
         href: "/dashboard/coach/multimedia",

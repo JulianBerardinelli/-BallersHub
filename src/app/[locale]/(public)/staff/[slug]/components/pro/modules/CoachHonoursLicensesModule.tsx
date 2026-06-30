@@ -60,7 +60,7 @@ export default function CoachHonoursLicensesModule({
           </Reveal>
           <ul className="grid gap-2.5 sm:grid-cols-2">
             {honours.map((h, i) => (
-              <HonourCard key={h.id} honour={h} index={i} />
+              <HonourCard key={h.id} honour={h} index={i} accent={accent} />
             ))}
           </ul>
         </div>
@@ -70,11 +70,19 @@ export default function CoachHonoursLicensesModule({
 }
 
 // Gold/medal honour card — same visual language as the player's career honours
-// (yellow gradient, trophy vs star badge), restyled as a standalone grid card
-// since coach honours carry no description/awardedOn to warrant a modal.
-function HonourCard({ honour, index }: { honour: CoachHonourRow; index: number }) {
+// (yellow gradient, trophy vs star badge). P1.2: muestra la etapa vinculada
+// (careerLabel), la descripción y un botón de video opcional (abre el clip).
+function HonourCard({
+  honour,
+  index,
+  accent,
+}: {
+  honour: CoachHonourRow;
+  index: number;
+  accent: string;
+}) {
   const isTrophy = isHonourTrophy(honour.title);
-  const meta = [honour.competition, honour.season].filter(Boolean).join(" • ");
+  const meta = [honour.competition, honour.season, honour.careerLabel].filter(Boolean).join(" • ");
 
   return (
     <motion.li
@@ -82,33 +90,54 @@ function HonourCard({ honour, index }: { honour: CoachHonourRow; index: number }
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.3 }}
       transition={{ duration: 0.5, delay: Math.min(index * 0.06, 0.36), ease: [0.16, 1, 0.3, 1] }}
-      className="group flex items-center justify-between gap-3 rounded-xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-transparent px-4 py-3"
+      className="group flex flex-col gap-2 rounded-xl border border-yellow-500/20 bg-gradient-to-r from-yellow-500/10 to-transparent px-4 py-3"
     >
-      <div className="flex min-w-0 flex-col">
-        <span className="truncate font-bh-display text-sm font-bold uppercase tracking-wide text-yellow-500">
-          {honour.title}
-        </span>
-        {meta && (
-          <span className="truncate font-body text-[11px] font-semibold uppercase tracking-wider text-yellow-500/50">
-            {meta}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 flex-col">
+          <span className="truncate font-bh-display text-sm font-bold uppercase tracking-wide text-yellow-500">
+            {honour.title}
           </span>
-        )}
+          {meta && (
+            <span className="truncate font-body text-[11px] font-semibold uppercase tracking-wider text-yellow-500/50">
+              {meta}
+            </span>
+          )}
+        </div>
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-yellow-500/20 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
+          {isTrophy ? (
+            <svg className="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
+              <path d="M12 2L15 8H9L12 2Z" />
+              <path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" />
+              <path d="M11 17V20H8V22H16V20H13V17H11Z" />
+              <path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" />
+              <path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" />
+            </svg>
+          ) : (
+            <svg className="size-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          )}
+        </span>
       </div>
-      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-yellow-500/20 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.15)]">
-        {isTrophy ? (
-          <svg className="size-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path d="M12 2L15 8H9L12 2Z" />
-            <path d="M19 8H5V10C5 13.866 8.13401 17 12 17C15.866 17 19 13.866 19 10V8Z" />
-            <path d="M11 17V20H8V22H16V20H13V17H11Z" />
-            <path d="M5 8C3.34315 8 2 9.34315 2 11C2 12.6569 3.34315 14 5 14V8Z" />
-            <path d="M19 8C20.6569 8 22 9.34315 22 11C22 12.6569 20.6569 14 19 14V8Z" />
+
+      {honour.description && (
+        <p className="font-body text-[12px] leading-relaxed text-white/60">{honour.description}</p>
+      )}
+
+      {honour.videoUrl && (
+        <a
+          href={honour.videoUrl}
+          target="_blank"
+          rel="noreferrer nofollow"
+          className="inline-flex w-fit items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest transition-opacity hover:opacity-80"
+          style={{ color: accent }}
+        >
+          <svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <path d="M8 5v14l11-7z" />
           </svg>
-        ) : (
-          <svg className="size-3.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        )}
-      </span>
+          Ver video
+        </a>
+      )}
     </motion.li>
   );
 }

@@ -47,6 +47,7 @@ const NAV_SECTIONS: NavSection[] = [
       { href: "/admin/coach-licenses", label: "Licencias Staff", roles: ["admin", "moderator"] },
       { href: "/admin/coach-methodology", label: "Metodología Staff", roles: ["admin", "moderator"] },
       { href: "/admin/coach-game-ideas", label: "Ideas de Juego", roles: ["admin", "moderator"] },
+      { href: "/admin/coach-honours", label: "Logros Staff", roles: ["admin", "moderator"] },
     ],
   },
   {

@@ -688,14 +688,32 @@ async function LicensesHonours({ data }: { data: CoachPortfolioData }) {
                 {data.honours.map((h) => (
                   <li
                     key={h.id}
-                    className="flex flex-wrap items-baseline gap-x-2 rounded-lg border border-white/[0.08] bg-bh-surface-1 px-4 py-3 font-body text-sm"
+                    className="rounded-lg border border-white/[0.08] bg-bh-surface-1 px-4 py-3 font-body text-sm"
                   >
-                    <span aria-hidden className="text-bh-lime">★</span>
-                    <span className="font-semibold text-bh-fg-1">{h.title}</span>
-                    {(h.competition || h.season) && (
-                      <span className="text-bh-fg-4">
-                        · {[h.competition, h.season].filter(Boolean).join(" · ")}
-                      </span>
+                    <div className="flex flex-wrap items-baseline gap-x-2">
+                      <span aria-hidden className="text-bh-lime">★</span>
+                      <span className="font-semibold text-bh-fg-1">{h.title}</span>
+                      {(h.competition || h.season || h.careerLabel) && (
+                        <span className="text-bh-fg-4">
+                          · {[h.competition, h.season, h.careerLabel].filter(Boolean).join(" · ")}
+                        </span>
+                      )}
+                      {h.videoUrl && (
+                        <a
+                          href={h.videoUrl}
+                          target="_blank"
+                          rel="noreferrer nofollow"
+                          className="ml-auto inline-flex items-center gap-1 text-[12px] font-semibold text-bh-lime hover:underline"
+                        >
+                          <svg className="size-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                          Video
+                        </a>
+                      )}
+                    </div>
+                    {h.description && (
+                      <p className="mt-1 text-[13px] leading-relaxed text-bh-fg-3">{h.description}</p>
                     )}
                   </li>
                 ))}

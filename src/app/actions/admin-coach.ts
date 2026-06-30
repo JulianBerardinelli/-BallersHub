@@ -26,6 +26,7 @@ import { isMethodologyIconKey } from "@/lib/staff/methodology-icons";
 import { pitchBoardSchema, EMPTY_PITCH_BOARD } from "@/lib/coach/game-ideas";
 import type { CoachProfileInput } from "./coach-profile";
 import type { GameIdeaInput, GameIdeaActionResult } from "./coach-game-ideas";
+import type { HonourInput, HonourActionResult } from "./coach-honours";
 import type {
   CoachCareerRevisionSubmissionInput,
   CoachCareerActionResult,
@@ -1096,6 +1097,161 @@ export async function adminDeleteGameIdea(
     slug: coach?.slug ?? null,
     domain: "ideas-juego",
     changedFields: ["Idea de juego eliminada"],
+  });
+  return { success: true };
+}
+
+// ─────────────────────────── logros (admin, live) ───────────────────────────
+// Mirrors upsertHonour/deleteHonour, service-role + target coachId. El admin ES
+// el moderador → escribe APPROVED directo (sin cap). El careerItemId, si viene,
+// debe pertenecer al coach.
+
+const adminHonourSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string().trim().min(1, "Ingresá un título.").max(120),
+  competition: optText(120),
+  season: optText(40),
+  description: optText(2000),
+  careerItemId: z
+    .union([z.string().uuid(), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v ? v : null)),
+  videoUrl: z
+    .union([z.string().trim().max(500), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+    .refine((v) => v === null || /^https?:\/\//i.test(v), {
+      message: "El video debe ser un enlace http:// o https://.",
+    }),
+});
+
+export async function adminUpsertHonour(
+  coachId: string,
+  input: HonourInput,
+): Promise<HonourActionResult> {
+  const parsed = adminHonourSchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const d = parsed.data;
+
+  // El careerItemId, si viene, debe ser del coach target.
+  if (d.careerItemId) {
+    const { data: ci } = await admin
+      .from("coach_career_items")
+      .select("id")
+      .eq("id", d.careerItemId)
+      .eq("coach_id", coachId)
+      .maybeSingle<{ id: string }>();
+    if (!ci) return { success: false, message: "La etapa seleccionada no es válida." };
+  }
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const reviewed = {
+    status: "approved" as const,
+    reviewed_by_user_id: gate.actor.actorId,
+    reviewed_at: new Date().toISOString(),
+    rejection_reason: null,
+  };
+
+  let honourId = d.id ?? null;
+  if (d.id) {
+    const { data, error } = await admin
+      .from("coach_honours")
+      .update({
+        title: d.title,
+        competition: d.competition,
+        season: d.season,
+        description: d.description,
+        career_item_id: d.careerItemId,
+        video_url: d.videoUrl,
+        ...reviewed,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", d.id)
+      .eq("coach_id", coachId)
+      .select("id")
+      .maybeSingle<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    if (!data) return { success: false, message: "No se encontró el logro." };
+    honourId = data.id;
+  } else {
+    const { data: maxRow } = await admin
+      .from("coach_honours")
+      .select("position")
+      .eq("coach_id", coachId)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ position: number }>();
+    const nextPosition = (maxRow?.position ?? -1) + 1;
+    const { data, error } = await admin
+      .from("coach_honours")
+      .insert({
+        coach_id: coachId,
+        title: d.title,
+        competition: d.competition,
+        season: d.season,
+        description: d.description,
+        career_item_id: d.careerItemId,
+        video_url: d.videoUrl,
+        position: nextPosition,
+        ...reviewed,
+      })
+      .select("id")
+      .single<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    honourId = data.id;
+  }
+
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/logros`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "logros",
+    changedFields: [d.title],
+  });
+  return { success: true, id: honourId ?? undefined };
+}
+
+export async function adminDeleteHonour(
+  coachId: string,
+  id: string,
+): Promise<HonourActionResult> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const { error } = await admin
+    .from("coach_honours")
+    .delete()
+    .eq("id", id)
+    .eq("coach_id", coachId);
+  if (error) return { success: false, message: error.message };
+
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/logros`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "logros",
+    changedFields: ["Logro eliminado"],
   });
   return { success: true };
 }
