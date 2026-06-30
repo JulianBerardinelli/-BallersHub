@@ -90,6 +90,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       alternates: { languages: sitemapLanguages("/agencies") },
     },
     {
+      url: `${base}/staff`,
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+      // Hub del Cuerpo Técnico (chrome localizado vía staff.directory ns en todos
+      // los locales) → emit hreflang. Espeja /players y /agencies.
+      alternates: { languages: sitemapLanguages("/staff") },
+    },
+    {
       url: `${base}/pricing`,
       lastModified: now,
       changeFrequency: "monthly",

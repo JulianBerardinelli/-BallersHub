@@ -21,5 +21,25 @@
   "methodology": {
     "eyebrow": "Methodology",
     "freeHeading": "How I work"
+  },
+  "directory": {
+    "metaTitle": "Coaching Staff — Coaches & staff | BallersHub",
+    "metaDescription": "Directory of verified coaches, fitness coaches, analysts and coaching staff on BallersHub. Filter by role, nationality and language.",
+    "ogTitle": "Verified coaching staff · BallersHub",
+    "collectionName": "Coaching Staff",
+    "heroEyebrow": "Directory",
+    "heroTitle": "Coaching Staff",
+    "heroSubtitle": "Verified coaches, fitness coaches, analysts and specialists.",
+    "filters": {
+      "role": "Role",
+      "nationality": "Nationality",
+      "language": "Language",
+      "all": "All",
+      "clear": "Clear filters"
+    },
+    "results": "{count, plural, =0 {No results} one {# profile} other {# profiles}}",
+    "empty": "No profiles match those filters.",
+    "currentClub": "Current club",
+    "viewProfile": "View profile"
   }
 }

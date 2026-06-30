@@ -21,5 +21,25 @@
   "methodology": {
     "eyebrow": "Metodología",
     "freeHeading": "Mi forma de trabajo"
+  },
+  "directory": {
+    "metaTitle": "Cuerpo Técnico — Entrenadores y staff | BallersHub",
+    "metaDescription": "Directorio de entrenadores, preparadores físicos, analistas y cuerpo técnico verificado en BallersHub. Filtrá por rol, nacionalidad e idioma.",
+    "ogTitle": "Cuerpo Técnico verificado · BallersHub",
+    "collectionName": "Cuerpo Técnico",
+    "heroEyebrow": "Directorio",
+    "heroTitle": "Cuerpo Técnico",
+    "heroSubtitle": "Entrenadores, preparadores, analistas y especialistas verificados.",
+    "filters": {
+      "role": "Rol",
+      "nationality": "Nacionalidad",
+      "language": "Idioma",
+      "all": "Todos",
+      "clear": "Limpiar filtros"
+    },
+    "results": "{count, plural, =0 {Sin resultados} one {# perfil} other {# perfiles}}",
+    "empty": "No encontramos perfiles con esos filtros.",
+    "currentClub": "Club actual",
+    "viewProfile": "Ver perfil"
   }
 }

@@ -21,5 +21,25 @@
   "methodology": {
     "eyebrow": "Methodik",
     "freeHeading": "Meine Arbeitsweise"
+  },
+  "directory": {
+    "metaTitle": "Trainerstab — Trainer und Staff | BallersHub",
+    "metaDescription": "Verzeichnis verifizierter Trainer, Fitnesstrainer, Analysten und Trainerstab auf BallersHub. Nach Rolle, Nationalität und Sprache filtern.",
+    "ogTitle": "Verifizierter Trainerstab · BallersHub",
+    "collectionName": "Trainerstab",
+    "heroEyebrow": "Verzeichnis",
+    "heroTitle": "Trainerstab",
+    "heroSubtitle": "Verifizierte Trainer, Fitnesstrainer, Analysten und Spezialisten.",
+    "filters": {
+      "role": "Rolle",
+      "nationality": "Nationalität",
+      "language": "Sprache",
+      "all": "Alle",
+      "clear": "Filter zurücksetzen"
+    },
+    "results": "{count, plural, =0 {Keine Ergebnisse} one {# Profil} other {# Profile}}",
+    "empty": "Keine Profile entsprechen diesen Filtern.",
+    "currentClub": "Aktueller Verein",
+    "viewProfile": "Profil ansehen"
   }
 }
