@@ -26,7 +26,6 @@ import {
 } from "@/lib/i18n/profile-content";
 import { resolveProUserIds, FREE_BIO_INDEX_MIN_CHARS } from "@/lib/seo/indexable-profiles";
 import { conditionalAlternates } from "@/lib/seo/hreflang";
-import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
@@ -163,7 +162,6 @@ export async function generateMetadata({
     currentClub: coach.currentClub,
     nationality: coach.nationality,
   });
-  const ogImage = coach.avatarUrl ? toCanonicalUrl(coach.avatarUrl) : undefined;
 
   return {
     title,
@@ -177,13 +175,13 @@ export async function generateMetadata({
       type: "profile",
       siteName: "'BallersHub",
       locale: OG_LOCALE[locale],
-      ...(ogImage && { images: [{ url: ogImage, alt: coach.fullName }] }),
+      // og:image comes from `opengraph-image.tsx` (branded card). Don't set
+      // `images` here — it would override the file convention with the avatar.
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(ogImage && { images: [ogImage] }),
     },
   };
 }

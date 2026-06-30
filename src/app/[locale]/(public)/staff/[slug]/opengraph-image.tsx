@@ -1,44 +1,37 @@
+// Dynamic Open Graph image for staff (coaches / técnicos) portfolios.
+// Reuses the player card frame from the Claude Design handoff, adapted for
+// staff (role eyebrow + role chip, URL under /staff/). The page must NOT set
+// `openGraph.images`, or it overrides this file with the raw avatar.
+
 import { ImageResponse } from "next/og";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { coachProfiles } from "@/db/schema";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
+import { flagEmoji, countryName, alpha2FromLegacyNationality } from "@/lib/scouting/taxonomies";
+import { OG_SIZE, ACCENT } from "@/lib/og/tokens";
+import { ogFonts } from "@/lib/og/fonts";
+import { ogAssets } from "@/lib/og/assets";
+import { ogStrings } from "@/lib/og/strings";
+import { PlayerCard, type PlayerCardData } from "@/lib/og/cards";
 
-// node runtime: db uses node-postgres (pg), which can't run on edge.
 export const runtime = "nodejs";
-export const size = { width: 1200, height: 630 };
+export const size = OG_SIZE;
 export const contentType = "image/png";
+export const alt = "'BallersHub — Cuerpo técnico";
 export const revalidate = 3600;
 
-const FONT = "system-ui, -apple-system, Segoe UI, sans-serif";
+const DEFAULT_AVATAR = "/images/player-default.jpg";
 
-function brandOnly(title: string) {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#050505",
-          fontFamily: FONT,
-        }}
-      >
-        <div style={{ fontSize: 80, fontWeight: 800, color: "#fff", letterSpacing: -2 }}>{title}</div>
-        <div style={{ marginTop: 16, fontSize: 30, color: "#CCFF00" }}>{"'BallersHub"}</div>
-      </div>
-    ),
-    { ...size },
-  );
-}
-
-type RouteParams = { locale: string; slug: string };
-
-export default async function CoachOgImage({ params }: { params: Promise<RouteParams> }) {
-  const { slug } = await params;
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const lang = locale === "es" ? "es" : "en";
+  const S = ogStrings(lang);
+  const staffEyebrow = lang === "es" ? "Cuerpo técnico" : "Coaching staff";
 
   const [coach] = await db
     .select({
@@ -46,6 +39,7 @@ export default async function CoachOgImage({ params }: { params: Promise<RoutePa
       roleTitle: coachProfiles.roleTitle,
       currentClub: coachProfiles.currentClub,
       avatarUrl: coachProfiles.avatarUrl,
+      nationality: coachProfiles.nationality,
     })
     .from(coachProfiles)
     .where(
@@ -57,47 +51,52 @@ export default async function CoachOgImage({ params }: { params: Promise<RoutePa
     )
     .limit(1);
 
-  if (!coach) return brandOnly("'BallersHub");
+  const [fonts, assets] = await Promise.all([ogFonts(), ogAssets()]);
 
-  const avatar = coach.avatarUrl ? toCanonicalUrl(coach.avatarUrl) : null;
+  const baseData = (over: Partial<PlayerCardData>): PlayerCardData => ({
+    firstName: "",
+    lastName: "'BallersHub",
+    flag: "",
+    countryName: "",
+    eyebrow: staffEyebrow,
+    slug: `staff/${slug}`,
+    avatarUrl: toCanonicalUrl(DEFAULT_AVATAR),
+    verified: false,
+    chips: [],
+    club: null,
+    crestUrl: null,
+    verifiedTag: S.verifiedTag,
+    ...over,
+  });
+
+  if (!coach) {
+    return new ImageResponse(
+      <PlayerCard d={baseData({})} ac={ACCENT.lima} wordmark={assets.wordmark} />,
+      { ...size, fonts, emoji: "twemoji" },
+    );
+  }
+
+  const tokens = coach.fullName.trim().split(/\s+/);
+  const firstName = tokens.length > 1 ? tokens[0] : "";
+  const lastName = tokens.length > 1 ? tokens.slice(1).join(" ") : coach.fullName.trim();
+  const alpha2 = alpha2FromLegacyNationality(coach.nationality?.[0] ?? null);
+
+  const data = baseData({
+    firstName,
+    lastName,
+    flag: alpha2 ? flagEmoji(alpha2) : "",
+    countryName: alpha2 ? countryName(alpha2) : "",
+    avatarUrl:
+      coach.avatarUrl && coach.avatarUrl !== DEFAULT_AVATAR
+        ? toCanonicalUrl(coach.avatarUrl)
+        : toCanonicalUrl(DEFAULT_AVATAR),
+    verified: true,
+    chips: coach.roleTitle ? [{ accent: true, label: coach.roleTitle }] : [],
+    club: coach.currentClub ?? null,
+  });
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          gap: 56,
-          padding: "0 90px",
-          background: "linear-gradient(135deg, #0a0a0a 0%, #111 100%)",
-          fontFamily: FONT,
-        }}
-      >
-        {avatar && (
-          <img
-            src={avatar}
-            alt=""
-            width={300}
-            height={300}
-            style={{ width: 300, height: 300, borderRadius: 28, objectFit: "cover", border: "4px solid #CCFF00" }}
-          />
-        )}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 26, fontWeight: 700, color: "#CCFF00", letterSpacing: 1 }}>
-            {(coach.roleTitle || "DIRECTOR TÉCNICO").toUpperCase()}
-          </div>
-          <div style={{ fontSize: 72, fontWeight: 800, color: "#fff", lineHeight: 1.05, marginTop: 6 }}>
-            {coach.fullName}
-          </div>
-          {coach.currentClub && (
-            <div style={{ fontSize: 32, color: "#bbb", marginTop: 10 }}>{coach.currentClub}</div>
-          )}
-          <div style={{ fontSize: 24, color: "#888", marginTop: 28 }}>ballershub.co/coach/{slug}</div>
-        </div>
-      </div>
-    ),
-    { ...size },
+    <PlayerCard d={data} ac={ACCENT.lima} wordmark={assets.wordmark} />,
+    { ...size, fonts, emoji: "twemoji" },
   );
 }
