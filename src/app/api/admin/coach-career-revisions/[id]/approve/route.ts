@@ -60,7 +60,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
     admin
       .from("coach_career_revision_items")
       .select(
-        "id, club, role_title, division, division_id, secondary_division, secondary_division_id, start_year, end_year, team_id, proposed_team_id, order_index",
+        "id, club, role_title, roles, division, division_id, secondary_division, secondary_division_id, start_year, end_year, team_id, proposed_team_id, order_index",
       )
       .eq("request_id", id)
       .order("order_index", { ascending: true }),
@@ -149,6 +149,7 @@ export async function POST(req: Request, ctx: { params: Params }) {
         coach_id: coachId,
         club: it.club,
         role_title: it.role_title,
+        roles: it.roles ?? null,
         division: it.division,
         division_id: it.division_id,
         secondary_division: it.secondary_division,

@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { STAFF_ROLES, MAX_STAGE_ROLES } from "@/lib/staff/roles";
 
 // ─────────────────────────── result type ───────────────────────────
 
@@ -59,6 +60,20 @@ const optionalUuid = z
   .transform((value) => (value ? value : null))
   .nullable();
 
+// Roles estructurados de la etapa (enum staff_role_type). Filtra valores no
+// válidos, deduplica y recorta a MAX_STAGE_ROLES (3). Ausencia → [].
+const stageRolesField = z
+  .union([z.array(z.string()), z.null(), z.undefined()])
+  .transform((value) => {
+    const raw = Array.isArray(value) ? value : [];
+    const out: string[] = [];
+    for (const r of raw) {
+      if ((STAFF_ROLES as readonly string[]).includes(r) && !out.includes(r)) out.push(r);
+      if (out.length >= MAX_STAGE_ROLES) break;
+    }
+    return out;
+  });
+
 // ─────────────────────────── schemas ───────────────────────────────
 
 // Optional proposed-team payload (when the coach proposes a team not yet in the
@@ -87,6 +102,7 @@ const coachCareerStageSchema = z.object({
     .trim()
     .min(2, "El club debe tener al menos 2 caracteres."),
   roleTitle: optionalText(120, "Máximo 120 caracteres."),
+  roles: stageRolesField,
   division: optionalText(120, "Máximo 120 caracteres."),
   divisionId: optionalUuid,
   secondaryDivision: optionalText(120, "Máximo 120 caracteres."),
@@ -213,7 +229,7 @@ export async function submitCoachCareerRevision(
   const [{ data: careerSnap }, { data: statsSnap }] = await Promise.all([
     supabase
       .from("coach_career_items")
-      .select("id, club, role_title, division, start_date, end_date")
+      .select("id, club, role_title, roles, division, start_date, end_date")
       .eq("coach_id", coachId)
       .order("start_date", { ascending: false }),
     supabase
@@ -276,6 +292,7 @@ export async function submitCoachCareerRevision(
         original_item_id: stage.originalId ?? null,
         club: stage.club,
         role_title: stage.roleTitle,
+        roles: stage.roles.length > 0 ? stage.roles : null,
         division: stage.division,
         division_id: stage.divisionId ?? null,
         secondary_division: stage.secondaryDivision ?? null,

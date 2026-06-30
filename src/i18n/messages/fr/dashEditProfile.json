@@ -520,7 +520,9 @@
       "unlinkedLeagueWarning": "Ligue non liée au catalogue — utilisez le menu déroulant, sinon elle sera enregistrée comme texte libre.",
       "cancel": "Annuler",
       "confirmStage": "Confirmer l'étape",
-      "remove": "Supprimer"
+      "remove": "Supprimer",
+      "rolesLabel": "Rôles à cette étape (jusqu’à 3)",
+      "rolesPlaceholder": "Ex : Entraîneur, Analyste, Recruteur"
     },
     "rowRead": {
       "chipProposed": "Proposé",

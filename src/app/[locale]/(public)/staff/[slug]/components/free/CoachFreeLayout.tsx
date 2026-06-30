@@ -478,6 +478,18 @@ async function Career({ data }: { data: CoachPortfolioData }) {
                     <div className="mt-0.5 font-bh-display text-[22px] font-extrabold uppercase leading-[1.05] text-bh-fg-1 md:text-[26px]">
                       {c.club}
                     </div>
+                    {c.roleLabels.length > 0 && (
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {c.roleLabels.map((label, ri) => (
+                          <span
+                            key={`${c.id}-role-${ri}`}
+                            className="rounded border border-bh-lime/30 bg-bh-lime/10 px-1.5 py-0.5 font-bh-mono text-[11px] font-semibold uppercase tracking-[0.02em] text-bh-lime"
+                          >
+                            {label}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {(c.roleTitle || c.division) && (
                       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-body text-[13px] text-bh-fg-2">
                         {c.roleTitle && <span className="font-semibold">{c.roleTitle}</span>}

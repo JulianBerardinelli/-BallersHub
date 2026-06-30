@@ -18,6 +18,10 @@ export type CoachCareerRow = {
   id: string;
   club: string;
   roleTitle: string | null;
+  // Roles estructurados de la etapa (enum). `roleLabels` ya viene localizado
+  // (resuelto en el server con el namespace `staff`) para render directo de chips.
+  roles: StaffRoleType[];
+  roleLabels: string[];
   division: string | null;
   startYear: number | null;
   endYear: number | null;

@@ -9,15 +9,23 @@ import {
   AutocompleteItem,
   Chip,
   Switch,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import { supabase } from "@/lib/supabase/client";
 import { type CountryPick } from "@/components/common/CountrySinglePicker";
 import CountryFlag from "@/components/common/CountryFlag";
 import { validateYears, YEAR_MIN, YEAR_MAX } from "./career-utils";
+import {
+  STAFF_ROLES,
+  MAX_STAGE_ROLES,
+  isStaffRole,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
 
 import FormField from "@/components/dashboard/client/FormField";
 import { bhButtonClass } from "@/components/ui/BhButton";
-import { bhChip, bhSwitchClassNames } from "@/lib/ui/heroui-brand";
+import { bhChip, bhSwitchClassNames, bhSelectClassNames } from "@/lib/ui/heroui-brand";
 import TeamCombobox, { type TeamComboboxValue } from "@/components/teams/TeamCombobox";
 
 // Accent- and case-insensitive normalization for client-side league filtering.
@@ -39,6 +47,9 @@ export type RowDraft = {
   // Cargo en esa etapa (DT principal, asistente, etc.). Coach-only — el editor
   // lo muestra solo con `showRole`; el flujo de players lo ignora.
   role_title?: string | null;
+  // Roles estructurados de la etapa (máx 3, enum staff_role_type). Coach/staff-only
+  // — el editor lo muestra solo con `showRoles`; el flujo de players lo ignora.
+  roles?: StaffRoleType[] | null;
   division?: string | null;
   division_id?: string | null;
   division_meta?: { crest_url?: string | null } | null;
@@ -69,6 +80,7 @@ export default function CareerRowEditor({
   showCurrentToggle = true,
   onRequestCurrentChange,
   showRole = false,
+  showRoles = false,
 }: {
   value: RowDraft;
   onPatch: (patch: Partial<RowDraft>) => void;
@@ -78,10 +90,15 @@ export default function CareerRowEditor({
   overlapError?: string | null;
   showCurrentToggle?: boolean;
   onRequestCurrentChange?: (selected: boolean) => boolean | void;
-  /** Coach-only: render the "Cargo" (role) field above the team/division grid. */
+  /** Coach-only: render the "Cargo" (role) free-text field above the grid. */
   showRole?: boolean;
+  /** Coach/staff-only: render the structured `roles[]` multi-select (máx 3). */
+  showRoles?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
+  // Labels de los 13 oficios — namespace `staff`, clave `roles.<key>`.
+  const tStaffRoles = useTranslations("staff") as unknown as (key: string) => string;
+  const selectedRoles = (value.roles ?? []).filter(isStaffRole);
 
   // --- Club: shared search-or-propose combobox ---
   const teamValue: TeamComboboxValue = value.team_id
@@ -381,6 +398,28 @@ export default function CareerRowEditor({
 
   return (
     <div className="space-y-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4">
+      {showRoles ? (
+        <Select
+          aria-label={t("career.rowEditor.rolesLabel")}
+          label={t("career.rowEditor.rolesLabel")}
+          labelPlacement="outside"
+          variant="flat"
+          selectionMode="multiple"
+          placeholder={t("career.rowEditor.rolesPlaceholder")}
+          selectedKeys={selectedRoles}
+          onSelectionChange={(keys) => {
+            const arr = Array.from(keys)
+              .filter(isStaffRole)
+              .slice(0, MAX_STAGE_ROLES);
+            onPatch({ roles: arr });
+          }}
+          classNames={bhSelectClassNames}
+        >
+          {STAFF_ROLES.map((r) => (
+            <SelectItem key={r}>{tStaffRoles(`roles.${r}`)}</SelectItem>
+          ))}
+        </Select>
+      ) : null}
       {showRole ? (
         <FormField
           label="Cargo"

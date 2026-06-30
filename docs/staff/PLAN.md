@@ -50,6 +50,34 @@ El rename físico `coach_*`→`staff_*` sigue diferido (two-step).
 
 ---
 
+## Roadmap pendiente para completar el módulo (auditoría 2026-06-29)
+
+> Auditoría multi-agente de las 5 capas (onboarding/dashboard/público/admin/estructural), verificada contra el código. El **núcleo** funciona end-to-end; faltan estos para "completo".
+
+**P0 — para que el producto se sienta completo** (schema ya existe; falta cablear UI):
+- ~~**P0.1 `roles[]` por etapa visibles + editables (M).**~~ ✅ **HECHO** (PR `feat/staff-roles-per-stage`). Cableado end-to-end: loader (`career-data.ts` select+tipo), editor dashboard (`CareerEditor`/`CareerRowEditor`/`CareerRowRead` con prop `showRoles` gateada — players intactos), save action (`coach-career.ts` + `admin-coach.ts` live), materialize (`approve` route lee+escribe `roles`), render público (chips localizados en Free `CoachFreeLayout` + Pro `CoachCareerTimelineModule`), diff admin (`CoachCareerRevisionsPanel`). i18n `dashEditProfile.career.rowEditor.rolesLabel/rolesPlaceholder` (7 locales) + labels de roles vía namespace `staff`. **⚠️ Migración `0022_flawless_jubilee.sql` (ADD COLUMN `roles` a `coach_career_revision_items`) PENDIENTE de aplicar a dev+prod** — el editor del dashboard escribe `roles` en esa tabla de proposals, así que sin la columna el save de roles desde el dashboard falla (onboarding + admin-live NO dependen de ella, usan columnas ya existentes). Aplicar dev-first vía MCP + registrar hash; prod con OK del owner.
+- **P0.2 Editor de datos personales (M-L)** — `coach_personal_details` (residencia/educación/idiomas) vacía en prod, sin captura ni editor; el público ya los renderiza (siempre null). Capturar + materializar en approve + editor (espejar players `personal-data/`).
+- **P0.3 Módulo de Enlaces (M)** — `coach_links` sin editor; `externalProfileUrl` del Step2 **se pierde** en el approve. Portar `ExternalLinksManager` de players + render multi-link en bio. (P0.4: Transfermarkt visible cae acá.)
+- **P0.5 `primary_role`/`secondary_roles[]` editables post-aprobación (M)** — `CoachProfileEditor` solo edita `role_title` libre; las actions no aceptan los enums.
+- **P0.6 2.º asset Pro `modelUrl2` (S-M)** — no se edita ni renderiza (players sí); aclarar mapeo `heroUrl`/`modelUrl1/2`.
+- **P0.7 Admin edita metodología (S)** — `CoachMethodologyManager` ya soporta `liveMode`; falta la página admin. + agregar las secciones nuevas a `coach-edit-sections.ts` + `EditCoachSectionNav`.
+
+**P1 — features grandes del plan (requieren DB nueva):**
+- **P1.1 Ideas de Juego con pizarra interactiva** (Plan §5.2) — hoy `CoachTacticsModule` es estático; falta tabla `staff_game_ideas` + editor pizarra + render.
+- **P1.2 Logros por etapa con video** — trayectoria rica: logros + clips por etapa (tabla/columna `staff_career_achievements`).
+- **P1.3 Crests + Transfermarkt por etapa** (No DB; reusa `teams.crest_url`).
+
+**P2 — escala / estructura:**
+- **P2.1 Job board `/staff` (Fase 3)** — no existe `(public)/staff/page.tsx`; listado con filtros (rol/nacionalidad/idioma) + hub SEO. Bajo riesgo, aditivo.
+- **P2.2 Rename físico `coach_*`→`staff_*`** (two-step destructivo, alto riesgo, no bloqueante).
+- **P2.3 Billing `pro-coach`→`pro-staff`** (data-migration; mantener alias legacy).
+
+**Quick wins:** JSON-LD `jobTitle` desde el enum (`coachJsonLd.tsx:114`); materializar `externalProfileUrl`; `/staff` en `sitemap.ts`; chips `roles[]` en el timeline.
+
+**Secuencia:** P0.1 → (P0.2+P0.3+P0.5 en un barrido, mismo patrón players + `coach-edit-sections.ts`) → P0.7 → P0.6 → quick wins SEO → P1.1+P1.2 (con su migración) → P2.1 → P2.2+P2.3 al final en lockstep.
+
+---
+
 ## 1. Estado actual — lo que YA existe (no reconstruir)
 
 - **El "rol" hoy es texto libre, no taxonomía.** `coach_profiles.role_title` es `text`; los campos DT viven hardcodeados en la fila: `methodology_analysis`, `playing_style`, `preferred_formations[]` (`src/db/schema/coaches.ts`). `coach_career_items.role_title` es **un solo** texto por etapa → no soporta multi-rol por etapa.

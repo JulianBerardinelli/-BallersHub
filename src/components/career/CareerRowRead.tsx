@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { Button, Chip, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { MoreHorizontal } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
+import { isStaffRole, type StaffRoleType } from "@/lib/staff/roles";
 
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { bhChip } from "@/lib/ui/heroui-brand";
@@ -20,6 +21,7 @@ export type TeamMeta = {
 export default function CareerRowRead({
     club,
     roleTitle,
+    roles,
     division,
     secondaryDivision,
     start_year,
@@ -34,6 +36,7 @@ export default function CareerRowRead({
 }: {
     club: string;
     roleTitle?: string | null;
+    roles?: StaffRoleType[] | null;
     division?: string | null;
     secondaryDivision?: string | null;
     start_year?: number | null;
@@ -47,9 +50,11 @@ export default function CareerRowRead({
     readOnly?: boolean;
 }) {
     const t = useTranslations("dashEditProfile");
+    const tStaffRoles = useTranslations("staff") as unknown as (key: string) => string;
     const crest = (teamMeta?.crest_url && teamMeta.crest_url.trim())
         ? teamMeta.crest_url
         : "/images/team-default.svg";
+    const stageRoles = (roles ?? []).filter(isStaffRole);
 
     return (
         <div
@@ -107,6 +112,15 @@ export default function CareerRowRead({
                             {start_year ?? "?"}–{end_year ?? t("career.rowRead.currentPeriod")}
                         </span>
                     </p>
+                    {stageRoles.length > 0 ? (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                            {stageRoles.map((r) => (
+                                <Chip key={r} size="sm" variant="flat" classNames={bhChip("neutral")}>
+                                    {tStaffRoles(`roles.${r}`)}
+                                </Chip>
+                            ))}
+                        </div>
+                    ) : null}
                 </div>
             </div>
 

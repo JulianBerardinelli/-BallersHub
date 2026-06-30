@@ -1,0 +1,1 @@
+ALTER TABLE "coach_career_revision_items" ADD COLUMN "roles" "staff_role_type"[];
