@@ -169,6 +169,15 @@ export type CoachPortfolioData = {
   showTactical: boolean;
   // Rubros de metodología approved (universal). Free recibe ≤2 sin docs.
   methodology: CoachMethodologyRubroRow[];
+  // Datos personales públicos (residencia/educación/idiomas). Sólo se setean
+  // si el coach completó coach_personal_details; Free los muestra como
+  // DataRows en la ficha §01. show_contact_section y otros campos privados
+  // viven sólo en el Pro layout (CoachContactModule).
+  publicPersonalDetails: {
+    residence: string | null;
+    education: string | null;
+    languages: string[] | null;
+  } | null;
 };
 
 function years(r: { startYear: number | null; endYear: number | null }, present: string) {

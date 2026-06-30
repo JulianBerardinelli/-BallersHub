@@ -3,14 +3,18 @@ import sharp from "sharp";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 
-// Avatar + hero (Pro asset) upload for the coach vertical. These are profile
-// columns on coach_profiles (avatar_url / hero_url), NOT coach_media gallery
-// rows, so they do not count against the multimedia quota and they publish
-// immediately (no pre-moderation — they're the coach's own identity).
+// Avatar + hero + model1 (Pro assets) upload for the coach vertical. These are
+// profile columns on coach_profiles (avatar_url / hero_url / model_url_1), NOT
+// coach_media gallery rows, so they do not count against the multimedia quota
+// and they publish immediately (no pre-moderation — they're the coach's own
+// identity).
 //
 //   • avatar → square, transcoded to AVIF, used in the nav / Free hero / cards.
 //   • hero   → the Pro "asset" (transparent cutout). Transcoded to AVIF, which
 //              preserves alpha, and shown as the cutout in the Pro hero.
+//   • model1 → 2º asset Pro (cutout transparente) que decora el módulo de
+//              Ideas de Juego (#tactics) del DT, espejando players (modelUrl1).
+//              Sólo se renderiza en perfiles con layout DT (showTactical).
 //
 // Uses the RLS-bound session client: the owner can update their own
 // coach_profiles row + write to the coach-media bucket (same path the gallery
@@ -43,9 +47,9 @@ export async function POST(req: Request) {
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const assetType = formData.get("assetType") as "avatar" | "hero" | null;
+    const assetType = formData.get("assetType") as "avatar" | "hero" | "model1" | null;
 
-    if (assetType !== "avatar" && assetType !== "hero") {
+    if (assetType !== "avatar" && assetType !== "hero" && assetType !== "model1") {
       return NextResponse.json({ error: "assetType inválido." }, { status: 400 });
     }
     if (!file) return NextResponse.json({ error: "Adjuntá una imagen." }, { status: 400 });
@@ -60,8 +64,9 @@ export async function POST(req: Request) {
       );
     }
 
-    // Transcode to AVIF (preserves alpha for hero cutouts). Avatar is squared +
-    // capped to 640px; hero keeps its aspect, capped to 1600px on the long edge.
+    // Transcode to AVIF (preserves alpha for hero/model cutouts). Avatar is
+    // squared + capped to 640px; hero/model1 keep their aspect, capped to
+    // 1600px on the long edge.
     let uploadBuffer: Buffer;
     try {
       const input = Buffer.from(await file.arrayBuffer());
@@ -97,7 +102,8 @@ export async function POST(req: Request) {
     const { data: urlData } = supabase.storage.from("coach-media").getPublicUrl(fileName);
     const publicUrl = `${urlData.publicUrl}?v=${Date.now()}`;
 
-    const column = assetType === "avatar" ? "avatar_url" : "hero_url";
+    const column =
+      assetType === "avatar" ? "avatar_url" : assetType === "model1" ? "model_url_1" : "hero_url";
     const { error: updateError } = await supabase
       .from("coach_profiles")
       .update({ [column]: publicUrl, updated_at: new Date().toISOString() })

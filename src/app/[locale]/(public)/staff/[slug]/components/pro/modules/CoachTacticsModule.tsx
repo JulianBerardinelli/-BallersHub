@@ -40,6 +40,9 @@ export type CoachTacticsModuleProps = {
   playingStyle: string | null;
   preferredFormations: string[] | null;
   videos: CoachMediaRow[];
+  // 2º asset Pro (cutout transparente) que decora el scroll-jack. NULL → no se
+  // renderiza (espejo del modelUrl1 de players en su Tactics module).
+  modelUrl?: string | null;
   accent: string;
 };
 
@@ -60,6 +63,7 @@ export default function CoachTacticsModule({
   playingStyle,
   preferredFormations,
   videos,
+  modelUrl,
   accent,
 }: CoachTacticsModuleProps) {
   const t = useTranslations("portfolio");
@@ -87,6 +91,7 @@ export default function CoachTacticsModule({
           methodology={methodology}
           ideas={ideas}
           formations={formations}
+          modelUrl={modelUrl ?? null}
           accent={accent}
         />
       )}
@@ -110,11 +115,13 @@ function TacticsScrollJack({
   methodology,
   ideas,
   formations,
+  modelUrl,
   accent,
 }: {
   methodology: string | null;
   ideas: string | null;
   formations: string[];
+  modelUrl: string | null;
   accent: string;
 }) {
   const t = useTranslations("portfolio");
@@ -141,6 +148,11 @@ function TacticsScrollJack({
   const diagOpac = useTransform(scrollYProgress, [0.38, 0.52], [0, 1]);
   const diagY = useTransform(scrollYProgress, [0.38, 0.52], [40, 0]);
 
+  // 2º asset (cutout): aparece junto a la fase 2 (Ideas de Juego), como en
+  // players. Parallax suave + fade-in con el avance del scroll.
+  const assetOpac = useTransform(scrollYProgress, [0.3, 0.5], [0, 0.95]);
+  const assetY = useTransform(scrollYProgress, [0.3, 1], ["8%", "-12%"]);
+
   // If there's no methodology, skip the whole exit phase — Layer 2 should be
   // the resting state. We still keep the 200vh frame so the reveal has room.
   const hasMethodology = !!methodology;
@@ -156,6 +168,33 @@ function TacticsScrollJack({
       <div className="sticky top-0 w-full overflow-hidden" style={{ height: "100dvh" }}>
         {/* Drifting orb background — accent + primary blobs, low opacity. */}
         <AmbientOrbs accent={accent} />
+
+        {/* 2º asset Pro (cutout) — decoración anclada abajo-derecha, detrás del
+            contenido (z-[5]). Máscara para fundirlo con el fondo. Mismo patrón
+            que el ProfileTacticsModule de players. */}
+        {modelUrl && (
+          <motion.div
+            style={{ opacity: assetOpac, y: assetY }}
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 right-0 z-[5] hidden w-[42%] max-w-[560px] lg:block"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={modelUrl}
+              alt=""
+              className="h-auto w-full object-contain"
+              style={{
+                transformOrigin: "bottom right",
+                WebkitMaskImage:
+                  "linear-gradient(to top, transparent 4%, black 22%), linear-gradient(to right, black 55%, transparent 100%)",
+                maskImage:
+                  "linear-gradient(to top, transparent 4%, black 22%), linear-gradient(to right, black 55%, transparent 100%)",
+                WebkitMaskComposite: "source-in",
+                maskComposite: "intersect",
+              }}
+            />
+          </motion.div>
+        )}
 
         <div
           className="absolute inset-0 w-full h-full flex flex-col px-5 sm:px-8 lg:px-16 z-10"

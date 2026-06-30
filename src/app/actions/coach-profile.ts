@@ -3,6 +3,10 @@
 import { createSupabaseServerRoute } from "@/lib/supabase/server";
 import { revalidateCoachPublicProfile } from "@/lib/seo/revalidate";
 import { revalidatePath } from "next/cache";
+import {
+  normalizeStaffRoleSelection,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
 
 export type CoachProfileInput = {
   roleTitle: string | null;
@@ -17,6 +21,15 @@ export type CoachProfileInput = {
     accentColor: string | null;
     backgroundColor: string | null;
   };
+  /**
+   * Roles estructurados del staff (taxonomía de 13 oficios). Opcional: si NO
+   * llegan ambos campos, no se tocan las columnas (compat con editores legacy).
+   * Cuando llegan, `primaryRole` es obligatorio y `secondaryRoles` admite hasta
+   * 2 (validado con normalizeStaffRoleSelection). El `roleTitle` (texto libre)
+   * queda como caption opcional, no se reemplaza.
+   */
+  primaryRole?: StaffRoleType | null;
+  secondaryRoles?: StaffRoleType[] | null;
 };
 
 // Accepts a #rrggbb hex (any case) → normalized lower-case; anything else → null
@@ -53,6 +66,20 @@ export async function updateCoachProfile(
     .filter((f) => f.length > 0)
     .slice(0, 12);
 
+  // Roles estructurados: sólo se tocan si el editor los manda (ambos campos).
+  // Si llegan, normalizeStaffRoleSelection valida que el principal sea uno de
+  // los 13 oficios y que los secundarios (máx 2) no se repitan.
+  const rolesPatch: { primary_role?: StaffRoleType; secondary_roles?: StaffRoleType[] | null } = {};
+  if (input.primaryRole !== undefined || input.secondaryRoles !== undefined) {
+    const normalized = normalizeStaffRoleSelection({
+      primaryRole: input.primaryRole,
+      secondaryRoles: input.secondaryRoles ?? [],
+    });
+    if (!normalized) return { success: false, error: "Elegí tu rol principal." };
+    rolesPatch.primary_role = normalized.primaryRole;
+    rolesPatch.secondary_roles = normalized.secondaryRoles.length > 0 ? normalized.secondaryRoles : null;
+  }
+
   const { error } = await supabase
     .from("coach_profiles")
     .update({
@@ -62,6 +89,7 @@ export async function updateCoachProfile(
       playing_style: input.playingStyle?.trim() || null,
       methodology_analysis: input.methodologyAnalysis?.trim() || null,
       preferred_formations: formations.length > 0 ? formations : null,
+      ...rolesPatch,
       ...(input.theme && {
         theme_primary_color: normHex(input.theme.primaryColor),
         theme_accent_color: normHex(input.theme.accentColor),

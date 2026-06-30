@@ -18,12 +18,21 @@ import {
   COACH_ADMIN_EDIT_DOMAINS,
   type CoachAdminEditDomain,
 } from "@/lib/admin/coach-edit-sections";
+import {
+  normalizeStaffRoleSelection,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
+import { isMethodologyIconKey } from "@/lib/staff/methodology-icons";
 import type { CoachProfileInput } from "./coach-profile";
 import type {
   CoachCareerRevisionSubmissionInput,
   CoachCareerActionResult,
 } from "./coach-career";
 import type { CoachLicenseInput, CoachLicenseActionResult } from "./coach-licenses";
+import type {
+  MethodologyRubroInput,
+  MethodologyActionResult,
+} from "./coach-methodology";
 import type {
   CoachTranslationInput,
   CoachTranslationActionResult,
@@ -415,6 +424,19 @@ export async function adminUpdateCoachProfileFields(
     .eq("id", coachId)
     .maybeSingle<{ slug: string | null }>();
 
+  // Roles estructurados (mismo contrato que el editor owner — sólo se tocan
+  // si el editor admin los manda).
+  const rolesPatch: { primary_role?: StaffRoleType; secondary_roles?: StaffRoleType[] | null } = {};
+  if (input.primaryRole !== undefined || input.secondaryRoles !== undefined) {
+    const normalized = normalizeStaffRoleSelection({
+      primaryRole: input.primaryRole,
+      secondaryRoles: input.secondaryRoles ?? [],
+    });
+    if (!normalized) return { success: false, error: "Elegí el rol principal." };
+    rolesPatch.primary_role = normalized.primaryRole;
+    rolesPatch.secondary_roles = normalized.secondaryRoles.length > 0 ? normalized.secondaryRoles : null;
+  }
+
   const { error } = await admin
     .from("coach_profiles")
     .update({
@@ -424,6 +446,7 @@ export async function adminUpdateCoachProfileFields(
       playing_style: input.playingStyle?.trim() || null,
       methodology_analysis: input.methodologyAnalysis?.trim() || null,
       preferred_formations: formations.length > 0 ? formations : null,
+      ...rolesPatch,
       ...(input.theme && {
         theme_primary_color: normHexValue(input.theme.primaryColor),
         theme_accent_color: normHexValue(input.theme.accentColor),
@@ -736,6 +759,196 @@ export async function adminDeleteCoachTranslation(
     domain: "idiomas",
     changedFields: [`Traducción ${locale.toUpperCase()} despublicada`],
   });
+  return { success: true };
+}
+
+// ─────────────────────────── metodología (admin, live) ───────────────────────────
+// Mirrors upsertMethodologyRubro/deleteMethodologyRubro/removeMethodologyDoc,
+// service-role + target coachId. El admin ES el moderador → escribe APPROVED
+// directo (bypassa la cola), sin cap Free (admin ilimitado). El upload de
+// archivos va por /api/admin/coaches/[id]/methodology-doc/upload.
+
+const adminMethodologySchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z.string({ message: "Ingresá un título." }).trim().min(1, "Ingresá un título.").max(80, "Máximo 80 caracteres."),
+  icon: z
+    .union([z.string().trim(), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null))
+    .refine((v) => v === null || isMethodologyIconKey(v), { message: "Ícono inválido." }),
+  body: z
+    .union([z.string().trim().max(4000, "Máximo 4000 caracteres."), z.literal(""), z.null(), z.undefined()])
+    .transform((v) => (v && v.trim() ? v.trim() : null)),
+});
+
+function methodologyStoragePathFromUrl(url: string): string | null {
+  const marker = "/coach-media/";
+  const i = url.indexOf(marker);
+  return i >= 0 ? url.slice(i + marker.length).split("?")[0] : null;
+}
+
+export async function adminUpsertMethodologyRubro(
+  coachId: string,
+  input: MethodologyRubroInput,
+): Promise<MethodologyActionResult> {
+  const parsed = adminMethodologySchema.safeParse(input);
+  if (!parsed.success) {
+    return { success: false, message: parsed.error.issues[0]?.message ?? "Datos inválidos." };
+  }
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+  const d = parsed.data;
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const reviewed = {
+    status: "approved" as const,
+    reviewed_by_user_id: gate.actor.actorId,
+    reviewed_at: new Date().toISOString(),
+    rejection_reason: null,
+  };
+
+  let rubroId = d.id ?? null;
+  if (d.id) {
+    const { data, error } = await admin
+      .from("coach_methodology_rubros")
+      .update({
+        title: d.title,
+        icon: d.icon,
+        body: d.body,
+        ...reviewed,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", d.id)
+      .eq("coach_id", coachId)
+      .select("id")
+      .maybeSingle<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    if (!data) return { success: false, message: "No se encontró el rubro." };
+    rubroId = data.id;
+  } else {
+    const { data: maxRow } = await admin
+      .from("coach_methodology_rubros")
+      .select("position")
+      .eq("coach_id", coachId)
+      .order("position", { ascending: false })
+      .limit(1)
+      .maybeSingle<{ position: number }>();
+    const nextPosition = (maxRow?.position ?? -1) + 1;
+    const { data, error } = await admin
+      .from("coach_methodology_rubros")
+      .insert({
+        coach_id: coachId,
+        title: d.title,
+        icon: d.icon,
+        body: d.body,
+        position: nextPosition,
+        ...reviewed,
+      })
+      .select("id")
+      .single<{ id: string }>();
+    if (error) return { success: false, message: error.message };
+    rubroId = data.id;
+  }
+
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/metodologia`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "metodologia",
+    changedFields: [d.title],
+  });
+  return { success: true, id: rubroId ?? undefined };
+}
+
+export async function adminDeleteMethodologyRubro(
+  coachId: string,
+  id: string,
+): Promise<MethodologyActionResult> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+
+  // Borrar archivos de storage de los docs adjuntos (CASCADE borra las filas
+  // coach_media, no el storage). Best-effort.
+  const { data: docs } = await admin
+    .from("coach_media")
+    .select("url")
+    .eq("coach_id", coachId)
+    .eq("type", "doc")
+    .eq("rubro_id", id);
+  const paths = (docs ?? [])
+    .map((d) => methodologyStoragePathFromUrl((d as { url: string }).url))
+    .filter((p): p is string => !!p);
+  if (paths.length > 0) await admin.storage.from("coach-media").remove(paths);
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug, user_id")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null; user_id: string | null }>();
+
+  const { error } = await admin
+    .from("coach_methodology_rubros")
+    .delete()
+    .eq("id", id)
+    .eq("coach_id", coachId);
+  if (error) return { success: false, message: error.message };
+
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/metodologia`);
+  await recordAdminCoachEdit({
+    actor: gate.actor,
+    coachId,
+    targetUserId: coach?.user_id ?? null,
+    slug: coach?.slug ?? null,
+    domain: "metodologia",
+    changedFields: ["Rubro eliminado"],
+  });
+  return { success: true };
+}
+
+export async function adminRemoveMethodologyDoc(
+  coachId: string,
+  docId: string,
+): Promise<MethodologyActionResult> {
+  const gate = await ensureAdminActor();
+  if (!gate.ok) return { success: false, message: gate.error };
+  const admin = gate.actor.adminClient;
+
+  const { data: doc } = await admin
+    .from("coach_media")
+    .select("id, url")
+    .eq("id", docId)
+    .eq("coach_id", coachId)
+    .eq("type", "doc")
+    .maybeSingle<{ id: string; url: string }>();
+  if (!doc) return { success: false, message: "No se encontró el archivo." };
+
+  const path = methodologyStoragePathFromUrl(doc.url);
+  if (path) await admin.storage.from("coach-media").remove([path]);
+
+  const { error } = await admin
+    .from("coach_media")
+    .delete()
+    .eq("id", docId)
+    .eq("coach_id", coachId);
+  if (error) return { success: false, message: error.message };
+
+  const { data: coach } = await admin
+    .from("coach_profiles")
+    .select("slug")
+    .eq("id", coachId)
+    .maybeSingle<{ slug: string | null }>();
+  if (coach?.slug) revalidateCoachPublicProfile(coach.slug);
+  revalidatePath(`/admin/coaches/${coachId}/edit/metodologia`);
   return { success: true };
 }
 

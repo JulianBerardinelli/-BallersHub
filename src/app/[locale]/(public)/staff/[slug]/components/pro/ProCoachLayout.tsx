@@ -42,6 +42,9 @@ export type CoachProData = {
   methodology: CoachMethodologyRubroRow[];
   avatarUrl: string;
   heroUrl: string | null;
+  // 2º asset Pro (cutout) — decora el módulo Ideas de Juego (#tactics). NULL
+  // cuando el coach no subió el asset. Sólo se monta en perfiles DT.
+  modelUrl1: string | null;
   nationality: string[] | null;
   nationalityCodes: string[] | null;
   currentClub: string | null;

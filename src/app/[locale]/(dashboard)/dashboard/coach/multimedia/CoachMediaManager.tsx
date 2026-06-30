@@ -25,6 +25,8 @@ export default function CoachMediaManager({
   uploadUrl = "/api/coach/media/upload",
   deleteAction = deleteCoachMedia,
   heroUrl = null,
+  modelUrl1 = null,
+  showModelAsset = false,
   imageUploadUrl,
 }: {
   items: CoachMediaItem[];
@@ -35,6 +37,10 @@ export default function CoachMediaManager({
   deleteAction?: (id: string) => Promise<{ success: boolean; message?: string }>;
   /** Pro asset (hero cutout) — rendered as the "ASSETS PRO" card, like players. */
   heroUrl?: string | null;
+  /** 2º asset Pro (cutout) del módulo Ideas de Juego. */
+  modelUrl1?: string | null;
+  /** Sólo DTs montan Ideas de Juego → sólo ellos ven el card del 2º asset. */
+  showModelAsset?: boolean;
   /** Profile-image endpoint for the hero upload (admin overrides per coach). */
   imageUploadUrl?: string;
 }) {
@@ -107,6 +113,33 @@ export default function CoachMediaManager({
           </p>
         )}
       </section>
+
+      {/* 2º ASSET PRO (model1) — decora la sección Ideas de Juego del DT. Sólo
+          se muestra a perfiles con layout DT (showModelAsset). */}
+      {showModelAsset && (
+        <section className="grid gap-5 rounded-bh-lg border border-bh-lime/20 bg-bh-surface-1 p-5">
+          <div className="space-y-1">
+            <p className="font-bh-display text-[10px] font-bold uppercase tracking-[0.14em] text-bh-lime">
+              Pro layout
+            </p>
+            <h2 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
+              2º asset (Ideas de Juego)
+            </h2>
+            <p className="text-[13px] text-bh-fg-3">
+              Segundo recorte en <strong className="text-bh-fg-2">PNG (fondo transparente)</strong> que
+              decora tu sección de <strong className="text-bh-fg-2">Ideas de Juego</strong> en el layout Pro.
+              Opcional.
+            </p>
+          </div>
+          {isPro ? (
+            <CoachImageUploader mode="model1" currentUrl={modelUrl1} uploadUrl={imageUploadUrl} />
+          ) : (
+            <p className="max-w-[460px] text-[12px] leading-[1.5] text-bh-fg-4">
+              Activá Pro para sumar un segundo asset a tu sección de Ideas de Juego.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* TU CATÁLOGO — header + tabs Fotografías/Videos, espejo de players. */}
       <div className="space-y-1 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">

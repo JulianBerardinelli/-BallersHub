@@ -223,12 +223,18 @@ async function BioFicha({
   nationalities: string[];
 }) {
   const t = await getTranslations("portfolio");
+  const residence = data.publicPersonalDetails?.residence ?? null;
+  const education = data.publicPersonalDetails?.education ?? null;
+  const languages = data.publicPersonalDetails?.languages ?? null;
   const hasFicha =
     nationalities.length > 0 ||
     (data.showTactical && (data.preferredFormations?.length ?? 0) > 0) ||
     !!data.coachingSince ||
     !!data.roleDisplay ||
-    !!data.roleTitle;
+    !!data.roleTitle ||
+    !!residence ||
+    !!education ||
+    (languages?.length ?? 0) > 0;
 
   return (
     <section id="bio" className="border-t border-white/[0.10] px-5 py-8 md:px-10 md:py-14">
@@ -285,7 +291,7 @@ async function BioFicha({
                   </DataRow>
                 ) : null}
                 {nationalities.length > 0 && (
-                  <DataRow label={t("coach.free.identityNationality")} last>
+                  <DataRow label={t("coach.free.identityNationality")} last={!residence && !education && !(languages?.length)}>
                     <span className="inline-flex flex-wrap items-center gap-2">
                       {nationalities.map((c) => (
                         <span key={c} className="inline-flex items-center gap-1.5">
@@ -296,6 +302,21 @@ async function BioFicha({
                     </span>
                   </DataRow>
                 )}
+                {residence ? (
+                  <DataRow label="Residencia" last={!education && !(languages?.length)}>
+                    {residence}
+                  </DataRow>
+                ) : null}
+                {education ? (
+                  <DataRow label="Educación" last={!(languages?.length)}>
+                    {education}
+                  </DataRow>
+                ) : null}
+                {languages?.length ? (
+                  <DataRow label="Idiomas" last>
+                    {languages.join(", ")}
+                  </DataRow>
+                ) : null}
               </div>
             </div>
           )}

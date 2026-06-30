@@ -2,6 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import { resolveProUserIds } from "@/lib/seo/indexable-profiles";
+import { isHeadCoachLayout, isStaffRole } from "@/lib/staff/roles";
 import CoachMediaManager, {
   type CoachMediaItem,
 } from "@/app/[locale]/(dashboard)/dashboard/coach/multimedia/CoachMediaManager";
@@ -31,9 +32,16 @@ export default async function AdminCoachMediaPage({
   const admin = createSupabaseAdmin();
   const { data: coach } = await admin
     .from("coach_profiles")
-    .select("id, user_id, full_name, hero_url")
+    .select("id, user_id, full_name, hero_url, model_url_1, primary_role")
     .eq("id", id)
-    .maybeSingle<{ id: string; user_id: string; full_name: string; hero_url: string | null }>();
+    .maybeSingle<{
+      id: string;
+      user_id: string;
+      full_name: string;
+      hero_url: string | null;
+      model_url_1: string | null;
+      primary_role: string | null;
+    }>();
   if (!coach) notFound();
 
   const proIds = await resolveProUserIds([coach.user_id]);
@@ -60,6 +68,10 @@ export default async function AdminCoachMediaPage({
     };
   });
 
+  const showModelAsset =
+    coach.primary_role == null ||
+    (isStaffRole(coach.primary_role) && isHeadCoachLayout(coach.primary_role));
+
   return (
     <CoachMediaManager
       items={items}
@@ -67,6 +79,8 @@ export default async function AdminCoachMediaPage({
       uploadUrl={`/api/admin/coaches/${id}/media/upload`}
       deleteAction={adminDeleteCoachMedia}
       heroUrl={coach.hero_url}
+      modelUrl1={coach.model_url_1}
+      showModelAsset={showModelAsset}
       imageUploadUrl={`/api/admin/coaches/${id}/profile-image/upload`}
     />
   );

@@ -3,6 +3,7 @@ import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { createSupabaseAdmin } from "@/lib/supabase/admin";
 import CoachProfileEditor from "@/app/[locale]/(dashboard)/dashboard/coach/edit/CoachProfileEditor";
 import { adminUpdateCoachProfileFields } from "@/app/actions/admin-coach";
+import { isStaffRole, type StaffRoleType } from "@/lib/staff/roles";
 import AdminCoachStatusCard from "../_components/AdminCoachStatusCard";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,7 @@ export default async function AdminCoachDatosPage({
   const { data: coach } = await admin
     .from("coach_profiles")
     .select(
-      "id, slug, full_name, status, visibility, avatar_url, hero_url, role_title, bio, playing_style, methodology_analysis, career_objectives, preferred_formations, theme_primary_color, theme_accent_color, theme_background_color",
+      "id, slug, full_name, status, visibility, avatar_url, hero_url, role_title, primary_role, secondary_roles, bio, playing_style, methodology_analysis, career_objectives, preferred_formations, theme_primary_color, theme_accent_color, theme_background_color",
     )
     .eq("id", id)
     .maybeSingle();
@@ -54,6 +55,13 @@ export default async function AdminCoachDatosPage({
           avatarUrl: (coach.avatar_url as string | null) ?? null,
           heroUrl: (coach.hero_url as string | null) ?? null,
           roleTitle: (coach.role_title as string | null) ?? null,
+          primaryRole:
+            typeof coach.primary_role === "string" && isStaffRole(coach.primary_role)
+              ? (coach.primary_role as StaffRoleType)
+              : null,
+          secondaryRoles: Array.isArray(coach.secondary_roles)
+            ? ((coach.secondary_roles as string[]).filter(isStaffRole) as StaffRoleType[])
+            : [],
           bio: (coach.bio as string | null) ?? null,
           careerObjectives: (coach.career_objectives as string | null) ?? null,
           playingStyle: (coach.playing_style as string | null) ?? null,

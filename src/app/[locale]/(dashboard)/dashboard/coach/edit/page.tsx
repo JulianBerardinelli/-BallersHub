@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
+import { isStaffRole, type StaffRoleType } from "@/lib/staff/roles";
 import CoachProfileEditor from "./CoachProfileEditor";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export default async function CoachEditPage() {
   const { data: profile } = await supabase
     .from("coach_profiles")
     .select(
-      "full_name, role_title, bio, career_objectives, playing_style, methodology_analysis, preferred_formations, avatar_url, hero_url, theme_primary_color, theme_accent_color, theme_background_color",
+      "full_name, role_title, primary_role, secondary_roles, bio, career_objectives, playing_style, methodology_analysis, preferred_formations, avatar_url, hero_url, theme_primary_color, theme_accent_color, theme_background_color",
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -28,11 +29,16 @@ export default async function CoachEditPage() {
     );
   }
 
+  const primary = profile.primary_role as string | null;
+  const secondary = (profile.secondary_roles as string[] | null) ?? [];
+
   return (
     <CoachProfileEditor
       initial={{
         fullName: profile.full_name as string,
         roleTitle: (profile.role_title as string | null) ?? null,
+        primaryRole: primary && isStaffRole(primary) ? primary : null,
+        secondaryRoles: secondary.filter(isStaffRole) as StaffRoleType[],
         bio: (profile.bio as string | null) ?? null,
         careerObjectives: (profile.career_objectives as string | null) ?? null,
         playingStyle: (profile.playing_style as string | null) ?? null,
