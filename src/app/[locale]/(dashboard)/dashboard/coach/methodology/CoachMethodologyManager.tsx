@@ -217,10 +217,19 @@ function RubroCard({
       onPatch({
         docs: [
           ...row.docs,
-          { id: json.id, url: json.url, title: file.name.replace(/\.[^.]+$/, ""), status: "pending", mime: mime as DocDraft["mime"] },
+          {
+            id: json.id,
+            url: json.url,
+            title: file.name.replace(/\.[^.]+$/, ""),
+            status: liveMode ? "approved" : "pending",
+            mime: mime as DocDraft["mime"],
+          },
         ],
       });
-      setMsg({ ok: true, text: "Archivo subido. Queda en revisión." });
+      setMsg({
+        ok: true,
+        text: liveMode ? "Archivo subido. Publicado al instante." : "Archivo subido. Queda en revisión.",
+      });
     } catch (err) {
       setMsg({ ok: false, text: err instanceof Error ? err.message : "Error al subir." });
     } finally {

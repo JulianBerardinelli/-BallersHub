@@ -14,6 +14,7 @@ export const COACH_ADMIN_EDIT_DOMAINS = [
   "trayectoria",
   "licencias",
   "multimedia",
+  "metodologia",
   "idiomas",
 ] as const;
 
@@ -27,6 +28,7 @@ export const COACH_ADMIN_EDIT_SECTIONS: { key: CoachAdminEditDomain; label: stri
   { key: "trayectoria", label: "Trayectoria" },
   { key: "licencias", label: "Licencias" },
   { key: "multimedia", label: "Multimedia" },
+  { key: "metodologia", label: "Metodología" },
   { key: "enlaces", label: "Enlaces" },
   { key: "idiomas", label: "Idiomas" },
 ];
@@ -43,6 +45,7 @@ export const COACH_ADMIN_EDIT_DOMAIN_LABELS: Record<CoachAdminEditDomain, string
   trayectoria: "trayectoria",
   licencias: "licencias",
   multimedia: "multimedia",
+  metodologia: "metodología",
   idiomas: "traducciones",
 };
 
@@ -54,6 +57,7 @@ export const COACH_ADMIN_EDIT_DOMAIN_HREFS: Record<CoachAdminEditDomain, string>
   trayectoria: "/dashboard/coach/career",
   licencias: "/dashboard/coach/licenses",
   multimedia: "/dashboard/coach/multimedia",
+  metodologia: "/dashboard/coach/methodology",
   idiomas: "/dashboard/coach/translations",
 };
 
