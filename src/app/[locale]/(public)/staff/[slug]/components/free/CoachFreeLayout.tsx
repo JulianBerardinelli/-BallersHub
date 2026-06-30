@@ -486,7 +486,7 @@ async function Career({ data }: { data: CoachPortfolioData }) {
                 className={`grid grid-cols-1 items-center gap-3 px-3.5 py-4 md:grid-cols-[auto_1fr_auto] md:gap-6 md:px-5.5 md:py-5 ${i === data.career.length - 1 ? "" : "border-b border-white/[0.06]"}`}
               >
                 <div className="flex items-center gap-3">
-                  <Crest club={c.club} size={40} />
+                  <Crest club={c.club} size={40} url={c.crestUrl} />
                   <div>
                     <div
                       className={`font-bh-mono text-[11px] font-semibold tracking-[0.05em] ${isCurrent ? "text-[#22C55E]" : "text-bh-fg-3"}`}
@@ -496,8 +496,20 @@ async function Career({ data }: { data: CoachPortfolioData }) {
                       )}
                       {period}
                     </div>
-                    <div className="mt-0.5 font-bh-display text-[22px] font-extrabold uppercase leading-[1.05] text-bh-fg-1 md:text-[26px]">
-                      {c.club}
+                    <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-bh-display text-[22px] font-extrabold uppercase leading-[1.05] text-bh-fg-1 md:text-[26px]">
+                      <span>{c.club}</span>
+                      {c.teamTransfermarktUrl && (
+                        <a
+                          href={c.teamTransfermarktUrl}
+                          target="_blank"
+                          rel="noreferrer nofollow"
+                          aria-label={`${c.club} en Transfermarkt`}
+                          title="Transfermarkt"
+                          className="inline-flex h-5 w-5 items-center justify-center rounded-[4px] text-[#1E88E5] transition-opacity hover:opacity-80"
+                        >
+                          <TransfermarktIcon className="h-4 w-4" />
+                        </a>
+                      )}
                     </div>
                     {c.roleLabels.length > 0 && (
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">

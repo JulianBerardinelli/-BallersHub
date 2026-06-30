@@ -448,6 +448,9 @@
     "abbrWinRate": "%",
     "mediaTitle": "Multimedia",
     "videoFallback": "Katso video",
+    "gameIdeasTitle": "Pelimallit",
+    "gameIdeaFallback": "Kuvio",
+    "gameIdeaWatch": "Katso",
     "contactTitle": "Yhteystiedot",
     "proClubsLabel": "Seurat",
     "free": {

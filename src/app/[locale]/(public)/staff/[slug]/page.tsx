@@ -13,7 +13,9 @@ import {
   coachLinks,
   coachPersonalDetails,
   coachMethodologyRubros,
+  coachGameIdeas,
   agencyProfiles,
+  teams,
 } from "@/db/schema";
 import { docMimeFromUrl } from "@/lib/coach/methodology-data";
 import {
@@ -49,7 +51,9 @@ import {
   type CoachPersonalDetailsData,
   type CoachMethodologyRubroRow,
   type CoachMethodologyDocRow,
+  type CoachGameIdeaRow,
 } from "./components/CoachPortfolio";
+import { parsePitchBoard } from "@/lib/coach/game-ideas";
 import CoachFreeLayout from "./components/free/CoachFreeLayout";
 import PortfolioLocaleSwitcher from "@/components/i18n/PortfolioLocaleSwitcher";
 import SmoothScrollProvider from "./components/pro/SmoothScrollProvider";
@@ -242,10 +246,27 @@ export default async function CoachPublicPage({
     proIds,
     agency,
     rubroRows,
+    gameIdeaRows,
   ] = await Promise.all([
+      // leftJoin con teams para traer el escudo + el Transfermarkt del club
+      // por etapa (P1.3). `teamId` es la FK opcional; cuando es null (club como
+      // texto libre legacy) crestUrl/teamTransfermarktUrl quedan null y el
+      // render cae al placeholder con la inicial.
       db
-        .select()
+        .select({
+          id: coachCareerItems.id,
+          club: coachCareerItems.club,
+          roleTitle: coachCareerItems.roleTitle,
+          roles: coachCareerItems.roles,
+          division: coachCareerItems.division,
+          startDate: coachCareerItems.startDate,
+          endDate: coachCareerItems.endDate,
+          teamId: coachCareerItems.teamId,
+          crestUrl: teams.crestUrl,
+          teamTransfermarktUrl: teams.transfermarktUrl,
+        })
         .from(coachCareerItems)
+        .leftJoin(teams, eq(coachCareerItems.teamId, teams.id))
         .where(eq(coachCareerItems.coachId, coach.id))
         .orderBy(desc(coachCareerItems.startDate)),
       db
@@ -304,6 +325,21 @@ export default async function CoachPublicPage({
           ),
         )
         .orderBy(asc(coachMethodologyRubros.position)),
+      // Ideas de Juego approved (Pro + DT). Sólo se montan en el Pro path DT.
+      db
+        .select({
+          id: coachGameIdeas.id,
+          title: coachGameIdeas.title,
+          formation: coachGameIdeas.formation,
+          blurb: coachGameIdeas.blurb,
+          link: coachGameIdeas.link,
+          pitchBoard: coachGameIdeas.pitchBoard,
+        })
+        .from(coachGameIdeas)
+        .where(
+          and(eq(coachGameIdeas.coachId, coach.id), eq(coachGameIdeas.status, "approved")),
+        )
+        .orderBy(asc(coachGameIdeas.position)),
     ]);
 
   const isPro = proIds.has(coach.userId);
@@ -329,6 +365,15 @@ export default async function CoachPublicPage({
 
   const career: CoachCareerRow[] = careerRows.map((c) => {
     const { roles, roleLabels } = localizeRoles((c as { roles?: unknown }).roles);
+    // El crest sólo se muestra si es una URL http(s) real (escudo subido). El
+    // default local `/images/team-default.svg` cae al placeholder con la
+    // inicial del club, más informativo que un genérico.
+    const crestUrl =
+      typeof c.crestUrl === "string" && /^https?:\/\//i.test(c.crestUrl) ? c.crestUrl : null;
+    const teamTransfermarktUrl =
+      typeof c.teamTransfermarktUrl === "string" && /^https?:\/\//i.test(c.teamTransfermarktUrl)
+        ? c.teamTransfermarktUrl
+        : null;
     return {
       id: c.id,
       club: c.club,
@@ -338,6 +383,8 @@ export default async function CoachPublicPage({
       division: c.division,
       startYear: yearOf(c.startDate),
       endYear: yearOf(c.endDate),
+      crestUrl,
+      teamTransfermarktUrl,
     };
   });
 
@@ -451,6 +498,16 @@ export default async function CoachPublicPage({
     .slice(0, 2)
     .map((r) => ({ ...r, docs: [] }));
 
+  // Ideas de Juego approved (pizarra). pitch_board jsonb → PitchBoard validado.
+  const gameIdeas: CoachGameIdeaRow[] = gameIdeaRows.map((g) => ({
+    id: g.id,
+    title: g.title,
+    formation: g.formation,
+    blurb: g.blurb,
+    link: g.link,
+    board: parsePitchBoard(g.pitchBoard),
+  }));
+
   // Datos personales públicos (residencia/educación/idiomas) para el Free
   // BioFicha §01. El Pro layout ya los consume vía `personalDetails` directo
   // (incluye también whatsapp + show_contact_section privados). Acá filtramos
@@ -548,6 +605,7 @@ export default async function CoachPublicPage({
       roleDisplay,
       showTactical,
       methodology: methodologyAll,
+      gameIdeas,
       avatarUrl: coach.avatarUrl,
       heroUrl: coach.heroUrl,
       // Render usa modelUrl1 con fallback a modelUrl2 (compat futura — sólo

@@ -13,6 +13,18 @@ import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import CoachLicenseList from "./CoachLicenseList";
 import type { StaffRoleType } from "@/lib/staff/roles";
+import type { PitchBoard } from "@/lib/coach/game-ideas";
+
+// Idea de juego approved para el render público (Pro + DT). El pitch_board ya
+// viene parseado a PitchBoard válido. Ver docs/staff/PLAN.md §5.2.
+export type CoachGameIdeaRow = {
+  id: string;
+  title: string | null;
+  formation: string | null;
+  blurb: string | null;
+  link: string | null;
+  board: PitchBoard;
+};
 
 export type CoachCareerRow = {
   id: string;
@@ -25,6 +37,11 @@ export type CoachCareerRow = {
   division: string | null;
   startYear: number | null;
   endYear: number | null;
+  // Escudo + Transfermarkt del club de la etapa (P1.3, vía leftJoin con teams).
+  // null cuando la etapa no tiene team linkeado (club legacy en texto) o el club
+  // no tiene escudo http(s)/TM cargado. El render cae al placeholder con inicial.
+  crestUrl: string | null;
+  teamTransfermarktUrl: string | null;
 };
 
 export type CoachHonourRow = {
