@@ -8,7 +8,8 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { coachProfiles } from "@/db/schema";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
-import { flagEmoji, countryName, alpha2FromLegacyNationality } from "@/lib/scouting/taxonomies";
+import { flagEmoji, alpha2FromLegacyNationality } from "@/lib/scouting/taxonomies";
+import { ogCountryName } from "@/lib/og/country";
 import { OG_SIZE, ACCENT } from "@/lib/og/tokens";
 import { ogFonts } from "@/lib/og/fonts";
 import { ogAssets } from "@/lib/og/assets";
@@ -85,7 +86,7 @@ export default async function Image({
     firstName,
     lastName,
     flag: alpha2 ? flagEmoji(alpha2) : "",
-    countryName: alpha2 ? countryName(alpha2) : "",
+    countryName: ogCountryName(alpha2, lang),
     avatarUrl:
       coach.avatarUrl && coach.avatarUrl !== DEFAULT_AVATAR
         ? toCanonicalUrl(coach.avatarUrl)
