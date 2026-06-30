@@ -3,6 +3,7 @@
 // Hereda layout, ambient (orbs + grid mesh) y motion provider del SiteLayout.
 
 import type { Metadata } from "next";
+import { ogFallbackImages } from "@/lib/og/fallback";
 import { getTranslations } from "next-intl/server";
 
 import { localizedAlternates } from "@/lib/seo/hreflang";
@@ -39,6 +40,7 @@ export async function generateMetadata({
       description,
       url: "/about",
       type: "website",
+      images: ogFallbackImages,
     },
     twitter: {
       card: "summary_large_image",

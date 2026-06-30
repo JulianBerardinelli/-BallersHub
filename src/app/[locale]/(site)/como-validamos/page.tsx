@@ -4,6 +4,7 @@
 // para ser full-bleed (el stage interno es position: sticky).
 
 import type { Metadata } from "next";
+import { ogFallbackImages } from "@/lib/og/fallback";
 import { getTranslations } from "next-intl/server";
 
 import ValidationFlow from "@/components/site/como-validamos/ValidationFlow";
@@ -29,6 +30,7 @@ export async function generateMetadata({
       description,
       url: "/como-validamos",
       type: "website",
+      images: ogFallbackImages,
     },
     twitter: {
       card: "summary_large_image",
