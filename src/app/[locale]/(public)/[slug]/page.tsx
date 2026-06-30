@@ -259,15 +259,15 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
       type: "profile",
       siteName: "'BallersHub",
       locale: OG_LOCALE[locale as Locale],
-      images: player.avatarUrl
-        ? [{ url: player.avatarUrl, alt: player.fullName }]
-        : undefined,
+      // NB: og:image is intentionally NOT set here. The branded 1200×630 card
+      // is produced by the `opengraph-image.tsx` file convention in this route.
+      // Setting `images` here would override that file with the raw square
+      // avatar (the bug that made every share a cropped portrait).
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: player.avatarUrl ? [player.avatarUrl] : undefined,
     },
   };
 }

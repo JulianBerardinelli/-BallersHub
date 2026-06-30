@@ -1,288 +1,176 @@
-// Dynamic Open Graph image for player portfolios (Pro-only).
+// Dynamic Open Graph image for player portfolios (1200×630), built from DB
+// data per profile so every shared link shows that player's face + identity.
+// Design: Claude Design handoff `OG Images BallersHub.html` (card 01).
 //
-// Pricing matrix §E item #3 — Pro users get an auto-generated 1200x630
-// social-share card with their avatar, name, position, and current
-// club composed onto the brand background. Free users fall back to
-// the sitewide static OG declared in `app/layout.tsx`.
-//
-// Why this is the single biggest social-organic lever:
-//
-//   Every time a player shares their profile URL on WhatsApp / X /
-//   Instagram, the receiving platform fetches this image and shows it
-//   as the rich preview. A branded, personalized card converts far
-//   better than a generic site logo — both for the player (more clicks
-//   back to their portfolio) and for 'BallersHub (impression with logo
-//   on every share, regardless of click-through).
-//
-// Implementation notes:
-//
-//   • Uses `next/og`'s `ImageResponse` — runs on Node.js (Fluid
-//     Compute on Vercel). Was on Edge originally, but the move from
-//     postgres-js to node-postgres in src/lib/db.ts means importing
-//     `db` from here is no longer Edge-compatible (pg uses Node net
-//     + crypto modules). Vercel's current guidance is to default to
-//     Node anyway — Edge is deprecated for new work.
-//   • Image dimensions: 1200x630 (Facebook/Twitter/IG canonical).
-//   • Avatar is rendered via an absolute URL because `ImageResponse`
-//     cannot resolve relative paths.
+// Applies to BOTH Free and Pro public profiles — a branded, personalized card
+// is the single biggest social-organic lever (every WhatsApp/X/IG share is an
+// impression with our logo). The page must NOT also set `openGraph.images`
+// (that would override this file convention with the raw square avatar).
 
 import { ImageResponse } from "next/og";
 import { db } from "@/lib/db";
-import { subscriptions } from "@/db/schema/subscriptions";
 import { eq } from "drizzle-orm";
+import { teams } from "@/db/schema";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
+import { flagEmoji, countryName, alpha2FromLegacyNationality } from "@/lib/scouting/taxonomies";
+import { localizePlayerPositions } from "@/lib/i18n/positions";
+import { OG_SIZE, ACCENT } from "@/lib/og/tokens";
+import { ogFonts } from "@/lib/og/fonts";
+import { ogAssets } from "@/lib/og/assets";
+import { ogStrings } from "@/lib/og/strings";
+import { PlayerCard, type PlayerCardData } from "@/lib/og/cards";
+import type { Locale } from "@/i18n/routing";
 
 export const runtime = "nodejs";
-export const size = { width: 1200, height: 630 };
+export const size = OG_SIZE;
 export const contentType = "image/png";
-// Cache for an hour, same as the page. Sharers will see fresh edits
-// within 60 minutes.
+export const alt = "'BallersHub — Perfil de jugador";
 export const revalidate = 3600;
 
-type Params = { slug: string };
+const DEFAULT_AVATAR = "/images/player-default.jpg";
+const DEFAULT_CREST = "/images/team-default.svg";
 
-export default async function OpenGraphImage({ params }: { params: Params }) {
-  const { slug } = params;
+function ageFrom(birthDate: string | null): number | null {
+  if (!birthDate) return null;
+  const b = new Date(birthDate);
+  if (Number.isNaN(b.getTime())) return null;
+  const now = new Date();
+  let age = now.getUTCFullYear() - b.getUTCFullYear();
+  const m = now.getUTCMonth() - b.getUTCMonth();
+  if (m < 0 || (m === 0 && now.getUTCDate() < b.getUTCDate())) age--;
+  return age >= 12 && age <= 60 ? age : null;
+}
 
-  // Single query: pull the player and their subscription tier in one
-  // round-trip. The Free tier early-returns a brand-only card so the
-  // visual contract holds (static fallback would be served by the
-  // root layout's `openGraph` metadata, but Next.js routes the
-  // file-based image first, so we render a usable Free version here).
+function formatValue(eur: number | null): string | null {
+  if (!eur || eur <= 0) return null;
+  if (eur >= 1_000_000) return `€${(eur / 1_000_000).toFixed(eur % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (eur >= 1_000) return `€${Math.round(eur / 1_000)}K`;
+  return `€${Math.round(eur)}`;
+}
+
+export default async function Image({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+  const lang = locale === "es" ? "es" : "en";
+
   const player = await db.query.playerProfiles.findFirst({
     where: (p, { and, eq }) =>
       and(eq(p.slug, slug), eq(p.visibility, "public"), eq(p.status, "approved")),
     columns: {
-      userId: true,
       fullName: true,
+      avatarUrl: true,
       positions: true,
       currentClub: true,
-      avatarUrl: true,
+      currentTeamId: true,
       nationality: true,
+      birthDate: true,
+      foot: true,
+      marketValueEur: true,
     },
   });
 
+  const [fonts, assets] = await Promise.all([ogFonts(), ogAssets()]);
+  const S = ogStrings(lang);
+
+  // No player (or 404'd slug) → sitewide-style brand card via the home cascade
+  // is unreachable here (file convention wins), so render the player frame
+  // with brand-only fallbacks.
   if (!player) {
-    return brandOnlyCard("'BallersHub");
+    return new ImageResponse(
+      (
+        <PlayerCard
+          d={{
+            firstName: "",
+            lastName: "'BallersHub",
+            flag: "",
+            countryName: "",
+            eyebrow: S.profileEyebrow,
+            slug,
+            avatarUrl: toCanonicalUrl(DEFAULT_AVATAR),
+            verified: false,
+            chips: [],
+            club: null,
+            crestUrl: null,
+            verifiedTag: S.verifiedTag,
+          }}
+          ac={ACCENT.lima}
+          wordmark={assets.wordmark}
+        />
+      ),
+      { ...size, fonts, emoji: "twemoji" },
+    );
   }
 
-  const sub = await db.query.subscriptions.findFirst({
-    where: eq(subscriptions.userId, player.userId),
-    columns: { plan: true, statusV2: true },
-  });
+  // ----- derive card fields -----
+  const tokens = player.fullName.trim().split(/\s+/);
+  const firstName = tokens.length > 1 ? tokens[0] : "";
+  const lastName = tokens.length > 1 ? tokens.slice(1).join(" ") : player.fullName.trim();
 
-  const isPro =
-    sub != null &&
-    (sub.plan === "pro" || sub.plan === "pro_plus") &&
-    (sub.statusV2 === "trialing" || sub.statusV2 === "active");
+  const alpha2 = alpha2FromLegacyNationality(player.nationality?.[0] ?? null);
+  const flag = alpha2 ? flagEmoji(alpha2) : "";
+  const country = alpha2 ? countryName(alpha2) : "";
 
-  if (!isPro) {
-    // Free tier — render a lean brand card with just the name. We
-    // could `return null` to fall through to the static layout OG,
-    // but that yields the generic "'BallersHub" image for every Free
-    // player. Showing the name is still better SEO than nothing.
-    return brandOnlyCard(player.fullName);
-  }
-
-  // Pro card — avatar + name + position + club.
   const positionLabel =
     player.positions && player.positions.length > 0
-      ? player.positions.slice(0, 2).join(" / ")
+      ? localizePlayerPositions([player.positions[0]], locale as Locale)
       : null;
-  const avatarUrl = player.avatarUrl ? toCanonicalUrl(player.avatarUrl) : null;
+  const age = ageFrom(player.birthDate);
+  const foot = player.foot ? (S.foot[player.foot] ?? player.foot) : null;
+  const value = formatValue(player.marketValueEur ?? null);
+
+  const chips: PlayerCardData["chips"] = [];
+  if (positionLabel) chips.push({ accent: true, label: positionLabel });
+  if (age)
+    chips.push({
+      // NBSP between the number and the unit: Satori collapses a plain space
+      // between a text node and a sibling <span> ("21años").
+      label: (
+        <span>
+          {`${age} `}
+          <span style={{ color: "rgba(255,255,255,0.40)", fontWeight: 500 }}>{S.age}</span>
+        </span>
+      ),
+    });
+  if (foot) chips.push({ label: foot });
+  if (value) chips.push({ accent: true, label: value });
+
+  // crest: only when the team has a real (non-placeholder) crest
+  let crestUrl: string | null = null;
+  if (player.currentTeamId) {
+    const team = await db
+      .select({ crest: teams.crestUrl })
+      .from(teams)
+      .where(eq(teams.id, player.currentTeamId))
+      .limit(1);
+    const c = team[0]?.crest;
+    if (c && c !== DEFAULT_CREST) crestUrl = toCanonicalUrl(c);
+  }
+
+  const avatarUrl =
+    player.avatarUrl && player.avatarUrl !== DEFAULT_AVATAR
+      ? toCanonicalUrl(player.avatarUrl)
+      : toCanonicalUrl(DEFAULT_AVATAR);
+
+  const data: PlayerCardData = {
+    firstName,
+    lastName,
+    flag,
+    countryName: country,
+    eyebrow: S.profileEyebrow,
+    slug,
+    avatarUrl,
+    verified: true,
+    chips,
+    club: player.currentClub ?? null,
+    crestUrl,
+    verifiedTag: S.verifiedTag,
+  };
 
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          background:
-            "radial-gradient(125% 125% at 50% 10%, #001915 40%, #0dd5a5 100%)",
-          color: "#fff",
-          padding: 80,
-          fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
-          position: "relative",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            opacity: 0.85,
-            fontSize: 22,
-            letterSpacing: 4,
-            textTransform: "uppercase",
-            fontWeight: 700,
-          }}
-        >
-          <div
-            style={{
-              width: 12,
-              height: 12,
-              borderRadius: 999,
-              background: "#CCFF00",
-            }}
-          />
-          &apos;BallersHub
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 56,
-            marginTop: 80,
-            flex: 1,
-          }}
-        >
-          {avatarUrl && (
-            <img
-              src={avatarUrl}
-              alt=""
-              width={280}
-              height={280}
-              style={{
-                width: 280,
-                height: 280,
-                borderRadius: 999,
-                objectFit: "cover",
-                border: "6px solid #CCFF00",
-                boxShadow: "0 0 0 12px #080808",
-              }}
-            />
-          )}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              flex: 1,
-              minWidth: 0,
-            }}
-          >
-            {positionLabel && (
-              <div
-                style={{
-                  alignSelf: "flex-start",
-                  background: "#CCFF00",
-                  color: "#080808",
-                  padding: "8px 18px",
-                  fontSize: 24,
-                  fontWeight: 900,
-                  letterSpacing: 2,
-                  textTransform: "uppercase",
-                  borderRadius: 6,
-                }}
-              >
-                {positionLabel}
-              </div>
-            )}
-            <div
-              style={{
-                fontSize: 96,
-                fontWeight: 900,
-                lineHeight: 0.95,
-                textTransform: "uppercase",
-                letterSpacing: -2,
-              }}
-            >
-              {player.fullName}
-            </div>
-            {player.currentClub && (
-              <div
-                style={{
-                  fontSize: 32,
-                  fontWeight: 600,
-                  opacity: 0.85,
-                  marginTop: 8,
-                }}
-              >
-                {player.currentClub}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            fontSize: 20,
-            opacity: 0.7,
-            letterSpacing: 2,
-            textTransform: "uppercase",
-          }}
-        >
-          <span>Perfil profesional</span>
-          <span>ballershub.co/{slug}</span>
-        </div>
-      </div>
-    ),
-    size,
-  );
-}
-
-function brandOnlyCard(displayName: string) {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          background:
-            "radial-gradient(125% 125% at 50% 10%, #001915 40%, #0dd5a5 100%)",
-          color: "#fff",
-          padding: 80,
-          fontFamily: "system-ui, -apple-system, Segoe UI, sans-serif",
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            fontSize: 28,
-            letterSpacing: 6,
-            textTransform: "uppercase",
-            fontWeight: 700,
-            opacity: 0.8,
-            marginBottom: 24,
-          }}
-        >
-          &apos;BallersHub
-        </div>
-        <div
-          style={{
-            fontSize: 84,
-            fontWeight: 900,
-            lineHeight: 1.05,
-            letterSpacing: -2,
-            textTransform: "uppercase",
-            maxWidth: 1000,
-          }}
-        >
-          {displayName}
-        </div>
-        <div
-          style={{
-            fontSize: 24,
-            opacity: 0.7,
-            marginTop: 28,
-            letterSpacing: 2,
-            textTransform: "uppercase",
-          }}
-        >
-          Perfil profesional
-        </div>
-      </div>
-    ),
-    size,
+    <PlayerCard d={data} ac={ACCENT.lima} wordmark={assets.wordmark} />,
+    { ...size, fonts, emoji: "twemoji" },
   );
 }
