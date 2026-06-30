@@ -532,6 +532,9 @@ export default async function CoachPublicPage({
       methodology: methodologyAll,
       avatarUrl: coach.avatarUrl,
       heroUrl: coach.heroUrl,
+      // Render usa modelUrl1 con fallback a modelUrl2 (compat futura — sólo
+      // modelUrl1 es editable hoy).
+      modelUrl1: coach.modelUrl1 ?? coach.modelUrl2,
       nationality: coach.nationality,
       nationalityCodes: coach.nationalityCodes,
       currentClub: coach.currentClub,

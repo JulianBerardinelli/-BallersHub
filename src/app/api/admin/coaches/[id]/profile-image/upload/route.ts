@@ -27,8 +27,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
 
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
-    const assetType = formData.get("assetType") as "avatar" | "hero" | null;
-    if (assetType !== "avatar" && assetType !== "hero") {
+    const assetType = formData.get("assetType") as "avatar" | "hero" | "model1" | null;
+    if (assetType !== "avatar" && assetType !== "hero" && assetType !== "model1") {
       return NextResponse.json({ error: "assetType inválido." }, { status: 400 });
     }
     if (!file) return NextResponse.json({ error: "Adjuntá una imagen." }, { status: 400 });
@@ -62,7 +62,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ id: string }> 
     const { data: urlData } = admin.storage.from("coach-media").getPublicUrl(fileName);
     const publicUrl = `${urlData.publicUrl}?v=${Date.now()}`;
 
-    const column = assetType === "avatar" ? "avatar_url" : "hero_url";
+    const column =
+      assetType === "avatar" ? "avatar_url" : assetType === "model1" ? "model_url_1" : "hero_url";
     const { error: updateError } = await admin
       .from("coach_profiles")
       .update({ [column]: publicUrl, updated_at: new Date().toISOString() })

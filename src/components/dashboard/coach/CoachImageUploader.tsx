@@ -9,16 +9,18 @@ import AvatarCropperModal from "@/components/ui/AvatarCropperModal";
 
 const MAX_BYTES = 8 * 1024 * 1024;
 
-// Avatar / hero (Pro asset) uploader for the coach profile editor. Posts to
-// /api/coach/profile-image/upload (AVIF transcode + coach_profiles update).
+// Avatar / hero / model1 (Pro asset) uploader for the coach profile editor.
+// Posts to /api/coach/profile-image/upload (AVIF transcode + coach_profiles
+// update).
 //   • mode="avatar" → square crop via AvatarCropperModal, shown round.
 //   • mode="hero"   → free-form (transparent cutout), uploaded as-is.
+//   • mode="model1" → free-form 2º asset (cutout) del módulo Ideas de Juego.
 export default function CoachImageUploader({
   mode,
   currentUrl,
   uploadUrl = "/api/coach/profile-image/upload",
 }: {
-  mode: "avatar" | "hero";
+  mode: "avatar" | "hero" | "model1";
   currentUrl: string | null;
   /** Override the upload endpoint (admin edits another coach's images). */
   uploadUrl?: string;
@@ -119,7 +121,9 @@ export default function CoachImageUploader({
         <p className="max-w-[260px] text-[11px] leading-[1.4] text-bh-fg-4">
           {isAvatar
             ? "Foto cuadrada (rostro). Se usa en la barra y en tu página."
-            : "Imagen recortada con fondo transparente (PNG). Se muestra en el hero del layout Pro."}
+            : mode === "model1"
+              ? "Imagen recortada con fondo transparente (PNG). Decora tu sección de Ideas de Juego en el layout Pro."
+              : "Imagen recortada con fondo transparente (PNG). Se muestra en el hero del layout Pro."}
         </p>
         {error && (
           <p className="flex items-start gap-1.5 text-[12px] text-bh-danger">

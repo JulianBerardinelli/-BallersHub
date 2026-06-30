@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerRSC } from "@/lib/supabase/server";
 import { resolvePlanAccess } from "@/lib/dashboard/plan-access";
+import { isHeadCoachLayout, isStaffRole } from "@/lib/staff/roles";
 import CoachMediaManager, { type CoachMediaItem } from "./CoachMediaManager";
 
 export const dynamic = "force-dynamic";
@@ -14,9 +15,15 @@ export default async function CoachMultimediaPage() {
 
   const { data: profile } = await supabase
     .from("coach_profiles")
-    .select("id, full_name, hero_url")
+    .select("id, full_name, hero_url, model_url_1, primary_role")
     .eq("user_id", user.id)
-    .maybeSingle<{ id: string; full_name: string; hero_url: string | null }>();
+    .maybeSingle<{
+      id: string;
+      full_name: string;
+      hero_url: string | null;
+      model_url_1: string | null;
+      primary_role: string | null;
+    }>();
 
   if (!profile) {
     return (
@@ -69,5 +76,19 @@ export default async function CoachMultimediaPage() {
       : null,
   ).isPro;
 
-  return <CoachMediaManager items={items} isPro={isPro} heroUrl={profile.hero_url} />;
+  // El 2º asset (model1) sólo aplica a perfiles con layout DT (montan Ideas de
+  // Juego). primary_role null/legacy → mostrar (showTactical=true por defecto).
+  const showModelAsset =
+    profile.primary_role == null ||
+    (isStaffRole(profile.primary_role) && isHeadCoachLayout(profile.primary_role));
+
+  return (
+    <CoachMediaManager
+      items={items}
+      isPro={isPro}
+      heroUrl={profile.hero_url}
+      modelUrl1={profile.model_url_1}
+      showModelAsset={showModelAsset}
+    />
+  );
 }
