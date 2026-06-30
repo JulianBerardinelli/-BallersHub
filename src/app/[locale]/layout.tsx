@@ -155,7 +155,15 @@ export default async function RootLayout({
 
   return (
     <html lang={HTML_LANG[locale]} className="dark">
-      <body className={`relative min-h-screen overflow-x-clip bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
+      {/*
+        NO `relative` en el <body>: convierte al body en containing block de los
+        overlays de HeroUI (Select/Autocomplete/DatePicker), que usan
+        `position: absolute` en un portal. react-aria asume que ese portal cuelga
+        del viewport; con el body posicionado, el `top` calculado se desplaza
+        ~scrollHeight y el listbox cae fuera de pantalla (parece "no abre").
+        El body queda `static` (default) → los popovers se anclan al viewport.
+      */}
+      <body className={`min-h-screen overflow-x-clip bg-background text-foreground antialiased ${geistSans.variable} ${geistMono.variable} ${zuume.variable} ${barlowCondensed.variable} ${barlow.variable} ${dmSans.variable} ${dmMono.variable}`}>
         {/*
           Sitewide structured data: Organization + WebSite (with
           SearchAction). Rendered server-side so crawlers receive it
