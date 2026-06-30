@@ -448,6 +448,9 @@
     "abbrWinRate": "%",
     "mediaTitle": "Multimedia",
     "videoFallback": "Ver video",
+    "gameIdeasTitle": "Ideas de Juego",
+    "gameIdeaFallback": "Jugada",
+    "gameIdeaWatch": "Ver jugada",
     "contactTitle": "Contacto",
     "proClubsLabel": "Clubes",
     "free": {

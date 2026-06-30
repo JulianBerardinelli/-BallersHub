@@ -24,6 +24,7 @@ import type {
   CoachArticleRow,
   CoachPersonalDetailsData,
   CoachMethodologyRubroRow,
+  CoachGameIdeaRow,
 } from "../CoachPortfolio";
 import type { StaffRoleType } from "@/lib/staff/roles";
 
@@ -40,6 +41,8 @@ export type CoachProData = {
   showTactical: boolean;
   // Rubros de metodología approved (universal) + sus adjuntos (Pro).
   methodology: CoachMethodologyRubroRow[];
+  // Ideas de Juego approved (pizarra). Sólo se montan si showTactical (DT).
+  gameIdeas: CoachGameIdeaRow[];
   avatarUrl: string;
   heroUrl: string | null;
   // 2º asset Pro (cutout) — decora el módulo Ideas de Juego (#tactics). NULL

@@ -50,6 +50,7 @@ export * from "./coachCareerRevisions";
 export * from "./coachStats";
 export * from "./coachMedia";
 export * from "./coachMethodology";
+export * from "./coachGameIdeas";
 export * from "./coachPublishing";
 export * from "./coachLicenses";
 export * from "./coachTranslations";
