@@ -51,9 +51,11 @@ type Labels = {
   stats: StatLabels;
 };
 
-// Más de 5 convocatorias → timeline auto-scrolleado (solo en desktop). 5 o menos
-// → timeline estático con puntos.
-const ANIMATE_THRESHOLD = 5;
+// 3+ convocatorias → timeline auto-scrolleado y ACOTADO en altura (solo desktop);
+// con 1–2 alcanza el timeline estático (entra en una pantalla sin desbordar).
+// El cap de altura del scroller es clave: el estático con varias etapas se salía
+// del `lg:h-screen` y quedaba clippeado.
+const ANIMATE_THRESHOLD = 3;
 
 // Velocidad del auto-scroll del timeline animado, en px/frame (~60fps). Bajo a
 // propósito para que se lea cómodo; subir/bajar acá para tunear el "feel".
@@ -222,7 +224,7 @@ function ConvocatoriaCard({ stint, labels }: { stint: Stint; labels: Labels }) {
 }
 
 // ----------------------------------------------------------------------------
-// Timeline estático (≤ 5): línea vertical + puntos
+// Timeline estático (1–2 etapas): línea vertical + puntos
 // ----------------------------------------------------------------------------
 
 function StaticTimeline({ stints, labels }: { stints: Stint[]; labels: Labels }) {
@@ -266,7 +268,7 @@ function ArrowBtn({ dir, label, onClick }: { dir: "up" | "down"; label: string; 
 }
 
 // ----------------------------------------------------------------------------
-// Timeline animado (> 5, desktop): auto-scroll lento + control manual de la
+// Timeline animado (3+ etapas, desktop): auto-scroll lento + control manual de la
 // rueda (Lenis prevent + overscroll-contain), fades en los bordes, zoom al
 // centro y flechas para saltar de a una etapa.
 // ----------------------------------------------------------------------------
@@ -275,6 +277,7 @@ function AnimatedTimeline({ stints, labels }: { stints: Stint[]; labels: Labels 
   const scrollRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef<HTMLDivElement[]>([]);
   const pausedRef = useRef(false);
+  const dirRef = useRef<1 | -1>(1); // sentido del auto-scroll (ping-pong)
   const lenis = useLenis();
 
   useEffect(() => {
@@ -298,11 +301,18 @@ function AnimatedTimeline({ stints, labels }: { stints: Stint[]; labels: Labels 
     const frame = () => {
       if (!pausedRef.current) {
         const max = container.scrollHeight - container.clientHeight;
-        if (container.scrollTop >= max - 0.5) {
-          container.scrollTop = 0; // loop continuo por toda la trayectoria
-        } else {
-          container.scrollTop += SPEED;
+        // Ping-pong: baja hasta el final, rebota e invierte el sentido hacia
+        // arriba, y al volver al principio vuelve a bajar. Evita el salto a 0
+        // del loop (que con listas cortas llegaba al final muy rápido).
+        let next = container.scrollTop + SPEED * dirRef.current;
+        if (next >= max) {
+          next = max;
+          dirRef.current = -1;
+        } else if (next <= 0) {
+          next = 0;
+          dirRef.current = 1;
         }
+        container.scrollTop = next;
       }
       updateZoom();
       raf = requestAnimationFrame(frame);
@@ -583,7 +593,7 @@ export default function ProfileNationalTeamModule({
   const primaryName = peakStint?.teamName ?? stints[0]?.teamName ?? labels.title;
   const topCategory = peakStint ? labels.ageCategory[peakStint.ageCategory] : null;
 
-  const useAnimated = isDesktop && sorted.length > ANIMATE_THRESHOLD;
+  const useAnimated = isDesktop && sorted.length >= ANIMATE_THRESHOLD;
 
   return (
     <section
