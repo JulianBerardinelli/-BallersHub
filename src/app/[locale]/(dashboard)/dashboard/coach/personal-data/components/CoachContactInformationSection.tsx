@@ -57,7 +57,7 @@ type Props = {
 export default function CoachContactInformationSection({
   coachId,
   initialValues,
-  action = (input) => updateCoachContactInformation({ coachId: input.coachId, ...input }),
+  action = updateCoachContactInformation,
   hideEmail = false,
 }: Props) {
   const [defaults, setDefaults] = useState<FormValues>(initialValues);

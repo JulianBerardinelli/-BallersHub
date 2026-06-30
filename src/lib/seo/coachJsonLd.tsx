@@ -42,6 +42,14 @@ export type CoachJsonLdData = {
   nationality: string[] | null;
   nationalityCodes: string[] | null; // ISO 3166-1 alpha-2
   roleTitle: string | null; // free text: "Director Técnico", "Asistente"...
+  /**
+   * Label localizado del rol estructurado (primary_role del enum
+   * staff_role_type, resuelto en el server con el namespace `staff`). Si
+   * existe, gana sobre `roleTitle` como `jobTitle` para SEO/GEO — usamos la
+   * taxonomía canónica antes que el texto libre. Si es null, caemos a
+   * `roleTitle` y luego al fallback por locale (JOB_TITLE).
+   */
+  primaryRoleLabel?: string | null;
   currentClub: string | null;
   coachingSince: number | null;
   preferredFormations: string[] | null; // ["4-3-3", "3-5-2"]
@@ -111,7 +119,13 @@ export function CoachJsonLd({ coach, plan, locale }: Props) {
 
   const personId = `${canonical}#person`;
   const realImage = coach.avatarUrl ? toCanonicalUrl(coach.avatarUrl) : null;
-  const jobTitle = coach.roleTitle?.trim() ? coach.roleTitle.trim() : JOB_TITLE[locale];
+  // Preferimos la taxonomía del staff (primary_role del enum staff_role_type
+  // → label vía namespace `staff`) sobre el texto libre roleTitle. Mantiene
+  // jobTitle deterministico, traducido y SEO-citeable.
+  const jobTitle =
+    coach.primaryRoleLabel?.trim() ||
+    coach.roleTitle?.trim() ||
+    JOB_TITLE[locale];
   const knowsAbout =
     coach.preferredFormations && coach.preferredFormations.length > 0
       ? coach.preferredFormations

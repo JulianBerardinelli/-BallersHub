@@ -77,11 +77,15 @@ export type CoachContactInfoResponse = {
 
 // ─────────────────────────── helpers ───────────────────────────
 
-type CoachContext =
-  | { error: null; supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>; coach: { id: string; slug: string | null }; userEmail: string | null }
-  | { error: string; supabase: null; coach: null; userEmail: null };
+type CoachContextOk = {
+  ok: true;
+  supabase: Awaited<ReturnType<typeof createSupabaseServerRoute>>;
+  coach: { id: string; slug: string | null };
+  userEmail: string | null;
+};
+type CoachContextErr = { ok: false; error: string };
 
-async function ensureOwnerCoach(coachId: string): Promise<CoachContext> {
+async function ensureOwnerCoach(coachId: string): Promise<CoachContextOk | CoachContextErr> {
   const supabase = await createSupabaseServerRoute();
   const {
     data: { user },
@@ -89,10 +93,10 @@ async function ensureOwnerCoach(coachId: string): Promise<CoachContext> {
   } = await supabase.auth.getUser();
 
   if (authError) {
-    return { error: authError.message ?? "No fue posible validar la sesión.", supabase: null, coach: null, userEmail: null };
+    return { ok: false, error: authError.message ?? "No fue posible validar la sesión." };
   }
   if (!user) {
-    return { error: "Debés iniciar sesión para continuar.", supabase: null, coach: null, userEmail: null };
+    return { ok: false, error: "Debés iniciar sesión para continuar." };
   }
 
   const { data: coach, error: profileError } = await supabase
@@ -102,17 +106,17 @@ async function ensureOwnerCoach(coachId: string): Promise<CoachContext> {
     .maybeSingle<{ id: string; user_id: string; slug: string | null }>();
 
   if (profileError) {
-    return { error: mapPostgrestError(profileError), supabase: null, coach: null, userEmail: null };
+    return { ok: false, error: mapPostgrestError(profileError) };
   }
   if (!coach) {
-    return { error: "No encontramos el perfil indicado.", supabase: null, coach: null, userEmail: null };
+    return { ok: false, error: "No encontramos el perfil indicado." };
   }
   if (coach.user_id !== user.id) {
-    return { error: "No tenés permisos para modificar este perfil.", supabase: null, coach: null, userEmail: null };
+    return { ok: false, error: "No tenés permisos para modificar este perfil." };
   }
 
   return {
-    error: null,
+    ok: true,
     supabase,
     coach: { id: coach.id, slug: coach.slug },
     userEmail: user.email ?? null,
@@ -138,7 +142,7 @@ export async function updateCoachBasicInformation(
   }
 
   const ctx = await ensureOwnerCoach(parsed.data.coachId);
-  if (ctx.error) return { success: false, message: ctx.error };
+  if (!ctx.ok) return { success: false, message: ctx.error };
 
   const lookup = await fetchCountryLookup(ctx.supabase);
   const education = sanitizeText(parsed.data.education);
@@ -196,7 +200,7 @@ export async function updateCoachContactInformation(
   }
 
   const ctx = await ensureOwnerCoach(parsed.data.coachId);
-  if (ctx.error) return { success: false, message: ctx.error };
+  if (!ctx.ok) return { success: false, message: ctx.error };
 
   const lookup = await fetchCountryLookup(ctx.supabase);
   const email = sanitizeText(parsed.data.email);

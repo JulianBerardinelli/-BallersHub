@@ -30,7 +30,11 @@ import { toCanonicalUrl } from "@/lib/seo/baseUrl";
 import { OG_LOCALE } from "@/i18n/config";
 import { routing, type Locale } from "@/i18n/routing";
 import { CoachJsonLd, type CoachJsonLdData } from "@/lib/seo/coachJsonLd";
-import { isHeadCoachLayout, staffRolesSummary } from "@/lib/staff/roles";
+import {
+  isHeadCoachLayout,
+  staffRoleLabel,
+  staffRolesSummary,
+} from "@/lib/staff/roles";
 import { getTranslations } from "next-intl/server";
 import {
   computeCoachRecord,
@@ -486,6 +490,9 @@ export default async function CoachPublicPage({
     nationality: coach.nationality,
     nationalityCodes: coach.nationalityCodes,
     roleTitle: coach.roleTitle,
+    primaryRoleLabel: coach.primaryRole
+      ? staffRoleLabel(coach.primaryRole, tStaffRoles as unknown as (key: string) => string)
+      : null,
     currentClub: coach.currentClub,
     coachingSince: coach.coachingSince,
     preferredFormations: coach.preferredFormations,
