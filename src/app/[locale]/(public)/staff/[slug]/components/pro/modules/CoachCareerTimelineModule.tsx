@@ -28,6 +28,8 @@ import { useLenis } from "lenis/react";
 import { useTranslations } from "next-intl";
 import CountUp from "@/components/ui/CountUp";
 import BioAnimatedBackground from "@/app/[locale]/(public)/[slug]/components/modules/BioAnimatedBackground";
+import { Crest } from "../../free/atoms";
+import TransfermarktIcon from "@/components/icons/TransfermarktIcon";
 import type { CoachCareerRow, CoachStatRow, CoachHonourRow } from "../../CoachPortfolio";
 
 // ------------------------------------------------------------
@@ -374,8 +376,14 @@ function DesktopNodesTimeline({
                       style={{ backgroundColor: accent }}
                     />
 
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex flex-col">
+                    <div className="flex justify-between items-start mb-3 gap-4">
+                      <div className="flex items-start gap-4 min-w-0">
+                        {nodeData.crestUrl && (
+                          <div className="mt-1 shrink-0">
+                            <Crest club={nodeData.club} url={nodeData.crestUrl} size={52} />
+                          </div>
+                        )}
+                        <div className="flex flex-col min-w-0">
                         <span
                           className="w-fit px-3 py-1 rounded-sm text-[10px] font-black uppercase tracking-widest mb-3"
                           style={
@@ -386,8 +394,9 @@ function DesktopNodesTimeline({
                         >
                           {yearRange(nodeData, t("modules.career.present"))}
                         </span>
-                        <h4 className="text-2xl lg:text-3xl font-black text-white uppercase leading-[1.1] max-w-[480px] text-pretty">
-                          {nodeData.club}
+                        <h4 className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-2xl lg:text-3xl font-black text-white uppercase leading-[1.1] max-w-[480px] text-pretty">
+                          <span>{nodeData.club}</span>
+                          <StageTransfermarktLink url={nodeData.teamTransfermarktUrl} club={nodeData.club} />
                         </h4>
                         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-2">
                           {nodeData.roleTitle && (
@@ -417,6 +426,7 @@ function DesktopNodesTimeline({
                             ))}
                           </div>
                         )}
+                        </div>
                       </div>
                     </div>
 
@@ -611,8 +621,16 @@ function MobileTimelineCard({ nodeData, accent }: { nodeData: StageData; accent:
         {yearRange(nodeData, t("modules.career.present"))}
       </span>
 
-      <div className="flex items-start justify-between relative z-10">
-        <h4 className="text-2xl font-black text-white uppercase leading-[1.1] mb-1 pr-2 text-pretty">{club}</h4>
+      <div className="flex items-start gap-3 relative z-10">
+        {nodeData.crestUrl && (
+          <div className="mt-0.5 shrink-0">
+            <Crest club={club} url={nodeData.crestUrl} size={40} />
+          </div>
+        )}
+        <h4 className="flex flex-wrap items-center gap-x-2 gap-y-1 text-2xl font-black text-white uppercase leading-[1.1] mb-1 pr-2 text-pretty">
+          <span>{club}</span>
+          <StageTransfermarktLink url={nodeData.teamTransfermarktUrl} club={club} />
+        </h4>
       </div>
 
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-2 border-b border-white/[0.05] pb-4 relative z-10">
@@ -913,6 +931,26 @@ function StarIcon({ className }: { className?: string }) {
 // ------------------------------------------------------------
 // Shared logic
 // ------------------------------------------------------------
+
+// Link al perfil del club en Transfermarkt (P1.3). Botón chico junto al título
+// del club; sólo se monta si la etapa tiene un team con TM cargado. Tamaño
+// fijo para no escalar con el font-size enorme del título.
+function StageTransfermarktLink({ url, club }: { url: string | null; club: string }) {
+  if (!url) return null;
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer nofollow"
+      aria-label={`${club} en Transfermarkt`}
+      title="Transfermarkt"
+      onClick={(e) => e.stopPropagation()}
+      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-[4px] text-[#1E88E5] transition-opacity hover:opacity-80"
+    >
+      <TransfermarktIcon className="h-4 w-4" />
+    </a>
+  );
+}
 
 function yearRange(stage: CoachCareerRow, present: string) {
   const start = stage.startYear ?? "—";
