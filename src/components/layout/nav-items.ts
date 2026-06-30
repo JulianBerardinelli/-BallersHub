@@ -17,6 +17,7 @@ export type SiteNavItem = {
 
 export const SITE_NAV: SiteNavItem[] = [
   { href: "/players", key: "players" },
+  { href: "/staff", key: "staff" },
   { href: "/agencies", key: "agencies" },
   { href: "/pricing", key: "plans" },
   { href: "/como-validamos", key: "howWeValidate" },

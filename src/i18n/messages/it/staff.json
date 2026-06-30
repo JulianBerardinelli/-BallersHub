@@ -21,5 +21,25 @@
   "methodology": {
     "eyebrow": "Metodologia",
     "freeHeading": "Il mio metodo di lavoro"
+  },
+  "directory": {
+    "metaTitle": "Staff Tecnico — Allenatori e staff | BallersHub",
+    "metaDescription": "Directory di allenatori, preparatori atletici, analisti e staff tecnico verificati su BallersHub. Filtra per ruolo, nazionalità e lingua.",
+    "ogTitle": "Staff tecnico verificato · BallersHub",
+    "collectionName": "Staff Tecnico",
+    "heroEyebrow": "Directory",
+    "heroTitle": "Staff Tecnico",
+    "heroSubtitle": "Allenatori, preparatori, analisti e specialisti verificati.",
+    "filters": {
+      "role": "Ruolo",
+      "nationality": "Nazionalità",
+      "language": "Lingua",
+      "all": "Tutti",
+      "clear": "Cancella filtri"
+    },
+    "results": "{count, plural, =0 {Nessun risultato} one {# profilo} other {# profili}}",
+    "empty": "Nessun profilo corrisponde a quei filtri.",
+    "currentClub": "Club attuale",
+    "viewProfile": "Vedi profilo"
   }
 }

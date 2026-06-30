@@ -21,5 +21,25 @@
   "methodology": {
     "eyebrow": "Metodologia",
     "freeHeading": "A minha forma de trabalhar"
+  },
+  "directory": {
+    "metaTitle": "Comissão Técnica — Treinadores e staff | BallersHub",
+    "metaDescription": "Diretório de treinadores, preparadores físicos, analistas e comissão técnica verificados no BallersHub. Filtre por função, nacionalidade e idioma.",
+    "ogTitle": "Comissão técnica verificada · BallersHub",
+    "collectionName": "Comissão Técnica",
+    "heroEyebrow": "Diretório",
+    "heroTitle": "Comissão Técnica",
+    "heroSubtitle": "Treinadores, preparadores, analistas e especialistas verificados.",
+    "filters": {
+      "role": "Função",
+      "nationality": "Nacionalidade",
+      "language": "Idioma",
+      "all": "Todos",
+      "clear": "Limpar filtros"
+    },
+    "results": "{count, plural, =0 {Sem resultados} one {# perfil} other {# perfis}}",
+    "empty": "Nenhum perfil corresponde a esses filtros.",
+    "currentClub": "Clube atual",
+    "viewProfile": "Ver perfil"
   }
 }
