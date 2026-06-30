@@ -138,57 +138,73 @@ export default function Step1Identity({
           />
         </div>
 
-        {/* Roles del staff: principal (req) + hasta 2 secundarios. Labels es
-            nativas — el namespace i18n `staff` llega en un incremento posterior. */}
+        {/* Roles del staff: principal (req) + hasta 2 secundarios. Label custom
+            ARRIBA (no `labelPlacement="outside"` de HeroUI, que en este grid se
+            encimaba con el placeholder); aria-label cubre la accesibilidad. */}
         <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
-          <Select
-            isRequired
-            label="Rol principal"
-            labelPlacement="outside"
-            variant="flat"
-            placeholder="Elegí tu oficio principal"
-            selectedKeys={primaryRole ? [primaryRole] : []}
-            onSelectionChange={(keys) => {
-              const next = Array.from(keys)[0];
-              const role = isStaffRole(next) ? next : null;
-              setPrimaryRole(role);
-              setSecondaryRoles((prev) => prev.filter((r) => r !== role));
-              setTouched((p) => ({ ...p, primaryRole: true }));
-            }}
-            isInvalid={primaryRoleInvalid}
-            errorMessage="Elegí tu rol principal"
-            classNames={bhSelectClassNames}
-          >
-            {STAFF_ROLE_GROUPS.map((g) => (
-              <SelectSection key={g.id} title={tRole(`groups.${g.id}`)}>
-                {g.roles.map((r) => (
-                  <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
-                ))}
-              </SelectSection>
-            ))}
-          </Select>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="bh-primary-role"
+              className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2"
+            >
+              Rol principal <span className="text-bh-danger">*</span>
+            </label>
+            <Select
+              id="bh-primary-role"
+              aria-label="Rol principal"
+              variant="flat"
+              placeholder="Elegí tu oficio principal"
+              selectedKeys={primaryRole ? [primaryRole] : []}
+              onSelectionChange={(keys) => {
+                const next = Array.from(keys)[0];
+                const role = isStaffRole(next) ? next : null;
+                setPrimaryRole(role);
+                setSecondaryRoles((prev) => prev.filter((r) => r !== role));
+                setTouched((p) => ({ ...p, primaryRole: true }));
+              }}
+              isInvalid={primaryRoleInvalid}
+              errorMessage="Elegí tu rol principal"
+              classNames={bhSelectClassNames}
+            >
+              {STAFF_ROLE_GROUPS.map((g) => (
+                <SelectSection key={g.id} title={tRole(`groups.${g.id}`)}>
+                  {g.roles.map((r) => (
+                    <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
+                  ))}
+                </SelectSection>
+              ))}
+            </Select>
+          </div>
 
-          <Select
-            label="Roles secundarios (opcional, hasta 2)"
-            labelPlacement="outside"
-            variant="flat"
-            selectionMode="multiple"
-            placeholder="Otros oficios que ejercés"
-            selectedKeys={secondaryRoles}
-            disabledKeys={primaryRole ? [primaryRole] : []}
-            onSelectionChange={(keys) => {
-              const arr = Array.from(keys)
-                .filter(isStaffRole)
-                .filter((r) => r !== primaryRole)
-                .slice(0, MAX_SECONDARY_ROLES);
-              setSecondaryRoles(arr);
-            }}
-            classNames={bhSelectClassNames}
-          >
-            {STAFF_ROLES.map((r) => (
-              <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
-            ))}
-          </Select>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="bh-secondary-roles"
+              className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2"
+            >
+              Roles secundarios <span className="normal-case text-bh-fg-4">(opcional, hasta 2)</span>
+            </label>
+            <Select
+              id="bh-secondary-roles"
+              aria-label="Roles secundarios"
+              variant="flat"
+              selectionMode="multiple"
+              placeholder="Otros oficios que ejercés"
+              selectedKeys={secondaryRoles}
+              disabledKeys={primaryRole ? [primaryRole] : []}
+              onSelectionChange={(keys) => {
+                const arr = Array.from(keys)
+                  .filter(isStaffRole)
+                  .filter((r) => r !== primaryRole)
+                  .slice(0, MAX_SECONDARY_ROLES);
+                setSecondaryRoles(arr);
+              }}
+              classNames={bhSelectClassNames}
+            >
+              {STAFF_ROLES.map((r) => (
+                <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
+              ))}
+            </Select>
+          </div>
         </div>
 
         {/* Título específico (opcional) — ex cargo libre, va a role_title. */}
