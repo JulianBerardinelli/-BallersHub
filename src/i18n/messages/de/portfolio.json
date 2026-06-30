@@ -285,7 +285,7 @@
         "minutes": "Min"
       },
       "callups": "Nominierungen",
-      "scrollHint": "Zum Pausieren überfahren · zum Erkunden scrollen",
+      "scrollHint": "Scrolle oder nutze die Pfeile zum Blättern",
       "navPrev": "Vorherige Nominierung",
       "navNext": "Nächste Nominierung"
     }

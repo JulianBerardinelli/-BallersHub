@@ -285,7 +285,7 @@
         "minutes": "Min"
       },
       "callups": "Convocazioni",
-      "scrollHint": "Passa il mouse per mettere in pausa · scorri per esplorare",
+      "scrollHint": "Scorri o usa le frecce per sfogliare",
       "navPrev": "Convocazione precedente",
       "navNext": "Convocazione successiva"
     }
