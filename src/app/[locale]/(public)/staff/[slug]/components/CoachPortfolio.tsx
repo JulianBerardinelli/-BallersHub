@@ -25,6 +25,11 @@ export type CoachCareerRow = {
   division: string | null;
   startYear: number | null;
   endYear: number | null;
+  // Escudo + Transfermarkt del club de la etapa (P1.3, vía leftJoin con teams).
+  // null cuando la etapa no tiene team linkeado (club legacy en texto) o el club
+  // no tiene escudo http(s)/TM cargado. El render cae al placeholder con inicial.
+  crestUrl: string | null;
+  teamTransfermarktUrl: string | null;
 };
 
 export type CoachHonourRow = {
