@@ -6,6 +6,7 @@
 // Pagination + cluster hubs land in MVP-3.
 
 import type { Metadata } from "next";
+import { ogFallbackImages } from "@/lib/og/fallback";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { listPublishedPosts } from "@/lib/blog/posts";
@@ -27,6 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: t("ogDescription"),
       url: "/blog",
       type: "website",
+      images: ogFallbackImages,
     },
     twitter: {
       card: "summary_large_image",

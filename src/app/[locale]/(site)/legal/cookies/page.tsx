@@ -1,6 +1,7 @@
 // app/(site)/legal/cookies/page.tsx — Política de Cookies.
 // Content lives in the `legal` i18n namespace; rendered by <LegalDocument />.
 import type { Metadata } from "next";
+import { ogFallbackImages } from "@/lib/og/fallback";
 import { getTranslations } from "next-intl/server";
 
 import LegalDocument from "@/components/site/legal/LegalDocument";
@@ -21,7 +22,7 @@ export async function generateMetadata({
     title,
     description,
     alternates: localizedAlternates(locale as Locale, "/legal/cookies"),
-    openGraph: { title: ogTitle, description, url: "/legal/cookies", type: "website" },
+    openGraph: { title: ogTitle, description, url: "/legal/cookies", type: "website", images: ogFallbackImages },
     twitter: { card: "summary_large_image", title: ogTitle, description },
   };
 }
