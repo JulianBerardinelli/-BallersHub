@@ -57,9 +57,10 @@ type Labels = {
 // del `lg:h-screen` y quedaba clippeado.
 const ANIMATE_THRESHOLD = 3;
 
-// Velocidad del auto-scroll del timeline animado, en px/frame (~60fps). Bajo a
-// propósito para que se lea cómodo; subir/bajar acá para tunear el "feel".
-const SPEED = 0.18;
+// Velocidad del auto-scroll del timeline animado, en px/SEGUNDO. Es time-based
+// (no por-frame) para que NO dependa del refresh rate: con `+= px/frame` una
+// pantalla de 120Hz corría al doble. Lenta pero claramente animada; tuneable.
+const AUTO_SCROLL_PX_PER_SEC = 22;
 
 // Jerarquía de categorías para resolver la convocatoria "máxima" alcanzada
 // (mayor número = más alta). Mayor > Olímpica > Sub-23 > … > Sub-15 > Otra.
@@ -278,7 +279,20 @@ function AnimatedTimeline({ stints, labels }: { stints: Stint[]; labels: Labels 
   const itemsRef = useRef<HTMLDivElement[]>([]);
   const pausedRef = useRef(false);
   const dirRef = useRef<1 | -1>(1); // sentido del auto-scroll (ping-pong)
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lenis = useLenis();
+
+  // Pausa el auto-scroll SÓLO durante interacción (rueda / flechas) y lo reanuda
+  // tras un rato de quietud. A propósito NO se pausa por hover: al llegar
+  // scrolleando, el cursor suele quedar quieto encima del timeline, y pausar ahí
+  // hacía que la animación pareciera congelada (no se movía nunca).
+  const pauseInteractive = () => {
+    pausedRef.current = true;
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    resumeTimer.current = setTimeout(() => {
+      pausedRef.current = false;
+    }, 1400);
+  };
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -298,34 +312,42 @@ function AnimatedTimeline({ stints, labels }: { stints: Stint[]; labels: Labels 
       }
     };
 
-    const frame = () => {
+    let last = performance.now();
+    const frame = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.05); // clamp tras tab inactivo
+      last = now;
       if (!pausedRef.current) {
         const max = container.scrollHeight - container.clientHeight;
-        // Ping-pong: baja hasta el final, rebota e invierte el sentido hacia
-        // arriba, y al volver al principio vuelve a bajar. Evita el salto a 0
-        // del loop (que con listas cortas llegaba al final muy rápido).
-        let next = container.scrollTop + SPEED * dirRef.current;
-        if (next >= max) {
-          next = max;
-          dirRef.current = -1;
-        } else if (next <= 0) {
-          next = 0;
-          dirRef.current = 1;
+        if (max > 0) {
+          // Ping-pong time-based: avanza px/seg, rebota e invierte el sentido al
+          // tocar el final, y vuelve a bajar al volver al principio (sin el
+          // salto a 0 del loop, que con listas cortas se notaba feo).
+          let next = container.scrollTop + AUTO_SCROLL_PX_PER_SEC * dt * dirRef.current;
+          if (next >= max) {
+            next = max;
+            dirRef.current = -1;
+          } else if (next <= 0) {
+            next = 0;
+            dirRef.current = 1;
+          }
+          container.scrollTop = next;
         }
-        container.scrollTop = next;
       }
       updateZoom();
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    };
   }, [stints.length]);
 
   // Centra la etapa anterior/siguiente respecto del centro del contenedor.
   const scrollToStage = (dir: 1 | -1) => {
     const container = scrollRef.current;
     if (!container) return;
-    pausedRef.current = true; // navegación manual: cortamos el auto-scroll
+    pauseInteractive(); // navegación manual: pausa con auto-resume
     const cRect = container.getBoundingClientRect();
     const center = cRect.top + cRect.height / 2;
 
@@ -360,7 +382,7 @@ function AnimatedTimeline({ stints, labels }: { stints: Stint[]; labels: Labels 
   // La rueda controla el scroll interno (Lenis está prevenido sobre este
   // contenedor); sólo en los extremos encadenamos al scroll de la página.
   const onWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    pausedRef.current = true;
+    pauseInteractive();
     const el = scrollRef.current;
     if (!el) return;
     const max = el.scrollHeight - el.clientHeight;
@@ -374,15 +396,7 @@ function AnimatedTimeline({ stints, labels }: { stints: Stint[]; labels: Labels 
   };
 
   return (
-    <div
-      className="relative"
-      onMouseEnter={() => {
-        pausedRef.current = true;
-      }}
-      onMouseLeave={() => {
-        pausedRef.current = false;
-      }}
-    >
+    <div className="relative">
       {/* Línea vertical de fondo */}
       <div className="pointer-events-none absolute bottom-0 left-[7px] top-0 z-0 w-[2px] rounded-full bg-white/10" />
       <div

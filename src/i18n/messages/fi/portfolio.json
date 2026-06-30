@@ -285,7 +285,7 @@
         "minutes": "Min"
       },
       "callups": "Kutsut",
-      "scrollHint": "Pysäytä osoittamalla · selaa tutkiaksesi",
+      "scrollHint": "Vieritä tai selaa nuolilla",
       "navPrev": "Edellinen kutsu",
       "navNext": "Seuraava kutsu"
     }

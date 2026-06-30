@@ -285,7 +285,7 @@
         "minutes": "Min"
       },
       "callups": "Call-ups",
-      "scrollHint": "Hover to pause · scroll to explore",
+      "scrollHint": "Scroll or use the arrows to browse",
       "navPrev": "Previous call-up",
       "navNext": "Next call-up"
     }
