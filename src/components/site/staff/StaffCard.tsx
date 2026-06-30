@@ -1,9 +1,9 @@
 // Card de un perfil del directorio `/staff`. Server component — el <Link> es un
 // ancla real en el HTML (superficie de internal-linking para SEO). Reusa la
 // taxonomía de roles (staffRolesSummary) y banderas via flag-icons (CSS global).
-import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { staffRolesSummary } from "@/lib/staff/roles";
 import type { StaffDirectoryItem } from "@/lib/staff/directory";
 

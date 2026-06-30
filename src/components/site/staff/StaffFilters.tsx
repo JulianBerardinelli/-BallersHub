@@ -6,8 +6,11 @@
 // nativos → accesibles, sin JS pesado, y los crawlers ven el grid completo en
 // el primer paint (los params sólo refinan).
 import * as React from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+// Navegación locale-aware: usePathname devuelve el path SIN prefijo y router.push
+// reinyecta el locale activo → al filtrar desde /en/staff seguimos en /en/staff.
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { STAFF_ROLE_GROUPS, staffRoleLabel, type StaffRoleType } from "@/lib/staff/roles";
 
 export default function StaffFilters({
