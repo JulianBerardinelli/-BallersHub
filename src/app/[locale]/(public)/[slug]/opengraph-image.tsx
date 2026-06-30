@@ -12,7 +12,8 @@ import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { teams } from "@/db/schema";
 import { toCanonicalUrl } from "@/lib/seo/baseUrl";
-import { flagEmoji, countryName, alpha2FromLegacyNationality } from "@/lib/scouting/taxonomies";
+import { flagEmoji, alpha2FromLegacyNationality } from "@/lib/scouting/taxonomies";
+import { ogCountryName } from "@/lib/og/country";
 import { localizePlayerPositions } from "@/lib/i18n/positions";
 import { OG_SIZE, ACCENT } from "@/lib/og/tokens";
 import { ogFonts } from "@/lib/og/fonts";
@@ -111,7 +112,7 @@ export default async function Image({
 
   const alpha2 = alpha2FromLegacyNationality(player.nationality?.[0] ?? null);
   const flag = alpha2 ? flagEmoji(alpha2) : "";
-  const country = alpha2 ? countryName(alpha2) : "";
+  const country = ogCountryName(alpha2, lang);
 
   const positionLabel =
     player.positions && player.positions.length > 0

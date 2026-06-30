@@ -10,6 +10,7 @@
 // predicate as the sitemap, so the rendered links + JSON-LD never drift from it.
 
 import type { Metadata } from "next";
+import { ogFallbackImages } from "@/lib/og/fallback";
 import { getTranslations } from "next-intl/server";
 
 import { localizedAlternates } from "@/lib/seo/hreflang";
@@ -48,6 +49,7 @@ export async function generateMetadata({
       description: t("metaDescription"),
       url: alt.canonical,
       type: "website",
+      images: ogFallbackImages,
       siteName: "'BallersHub",
       locale: OG_LOCALE[locale as Locale] ?? "es_AR",
     },
