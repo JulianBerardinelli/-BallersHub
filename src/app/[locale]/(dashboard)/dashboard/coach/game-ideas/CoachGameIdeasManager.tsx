@@ -200,8 +200,15 @@ function IdeaCard({
     setSaving(true);
     const res = await deleteAction(row.id);
     setSaving(false);
-    if (res.success) onSaved();
-    else setMsg({ ok: false, text: res.message ?? "No se pudo eliminar." });
+    if (res.success) {
+      // Quitar la card del estado local YA (rows se inicializa de props y no se
+      // re-sincroniza con router.refresh()); si no, la card borrada queda
+      // visible hasta un remount y parece que el delete falló.
+      onRemoveLocal();
+      onSaved();
+    } else {
+      setMsg({ ok: false, text: res.message ?? "No se pudo eliminar." });
+    }
   }
 
   return (
