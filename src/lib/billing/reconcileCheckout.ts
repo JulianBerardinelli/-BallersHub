@@ -182,7 +182,11 @@ async function reconcileMercadoPago(
     // hosted page. Resolve via MP's preapproval/search by external_reference
     // (which is our session.id) and persist the real id for future calls.
     let preapprovalId = session.processorSessionId;
-    if (preapprovalId?.startsWith("plan:")) {
+    // Plan-based sessions have no real preapproval id at redirect time:
+    // newer rows leave it NULL, legacy rows stored a `plan:<plan_id>`
+    // placeholder (kept for back-compat). Both cases must be resolved via
+    // MP's preapproval/search by external_reference (our session.id).
+    if (!preapprovalId || preapprovalId.startsWith("plan:")) {
       const real = await searchMpPreapprovalByExternalReference(session.id);
       if (!real) {
         // No preapproval yet — user hasn't authorized. Leave session
