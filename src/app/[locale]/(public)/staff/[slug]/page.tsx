@@ -429,6 +429,23 @@ export default async function CoachPublicPage({
     .slice(0, 2)
     .map((r) => ({ ...r, docs: [] }));
 
+  // Datos personales públicos (residencia/educación/idiomas) para el Free
+  // BioFicha §01. El Pro layout ya los consume vía `personalDetails` directo
+  // (incluye también whatsapp + show_contact_section privados). Acá filtramos
+  // a los campos seguros para mostrar también a Free, sin tocar el contrato
+  // de personalDetails completo.
+  const publicPersonalDetails = personalRow[0]
+    ? {
+        residence:
+          [personalRow[0].residenceCity, personalRow[0].residenceCountry]
+            .map((v) => (v ?? "").trim())
+            .filter((v) => v.length > 0)
+            .join(", ") || null,
+        education: personalRow[0].education?.trim() || null,
+        languages: personalRow[0].languages?.length ? personalRow[0].languages : null,
+      }
+    : null;
+
   const data: CoachPortfolioData = {
     fullName: coach.fullName,
     roleTitle: coach.roleTitle,
@@ -454,6 +471,7 @@ export default async function CoachPublicPage({
     roleDisplay,
     showTactical,
     methodology: methodologyFree,
+    publicPersonalDetails,
   };
 
   const plan = isPro ? "pro" : "free";
