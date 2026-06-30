@@ -101,18 +101,17 @@ export default async function AdminCoachPersonalDataPage({
 
   return (
     <div className="space-y-6">
+      {/* Las admin actions reciben el input completo (con coachId dentro) y se
+          pasan DIRECTO — no como closure inline, que Next rechaza al pasarlo a
+          un Client Component. El admin gate valida el actor; el componente envía
+          el coachId del form. */}
       <CoachBasicInformationSection
         coachId={id}
         initialValues={{
           residence,
           education: personal?.education ?? "",
         }}
-        action={(input) =>
-          adminUpdateCoachBasicInformation(id, {
-            residence: input.residence,
-            education: input.education,
-          })
-        }
+        action={adminUpdateCoachBasicInformation}
       />
 
       <CoachContactInformationSection
@@ -127,16 +126,7 @@ export default async function AdminCoachPersonalDataPage({
           showContactSection: Boolean(personal?.show_contact_section),
         }}
         hideEmail
-        action={(input) =>
-          adminUpdateCoachContactInformation(id, {
-            phone: input.phone,
-            languages: input.languages,
-            documents: input.documents,
-            documentCountry: input.documentCountry,
-            whatsapp: input.whatsapp,
-            showContactSection: input.showContactSection,
-          })
-        }
+        action={adminUpdateCoachContactInformation}
       />
     </div>
   );

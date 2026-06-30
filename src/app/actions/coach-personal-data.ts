@@ -272,11 +272,17 @@ export async function updateCoachContactInformation(
 
 // ─────────────────────────── admin (live mode) ───────────────────────────
 
+// NOTA: estas variantes admin reciben el input COMPLETO (con coachId dentro),
+// igual que las owner — así pueden pasarse DIRECTO como server action al editor
+// cliente (action={adminUpdateCoachBasicInformation}). Un closure inline
+// `(input) => adminUpdate(id, input)` NO es una server action registrada y Next
+// lo rechaza al renderizar ("Functions cannot be passed to Client Components").
+// El coachId del input es seguro acá: ensureAdminActor ya gatea que el actor es
+// admin (puede editar cualquier coach), y el coachId target viaja en el form.
 export async function adminUpdateCoachBasicInformation(
-  coachId: string,
-  input: Omit<CoachBasicInfoInput, "coachId">,
+  input: CoachBasicInfoInput,
 ): Promise<ActionResult<CoachBasicInfoResponse>> {
-  const parsed = basicInfoSchema.safeParse({ ...input, coachId });
+  const parsed = basicInfoSchema.safeParse(input);
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors;
     return {
@@ -324,11 +330,13 @@ export async function adminUpdateCoachBasicInformation(
   };
 }
 
+// Misma firma que la owner (input completo) — ver nota en
+// adminUpdateCoachBasicInformation. El admin IGNORA el email (auth.users es del
+// owner, flujo distinto).
 export async function adminUpdateCoachContactInformation(
-  coachId: string,
-  input: Omit<CoachContactInfoInput, "coachId">,
+  input: CoachContactInfoInput,
 ): Promise<ActionResult<CoachContactInfoResponse>> {
-  const parsed = contactInfoSchema.safeParse({ ...input, coachId });
+  const parsed = contactInfoSchema.safeParse(input);
   if (!parsed.success) {
     const fieldErrors = parsed.error.flatten().fieldErrors;
     return {

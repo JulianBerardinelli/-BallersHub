@@ -139,13 +139,20 @@ export async function POST(req: Request, ctx: { params: Params }) {
     .eq("id", coachId);
   if (updErr) console.error("coach_profiles enrich update:", updErr.message);
 
+  // Sólo materializamos URLs http(s) en coach_links: estas URLs se renderizan
+  // como <a href> en la página pública, así que un esquema javascript:/data:
+  // (si una application maliciosa lo trae) sería un vector de XSS. Espeja el
+  // refine de coachLinkMutationSchema sin arrastrar zod al route handler.
+  const isSafeHttpUrl = (u: unknown): u is string =>
+    typeof u === "string" && /^https?:\/\//i.test(u.trim());
+
   // 6.5) link Transfermarkt (paridad con el jugador)
   const tmUrl = overrides.transfermarkt_url ?? app.transfermarkt_url;
-  if (tmUrl) {
+  if (isSafeHttpUrl(tmUrl)) {
     const { error: tmErr } = await admin.from("coach_links").insert({
       coach_id: coachId,
       kind: "transfermarkt",
-      url: tmUrl,
+      url: tmUrl.trim(),
       label: "Transfermarkt",
       is_primary: false,
     });
@@ -156,11 +163,11 @@ export async function POST(req: Request, ctx: { params: Params }) {
   // este campo se perdía en el approve (la columna existía en coach_applications
   // pero nadie la materializaba). Sin label → el público muestra "Sitio web".
   const extUrl = app.external_profile_url;
-  if (extUrl) {
+  if (isSafeHttpUrl(extUrl)) {
     const { error: extErr } = await admin.from("coach_links").insert({
       coach_id: coachId,
       kind: "custom",
-      url: extUrl,
+      url: extUrl.trim(),
       label: null,
       is_primary: false,
     });
