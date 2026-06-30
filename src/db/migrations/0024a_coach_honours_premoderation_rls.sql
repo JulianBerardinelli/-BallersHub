@@ -100,3 +100,31 @@ CREATE POLICY coach_honours_delete_owner
 GRANT SELECT ON public.coach_honours TO anon;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.coach_honours TO authenticated;
 GRANT ALL ON public.coach_honours TO service_role;
+
+-- Propagar el gate de pre-moderación a las TRADUCCIONES del logro. La policy de
+-- 0015a (coach_honour_translations_read) sólo gateaba por el perfil
+-- (approved+public), NO por h.status → la traducción de un logro pending/rejected
+-- quedaba legible por anon aunque el logro base esté oculto. Recreamos la policy
+-- agregando `h.status = 'approved'` a la rama pública (owner/admin siguen viendo
+-- todo). Espeja el gate de coach_honours_select_public.
+DROP POLICY IF EXISTS coach_honour_translations_read ON public.coach_honour_translations;
+CREATE POLICY coach_honour_translations_read
+  ON public.coach_honour_translations
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.coach_honours h
+      JOIN public.coach_profiles p ON p.id = h.coach_id
+      WHERE h.id = coach_honour_translations.honour_id
+        AND p.visibility = 'public'::visibility
+        AND p.status = 'approved'::player_status
+        AND h.status = 'approved'::review_status
+    )
+    OR EXISTS (
+      SELECT 1 FROM public.coach_honours h
+      JOIN public.coach_profiles p ON p.id = h.coach_id
+      WHERE h.id = coach_honour_translations.honour_id
+        AND p.user_id = auth.uid()
+    )
+    OR public.is_admin(auth.uid())
+  );
