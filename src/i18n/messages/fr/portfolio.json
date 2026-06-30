@@ -285,7 +285,7 @@
         "minutes": "Min"
       },
       "callups": "Convocations",
-      "scrollHint": "Survolez pour mettre en pause · faites défiler pour explorer",
+      "scrollHint": "Faites défiler ou utilisez les flèches pour parcourir",
       "navPrev": "Sélection précédente",
       "navNext": "Sélection suivante"
     }

@@ -285,7 +285,7 @@
         "minutes": "Min"
       },
       "callups": "Convocações",
-      "scrollHint": "Passe o cursor para pausar · role para explorar",
+      "scrollHint": "Role ou use as setas para navegar",
       "navPrev": "Convocação anterior",
       "navNext": "Próxima convocação"
     }
