@@ -17,6 +17,10 @@ import {
   COACH_ADMIN_EDIT_DOMAINS,
   type CoachAdminEditDomain,
 } from "@/lib/admin/coach-edit-sections";
+import {
+  normalizeStaffRoleSelection,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
 import type { CoachProfileInput } from "./coach-profile";
 import type {
   CoachCareerRevisionSubmissionInput,
@@ -398,6 +402,19 @@ export async function adminUpdateCoachProfileFields(
     .eq("id", coachId)
     .maybeSingle<{ slug: string | null }>();
 
+  // Roles estructurados (mismo contrato que el editor owner — sólo se tocan
+  // si el editor admin los manda).
+  const rolesPatch: { primary_role?: StaffRoleType; secondary_roles?: StaffRoleType[] | null } = {};
+  if (input.primaryRole !== undefined || input.secondaryRoles !== undefined) {
+    const normalized = normalizeStaffRoleSelection({
+      primaryRole: input.primaryRole,
+      secondaryRoles: input.secondaryRoles ?? [],
+    });
+    if (!normalized) return { success: false, error: "Elegí el rol principal." };
+    rolesPatch.primary_role = normalized.primaryRole;
+    rolesPatch.secondary_roles = normalized.secondaryRoles.length > 0 ? normalized.secondaryRoles : null;
+  }
+
   const { error } = await admin
     .from("coach_profiles")
     .update({
@@ -407,6 +424,7 @@ export async function adminUpdateCoachProfileFields(
       playing_style: input.playingStyle?.trim() || null,
       methodology_analysis: input.methodologyAnalysis?.trim() || null,
       preferred_formations: formations.length > 0 ? formations : null,
+      ...rolesPatch,
       ...(input.theme && {
         theme_primary_color: normHexValue(input.theme.primaryColor),
         theme_accent_color: normHexValue(input.theme.accentColor),

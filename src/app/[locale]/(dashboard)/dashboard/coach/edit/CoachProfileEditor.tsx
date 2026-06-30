@@ -2,12 +2,21 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Button, Textarea } from "@heroui/react";
+import { useTranslations } from "next-intl";
+import { Button, Select, SelectItem, SelectSection, Textarea } from "@heroui/react";
 import FormField from "@/components/dashboard/client/FormField";
 import { updateCoachProfile, type CoachProfileInput } from "@/app/actions/coach-profile";
 import { profileNotification, useNotificationContext } from "@/modules/notifications";
 import { usePlanAccess } from "@/components/dashboard/plan/PlanAccessProvider";
 import AvatarUploader from "@/components/dashboard/AvatarUploader";
+import { bhSelectClassNames } from "@/lib/ui/heroui-brand";
+import {
+  STAFF_ROLES,
+  STAFF_ROLE_GROUPS,
+  MAX_SECONDARY_ROLES,
+  isStaffRole,
+  type StaffRoleType,
+} from "@/lib/staff/roles";
 
 const textareaClasses = { inputWrapper: "bg-bh-surface-2 border border-white/[0.08]" };
 
@@ -28,12 +37,20 @@ export default function CoachProfileEditor({
 }) {
   const { enqueue } = useNotificationContext();
   const { access } = usePlanAccess();
+  const tStaff = useTranslations("staff");
+  const tRole = tStaff as unknown as (key: string) => string;
   const [primaryColor, setPrimaryColor] = React.useState(initial.theme?.primaryColor ?? "");
   const [accentColor, setAccentColor] = React.useState(initial.theme?.accentColor ?? "");
   const [backgroundColor, setBackgroundColor] = React.useState(
     initial.theme?.backgroundColor ?? "",
   );
   const [roleTitle, setRoleTitle] = React.useState(initial.roleTitle ?? "");
+  const [primaryRole, setPrimaryRole] = React.useState<StaffRoleType | null>(
+    initial.primaryRole ?? null,
+  );
+  const [secondaryRoles, setSecondaryRoles] = React.useState<StaffRoleType[]>(
+    initial.secondaryRoles ?? [],
+  );
   const [bio, setBio] = React.useState(initial.bio ?? "");
   const [careerObjectives, setCareerObjectives] = React.useState(initial.careerObjectives ?? "");
   const [playingStyle, setPlayingStyle] = React.useState(initial.playingStyle ?? "");
@@ -43,6 +60,10 @@ export default function CoachProfileEditor({
   const [msg, setMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
 
   async function onSave() {
+    if (!primaryRole) {
+      setMsg({ ok: false, text: "Elegí tu rol principal." });
+      return;
+    }
     setSaving(true);
     setMsg(null);
     try {
@@ -56,6 +77,8 @@ export default function CoachProfileEditor({
           .split(",")
           .map((s) => s.trim())
           .filter((s) => s.length > 0),
+        primaryRole,
+        secondaryRoles,
         theme: {
           primaryColor: primaryColor || null,
           accentColor: accentColor || null,
@@ -131,12 +154,67 @@ export default function CoachProfileEditor({
       </div>
 
       <div className="grid gap-5 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
+        {/* Roles estructurados — espejo del Step1Identity del onboarding. El
+            principal gobierna el fork de layout (DT vs universal). Los
+            secundarios son sólo display (chips en la ficha). */}
+        <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
+          <Select
+            isRequired
+            label="Rol principal"
+            labelPlacement="outside"
+            variant="flat"
+            placeholder="Elegí tu oficio principal"
+            selectedKeys={primaryRole ? [primaryRole] : []}
+            onSelectionChange={(keys) => {
+              const next = Array.from(keys)[0];
+              const role = isStaffRole(next) ? next : null;
+              setPrimaryRole(role);
+              setSecondaryRoles((prev) => prev.filter((r) => r !== role));
+            }}
+            isInvalid={!primaryRole && msg?.ok === false}
+            errorMessage="Elegí tu rol principal"
+            classNames={bhSelectClassNames}
+            description="Decide qué layout público se monta (Cuerpo Técnico desbloquea Ideas de Juego)."
+          >
+            {STAFF_ROLE_GROUPS.map((g) => (
+              <SelectSection key={g.id} title={tRole(`groups.${g.id}`)}>
+                {g.roles.map((r) => (
+                  <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
+                ))}
+              </SelectSection>
+            ))}
+          </Select>
+
+          <Select
+            label="Roles secundarios (opcional, hasta 2)"
+            labelPlacement="outside"
+            variant="flat"
+            selectionMode="multiple"
+            placeholder="Otros oficios que ejercés"
+            selectedKeys={secondaryRoles}
+            disabledKeys={primaryRole ? [primaryRole] : []}
+            onSelectionChange={(keys) => {
+              const arr = Array.from(keys)
+                .filter(isStaffRole)
+                .filter((r) => r !== primaryRole)
+                .slice(0, MAX_SECONDARY_ROLES);
+              setSecondaryRoles(arr);
+            }}
+            classNames={bhSelectClassNames}
+          >
+            {STAFF_ROLES.map((r) => (
+              <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
+            ))}
+          </Select>
+        </div>
+
         <FormField
           id="coach-role"
-          label="Cargo"
-          placeholder="Ej: Director Técnico"
+          label="Título específico (opcional)"
+          placeholder='Ej: "DT principal de la cantera"'
           value={roleTitle}
           onChange={(e) => setRoleTitle(e.target.value)}
+          description="Caption libre que acompaña al rol. Si lo dejás vacío se muestra sólo la etiqueta del oficio."
         />
 
         <Textarea
