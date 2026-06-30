@@ -35,7 +35,14 @@ export async function reconcileCheckout(
   if (session.status === "completed") {
     return { ok: true, status: "completed", refreshed: false };
   }
-  if (!session.processorSessionId) {
+  // MP plan sessions intentionally carry a NULL processor_session_id until the
+  // real preapproval id arrives via webhook. `reconcileMercadoPago` self-heals
+  // them by searching MP via external_reference (= session.id), so they MUST
+  // reach the dispatch below even when null — otherwise an authorized checkout
+  // whose webhook is delayed/missed never resolves and falls through to
+  // /checkout/pending. Only Stripe (and unknown processors) genuinely cannot
+  // reconcile without a processor reference.
+  if (!session.processorSessionId && session.processor !== "mercado_pago") {
     return { ok: false, error: "Session has no processor reference yet" };
   }
 
