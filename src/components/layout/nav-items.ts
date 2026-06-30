@@ -17,7 +17,11 @@ export type SiteNavItem = {
 
 export const SITE_NAV: SiteNavItem[] = [
   { href: "/players", key: "players" },
-  { href: "/staff", key: "staff" },
+  // "Cuerpo Técnico" (/staff) oculto del header por ahora — la vertical staff
+  // todavía no se abre al público en el nav. La página /staff, su sitemap y el
+  // JSON-LD siguen vivos (accesible por URL directa). Reactivar este item
+  // cuando se lance públicamente. El label vive en common.nav.staff (7 locales).
+  // { href: "/staff", key: "staff" },
   { href: "/agencies", key: "agencies" },
   { href: "/pricing", key: "plans" },
   { href: "/como-validamos", key: "howWeValidate" },
