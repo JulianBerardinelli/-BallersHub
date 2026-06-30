@@ -332,6 +332,20 @@ export const COACH_NAVIGATION: ClientDashboardNavSection[] = [
       },
       {
         kind: "link",
+        id: "coach-personal-data",
+        title: "Datos personales",
+        href: "/dashboard/coach/personal-data",
+        description: "Residencia, educación, idiomas y contacto.",
+      },
+      {
+        kind: "link",
+        id: "coach-links",
+        title: "Enlaces",
+        href: "/dashboard/coach/links",
+        description: "Transfermarkt, redes y sitios externos para tu página pública.",
+      },
+      {
+        kind: "link",
         id: "coach-translations",
         title: "Idiomas",
         href: "/dashboard/coach/translations",

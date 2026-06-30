@@ -152,6 +152,32 @@ export async function POST(req: Request, ctx: { params: Params }) {
     if (tmErr) console.error("coach_links transfermarkt:", tmErr.message);
   }
 
+  // 6.6) externalProfileUrl del Step2 → coach_links (kind='custom'). Hasta P0.3
+  // este campo se perdía en el approve (la columna existía en coach_applications
+  // pero nadie la materializaba). Sin label → el público muestra "Sitio web".
+  const extUrl = app.external_profile_url;
+  if (extUrl) {
+    const { error: extErr } = await admin.from("coach_links").insert({
+      coach_id: coachId,
+      kind: "custom",
+      url: extUrl,
+      label: null,
+      is_primary: false,
+    });
+    if (extErr) console.error("coach_links externalProfile:", extErr.message);
+  }
+
+  // 6.7) fila base de coach_personal_details (idempotente). Sin datos cargados
+  // → todos null + show_contact_section=false. El editor /dashboard/coach/
+  // personal-data hace el upsert "real" cuando el coach completa los campos.
+  const { error: pdErr } = await admin
+    .from("coach_personal_details")
+    .upsert(
+      { coach_id: coachId },
+      { onConflict: "coach_id", ignoreDuplicates: true },
+    );
+  if (pdErr) console.error("coach_personal_details bootstrap:", pdErr.message);
+
   // 7) aceptar las proposals pendientes y materializar la trayectoria.
   await admin
     .from("coach_career_item_proposals")
