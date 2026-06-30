@@ -21,23 +21,40 @@ no hay tráfico alto ni cobros en vuelo.
 Es independiente de P2.2 y más simple. Conviene de "calentamiento".
 
 **Pasos:**
-1. `src/lib/billing/plans.ts`: agregar el slug `pro-staff` apuntando al **mismo
-   `price_id` de Stripe/MP** (el precio no cambia, sólo el slug interno).
-2. **Alias legacy**: en `resolvePlanAccess`, mapear `pro-coach` → `pro-staff`
-   (por si queda un registro histórico o un webhook con el slug viejo). Barato y
-   seguro; no romper suscripciones existentes.
-3. Ruta de checkout: `/checkout/pro-staff` + **301** desde `/checkout/pro-coach`.
+1. `src/lib/billing/plans.ts`: agregar el slug `pro-staff`.
+2. ⚠️ **Provisionar las env vars derivadas del nuevo slug (paso CRÍTICO, no
+   olvidar).** El código NO toma el price/plan id de `plans.ts`: lo deriva del
+   slug a nombre de env var en `src/lib/billing/env.ts`:
+   - Stripe (`stripePriceId`): `STRIPE_PRICE_${PLAN_ID}_${CURRENCY}` con
+     `planId.toUpperCase().replace(/-/g,'_')` → para `pro-staff` busca
+     **`STRIPE_PRICE_PRO_STAFF_USD`** y **`STRIPE_PRICE_PRO_STAFF_EUR`**.
+   - Mercado Pago (`mpPreapprovalPlanId`): `MP_PLAN_${PLAN_ID}_${CURRENCY}` →
+     **`MP_PLAN_PRO_STAFF_ARS`**.
+
+   Hoy existen `STRIPE_PRICE_PRO_COACH_*` y `MP_PLAN_PRO_COACH_ARS`. Si se cambia
+   el slug sin crear las `PRO_STAFF`, **Stripe cae a precios dinámicos** (no el
+   price pineado) y **MP cae al path inline sin el trial nativo**. → Crear en
+   Vercel (**dev + prod**) las env vars `PRO_STAFF_*` como **aliases** (mismo
+   valor `price_id`/`preapproval_plan_id` que las `PRO_COACH_*`), idealmente
+   ANTES de cambiar el slug, para que el switch sea atómico.
+3. **Alias legacy del slug**: en `resolvePlanAccess`, mapear `pro-coach` →
+   `pro-staff` (por si queda un registro histórico o un webhook con el slug
+   viejo). No romper suscripciones existentes.
+4. Ruta de checkout: `/checkout/pro-staff` + **301** desde `/checkout/pro-coach`.
    Actualizar todas las referencias en código (links de checkout, gates Pro,
    `?currency=ARS`, etc.).
-4. Stripe/MP: NO se toca el price ni el producto; sólo el slug del plan en el
-   código BallersHub.
-5. Data-migration (idempotente): `UPDATE subscriptions SET plan_id='pro-staff'
+5. Stripe/MP (proveedor): NO se toca el price ni el producto; sólo el slug del
+   plan en BallersHub + las env vars que lo mapean (paso 2).
+6. Data-migration (idempotente): `UPDATE subscriptions SET plan_id='pro-staff'
    WHERE plan_id='pro-coach'` — verificar el count antes; al momento del plan
    eran 0 filas, confirmar de nuevo antes de correr.
-6. **Verificar E2E** el checkout en dev con Stripe + MP test (ver
-   `reference_mp_test_setup` en memoria) antes de prod.
+7. **Verificar E2E** el checkout en dev con Stripe + MP test (ver
+   `reference_mp_test_setup` en memoria), confirmando que **toma el price pineado
+   + el trial nativo de MP** (no el fallback), antes de prod.
 
-**Riesgo:** medio-bajo. El alias legacy protege contra slugs viejos.
+**Riesgo:** medio. El punto frágil es el paso 2 (env vars derivadas del slug) —
+si se omite, el checkout sigue funcionando pero pierde el price pineado y el
+trial; por eso provisionar los aliases ANTES del switch.
 
 ---
 
