@@ -14,6 +14,7 @@ import {
   coachPersonalDetails,
   coachMethodologyRubros,
   agencyProfiles,
+  teams,
 } from "@/db/schema";
 import { docMimeFromUrl } from "@/lib/coach/methodology-data";
 import {
@@ -245,9 +246,25 @@ export default async function CoachPublicPage({
     agency,
     rubroRows,
   ] = await Promise.all([
+      // leftJoin con teams para traer el escudo + el Transfermarkt del club
+      // por etapa (P1.3). `teamId` es la FK opcional; cuando es null (club como
+      // texto libre legacy) crestUrl/teamTransfermarktUrl quedan null y el
+      // render cae al placeholder con la inicial.
       db
-        .select()
+        .select({
+          id: coachCareerItems.id,
+          club: coachCareerItems.club,
+          roleTitle: coachCareerItems.roleTitle,
+          roles: coachCareerItems.roles,
+          division: coachCareerItems.division,
+          startDate: coachCareerItems.startDate,
+          endDate: coachCareerItems.endDate,
+          teamId: coachCareerItems.teamId,
+          crestUrl: teams.crestUrl,
+          teamTransfermarktUrl: teams.transfermarktUrl,
+        })
         .from(coachCareerItems)
+        .leftJoin(teams, eq(coachCareerItems.teamId, teams.id))
         .where(eq(coachCareerItems.coachId, coach.id))
         .orderBy(desc(coachCareerItems.startDate)),
       db
@@ -331,6 +348,15 @@ export default async function CoachPublicPage({
 
   const career: CoachCareerRow[] = careerRows.map((c) => {
     const { roles, roleLabels } = localizeRoles((c as { roles?: unknown }).roles);
+    // El crest sólo se muestra si es una URL http(s) real (escudo subido). El
+    // default local `/images/team-default.svg` cae al placeholder con la
+    // inicial del club, más informativo que un genérico.
+    const crestUrl =
+      typeof c.crestUrl === "string" && /^https?:\/\//i.test(c.crestUrl) ? c.crestUrl : null;
+    const teamTransfermarktUrl =
+      typeof c.teamTransfermarktUrl === "string" && /^https?:\/\//i.test(c.teamTransfermarktUrl)
+        ? c.teamTransfermarktUrl
+        : null;
     return {
       id: c.id,
       club: c.club,
@@ -340,6 +366,8 @@ export default async function CoachPublicPage({
       division: c.division,
       startYear: yearOf(c.startDate),
       endYear: yearOf(c.endDate),
+      crestUrl,
+      teamTransfermarktUrl,
     };
   });
 
