@@ -36,6 +36,8 @@ import {
   isStaffRole,
   staffRoleLabel,
   staffRolesSummary,
+  normalizeExperienceKind,
+  staffExperienceKindLabel,
   type StaffRoleType,
 } from "@/lib/staff/roles";
 import { getTranslations } from "next-intl/server";
@@ -256,6 +258,7 @@ export default async function CoachPublicPage({
         .select({
           id: coachCareerItems.id,
           club: coachCareerItems.club,
+          experienceKind: coachCareerItems.experienceKind,
           roleTitle: coachCareerItems.roleTitle,
           roles: coachCareerItems.roles,
           division: coachCareerItems.division,
@@ -374,9 +377,20 @@ export default async function CoachPublicPage({
       typeof c.teamTransfermarktUrl === "string" && /^https?:\/\//i.test(c.teamTransfermarktUrl)
         ? c.teamTransfermarktUrl
         : null;
+    // Tipo de experiencia: `club` no muestra badge; job/project sí (label localizado).
+    const experienceKind = normalizeExperienceKind(c.experienceKind);
+    const experienceKindLabel =
+      experienceKind === "club"
+        ? null
+        : staffExperienceKindLabel(
+            experienceKind,
+            tStaffRolesForCareer as unknown as (key: string) => string,
+          );
     return {
       id: c.id,
       club: c.club,
+      experienceKind,
+      experienceKindLabel,
       roleTitle: c.roleTitle,
       roles,
       roleLabels,

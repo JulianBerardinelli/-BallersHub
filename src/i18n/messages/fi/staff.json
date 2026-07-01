@@ -1,4 +1,9 @@
 {
+  "experienceKind": {
+    "club": "Seura / Joukkue",
+    "job": "Työ / Instituutio",
+    "project": "Henkilökohtainen projekti"
+  },
   "roles": {
     "head_coach": "Päävalmentaja",
     "assistant_head_coach": "Apulaisvalmentaja",

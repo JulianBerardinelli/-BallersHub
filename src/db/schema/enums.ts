@@ -38,6 +38,16 @@ export const staffRoleTypeEnum = pgEnum("staff_role_type", [
 ]);
 export type StaffRoleType = (typeof staffRoleTypeEnum.enumValues)[number];
 
+// Tipo de experiencia de una etapa de la trayectoria del staff. Una etapa puede
+// ser un club/equipo verificado (`club` → team_id → crest, filtros), un trabajo
+// en una institución (`job`: federación, academia, empresa — nombre libre) o un
+// proyecto personal (`project` — nombre libre). Solo `club` resuelve a una fila
+// de `teams`; el resto quedan como línea de texto. Default `club` mantuvo todas
+// las filas legacy (toda la trayectoria previa = clubes) sin fricción.
+// Usado por `coach_career_items.experience_kind` + sus proposals.
+export const staffExperienceKindEnum = pgEnum("staff_experience_kind", ["club","job","project"]);
+export type StaffExperienceKind = (typeof staffExperienceKindEnum.enumValues)[number];
+
 export const teamStatusEnum = pgEnum("team_status", ["pending","approved","rejected"]);
 export const divisionStatusEnum = pgEnum("division_status", ["pending","approved","rejected"]);
 export const teamKindEnum = pgEnum("team_kind", ["club","national","academy","amateur"]);

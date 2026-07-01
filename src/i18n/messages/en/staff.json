@@ -1,4 +1,9 @@
 {
+  "experienceKind": {
+    "club": "Club / Team",
+    "job": "Job / Institution",
+    "project": "Personal project"
+  },
   "roles": {
     "head_coach": "Head Coach",
     "assistant_head_coach": "Assistant Head Coach",

@@ -1,4 +1,9 @@
 {
+  "experienceKind": {
+    "club": "Clube / Equipe",
+    "job": "Trabalho / Instituição",
+    "project": "Projeto pessoal"
+  },
   "roles": {
     "head_coach": "Treinador",
     "assistant_head_coach": "Treinador Adjunto",

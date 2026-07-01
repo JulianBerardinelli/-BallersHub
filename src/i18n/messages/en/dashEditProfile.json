@@ -522,7 +522,11 @@
       "confirmStage": "Confirm stage",
       "remove": "Delete",
       "rolesLabel": "Roles in this stage (up to 3)",
-      "rolesPlaceholder": "E.g. Head Coach, Analyst, Scout"
+      "rolesPlaceholder": "E.g. Head Coach, Analyst, Scout",
+      "experienceKindLabel": "Experience type",
+      "experienceKindPlaceholder": "Choose the type",
+      "orgNameLabel": "Name",
+      "orgNamePlaceholder": "E.g. Federation, academy, project…"
     },
     "rowRead": {
       "chipProposed": "Proposed",

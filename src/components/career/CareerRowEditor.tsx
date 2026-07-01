@@ -21,6 +21,11 @@ import {
   MAX_STAGE_ROLES,
   isStaffRole,
   type StaffRoleType,
+  STAFF_EXPERIENCE_KINDS,
+  normalizeExperienceKind,
+  isStaffExperienceKind,
+  staffExperienceKindLabel,
+  type StaffExperienceKind,
 } from "@/lib/staff/roles";
 
 import FormField from "@/components/dashboard/client/FormField";
@@ -50,6 +55,10 @@ export type RowDraft = {
   // Roles estructurados de la etapa (máx 3, enum staff_role_type). Coach/staff-only
   // — el editor lo muestra solo con `showRoles`; el flujo de players lo ignora.
   roles?: StaffRoleType[] | null;
+  // Tipo de experiencia de la etapa (staff_experience_kind). Coach/staff-only —
+  // el editor lo muestra solo con `showExperienceKind`. Ausente/undefined = club
+  // (players + dashboard actual → comportamiento intacto: TeamCombobox + división).
+  experience_kind?: StaffExperienceKind | null;
   division?: string | null;
   division_id?: string | null;
   division_meta?: { crest_url?: string | null } | null;
@@ -81,6 +90,8 @@ export default function CareerRowEditor({
   onRequestCurrentChange,
   showRole = false,
   showRoles = false,
+  showExperienceKind = false,
+  allowOverlap = false,
 }: {
   value: RowDraft;
   onPatch: (patch: Partial<RowDraft>) => void;
@@ -94,11 +105,22 @@ export default function CareerRowEditor({
   showRole?: boolean;
   /** Coach/staff-only: render the structured `roles[]` multi-select (máx 3). */
   showRoles?: boolean;
+  /** Staff-only: render the "tipo de experiencia" selector (club/job/project).
+   *  When the kind is not `club`, the team picker + division become a free-text
+   *  organization name (no team linking). */
+  showExperienceKind?: boolean;
+  /** When true, an overlap with another stage is a non-blocking warning instead
+   *  of blocking confirm (staff can hold two roles in the same period). */
+  allowOverlap?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
   // Labels de los 13 oficios — namespace `staff`, clave `roles.<key>`.
   const tStaffRoles = useTranslations("staff") as unknown as (key: string) => string;
   const selectedRoles = (value.roles ?? []).filter(isStaffRole);
+
+  // Tipo de experiencia. undefined → club (players + dashboard actual → sin cambio).
+  const kind = normalizeExperienceKind(value.experience_kind);
+  const isClub = kind === "club";
 
   // --- Club: shared search-or-propose combobox ---
   const teamValue: TeamComboboxValue = value.team_id
@@ -324,7 +346,7 @@ export default function CareerRowEditor({
     (value.club?.trim()?.length ?? 0) > 1 &&
     yIssues.length === 0 &&
     (!value.proposed || (value.proposed && value.proposed.country)) &&
-    !overlapError;
+    (allowOverlap || !overlapError);
 
   // Handlers de años (independientes)
   function onStartChange(v: string) {
@@ -340,9 +362,21 @@ export default function CareerRowEditor({
   }
 
   function handleConfirm() {
-    if (canConfirm && !overlapError) onConfirm();
+    if (canConfirm && (allowOverlap || !overlapError)) onConfirm();
     else setTriedConfirm(true);
   }
+
+  // Layout: sin división ni secundaria cuando la etapa NO es un club/equipo.
+  const gridClass = !isClub
+    ? "lg:grid-cols-4"
+    : secondaryEnabled
+      ? "lg:grid-cols-6"
+      : "lg:grid-cols-5";
+  const bottomSpan = !isClub
+    ? "lg:col-span-4"
+    : secondaryEnabled
+      ? "lg:col-span-6"
+      : "lg:col-span-5";
 
   // shared brand classNames for both Autocompletes
   // Nota popover: la celda del grid puede ser angosta (ej. División en
@@ -398,6 +432,43 @@ export default function CareerRowEditor({
 
   return (
     <div className="space-y-3 rounded-bh-lg border border-[rgba(204,255,0,0.18)] bg-bh-surface-1/40 p-4">
+      {showExperienceKind ? (
+        <Select
+          aria-label={t("career.rowEditor.experienceKindLabel")}
+          label={t("career.rowEditor.experienceKindLabel")}
+          labelPlacement="outside"
+          variant="flat"
+          disallowEmptySelection
+          placeholder={t("career.rowEditor.experienceKindPlaceholder")}
+          selectedKeys={[kind]}
+          onSelectionChange={(keys) => {
+            const nextKind = Array.from(keys)[0];
+            const k = isStaffExperienceKind(nextKind) ? nextKind : "club";
+            if (k === "club") {
+              onPatch({ experience_kind: k });
+            } else {
+              // Trabajo / proyecto: sin equipo verificado ni división.
+              onPatch({
+                experience_kind: k,
+                team_id: null,
+                team_meta: null,
+                proposed: null,
+                division: null,
+                division_id: null,
+                division_meta: null,
+                secondary_division: null,
+                secondary_division_id: null,
+                secondary_division_meta: null,
+              });
+            }
+          }}
+          classNames={bhSelectClassNames}
+        >
+          {STAFF_EXPERIENCE_KINDS.map((k) => (
+            <SelectItem key={k}>{staffExperienceKindLabel(k, tStaffRoles)}</SelectItem>
+          ))}
+        </Select>
+      ) : null}
       {showRoles ? (
         <Select
           aria-label={t("career.rowEditor.rolesLabel")}
@@ -428,21 +499,27 @@ export default function CareerRowEditor({
           onChange={(e) => onPatch({ role_title: e.target.value })}
         />
       ) : null}
-      <div
-        className={`grid grid-cols-1 items-end gap-3 ${
-          secondaryEnabled ? "lg:grid-cols-6" : "lg:grid-cols-5"
-        }`}
-      >
+      <div className={`grid grid-cols-1 items-end gap-3 ${gridClass}`}>
         <div className="lg:col-span-2">
-          <TeamCombobox
-            variant="field"
-            label={t("career.rowEditor.clubLabel")}
-            value={teamValue}
-            seedText={value.club}
-            onChange={handleTeamChange}
-          />
+          {isClub ? (
+            <TeamCombobox
+              variant="field"
+              label={t("career.rowEditor.clubLabel")}
+              value={teamValue}
+              seedText={value.club}
+              onChange={handleTeamChange}
+            />
+          ) : (
+            <FormField
+              label={t("career.rowEditor.orgNameLabel")}
+              placeholder={t("career.rowEditor.orgNamePlaceholder")}
+              value={value.club}
+              onChange={(e) => onPatch({ club: e.target.value })}
+            />
+          )}
         </div>
 
+      {isClub ? (
       <Autocomplete
           label={t("career.rowEditor.divisionLabel")}
           labelPlacement="outside"
@@ -496,8 +573,9 @@ export default function CareerRowEditor({
             );
           }}
         </Autocomplete>
+      ) : null}
 
-        {secondaryEnabled ? (
+        {isClub && secondaryEnabled ? (
         <Autocomplete
             label={t("career.rowEditor.secondaryDivisionLabel")}
             labelPlacement="outside"
@@ -603,7 +681,7 @@ export default function CareerRowEditor({
         isInvalid={endInvalid}
       />
 
-      <div className={`flex flex-col gap-3 ${secondaryEnabled ? "lg:col-span-6" : "lg:col-span-5"}`}>
+      <div className={`flex flex-col gap-3 ${bottomSpan}`}>
         {/* Fila de toggles — alineados a la derecha, encima de los botones. */}
         <div className="flex flex-wrap items-center justify-end gap-x-5 gap-y-2">
             {showCurrentToggle ? (
@@ -626,14 +704,16 @@ export default function CareerRowEditor({
               </Switch>
             ) : null}
 
-            <Switch
-              size="sm"
-              isSelected={secondaryEnabled}
-              onValueChange={toggleSecondary}
-              classNames={bhSwitchClassNames}
-            >
-              {t("career.rowEditor.toggleSecondary")}
-            </Switch>
+            {isClub ? (
+              <Switch
+                size="sm"
+                isSelected={secondaryEnabled}
+                onValueChange={toggleSecondary}
+                classNames={bhSwitchClassNames}
+              >
+                {t("career.rowEditor.toggleSecondary")}
+              </Switch>
+            ) : null}
         </div>
 
         {/* Fila inferior — chips/errores a la izquierda, botones a la derecha. */}
@@ -669,7 +749,10 @@ export default function CareerRowEditor({
               <span className="text-[12px] text-bh-danger">{translateIssue(yIssues[0].code)}</span>
             )}
             {overlapError && (
-              <span className="text-[12px] text-bh-danger">{overlapError}</span>
+              <span className={`text-[12px] ${allowOverlap ? "text-bh-fg-3" : "text-bh-danger"}`}>
+                {allowOverlap ? "⚠ " : ""}
+                {overlapError}
+              </span>
             )}
           </div>
 

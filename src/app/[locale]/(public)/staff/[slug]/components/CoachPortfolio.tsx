@@ -12,7 +12,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import CoachLicenseList from "./CoachLicenseList";
-import type { StaffRoleType } from "@/lib/staff/roles";
+import type { StaffRoleType, StaffExperienceKind } from "@/lib/staff/roles";
 import type { PitchBoard } from "@/lib/coach/game-ideas";
 
 // Idea de juego approved para el render público (Pro + DT). El pitch_board ya
@@ -29,6 +29,10 @@ export type CoachGameIdeaRow = {
 export type CoachCareerRow = {
   id: string;
   club: string;
+  // Tipo de experiencia (club/job/project) + label localizado. `experienceKindLabel`
+  // es null cuando es `club` (sin badge). Resuelto server-side en page.tsx.
+  experienceKind: StaffExperienceKind;
+  experienceKindLabel: string | null;
   roleTitle: string | null;
   // Roles estructurados de la etapa (enum). `roleLabels` ya viene localizado
   // (resuelto en el server con el namespace `staff`) para render directo de chips.
@@ -313,6 +317,11 @@ export default async function CoachPortfolio({ data }: { data: CoachPortfolioDat
               >
                 <span className="flex flex-wrap items-baseline gap-x-2">
                   <span className="font-bh-display text-base font-bold">{c.club}</span>
+                  {c.experienceKindLabel && (
+                    <span className="rounded-bh-pill border border-[rgba(0,194,255,0.22)] bg-[rgba(0,194,255,0.08)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-bh-blue">
+                      {c.experienceKindLabel}
+                    </span>
+                  )}
                   {c.roleTitle && <span className="text-sm text-bh-fg-3">· {c.roleTitle}</span>}
                   {c.division && <span className="text-xs text-bh-fg-4">· {c.division}</span>}
                 </span>

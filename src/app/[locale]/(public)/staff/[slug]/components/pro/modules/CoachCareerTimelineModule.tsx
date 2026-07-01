@@ -398,6 +398,11 @@ function DesktopNodesTimeline({
                           <span>{nodeData.club}</span>
                           <StageTransfermarktLink url={nodeData.teamTransfermarktUrl} club={nodeData.club} />
                         </h4>
+                        {nodeData.experienceKindLabel && (
+                          <span className="mt-1.5 w-fit rounded-sm bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-white/60">
+                            {nodeData.experienceKindLabel}
+                          </span>
+                        )}
                         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-2">
                           {nodeData.roleTitle && (
                             <span
@@ -634,6 +639,11 @@ function MobileTimelineCard({ nodeData, accent }: { nodeData: StageData; accent:
       </div>
 
       <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-2 border-b border-white/[0.05] pb-4 relative z-10">
+        {nodeData.experienceKindLabel && (
+          <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest text-white/60">
+            {nodeData.experienceKindLabel}
+          </span>
+        )}
         {roleTitle && (
           <span className="font-bold uppercase tracking-widest text-[10px]" style={{ color: accent }}>
             {roleTitle}
