@@ -1,4 +1,9 @@
 {
+  "experienceKind": {
+    "club": "Verein / Team",
+    "job": "Anstellung / Institution",
+    "project": "Persönliches Projekt"
+  },
   "roles": {
     "head_coach": "Cheftrainer",
     "assistant_head_coach": "Co-Trainer",

@@ -522,7 +522,11 @@
       "confirmStage": "Vahvista vaihe",
       "remove": "Poista",
       "rolesLabel": "Roolit tässä vaiheessa (enint. 3)",
-      "rolesPlaceholder": "Esim. Päävalmentaja, Analyytikko, Skoutti"
+      "rolesPlaceholder": "Esim. Päävalmentaja, Analyytikko, Skoutti",
+      "experienceKindLabel": "Kokemuksen tyyppi",
+      "experienceKindPlaceholder": "Valitse tyyppi",
+      "orgNameLabel": "Nimi",
+      "orgNamePlaceholder": "Esim. Liitto, akatemia, projekti…"
     },
     "rowRead": {
       "chipProposed": "Ehdotettu",

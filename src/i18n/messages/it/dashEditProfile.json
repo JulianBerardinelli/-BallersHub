@@ -522,7 +522,11 @@
       "confirmStage": "Conferma tappa",
       "remove": "Elimina",
       "rolesLabel": "Ruoli in questa tappa (fino a 3)",
-      "rolesPlaceholder": "Es: Allenatore, Analista, Osservatore"
+      "rolesPlaceholder": "Es: Allenatore, Analista, Osservatore",
+      "experienceKindLabel": "Tipo di esperienza",
+      "experienceKindPlaceholder": "Scegli il tipo",
+      "orgNameLabel": "Nome",
+      "orgNamePlaceholder": "Es: Federazione, accademia, progetto…"
     },
     "rowRead": {
       "chipProposed": "Proposto",

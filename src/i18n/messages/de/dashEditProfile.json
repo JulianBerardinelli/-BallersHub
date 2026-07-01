@@ -522,7 +522,11 @@
       "confirmStage": "Station bestätigen",
       "remove": "Löschen",
       "rolesLabel": "Rollen in dieser Etappe (bis zu 3)",
-      "rolesPlaceholder": "z. B. Cheftrainer, Analyst, Scout"
+      "rolesPlaceholder": "z. B. Cheftrainer, Analyst, Scout",
+      "experienceKindLabel": "Art der Erfahrung",
+      "experienceKindPlaceholder": "Typ wählen",
+      "orgNameLabel": "Name",
+      "orgNamePlaceholder": "Z. B.: Verband, Akademie, Projekt …"
     },
     "rowRead": {
       "chipProposed": "Vorgeschlagen",

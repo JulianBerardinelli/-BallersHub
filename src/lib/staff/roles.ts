@@ -8,9 +8,9 @@
 // Import type-only del enum → no arrastra drizzle-orm al bundle del cliente; la
 // completitud de los 13 valores la garantiza el Record<StaffRoleType,…> de labels.
 
-import type { StaffRoleType } from "@/db/schema/enums";
+import type { StaffRoleType, StaffExperienceKind } from "@/db/schema/enums";
 
-export type { StaffRoleType };
+export type { StaffRoleType, StaffExperienceKind };
 
 // Los 13 oficios en orden canónico de display/onboarding. Espeja el pgEnum.
 export const STAFF_ROLES = [
@@ -154,4 +154,56 @@ export function normalizeStageRoles(input: unknown): StaffRoleType[] {
     if (out.length >= MAX_STAGE_ROLES) break;
   }
   return out;
+}
+
+// ─────────────────────── Tipo de experiencia (etapa) ───────────────────────
+// Eje "tipo de experiencia" de una etapa de trayectoria (enum staff_experience_kind).
+// `club` = equipo verificado (TeamCombobox → crest/filtros); `job` = trabajo en una
+// institución (federación/academia/empresa, nombre libre); `project` = proyecto
+// personal (nombre libre). Solo `club` linkea a `teams`. Ver docs/staff/ONBOARDING-AUDIT.md.
+
+export const STAFF_EXPERIENCE_KINDS = [
+  "club",
+  "job",
+  "project",
+] as const satisfies readonly StaffExperienceKind[];
+
+export const DEFAULT_EXPERIENCE_KIND: StaffExperienceKind = "club";
+
+const STAFF_EXPERIENCE_KIND_LABELS_ES: Record<StaffExperienceKind, string> = {
+  club: "Club / Equipo",
+  job: "Trabajo / Institución",
+  project: "Proyecto personal",
+};
+
+/** Type guard: ¿el valor es un tipo de experiencia válido del enum? */
+export function isStaffExperienceKind(value: unknown): value is StaffExperienceKind {
+  return (
+    typeof value === "string" &&
+    (STAFF_EXPERIENCE_KINDS as readonly string[]).includes(value)
+  );
+}
+
+/** Normaliza a un kind válido; default `club` (legacy + caso común). */
+export function normalizeExperienceKind(value: unknown): StaffExperienceKind {
+  return isStaffExperienceKind(value) ? value : DEFAULT_EXPERIENCE_KIND;
+}
+
+/**
+ * Label del tipo de experiencia. Si se pasa un translator del namespace `staff`
+ * (clave `experienceKind.<kind>`) lo usa; si no, cae a la es nativa.
+ */
+export function staffExperienceKindLabel(
+  kind: StaffExperienceKind,
+  t?: (key: string) => string,
+): string {
+  if (t) {
+    try {
+      const v = t(`experienceKind.${kind}`);
+      if (v && v !== `experienceKind.${kind}`) return v;
+    } catch {
+      // namespace/clave ausente → fallback es.
+    }
+  }
+  return STAFF_EXPERIENCE_KIND_LABELS_ES[kind];
 }

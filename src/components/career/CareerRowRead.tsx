@@ -7,7 +7,12 @@ import { useTranslations } from "next-intl";
 import { Button, Chip, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import { MoreHorizontal } from "lucide-react";
 import CountryFlag from "@/components/common/CountryFlag";
-import { isStaffRole, type StaffRoleType } from "@/lib/staff/roles";
+import {
+  isStaffRole,
+  type StaffRoleType,
+  staffExperienceKindLabel,
+  type StaffExperienceKind,
+} from "@/lib/staff/roles";
 
 import { bhButtonClass } from "@/components/ui/BhButton";
 import { bhChip } from "@/lib/ui/heroui-brand";
@@ -22,6 +27,7 @@ export default function CareerRowRead({
     club,
     roleTitle,
     roles,
+    experienceKind,
     division,
     secondaryDivision,
     start_year,
@@ -37,6 +43,7 @@ export default function CareerRowRead({
     club: string;
     roleTitle?: string | null;
     roles?: StaffRoleType[] | null;
+    experienceKind?: StaffExperienceKind | null;
     division?: string | null;
     secondaryDivision?: string | null;
     start_year?: number | null;
@@ -89,6 +96,11 @@ export default function CareerRowRead({
                         {isCurrent ? (
                             <Chip size="sm" variant="flat" classNames={bhChip("lime")}>
                                 {t("career.rowRead.chipCurrent")}
+                            </Chip>
+                        ) : null}
+                        {experienceKind && experienceKind !== "club" ? (
+                            <Chip size="sm" variant="flat" classNames={bhChip("blue")}>
+                                {staffExperienceKindLabel(experienceKind, tStaffRoles)}
                             </Chip>
                         ) : null}
                     </div>

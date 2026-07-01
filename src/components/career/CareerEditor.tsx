@@ -24,6 +24,8 @@ export default function CareerEditor({
   readOnly = false,
   showRole = false,
   showRoles = false,
+  showExperienceKind = false,
+  allowOverlap = false,
 }: {
   items: CareerItemInput[];
   onChange: (rows: CareerItemInput[]) => void;
@@ -36,6 +38,11 @@ export default function CareerEditor({
   showRole?: boolean;
   /** Coach/staff-only: surface the structured `roles[]` multi-select (máx 3). */
   showRoles?: boolean;
+  /** Staff-only: surface the "tipo de experiencia" selector (club/job/project). */
+  showExperienceKind?: boolean;
+  /** When true, overlapping periods are a non-blocking warning (staff can hold
+   *  two roles at once). Players keep the blocking behaviour. */
+  allowOverlap?: boolean;
 }) {
   const t = useTranslations("dashEditProfile");
   const [skipped, setSkipped] = React.useState(false);
@@ -52,6 +59,7 @@ export default function CareerEditor({
         club: "",
         role_title: null,
         roles: null,
+        experience_kind: null,
         division: null,
         secondary_division: null,
         secondary_division_id: null,
@@ -103,7 +111,7 @@ export default function CareerEditor({
     const row = items.find((r) => r.id === id);
     if (!row) return;
     const warn = overlapMsg(row);
-    if (warn) return;
+    if (warn && !allowOverlap) return;
 
     const next = items.map((r) => (r.id === id ? { ...r, confirmed: true } : r));
     const confirmed = sortCareer(next.filter((r) => r.confirmed));
@@ -180,6 +188,7 @@ export default function CareerEditor({
                 club={row.club}
                 roleTitle={row.role_title ?? null}
                 roles={showRoles ? (row.roles ?? null) : null}
+                experienceKind={showExperienceKind ? (row.experience_kind ?? null) : null}
                 division={row.division}
                 secondaryDivision={row.secondary_division ?? null}
                 start_year={row.start_year}
@@ -216,6 +225,8 @@ export default function CareerEditor({
                 showCurrentToggle={showCurrentToggle && !readOnly}
                 showRole={showRole}
                 showRoles={showRoles}
+                showExperienceKind={showExperienceKind}
+                allowOverlap={allowOverlap}
                 onRequestCurrentChange={(selected) =>
                   onRequestCurrentChange ? onRequestCurrentChange(row, selected) : true
                 }

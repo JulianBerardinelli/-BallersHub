@@ -2,30 +2,13 @@
 
 import * as React from "react";
 import { useTranslations } from "next-intl";
-import { Form, Button, Select, SelectItem } from "@heroui/react";
+import { Form, Button } from "@heroui/react";
 import TeamPickerCombo, { type TeamPickerValue } from "@/components/teams/TeamPickerCombo";
 import FormField from "@/components/dashboard/client/FormField";
-import { bhSelectClassNames } from "@/lib/ui/heroui-brand";
-import {
-  STAFF_ROLES,
-  MAX_STAGE_ROLES,
-  isStaffRole,
-  type StaffRoleType,
-} from "@/lib/staff/roles";
+import CareerEditor, { type CareerItemInput } from "@/components/career/CareerEditor";
 
-// Una etapa de la trayectoria del DT: club + roles estructurados (hasta 3) +
-// CARGO libre opcional + división + años. Deliberadamente SIN posiciones (jugador).
-export type CoachCareerStage = {
-  id: string;
-  club: string;
-  roleTitle: string;
-  roles: StaffRoleType[];
-  division: string | null;
-  startYear: number | null;
-  endYear: number | null;
-};
-
-// Licencia declarada por el coach: { title, issuer, year }.
+// Licencia declarada por el staff: { title, issuer, year }. Es coach-only (no
+// tiene análogo en el flujo de players) → se mantiene tal cual.
 export type CoachLicenseDraft = {
   id: string;
   title: string;
@@ -36,22 +19,16 @@ export type CoachLicenseDraft = {
 export type Step2Data = {
   freeAgent: boolean;
   team: TeamPickerValue;
-  career: CoachCareerStage[];
+  // Trayectoria profesional (etapas): reusa el shape compartido de players
+  // (`CareerItemInput` = RowDraft) para que team_id / proposed / roles /
+  // division_id / experience_kind fluyan al submit (que ya los consume).
+  career: CareerItemInput[];
   licenses: CoachLicenseDraft[];
   transfermarkt?: string | null;
   externalProfile?: string | null;
 };
 
 const URL_RE = /^https?:\/\/[^ "]+$/i;
-const newStage = (): CoachCareerStage => ({
-  id: crypto.randomUUID(),
-  club: "",
-  roleTitle: "",
-  roles: [],
-  division: null,
-  startYear: null,
-  endYear: null,
-});
 const newLicense = (): CoachLicenseDraft => ({
   id: crypto.randomUUID(),
   title: "",
@@ -71,11 +48,10 @@ export default function Step2Career({
   onNext: (data: Step2Data) => void;
 }) {
   const t = useTranslations("onboarding");
-  const tRole = useTranslations("staff") as unknown as (key: string) => string;
 
   const [freeAgent, setFreeAgent] = React.useState<boolean>(!!defaultValue?.freeAgent);
   const [team, setTeam] = React.useState<TeamPickerValue>(defaultValue?.team ?? null);
-  const [career, setCareer] = React.useState<CoachCareerStage[]>(defaultValue?.career ?? []);
+  const [career, setCareer] = React.useState<CareerItemInput[]>(defaultValue?.career ?? []);
   const [licenses, setLicenses] = React.useState<CoachLicenseDraft[]>(defaultValue?.licenses ?? []);
   const [tm, setTm] = React.useState(defaultValue?.transfermarkt ?? "");
   const [ext, setExt] = React.useState(defaultValue?.externalProfile ?? "");
@@ -91,13 +67,7 @@ export default function Step2Career({
   const tmInvalid = !!touched.tm && !!tm && !URL_RE.test(tm);
   const extInvalid = !!touched.ext && !!ext && !URL_RE.test(ext);
 
-  // ───────────────── editores ─────────────────
-  function patchStage(id: string, patch: Partial<CoachCareerStage>) {
-    setCareer((prev) => prev.map((s) => (s.id === id ? { ...s, ...patch } : s)));
-  }
-  function removeStage(id: string) {
-    setCareer((prev) => prev.filter((s) => s.id !== id));
-  }
+  // ───────────────── editores de licencias ─────────────────
   function patchLicense(id: string, patch: Partial<CoachLicenseDraft>) {
     setLicenses((prev) => prev.map((l) => (l.id === id ? { ...l, ...patch } : l)));
   }
@@ -133,7 +103,7 @@ export default function Step2Career({
     }
 
     // Descartamos etapas/licencias vacías antes de enviar.
-    const cleanCareer = career.filter((s) => s.club.trim().length > 0);
+    const cleanCareer = career.filter((s) => (s.club ?? "").trim().length > 0);
     const cleanLicenses = licenses.filter((l) => l.title.trim().length > 0);
 
     onNext({
@@ -149,7 +119,7 @@ export default function Step2Career({
   return (
     <div className="space-y-6">
       <Form className="grid gap-6">
-        {/* Club actual + agente libre */}
+        {/* Club / equipo actual + agente libre */}
         <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
           <TeamPickerCombo
             applicationId={applicationId}
@@ -165,119 +135,20 @@ export default function Step2Career({
           />
         </div>
 
-        {/* Trayectoria como DT (clubes dirigidos) */}
-        <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">
-          <div>
-            <h3 className="font-bh-display text-lg font-bold uppercase tracking-[-0.005em] text-bh-fg-1">
-              {t("coachApply.step2.careerTitle")}{" "}
-              <span className="text-bh-fg-4">{t("coachApply.step2.optional")}</span>
-            </h3>
-            <p className="mt-1 text-[12px] text-bh-fg-3">{t("coachApply.step2.careerSubtitle")}</p>
-          </div>
-
-          {career.length === 0 ? (
-            <p className="text-[12px] text-bh-fg-4">{t("coachApply.step2.careerEmpty")}</p>
-          ) : (
-            <div className="grid gap-4">
-              {career.map((stage) => (
-                <div
-                  key={stage.id}
-                  className="grid gap-3 rounded-bh-md border border-white/[0.06] bg-transparent p-4"
-                >
-                  <div className="flex justify-end">
-                    <Button
-                      size="sm"
-                      variant="flat"
-                      onPress={() => removeStage(stage.id)}
-                      className="h-7 rounded-bh-md border border-white/[0.08] bg-transparent px-3 text-[12px] text-bh-fg-3 hover:border-bh-danger hover:text-bh-danger"
-                    >
-                      {t("coachApply.step2.removeCareerItem")}
-                    </Button>
-                  </div>
-                  <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-2">
-                    <FormField
-                      id={`stage-club-${stage.id}`}
-                      isRequired
-                      label={t("coachApply.step2.clubLabel")}
-                      placeholder={t("coachApply.step2.clubPlaceholder")}
-                      value={stage.club}
-                      onChange={(e) => patchStage(stage.id, { club: e.target.value })}
-                    />
-                    <Select
-                      aria-label="Roles en esta etapa"
-                      label="Roles en esta etapa (hasta 3)"
-                      labelPlacement="outside"
-                      variant="flat"
-                      selectionMode="multiple"
-                      placeholder="Ej Entrenador, Analista, Scout"
-                      selectedKeys={stage.roles}
-                      onSelectionChange={(keys) => {
-                        const arr = Array.from(keys)
-                          .filter(isStaffRole)
-                          .slice(0, MAX_STAGE_ROLES);
-                        patchStage(stage.id, { roles: arr });
-                      }}
-                      classNames={bhSelectClassNames}
-                    >
-                      {STAFF_ROLES.map((r) => (
-                        <SelectItem key={r}>{tRole(`roles.${r}`)}</SelectItem>
-                      ))}
-                    </Select>
-                  </div>
-                  {/* Cargo libre opcional (caption), ej "DT principal". */}
-                  <FormField
-                    id={`stage-role-${stage.id}`}
-                    label={t("coachApply.step2.roleTitleLabel")}
-                    placeholder={t("coachApply.step2.roleTitlePlaceholder")}
-                    value={stage.roleTitle}
-                    onChange={(e) => patchStage(stage.id, { roleTitle: e.target.value })}
-                  />
-                  <div className="grid auto-rows-fr gap-3 grid-cols-1 sm:grid-cols-3">
-                    <FormField
-                      id={`stage-division-${stage.id}`}
-                      label={t("coachApply.step2.divisionLabel")}
-                      placeholder={t("coachApply.step2.divisionPlaceholder")}
-                      value={stage.division ?? ""}
-                      onChange={(e) => patchStage(stage.id, { division: e.target.value || null })}
-                    />
-                    <FormField
-                      id={`stage-start-${stage.id}`}
-                      type="number"
-                      label={t("coachApply.step2.startYearLabel")}
-                      placeholder={t("coachApply.step2.yearPlaceholder")}
-                      value={stage.startYear != null ? String(stage.startYear) : ""}
-                      onChange={(e) =>
-                        patchStage(stage.id, {
-                          startYear: e.target.value ? Number(e.target.value) : null,
-                        })
-                      }
-                    />
-                    <FormField
-                      id={`stage-end-${stage.id}`}
-                      type="number"
-                      label={t("coachApply.step2.endYearLabel")}
-                      placeholder={t("coachApply.step2.yearPlaceholder")}
-                      value={stage.endYear != null ? String(stage.endYear) : ""}
-                      onChange={(e) =>
-                        patchStage(stage.id, {
-                          endYear: e.target.value ? Number(e.target.value) : null,
-                        })
-                      }
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <Button
-            variant="flat"
-            onPress={() => setCareer((prev) => [...prev, newStage()])}
-            className="w-full rounded-bh-md border border-dashed border-white/[0.12] bg-transparent py-2 text-[13px] font-medium text-bh-fg-2 transition-colors duration-150 hover:border-white/[0.24] hover:text-bh-fg-1"
-          >
-            {t("coachApply.step2.addCareerItem")}
-          </Button>
-        </div>
+        {/* Trayectoria profesional: reusa el CareerEditor de players con el
+            selector de "tipo de experiencia" (club / trabajo / proyecto) + roles
+            estructurados por etapa. Overlaps permitidos (warning no-bloqueante).
+            Sin el "Cargo" libre por etapa (legacy, ya cubierto por roles[]). */}
+        <CareerEditor
+          items={career}
+          onChange={setCareer}
+          optional
+          showCurrentToggle={false}
+          showRoles
+          showExperienceKind
+          allowOverlap
+          onRequestRemoveCurrent={() => setTeam(null)}
+        />
 
         {/* Licencias declaradas */}
         <div className="grid gap-4 rounded-bh-lg border border-white/[0.08] bg-bh-surface-1 p-5">

@@ -522,7 +522,11 @@
       "confirmStage": "Confirmar etapa",
       "remove": "Eliminar",
       "rolesLabel": "Roles en esta etapa (hasta 3)",
-      "rolesPlaceholder": "Ej: Entrenador, Analista, Scout"
+      "rolesPlaceholder": "Ej: Entrenador, Analista, Scout",
+      "experienceKindLabel": "Tipo de experiencia",
+      "experienceKindPlaceholder": "Elegí el tipo",
+      "orgNameLabel": "Nombre",
+      "orgNamePlaceholder": "Ej: Federación, academia, proyecto…"
     },
     "rowRead": {
       "chipProposed": "Propuesto",

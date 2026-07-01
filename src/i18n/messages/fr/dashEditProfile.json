@@ -522,7 +522,11 @@
       "confirmStage": "Confirmer l'étape",
       "remove": "Supprimer",
       "rolesLabel": "Rôles à cette étape (jusqu’à 3)",
-      "rolesPlaceholder": "Ex : Entraîneur, Analyste, Recruteur"
+      "rolesPlaceholder": "Ex : Entraîneur, Analyste, Recruteur",
+      "experienceKindLabel": "Type d'expérience",
+      "experienceKindPlaceholder": "Choisissez le type",
+      "orgNameLabel": "Nom",
+      "orgNamePlaceholder": "Ex. : Fédération, académie, projet…"
     },
     "rowRead": {
       "chipProposed": "Proposé",

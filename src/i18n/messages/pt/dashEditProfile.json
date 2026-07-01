@@ -522,7 +522,11 @@
       "confirmStage": "Confirmar etapa",
       "remove": "Excluir",
       "rolesLabel": "Funções nesta etapa (até 3)",
-      "rolesPlaceholder": "Ex: Treinador, Analista, Observador"
+      "rolesPlaceholder": "Ex: Treinador, Analista, Observador",
+      "experienceKindLabel": "Tipo de experiência",
+      "experienceKindPlaceholder": "Escolha o tipo",
+      "orgNameLabel": "Nome",
+      "orgNamePlaceholder": "Ex: Federação, academia, projeto…"
     },
     "rowRead": {
       "chipProposed": "Proposto",

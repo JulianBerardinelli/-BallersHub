@@ -1,7 +1,11 @@
 // app/api/onboarding/coach/submit/route.ts
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { normalizeStaffRoleSelection, normalizeStageRoles } from "@/lib/staff/roles";
+import {
+  normalizeStaffRoleSelection,
+  normalizeStageRoles,
+  normalizeExperienceKind,
+} from "@/lib/staff/roles";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,17 +49,21 @@ type TeamFree = { mode: "free" };
 type CareerItemInput = {
   id: string;
   club: string;
-  // Cargo del DT en esa etapa, ej "DT principal", "Asistente técnico".
-  // camelCase: es el shape que emite el wizard (Step2Career.CoachCareerStage).
-  roleTitle?: string | null;
+  // Cargo libre por etapa (legacy). El wizard ya NO lo captura (roles[] lo
+  // cubre), pero lo aceptamos por si llega de un draft viejo.
+  role_title?: string | null;
   // Hasta 3 roles estructurados ocupados en esta etapa.
   roles?: string[] | null;
+  // Tipo de experiencia de la etapa: club/job/project. `job`/`project` = nombre
+  // libre, sin equipo verificado → NO se propone un team (evita el spam).
+  experience_kind?: string | null;
   division?: string | null;
   division_id?: string | null;
   secondary_division?: string | null;
   secondary_division_id?: string | null;
-  startYear?: number | null;
-  endYear?: number | null;
+  // snake_case: el shape que emite el CareerEditor compartido (RowDraft).
+  start_year?: number | null;
+  end_year?: number | null;
   team_id?: string | null;
   team_meta?: { slug?: string | null; country_code?: string | null; crest_url?: string | null } | null;
   proposed?: { country?: { code: string; name: string } | null; tmUrl?: string | null } | null;
@@ -231,24 +239,30 @@ export async function POST(req: Request) {
           : null;
 
       const stageRoles = normalizeStageRoles(c.roles);
+      const kind = normalizeExperienceKind(c.experience_kind);
+      // Solo las etapas `club` proponen un equipo (para crear/linkear en teams).
+      // `job`/`project` = nombre libre → NO se propone team (mata el spam de
+      // equipos pending que generaban las etapas de texto libre).
+      const proposesTeam = kind === "club" && !c.team_id;
 
       return {
         application_id: appId,
         club: c.club,
-        role_title: c.roleTitle ?? null,
+        experience_kind: kind,
+        role_title: c.role_title ?? null,
         roles: stageRoles.length ? stageRoles : null,
         division: c.division ?? null,
         division_id: realDivisionId,
         secondary_division_id: realSecondaryDivisionId,
-        start_year: c.startYear ?? null,
-        end_year: c.endYear ?? null,
-        team_id: c.team_id ?? null,
+        start_year: c.start_year ?? null,
+        end_year: c.end_year ?? null,
+        team_id: kind === "club" ? (c.team_id ?? null) : null,
 
-        // si NO hay team_id, guardamos propuesta para crear team pending luego
-        proposed_team_name: c.team_id ? null : c.club,
-        proposed_team_country: c.team_id ? null : cn,
-        proposed_team_country_code: c.team_id ? null : cc,
-        proposed_team_transfermarkt_url: c?.proposed?.tmUrl ?? null,
+        // si NO hay team_id y ES un club, guardamos propuesta para crear team pending luego
+        proposed_team_name: proposesTeam ? c.club : null,
+        proposed_team_country: proposesTeam ? cn : null,
+        proposed_team_country_code: proposesTeam ? cc : null,
+        proposed_team_transfermarkt_url: proposesTeam ? (c?.proposed?.tmUrl ?? null) : null,
 
         status: "pending" as const,
         created_by_user_id: user.id,
