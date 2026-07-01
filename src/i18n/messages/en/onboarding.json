@@ -30,10 +30,6 @@
         "title": "I'm a Manager / Agency",
         "description": "Manage your roster, validate profiles and represent talent."
       },
-      "staff": {
-        "title": "I'm a Coach / Scout / Director",
-        "comingSoon": "Coming soon."
-      },
       "coach": {
         "title": "Coaching Staff",
         "description": "Show your career, your licenses and lead your next project."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Coach · Step {step} of 3",
-      "title": "Coach",
+      "badge": "Coaching Staff · Step {step} of 3",
+      "title": "Coaching staff",
       "titleHighlight": "sign up",
       "step1Title": "Main details",
       "step1Sub": "Your personal information",
       "step2Title": "Career and licenses",
-      "step2Sub": "Clubs managed and qualifications",
+      "step2Sub": "Experience and qualifications",
       "step3Title": "Verification",
       "step3Sub": "Documents (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "Account email",
       "emailDescription": "This is your sign-in email",
       "fullNameLabel": "Full name",
-      "fullNamePlaceholder": "E.g. Marcelo Bielsa",
+      "fullNamePlaceholder": "E.g. Full name",
       "fullNameError": "Enter at least 3 characters.",
       "nationalityError": "Select at least one nationality.",
       "birthDateLabel": "Date of birth",
       "birthDateError": "Select your date of birth.",
-      "roleTitleLabel": "Role",
-      "roleTitlePlaceholder": "E.g. Football Manager",
+      "primaryRoleLabel": "Main role",
+      "primaryRolePlaceholder": "Choose your main role",
+      "primaryRoleError": "Choose your main role",
+      "secondaryRolesLabel": "Secondary roles",
+      "secondaryRolesHint": "(optional, up to 2)",
+      "secondaryRolesPlaceholder": "Other roles you perform",
+      "roleTitleLabel": "Specific title (optional)",
+      "roleTitlePlaceholder": "E.g. Head of academy coaching",
       "roleTitleError": "Enter your role (e.g. Football Manager).",
       "back": "Back",
       "continue": "Continue"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Remove",
       "careerEmpty": "You haven't added any experience yet.",
       "licensesTitle": "Declared licenses",
-      "licensesSubtitle": "List your coaching qualifications (UEFA Pro, AFA, etc.).",
+      "licensesSubtitle": "List your qualifications and certifications (UEFA Pro, AFA, etc.).",
       "licenseTitle": "License",
       "licenseTitlePlaceholder": "E.g. UEFA Pro",
       "licenseIssuer": "Issuing body",

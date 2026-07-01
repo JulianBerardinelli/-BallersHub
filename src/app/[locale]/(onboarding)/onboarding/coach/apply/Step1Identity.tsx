@@ -147,13 +147,13 @@ export default function Step1Identity({
               htmlFor="bh-primary-role"
               className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2"
             >
-              Rol principal <span className="text-bh-danger">*</span>
+              {t("coachApply.step1.primaryRoleLabel")} <span className="text-bh-danger">*</span>
             </label>
             <Select
               id="bh-primary-role"
-              aria-label="Rol principal"
+              aria-label={t("coachApply.step1.primaryRoleLabel")}
               variant="flat"
-              placeholder="Elegí tu oficio principal"
+              placeholder={t("coachApply.step1.primaryRolePlaceholder")}
               selectedKeys={primaryRole ? [primaryRole] : []}
               onSelectionChange={(keys) => {
                 const next = Array.from(keys)[0];
@@ -163,7 +163,7 @@ export default function Step1Identity({
                 setTouched((p) => ({ ...p, primaryRole: true }));
               }}
               isInvalid={primaryRoleInvalid}
-              errorMessage="Elegí tu rol principal"
+              errorMessage={t("coachApply.step1.primaryRoleError")}
               classNames={bhSelectClassNames}
             >
               {STAFF_ROLE_GROUPS.map((g) => (
@@ -181,14 +181,14 @@ export default function Step1Identity({
               htmlFor="bh-secondary-roles"
               className="text-[11px] font-semibold uppercase tracking-[0.08em] text-bh-fg-2"
             >
-              Roles secundarios <span className="normal-case text-bh-fg-4">(opcional, hasta 2)</span>
+              {t("coachApply.step1.secondaryRolesLabel")} <span className="normal-case text-bh-fg-4">{t("coachApply.step1.secondaryRolesHint")}</span>
             </label>
             <Select
               id="bh-secondary-roles"
-              aria-label="Roles secundarios"
+              aria-label={t("coachApply.step1.secondaryRolesLabel")}
               variant="flat"
               selectionMode="multiple"
-              placeholder="Otros oficios que ejercés"
+              placeholder={t("coachApply.step1.secondaryRolesPlaceholder")}
               selectedKeys={secondaryRoles}
               disabledKeys={primaryRole ? [primaryRole] : []}
               onSelectionChange={(keys) => {

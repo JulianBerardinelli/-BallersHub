@@ -30,10 +30,6 @@
         "title": "Sono un Manager / Agenzia",
         "description": "Gestisci la tua rosa, valida i profili e rappresenta i talenti."
       },
-      "staff": {
-        "title": "Staff Tecnico / Scout / Dirigente",
-        "comingSoon": "Prossimamente."
-      },
       "coach": {
         "title": "Staff Tecnico",
         "description": "Mostra la tua carriera, le tue licenze e guida il tuo prossimo progetto."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Allenatore · Passo {step} di 3",
+      "badge": "Staff Tecnico · Passo {step} di 3",
       "title": "Registrazione",
-      "titleHighlight": "allenatore",
+      "titleHighlight": "staff tecnico",
       "step1Title": "Dati principali",
       "step1Sub": "Le tue informazioni personali",
       "step2Title": "Carriera e licenze",
-      "step2Sub": "Club allenati e qualifiche",
+      "step2Sub": "Esperienza e qualifiche",
       "step3Title": "Verifica",
       "step3Sub": "Documenti (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "Email dell'account",
       "emailDescription": "Questa è la tua email di accesso",
       "fullNameLabel": "Nome completo",
-      "fullNamePlaceholder": "Es: Marcelo Bielsa",
+      "fullNamePlaceholder": "Es: Nome e cognome",
       "fullNameError": "Inserisci almeno 3 caratteri.",
       "nationalityError": "Seleziona almeno una nazionalità.",
       "birthDateLabel": "Data di nascita",
       "birthDateError": "Seleziona la tua data di nascita.",
-      "roleTitleLabel": "Ruolo",
-      "roleTitlePlaceholder": "Es: Allenatore",
+      "primaryRoleLabel": "Ruolo principale",
+      "primaryRolePlaceholder": "Scegli il tuo ruolo principale",
+      "primaryRoleError": "Scegli il tuo ruolo principale",
+      "secondaryRolesLabel": "Ruoli secondari",
+      "secondaryRolesHint": "(opzionale, fino a 2)",
+      "secondaryRolesPlaceholder": "Altri ruoli che ricopri",
+      "roleTitleLabel": "Titolo specifico (opzionale)",
+      "roleTitlePlaceholder": "Es: Responsabile settore giovanile",
       "roleTitleError": "Indica il tuo ruolo (es: Allenatore).",
       "back": "Indietro",
       "continue": "Continua"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Rimuovi",
       "careerEmpty": "Non hai ancora aggiunto nessuna esperienza.",
       "licensesTitle": "Licenze dichiarate",
-      "licensesSubtitle": "Indica le tue qualifiche da allenatore (UEFA Pro, AFA, ecc.).",
+      "licensesSubtitle": "Indica le tue qualifiche e certificazioni (UEFA Pro, AFA, ecc.).",
       "licenseTitle": "Licenza",
       "licenseTitlePlaceholder": "Es: UEFA Pro",
       "licenseIssuer": "Ente emittente",

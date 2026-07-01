@@ -30,10 +30,6 @@
         "title": "Ich bin Manager / Agentur",
         "description": "Verwalten Sie Ihren Kader, validieren Sie Profile und vertreten Sie Talente."
       },
-      "staff": {
-        "title": "Ich bin Trainer / Scout / Funktionär",
-        "comingSoon": "Demnächst verfügbar."
-      },
       "coach": {
         "title": "Trainerstab",
         "description": "Präsentieren Sie Ihren Werdegang, Ihre Lizenzen und leiten Sie Ihr nächstes Projekt."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Trainer · Schritt {step} von 3",
+      "badge": "Trainerstab · Schritt {step} von 3",
       "title": "Anmeldung als",
-      "titleHighlight": "Trainer",
+      "titleHighlight": "Trainerstab",
       "step1Title": "Hauptdaten",
       "step1Sub": "Ihre persönlichen Informationen",
       "step2Title": "Werdegang und Lizenzen",
-      "step2Sub": "Betreute Vereine und Qualifikationen",
+      "step2Sub": "Werdegang und Qualifikationen",
       "step3Title": "Verifizierung",
       "step3Sub": "Dokumente (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "E-Mail des Kontos",
       "emailDescription": "Dies ist Ihre Anmelde-E-Mail",
       "fullNameLabel": "Vollständiger Name",
-      "fullNamePlaceholder": "Z. B.: Marcelo Bielsa",
+      "fullNamePlaceholder": "Z. B.: Vor- und Nachname",
       "fullNameError": "Geben Sie mindestens 3 Zeichen ein.",
       "nationalityError": "Wählen Sie mindestens eine Nationalität aus.",
       "birthDateLabel": "Geburtsdatum",
       "birthDateError": "Wählen Sie Ihr Geburtsdatum aus.",
-      "roleTitleLabel": "Funktion",
-      "roleTitlePlaceholder": "Z. B.: Cheftrainer",
+      "primaryRoleLabel": "Hauptrolle",
+      "primaryRolePlaceholder": "Wähle deinen Hauptberuf",
+      "primaryRoleError": "Wähle deine Hauptrolle",
+      "secondaryRolesLabel": "Weitere Rollen",
+      "secondaryRolesHint": "(optional, bis zu 2)",
+      "secondaryRolesPlaceholder": "Weitere Tätigkeiten, die du ausübst",
+      "roleTitleLabel": "Spezifischer Titel (optional)",
+      "roleTitlePlaceholder": "Z. B.: Cheftrainer der Jugend",
       "roleTitleError": "Geben Sie Ihre Funktion an (z. B.: Cheftrainer).",
       "back": "Zurück",
       "continue": "Weiter"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Entfernen",
       "careerEmpty": "Sie haben noch keine Station hinzugefügt.",
       "licensesTitle": "Angegebene Lizenzen",
-      "licensesSubtitle": "Geben Sie Ihre Trainerqualifikationen an (UEFA Pro, AFA usw.).",
+      "licensesSubtitle": "Geben Sie Ihre Qualifikationen und Zertifikate an (UEFA Pro, AFA usw.).",
       "licenseTitle": "Lizenz",
       "licenseTitlePlaceholder": "Z. B.: UEFA Pro",
       "licenseIssuer": "Ausstellende Stelle",

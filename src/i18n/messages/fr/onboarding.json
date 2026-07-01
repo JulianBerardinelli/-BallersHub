@@ -30,10 +30,6 @@
         "title": "Je suis manager / agence",
         "description": "Gérez votre effectif, validez des profils et représentez des talents."
       },
-      "staff": {
-        "title": "Je suis entraîneur / recruteur / dirigeant",
-        "comingSoon": "Bientôt disponible."
-      },
       "coach": {
         "title": "Staff technique",
         "description": "Présentez votre parcours, vos licences et dirigez votre prochain projet."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Entraîneur · Étape {step} sur 3",
+      "badge": "Staff technique · Étape {step} sur 3",
       "title": "Inscription en tant que",
-      "titleHighlight": "entraîneur",
+      "titleHighlight": "staff technique",
       "step1Title": "Informations principales",
       "step1Sub": "Vos informations personnelles",
       "step2Title": "Parcours et licences",
-      "step2Sub": "Clubs dirigés et diplômes",
+      "step2Sub": "Expérience et diplômes",
       "step3Title": "Vérification",
       "step3Sub": "Documents (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "E-mail du compte",
       "emailDescription": "Il s'agit de votre e-mail de connexion",
       "fullNameLabel": "Nom complet",
-      "fullNamePlaceholder": "Ex. : Marcelo Bielsa",
+      "fullNamePlaceholder": "Ex. : Prénom et nom",
       "fullNameError": "Saisissez au moins 3 caractères.",
       "nationalityError": "Sélectionnez au moins une nationalité.",
       "birthDateLabel": "Date de naissance",
       "birthDateError": "Sélectionnez votre date de naissance.",
-      "roleTitleLabel": "Fonction",
-      "roleTitlePlaceholder": "Ex. : Entraîneur principal",
+      "primaryRoleLabel": "Rôle principal",
+      "primaryRolePlaceholder": "Choisissez votre métier principal",
+      "primaryRoleError": "Choisissez votre rôle principal",
+      "secondaryRolesLabel": "Rôles secondaires",
+      "secondaryRolesHint": "(optionnel, jusqu'à 2)",
+      "secondaryRolesPlaceholder": "Autres métiers que vous exercez",
+      "roleTitleLabel": "Titre spécifique (optionnel)",
+      "roleTitlePlaceholder": "Ex. : Responsable du centre de formation",
       "roleTitleError": "Indiquez votre fonction (ex. : Entraîneur principal).",
       "back": "Retour",
       "continue": "Continuer"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Retirer",
       "careerEmpty": "Vous n'avez encore ajouté aucune expérience.",
       "licensesTitle": "Licences déclarées",
-      "licensesSubtitle": "Indiquez vos diplômes d'entraîneur (UEFA Pro, AFA, etc.).",
+      "licensesSubtitle": "Indiquez vos diplômes et certifications (UEFA Pro, AFA, etc.).",
       "licenseTitle": "Licence",
       "licenseTitlePlaceholder": "Ex. : UEFA Pro",
       "licenseIssuer": "Organisme émetteur",
