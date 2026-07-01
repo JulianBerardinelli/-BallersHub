@@ -30,10 +30,6 @@
         "title": "Soy Manager / Agencia",
         "description": "Gestioná tu roster, validá perfiles y representá talento."
       },
-      "staff": {
-        "title": "Soy DT / Scout / Dirigente",
-        "comingSoon": "Próximamente."
-      },
       "coach": {
         "title": "Cuerpo Técnico",
         "description": "Mostrá tu trayectoria, tus licencias y dirigí tu próximo proyecto."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Entrenador · Paso {step} de 3",
+      "badge": "Cuerpo Técnico · Paso {step} de 3",
       "title": "Alta de",
-      "titleHighlight": "entrenador",
+      "titleHighlight": "cuerpo técnico",
       "step1Title": "Datos principales",
       "step1Sub": "Tu información personal",
       "step2Title": "Trayectoria y licencias",
-      "step2Sub": "Clubes dirigidos y titulaciones",
+      "step2Sub": "Experiencia y titulaciones",
       "step3Title": "Verificación",
       "step3Sub": "Documentos (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "Email de la cuenta",
       "emailDescription": "Este es tu email de acceso",
       "fullNameLabel": "Nombre completo",
-      "fullNamePlaceholder": "Ej: Marcelo Bielsa",
+      "fullNamePlaceholder": "Ej: Nombre y apellido",
       "fullNameError": "Ingresá al menos 3 caracteres.",
       "nationalityError": "Seleccioná al menos una nacionalidad.",
       "birthDateLabel": "Fecha de nacimiento",
       "birthDateError": "Seleccioná tu fecha de nacimiento.",
-      "roleTitleLabel": "Cargo",
-      "roleTitlePlaceholder": "Ej: Director Técnico",
+      "primaryRoleLabel": "Rol principal",
+      "primaryRolePlaceholder": "Elegí tu oficio principal",
+      "primaryRoleError": "Elegí tu rol principal",
+      "secondaryRolesLabel": "Roles secundarios",
+      "secondaryRolesHint": "(opcional, hasta 2)",
+      "secondaryRolesPlaceholder": "Otros oficios que ejercés",
+      "roleTitleLabel": "Título específico (opcional)",
+      "roleTitlePlaceholder": "Ej: DT principal de la cantera",
       "roleTitleError": "Indicá tu cargo (ej: Director Técnico).",
       "back": "Volver",
       "continue": "Continuar"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Quitar",
       "careerEmpty": "Todavía no agregaste ninguna experiencia.",
       "licensesTitle": "Licencias declaradas",
-      "licensesSubtitle": "Indicá tus titulaciones de entrenador (UEFA Pro, AFA, etc.).",
+      "licensesSubtitle": "Indicá tus titulaciones y certificaciones (UEFA Pro, AFA, etc.).",
       "licenseTitle": "Licencia",
       "licenseTitlePlaceholder": "Ej: UEFA Pro",
       "licenseIssuer": "Entidad emisora",

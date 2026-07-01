@@ -30,10 +30,6 @@
         "title": "Sou Empresário / Agência",
         "description": "Gerencie seu elenco, valide perfis e represente talentos."
       },
-      "staff": {
-        "title": "Sou Técnico / Olheiro / Dirigente",
-        "comingSoon": "Em breve."
-      },
       "coach": {
         "title": "Equipa Técnica",
         "description": "Mostre sua trajetória, suas licenças e comande seu próximo projeto."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Treinador · Passo {step} de 3",
+      "badge": "Equipa Técnica · Passo {step} de 3",
       "title": "Cadastro de",
-      "titleHighlight": "treinador",
+      "titleHighlight": "equipa técnica",
       "step1Title": "Dados principais",
       "step1Sub": "Suas informações pessoais",
       "step2Title": "Trajetória e licenças",
-      "step2Sub": "Clubes que dirigiu e qualificações",
+      "step2Sub": "Experiência e qualificações",
       "step3Title": "Verificação",
       "step3Sub": "Documentos (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "E-mail da conta",
       "emailDescription": "Este é o seu e-mail de acesso",
       "fullNameLabel": "Nome completo",
-      "fullNamePlaceholder": "Ex: Marcelo Bielsa",
+      "fullNamePlaceholder": "Ex: Nome e sobrenome",
       "fullNameError": "Digite pelo menos 3 caracteres.",
       "nationalityError": "Selecione pelo menos uma nacionalidade.",
       "birthDateLabel": "Data de nascimento",
       "birthDateError": "Selecione sua data de nascimento.",
-      "roleTitleLabel": "Cargo",
-      "roleTitlePlaceholder": "Ex: Treinador",
+      "primaryRoleLabel": "Função principal",
+      "primaryRolePlaceholder": "Escolha sua função principal",
+      "primaryRoleError": "Escolha sua função principal",
+      "secondaryRolesLabel": "Funções secundárias",
+      "secondaryRolesHint": "(opcional, até 2)",
+      "secondaryRolesPlaceholder": "Outras funções que você exerce",
+      "roleTitleLabel": "Título específico (opcional)",
+      "roleTitlePlaceholder": "Ex: Coordenador da base",
       "roleTitleError": "Informe seu cargo (ex: Treinador).",
       "back": "Voltar",
       "continue": "Continuar"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Remover",
       "careerEmpty": "Você ainda não adicionou nenhuma experiência.",
       "licensesTitle": "Licenças declaradas",
-      "licensesSubtitle": "Informe suas qualificações de treinador (UEFA Pro, CBF, etc.).",
+      "licensesSubtitle": "Informe suas qualificações e certificações (UEFA Pro, CBF, etc.).",
       "licenseTitle": "Licença",
       "licenseTitlePlaceholder": "Ex: UEFA Pro",
       "licenseIssuer": "Entidade emissora",

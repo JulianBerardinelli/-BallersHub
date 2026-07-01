@@ -30,10 +30,6 @@
         "title": "Olen manageri / agentuuri",
         "description": "Hallinnoi kokoonpanoasi, vahvista profiileja ja edusta lahjakkuuksia."
       },
-      "staff": {
-        "title": "Valmennustiimi / skautti / johtaja",
-        "comingSoon": "Tulossa pian."
-      },
       "coach": {
         "title": "Valmennustiimi",
         "description": "Esittele uraasi, lisenssejäsi ja johda seuraavaa projektiasi."
@@ -182,13 +178,13 @@
   },
   "coachApply": {
     "header": {
-      "badge": "Valmentaja · Vaihe {step}/3",
+      "badge": "Valmennustiimi · Vaihe {step}/3",
       "title": "Rekisteröidy",
-      "titleHighlight": "valmentajaksi",
+      "titleHighlight": "valmennustiimiin",
       "step1Title": "Perustiedot",
       "step1Sub": "Henkilökohtaiset tietosi",
       "step2Title": "Ura ja lisenssit",
-      "step2Sub": "Valmennetut seurat ja tutkinnot",
+      "step2Sub": "Kokemus ja tutkinnot",
       "step3Title": "Vahvistus",
       "step3Sub": "Asiakirjat (KYC)"
     },
@@ -196,13 +192,19 @@
       "emailLabel": "Tilin sähköposti",
       "emailDescription": "Tämä on kirjautumissähköpostisi",
       "fullNameLabel": "Koko nimi",
-      "fullNamePlaceholder": "Esim. Marcelo Bielsa",
+      "fullNamePlaceholder": "Esim. Etu- ja sukunimi",
       "fullNameError": "Syötä vähintään 3 merkkiä.",
       "nationalityError": "Valitse vähintään yksi kansalaisuus.",
       "birthDateLabel": "Syntymäaika",
       "birthDateError": "Valitse syntymäaikasi.",
-      "roleTitleLabel": "Tehtävä",
-      "roleTitlePlaceholder": "Esim. Päävalmentaja",
+      "primaryRoleLabel": "Päärooli",
+      "primaryRolePlaceholder": "Valitse päätoimesi",
+      "primaryRoleError": "Valitse päärooli",
+      "secondaryRolesLabel": "Toissijaiset roolit",
+      "secondaryRolesHint": "(valinnainen, enintään 2)",
+      "secondaryRolesPlaceholder": "Muut tehtävät, joita hoidat",
+      "roleTitleLabel": "Tarkempi nimike (valinnainen)",
+      "roleTitlePlaceholder": "Esim. Akatemian päävalmentaja",
       "roleTitleError": "Ilmoita tehtäväsi (esim. Päävalmentaja).",
       "back": "Takaisin",
       "continue": "Jatka"
@@ -228,7 +230,7 @@
       "removeCareerItem": "Poista",
       "careerEmpty": "Et ole vielä lisännyt yhtään kokemusta.",
       "licensesTitle": "Ilmoitetut lisenssit",
-      "licensesSubtitle": "Ilmoita valmentajatutkintosi (UEFA Pro, AFA jne.).",
+      "licensesSubtitle": "Ilmoita tutkintosi ja sertifikaattisi (UEFA Pro, AFA jne.).",
       "licenseTitle": "Lisenssi",
       "licenseTitlePlaceholder": "Esim. UEFA Pro",
       "licenseIssuer": "Myöntävä taho",
