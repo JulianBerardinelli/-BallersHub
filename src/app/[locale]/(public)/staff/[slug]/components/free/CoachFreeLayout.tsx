@@ -511,8 +511,17 @@ async function Career({ data }: { data: CoachPortfolioData }) {
                         </a>
                       )}
                     </div>
-                    {c.roleLabels.length > 0 && (
+                    {(c.roleLabels.length > 0 || c.experienceKindLabel) && (
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {/* Badge de tipo de experiencia (job/project; club no lleva badge). */}
+                        {c.experienceKindLabel && (
+                          <span
+                            key={`${c.id}-kind`}
+                            className="rounded border border-[rgba(0,194,255,0.3)] bg-[rgba(0,194,255,0.1)] px-1.5 py-0.5 font-bh-mono text-[11px] font-semibold uppercase tracking-[0.02em] text-bh-blue"
+                          >
+                            {c.experienceKindLabel}
+                          </span>
+                        )}
                         {c.roleLabels.map((label, ri) => (
                           <span
                             key={`${c.id}-role-${ri}`}
